@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material
+  m_Name: New Material 1
   m_Shader: {fileID: -6465566751694194690, guid: e7ab1ea21bfb69341a6d794839cc0dee, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -73,12 +73,12 @@ Material:
     - _Hue: 0
     - _Opacity: 1
     - _Saturation: 1
-    - _Solid_Outline: 0
-    - _UsePixelOutlineAutoColor: 0
+    - _Solid_Outline: 1
+    - _UsePixelOutlineAutoColor: 1
     - _ZWrite: 0
     m_Colors:
     - White: {r: 1, g: 1, b: 1, a: 1}
-    - _Auto_Outline_Tint: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
+    - _Auto_Outline_Tint: {r: 0.41451585, g: 0.5790463, b: 0.6509434, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Main_Offset: {r: 0, g: 0, b: 0, a: 0}
     - _Main_Tiling: {r: 1, g: 1, b: 0, a: 0}
@@ -88,6 +88,6 @@ Material:
     - _Normal_Offset: {r: 0, g: 0, b: 0, a: 0}
     - _Outline_Color: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Solid_Outline_Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Solid_Outline_Color: {r: 0.380429, g: 0.4315408, b: 0.7830189, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
