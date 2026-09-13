@@ -16,7 +16,7 @@ using UnityEngine;
 public class StorySceneCursor
 {
     readonly List<List<NewScriptSceneData>> groups = new();
-    readonly StoryConditionEvaluator conditions;
+    readonly IConditionUtil conditions;
 
     int nextGroup;
 
@@ -26,7 +26,7 @@ public class StorySceneCursor
     /// <summary>자동 실행 대상 씬이 하나도 없는 날인지. 그런 날은 2부를 열지 않는다(Day 3).</summary>
     public bool IsEmpty => groups.Count == 0;
 
-    public StorySceneCursor(NewDayScriptBase script, StoryConditionEvaluator conditions)
+    public StorySceneCursor(NewDayScriptBase script, IConditionUtil conditions)
     {
         this.conditions = conditions;
 

@@ -23,8 +23,6 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
              "비우면 order·craft·serve 스텝에서 오류가 나고 그 자리에서 멈춘다.")]
     [SerializeField] MonoBehaviour craftGate;
 
-    [Inject] IPlayerDataReader playerDataReader;
-    [Inject] IPlayerDataWriter playerDataWriter;
     [Inject] ISoundManager soundManager;
 
     /// <summary>
@@ -33,11 +31,13 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     [Inject] ICutScenePlayer cutScenePlayer;
 
-    /// <summary>조건 평가기. 서빙 결과가 나오면 여기에 담겨 후속 조건이 읽는다.</summary>
-    public StoryConditionEvaluator Conditions { get; private set; }
-
-    /// <summary>effects 적용기.</summary>
-    public StoryEffectRunner Effects { get; private set; }
+    /// <summary>
+    /// 조건 평가기. 서빙 결과가 나오면 여기에 담겨 후속 조건이 읽는다.
+    ///
+    /// 루트 스코프에 하나만 있는 것을 주입받는다. 실외 스폰 조건과 같은 것을 쓴다 —
+    /// 같은 식이 곳에 따라 다르게 판정되지 않게 하려는 것이다.
+    /// </summary>
+    [Inject] IConditionUtil conditions;
 
     public async UniTask RunAsync()
     {
@@ -68,10 +68,11 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
             return;
         }
 
-        Conditions = new StoryConditionEvaluator(playerDataReader);
-        Effects = new StoryEffectRunner(playerDataWriter);
+        // 하루가 새로 시작하므로 지난 적용 기록을 비운다. 평가기는 루트 스코프에 하나뿐이라
+        // 비우지 않으면 같은 날을 다시 열었을 때 effects가 통째로 건너뛰어진다.
+        conditions.ResetAppliedTokens();
 
-        runner.Bind(storyPresenter, Conditions, Effects, craftGate as IStoryCraftGate, cutScenePlayer);
+        runner.Bind(storyPresenter, conditions, craftGate as IStoryCraftGate, cutScenePlayer);
 
         GameStateManager.Instance.GameFlow = EGameFlow.Bar;
         soundManager?.PlayBGM("BGM_bar_01", 1f, true);

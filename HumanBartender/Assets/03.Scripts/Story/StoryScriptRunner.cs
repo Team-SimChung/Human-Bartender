@@ -25,8 +25,7 @@ public class StoryScriptRunner : MonoBehaviour
     const string PlayerCharacterId = "luna";
 
     IStoryPresenter presenter;
-    StoryConditionEvaluator conditions;
-    StoryEffectRunner effects;
+    IConditionUtil conditions;
     IStoryCraftGate craftGate;
 
     /// <summary>
@@ -59,13 +58,11 @@ public class StoryScriptRunner : MonoBehaviour
     ICutScenePlayer cutScenePlayer;
 
     /// <summary>화면과 평가기를 연결한다. RunAsync 전에 반드시 불러야 한다.</summary>
-    public void Bind(IStoryPresenter storyPresenter, StoryConditionEvaluator conditionEvaluator,
-                     StoryEffectRunner effectRunner, IStoryCraftGate storyCraftGate,
-                     ICutScenePlayer cutScenePlayerImpl)
+    public void Bind(IStoryPresenter storyPresenter, IConditionUtil conditionEvaluator,
+                     IStoryCraftGate storyCraftGate, ICutScenePlayer cutScenePlayerImpl)
     {
         presenter = storyPresenter;
         conditions = conditionEvaluator;
-        effects = effectRunner;
         craftGate = storyCraftGate;
         cutScenePlayer = cutScenePlayerImpl;
     }
@@ -77,7 +74,7 @@ public class StoryScriptRunner : MonoBehaviour
     {
         script = dayScript;
 
-        if (presenter == null || conditions == null || effects == null)
+        if (presenter == null || conditions == null)
         {
             Debug.LogError("[Story] Bind가 먼저 불려야 합니다.");
             return;
@@ -192,7 +189,7 @@ public class StoryScriptRunner : MonoBehaviour
                 string target = await PlayChoiceAsync(scene, step, token);
 
                 // 선택지의 effects는 고른 항목의 것을 이미 적용했다. 스텝 자체의 effects는 그다음이다.
-                effects.Apply(step.Effects, $"{scene.Id}#{step.Seq}");
+                conditions.Set(step.Effects, $"{scene.Id}#{step.Seq}");
 
                 if (target != null) return (false, target);
 
@@ -203,7 +200,7 @@ public class StoryScriptRunner : MonoBehaviour
 
             // effects는 스텝을 확정한 순간 한 번만. 같은 스텝을 두 번 지나도 값이 두 번 움직이지 않게
             // 씬과 seq를 합친 것을 표로 쓴다.
-            effects.Apply(step.Effects, $"{scene.Id}#{step.Seq}");
+            conditions.Set(step.Effects, $"{scene.Id}#{step.Seq}");
         }
 
         return (false, null);
@@ -310,7 +307,7 @@ public class StoryScriptRunner : MonoBehaviour
 
         NewChoiceOptionData chosen = choices[picked];
 
-        effects.Apply(chosen.Effects, $"{scene.Id}#{step.Seq}#choice{picked}");
+        conditions.Set(chosen.Effects, $"{scene.Id}#{step.Seq}#choice{picked}");
 
         Debug.Log($"[Story] 선택 — {step.Arg}[{picked}] \"{chosen.Text?.Ko}\"" +
                   (string.IsNullOrEmpty(chosen.Goto) ? "" : $" → {chosen.Goto}"));

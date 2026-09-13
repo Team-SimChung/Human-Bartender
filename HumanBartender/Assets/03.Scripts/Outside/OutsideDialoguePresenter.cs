@@ -24,32 +24,13 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter
             dialoguePanel.SetActive(false);
     }
 
-    public void ShowChoices(ChoiceData[] choices, Action<ChoiceData> onSelected)
-    {
-        choiceManager.ShowChoice(new ChoiceSelectData(choices, onSelected));
-    }
-
     /// <summary>아웃사이드 전용 선택지 UI 표시</summary>
     public void ShowOutsideChoices(NewStreetOptionData[] options, Action<NewStreetOptionData> onSelected)
     {
         choiceManager.ShowOutsideChoice(options, onSelected);
     }
 
-    /// <summary>대사창을 열고 타이핑 효과로 텍스트를 표시한다. (기존 DialogueData 기반)</summary>
-    public async UniTask ShowDialogueAsync(DialogueData dialogueData, CancellationToken token)
-    {
-        dialoguePanel.SetActive(true);
-        typer.ClearText();
-
-        await typer.StartType(new TypingData(
-            dialogueData.Text,
-            dialogueData.Speaker,
-            Vector2.zero,
-            Color.white,
-            dialogueData.Speaker == PLAYER_ID));
-    }
-
-    /// <summary>Step 데이터 기반 4개 인자 대사 출력</summary>
+    /// <summary>Step 하나의 대사를 타이핑 효과로 표시한다.</summary>
     public async UniTask ShowDialogueAsync(string actor, string text, string arg, CancellationToken token)
     {
         dialoguePanel.SetActive(true);
@@ -66,11 +47,6 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter
     public void SkipTyping()
     {
         typer.OnScreenClick();
-    }
-
-    public void ShowSystemAction()
-    {
-        dialoguePanel.SetActive(false);
     }
 
     public void EndScene()

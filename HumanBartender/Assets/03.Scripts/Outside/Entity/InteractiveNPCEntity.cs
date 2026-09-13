@@ -1,8 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// 대사를 가진 NPC 엔티티의 베이스. InteractiveObjectEntity와 로직이 거의 동일하게 중복 구현되어 있으니
-/// 함께 참고할 것. 여러 FlowData 중 하나를 순환(또는 조건부)으로 재생한다.
+/// 대사를 가진 NPC 엔티티의 베이스. 상호작용 오브젝트도 이 클래스를 쓴다 —
+/// 따로 있던 InteractiveObjectEntity는 구형 대사(flows) 전용이라 걷어냈다.
+///
+/// 대사는 InteractiveEntityManager가 street 데이터에서 찾아 steps에 꽂아 준다.
 /// </summary>
 public class InteractiveNPCEntity : InteractiveEntity
 {

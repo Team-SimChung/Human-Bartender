@@ -1,38 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-/// <summary>선택지 표시에 필요한 데이터와 선택 시 호출할 콜백을 묶은 컨테이너.</summary>
-[System.Serializable]
-public class ChoiceSelectData
-{
-    public ChoiceData[] data;
-    public Action<ChoiceData> callBackEvent;
-
-    public ChoiceSelectData()
-    {
-    }
-
-    public ChoiceSelectData(ChoiceData[] data, Action<ChoiceData> callBackEvent)
-    {
-        this.data = data;
-        this.callBackEvent = callBackEvent;
-    }
-}
-
 /// <summary>
-/// 선택지 UI 패널들을 관리한다. 각 선택지의 조건(호감도/스킬/재화/플래그)을 검사해 조건 미충족 시 숨긴다.
+/// 선택지 UI 패널들을 관리한다. 조건 판정은 부르는 쪽이 끝내고 넘긴다 —
+/// 2부는 when DSL(IConditionUtil)로, 실외는 스텝의 options를 그대로 그린다.
 /// </summary>
 public class UIDialogueChoiceView : MonoBehaviour
 {
-    [SerializeField] private PlayerDataSO playerDataAsset;
     [SerializeField] private GameObject choicesPanel;
     [SerializeField] private List<ChoicePanel> choicePanels = new();
 
-    private IPlayerDataReader PlayerData => playerDataAsset;
 
-    private ChoiceData[] curChoiceData;
     private NewStreetOptionData[] curOutsideOptions;
 
     // GameStateManager의 언어 설정을 실시간 참조
@@ -48,42 +27,6 @@ public class UIDialogueChoiceView : MonoBehaviour
     void Update()
     {
 
-    }
-
-    /// <summary>
-    /// 선택지 패널들을 초기화하고, 조건을 만족하는 선택지만 텍스트를 채워 활성화한 뒤 클릭 콜백을 등록한다.
-    /// </summary>
-    public void ShowChoice(ChoiceSelectData data)
-    {
-        Debug.Log("선택지 UI 표시 중...");
-
-        choicesPanel.SetActive(true);
-
-        curChoiceData = data.data;
-
-        for (int i = 0; i < choicePanels.Count; i++)
-            choicePanels[i].SetActive(false);
-
-        for (int i = 0; i < curChoiceData.Length; i++)
-        {
-            if (curChoiceData[i].Condition != null)
-            {
-                var condition = curChoiceData[i].Condition.Value;
-
-                bool isConditionMet = condition.Operator == "and"
-                    ? condition.Checks.All(item => CheckCondition(item))
-                    : condition.Checks.Any(item => CheckCondition(item));
-
-                if (!isConditionMet) continue;
-            }
-
-            int num = i;
-            choicePanels[i].SetPanelText(curChoiceData[i].Text);
-            choicePanels[i].GetButton().onClick.RemoveAllListeners();
-            choicePanels[i].GetButton().onClick.AddListener(() => data.callBackEvent.Invoke(curChoiceData[num]));
-            choicePanels[i].GetButton().onClick.AddListener(() => ChoiceSelect(num));
-            choicePanels[i].SetActive(true);
-        }
     }
 
     /// <summary>
@@ -135,33 +78,9 @@ public class UIDialogueChoiceView : MonoBehaviour
     }
 
     /// <summary>
-    /// 선택지 노출 조건 하나를 검사한다.
-    ///
-    /// 호감도·숙련도 등급 분기는 걷어냈다. 등급표(character_tiers/skill_tiers)를 쓰던 자리인데
-    /// 그 표를 물어보는 데이터(min_tier)가 어디에도 없었다. 2부는 when DSL로 따로 판정한다.
-    /// </summary>
-    public bool CheckCondition(ChoiceConditionCheck checkType)
-    {
-        switch (checkType.Type)
-        {
-            case EConditionCheckType.None:
-                break;
-
-            case EConditionCheckType.Money:
-                return PlayerData.HasEnoughMoney(checkType.minAmount.Value);
-
-            case EConditionCheckType.Flag:
-                //추후 작업
-                break;
-        }
-
-        return false;
-    }
-
-    /// <summary>
     /// 선택지를 띄우되 고를 수 없는 항목을 감추지 않고 비활성으로 남긴다.
     ///
-    /// 위의 ShowChoice(ChoiceSelectData)는 조건에 걸린 항목을 아예 그리지 않는데, 2부 대본은 그것을
+    /// 조건에 걸린 항목을 감추지 않고 회색으로 남긴다. 2부 대본은 그것을
     /// 회색으로 두고 왜 못 고르는지를 대신 보여 준다(2부 운영 명세 §12.4). 무엇을 놓쳤는지 보이지
     /// 않으면 조건이 없는 것과 같기 때문이다.
     ///

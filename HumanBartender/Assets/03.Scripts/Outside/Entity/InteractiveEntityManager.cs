@@ -26,7 +26,7 @@ public struct TestFlag
 
 /// <summary>
 /// 실외 씬의 모든 상호작용 엔티티(오브젝트/NPC/트리거)를 현재 날짜·게임 흐름·조건에 맞춰
-/// 스폰 여부와 표시 가능한 대사(FlowData)를 매 씬 진입 시 갱신하는 총괄 매니저.
+/// 스폰 여부와 표시할 대사(street 데이터의 steps)를 매 씬 진입 시 갱신하는 총괄 매니저.
 /// </summary>
 public class InteractiveEntityManager : MonoBehaviour
 {
@@ -227,61 +227,4 @@ public class InteractiveEntityManager : MonoBehaviour
             onceHistory.Add(sceneId);
     }
 
-    /// <summary>
-    /// OutsideCondition(오브젝트/NPC 스폰 조건용) 하나를 검사한다. null이면 항상 통과.
-    /// 아래 Condition 오버로드와 조건 검사 로직이 동일하게 중복 구현되어 있으니 함께 참고할 것.
-    /// </summary>
-    public bool CheckCondition(OutsideCondition? checkType)
-    {
-        if (checkType == null) return true;
-
-        switch (checkType.Value.Type)
-        {
-            case EConditionCheckType.None:
-                break;
-
-            case EConditionCheckType.Affinity:
-                int characterTier = playerData.GetCurCharacterAffinityValue(checkType.Value.Character);
-                int targettier = checkType.Value.Min;
-                return characterTier >= targettier;
-
-            case EConditionCheckType.Skill:
-                return playerData.GetSkillValue() >= checkType.Value.Min;
-
-            case EConditionCheckType.Money:
-                return playerData.HasEnoughMoney(checkType.Value.Min);
-
-            case EConditionCheckType.Flag:
-                return playerData.CheckFlag(checkType.Value.FlagId) == checkType.Value.BValue;
-        }
-
-        return false;
-    }
-    /// <summary>Condition(대사 FlowData 조건용) 하나를 검사한다. null이면 항상 통과.</summary>
-    public bool CheckCondition(Condition? checkType)
-    {
-        if (checkType == null) return true;
-
-        switch (checkType.Value.Type)
-        {
-            case EConditionCheckType.None:
-                break;
-
-            case EConditionCheckType.Affinity:
-                int characterTier = playerData.GetCurCharacterAffinityValue(checkType.Value.Character);
-                int targettier = checkType.Value.Min;
-                return characterTier >= targettier;
-
-            case EConditionCheckType.Skill:
-                return playerData.GetSkillValue() >= checkType.Value.Min;
-
-            case EConditionCheckType.Money:
-                return playerData.HasEnoughMoney(checkType.Value.Min);
-
-            case EConditionCheckType.Flag:
-                return playerData.CheckFlag(checkType.Value.FlagId) == checkType.Value.BValue;
-        }
-
-        return false;
-    }
 }
