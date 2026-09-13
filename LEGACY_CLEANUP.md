@@ -1,5 +1,6 @@
 # 레거시 데이터 정리
 
+
 - **브랜치** `RemoveRegacy`
 - **커밋** `a0f828c` — 레거시 정리. 1차 (기준: `e1b3808`)
 - **규모** 185 files changed, 566 insertions(+), 30,972 deletions(-)
