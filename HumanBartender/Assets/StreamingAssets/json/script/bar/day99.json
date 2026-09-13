@@ -443,7 +443,7 @@
       "seq": 8,
       "trigger": "manual",
       "when": null,
-      "title": "테스트 — fx·sfx·컷씬",
+      "title": "테스트 — fx·sfx",
       "skippable": false,
       "group": null,
       "steps": [
@@ -475,17 +475,6 @@
           "actor": null,
           "dialogue_id": null,
           "arg": "hard_cut",
-          "text": null,
-          "when": null,
-          "effects": null,
-          "sync": "wait"
-        },
-        {
-          "seq": 4,
-          "type": "timeline",
-          "actor": null,
-          "dialogue_id": null,
-          "arg": "tl_catmilk",
           "text": null,
           "when": null,
           "effects": null,
@@ -1556,8 +1545,8 @@
       {
         "seq": 2,
         "text": {
-          "ko": "fx · sfx · 컷씬",
-          "en": "fx · sfx · cutscene"
+          "ko": "fx · sfx",
+          "en": "fx · sfx"
         },
         "when": null,
         "effects": null,

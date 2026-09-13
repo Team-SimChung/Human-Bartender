@@ -2083,17 +2083,6 @@
           "sync": "wait"
         },
         {
-          "seq": 104,
-          "type": "timeline",
-          "actor": null,
-          "dialogue_id": null,
-          "arg": "tl_bubi_meet",
-          "text": null,
-          "when": null,
-          "effects": null,
-          "sync": "wait"
-        },
-        {
           "seq": 105,
           "type": "enter",
           "actor": "bubi",
@@ -3700,17 +3689,6 @@
           "text": null,
           "when": "grade >= good",
           "effects": "flag.bubi_affinity_high = true",
-          "sync": "wait"
-        },
-        {
-          "seq": 69,
-          "type": "timeline",
-          "actor": null,
-          "dialogue_id": null,
-          "arg": "tl_catmilk",
-          "text": null,
-          "when": "grade < good",
-          "effects": null,
           "sync": "wait"
         },
         {
