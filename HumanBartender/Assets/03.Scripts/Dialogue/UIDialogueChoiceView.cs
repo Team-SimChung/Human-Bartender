@@ -12,7 +12,9 @@ public class UIDialogueChoiceView : MonoBehaviour
     [SerializeField] private List<ChoicePanel> choicePanels = new();
 
 
-    private NewStreetOptionData[] curOutsideOptions;
+    // 실행 중 선택 콜백만 쓰는 임시 상태다. 도메인 리로드 때 Unity가 이 재귀적인
+    // result_steps/options 그래프를 백업하면 직렬화 깊이 초과와 오브젝트 로드 경고가 난다.
+    [NonSerialized] private NewStreetOptionData[] curOutsideOptions;
 
     // GameStateManager의 언어 설정을 실시간 참조
     public ELanguage CurrentLanguage => GameStateManager.Instance != null

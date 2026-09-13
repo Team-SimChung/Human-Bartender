@@ -86,6 +86,12 @@ public class UIDialogueTextView : MonoBehaviour
     /// </summary>
     public async UniTask StartType(TypingData data, string cocktailName = null)
     {
+        if (data == null)
+        {
+            Debug.LogError("[DialogueTextView] 타이핑 데이터가 없어 대사를 표시하지 못했습니다.");
+            return;
+        }
+
         var type = data.bubbleType;
 
         if (type == DialogueBubbleType.Auto)
@@ -103,10 +109,17 @@ public class UIDialogueTextView : MonoBehaviour
             _ => customerSpeechBubble
         };
 
+        if (targetBubble == null)
+        {
+            Debug.LogError($"[DialogueTextView] '{type}' 말풍선이 연결되어 있지 않습니다.");
+            return;
+        }
+
         if (type == DialogueBubbleType.Customer)
             SetBubblePosition(data.speakerPos);
 
-        await TypeSentenceTMP(curTypingData, cocktailName);
+        curTypingData = data;
+        await TypeSentenceTMP(data, cocktailName);
     }
 
     /// <summary>캐릭터의 월드 좌표를 화면 좌표로 변환해 말풍선 위치를 캐릭터 머리 위(subOffset)로 맞춘다.</summary>
@@ -174,7 +187,7 @@ public class UIDialogueTextView : MonoBehaviour
     /// </summary>
     public async UniTask TypeSentenceTMP(TypingData data, string cocktailName = null)
     {
-        if (!(data.str.Length > 0)) return;
+        if (string.IsNullOrEmpty(data?.str)) return;
 
         StopTyping();
         typingCts = new CancellationTokenSource();

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// 2부 주문자 앞에 잠깐 생기는 서빙 자리.
@@ -11,10 +13,49 @@ using UnityEngine.EventSystems;
 ///
 /// 받아들일 잔인지는 판단하지 않는다. 여기 놓였다는 것 자체가 주문자에게 냈다는 뜻이다.
 /// </summary>
-[RequireComponent(typeof(RectTransform))]
+[RequireComponent(typeof(RectTransform), typeof(Image))]
 public class StoryServeDropTarget : MonoBehaviour, IDropHandler
 {
+    static readonly HashSet<StoryServeDropTarget> activeTargets = new();
+
     Action<CraftedDrink> onServed;
+    Image targetGraphic;
+
+    void Awake()
+    {
+        targetGraphic = GetComponent<Image>();
+        targetGraphic.raycastTarget = false;
+    }
+
+    void OnEnable()
+    {
+        // 플레이 중 스크립트 리로드 뒤에는 비직렬화 필드가 비어 있을 수 있으므로 다시 연결한다.
+        if (targetGraphic == null) targetGraphic = GetComponent<Image>();
+        targetGraphic.raycastTarget = false;
+        activeTargets.Add(this);
+    }
+
+    void OnDisable()
+    {
+        activeTargets.Remove(this);
+        if (targetGraphic != null) targetGraphic.raycastTarget = false;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetActiveTargets() => activeTargets.Clear();
+
+    /// <summary>
+    /// 완성 잔을 집은 동안에만 활성 서빙 자리가 포인터를 받는다.
+    /// 평소에도 켜 두면 잔 위에 겹친 서빙 자리가 OnBeginDrag를 가로챈다.
+    /// </summary>
+    public static void SetRaycastEnabledWhileDragging(bool enabled)
+    {
+        foreach (StoryServeDropTarget target in activeTargets)
+        {
+            if (target != null && target.targetGraphic != null)
+                target.targetGraphic.raycastTarget = enabled;
+        }
+    }
 
     /// <summary>잔이 놓였을 때 부를 곳을 건다. 한 번 놓이면 스스로 연결을 끊는다.</summary>
     public void Bind(Action<CraftedDrink> handler)

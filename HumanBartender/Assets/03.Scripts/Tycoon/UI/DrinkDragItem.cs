@@ -49,7 +49,9 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         trayIndex = rect.GetSiblingIndex();
 
         rect.SetParent(rootCanvas.transform, true);
+        rect.SetAsLastSibling();
         canvasGroup.blocksRaycasts = false; // 드롭존이 자기 자신에게 가려지지 않도록
+        StoryServeDropTarget.SetRaycastEnabledWhileDragging(true);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -59,6 +61,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        StoryServeDropTarget.SetRaycastEnabledWhileDragging(false);
         canvasGroup.blocksRaycasts = true;
 
         if (served)

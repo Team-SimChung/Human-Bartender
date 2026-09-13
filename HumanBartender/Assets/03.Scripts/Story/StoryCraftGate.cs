@@ -197,7 +197,8 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
 
         var image = go.GetComponent<Image>();
         image.color = showServeZoneGuide ? serveZoneColor : new Color(0f, 0f, 0f, 0f);
-        image.raycastTarget = true; // 색이 투명해도 드롭은 받아야 한다.
+        // 평소에는 잔 클릭을 가리지 않고, 잔을 집은 동안에만 StoryServeDropTarget이 켠다.
+        image.raycastTarget = false;
 
         serveZone = go;
     }
