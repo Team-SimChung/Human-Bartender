@@ -28,7 +28,7 @@ public static class StirSceneSetup
     const string ScenePath = "Assets/00.Scenes/Stir.unity";
     const string FontAssetPath = "Assets/06.Fonts/NeoDunggeunmo SDF.asset";
     const string CraftStationDataPath = "Assets/03.Scripts/CraftLiquidData.asset";
-    const string CocktailDataSOPath = "Assets/SO/CocktailData.asset";
+    const string NewCocktailDataSOPath = "Assets/03.Scripts/DataNew/DataNewSO/NewCocktailDataSO.asset";
     const string BalanceDataSOPath = "Assets/03.Scripts/DataNew/DataNewSO/NewBalanceDataSO.asset";
     const string CraftServePath = "Assets/03.Scripts/Craft/CraftServe.asset";
     const string CraftRetryPath = "Assets/03.Scripts/Craft/CraftRetry.asset";
@@ -133,14 +133,14 @@ public static class StirSceneSetup
         roundedSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
         CraftStationData craftStationData = AssetDatabase.LoadAssetAtPath<CraftStationData>(CraftStationDataPath);
-        CocktailDataSO cocktailDataSO = AssetDatabase.LoadAssetAtPath<CocktailDataSO>(CocktailDataSOPath);
+        NewCocktailDataSO cocktailDataSO = AssetDatabase.LoadAssetAtPath<NewCocktailDataSO>(NewCocktailDataSOPath);
         NewBalanceDataSO balanceDataSO = AssetDatabase.LoadAssetAtPath<NewBalanceDataSO>(BalanceDataSOPath);
         VoidEvent craftServe = AssetDatabase.LoadAssetAtPath<VoidEvent>(CraftServePath);
         VoidEvent craftRetry = AssetDatabase.LoadAssetAtPath<VoidEvent>(CraftRetryPath);
 
         if (font == null) Debug.LogWarning($"[StirSceneSetup] 폰트를 찾지 못했습니다: {FontAssetPath}");
         if (craftStationData == null) Debug.LogWarning($"[StirSceneSetup] CraftStationData를 찾지 못했습니다: {CraftStationDataPath}");
-        if (cocktailDataSO == null) Debug.LogWarning($"[StirSceneSetup] CocktailDataSO를 찾지 못했습니다: {CocktailDataSOPath}");
+        if (cocktailDataSO == null) Debug.LogWarning($"[StirSceneSetup] NewCocktailDataSO를 찾지 못했습니다: {NewCocktailDataSOPath}");
         if (balanceDataSO == null) Debug.LogWarning($"[StirSceneSetup] NewBalanceDataSO를 찾지 못했습니다: {BalanceDataSOPath}");
 
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
@@ -831,7 +831,7 @@ public static class StirSceneSetup
     static StirManager CreateStirManager(
         Transform parent, StirGlassView glass, StirHudView hud, StirIceSwirl ice,
         Canvas buttonCanvas, TMP_Text drinkNameText,
-        CraftStationData craftStationData, CocktailDataSO cocktailDataSO, NewBalanceDataSO balanceDataSO,
+        CraftStationData craftStationData, NewCocktailDataSO cocktailDataSO, NewBalanceDataSO balanceDataSO,
         VoidEvent craftServe, VoidEvent craftRetry)
     {
         var go = new GameObject("Stir Manager");

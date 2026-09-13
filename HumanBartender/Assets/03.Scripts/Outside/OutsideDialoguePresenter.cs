@@ -10,7 +10,6 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter
 {
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private UIDialogueTextView typer;
-    [SerializeField] private DialogueTriggerManager triggerManager;
     [SerializeField] private UIDialogueChoiceView choiceManager;
     public EActivationMode playMode = EActivationMode.Interact;
     private const string PLAYER_ID = "luna";
@@ -19,13 +18,6 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter
     {
         return playMode;
     }
-    public async UniTask<string> ExecuteTriggerAsync(TriggerData? trigger)
-    {
-        typer.ClearText();
-        string id = await triggerManager.ExecuteTriggerAsync(trigger);
-        return id;
-    }
-
     public void HideDialogue()
     {
         if (dialoguePanel != null)

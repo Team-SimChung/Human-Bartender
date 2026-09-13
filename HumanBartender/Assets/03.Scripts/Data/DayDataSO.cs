@@ -29,24 +29,6 @@ public enum EDialogueType
     ConditionBranch,
 }
 
-/// <summary>컷씬 재생 방식을 나타내는 열거형.</summary>
-[JsonConverter(typeof(StringEnumConverter))]
-public enum ECutSceneType
-{
-    None,
-
-    [EnumMember(Value = "spriteOnce")]
-    SpriteOnce,
-
-    [EnumMember(Value = "spinece")]
-    SpineOnce,
-
-    [EnumMember(Value = "comic")]
-    Comic,
-
-    [EnumMember(Value = "outside")]
-    Outside,
-}
 
 [JsonConverter(typeof(StringEnumConverter))]
 public enum EConditionCheckType
@@ -147,7 +129,6 @@ public struct NextConditions
 
 public struct BranchData
 {
-    [JsonProperty("tier")] public EAffinityTier Tier { get; set; }
     [JsonProperty("goto")] public string Goto { get; set; }
 }
 
@@ -205,8 +186,6 @@ public struct TriggerDetailData
     [JsonProperty("craft_event_id")] public string CraftEventId { get; set; }
 
 
-    [JsonProperty("cutscene_id")] public string CutsceneId { get; set; }
-    [JsonProperty("cutscene_type")] public ECutSceneType CutsceneType { get; set; }
     [JsonProperty("camera_type")] public ECameraZoomType CameraType{ get; set; }
 
     [JsonProperty("effect_type")] public EEffectType EffectType { get; set; }

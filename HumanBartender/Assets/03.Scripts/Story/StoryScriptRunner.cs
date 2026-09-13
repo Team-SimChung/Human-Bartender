@@ -15,7 +15,7 @@ using UnityEngine;
 /// 공용 대화 시스템이 바 화면과 실외 화면을 IDialoguePresenter로 갈라 놓은 것과 같은 이유다.
 /// 대본을 걷는 방법은 어디서나 같지만 그리는 방법은 화면마다 다르다.
 ///
-/// 지금은 say·enter·exit·choice까지 그리고 나머지 스텝은 기록만 남긴다. 주문·제조·서빙은 다음 단계다.
+/// 지금은 say·enter·exit·choice·order·craft·serve·timeline을 실행하고 나머지 스텝은 기록만 남긴다.
 /// </summary>
 public class StoryScriptRunner : MonoBehaviour
 {
@@ -55,14 +55,19 @@ public class StoryScriptRunner : MonoBehaviour
     /// <summary>지금 돌고 있는 대본. 선택지의 goto가 가리키는 씬을 여기서 찾는다.</summary>
     NewDayScriptBase script;
 
+    /// <summary>그날의 연출을 재생하는 곳. timeline 스텝이 쓴다.</summary>
+    ICutScenePlayer cutScenePlayer;
+
     /// <summary>화면과 평가기를 연결한다. RunAsync 전에 반드시 불러야 한다.</summary>
     public void Bind(IStoryPresenter storyPresenter, StoryConditionEvaluator conditionEvaluator,
-                     StoryEffectRunner effectRunner, IStoryCraftGate storyCraftGate)
+                     StoryEffectRunner effectRunner, IStoryCraftGate storyCraftGate,
+                     ICutScenePlayer cutScenePlayerImpl)
     {
         presenter = storyPresenter;
         conditions = conditionEvaluator;
         effects = effectRunner;
         craftGate = storyCraftGate;
+        cutScenePlayer = cutScenePlayerImpl;
     }
 
     /// <summary>
@@ -250,6 +255,10 @@ public class StoryScriptRunner : MonoBehaviour
                 await ServeAsync(scene, step, token);
                 return;
 
+            case ENewStepType.Timeline:
+                await TimelineAsync(scene, step, token);
+                return;
+
             default:
                 // 아직 붙이지 않은 스텝. 조용히 지나가면 대본이 어디까지 왔는지 알 수 없어 남긴다.
                 Debug.Log($"[Story] (미구현) {step.Type} — {scene.Id}#{step.Seq} arg={step.Arg ?? "없음"}");
@@ -337,6 +346,55 @@ public class StoryScriptRunner : MonoBehaviour
             new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId), token);
 
         await WaitForAdvanceAsync(token);
+    }
+
+    // ── 연출 ────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// 컷씬 하나를 재생하고 끝날 때까지 기다린다. arg가 json/cutscenes.json의 컷씬 id다.
+    ///
+    /// 끝나면 화면을 비운다(ClearCutScene). 안 비우면 컷씬 그림이 남은 채로 다음 대사가 시작돼,
+    /// 대본상으로는 바로 돌아온 것인데 화면만 연출에 머문다.
+    ///
+    /// 재생에 실패해도 대본은 이어 간다. 연출 하나 때문에 그날 2부가 통째로 멈추면,
+    /// 빠진 것은 그림 한 컷인데 잃는 것은 하루 전체다.
+    /// </summary>
+    async UniTask TimelineAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(step.Arg))
+        {
+            Debug.LogError($"[Story] timeline 스텝에 컷씬 id(arg)가 없습니다: {scene.Id}#{step.Seq}");
+            return;
+        }
+
+        if (cutScenePlayer == null)
+        {
+            Debug.LogError($"[Story] 컷씬 재생기가 없어 '{step.Arg}'를 건너뜁니다: {scene.Id}#{step.Seq}");
+            return;
+        }
+
+        Debug.Log($"[Story] 컷씬 — {step.Arg} ({scene.Id}#{step.Seq})");
+
+        // 재생을 시작하기 전에만 취소를 본다. ICutScenePlayer는 토큰을 받지 않아서, 일단 시작한
+        // 연출은 자기 수명대로 끝난다 — 중간에 끊으려면 그쪽 인터페이스부터 손봐야 한다.
+        token.ThrowIfCancellationRequested();
+
+        try
+        {
+            await cutScenePlayer.PlayCutScene(step.Arg);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[Story] 컷씬 '{step.Arg}' 재생에 실패했습니다: {scene.Id}#{step.Seq}\n{e}");
+        }
+        finally
+        {
+            cutScenePlayer.ClearCutScene();
+        }
     }
 
     // ── 주문·제조·서빙 ──────────────────────────────────────────────────

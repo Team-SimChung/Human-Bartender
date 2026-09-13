@@ -4,10 +4,7 @@ public interface IPlayerDataReader
     int HasMoney();
     bool HasEnoughMoney(int cost);
 
-    EAffinityTier GetCurCharacterAffinityTier(string id);
     int GetCurCharacterAffinityValue(string id);
-
-    ESkillTier GetSkillTier();
     int GetSkillValue();
 
     bool CheckFlag(string id);

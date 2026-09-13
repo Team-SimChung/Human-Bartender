@@ -44,10 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0941d2b0f184dd84c8e419fb00ba4793, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewDataLoadManager
-  isTest: 0
-  testDay: 0
-  startDay: 1
-  dayNumbers: 
   barDayNumbers: 0000000001000000020000000300000063000000
   balanceData: {fileID: 11400000, guid: 63f99327f1a0418a94d6ec6cd9c49dca, type: 2}
   barkData: {fileID: 11400000, guid: a71d1ae375e54257bcbbee7dbef3fd54, type: 2}
@@ -55,7 +51,6 @@ MonoBehaviour:
   cocktailData: {fileID: 11400000, guid: 4cdd38f0ff8842f8a80c5e7c1fec4ecf, type: 2}
   cutSceneData: {fileID: 11400000, guid: 022803ba51e14b0e968c41bb410aaab9, type: 2}
   dayInfoData: {fileID: 11400000, guid: 2ceb0e3fd0ec46be9b0b412a9d538c72, type: 2}
-  dayScriptData: {fileID: 11400000, guid: 9bdfc980e3db4ef5abbf3d19ae507f80, type: 2}
   commonScriptData: {fileID: 11400000, guid: 76497c4ca4ba4d678fe9aae3cb9e9db8, type: 2}
   dossierData: {fileID: 11400000, guid: 45d1e6eda494495c893cc60bc453c325, type: 2}
   endingData: {fileID: 11400000, guid: f8c6a16086c8406c87f9911de8196062, type: 2}
@@ -72,15 +67,9 @@ MonoBehaviour:
   shelfItemData: {fileID: 11400000, guid: f79c175af95447bba922a8c3fdddff37, type: 2}
   spotData: {fileID: 11400000, guid: 2aec38dee5aa4aa0bf346a3d87d40428, type: 2}
   tasteData: {fileID: 11400000, guid: 4fed73f749dc492ca5cb7558765b976c, type: 2}
+  textTagData: {fileID: 11400000, guid: a4036fdbe34f51f32d1cb38225f1d890, type: 2}
   uiStringData: {fileID: 11400000, guid: 71205796125f439391152ee18d0c6ca7, type: 2}
   streetData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
-  legacyCharacterAnimConfig: {fileID: 11400000, guid: 37dcf18dad1864f45a0beb8c4ee3fffb, type: 2}
-  legacyTextTagData: {fileID: 11400000, guid: 29643d496f8bbbc4dac66d58dd79453a, type: 2}
-  legacyCocktailData: {fileID: 11400000, guid: 68029ad721237a74a8680596b4bdd8b8, type: 2}
-  legacyCutSceneData: {fileID: 11400000, guid: d44c8b01dde9bce4d996fa50025a896f, type: 2}
-  legacyCharacterTierData: {fileID: 11400000, guid: 8b43359c7c482b945b13d916638e3791, type: 2}
-  legacySkillTierData: {fileID: 11400000, guid: 8eafc0f6f8d8f324dbec0be6be949bb1, type: 2}
-  outsideDataManager: {fileID: 0}
   balanceFileName: json/balance.json
   barkFileName: json/barks.json
   characterFileName: json/characters.json
@@ -103,10 +92,6 @@ MonoBehaviour:
   shelfItemFileName: json/shelf_items.json
   spotFileName: json/spots.json
   tasteFileName: json/tastes.json
+  textTagFileName: json/text_tags.json
   uiStringFileName: json/ui_strings.json
   streetFileName: json/script/street.json
-  legacyCocktailFileName: cocktails.json
-  legacyCutSceneFileName: cutscenes.json
-  legacyCharacterTierFileName: character_tiers.json
-  legacySkillTierFileName: skill_tiers.json
-  textTagFileName: json/text_tags.json

@@ -27,6 +27,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     [Inject] IPlayerDataWriter playerDataWriter;
     [Inject] ISoundManager soundManager;
 
+    /// <summary>
+    /// 컷씬 재생기(CutSceneManager). 루트 스코프에 있어 인스펙터로 꽂을 수 없으므로 주입받는다.
+    /// 2부 대본의 timeline 스텝이 이것으로 연출을 재생한다.
+    /// </summary>
+    [Inject] ICutScenePlayer cutScenePlayer;
+
     /// <summary>조건 평가기. 서빙 결과가 나오면 여기에 담겨 후속 조건이 읽는다.</summary>
     public StoryConditionEvaluator Conditions { get; private set; }
 
@@ -65,7 +71,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         Conditions = new StoryConditionEvaluator(playerDataReader);
         Effects = new StoryEffectRunner(playerDataWriter);
 
-        runner.Bind(storyPresenter, Conditions, Effects, craftGate as IStoryCraftGate);
+        runner.Bind(storyPresenter, Conditions, Effects, craftGate as IStoryCraftGate, cutScenePlayer);
 
         GameStateManager.Instance.GameFlow = EGameFlow.Bar;
         soundManager?.PlayBGM("BGM_bar_01", 1f, true);

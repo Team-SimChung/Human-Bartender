@@ -53,7 +53,7 @@ public class SlotCharacterPart
 public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialogueFader
 {
     [Header("DATA")]
-    [SerializeField] private CharacterAnimSO animConfig;
+    [SerializeField] private NewExpressionDataSO animConfig;
 
    
     [Header("Parts")]
@@ -180,7 +180,7 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
         slotData.slotCharacterName = characterId;
         slotData.expression = expression;
 
-        bool isSprite = animConfig.CheckExpressionPortailSprite(characterId, expression);
+        bool isSprite = animConfig.IsPortraitSprite(characterId, expression);
         var parts = slotData.parts;
 
         if (!isSprite)

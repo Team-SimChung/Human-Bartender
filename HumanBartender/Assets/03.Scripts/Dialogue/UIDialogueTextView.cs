@@ -52,7 +52,7 @@ public enum DialogueBubbleType
 public class UIDialogueTextView : MonoBehaviour
 {
     [Header("Data")]
-    [SerializeField] TextTagDataSO textTagData;
+    [SerializeField] NewTextTagDataSO textTagData;
 
     [Header("UI Components")]
     public DynamicSpeechBubble lunaSpeechBubble;

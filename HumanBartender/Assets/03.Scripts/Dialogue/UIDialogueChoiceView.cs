@@ -134,22 +134,18 @@ public class UIDialogueChoiceView : MonoBehaviour
         }
     }
 
-    /// <summary>선택지 노출 조건 하나를 검사한다 (호감도 등급/스킬 등급/보유 재화/플래그).</summary>
+    /// <summary>
+    /// 선택지 노출 조건 하나를 검사한다.
+    ///
+    /// 호감도·숙련도 등급 분기는 걷어냈다. 등급표(character_tiers/skill_tiers)를 쓰던 자리인데
+    /// 그 표를 물어보는 데이터(min_tier)가 어디에도 없었다. 2부는 when DSL로 따로 판정한다.
+    /// </summary>
     public bool CheckCondition(ChoiceConditionCheck checkType)
     {
         switch (checkType.Type)
         {
             case EConditionCheckType.None:
                 break;
-
-            case EConditionCheckType.Affinity:
-                EAffinityTier characterTier = PlayerData.GetCurCharacterAffinityTier(checkType.Character);
-                EAffinityTier targettier = (EAffinityTier)System.Enum.Parse(typeof(EAffinityTier), checkType.minTier, true);
-                return characterTier >= targettier;
-
-            case EConditionCheckType.Skill:
-                ESkillTier targetSkill = (ESkillTier)System.Enum.Parse(typeof(ESkillTier), checkType.minTier, true);
-                return PlayerData.GetSkillTier() >= targetSkill;
 
             case EConditionCheckType.Money:
                 return PlayerData.HasEnoughMoney(checkType.minAmount.Value);

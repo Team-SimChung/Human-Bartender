@@ -12,32 +12,24 @@ using System.Threading;
 public static class DialogueTypingService
 {
     /// <summary>
-    /// TextTagDataSO에 등록된 커스텀 태그(&lt;key&gt;...&lt;/key&gt;)를 TMP의 &lt;color&gt; 태그로 치환하고,
+    /// NewTextTagDataSO에 등록된 색 태그(&lt;key&gt;...&lt;/key&gt;)를 TMP의 &lt;color&gt; 태그로 치환하고,
     /// "{cocktail}" 플레이스홀더를 손님별 현재 주문 칵테일 이름으로 치환한다.
     /// cocktailName은 호출부(예: 타이쿤 손님 주문 데이터)가 매번 넘겨줘야 하며, null이면 치환하지 않는다.
     /// </summary>
-    public static string ApplyCustomTags(string raw, TextTagDataSO textTagData, string cocktailName = null)
+    public static string ApplyCustomTags(string raw, NewTextTagDataSO textTagData, string cocktailName = null)
     {
         string result = raw;
 
         if (cocktailName != null)
             result = result.Replace("{cocktail}", cocktailName);
 
-        if (textTagData == null || textTagData.textTagData?.TextTags == null)
-            return result;
+        if (textTagData == null) return result;
 
-        foreach (var pair in textTagData.textTagData.TextTags)
+        foreach (KeyValuePair<string, string> tag in textTagData.ColorTags())
         {
-            string key = pair.Key;
-            string color = pair.Value.Color;
-            if (string.IsNullOrEmpty(color)) continue;
-
-            // # 보장
-            if (!color.StartsWith("#")) color = "#" + color;
-
             // <key>...</key> 매칭 (내용은 비탐욕적으로)
-            string pattern = $@"<{Regex.Escape(key)}>(.*?)</{Regex.Escape(key)}>";
-            string replacement = $"<color={color}>$1</color>";
+            string pattern = $@"<{Regex.Escape(tag.Key)}>(.*?)</{Regex.Escape(tag.Key)}>";
+            string replacement = $"<color={tag.Value}>$1</color>";
 
             result = Regex.Replace(result, pattern, replacement);
         }
@@ -52,7 +44,7 @@ public static class DialogueTypingService
     public static async UniTask TypeSentenceTMP(
         TypingData data,
         DynamicSpeechBubble targetBubble,
-        TextTagDataSO textTagData,
+        NewTextTagDataSO textTagData,
         float typingDelay = 0.025f,
         CancellationToken token = default,
         string cocktailName = null)

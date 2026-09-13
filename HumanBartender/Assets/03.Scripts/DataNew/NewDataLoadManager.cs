@@ -10,25 +10,13 @@ using VContainer.Unity;
 /// 각 New*DataSO에 주입하는 매니저. ProjectLifetimeScope에 엔트리포인트로 등록되어
 /// 컨테이너 빌드 시점에 StartAsync가 호출된다(Awake 순서에 기대지 않음).
 /// 2부 바 대본(script/bar/dayN.json)은 일차별로 캐싱해두고 TryGetBarScript(int)로 꺼내 쓴다.
-/// json/script/day_N.json은 bar 대본으로 대체된 레거시 경로다 — 파일이 지워져 있고 읽는 코드도 없다.
-/// dayNumbers를 비워 두면 로드를 건너뛰며, SwitchDay는 없는 일차를 만나면 경고만 남긴다.
 /// json/script/common.json은 날짜와 무관하게 항상 쓰이는 공용 상호작용 스크립트라 별도 SO에 고정 로드한다.
 ///
-/// 구형 DataLoadManager가 채우던 SO들도 여기서 이어받는다(Legacy 항목). 그래서 데이터 로더는 하나이고,
-/// 구형 로더는 걷어냈다. 남은 구형 SO는 신형에서 옮겨 담거나(표정·태그) 신형에 같은 모양이
-/// 없어 구형 파일을 그대로 읽는 셋(칵테일·컷씬·등급표)뿐이다.
+/// 구형 DataLoadManager와 그것이 읽던 파일은 모두 걷어냈다. 데이터 로더는 이것 하나다.
 /// </summary>
-public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartable
+public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
 {
-    [Header("Test")]
-    [SerializeField] bool isTest;
-    [SerializeField] int testDay = 1;
-
-    [Header("Day Script (json/script/day_N.json)")]
-    [SerializeField] int startDay = 1;
-    [Tooltip("json/script/day_N.json이 있는 일차. 그 파일들은 bar 대본으로 대체돼 지금은 비어 있다.")]
-    [SerializeField] List<int> dayNumbers = new();
-
+    [Header("Bar Script (json/script/bar/dayN.json)")]
     [Tooltip("2부 바 대본(script/bar/dayN.json)이 있는 일차. 목록에 있어도 파일이 없으면 그날 2부를 건너뛴다.")]
     [SerializeField] List<int> barDayNumbers = new() { 0, 1, 2, 3, 99 };
 
@@ -39,7 +27,6 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] NewCocktailDataSO cocktailData;
     [SerializeField] NewCutSceneDataSO cutSceneData;
     [SerializeField] NewDayInfoDataSO dayInfoData;
-    [SerializeField] NewDayScriptDataSO dayScriptData;
     [SerializeField] NewDayScriptDataSO commonScriptData;
     [SerializeField] NewDossierDataSO dossierData;
     [SerializeField] NewEndingDataSO endingData;
@@ -56,33 +43,11 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] NewShelfItemDataSO shelfItemData;
     [SerializeField] NewSpotDataSO spotData;
     [SerializeField] NewTasteDataSO tasteData;
+    [Tooltip("대사창의 <name>/<world>/<order> 색 치환에 쓴다. UIDialogueTextView와 GuestManager가 읽는다.")]
+    [SerializeField] NewTextTagDataSO textTagData;
     [SerializeField] NewUIStringDataSO uiStringData;
     [SerializeField] NewStreetDataSO streetData;
 
-    // ── 구형 SO ────────────────────────────────────────────────────
-    //
-    // 구형 DataLoadManager가 채우던 것들을 여기서 이어받는다. 그 SO들은 값을 프로퍼티로 들고 있어
-    // Unity가 직렬화하지 못한다 — 에셋 파일은 비어 있고 오직 실행 중에 로더가 채운다.
-    // 그래서 채우는 쪽이 사라지면 그 SO를 물고 있는 화면이 조용히 빈 곳을 짚는다.
-    //
-    // 신형에 대응 파일이 있는 셋(표정·인물·태그)은 신형에서 옮겨 담고, 나머지는 구형 파일을
-    // 그대로 읽는다. 어느 쪽이든 정본은 하나이고 읽는 곳도 여기 하나다.
-
-    [Header("Legacy SO (구형 DataLoadManager가 채우던 것)")]
-    [Tooltip("신형 json/character_anim.json에서 옮겨 담는다. DialogueCharacterManager와 GuestCharacterView가 읽는다.")]
-    [SerializeField] CharacterAnimSO legacyCharacterAnimConfig;
-
-    [Tooltip("신형 json/text_tags.json에서 색 태그만 옮겨 담는다. 대사창의 <name>/<world>/<order> 치환에 쓴다.")]
-    [SerializeField] TextTagDataSO legacyTextTagData;
-
-    [Tooltip("신형에 같은 모양이 없어 구형 파일을 그대로 읽는다. 남은 셋뿐이다 — 나머지 구형 경로는 걷어냈다.")]
-    [SerializeField] CocktailDataSO legacyCocktailData;
-    [SerializeField] CutSceneDataSO legacyCutSceneData;
-    [SerializeField] CharacterTierDataSO legacyCharacterTierData;
-    [SerializeField] SkillTierDataSO legacySkillTierData;
-
-    [Tooltip("실외 씬 데이터 로더. 구형 DataLoadManager가 마지막에 부르던 것이라 그 자리를 이어받는다.")]
-    [SerializeField] OutsideDataManager outsideDataManager;
 
     [Header("DataFile Name (json/*.json)")]
     [SerializeField] string balanceFileName = "json/balance.json";
@@ -109,20 +74,10 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] string shelfItemFileName = "json/shelf_items.json";
     [SerializeField] string spotFileName = "json/spots.json";
     [SerializeField] string tasteFileName = "json/tastes.json";
+    [SerializeField] string textTagFileName = "json/text_tags.json";
     [SerializeField] string uiStringFileName = "json/ui_strings.json";
     [SerializeField] string streetFileName = "json/script/street.json";
 
-    [Header("Legacy DataFile Name (StreamingAssets/*.json)")]
-    [SerializeField] string legacyCocktailFileName = "cocktails.json";
-    [SerializeField] string legacyCutSceneFileName = "cutscenes.json";
-    [SerializeField] string legacyCharacterTierFileName = "character_tiers.json";
-    [SerializeField] string legacySkillTierFileName = "skill_tiers.json";
-    [SerializeField] string textTagFileName = "json/text_tags.json";
-
-    Dictionary<int, NewDayScriptBase> _dayScriptCache = new();
-
-    /// <summary>방금 읽은 신형 json/text_tags.json. 구형 SO로 옮겨 담는 것 말고 쓰는 곳이 없어 SO를 두지 않는다.</summary>
-    Dictionary<string, NewTextTagData> _textTags;
 
     /// <summary>
     /// 2부 바 대본(script/bar/dayN.json). 일차별로 들고 있다가 2부가 시작할 때 그날 것을 꺼내 쓴다.
@@ -183,88 +138,12 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         await LoadDataAsync();
     }
 
-    static string DayScriptFileName(int day) => $"json/script/day_{day}.json";
-
     static string BarScriptFileName(int day) => $"json/script/bar/day{day}.json";
-
-    // ══ 구형 데이터 ═══════════════════════════════════════════════════
-    //
-    // 구형 DataLoadManager가 하던 일을 그대로 이어받는다. 그쪽이 꺼져도 실외 씬, 컷씬, 정산,
-    // 대사창 색 태그, 인물 그림이 서 있게 하려는 것이다.
-
-    /// <summary>구형 파일들을 동기로 읽는다.</summary>
-    void LoadLegacyData()
-    {
-        if (legacyCocktailData != null)
-            legacyCocktailData.cocktailData = JsonManager<CocktailDataBase>.LoadGameData_StreamingAssets(legacyCocktailFileName);
-
-        if (legacyCutSceneData != null)
-            legacyCutSceneData.cutSceneData = JsonManager<CutSceneDataBase>.LoadGameData_StreamingAssets(legacyCutSceneFileName);
-
-        if (legacyCharacterTierData != null)
-            legacyCharacterTierData.characterTiers = JsonManager<CharacterTierDataBase>.LoadGameData_StreamingAssets(legacyCharacterTierFileName);
-
-        if (legacySkillTierData != null)
-            legacySkillTierData.skillTier = JsonManager<SkillTierDataBase>.LoadGameData_StreamingAssets(legacySkillTierFileName);
-
-        _textTags = JsonManager<Dictionary<string, NewTextTagData>>.LoadGameData_StreamingAssets(textTagFileName);
-
-        ApplyLegacyData();
-    }
-
-    /// <summary>구형 파일들을 비동기로 읽는다. 순서와 결과는 동기 경로와 같다.</summary>
-    async UniTask LoadLegacyDataAsync()
-    {
-        if (legacyCocktailData != null)
-            legacyCocktailData.cocktailData = await JsonManager<CocktailDataBase>.LoadAsync<CocktailDataBase>(legacyCocktailFileName);
-
-        if (legacyCutSceneData != null)
-            legacyCutSceneData.cutSceneData = await JsonManager<CutSceneDataBase>.LoadAsync<CutSceneDataBase>(legacyCutSceneFileName);
-
-        if (legacyCharacterTierData != null)
-            legacyCharacterTierData.characterTiers = await JsonManager<CharacterTierDataBase>.LoadAsync<CharacterTierDataBase>(legacyCharacterTierFileName);
-
-        if (legacySkillTierData != null)
-            legacySkillTierData.skillTier = await JsonManager<SkillTierDataBase>.LoadAsync<SkillTierDataBase>(legacySkillTierFileName);
-
-        _textTags = await JsonManager<Dictionary<string, NewTextTagData>>.LoadAsync<Dictionary<string, NewTextTagData>>(textTagFileName);
-
-        ApplyLegacyData();
-    }
-
-    /// <summary>
-    /// 신형에서 옮겨 담을 것을 옮기고, 구형 SO들이 요구하는 캐시를 만든다.
-    ///
-    /// 캐시(Cached)는 구형 SO가 조회용 딕셔너리를 따로 들고 있어서다. 로드만 하고 부르지 않으면
-    /// 데이터는 들어와 있는데 조회만 빈다 — 터지지도 않아서 원인이 멀어진다.
-    /// </summary>
-    void ApplyLegacyData()
-    {
-        if (legacyCharacterAnimConfig != null)
-        {
-            legacyCharacterAnimConfig.animConfig = NewLegacyDataBridge.ToCharacterAnim(expressionData?.expressionData);
-
-            if ((legacyCharacterAnimConfig.animConfig?.Characters?.Count ?? 0) == 0)
-                Logger.LogWarning($"[New] 표정 데이터가 비어 구형 표정 SO를 채우지 못했습니다({expressionFileName}).");
-        }
-
-        if (legacyTextTagData != null)
-            legacyTextTagData.textTagData = NewLegacyDataBridge.ToTextTags(_textTags);
-
-        // 구형은 이 셋을 무조건 불렀다. 원본이 비었을 때 그 안에서 터지므로 여기서 걸러 준다.
-        if (legacyCocktailData?.cocktailData != null) legacyCocktailData.Cached();
-        if (legacyCutSceneData?.cutSceneData != null) legacyCutSceneData.Cached();
-
-        outsideDataManager?.Load();
-    }
 
     public void LoadData()
     {
         Logger.Log("[New] Load Data");
         BeginLoad();
-
-        foreach (var day in dayNumbers)
-            _dayScriptCache[day] = JsonManager<NewDayScriptBase>.LoadGameData_StreamingAssets(DayScriptFileName(day));
 
         _barScriptCache.Clear();
         foreach (var day in barDayNumbers)
@@ -274,8 +153,6 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         }
 
         commonScriptData.dayScriptData = JsonManager<NewDayScriptBase>.LoadGameData_StreamingAssets(commonScriptFileName);
-
-        SwitchDayIfAny();
 
         balanceData.balanceData = JsonManager<NewBalanceDataBase>.LoadGameData_StreamingAssets(balanceFileName);
         barkData.barkData = JsonManager<NewBarkData[]>.LoadGameData_StreamingAssets(barkFileName);
@@ -298,13 +175,9 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         shelfItemData.shelfItemData = JsonManager<NewShelfItemData[]>.LoadGameData_StreamingAssets(shelfItemFileName);
         spotData.spotData = JsonManager<NewSpotData[]>.LoadGameData_StreamingAssets(spotFileName);
         tasteData.tasteData = JsonManager<NewTasteData[]>.LoadGameData_StreamingAssets(tasteFileName);
+        textTagData.textTagData = JsonManager<Dictionary<string, NewTextTagData>>.LoadGameData_StreamingAssets(textTagFileName);
         uiStringData.uiStringData = JsonManager<Dictionary<string, LocalizedText>>.LoadGameData_StreamingAssets(uiStringFileName);
         streetData.newStreetData = JsonManager<NewStreetData>.LoadGameData_StreamingAssets(streetFileName);
-
-        // 구형 데이터가 하나 삐끗해도 로딩이 여기서 멈추면 안 된다. 완료 신호(EndLoad)가 그 뒤에 있어서,
-        // 예외가 새어 나가면 대본을 기다리던 쪽이 영영 안 깨어난다 — 아무 로그 없이 게임이 선다.
-        try { LoadLegacyData(); }
-        catch (Exception e) { Logger.LogError($"[New] 구형 데이터를 읽지 못했습니다. 그것을 쓰는 화면만 빕니다: {e}"); }
 
         // 완료를 알리기 전에 찍는다. UniTask는 TrySetResult 시점에 기다리던 쪽을 동기로 이어서 돌리기
         // 때문에, 순서를 바꾸면 로딩이 끝났다는 줄보다 그 뒤에 벌어지는 일이 먼저 찍힌다.
@@ -317,9 +190,6 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         Logger.Log("[New] Load Data");
         BeginLoad();
 
-        foreach (var day in dayNumbers)
-            _dayScriptCache[day] = await LoadOptionalAsync(DayScriptFileName(day));
-
         _barScriptCache.Clear();
         foreach (var day in barDayNumbers)
         {
@@ -328,8 +198,6 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         }
 
         commonScriptData.dayScriptData = await JsonManager<NewDayScriptBase>.LoadAsync<NewDayScriptBase>(commonScriptFileName);
-
-        SwitchDayIfAny();
 
         balanceData.balanceData = await JsonManager<NewBalanceDataBase>.LoadAsync<NewBalanceDataBase>(balanceFileName);
         barkData.barkData = await JsonManager<NewBarkData[]>.LoadAsync<NewBarkData[]>(barkFileName);
@@ -352,13 +220,9 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         shelfItemData.shelfItemData = await JsonManager<NewShelfItemData[]>.LoadAsync<NewShelfItemData[]>(shelfItemFileName);
         spotData.spotData = await JsonManager<NewSpotData[]>.LoadAsync<NewSpotData[]>(spotFileName);
         tasteData.tasteData = await JsonManager<NewTasteData[]>.LoadAsync<NewTasteData[]>(tasteFileName);
+        textTagData.textTagData = await JsonManager<Dictionary<string, NewTextTagData>>.LoadAsync<Dictionary<string, NewTextTagData>>(textTagFileName);
         uiStringData.uiStringData = await JsonManager<Dictionary<string, LocalizedText>>.LoadAsync<Dictionary<string, LocalizedText>>(uiStringFileName);
         streetData.newStreetData = await JsonManager<NewStreetData>.LoadAsync<NewStreetData>(streetFileName);
-
-        // 구형 데이터가 하나 삐끗해도 로딩이 여기서 멈추면 안 된다. 완료 신호(EndLoad)가 그 뒤에 있어서,
-        // 예외가 새어 나가면 대본을 기다리던 쪽이 영영 안 깨어난다 — 아무 로그 없이 게임이 선다.
-        try { await LoadLegacyDataAsync(); }
-        catch (Exception e) { Logger.LogError($"[New] 구형 데이터를 읽지 못했습니다. 그것을 쓰는 화면만 빕니다: {e}"); }
 
         // 완료를 알리기 전에 찍는다. UniTask는 TrySetResult 시점에 기다리던 쪽을 동기로 이어서 돌리기
         // 때문에, 순서를 바꾸면 로딩이 끝났다는 줄보다 그 뒤에 벌어지는 일이 먼저 찍힌다.
@@ -385,38 +249,5 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
             return null;
         }
     }
-
-    /// <summary>
-    /// day_N.json을 읽어 두었을 때만 현재 일차를 맞춘다.
-    ///
-    /// 그 대본은 bar 대본으로 대체된 레거시라 지금은 dayNumbers가 비어 있고 파일도 없다. 그런데도
-    /// SwitchDay를 부르면 "대본이 없다"는 경고가 매 실행 뜨는데, 없는 것이 정상인 상태라 그 경고는
-    /// 진짜 문제를 가린다.
-    /// </summary>
-    void SwitchDayIfAny()
-    {
-        if (dayNumbers == null || dayNumbers.Count == 0) return;
-
-        SwitchDay(isTest ? testDay : startDay);
-    }
-
-    /// <summary>
-    /// day_N.json을 dayScriptData에 주입한다. common.json은 날짜와 무관하게 commonScriptData에 항상 고정되어 있다.
-    ///
-    /// day_N.json은 bar 대본으로 대체된 레거시라 지금은 파일이 없다. 읽는 쪽도 없어서 비어 있어도
-    /// 문제가 되지 않지만, 부르는 곳이 남아 있으므로 없는 일차를 만나도 멈추지 않게 둔다.
-    /// </summary>
-    public void SwitchDay(int day)
-    {
-        if (!_dayScriptCache.TryGetValue(day, out NewDayScriptBase script) || script == null)
-        {
-            Logger.LogWarning($"[New] {day}일차 대본(day_{day}.json)이 없어 현재 대본을 비웁니다.");
-            dayScriptData.dayScriptData = null;
-            return;
-        }
-
-        dayScriptData.dayScriptData = script;
-    }
-
 
 }

@@ -23,7 +23,7 @@ public static class CapSceneSetup
     const string ScenePath = "Assets/00.Scenes/Cap.unity";
     const string FontAssetPath = "Assets/06.Fonts/NeoDunggeunmo SDF.asset";
     const string CraftStationDataPath = "Assets/03.Scripts/CraftLiquidData.asset";
-    const string CocktailDataSOPath = "Assets/SO/CocktailData.asset";
+    const string NewCocktailDataSOPath = "Assets/03.Scripts/DataNew/DataNewSO/NewCocktailDataSO.asset";
     const string CraftServePath = "Assets/03.Scripts/Craft/CraftServe.asset";
     const string CraftRetryPath = "Assets/03.Scripts/Craft/CraftRetry.asset";
     const string PlaceholderPath = "Assets/03.Scripts/MiniGame/Cap/CapPlaceholder.png";
@@ -41,13 +41,13 @@ public static class CapSceneSetup
         Sprite placeholder = CreateOrLoadPlaceholderSprite();
         TMP_FontAsset font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontAssetPath);
         CraftStationData craftStationData = AssetDatabase.LoadAssetAtPath<CraftStationData>(CraftStationDataPath);
-        CocktailDataSO cocktailDataSO = AssetDatabase.LoadAssetAtPath<CocktailDataSO>(CocktailDataSOPath);
+        NewCocktailDataSO cocktailDataSO = AssetDatabase.LoadAssetAtPath<NewCocktailDataSO>(NewCocktailDataSOPath);
         VoidEvent craftServe = AssetDatabase.LoadAssetAtPath<VoidEvent>(CraftServePath);
         VoidEvent craftRetry = AssetDatabase.LoadAssetAtPath<VoidEvent>(CraftRetryPath);
 
         if (font == null) Debug.LogWarning($"[CapSceneSetup] 폰트를 찾지 못했습니다: {FontAssetPath}");
         if (craftStationData == null) Debug.LogWarning($"[CapSceneSetup] CraftStationData를 찾지 못했습니다: {CraftStationDataPath}");
-        if (cocktailDataSO == null) Debug.LogWarning($"[CapSceneSetup] CocktailDataSO를 찾지 못했습니다: {CocktailDataSOPath}");
+        if (cocktailDataSO == null) Debug.LogWarning($"[CapSceneSetup] NewCocktailDataSO를 찾지 못했습니다: {NewCocktailDataSOPath}");
         if (craftServe == null) Debug.LogWarning($"[CapSceneSetup] CraftServe 이벤트를 찾지 못했습니다: {CraftServePath}");
         if (craftRetry == null) Debug.LogWarning($"[CapSceneSetup] CraftRetry 이벤트를 찾지 못했습니다: {CraftRetryPath}");
 
@@ -288,7 +288,7 @@ public static class CapSceneSetup
     static CapManager CreateCapManager(
         Transform parent, CapRing incomingRing, CapRing targetRing, Transform capPiece, Canvas buttonCanvas,
         TMP_Text nameText, TMP_Text attemptText, TMP_Text timeText, TMP_Text judgeText,
-        CraftStationData craftStationData, CocktailDataSO cocktailDataSO,
+        CraftStationData craftStationData, NewCocktailDataSO cocktailDataSO,
         VoidEvent craftServe, VoidEvent craftRetry)
     {
         var go = new GameObject("Cap Manager");

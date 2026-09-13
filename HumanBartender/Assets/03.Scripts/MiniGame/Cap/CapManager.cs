@@ -23,7 +23,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
     [Header("Data")]
     [SerializeField] CraftStationData data;
-    [SerializeField] CocktailDataSO cocktailDataSO;
+    [SerializeField] NewCocktailDataSO cocktailDataSO;
 
     [Header("Ring")]
     [Tooltip("조여드는 고리. 바깥에서 목표 고리까지 좁혀 온다.")]
@@ -103,7 +103,11 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     {
         if (isTest)
         {
-            data.targetCocktailData = cocktailDataSO.allCocktails[data.targetCocktailId];
+            if (cocktailDataSO.TryGet(data.targetCocktailId, out NewCocktailData cocktail))
+                data.targetCocktailData = cocktail;
+            else
+                Debug.LogWarning($"[Cap] 테스트 칵테일 '{data.targetCocktailId}'를 찾지 못했습니다.");
+
             data.targetCraft_tolerance = testLimitFailCount;
         }
 

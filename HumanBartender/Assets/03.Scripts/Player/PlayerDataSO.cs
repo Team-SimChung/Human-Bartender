@@ -15,13 +15,12 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
 
     [Header("Character Tier")]
     [Tooltip("인스펙터 보여주기 용, 내부적으로 Dic 사용")]
-    [SerializeField] CharacterTierDataSO characterTierDataSO;
     [SerializeField] List<CharacterTierData> characterTierDatas = new();
     Dictionary<string, CharacterTierData> characterTierDics = new();
 
 
     [Header("Skill Tier")]
-    [SerializeField] SkillTierDataSO skillTierDataSO;
+    [Tooltip("숙련도 원시 수치. 지금 AddSkillTier를 부르는 곳이 없어 계속 0이다.")]
     [SerializeField] int skillTierAmount = 0;
 
 
@@ -133,25 +132,6 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
         }
     }
 
-    /// <summary>현재 호감도 수치를 SO에 정의된 구간(Affinity)과 대조해 등급(Tier)을 찾는다. 미등록 시 Very_Low.</summary>
-    public EAffinityTier GetCurCharacterAffinityTier(string id)
-    {
-        CharacterAffinityData data = characterTierDataSO.characterTiers.Characters[id];
-
-        if(!characterTierDics.ContainsKey(id)) return EAffinityTier.Very_Low;
-
-        int curTierAmount = characterTierDics[id].affinityAmount;
-
-        foreach (var item in data.Affinity)
-        {
-            if (item.Min > curTierAmount) continue;
-            if (item.Max < curTierAmount) continue;
-
-            return item.Tier;
-        }
-
-        return EAffinityTier.Very_Low;
-    }
     /// <summary>호감도 원시 수치를 반환한다 (미등록 시 0).</summary>
     public int GetCurCharacterAffinityValue(string id)
     {
@@ -170,20 +150,6 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
     {
         skillTierAmount += val;
     }
-    /// <summary>현재 스킬 수치를 SO에 정의된 구간과 대조해 등급을 찾는다. 매칭 없으면 Beginner.</summary>
-    public ESkillTier GetSkillTier()
-    {
-        foreach(var item in skillTierDataSO.skillTier.Tiers)
-        {
-            if (item.Value.Min > skillTierAmount) continue;
-            if (item.Value.Max < skillTierAmount) continue;
-
-            return item.Key;
-        }
-
-        return ESkillTier.Beginner;
-    }
-
     public int GetSkillValue()
     {
         return skillTierAmount;

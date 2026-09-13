@@ -24,9 +24,7 @@ public class InGameLifetimeScope : LifetimeScope
         // DialogueRunner는 여기서 등록하지 않는다. Play에서 그것을 여는 곳(VisualNovelFlow)을 걷어냈고,
         // 붙일 IDialoguePresenter 구현(DialogueSceneDirector)도 함께 없앴다. 실외 씬은 그대로 쓴다.
         //
-        // 트리거 매니저는 남긴다 — 카메오 등퇴장(CustomerEnter/ExitCommand)이 여기에 매달려 있다.
-        // 다시 붙일 때는 DialogueRunner를 거치지 말고 ExecuteTriggerAsync를 직접 부르면 된다.
-        builder.RegisterComponentInHierarchy<DialogueTriggerManager>();
+        // 트리거 매니저와 커맨드도 걷어냈다. 그것을 부르는 데이터(triggers)가 한 건도 남지 않았다.
 
         builder.RegisterComponentInHierarchy<PlayPhaseController>();
 

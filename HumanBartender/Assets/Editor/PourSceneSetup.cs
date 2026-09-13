@@ -30,7 +30,7 @@ public static class PourSceneSetup
     const string GradientMaterialPath = "Assets/03.Scripts/MiniGame/Shaker/New Material.mat";
     const string CraftStationDataPath = "Assets/03.Scripts/CraftLiquidData.asset";
     const string CategoryColorDataPath = "Assets/03.Scripts/MiniGame/Shaker/CategoryColorData.asset";
-    const string CocktailDataSOPath = "Assets/SO/CocktailData.asset";
+    const string NewCocktailDataSOPath = "Assets/03.Scripts/DataNew/DataNewSO/NewCocktailDataSO.asset";
     const string CraftServePath = "Assets/03.Scripts/Craft/CraftServe.asset";
     const string CraftRetryPath = "Assets/03.Scripts/Craft/CraftRetry.asset";
 
@@ -49,7 +49,7 @@ public static class PourSceneSetup
         Material gradientMaterial = AssetDatabase.LoadAssetAtPath<Material>(GradientMaterialPath);
         CraftStationData craftStationData = AssetDatabase.LoadAssetAtPath<CraftStationData>(CraftStationDataPath);
         CategoryColorData categoryColorData = AssetDatabase.LoadAssetAtPath<CategoryColorData>(CategoryColorDataPath);
-        CocktailDataSO cocktailDataSO = AssetDatabase.LoadAssetAtPath<CocktailDataSO>(CocktailDataSOPath);
+        NewCocktailDataSO cocktailDataSO = AssetDatabase.LoadAssetAtPath<NewCocktailDataSO>(NewCocktailDataSOPath);
         VoidEvent craftServe = AssetDatabase.LoadAssetAtPath<VoidEvent>(CraftServePath);
         VoidEvent craftRetry = AssetDatabase.LoadAssetAtPath<VoidEvent>(CraftRetryPath);
 
@@ -57,7 +57,7 @@ public static class PourSceneSetup
         if (gradientMaterial == null) Debug.LogWarning($"[PourSceneSetup] 게이지 머티리얼을 찾지 못했습니다: {GradientMaterialPath}");
         if (craftStationData == null) Debug.LogWarning($"[PourSceneSetup] CraftStationData를 찾지 못했습니다: {CraftStationDataPath}");
         if (categoryColorData == null) Debug.LogWarning($"[PourSceneSetup] CategoryColorData를 찾지 못했습니다: {CategoryColorDataPath}");
-        if (cocktailDataSO == null) Debug.LogWarning($"[PourSceneSetup] CocktailDataSO를 찾지 못했습니다: {CocktailDataSOPath}");
+        if (cocktailDataSO == null) Debug.LogWarning($"[PourSceneSetup] NewCocktailDataSO를 찾지 못했습니다: {NewCocktailDataSOPath}");
         if (craftServe == null) Debug.LogWarning($"[PourSceneSetup] CraftServe 이벤트를 찾지 못했습니다: {CraftServePath}");
         if (craftRetry == null) Debug.LogWarning($"[PourSceneSetup] CraftRetry 이벤트를 찾지 못했습니다: {CraftRetryPath}");
 
@@ -356,7 +356,7 @@ public static class PourSceneSetup
         Transform parent, BottleTiltController bottle, BottleSilhouette bottleSilhouette, Transform glassCenter,
         SphLiquidRenderer liquidRenderer, LiquidProfile liquidProfile,
         GradientRatioController gageBar, Canvas buttonCanvas,
-        CraftStationData craftStationData, CategoryColorData categoryColorData, CocktailDataSO cocktailDataSO,
+        CraftStationData craftStationData, CategoryColorData categoryColorData, NewCocktailDataSO cocktailDataSO,
         VoidEvent craftServe, VoidEvent craftRetry)
     {
         var go = new GameObject("Pour Manager");

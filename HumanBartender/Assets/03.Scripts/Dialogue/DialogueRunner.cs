@@ -143,14 +143,6 @@ public class DialogueRunner : MonoBehaviour
             {
                 ShowChoices();
             }
-            else if (currentDialogue.Trigger != null && currentDialogue.Trigger.Value.Type != ETriggetType.None)
-            {
-                ExecuteTriggerAsync(currentDialogue.Trigger, currentDialogue.Next).Forget();
-            }
-            else if (currentDialogue.Triggers != null && currentDialogue.Triggers.Length > 0)
-            {
-                ExecuteTriggersAsync(currentDialogue.Triggers, currentDialogue.Next).Forget();
-            }
             else if (!string.IsNullOrEmpty(currentDialogue.Next))
             {
                 DialogueEvent(currentDialogue.Next);
@@ -186,18 +178,7 @@ public class DialogueRunner : MonoBehaviour
             {
                 presenter.ShowSystemAction();
 
-                if (currentDialogue.Trigger != null && currentDialogue.Trigger.Value.Type != ETriggetType.None)
-                {
-                    await ExecuteTriggerAsync(currentDialogue.Trigger, currentDialogue.Next);
-                }
-                else if (currentDialogue.Triggers != null && currentDialogue.Triggers.Length > 0)
-                {
-                    await ExecuteTriggersAsync(currentDialogue.Triggers, currentDialogue.Next);
-                }
-                else
-                {
-                    DialogueEvent(currentDialogue.Next);
-                }
+                DialogueEvent(currentDialogue.Next);
                 return;
             }
             else if (currentDialogue.Type == EDialogueType.ConditionBranch)
@@ -235,14 +216,6 @@ public class DialogueRunner : MonoBehaviour
             case EConditionCheckType.None:
                 break;
 
-            case EConditionCheckType.Affinity:
-                EAffinityTier characterTier = PlayerData.GetCurCharacterAffinityTier(checkType.Character);
-                foreach (var item in checkType.Branches)
-                {
-                    if (item.Tier == characterTier) return item.Goto;
-                }
-                return checkType.Default;
-
             case EConditionCheckType.Skill:
                 return checkType.Default;
 
@@ -256,48 +229,6 @@ public class DialogueRunner : MonoBehaviour
         }
 
         return checkType.Default;
-    }
-
-    private async UniTask ExecuteTriggerAsync(TriggerData? trigger, string fallbackNextId)
-    {
-        currentState = DialogueState.WaitingForTrigger;
-        string nextId = "";
-        try
-        {
-            nextId = await presenter.ExecuteTriggerAsync(trigger);
-        }
-        catch (OperationCanceledException) { return; }
-        catch (Exception e)
-        {
-            Debug.LogError($"[DialogueRunner] ExecuteTriggerAsync 오류: {e}");
-            EndScene();
-            return;
-        }
-
-        DialogueEvent(string.IsNullOrEmpty(nextId) ? fallbackNextId : nextId);
-    }
-
-    private async UniTask ExecuteTriggersAsync(TriggerData[] triggers, string fallbackNextId)
-    {
-        currentState = DialogueState.WaitingForTrigger;
-        string nextId = null;
-
-        foreach (var triggerData in triggers)
-        {
-            try
-            {
-                nextId = await presenter.ExecuteTriggerAsync(triggerData);
-            }
-            catch (OperationCanceledException) { return; }
-            catch (Exception e)
-            {
-                Debug.LogError($"[DialogueRunner] ExecuteTriggerAsync 오류: {e}");
-                EndScene();
-                return;
-            }
-        }
-
-        DialogueEvent(string.IsNullOrEmpty(nextId) ? fallbackNextId : nextId);
     }
 
     private void ShowChoices()

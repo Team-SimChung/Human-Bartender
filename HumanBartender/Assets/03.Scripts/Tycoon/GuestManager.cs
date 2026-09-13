@@ -23,7 +23,7 @@ public class GuestManager : MonoBehaviour
     [SerializeField] NewPersonalityDataSO personalityData;
     [SerializeField] NewGuestBodyDataSO guestBodyData;
     [SerializeField] NewBarkDataSO barkData;
-    [SerializeField] TextTagDataSO textTagData;
+    [SerializeField] NewTextTagDataSO textTagData;
     [SerializeField] NewCharacterDataSO characterData;
     [SerializeField] GuestSlot[] slots;
 
