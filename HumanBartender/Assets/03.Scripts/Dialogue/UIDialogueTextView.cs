@@ -28,13 +28,15 @@ public class TypingData
         Vector3 speakerPos, 
         Color32 nameColor, 
         bool isLunaSpeak,
-        EBubbleArrowType eBubbleArrowType = EBubbleArrowType.Center)
+        EBubbleArrowType eBubbleArrowType = EBubbleArrowType.Center,
+        DialogueBubbleType bubbleType = DialogueBubbleType.Auto)
     {
         this.speaker = speaker;
         this.speakerPos = speakerPos;
         this.str = str;
         this.nameColor = nameColor;
         this.isLunaSpeak = isLunaSpeak;
+        this.bubbleType = bubbleType;
     }
 }
 public enum DialogueBubbleType
@@ -84,18 +86,24 @@ public class UIDialogueTextView : MonoBehaviour
     /// </summary>
     public async UniTask StartType(TypingData data, string cocktailName = null)
     {
-        if (data == null)
+        var type = data.bubbleType;
+
+        if (type == DialogueBubbleType.Auto)
         {
-            Logger.LogWarning("Typing Data is Null");
-            return;
+            type = data.isLunaSpeak
+                ? DialogueBubbleType.Player
+                : DialogueBubbleType.Customer;
         }
 
-        curTypingData = data;
+        targetBubble = type switch
+        {
+            DialogueBubbleType.Player => lunaSpeechBubble,
+            DialogueBubbleType.Customer => customerSpeechBubble,
+            DialogueBubbleType.Narration => narrationSpeechBubble,
+            _ => customerSpeechBubble
+        };
 
-
-        targetBubble = data.isLunaSpeak ? lunaSpeechBubble : customerSpeechBubble;
-
-        if (!data.isLunaSpeak)
+        if (type == DialogueBubbleType.Customer)
             SetBubblePosition(data.speakerPos);
 
         await TypeSentenceTMP(curTypingData, cocktailName);
@@ -117,23 +125,25 @@ public class UIDialogueTextView : MonoBehaviour
 
 
     /// <summary>두 말풍선의 텍스트와 폰트 크기를 초기화하고 비활성화한다.</summary>
-    public void ClearText()
+    private void ClearBubble(DynamicSpeechBubble bubble)
     {
-        if (lunaSpeechBubble != null && lunaSpeechBubble.textLabel != null)
+        if (bubble == null) return;
+
+        if (bubble.textLabel != null)
         {
-            lunaSpeechBubble.textLabel.enableAutoSizing = false;
-            lunaSpeechBubble.textLabel.text = "";
-            lunaSpeechBubble.textLabel.fontSize = lunaSpeechBubble.baseFontSize;
-            lunaSpeechBubble.gameObject.SetActive(false);
+            bubble.textLabel.enableAutoSizing = false;
+            bubble.textLabel.text = "";
+            bubble.textLabel.fontSize = bubble.baseFontSize;
         }
 
-        if (customerSpeechBubble != null && customerSpeechBubble.textLabel != null)
-        {
-            customerSpeechBubble.textLabel.enableAutoSizing = false;
-            customerSpeechBubble.textLabel.text = "";
-            customerSpeechBubble.textLabel.fontSize = customerSpeechBubble.baseFontSize;
-            customerSpeechBubble.gameObject.SetActive(false);
-        }
+        bubble.gameObject.SetActive(false);
+    }
+
+    public void ClearText()
+    {
+        ClearBubble(lunaSpeechBubble);
+        ClearBubble(customerSpeechBubble);
+        ClearBubble(narrationSpeechBubble);
     }
 
     /// <summary>화면 클릭 시 타이핑을 중단(스킵)한다.</summary>
