@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 /// <summary>Dialogue 트랙 믹서. 활성 클립에서 대사 데이터를 읽어 CutSceneTimelineManager의 대사 버블에 표시한다.</summary>
 public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
 {
+    readonly TimelineTransitionScope transitions = new();
     private CutSceneTimelineManager manager;
 
     static readonly System.Collections.Generic.Dictionary<AnchorType, Vector2> AnchorMap = new()
@@ -46,7 +48,7 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
                 if (bubble == null) continue;
 
                 SetupBubble(bubble, behaviour);
-                PlayBubbleEnter(bubble, behaviour).Forget();
+                transitions.RunAsync(bubble, manager, token => PlayBubbleEnter(bubble, behaviour, token)).Forget();
             }
             else if (weight > 0f && behaviour.isActive)
             {
@@ -71,7 +73,7 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
                 if (!behaviour.exitStarted)
                 {
                     behaviour.exitStarted = true;
-                    PlayBubbleExit(bubble, behaviour).Forget();
+                    transitions.RunAsync(bubble, manager, token => PlayBubbleExit(bubble, behaviour, token)).Forget();
                 }
             }
         }
@@ -200,7 +202,7 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
     //  등장 / 퇴장
     // ══════════════════════════════════════════════════════════════════
 
-    async UniTaskVoid PlayBubbleEnter(DynamicSpeechBubble bubble, CutSceneDialogueBehaviour b)
+    async UniTask PlayBubbleEnter(DynamicSpeechBubble bubble, CutSceneDialogueBehaviour b, CancellationToken token)
     {
         RectTransform rect = bubble.GetComponent<RectTransform>();
         rect.DOKill();
@@ -209,14 +211,14 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
         {
             case EEneterPreset.ScaleUp:
                 rect.localScale = Vector3.zero;
-                await rect.DOScale(b.sizeScale, b.enterDuration).SetEase(b.enterEase).ToUniTask();
+                await rect.DOScale(b.sizeScale, b.enterDuration).SetEase(b.enterEase).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEneterPreset.FadeIn:
                 var cg = GetOrAddCanvasGroup(bubble.gameObject);
                 cg.alpha = 0f;
                 rect.localScale = Vector3.one * b.sizeScale;
-                await DOTween.To(() => cg.alpha, x => cg.alpha = x, 1f, b.enterDuration).ToUniTask();
+                await DOTween.To(() => cg.alpha, x => cg.alpha = x, 1f, b.enterDuration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEneterPreset.SlideUp:
@@ -225,7 +227,7 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
                     Vector2 dest = rect.anchoredPosition;
                     rect.anchoredPosition = dest - new Vector2(0, h * 0.1f);
                     rect.localScale = Vector3.one * b.sizeScale;
-                    await rect.DOAnchorPos(dest, b.enterDuration).SetEase(b.enterEase).ToUniTask();
+                    await rect.DOAnchorPos(dest, b.enterDuration).SetEase(b.enterEase).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                     break;
                 }
             case EEneterPreset.SlideDown:
@@ -234,7 +236,7 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
                     Vector2 dest = rect.anchoredPosition;
                     rect.anchoredPosition = dest + new Vector2(0, h * 0.1f);
                     rect.localScale = Vector3.one * b.sizeScale;
-                    await rect.DOAnchorPos(dest, b.enterDuration).SetEase(b.enterEase).ToUniTask();
+                    await rect.DOAnchorPos(dest, b.enterDuration).SetEase(b.enterEase).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                     break;
                 }
 
@@ -250,7 +252,7 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
         b.enterDone = true;
     }
 
-    async UniTaskVoid PlayBubbleExit(DynamicSpeechBubble bubble, CutSceneDialogueBehaviour b)
+    async UniTask PlayBubbleExit(DynamicSpeechBubble bubble, CutSceneDialogueBehaviour b, CancellationToken token)
     {
         RectTransform rect = bubble.GetComponent<RectTransform>();
         rect.DOKill();
@@ -258,12 +260,12 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
         switch (b.exitType)
         {
             case EExitPreset.ScaleDown:
-                await rect.DOScale(0f, b.exitDuration).SetEase(b.exitEase).ToUniTask();
+                await rect.DOScale(0f, b.exitDuration).SetEase(b.exitEase).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EExitPreset.FadeOut:
                 var cg = GetOrAddCanvasGroup(bubble.gameObject);
-                await DOTween.To(() => cg.alpha, x => cg.alpha = x, 0f, b.exitDuration).ToUniTask();
+                await DOTween.To(() => cg.alpha, x => cg.alpha = x, 0f, b.exitDuration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 cg.alpha = 1f; // 복구
                 break;
 
@@ -298,6 +300,7 @@ public class CutSceneDialogueMixerBehaviour : PlayableBehaviour
 
     public override void OnPlayableDestroy(Playable playable)
     {
+        transitions.CancelAll();
         if (manager != null)
             manager.HideAllDialogueBubbles();
     }

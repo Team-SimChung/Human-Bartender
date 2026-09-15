@@ -11,7 +11,7 @@ public struct NewCutSceneRefData
     [field: SerializeField][JsonProperty("note")] public string Note { get; set; }
 }
 
-/// <summary>StreamingAssets/json/cutscenes.json을 보유하는 ScriptableObject.</summary>
+/// <summary>CSV에서 읽은 컷신 참조 캐시.</summary>
 [CreateAssetMenu(fileName = "NewCutSceneDataSO", menuName = "Data/New/CutSceneDataSO")]
 public class NewCutSceneDataSO : ScriptableObject
 {

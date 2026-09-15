@@ -56,7 +56,7 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     [SerializeField] SpineAnimationManager spineAnimationManager;
     [SerializeField] CutSceneTimelineManager timelineManager;
 
-    private EEffectType curEffect = EEffectType.None;
+    private CancellationTokenSource effectRun;
 
 
     private const string ANIM_SLOT = "SpriteAnim";
@@ -96,8 +96,8 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         ResetImages();
 
 
-        spriteAnimationManager.Initialize();
-        spineAnimationManager.Initialize();
+        // Sprite animator is initialized lazily when its first clip is played.
+        if (spineAnimationManager != null) spineAnimationManager.Initialize();
     }
 
     public void OnContinueTimeline()
@@ -109,192 +109,170 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
 
     public void ClearCutScene()
     {
+        _cts?.Cancel();
+        effectRun?.Cancel();
+        if (timelineManager != null) timelineManager.StopTimeline();
         ResetImages();
-        spriteAnimationManager.ActiveSelf(false);
-        spriteAnimationManager.SetInactive();
-
-        spineAnimationManager.SetInactive();
-        spineAnimationManager.ActiveSelf(false);
-
-        curEffect = EEffectType.None;
+        spriteAnimationManager?.SetInactive();
+        spriteAnimationManager?.ActiveSelf(false);
+        if (spineAnimationManager != null)
+        {
+            spineAnimationManager.SetInactive();
+            spineAnimationManager.ActiveSelf(false);
+        }
     }
 
-    public async UniTask PlayCutScene(
-        string id,
-        UniTaskCompletionSource tcs = null)
-    {
-        Logger.Log($"Play CutScene : {id}");
+    void OnDisable() => ClearCutScene();
+    void OnDestroy() => spriteAnimationManager?.Release();
 
-        if (!data.TryGet(id, out NewCutSceneRefData cutScene))
+    public async UniTask PlayCutScene(string id, UniTaskCompletionSource tcs = null, CancellationToken token = default)
+    {
+        if (_cts != null) throw new InvalidOperationException("A cutscene is already playing; cancel and await it first.");
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
+        _cts = source;
+        try
         {
-            Debug.LogWarning($"[CutsceneManager] 컷씬 ID를 찾을 수 없음: {id}");
+            source.Token.ThrowIfCancellationRequested();
+            if (data == null || !data.TryGet(id, out var cutScene)) throw new InvalidOperationException("Missing cutscene: " + id);
+            if (cutSceneCanvas != null) cutSceneCanvas.worldCamera = Camera.main;
+            switch (cutScene.Kind)
+            {
+                case ENewCutSceneKind.Timeline:
+                    await PlayTimelineCutScene(cutScene, source.Token);
+                    break;
+                case ENewCutSceneKind.Sprite:
+                    await PlaySpriteAnimationCutScene(cutScene, source.Token);
+                    break;
+                default: throw new NotSupportedException("Unsupported cutscene kind: " + cutScene.Kind + " (" + id + ")");
+            }
+            source.Token.ThrowIfCancellationRequested();
+            tcs?.TrySetResult();
+        }
+        catch (OperationCanceledException) { tcs?.TrySetCanceled(source.Token); throw; }
+        catch (Exception e) { tcs?.TrySetException(e); throw; }
+        finally { if (ReferenceEquals(_cts, source)) _cts = null; }
+    }
+
+    /// <summary>Retains the loaded asset until the director has stopped and cleared its bindings.</summary>
+    public async UniTask PlayTimelineCutScene(NewCutSceneRefData data, CancellationToken token, UniTaskCompletionSource tcs = null)
+    {
+        var outside = FindFirstObjectByType<OustideTimelineManager>();
+        if (outside != null && outside.TryGetSceneTimeline(data.ResourceKey, out _))
+        {
+            try { await outside.PlayTimelineCutSceneAsync(data.Id, token); tcs?.TrySetResult(); }
+            catch (OperationCanceledException) { tcs?.TrySetCanceled(token); throw; }
+            catch (Exception e) { tcs?.TrySetException(e); throw; }
             return;
         }
-
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = new CancellationTokenSource();
-
-        var token = CancellationTokenSource
-            .CreateLinkedTokenSource(_cts.Token, this.GetCancellationTokenOnDestroy())
-            .Token;
-
-        cutSceneCanvas.worldCamera = Camera.main;
-
-        //Enter, Exit 구조 변경.
-
-        switch (cutScene.Kind)
-        {
-            case ENewCutSceneKind.Timeline:
-                await PlayTimelineCutScene(cutScene, token, tcs);
-                break;
-
-            case ENewCutSceneKind.Sprite:
-                await PlaySpriteAnimationCutScene(cutScene, token, tcs);
-                break;
-
-            default:
-                // gif는 아직 재생기가 없다. 조용히 지나가면 연출이 빠진 것을 알 수 없어 남긴다.
-                Logger.LogWarning($"[CutsceneManager] 재생기가 없는 컷씬 종류입니다: {cutScene.Kind} ({id})");
-                tcs?.TrySetResult();
-                break;
-        }
-    }
-
-
-    /// <summary>
-    /// 타임라인 컷씬을 재생하고 길이만큼 기다린다.
-    ///
-    /// 어드레서블 키는 컷씬 id가 아니라 resource_key다. 둘은 다르다 — tl_intro_lab의 실제 키는
-    /// "Intro lab"이다. 예전에는 id를 그대로 키로 썼는데, 그래서 이름을 바꾸면 로드가 끊겼다.
-    /// </summary>
-    public async UniTask PlayTimelineCutScene(
-        NewCutSceneRefData data,
-        CancellationToken token,
-        UniTaskCompletionSource tcs = null)
-    {
         var handle = await ResourceLoader.TryLoadAsync<TimelineAsset>(data.ResourceKey, token);
-
-        if (handle.HasValue)
+        try
         {
-            timelineManager.PlayTimelineCutScene(handle.Value.Result);
-            await UniTask.WaitForSeconds((float)handle.Value.Result.duration);
+            token.ThrowIfCancellationRequested();
+            if (!handle.HasValue || timelineManager == null)
+                throw new InvalidOperationException($"Cannot play timeline {data.Id} (resource_key={data.ResourceKey}).");
+            await timelineManager.PlayTimelineCutSceneAsync(handle.Value.Result, token);
+            tcs?.TrySetResult();
         }
-        else
-        {
-            Logger.LogWarning($"[CutsceneManager] 타임라인을 찾지 못했습니다: {data.Id} (resource_key={data.ResourceKey})");
-            await UniTask.WaitForSeconds(1f);
-        }
-
-        if (tcs != null)
-            tcs.TrySetResult();
-
-        ResourceLoader.ReleaseHandle<TimelineAsset>(ref handle);
+        catch (OperationCanceledException) { tcs?.TrySetCanceled(token); throw; }
+        catch (Exception e) { tcs?.TrySetException(e); throw; }
+        finally { ResourceLoader.ReleaseHandle<TimelineAsset>(ref handle); }
     }
 
-
-
-    /// <summary>
-    /// 추후 다른 값들에 대한 처리, position, loop, blocking 등
-    /// 
-    /// </summary>
-    /// <param name="data"></param>
-    /// <param name="token"></param>
-    /// <param name="tcs"></param>
-    /// <returns></returns>
-    private async UniTask PlaySpriteAnimationCutScene(
-        NewCutSceneRefData data,
-        CancellationToken token,
-        UniTaskCompletionSource tcs = null)
+    async UniTask PlaySpriteAnimationCutScene(NewCutSceneRefData data, CancellationToken token)
     {
         var handle = await ResourceLoader.TryLoadAsync<AnimationClip>(data.ResourceKey, token);
-
-        if (handle.HasValue)
+        try
         {
+            token.ThrowIfCancellationRequested();
+            if (!handle.HasValue || spriteAnimationManager == null)
+                throw new InvalidOperationException($"Cannot play sprite cutscene {data.Id} (resource_key={data.ResourceKey}).");
+            spriteAnimationManager.EnsureInitialized();
             spriteAnimationManager.ActiveSelf(true);
             spriteAnimationManager.SetClip(ANIM_SLOT, handle);
-            spriteAnimationManager.PlayAnimation(ANIM_SLOT, token);
-            await PlayEffectAsync(EEffectType.FadeOut, 1f);
-            await UniTask.WaitForSeconds(handle.Value.Result.length);
-            await PlayEffectAsync(EEffectType.FadeOut, 1f);
+            await spriteAnimationManager.PlayAnimation(ANIM_SLOT, token);
         }
-        else
+        finally
         {
-            Logger.LogWarning($"[CutsceneManager] 스프라이트 애니메이션을 찾지 못했습니다: {data.Id} (resource_key={data.ResourceKey})");
-            await UniTask.WaitForSeconds(1f);
+            spriteAnimationManager?.SetInactive();
+            spriteAnimationManager?.ActiveSelf(false);
+            ResourceLoader.ReleaseHandle<AnimationClip>(ref handle);
         }
-
-        if (tcs != null)
-            tcs.TrySetResult();
-
-        ResourceLoader.ReleaseHandle<AnimationClip>(ref handle);
     }
 
-
-
-    public async UniTask PlayEffectAsync(EEffectType type, float duration, float intensity = 0f)
+    public async UniTask PlayEffectAsync(EEffectType type, float duration, float intensity = 0f, CancellationToken token = default)
     {
-        await ExecuteEffect(type, duration, intensity);
+        if (effectRun != null) throw new InvalidOperationException("A cutscene effect is already playing.");
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
+        effectRun = source;
+        var position = canvasRect != null ? canvasRect.anchoredPosition : Vector2.zero;
+        var scale = canvasRect != null ? canvasRect.localScale : Vector3.one;
+        try
+        {
+            source.Token.ThrowIfCancellationRequested();
+            await ExecuteEffect(type, duration, intensity, source.Token);
+        }
+        finally
+        {
+            if (canvasRect != null) { canvasRect.anchoredPosition = position; canvasRect.localScale = scale; }
+            if (source.IsCancellationRequested && effectOverlay != null) effectOverlay.gameObject.SetActive(false);
+            if (ReferenceEquals(effectRun, source)) effectRun = null;
+        }
     }
-    async UniTask ExecuteEffect(EEffectType type, float duration = 1f, float intensity = 0)
+
+    async UniTask ExecuteEffect(EEffectType type, float duration, float intensity, CancellationToken token)
     {
-        //추후 타입 따라 처리를 다륵 ㅔ할 것인지, 지금은 현재와 동일 한거라면 return
-        if (curEffect == type) return;
-
-        curEffect = type;
-
         switch (type)
         {
             case EEffectType.FadeOut:
                 effectOverlay.color = new Color(1, 1, 1, 1);
                 effectOverlay.gameObject.SetActive(true);
-                await effectOverlay.DOFade(0f, duration).ToUniTask();
+                await effectOverlay.DOFade(0f, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 effectOverlay.gameObject.SetActive(false);
                 break;
 
             case EEffectType.FadeIn:
                 effectOverlay.color = new Color(1, 1, 1, 0);
                 effectOverlay.gameObject.SetActive(true);
-                await effectOverlay.DOFade(1f, duration).ToUniTask();
+                await effectOverlay.DOFade(1f, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEffectType.FlashWhite:
                 effectOverlay.color = Color.white;
                 effectOverlay.gameObject.SetActive(true);
-                await effectOverlay.DOFade(0f, duration).ToUniTask();
+                await effectOverlay.DOFade(0f, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 effectOverlay.gameObject.SetActive(false);
                 break;
 
             case EEffectType.ScreenShake:
                 await canvasRect.DOShakeAnchorPos(duration, intensity, 20, 90, false, true)
-                                .ToUniTask();
+                                .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEffectType.ZoomPulse:
 
                 await canvasRect.DOScale(intensity, duration * 0.5f)
                                 .SetEase(Ease.OutQuad)
-                                .ToUniTask();
+                                .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 await canvasRect.DOScale(1f, duration * 0.5f)
                                 .SetEase(Ease.InQuad)
-                                .ToUniTask();
+                                .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEffectType.Vignette:
                 effectOverlay.gameObject.SetActive(true);
                 effectOverlay.color = new Color(0, 0, 0, 0);
-                await effectOverlay.DOFade(0.7f, duration).ToUniTask();
+                await effectOverlay.DOFade(0.7f, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEffectType.Dim:
                 effectOverlay.color = new Color(0, 0, 0, 0);
                 effectOverlay.gameObject.SetActive(true);
-                await effectOverlay.DOFade(intensity, duration).ToUniTask();
+                await effectOverlay.DOFade(intensity, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEffectType.Chromatic:
                 Debug.Log("[CutsceneManager] chromatic — 현재 오버레이 근사치 사용 중");
-                await UniTask.Delay(TimeSpan.FromSeconds(duration));
+                await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: token);
                 break;
 
             default:
@@ -306,7 +284,7 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
 
     public EEffectType ConvertStringToEffect(string input)
     {
-        return input.ToLower() switch
+        return input?.ToLowerInvariant() switch
         {
             "fade_in" => EEffectType.FadeIn,
             "fade_out" => EEffectType.FadeOut,
@@ -344,11 +322,12 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     {
         foreach (var kvp in activeImages)
         {
+            if (kvp.Value == null) continue;
             kvp.Value.gameObject.SetActive(false);
             imagePool.Enqueue(kvp.Value);
         }
 
-        effectOverlay.gameObject.SetActive(false);
+        if (effectOverlay != null) effectOverlay.gameObject.SetActive(false);
         activeImages.Clear();
     }
 }

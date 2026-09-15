@@ -41,18 +41,19 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter
             actor,
             Vector2.zero,
             Color.white,
-            actor == PLAYER_ID));
+            actor == PLAYER_ID), token: token);
     }
 
     public void SkipTyping()
     {
-        typer.OnScreenClick();
+        if (typer != null) typer.OnScreenClick();
     }
 
     public void EndScene()
     {
         playMode = EActivationMode.None;
-        typer.ClearText();
+        if (typer != null) typer.ClearText();
+        if (choiceManager != null) choiceManager.CloseChoices();
         HideDialogue();
     }
 }

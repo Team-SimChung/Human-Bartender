@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine.Timeline;
 
 /// <summary>
@@ -10,6 +12,5 @@ public interface IOutsideTimeliner
     public void PlayTimelineCutScene(string id);
     /// <summary>전달받은 TimelineAsset을 직접 재생한다.</summary>
     public void PlayTimelineCutScene(TimelineAsset timeline);
-    /// <summary>CutsceneDialogueHandler에 대사 라인 목록을 초기화한다.</summary>
-    public void InitHandler(List<CutsceneLine> lines);
+    UniTask PlayTimelineCutSceneAsync(string id, CancellationToken token = default);
 }

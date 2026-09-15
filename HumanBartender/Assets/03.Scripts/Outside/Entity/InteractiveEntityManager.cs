@@ -1,230 +1,149 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
-[System.Serializable]
-public struct Entity
-{
-    public string id;
-    public InteractiveEntity entity;
-
-    public Entity(string id, InteractiveEntity entity)
-    {
-        this.id = id;
-        this.entity = entity;
-    }
-}
-
-/// <summary>테스트 모드에서 강제로 세팅할 플래그 값.</summary>
-[System.Serializable]
-public struct TestFlag
-{
-    public string flag;
-    public bool bValue;
-}
-
-/// <summary>
-/// 실외 씬의 모든 상호작용 엔티티(오브젝트/NPC/트리거)를 현재 날짜·게임 흐름·조건에 맞춰
-/// 스폰 여부와 표시할 대사(street 데이터의 steps)를 매 씬 진입 시 갱신하는 총괄 매니저.
-/// </summary>
+/// <summary>CSV 조건에 맞는 행과 대화를 선택하여 씬 엔티티에 연결한다.</summary>
 public class InteractiveEntityManager : MonoBehaviour
 {
-    [Header("Test")]
-    [SerializeField] bool isTest = false;
-    [SerializeField] int testDay = 0;
-    [SerializeField] EGameFlow testFlow = EGameFlow.CommuteIn;
-    [SerializeField] List<TestFlag> testFlags = new List<TestFlag>();
-
     [Header("Data")]
-    //=================================================================
     [SerializeField] protected NewInteractPointDataSO InteractPointData;
     [SerializeField] protected NewStreetDataSO streetData;
     [SerializeField] protected NewSpotDataSO SpotData;
-
-    //===========================================
-    [SerializeField] private List<Entity> entityList = new();
-    private HashSet<string> spawnHistory = new HashSet<string>();
-    private HashSet<string> onceHistory = new HashSet<string>();
-    [Header("Player")]
     [SerializeField] GameObject player;
-
-
-    [Inject] IPlayerDataWriter testPlayerWriter;
-    [Inject] IPlayerDataReader playerData;
-    [Inject] ISoundManager soundManager;
-    [Inject] IObjectResolver resolver;
-    [Inject] IConditionUtil conditionUtil;
-    //day 값 보고 검사 하기
-    void Awake()
-    {
-    }
-    //기본값 주입
     [SerializeField] protected ITrackedbleEvent OnTrackedText;
     [SerializeField] protected DialogueRunner runner;
     [SerializeField] protected OutsideDialoguePresenter presenter;
     [SerializeField] protected InteractableEvent OnInteracted;
     [SerializeField] protected VoidEvent OnRefreshCondition;
-    /// <summary>
-    /// (테스트 모드면 날짜/흐름/플래그를 강제 세팅 후) BGM 재생, 출입구 활성화, 엘리베이터 위치,
-    /// 플레이어 스폰 위치를 현재 GameFlow에 맞춰 초기화하고 엔티티 상태를 갱신한다.
-    /// </summary>
-    private void Start()
+
+    [Inject] ISoundManager soundManager;
+    [Inject] IConditionUtil conditionUtil;
+    [Inject] IObjectResolver resolver;
+    readonly Dictionary<string, InteractiveEntity> entities = new(StringComparer.Ordinal);
+    readonly Dictionary<string, SpotPoint> sceneSpots = new(StringComparer.Ordinal);
+    readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
+    public bool IsReady { get; private set; }
+
+    async void Start()
     {
-        if (isTest)
+        try
         {
-            GameStateManager.Instance.CurrentDay = testDay;
-            GameStateManager.Instance.GameFlow = testFlow;
+            var token = this.GetCancellationTokenOnDestroy();
+            await NewDataLoadManager.WaitUntilLoadedAsync(token);
+            foreach (var spots in FindObjectsByType<OutsideSpotManager>(FindObjectsSortMode.None))
+                if (spots.gameObject.scene == gameObject.scene) await spots.EnsureRegisteredAsync(token);
+            token.ThrowIfCancellationRequested();
+            if (InteractPointData == null || streetData == null || SpotData == null || conditionUtil == null)
+                throw new InvalidOperationException("Interaction data or conditions are missing.");
 
-            foreach (var flag in testFlags)
+            foreach (var spot in FindObjectsByType<SpotPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (spot.gameObject.scene == gameObject.scene && !string.IsNullOrWhiteSpace(spot.SpotID) &&
+                    !sceneSpots.TryAdd(spot.SpotID, spot))
+                    throw new InvalidOperationException("Duplicate scene spot_id: " + spot.SpotID);
+
+            foreach (var entity in GetComponentsInChildren<InteractiveEntity>(true))
             {
-                testPlayerWriter.AddFlag(flag.flag, flag.bValue);
+                if (string.IsNullOrWhiteSpace(entity.souceid)) continue;
+                if (!entities.TryAdd(entity.souceid, entity))
+                    throw new InvalidOperationException("Duplicate scene source_id: " + entity.souceid);
+                resolver?.Inject(entity);
+                if (entity is InteractiveNPCEntity npc)
+                    npc.Init(OnInteracted, OnRefreshCondition, OnTrackedText, runner, presenter, this);
+                else entity.Init(OnInteracted, OnRefreshCondition);
             }
+            soundManager?.PlayBGM("BGM_outside");
+            IsReady = true;
+            RefreshEntity();
+            if (player != null && player.TryGetComponent<Player>(out var actor)) actor.setpos();
         }
-
-        Logger.Log("Entity Init");
-        soundManager.PlayBGM("BGM_outside");
-
-
-        // 자식 Entity 들에 의존성 주입
-        InjectAndRegisterChildEntities();
-
-        RefreshEntity();
-        if(player != null)
-        player.GetComponent<Player>().setpos();
+        catch (OperationCanceledException) { }
+        catch (Exception e) { IsReady = false; Debug.LogError($"[EntityManager] 초기화 실패: {e}"); }
     }
 
-    private void InjectAndRegisterChildEntities()
+    // 같은 source_id는 높은 priority, 동률이면 고정 ID 순으로 선택한다.
+    public static NewInteractPointData? SelectDefinition(IEnumerable<NewInteractPointData> rows,
+        string sourceId, EGameFlow phase, Func<string, bool> check)
     {
-        entityList.Clear();
-
-        var entities = GetComponentsInChildren<InteractiveEntity>(true);
-
-        foreach (var entity in entities)
-        {
-            // 1. null 체크 및 ID 유효성 검사 (null, "", " " 일 때 모두 제외)
-            if (entity == null || string.IsNullOrWhiteSpace(entity.souceid))
-            {
-                Debug.LogWarning($"[EntityManager] sourceId가 널이거나 비어있어 등록에서 제외됨: {entity?.gameObject.name}");
-                continue;
-            }
-
-            // 2. 의존성 주입 (Init)
-            if (entity is InteractiveNPCEntity npcEntity)
-            {
-                npcEntity.Init(OnInteracted, OnRefreshCondition, OnTrackedText, runner, presenter,this);
-            }
-            else
-            {
-                entity.Init(OnInteracted, OnRefreshCondition);
-            }
-
-            // 3. 리스트에 등록
-            entityList.Add(new Entity(entity.souceid, entity));
-        }
-
-        Logger.Log($"[EntityManager] 총 {entityList.Count}개의 Entity가 주입 및 등록되었습니다.");
+        foreach (var row in rows.Where(r => r.SourceId == sourceId)
+                     .OrderByDescending(r => r.Priority).ThenBy(r => r.Id, StringComparer.Ordinal))
+            if ((row.Phase == phase || row.Phase == EGameFlow.Both) && check(row.SpawnWhen)) return row;
+        return null;
     }
 
     public void RefreshEntity()
     {
-        spawnHistory.Clear();
-
-        foreach (var entity in InteractPointData.interactPointData)
+        if (!IsReady) return;
+        var rows = InteractPointData.interactPointData ?? Array.Empty<NewInteractPointData>();
+        foreach (var pair in entities)
         {
-            // 1. 엔티티 존재 여부 안전 검사
-            Entity found = entityList.Find(e => e.id == entity.SourceId);
-            InteractiveEntity curentity = found.entity;
-            if (curentity == null)
+            var target = pair.Value;
+            if (target == null) continue;
+            try
             {
-                // 딕셔너리에서 검색 실패했을 때와 동일한 예외 처리
-                Debug.LogWarning($"[EntityManager] {entity.SourceId}에 해당하는 엔티티를 찾을 수 없습니다.");
-                continue;
-            }
-            // 2. 스폰 조건 검사 (조건 불만족 시 비활성화 후 스킵)
-            if (!conditionUtil.Check(entity.SpawnWhen) || (GameStateManager.Instance.GameFlow != entity.Phase&& EGameFlow.Both != entity.Phase))
-            {
-                if (!spawnHistory.Contains(entity.SourceId))
+                var selected = SelectDefinition(rows, pair.Key, GameStateManager.Instance.GameFlow, conditionUtil.CheckRequired);
+                if (!selected.HasValue)
                 {
-                    curentity.gameObject.SetActive(false);
+                    target.BindContent(null, null, false);
+                    target.gameObject.SetActive(false);
+                    continue;
                 }
-                continue;
-            }
-
-            // 3. 스팟 좌표 정보 조회
-            if (!SpotData.TryGetData(entity.SpotId, out var curSpot))
-            {
-                Debug.LogError($"[InteractEntityManager] {entity.Id}: Spot({entity.SpotId}) 정보를 불러오는 데 실패했습니다.");
-            }
-            else
-            {
-                curentity.gameObject.transform.position = curSpot.Position;
-            }
-
-                // 4. 엔티티 활성화 및 기본 정보 설정
-                curentity.gameObject.SetActive(true);
-            spawnHistory.Add(entity.SourceId);
-
-            curentity.kind = entity.Kind;
-            curentity.ActivationMode = entity.ActivationMode;
-            curentity.ActionType = entity.ActionType;
-
-            // 5. 상호작용 조건 및 대화 흐름(Dialogue Flow) 결정
-            if (entity.InteractWhen == null || conditionUtil.Check(entity.InteractWhen))
-            {
-                curentity.isInteract = true;
-
-                int minSeq = int.MaxValue; // 안전한 최소값 비교용 초기화
-                string targetSceneId = string.Empty;
-
-                if (entity.DialogueFlows != null)
+                var row = selected.Value;
+                if (!SpotData.TryGetData(row.SpotId, out var spot) || !sceneSpots.TryGetValue(row.SpotId, out var anchor) || anchor == null)
+                    throw new InvalidOperationException($"Missing spot: {row.SpotId} ({row.Id})");
+                spot.Position = anchor.transform.position;
+                spot.Rotation = anchor.transform.rotation;
+                NewSceneData? dialogue = null;
+                bool allowed = row.ActionType != EActionType.None && conditionUtil.CheckRequired(row.InteractWhen);
+                if (row.ActionType == EActionType.Dialogue)
                 {
-                    foreach (var data in entity.DialogueFlows)
+                    var flow = SelectDialogue(row);
+                    if (flow.HasValue)
                     {
-                        // 조건 검사
-                        if (data.When != null && !conditionUtil.Check(data.When)) continue;
-                        if (data.PlayType == EPlayType.Once && onceHistory.Contains(data.SceneId)) continue;
-
-                        // 우선순위가 더 높은(flow_seq가 더 작은) 대화 씬 선택
-                        if (data.FlowSeq < minSeq)
-                        {
-                            minSeq = data.FlowSeq;
-                            targetSceneId = data.SceneId;
-                        }
+                        if (!streetData.TryGetSceneData(flow.Value.SceneId, out var scene))
+                            throw new InvalidOperationException("Missing dialogue: " + flow.Value.SceneId);
+                        dialogue = scene;
                     }
+                    allowed &= dialogue.HasValue;
                 }
-
-                // 선택된 대화 씬 적용
-                if (string.IsNullOrEmpty(targetSceneId))
+                if (row.ActionType != EActionType.None && !target.SupportsAction(row))
+                    throw new InvalidOperationException($"{target.GetType().Name} cannot run {row.ActionType}/{row.ActionRef} ({row.Id})");
+                target.BindContent(row, dialogue, allowed);
+                target.ApplySpot(spot);
+                if (row.Facing is "left" or "right")
                 {
-                    if (curentity.ActionType == EActionType.Dialogue)
-                    {
-                        curentity.isInteract = false; curentity.steps = null;
-                    }
+                    var scale = target.transform.localScale;
+                    scale.x = Mathf.Abs(scale.x) * (row.Facing == "left" ? -1 : 1);
+                    target.transform.localScale = scale;
                 }
-                else
-                {
-                    if (streetData.TryGetSceneData(targetSceneId, out NewSceneData sceneData))
-                    {
-                        curentity.steps = sceneData.Steps;
-                        curentity.DialogueSceneId = targetSceneId;
-                    }
-                    else
-                    {
-                        Debug.LogError($"[InteractEntityManager] {entity.Id}: Scene({targetSceneId}) 정보를 불러오는 데 실패했습니다.");
-                    }
-                }
+                target.gameObject.SetActive(true);
             }
-            else
+            catch (Exception e)
             {
-                curentity.isInteract = false;
+                target.BindContent(null, null, false);
+                target.gameObject.SetActive(false);
+                Debug.LogError($"[EntityManager] {pair.Key}: {e.Message}");
             }
         }
     }
-    public void CompleteDialogue(string sceneId)
+
+    NewInteractDialogueFlowData? SelectDialogue(NewInteractPointData row)
     {
-        if (!string.IsNullOrEmpty(sceneId))
-            onceHistory.Add(sceneId);
+        foreach (var flow in (row.DialogueFlows ?? Array.Empty<NewInteractDialogueFlowData>())
+                     .OrderBy(f => f.FlowSeq).ThenBy(f => f.SceneId, StringComparer.Ordinal))
+        {
+            if (flow.Day.HasValue && flow.Day.Value != GameStateManager.Instance.CurrentDay) continue;
+            if (!conditionUtil.CheckRequired(flow.When)) continue;
+            if (flow.PlayType == EPlayType.Once && onceHistory.Contains(flow.SceneId)) continue;
+            return flow;
+        }
+        return null;
     }
 
+    public void CompleteDialogue(string sceneId, StoryExecutionResult result)
+    {
+        if (result.Completed && !string.IsNullOrEmpty(sceneId)) onceHistory.Add(sceneId);
+    }
 }

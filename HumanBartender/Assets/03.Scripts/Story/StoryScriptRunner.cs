@@ -102,20 +102,28 @@ public class StoryScriptRunner : MonoBehaviour
         {
             advanceSignal = null;
             seatActors.Clear();
-            try
+            var cleanupErrors = new List<string>();
+            void Cleanup(Action action)
             {
-                if (currentOrder != null) craftGate?.CloseOrder(currentOrder);
-                presenter.Clear();
+                try { action(); }
+                catch (Exception e) { cleanupErrors.Add(e.Message); }
             }
-            finally
+            if (currentOrder != null && IsAlive(craftGate)) Cleanup(() => craftGate.CloseOrder(currentOrder));
+            if (IsAlive(presenter)) Cleanup(presenter.Clear);
+            currentOrder = null;
+            Cleanup(() => conditions.Result = null);
+            IsRunning = false;
+            if (cleanupErrors.Count > 0)
             {
-                currentOrder = null;
-                conditions.Result = null;
-                IsRunning = false;
+                string detail = string.Join("; ", cleanupErrors);
+                LastResult = new StoryExecutionResult(LastResult.Completed ? StoryExecutionStatus.Failed : LastResult.Status,
+                    string.IsNullOrEmpty(LastResult.Error) ? "Cleanup: " + detail : LastResult.Error + "; Cleanup: " + detail);
             }
         }
         return LastResult;
     }
+
+    static bool IsAlive(object target) => target != null && (target is not UnityEngine.Object obj || obj != null);
 
     /// <summary>
     /// 씬 하나를 재생하고, 선택지가 다른 씬을 가리키면 그쪽으로 이어 간다.
@@ -192,8 +200,7 @@ public class StoryScriptRunner : MonoBehaviour
 
                 // 선택지의 effects는 고른 항목의 것을 이미 적용했다. 스텝 자체의 effects는 그다음이다.
                 token.ThrowIfCancellationRequested();
-                token.ThrowIfCancellationRequested();
-            conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
+                conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
 
                 if (target != null) return (false, target);
 
@@ -378,13 +385,11 @@ public class StoryScriptRunner : MonoBehaviour
 
         Debug.Log($"[Story] 컷씬 — {step.Arg} ({scene.Id}#{step.Seq})");
 
-        // 재생을 시작하기 전에만 취소를 본다. ICutScenePlayer는 토큰을 받지 않아서, 일단 시작한
-        // 연출은 자기 수명대로 끝난다 — 중간에 끊으려면 그쪽 인터페이스부터 손봐야 한다.
         token.ThrowIfCancellationRequested();
 
         try
         {
-            await cutScenePlayer.PlayCutScene(step.Arg);
+            await cutScenePlayer.PlayCutScene(step.Arg, token: token);
         }
         catch (OperationCanceledException)
         {
@@ -396,7 +401,7 @@ public class StoryScriptRunner : MonoBehaviour
         }
         finally
         {
-            cutScenePlayer.ClearCutScene();
+            if (IsAlive(cutScenePlayer)) cutScenePlayer.ClearCutScene();
         }
     }
 
@@ -449,6 +454,7 @@ public class StoryScriptRunner : MonoBehaviour
         // 그 사이의 조건식이 이미 지난 잔을 보고 갈린다(§10.3).
         conditions.Result = null;
 
+        if (currentOrder != null) throw new InvalidOperationException("Previous story order has not been served.");
         currentOrder = new StoryOrder(step.Actor, cocktailId, seat, $"{scene.Id}#{step.Seq}");
 
         craftGate?.OpenOrder(currentOrder);
@@ -510,7 +516,6 @@ public class StoryScriptRunner : MonoBehaviour
         token.ThrowIfCancellationRequested();
         StoryResultContext result = craftGate.CommitServe(order, drink);
         if (result == null) throw new InvalidOperationException("Serve could not be committed.");
-        order.MarkServed();
 
         // 채점하지 못한 잔이면 결과가 없다. 그때는 결과 문맥을 비워 둔 채 간다 —
         // 뒤에서 grade를 묻는 조건식이 있으면 거기서 데이터 오류로 드러나는 편이 낫다.

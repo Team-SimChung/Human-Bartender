@@ -1,18 +1,17 @@
 using UnityEngine;
 
-/// <summary>바(Bar)/집 등 씬 경계에 위치한 출입구. 현재 게임 흐름(GameFlow)이 지정된 값과 일치할 때만 씬 전환을 허용한다.</summary>
+/// <summary>CSV에서 선택된 이동 동작을 공통 씬 전환 서비스에 전달한다.</summary>
 public class InteractEntrance : InteractiveEntity
 {
-    [Space(20f)]
-    [SerializeField] public Vector2 spawnPoint;
-    [SerializeField] EGameFlow eGameFlow;
-    [SerializeField] string targetScene;
+    public override bool SupportsAction(NewInteractPointData definition) =>
+        definition.ActionType == EActionType.Transition && OutsideActions.TryGetScene(definition.ActionRef, out _);
 
     public override void Interact(IInteractor player)
     {
-        isInteract = false;
-        player.State = EInteractorState.Interct;
-        if (GameStateManager.Instance.GameFlow == eGameFlow)
-            SceneTransitionManager.Instance.LoadScene(targetScene);
+        if (!isInteract || !isActiveAndEnabled || !Definition.HasValue) return;
+        var phase = Definition.Value.Phase;
+        if (phase != EGameFlow.Both && phase != GameStateManager.Instance.GameFlow) return;
+        // 결과가 없는 A API 호출 때문에 플레이어 입력을 영구 잠그지 않는다.
+        OutsideActions.RequestTransition(ActionRef);
     }
 }

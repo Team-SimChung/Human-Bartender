@@ -1,6 +1,9 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using System;
+using System.Threading;
 using System.Collections.Generic;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
@@ -63,6 +66,18 @@ public class CutSceneTimelineManager : MonoBehaviour
 
 
     private bool poolInitialized;
+    readonly TimelinePlayback playback = new();
+    CancellationTokenSource timelineRun;
+    Exception transitionError;
+    public CancellationToken PlaybackToken => timelineRun?.Token ?? this.GetCancellationTokenOnDestroy();
+
+    public void FailPlayback(Exception error)
+    {
+        transitionError ??= error;
+        if (director != null) director.Stop();
+    }
+    AsyncOperationHandle<SignalAsset>? signalHandle;
+    SignalAsset registeredSignal;
 
     public SignalReceiver signalReceiver; // 인스펙터에서 할당
     public AssetReferenceT<SignalAsset> serveEndSignalRef; // 인스펙터에서 ServeEnd 에셋 할당
@@ -75,18 +90,28 @@ public class CutSceneTimelineManager : MonoBehaviour
         if (director != null)
             director.stopped += OnTimelineStopped;
 
-        cutSceneRoot.anchoredPosition = Vector2.zero;
-
-        cutSceneBGRoot.anchoredPosition = Vector2.zero;
-
-        effectOverlay.gameObject.SetActive(false);
+        ResetRootPosition();
+        if (effectOverlay != null) effectOverlay.gameObject.SetActive(false);
 
     }
 
     private async void Start()
     {
-        SignalAsset trueSignal = await Addressables.LoadAssetAsync<SignalAsset>(serveEndSignalRef).Task;
-        signalReceiver.AddReaction(trueSignal, OnServeTimelineComplete);
+        if (signalReceiver == null || serveEndSignalRef == null || !serveEndSignalRef.RuntimeKeyIsValid()) return;
+        var handle = Addressables.LoadAssetAsync<SignalAsset>(serveEndSignalRef);
+        bool retained = false;
+        try
+        {
+            var signal = await handle.ToUniTask(cancellationToken: this.GetCancellationTokenOnDestroy());
+            if (this == null || signalReceiver == null) return;
+            registeredSignal = signal;
+            signalReceiver.AddReaction(signal, OnServeTimelineComplete);
+            signalHandle = handle;
+            retained = true;
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception e) { Debug.LogError($"[CutSceneTimeline] Signal load failed: {e.Message}"); }
+        finally { if (!retained && handle.IsValid()) Addressables.Release(handle); }
     }
 
     void EnsurePoolInitialized()
@@ -107,8 +132,14 @@ public class CutSceneTimelineManager : MonoBehaviour
         }
     }
 
+    void OnDisable() => playback.Stop();
+
     void OnDestroy()
     {
+        playback.Stop();
+        if (signalReceiver != null && registeredSignal != null) signalReceiver.Remove(registeredSignal);
+        if (signalHandle.HasValue && signalHandle.Value.IsValid()) Addressables.Release(signalHandle.Value);
+        signalHandle = null;
         if (director != null)
             director.stopped -= OnTimelineStopped;
     }
@@ -119,9 +150,11 @@ public class CutSceneTimelineManager : MonoBehaviour
     /// </summary>
     void OnTimelineStopped(PlayableDirector pd)
     {
+        timelineRun?.Cancel();
         ResetRootPosition();
         ResetImages();
         ClearBackground();
+        HideAllDialogueBubbles();
 
         if (effectOverlay != null)
             effectOverlay.gameObject.SetActive(false);
@@ -137,33 +170,44 @@ public class CutSceneTimelineManager : MonoBehaviour
 
     public void OnContinueCutScene()
     {
-        director.Stop();
+        if (director != null) director.Stop();
     }
 
 
 
-    public void PlayTimelineCutScene(TimelineAsset timeline)
+    public void PlayTimelineCutScene(TimelineAsset timeline) =>
+        PlayTimelineCutSceneAsync(timeline).Forget(e => { if (e is not OperationCanceledException) Debug.LogException(e); });
+
+    public async UniTask PlayTimelineCutSceneAsync(TimelineAsset timeline, CancellationToken token = default)
     {
-        if (director == null) return;
-        cutSceneRoot.anchoredPosition = Vector2.zero;
-        cutSceneBGRoot.anchoredPosition = Vector2.zero;
-
-        director.playableAsset = timeline;
-
-        foreach (var track in timeline.GetOutputTracks())
+        if (playback.IsPlaying) throw new InvalidOperationException("A UI timeline is already playing.");
+        if (director == null || timeline == null) throw new InvalidOperationException("UI timeline director or asset is missing.");
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
+        using var transitions = CancellationTokenSource.CreateLinkedTokenSource(source.Token);
+        timelineRun = transitions;
+        transitionError = null;
+        var bindings = new Dictionary<TrackAsset, UnityEngine.Object>();
+        try
         {
-            director.SetGenericBinding(track, this);
+            ResetRootPosition();
+            foreach (var track in timeline.GetOutputTracks())
+            {
+                bindings[track] = director.GetGenericBinding(track);
+                director.SetGenericBinding(track, track is SignalTrack ? (UnityEngine.Object)signalReceiver : this);
+            }
+            await playback.PlayAsync(director, timeline, source.Token);
+            if (transitionError != null) throw new InvalidOperationException("Timeline transition failed.", transitionError);
         }
-
-        director.time = 0;
-        director.Play();
+        finally
+        {
+            if (director != null)
+                foreach (var binding in bindings) director.SetGenericBinding(binding.Key, binding.Value);
+            OnTimelineStopped(director);
+            if (ReferenceEquals(timelineRun, transitions)) timelineRun = null;
+        }
     }
-    public void StopTimeline()
-    {
-        if (director != null)
-            director.Stop();
-    }
 
+    public void StopTimeline() => playback.Stop();
 
     public Image GetPooledImage()
     {
@@ -203,6 +247,7 @@ public class CutSceneTimelineManager : MonoBehaviour
     {
         EnsurePoolInitialized();
 
+        if (img == null || !activeImages.TryGetValue(imageId, out var current) || current != img) return;
         img.gameObject.SetActive(false);
         img.color = Color.white;
 
@@ -221,6 +266,7 @@ public class CutSceneTimelineManager : MonoBehaviour
 
         foreach (var kvp in activeImages)
         {
+            if (kvp.Value == null) continue;
             kvp.Value.DOKill();
             kvp.Value.GetComponent<RectTransform>().DOKill();
 
@@ -303,8 +349,11 @@ public class CutSceneTimelineManager : MonoBehaviour
 
             bubble.GetComponent<RectTransform>().DOKill();
             bubble.gameObject.SetActive(false);
-            bubble.textLabel.text = "";
-            bubble.textLabel.maxVisibleCharacters = 99999;
+            if (bubble.textLabel != null)
+            {
+                bubble.textLabel.text = "";
+                bubble.textLabel.maxVisibleCharacters = 99999;
+            }
             bubble.GetComponent<RectTransform>().localScale = Vector3.one * 0.5f;
         }
     }
@@ -345,6 +394,7 @@ public class CutSceneTimelineManager : MonoBehaviour
             ResetImageEditor(i);
 
         ClearBackground();
+        HideAllDialogueBubbles();
 
         if (effectOverlay != null)
             effectOverlay.gameObject.SetActive(false);

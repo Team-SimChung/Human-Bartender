@@ -19,19 +19,43 @@ public class SpriteAnimationManager : AnimationPart
         spriteRenderer.sprite = sprite;
     }
 
+    public void EnsureInitialized()
+    {
+        if (animator == null || baseController == null) throw new InvalidOperationException("Sprite cutscene animator/controller is missing.");
+        if (_overrideController == null) Initialize();
+    }
+
     public override async UniTask PlayAnimation(string animName, CancellationToken token)
     {
-        Vector3 vec = Camera.main.transform.position;
-        vec.z = 0;
-
-        animator.transform.localPosition = vec;
-
+        token.ThrowIfCancellationRequested();
+        if (animator == null || !animator.HasState(0, Animator.StringToHash(animName)))
+            throw new InvalidOperationException("Sprite cutscene animator state is missing: " + animName);
+        if (Camera.main != null)
+        {
+            Vector3 position = Camera.main.transform.position;
+            position.z = 0;
+            animator.transform.position = position;
+        }
         animator.enabled = true;
         animator.speed = 1f;
         animator.Play(animName, 0, 0f);
+        try
+        {
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+                if (animator == null || !animator.gameObject.activeInHierarchy)
+                    throw new InvalidOperationException("Sprite cutscene animator became unavailable.");
+                var state = animator.GetCurrentAnimatorStateInfo(0);
+                if (state.IsName(animName) && state.normalizedTime >= 1f) break;
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
+            }
+        }
+        finally { if (animator != null) animator.enabled = false; }
     }
     public void ActiveSelf(bool active)
     {
-        animator.gameObject.SetActive(active);
+        if (animator != null) animator.gameObject.SetActive(active);
     }
 }

@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 /// <summary>BG 트랙 믹서. 활성 클립에서 배경 이미지 경로를 읽어 CutSceneTimelineManager에 적용한다.</summary>
 public class CutSceneBGMixerBehaviour : PlayableBehaviour
 {
+    readonly TimelineTransitionScope transitions = new();
     private CutSceneTimelineManager manager;
     private string currentBgPath;
 
@@ -40,7 +42,7 @@ public class CutSceneBGMixerBehaviour : PlayableBehaviour
                 if (behaviour.bgPath != currentBgPath)
                 {
                     currentBgPath = behaviour.bgPath;
-                    TransitionIn(bg, sprite, behaviour).Forget();
+                    transitions.RunAsync(bg, manager, token => TransitionIn(bg, sprite, behaviour, token)).Forget();
                 }
             }
             else if (weight <= 0f && behaviour.isActive)
@@ -59,7 +61,7 @@ public class CutSceneBGMixerBehaviour : PlayableBehaviour
                     {
                         // 다음 배경 클립이 없으면 페이드 아웃
                         currentBgPath = null;
-                        TransitionOut(manager.BgImage, behaviour).Forget();
+                        transitions.RunAsync(manager.BgImage, manager, token => TransitionOut(manager.BgImage, behaviour, token)).Forget();
                     }
                     // 다음 클립이 있으면 그 클립의 TransitionIn이 처리
                 }
@@ -90,7 +92,7 @@ public class CutSceneBGMixerBehaviour : PlayableBehaviour
         return false;
     }
 
-    async UniTaskVoid TransitionIn(Image bg, Sprite sprite, CutSceneBGBehaviour behaviour)
+    async UniTask TransitionIn(Image bg, Sprite sprite, CutSceneBGBehaviour behaviour, CancellationToken token)
     {
         bg.DOKill();
 
@@ -103,7 +105,7 @@ public class CutSceneBGMixerBehaviour : PlayableBehaviour
             bg.sprite = sprite;
             bg.SetNativeSize();
             bg.gameObject.SetActive(true);
-            await bg.DOFade(behaviour.tint.a, behaviour.fadeInDuration).ToUniTask();
+            await bg.DOFade(behaviour.tint.a, behaviour.fadeInDuration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
         }
         else
         {
@@ -114,13 +116,13 @@ public class CutSceneBGMixerBehaviour : PlayableBehaviour
         }
     }
 
-    async UniTaskVoid TransitionOut(Image bg, CutSceneBGBehaviour behaviour)
+    async UniTask TransitionOut(Image bg, CutSceneBGBehaviour behaviour, CancellationToken token)
     {
         bg.DOKill();
 
         if (behaviour.fadeOutDuration > 0)
         {
-            await bg.DOFade(0f, behaviour.fadeOutDuration).ToUniTask();
+            await bg.DOFade(0f, behaviour.fadeOutDuration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
             bg.gameObject.SetActive(false);
         }
         else
@@ -169,6 +171,7 @@ public class CutSceneBGMixerBehaviour : PlayableBehaviour
 
     public override void OnPlayableDestroy(Playable playable)
     {
+        transitions.CancelAll();
         if (manager != null)
             manager.ClearBackground();
 

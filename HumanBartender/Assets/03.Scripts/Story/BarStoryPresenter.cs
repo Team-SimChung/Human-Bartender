@@ -53,12 +53,11 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     {
         if (textView == null)
         {
-            Debug.LogError("[BarStory] textView가 비어 있어 대사를 띄우지 못했습니다.");
-            return;
+            throw new InvalidOperationException("[BarStory] textView가 비어 있습니다.");
         }
 
         if (!request.IsPlayer && !string.IsNullOrEmpty(request.Expression) && characterManager != null)
-            await characterManager.SetCharacterAsync(request.ActorId, request.Expression);
+            await characterManager.SetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
 
         ResolveSpeaker(request.ActorId, out string displayName, out Color32 nameColor);
 
@@ -66,24 +65,28 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             ? characterManager.GetCharacterPosition(request.ActorId)
             : Vector3.zero;
 
-        characterManager?.OnDialogueStart(request.ActorId);
-
-        await textView.StartType(
-            new TypingData(request.Body, displayName, speakerPos, nameColor, request.IsPlayer));
-
-        characterManager?.OnDialogueEnd(request.ActorId);
+        token.ThrowIfCancellationRequested();
+        if (characterManager != null) characterManager.OnDialogueStart(request.ActorId);
+        try
+        {
+            await textView.StartType(new TypingData(request.Body, displayName, speakerPos, nameColor, request.IsPlayer), token: token);
+        }
+        finally
+        {
+            if (characterManager != null) characterManager.OnDialogueEnd(request.ActorId);
+        }
     }
 
     public async UniTask EnterAsync(string actorId, ESlotType slot, CancellationToken token)
     {
         if (characterManager == null) return;
 
-        await characterManager.SetCharacterAsync(actorId, DefaultExpression, slot);
+        await characterManager.SetCharacterAsync(actorId, DefaultExpression, slot, token);
     }
 
     public void Exit(ESlotType slot)
     {
-        characterManager?.ResetCharacter(slot);
+        if (characterManager != null) characterManager.ResetCharacter(slot);
     }
 
     /// <summary>
@@ -177,23 +180,22 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
         {
             return await completion.Task.AttachExternalCancellation(token);
         }
-        catch (OperationCanceledException)
+        finally
         {
-            // 씬이 끝나 기다림이 풀린 것이다. 띄워 둔 선택지는 치우고 나간다.
-            choiceView.CloseChoices();
-            throw;
+            if (choiceView != null) choiceView.CloseChoices();
         }
     }
 
     public void SkipTyping()
     {
-        textView?.OnScreenClick();
+        if (textView != null) textView.OnScreenClick();
     }
 
     public void Clear()
     {
-        characterManager?.ResetCharacter();
-        choiceView?.CloseChoices();
+        if (textView != null) textView.ClearText();
+        if (choiceView != null) choiceView.CloseChoices();
+        if (characterManager != null) characterManager.ResetCharacter();
     }
 
     /// <summary>characters.json에서 화면에 적을 이름과 색을 찾는다. 없으면 id를 그대로 쓴다.</summary>

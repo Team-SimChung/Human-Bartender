@@ -6,10 +6,16 @@ using UnityEngine;
 public class OutsideElevatorRadio : InteractiveNPCEntity
 {
     private CancellationTokenSource playCts;
+    UniTaskCompletionSource playbackFinished;
+
+    public override void ApplySpot(NewSpotData spot)
+    {
+        if (GetComponentInParent<OutsideElevator>() == null) base.ApplySpot(spot);
+    }
 
     public override void Interact(IInteractor player)
     {
-        if (isTalking) return;
+        if (!isActiveAndEnabled || !isInteract || isTalking) return;
 
         if (runner == null || presenter == null)
         {
@@ -27,17 +33,25 @@ public class OutsideElevatorRadio : InteractiveNPCEntity
         if (runner.IsRunning) return;
 
         isTalking = true;
-        isInteracting = true;
 
         playCts = CancellationTokenSource.CreateLinkedTokenSource(
             this.GetCancellationTokenOnDestroy());
 
-        PlayRadioAsync(playCts).Forget();
+        playbackFinished = new UniTaskCompletionSource();
+        PlayAndCompleteAsync(playCts, playbackFinished).Forget(Debug.LogException);
+    }
+
+    async UniTask PlayAndCompleteAsync(CancellationTokenSource source, UniTaskCompletionSource completion)
+    {
+        try { await PlayRadioAsync(source); }
+        finally { completion.TrySetResult(); }
     }
 
     private async UniTask PlayRadioAsync(
         CancellationTokenSource playback)
     {
+        var script = steps;
+        var sceneId = DialogueSceneId;
         try
         {
             presenter.playMode = EActivationMode.Proximity;
@@ -47,7 +61,9 @@ public class OutsideElevatorRadio : InteractiveNPCEntity
             OnInteracted?.Raise(this);
             OnTrackedText?.Raise(this);
 
-            await runner.PlayOutsideAsync(steps, playback.Token);
+            var result = await runner.PlayOutsideAsync(script, playback.Token);
+            if (entityManager != null) entityManager.CompleteDialogue(sceneId, result);
+            if (result.Status == StoryExecutionStatus.Failed) Debug.LogError($"[Radio] {result.Error}");
         }
         catch (OperationCanceledException)
         {
@@ -59,12 +75,12 @@ public class OutsideElevatorRadio : InteractiveNPCEntity
             {
                 playCts = null;
                 isTalking = false;
-                isInteracting = false;
 
                 OnTrackedText?.Raise(null);
             }
 
             playback.Dispose();
+            if (isActiveAndEnabled && entityManager != null && entityManager.isActiveAndEnabled) entityManager.RefreshEntity();
         }
     }
 
@@ -74,8 +90,17 @@ public class OutsideElevatorRadio : InteractiveNPCEntity
         playCts?.Cancel();
     }
 
-    private void OnDisable()
+    public async UniTask EndInteractAsync()
     {
+        if (playCts == null) return;
+        var completion = playbackFinished;
+        EndInteract();
+        await completion.Task;
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
         EndInteract();
     }
 }

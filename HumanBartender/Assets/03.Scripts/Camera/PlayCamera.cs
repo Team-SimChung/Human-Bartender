@@ -21,7 +21,7 @@ public class PlayCamera : MonoBehaviour, ISlotCamera
 
     [Header("Slot Options (1부)")]
     [Tooltip("1부 손님 자리별 카메라 위치. 2부는 이 표를 쓰지 않는다 — 자리도 프레임도 다르다.")]
-    [SerializeField] private SlotCameraOption[] slotOptions;
+    [SerializeField] private SlotCameraOption[] slotOptions = System.Array.Empty<SlotCameraOption>();
     [SerializeField] private AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     private static readonly ESlotType[] SlotOrder = { ESlotType.Left, ESlotType.Middle, ESlotType.Right };
@@ -29,18 +29,23 @@ public class PlayCamera : MonoBehaviour, ISlotCamera
     private Dictionary<ESlotType, SlotCameraOption> _slotMap;
     private int _currentSlotIndex = 1; // Middle
 
-    private void Start()
+    private void Awake() => EnsureSlots();
+
+    void EnsureSlots()
     {
+        if (_slotMap != null) return;
         _slotMap = new Dictionary<ESlotType, SlotCameraOption>(slotOptions.Length);
         foreach (var opt in slotOptions)
         {
-            _slotMap[opt.slotType] = opt;
+            if (!_slotMap.TryAdd(opt.slotType, opt))
+                throw new System.InvalidOperationException("Duplicate camera slot: " + opt.slotType);
         }
     }
 
     /// <summary>지정된 슬롯의 Transform으로 cameraAnchor를 dur초 동안 부드럽게 이동시킨다.</summary>
     public void MoveToSlot(ESlotType slot, float dur = 1f)
     {
+        EnsureSlots();
         var opt = _slotMap[slot];
         cameraZoom.FollowTarget(opt.cameraParent);
         cameraZoom.TransitionFollowOffset(opt.cameraOffset, dur, ease);

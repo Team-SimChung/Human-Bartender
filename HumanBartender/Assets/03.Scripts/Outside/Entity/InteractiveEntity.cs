@@ -7,11 +7,10 @@ using UnityEngine;
 public abstract class InteractiveEntity : OutsideEntity, IInteractable
 {
     public string souceid;
-    [SerializeField] protected int priority;
     [SerializeField] private bool isAvaliable;
-    [SerializeField] protected bool isInteracting;
+    [System.NonSerialized] protected bool isInteracting;
     [SerializeField] private string label;
-    [SerializeField] private bool isInter = false;
+    [System.NonSerialized] private bool isInter;
     [SerializeField] protected Vector2 buttonOffset;
     [SerializeField] protected Vector2 textOffset;
     [SerializeField] protected OutlineHighlight outlineHighlight;
@@ -23,16 +22,34 @@ public abstract class InteractiveEntity : OutsideEntity, IInteractable
     public string EntityLabel { get => label; set => label = value; }
     public bool isInteract { get => isInter; set => isInter = value; }
 
-    public string DialogueSceneId { get; set; }
-    public ENewInteractKind kind;
-    public EActivationMode ActivationMode;
-    public EActionType ActionType;
-    public Step[] steps;
-    int IInteractable.Priority => priority;
+    public NewInteractPointData? Definition { get; private set; }
+    public string DialogueSceneId { get; private set; }
+    public ENewInteractKind kind => Definition?.Kind ?? default;
+    public EActivationMode ActivationMode => Definition?.ActivationMode ?? EActivationMode.None;
+    public EActionType ActionType => Definition?.ActionType ?? EActionType.None;
+    public string ActionRef => Definition?.ActionRef;
+    public Step[] steps { get; private set; }
+    int IInteractable.Priority => Definition?.Priority ?? 0;
     string IInteractable.Label => label;
     Vector2 ITrackedble.ButtonOffset => buttonOffset;
     Vector2 ITrackedble.TextOffset => textOffset;
     bool ITrackedble.IsAvaliable => isAvaliable;
+
+    // 실행 설정은 CSV에서 선택한 행 한 곳에서 읽는다.
+    public void BindContent(NewInteractPointData? definition, NewSceneData? dialogue, bool available)
+    {
+        Definition = definition;
+        DialogueSceneId = dialogue?.Id;
+        steps = dialogue?.Steps;
+        isInteract = available;
+    }
+
+    public virtual bool SupportsAction(NewInteractPointData definition) => definition.ActionType == EActionType.Dialogue;
+
+    public virtual void ApplySpot(NewSpotData spot)
+    {
+        if (!IsInteracting) transform.position = spot.Position;
+    }
     public virtual void Init(InteractableEvent onInteracted, VoidEvent onRefresh)
     {
         OnInteracted = onInteracted;

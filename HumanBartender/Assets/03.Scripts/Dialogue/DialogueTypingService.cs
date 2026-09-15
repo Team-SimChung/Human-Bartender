@@ -49,6 +49,7 @@ public static class DialogueTypingService
         CancellationToken token = default,
         string cocktailName = null)
     {
+        token.ThrowIfCancellationRequested();
         string rawSentence = data.str;
         if (!(rawSentence.Length > 0)) return;
 
@@ -81,24 +82,15 @@ public static class DialogueTypingService
         targetBubble.textLabel.maxVisibleCharacters = 0;
         int totalVisibleChars = targetBubble.TotalVisibleCharacters;
 
-        try
+        for (int i = 0; i <= totalVisibleChars; i++)
         {
-            for (int i = 0; i <= totalVisibleChars; i++)
-            {
-                targetBubble.textLabel.maxVisibleCharacters = i;
-                targetBubble.UpdateForVisible(i);
-
-                if (delayDict.ContainsKey(i))
-                    await UniTask.Delay(TimeSpan.FromSeconds(delayDict[i]), cancellationToken: token);
-
-                if (i < totalVisibleChars)
-                    await UniTask.Delay(TimeSpan.FromSeconds(typingDelay), cancellationToken: token);
-            }
-        }
-        catch (Exception)
-        {
-            targetBubble.textLabel.maxVisibleCharacters = totalVisibleChars;
-            targetBubble.UpdateForVisible(totalVisibleChars);
+            token.ThrowIfCancellationRequested();
+            targetBubble.textLabel.maxVisibleCharacters = i;
+            targetBubble.UpdateForVisible(i);
+            if (delayDict.ContainsKey(i))
+                await UniTask.Delay(TimeSpan.FromSeconds(delayDict[i]), cancellationToken: token);
+            if (i < totalVisibleChars)
+                await UniTask.Delay(TimeSpan.FromSeconds(typingDelay), cancellationToken: token);
         }
     }
 }

@@ -78,7 +78,7 @@ public struct NewInteractPointData
     [field: SerializeField][JsonProperty("note")] public string Note { get; set; }
 }
 
-/// <summary>StreamingAssets/json/interact_points.json을 보유하는 ScriptableObject.</summary>
+/// <summary>CSV에서 읽은 상호작용 정의 캐시.</summary>
 [CreateAssetMenu(fileName = "NewInteractPointDataSO", menuName = "Data/New/InteractPointDataSO")]
 public class NewInteractPointDataSO : ScriptableObject
 {

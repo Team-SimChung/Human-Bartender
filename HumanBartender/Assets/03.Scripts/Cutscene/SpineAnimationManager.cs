@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Spine;
@@ -12,6 +13,8 @@ using UnityEngine;
 public class SpineAnimationManager : MonoBehaviour
 {
     [SerializeField] private SkeletonGraphic skeletonGraphic;
+    CancellationTokenSource playback;
+    void OnDisable() => playback?.Cancel();
 
     // 컷씬 애니메이션은 보통 단일 트랙으로 충분
     private const int DEFAULT_TRACK = 0;
@@ -44,6 +47,7 @@ public class SpineAnimationManager : MonoBehaviour
     /// </summary>
     public void SetInactive()
     {
+        playback?.Cancel();
         if (skeletonGraphic == null) return;
 
         if (skeletonGraphic.AnimationState != null)
@@ -59,6 +63,7 @@ public class SpineAnimationManager : MonoBehaviour
     /// <returns>교체/초기화 성공 여부</returns>
     public bool SetSkeletonData(SkeletonDataAsset dataAsset)
     {
+        playback?.Cancel();
         if (skeletonGraphic == null)
         {
             Debug.LogError("[SpineAnimationManager] SkeletonGraphic 가 할당되지 않았습니다.");
@@ -107,44 +112,74 @@ public class SpineAnimationManager : MonoBehaviour
     /// 애니메이션을 재생한다.
     /// loop == false 인 경우 완료(Complete) 시점까지 await 한다.
     /// loop == true 인 경우 완료 시점이 없으므로 즉시 반환한다.
-    /// 토큰 취소 시 예외를 던지지 않고 조용히 종료한다.
+    /// 취소는 호출자에게 전달하며, 반복 재생도 토큰 취소 시 트랙을 정리한다.
     /// </summary>
     public async UniTask PlayAnimation(string animationName, bool loop, CancellationToken token)
     {
+        token.ThrowIfCancellationRequested();
         if (skeletonGraphic == null || skeletonGraphic.AnimationState == null)
         {
-            Debug.LogWarning("[SpineAnimationManager] 초기화되지 않은 상태에서 재생 시도");
-            return;
+            throw new InvalidOperationException("Spine is not initialized.");
         }
 
         if (string.IsNullOrEmpty(animationName) ||
             skeletonGraphic.Skeleton.Data.FindAnimation(animationName) == null)
         {
-            Debug.LogWarning($"[SpineAnimationManager] 애니메이션을 찾을 수 없음: {animationName}");
-            return;
+            throw new InvalidOperationException("Missing Spine animation: " + animationName);
         }
 
+        playback?.Cancel();
         TrackEntry entry = skeletonGraphic.AnimationState.SetAnimation(DEFAULT_TRACK, animationName, loop);
+        var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
+        playback = source;
 
-        // 루프는 끝이 없으므로 재생만 걸고 반환 (정지는 SetInactive / 토큰 취소로 제어)
-        if (loop) return;
+        if (loop)
+        {
+            ObserveLoopAsync(entry, source).Forget(e => { if (e is not OperationCanceledException) Debug.LogException(e); });
+            return;
+        }
 
         var completionSource = new UniTaskCompletionSource();
 
         void OnComplete(TrackEntry trackEntry) => completionSource.TrySetResult();
+        void OnEnd(TrackEntry trackEntry) => completionSource.TrySetCanceled(source.Token);
 
         entry.Complete += OnComplete;
+        entry.End += OnEnd;
 
         try
         {
-            // 완료되거나, 토큰이 취소되면 종료. 취소 예외는 던지지 않음.
             await completionSource.Task
-                .AttachExternalCancellation(token)
-                .SuppressCancellationThrow();
+                .AttachExternalCancellation(source.Token);
+            source.Token.ThrowIfCancellationRequested();
         }
         finally
         {
             entry.Complete -= OnComplete;
+            entry.End -= OnEnd;
+            FinishPlayback(entry, source);
         }
+    }
+
+    async UniTask ObserveLoopAsync(TrackEntry entry, CancellationTokenSource source)
+    {
+        try
+        {
+            await UniTask.WaitUntil(() => skeletonGraphic == null ||
+                skeletonGraphic.AnimationState.GetCurrent(DEFAULT_TRACK) != entry, cancellationToken: source.Token);
+        }
+        finally { FinishPlayback(entry, source); }
+    }
+
+    void FinishPlayback(TrackEntry entry, CancellationTokenSource source)
+    {
+        if (ReferenceEquals(playback, source))
+        {
+            playback = null;
+            if (source.IsCancellationRequested && skeletonGraphic != null &&
+                skeletonGraphic.AnimationState.GetCurrent(DEFAULT_TRACK) == entry)
+                skeletonGraphic.AnimationState.ClearTrack(DEFAULT_TRACK);
+        }
+        source.Dispose();
     }
 }

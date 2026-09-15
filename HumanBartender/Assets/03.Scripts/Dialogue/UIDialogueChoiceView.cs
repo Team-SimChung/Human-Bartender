@@ -46,6 +46,7 @@ public class UIDialogueChoiceView : MonoBehaviour
         for (int i = 0; i < choicePanels.Count; i++)
         {
             choicePanels[i].ResetPanel();
+            choicePanels[i].GetButton().interactable = true;
             choicePanels[i].SetActive(false);
         }
 
@@ -70,8 +71,9 @@ public class UIDialogueChoiceView : MonoBehaviour
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() =>
             {
-                OutsideChoiceSelect();
-                onSelected?.Invoke(curOutsideOptions[num]);
+                var selected = option;
+                CloseChoices();
+                onSelected?.Invoke(selected);
             });
 
             choicePanels[visibleIndex].SetActive(true);
@@ -139,12 +141,13 @@ public class UIDialogueChoiceView : MonoBehaviour
     /// <summary>선택지를 닫고 칸을 비운다.</summary>
     public void CloseChoices()
     {
-        choicesPanel.SetActive(false);
-
-        for (int i = 0; i < choicePanels.Count; i++)
+        if (choicesPanel != null) choicesPanel.SetActive(false);
+        curOutsideOptions = null;
+        foreach (var panel in choicePanels)
         {
-            choicePanels[i].ResetPanel();
-            choicePanels[i].GetButton().interactable = true;
+            if (panel == null) continue;
+            panel.ResetPanel();
+            if (panel.GetButton() != null) panel.GetButton().interactable = true;
         }
     }
 

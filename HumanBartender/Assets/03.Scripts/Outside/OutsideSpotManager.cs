@@ -1,12 +1,35 @@
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public class OutsideSpotManager : MonoBehaviour
 {
     [SerializeField] private NewSpotDataSO spotDataSO;
 
-    private void Awake()
+    UniTaskCompletionSource registration;
+    private void Awake() => EnsureRegisteredAsync().Forget(Debug.LogException);
+
+    public UniTask EnsureRegisteredAsync(CancellationToken token = default)
     {
-        RegisterAllChildSpots();
+        if (registration == null)
+        {
+            registration = new UniTaskCompletionSource();
+            RegisterAfterLoadAsync().Forget();
+        }
+        return registration.Task.AttachExternalCancellation(token);
+    }
+
+    async UniTask RegisterAfterLoadAsync()
+    {
+        try
+        {
+            // CSV 로딩이 캐시를 만든 뒤 씬 좌표를 등록한다.
+            await NewDataLoadManager.WaitUntilLoadedAsync(this.GetCancellationTokenOnDestroy());
+            RegisterAllChildSpots();
+            registration.TrySetResult();
+        }
+        catch (System.OperationCanceledException e) { registration.TrySetCanceled(e.CancellationToken); }
+        catch (System.Exception e) { registration.TrySetException(e); }
     }
 
     /// <summary>

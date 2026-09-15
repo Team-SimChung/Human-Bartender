@@ -1,0 +1,60 @@
+Errors=51 Warnings=8
+ERROR | script/bar/day99/choices/ch_t99_branch[1]/effects | Unsupported effect target: reputation
+ERROR | script/common/scenes[7]/steps[1]/effects | Invalid effect: give(soda_water, 1)
+ERROR | script/bar/day99/t99_fxsfx#1 | Step has no StoryScriptRunner implementation: Fx
+ERROR | script/bar/day99/t99_fxsfx#2 | Step has no StoryScriptRunner implementation: Sfx
+ERROR | script/bar/day99/t99_fxsfx#3 | Step has no StoryScriptRunner implementation: Fx
+ERROR | cutscenes/tl_intro | Missing Addressables resource_key: INTRO
+ERROR | cutscenes/tl_intro_lab | Missing Addressables resource_key: Intro lab
+ERROR | cutscenes/tl_bubi_meet | Missing Addressables resource_key: Bubi_meet
+ERROR | cutscenes/tl_catmilk | Missing Addressables resource_key: Catmilk
+ERROR | cutscenes/tl_samho_meet | Missing Addressables resource_key: SmahoMeet
+ERROR | cutscenes/tl_samho_arrive | Missing Addressables resource_key: SmahoArrive
+ERROR | cutscenes/tl_samho_dead | Missing Addressables resource_key: SamhoDead
+ERROR | cutscenes/tl_finished_cosmo | Missing Addressables resource_key: Finished_Cosmo
+ERROR | cutscenes/tl_finished_martini | Missing Addressables resource_key: Finished_DryMarthini
+ERROR | cutscenes/tl_finished_ginfizz | Missing Addressables resource_key: Finished_Ginfizz
+ERROR | cutscenes/tl_finished_kahlua | Missing Addressables resource_key: Finished_kalua
+ERROR | cutscenes/tl_serve_martini | Missing Addressables resource_key: Serve_Dry
+ERROR | cutscenes/tl_serve_ginfizz | Missing Addressables resource_key: Serve_Ginfizz
+ERROR | cutscenes/tl_serve_kahlua | Missing Addressables resource_key: Serve_kalua
+ERROR | cutscenes/tl_raid_1 | Missing Addressables resource_key: TL_Dream_Raid1
+ERROR | cutscenes/tl_raid_2 | Missing Addressables resource_key: TL_Dream_Raid2
+ERROR | cutscenes/tl_d13_rios | Missing Addressables resource_key: TL_Day13_Rios
+ERROR | cutscenes/gif_bubi_headjump | Unsupported cutscene kind: Gif
+ERROR | cutscenes/gif_bubi_headjump | Missing Addressables resource_key: Spine_Bubi_HeadJump
+ERROR | cutscenes/sp_parttime_poster | Missing Addressables resource_key: Poster/parttime
+ERROR | cutscenes/sp_experiment_poster | Missing Addressables resource_key: Poster/experiment
+WARN | character_anim/luna/default/eyes | No animation/sprite at configured key; runtime default fallback may apply: luna_eyes_default
+WARN | character_anim/luna/default/eyebrows | No animation/sprite at configured key; runtime default fallback may apply: luna_eyebrows_default
+WARN | character_anim/luna/default/upper_face | No animation/sprite at configured key; runtime default fallback may apply: luna_upper_face_default
+WARN | character_anim/luna/default/lower_face | No animation/sprite at configured key; runtime default fallback may apply: luna_lower_face_default
+WARN | character_anim/luna/default/body | No animation/sprite at configured key; runtime default fallback may apply: luna_body_default
+WARN | character_anim/port/default/extra | No animation/sprite at configured key; runtime default fallback may apply: port_extra_default
+WARN | character_anim/port/joy/extra | No animation/sprite at configured key; runtime default fallback may apply: port_extra_default
+WARN | character_anim/port/serious/extra | No animation/sprite at configured key; runtime default fallback may apply: port_extra_default
+ERROR | character_anim/aili/joy | Portrait sprite address is missing: aili_joy
+ERROR | character_anim/tom/default | Portrait sprite address is missing: tom_default
+ERROR | character_anim/tom/serious | Portrait sprite address is missing: tom_serious
+ERROR | character_anim/haru/default | Portrait sprite address is missing: haru_default
+ERROR | character_anim/haru/sad | Portrait sprite address is missing: haru_sad
+ERROR | character_anim/sunha/default | Portrait sprite address is missing: sunha_default
+ERROR | character_anim/sunha/serious | Portrait sprite address is missing: sunha_serious
+ERROR | character_anim/hina/default | Portrait sprite address is missing: hina_default
+ERROR | character_anim/shiba/default | Portrait sprite address is missing: shiba_default
+ERROR | character_anim/rios/default | Portrait sprite address is missing: rios_default
+ERROR | character_anim/volts/default | Portrait sprite address is missing: volts_default
+ERROR | character_anim/yuna/default | Portrait sprite address is missing: yuna_default
+ERROR | character_anim/soldier/default | Portrait sprite address is missing: soldier_default
+ERROR | character_anim/common/default | Portrait sprite address is missing: guest_default
+ERROR | character_anim/common/joy | Portrait sprite address is missing: guest_joy
+ERROR | character_anim/common/sadness | Portrait sprite address is missing: guest_sadness
+ERROR | character_anim/common/anger | Portrait sprite address is missing: guest_anger
+ERROR | character_anim/common/surprise | Portrait sprite address is missing: guest_surprise
+ERROR | character_anim/common/fear | Portrait sprite address is missing: guest_fear
+ERROR | character_anim/common/annoyingB | Portrait sprite address is missing: guest_annoyingB
+ERROR | character_anim/common/annoyingR | Portrait sprite address is missing: guest_annoyingR
+ERROR | character_anim/street_citizen_a/default | Portrait sprite address is missing: qa_street_citizen_a_default
+ERROR | character_anim/street_citizen_b/default | Portrait sprite address is missing: qa_street_citizen_b_default
+ERROR | character_anim/street_citizen_c/default | Portrait sprite address is missing: qa_street_citizen_c_default
+ERROR | character_anim/street_citizen_d/default | Portrait sprite address is missing: qa_street_citizen_d_default

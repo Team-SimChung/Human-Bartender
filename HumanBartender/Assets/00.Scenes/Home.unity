@@ -2005,7 +2005,6 @@ MonoBehaviour:
     resolutionDuration: 6
     isChangeResolution: 1
     targetResolution: 3
-  curCameraMode: 0
   cameraZoom: {fileID: 720587702}
 --- !u!114 &720587701
 MonoBehaviour:
@@ -3577,16 +3576,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ef768954c1416d46a4c3d3c117e69ce, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OustideTest
+  m_EditorClassIdentifier: Assembly-CSharp::OustideTimelineManager
   director: {fileID: 1199482602}
   handler: {fileID: 1199482604}
-  timelineList:
-  - id: samho_first_meet
-    asset: {fileID: 11400000, guid: b8342ec8fd346744e8ad24f1d847d3b2, type: 2}
-  - id: samho_death
-    asset: {fileID: 11400000, guid: e2806b9e2f6a96c49a8f1b6e4df3183d, type: 2}
-  - id: samho_survived
-    asset: {fileID: 11400000, guid: ddfec10e5fe3435479c23aa97afe78ad, type: 2}
+  cutsceneData: {fileID: 11400000, guid: 022803ba51e14b0e968c41bb410aaab9, type: 2}
+  sceneTimelines:
+  - {fileID: 11400000, guid: b8342ec8fd346744e8ad24f1d847d3b2, type: 2}
+  - {fileID: 11400000, guid: e2806b9e2f6a96c49a8f1b6e4df3183d, type: 2}
+  - {fileID: 11400000, guid: ddfec10e5fe3435479c23aa97afe78ad, type: 2}
 --- !u!114 &1199482604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3603,40 +3600,10 @@ MonoBehaviour:
   view: {fileID: 804521287}
   playerTracker: {fileID: 1184012298}
   npcTracker: {fileID: 669354628}
-  lines:
-  - data:
-      speaker: "\uC0BC\uD638"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: "\uC7A0\uAE50....!!!!!"
-      nameColor:
-        serializedVersion: 2
-        rgba: 16777215
-      isLunaSpeak: 0
-      eBubbleArrowType: 1
-    npcSpeaker: {fileID: 0}
-    delay: 0
-  - data:
-      speaker: "\uC0BC\uD638"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: "...\uD6C4....\uD6C4 \uAC19\uC774 \uC62C\uB77C\uAC00..."
-      nameColor:
-        serializedVersion: 2
-        rgba: 16777215
-      isLunaSpeak: 0
-      eBubbleArrowType: 1
-    npcSpeaker: {fileID: 0}
-    delay: 0
-  - data:
-      speaker: "\uB8E8"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: ..?
-      nameColor:
-        serializedVersion: 2
-        rgba: 16777215
-      isLunaSpeak: 1
-      eBubbleArrowType: 1
-    npcSpeaker: {fileID: 0}
-    delay: 0
+  scriptData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
+  characters: {fileID: 11400000, guid: 5226867dabf2416db88a6084fcd100e7, type: 2}
+  dialogueSceneId: tl_samho_arrive
+  speakerBindings: []
 --- !u!114 &1199482605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4183,11 +4150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 223b415c8a9ac22429b43c8b47dd4ce7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveEntityManager
-  isTest: 0
-  testDay: 0
-  testFlow: 2
-  testFlags: []
-  obejctData: {fileID: 11400000, guid: 2e50c8c89d96c6447852f18d1515e34f, type: 2}
   InteractPointData: {fileID: 11400000, guid: 50632a3f3de1b9549a4da9fae0d5be12, type: 2}
   streetData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
   SpotData: {fileID: 11400000, guid: 2aec38dee5aa4aa0bf346a3d87d40428, type: 2}
@@ -4224,7 +4186,6 @@ MonoBehaviour:
     entity: {fileID: 0}
   - id: samho_survived_cutscene
     entity: {fileID: 0}
-  entityList: []
   player: {fileID: 398070673}
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
@@ -4305,23 +4266,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HomeEntrance
   souceid: home_exit_door
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 0, y: 134.9}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 0}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
-  spawnPoint: {x: 1.0058, y: -0.7}
-  eGameFlow: 1
-  targetScene: OutSide
 --- !u!61 &1489865273
 BoxCollider2D:
   m_ObjectHideFlags: 0

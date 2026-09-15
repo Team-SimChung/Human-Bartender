@@ -8,6 +8,51 @@ public class CutSceneLayoutTool : EditorWindow
     // ── 참조 ──────────────────────────────────────────────────────────
     private CutSceneTimelineManager manager;
 
+    // Preview state belongs to this window. Restore the original scene objects on close/target change.
+    sealed class PreviewState
+    {
+        public Image Image;
+        public Sprite Sprite;
+        public Color Color;
+        public bool Active;
+        public Vector3 Position, Scale;
+        public Vector2 Size, Pivot, Min, Max;
+        public Quaternion Rotation;
+        public PreviewState(Image image)
+        {
+            Image=image;Sprite=image.sprite;Color=image.color;Active=image.gameObject.activeSelf;
+            var r=image.rectTransform;Position=r.anchoredPosition3D;Scale=r.localScale;Rotation=r.localRotation;
+            Size=r.sizeDelta;Pivot=r.pivot;Min=r.anchorMin;Max=r.anchorMax;
+        }
+        public void Restore()
+        {
+            if (Image==null) return;
+            Image.sprite=Sprite;Image.color=Color;
+            var r=Image.rectTransform;r.anchorMin=Min;r.anchorMax=Max;r.pivot=Pivot;r.sizeDelta=Size;
+            r.anchoredPosition3D=Position;r.localScale=Scale;r.localRotation=Rotation;
+            Image.gameObject.SetActive(Active);
+        }
+    }
+    readonly Dictionary<Image,PreviewState> previews = new();
+    void Capture(Image image)
+    {
+        if (image!=null && !previews.ContainsKey(image)) previews.Add(image,new PreviewState(image));
+    }
+    void Restore(Image image)
+    {
+        if (image!=null && previews.TryGetValue(image,out var state)) { state.Restore();previews.Remove(image); }
+    }
+    void RestoreAll()
+    {
+        foreach(var state in previews.Values) state.Restore();
+        previews.Clear();slots.Clear();usedIndices.Clear();
+    }
+    void SetManager(CutSceneTimelineManager next)
+    {
+        if (manager==next) return;
+        RestoreAll();manager=next;
+    }
+
     // ── Anchor 매핑 ───────────────────────────────────────────────────
     static readonly Dictionary<AnchorType, Vector2> AnchorMap = new()
     {
@@ -115,6 +160,12 @@ public class CutSceneLayoutTool : EditorWindow
     {
         InitStyles();
         DrawToolbar();
+        if (Application.isPlaying)
+        {
+            EditorGUILayout.HelpBox("레이아웃 미리보기는 Edit Mode에서 사용합니다.", MessageType.Info);
+            return;
+        }
+        EditorGUILayout.HelpBox("미리보기 변경은 창을 닫거나 대상을 바꾸면 복원됩니다. 필요한 Offset을 복사하세요.", MessageType.Info);
 
         if (manager == null)
         {
@@ -145,13 +196,13 @@ public class CutSceneLayoutTool : EditorWindow
         using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
         {
             GUILayout.Label("Manager", EditorStyles.toolbarButton, GUILayout.Width(60));
-            manager = (CutSceneTimelineManager)EditorGUILayout.ObjectField(
-                manager, typeof(CutSceneTimelineManager), true, GUILayout.Width(200));
+            SetManager((CutSceneTimelineManager)EditorGUILayout.ObjectField(
+                manager, typeof(CutSceneTimelineManager), true, GUILayout.Width(200)));
 
             GUILayout.FlexibleSpace();
 
             if (GUILayout.Button("씬에서 찾기", EditorStyles.toolbarButton, GUILayout.Width(80)))
-                manager = FindObjectOfType<CutSceneTimelineManager>();
+                SetManager(FindFirstObjectByType<CutSceneTimelineManager>());
         }
     }
 
@@ -171,7 +222,8 @@ public class CutSceneLayoutTool : EditorWindow
             using (new EditorGUILayout.HorizontalScope())
             {
                 slot.label = EditorGUILayout.TextField(slot.label, GUILayout.Width(100));
-                slot.isBG = GUILayout.Toggle(slot.isBG, "BG", EditorStyles.toolbarButton, GUILayout.Width(35));
+                bool nextBG = GUILayout.Toggle(slot.isBG, "BG", EditorStyles.toolbarButton, GUILayout.Width(35));
+                if (nextBG != slot.isBG) { CleanupSlot(slot); slot.isBG = nextBG; }
                 GUILayout.FlexibleSpace();
 
                 if (GUILayout.Button("✕", EditorStyles.miniButton, GUILayout.Width(22)))
@@ -370,6 +422,8 @@ public class CutSceneLayoutTool : EditorWindow
             img = manager.GetImageByIndex(idx);
         }
 
+        if (img == null) return;
+        Capture(img);
         Undo.RecordObject(img.gameObject, "CutScene Layout Load");
         Undo.RecordObject(img, "CutScene Layout Load");
 
@@ -473,41 +527,16 @@ public class CutSceneLayoutTool : EditorWindow
 
     void CleanupSlot(LayoutSlot slot)
     {
-        if (manager == null) return;
-
-        if (slot.isBG)
-        {
-            Image bg = manager.BgImage;
-            if (bg != null)
-            {
-                Undo.RecordObject(bg, "CutScene Layout Cleanup BG");
-                Undo.RecordObject(bg.GetComponent<RectTransform>(), "CutScene Layout Cleanup BG");
-                bg.sprite = null;
-                bg.gameObject.SetActive(false);
-                bg.GetComponent<RectTransform>().localScale = Vector3.one;
-                bg.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-                bg.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
-            }
-        }
-        else if (slot.imageIndex >= 0)
-        {
-            manager.ResetImageEditor(slot.imageIndex);
-            usedIndices.Remove(slot.imageIndex);
-            slot.imageIndex = -1;
-        }
+        if (manager != null) Restore(slot.GetImage(manager));
+        if (slot.imageIndex >= 0) usedIndices.Remove(slot.imageIndex);
+        slot.imageIndex = -1;
     }
 
-    void ClearAll()
-    {
-        foreach (var slot in slots)
-            CleanupSlot(slot);
-        slots.Clear();
-        usedIndices.Clear();
-    }
+    void ClearAll() => RestoreAll();
 
     void OnDestroy()
     {
-        ClearAll();
+        if (styleCopied?.normal.background != null) DestroyImmediate(styleCopied.normal.background);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -548,11 +577,19 @@ public class CutSceneLayoutTool : EditorWindow
     void OnEnable()
     {
         SceneView.duringSceneGui += OnSceneGUI;
+        EditorApplication.playModeStateChanged += OnPlayModeChanged;
     }
 
     void OnDisable()
     {
         SceneView.duringSceneGui -= OnSceneGUI;
+        EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+        RestoreAll();
+    }
+
+    void OnPlayModeChanged(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingEditMode) RestoreAll();
     }
 
     void OnSceneGUI(SceneView sceneView)

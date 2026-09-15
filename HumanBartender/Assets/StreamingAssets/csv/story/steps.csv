@@ -858,3 +858,6 @@ who designed this insane game, shiba.",dlg_np_shiba_2_005,\N,\N,player_input,\N,
 ob_experiment_1,1,timeline,\N,sp_experiment_poster,임상시험 참가자 모집 · 인공 신경망 분석 · 주관 (주)코라테크 · 문의 070*8812*0031,CLINICAL TRIAL PARTICIPANTS WANTED · neural network analysis · CoraTech Inc. · 070*8812*0031,\N,\N,\N,\N,\N,script/street,step_ob_experiment_1_timeline_1,street_scene_ob_experiment_1,steps,0,steps_format_25
 ob_experiment_1,2,set_state,\N,\N,\N,\N,\N,\N,flag.seen_coratech_ad = true,\N,\N,script/street,step_ob_experiment_1_set_state_2,street_scene_ob_experiment_1,steps,1,steps_format_23
 ob_parttime_1,1,timeline,\N,sp_parttime_poster,아르바이트 구함 · Bc25 편의점 · 야간 3교대 · 연락처 154*455*587,PART-TIMER WANTED · Bc25 convenience store · night shifts · 154*455*587,\N,\N,\N,\N,\N,script/street,step_ob_parttime_1_timeline_1,street_scene_ob_parttime_1,steps,0,steps_format_25
+tl_samho_arrive,1,say,samho,\N,잠깐....!!!!!,\N,dlg_tl_samho_arrive_001,\N,\N,auto,\N,script/street,dlg_tl_samho_arrive_001,scene_tl_samho_arrive,steps,0,steps_format_17
+tl_samho_arrive,2,say,samho,\N,...후....후 같이 올라가...,\N,dlg_tl_samho_arrive_002,\N,\N,auto,\N,script/street,dlg_tl_samho_arrive_002,scene_tl_samho_arrive,steps,1,steps_format_17
+tl_samho_arrive,3,say,luna,\N,..?,\N,dlg_tl_samho_arrive_003,\N,\N,auto,\N,script/street,dlg_tl_samho_arrive_003,scene_tl_samho_arrive,steps,2,steps_format_17

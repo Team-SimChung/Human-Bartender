@@ -8,5 +8,4 @@ public interface ICameraControlNew
     public void ActionZoom(ECameraZoomType zoomType = ECameraZoomType.Base);
     public void TransitionCameraZoom(ECameraZoomType zoomType = ECameraZoomType.Base, float dur = 1f, AnimationCurve curve = null);
     
-    // 준서는 바보다.
 }

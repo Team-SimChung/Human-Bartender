@@ -377,20 +377,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
   souceid: sp_experiment_poster
-  priority: 1
   isAvaliable: 1
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 0.24, y: 143.4}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 0}
   OnInteracted: {fileID: 0}
   OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 0}
   runner: {fileID: 0}
   presenter: {fileID: 0}
@@ -771,7 +764,6 @@ MonoBehaviour:
   moveDuration: 1.5
   fadeDuration: 1
   logoDuration: 2
-  isFading: 0
 --- !u!1 &110281612
 GameObject:
   m_ObjectHideFlags: 0
@@ -6283,7 +6275,6 @@ MonoBehaviour:
     resolutionDuration: 6
     isChangeResolution: 1
     targetResolution: 3
-  curCameraMode: 0
   cameraZoom: {fileID: 720587702}
 --- !u!114 &720587701
 MonoBehaviour:
@@ -6802,20 +6793,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
   souceid: real_estate_posting
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: "\uBCF4\uAE30"
-  isInter: 0
   buttonOffset: {x: 0, y: 120}
   textOffset: {x: -130, y: 120}
   outlineHighlight: {fileID: 792484000}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
@@ -7775,23 +7759,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HomeEntrance
   souceid: street_home_door
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: "\uD1F4\uADFC"
-  isInter: 0
   buttonOffset: {x: 0, y: 0}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 868482188}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
-  spawnPoint: {x: -16.713, y: 9.627992}
-  eGameFlow: 2
-  targetScene: Home
 --- !u!1 &872018023
 GameObject:
   m_ObjectHideFlags: 0
@@ -8488,20 +8462,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bubi
   souceid: 
-  priority: 0
   isAvaliable: 0
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 0, y: 0}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 0}
   OnInteracted: {fileID: 0}
   OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 0}
   runner: {fileID: 0}
   presenter: {fileID: 0}
@@ -8795,23 +8762,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HomeEntrance
   souceid: street_bar_door
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: "\uCD9C\uADFC"
-  isInter: 0
   buttonOffset: {x: 0, y: 0}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 917009657}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
-  spawnPoint: {x: 1.0058, y: -0.7}
-  eGameFlow: 1
-  targetScene: Play
 --- !u!114 &917009657
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10740,58 +10697,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveTriggerEntity
   souceid: 
-  priority: 0
   isAvaliable: 0
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 0, y: 0}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 0}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
-  cutSceneId: 
-  lines:
-  - data:
-      speaker: "\uC0BC\uD638"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: "...\uC7A0\uAE50..!!!"
-      nameColor:
-        serializedVersion: 2
-        rgba: 4294967295
-      isLunaSpeak: 0
-      eBubbleArrowType: 1
-      bubbleType: 0
-    npcSpeaker: {fileID: 2030078811}
-    delay: 1
-  - data:
-      speaker: "\uC0BC\uD638"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: "...\uD6C4...\uD6C4.. \uAC19\uC774\uAC00.."
-      nameColor:
-        serializedVersion: 2
-        rgba: 4294967295
-      isLunaSpeak: 0
-      eBubbleArrowType: 1
-      bubbleType: 0
-    npcSpeaker: {fileID: 2030078811}
-    delay: 1
-  - data:
-      speaker: "\uB8E8\uB098"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: .?
-      nameColor:
-        serializedVersion: 2
-        rgba: 4294967295
-      isLunaSpeak: 1
-      eBubbleArrowType: 1
-      bubbleType: 0
-    npcSpeaker: {fileID: 0}
-    delay: 1
 --- !u!61 &1074330139
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -11188,21 +11100,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd855fad35e50b1408eba58734b74f4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutsideElevatorRadio
-  souceid: street_elevator
-  priority: 0
+  souceid: elevator_radio
   isAvaliable: 1
-  isInteracting: 1
   label: 
-  isInter: 0
   buttonOffset: {x: -30, y: 150}
   textOffset: {x: -30, y: 400}
   outlineHighlight: {fileID: 0}
   OnInteracted: {fileID: 0}
   OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: acaf18ff09c02a6458ef63f161c03440, type: 2}
   runner: {fileID: 0}
   presenter: {fileID: 0}
@@ -12800,16 +12705,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ef768954c1416d46a4c3d3c117e69ce, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OustideTest
+  m_EditorClassIdentifier: Assembly-CSharp::OustideTimelineManager
   director: {fileID: 1199482602}
   handler: {fileID: 1199482604}
-  timelineList:
-  - id: samho_first_meet
-    asset: {fileID: 11400000, guid: b8342ec8fd346744e8ad24f1d847d3b2, type: 2}
-  - id: samho_death
-    asset: {fileID: 11400000, guid: e2806b9e2f6a96c49a8f1b6e4df3183d, type: 2}
-  - id: samho_survived
-    asset: {fileID: 11400000, guid: ddfec10e5fe3435479c23aa97afe78ad, type: 2}
+  cutsceneData: {fileID: 11400000, guid: 022803ba51e14b0e968c41bb410aaab9, type: 2}
+  sceneTimelines:
+  - {fileID: 11400000, guid: b8342ec8fd346744e8ad24f1d847d3b2, type: 2}
+  - {fileID: 11400000, guid: e2806b9e2f6a96c49a8f1b6e4df3183d, type: 2}
+  - {fileID: 11400000, guid: ddfec10e5fe3435479c23aa97afe78ad, type: 2}
 --- !u!114 &1199482604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12826,43 +12729,12 @@ MonoBehaviour:
   view: {fileID: 804521287}
   playerTracker: {fileID: 1184012298}
   npcTracker: {fileID: 669354628}
-  lines:
-  - data:
-      speaker: "\uC0BC\uD638"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: "\uC7A0\uAE50....!!!!!"
-      nameColor:
-        serializedVersion: 2
-        rgba: 16777215
-      isLunaSpeak: 0
-      eBubbleArrowType: 1
-      bubbleType: 0
-    npcSpeaker: {fileID: 2030078811}
-    delay: 0
-  - data:
-      speaker: "\uC0BC\uD638"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: "...\uD6C4....\uD6C4 \uAC19\uC774 \uC62C\uB77C\uAC00..."
-      nameColor:
-        serializedVersion: 2
-        rgba: 16777215
-      isLunaSpeak: 0
-      eBubbleArrowType: 1
-      bubbleType: 0
-    npcSpeaker: {fileID: 2030078811}
-    delay: 0
-  - data:
-      speaker: "\uB8E8"
-      speakerPos: {x: 0, y: 0, z: 0}
-      str: ..?
-      nameColor:
-        serializedVersion: 2
-        rgba: 16777215
-      isLunaSpeak: 1
-      eBubbleArrowType: 1
-      bubbleType: 0
-    npcSpeaker: {fileID: 0}
-    delay: 0
+  scriptData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
+  characters: {fileID: 11400000, guid: 5226867dabf2416db88a6084fcd100e7, type: 2}
+  dialogueSceneId: tl_samho_arrive
+  speakerBindings:
+  - actorId: samho
+    target: {fileID: 2030078811}
 --- !u!114 &1199482605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12985,20 +12857,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
   souceid: poster_human_trafficking
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: "\uBCF4\uAE30"
-  isInter: 0
   buttonOffset: {x: 0, y: 200}
   textOffset: {x: 0, y: 110}
   outlineHighlight: {fileID: 1209062154}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
@@ -13594,20 +13459,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
   souceid: toilet_bin
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: "\uBCF4\uAE30"
-  isInter: 0
   buttonOffset: {x: 0, y: 200}
   textOffset: {x: 0, y: 200}
   outlineHighlight: {fileID: 1286119214}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
@@ -14654,20 +14512,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
   souceid: vending_machine
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: "\uC774\uC6A9"
-  isInter: 0
   buttonOffset: {x: 0, y: 250}
   textOffset: {x: 0, y: 250}
   outlineHighlight: {fileID: 1331420473}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
@@ -15004,20 +14855,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
   souceid: poster_shiba_wanted_day1
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: "\uBCF4\uAE30"
-  isInter: 0
   buttonOffset: {x: 0, y: 200}
   textOffset: {x: 0, y: 105}
   outlineHighlight: {fileID: 1366513158}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
@@ -15923,11 +15767,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 223b415c8a9ac22429b43c8b47dd4ce7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveEntityManager
-  isTest: 0
-  testDay: 2
-  testFlow: 1
-  testFlags: []
-  obejctData: {fileID: 11400000, guid: 2e50c8c89d96c6447852f18d1515e34f, type: 2}
   InteractPointData: {fileID: 11400000, guid: 5ed93d5bb4b64ebeb2e3ef0656aa378c, type: 2}
   streetData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
   SpotData: {fileID: 11400000, guid: 2aec38dee5aa4aa0bf346a3d87d40428, type: 2}
@@ -15964,7 +15803,6 @@ MonoBehaviour:
     entity: {fileID: 1905454072}
   - id: samho_survived_cutscene
     entity: {fileID: 1074330138}
-  entityList: []
   player: {fileID: 398070673}
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
@@ -16686,26 +16524,18 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11b08d5bf8fe65e4dbba72b0bbff7350, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractiveObjectEntity
-  souceid: 
-  priority: 0
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideElevator
+  souceid: street_elevator
   isAvaliable: 1
-  isInteracting: 0
   label: "\uD0D1\uC2B9"
-  isInter: 1
   buttonOffset: {x: 0, y: 600}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 1582674274}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   logoEvent: {fileID: 94831492}
   logoFadeTiming: 0.425
   radio: {fileID: 1095731500}
-  externalDeltaEvent: {fileID: 11400000, guid: 51c8cf233ebed154e85a539870de4908, type: 2}
   changeCameraModeEvent: {fileID: 11400000, guid: c32ef6e22cbbca14aa31c164c86fdf23, type: 2}
   cameraReturnTiming: 0.75
   topPoint: {fileID: 890129396}
@@ -17152,20 +16982,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
   souceid: sp_parttime_poster
-  priority: 1
   isAvaliable: 1
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 0, y: 138.99}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 0}
   OnInteracted: {fileID: 0}
   OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 0}
   runner: {fileID: 0}
   presenter: {fileID: 0}
@@ -17975,20 +17798,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bubi
   souceid: bubi
-  priority: 1
   isAvaliable: 1
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 0, y: 200}
   textOffset: {x: 0, y: 75}
   outlineHighlight: {fileID: 1699909093}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
@@ -18136,7 +17952,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1714253945}
   - component: {fileID: 1714253947}
-  - component: {fileID: 1714253948}
   m_Layer: 9
   m_Name: radio
   m_TagString: Untagged
@@ -18205,36 +18020,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1714253948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1714253944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd855fad35e50b1408eba58734b74f4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OutsideElevatorRadio
-  souceid: elevator_radio
-  priority: 0
-  isAvaliable: 1
-  isInteracting: 0
-  label: 
-  isInter: 0
-  buttonOffset: {x: 0, y: 0}
-  textOffset: {x: 0, y: 0}
-  outlineHighlight: {fileID: 0}
-  OnInteracted: {fileID: 0}
-  OnRefreshCondition: {fileID: 0}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
-  OnTrackedText: {fileID: 0}
-  runner: {fileID: 0}
-  presenter: {fileID: 0}
 --- !u!1 &1726878080
 GameObject:
   m_ObjectHideFlags: 0
@@ -20510,22 +20295,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveTriggerEntity
   souceid: 
-  priority: 0
   isAvaliable: 0
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 0, y: 0}
   textOffset: {x: 0, y: 0}
   outlineHighlight: {fileID: 0}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
-  cutSceneId: 
-  lines: []
 --- !u!1 &1913906404
 GameObject:
   m_ObjectHideFlags: 0
@@ -21877,20 +21653,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bubi
   souceid: 
-  priority: 0
   isAvaliable: 1
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: -30, y: 250}
   textOffset: {x: -30, y: 250}
   outlineHighlight: {fileID: 2030078810}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
@@ -22527,20 +22296,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bubi
   souceid: shiba
-  priority: 1
   isAvaliable: 1
-  isInteracting: 0
   label: 
-  isInter: 0
   buttonOffset: {x: 70, y: 190}
   textOffset: {x: 70, y: 150}
   outlineHighlight: {fileID: 2074752858}
   OnInteracted: {fileID: 11400000, guid: e6c99aecbcb5ea04c90122c6c5b13af8, type: 2}
   OnRefreshCondition: {fileID: 11400000, guid: d46708b2f4844f449b84c18841c72725, type: 2}
-  kind: 0
-  ActivationMode: 0
-  ActionType: 0
-  steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}

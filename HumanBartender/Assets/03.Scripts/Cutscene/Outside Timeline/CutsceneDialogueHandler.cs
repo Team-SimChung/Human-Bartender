@@ -1,109 +1,127 @@
-using Cysharp.Threading.Tasks;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Playables;
 
-[System.Serializable]
-public struct CutsceneLine
+[Serializable]
+public struct CutsceneSpeakerBinding
 {
-    public TypingData data;              // isLunaSpeak로 화자 구분
-    public InteractiveEntity npcSpeaker; // NPC 줄일 때 추적할 대상(플레이어 줄이면 비워둠)
-    public float delay;
+    public string actorId;
+    public InteractiveEntity target;
 }
 
-
-/// <summary>
-/// Timeline Signal에서 호출되어 대사 라인을 순서대로 재생하는 핸들러.
-/// PlayNextLine(): 대사 재생 후 Timeline 계속 진행.
-/// PlayNextLinePause(): 대사 완료 전까지 Timeline을 일시 정지하고 완료 후 재개.
-/// </summary>
+/// <summary>Signal은 재생 시점만 정하고, 대사와 화자 정보는 CSV에서 읽는다.</summary>
 public class CutsceneDialogueHandler : MonoBehaviour
 {
     [SerializeField] PlayableDirector director;
     [SerializeField] UIDialogueTextView view;
+    [SerializeField] UIOutsideTracker playerTracker;
+    [SerializeField] UIOutsideTracker npcTracker;
+    [SerializeField] NewStreetDataSO scriptData;
+    [SerializeField] NewCharacterDataSO characters;
+    [SerializeField] string dialogueSceneId;
+    [SerializeField] CutsceneSpeakerBinding[] speakerBindings = Array.Empty<CutsceneSpeakerBinding>();
+    IConditionUtil conditions;
+    int index;
+    public Exception LastError { get; private set; }
 
-    [Header("Trackers")]
-    [SerializeField] UIOutsideTracker playerTracker; // 늘 플레이어
-    [SerializeField] UIOutsideTracker npcTracker;    // NPC 공통(대상 교체)
-
-    [SerializeField] List<CutsceneLine> lines;
-
-    int _index = 0;
-    CancellationTokenSource _cts;
-
-    public void Start()
+    sealed class LineRun
     {
-        _index = 0;
+        public CancellationTokenSource Source;
+        public readonly UniTaskCompletionSource Finished = new();
+    }
+    LineRun active;
+    void OnEnable() { if (director != null) director.stopped += OnStopped; }
+    void OnStopped(PlayableDirector value) => active?.Source.Cancel();
+    void OnDisable()
+    {
+        if (director != null) director.stopped -= OnStopped;
+        active?.Source.Cancel();
     }
 
-    public void Init(List<CutsceneLine> lines)
+    public async UniTask BeginTimelineAsync(string id, IConditionUtil scope)
     {
-        _index = 0;
-        this.lines = lines;
+        await StopAsync();
+        dialogueSceneId = id;
+        conditions = scope?.CreateExecutionScope();
+        index = 0;
+        LastError = null;
     }
-
-    public void PlayNextLine()  // 타임라인 Signal에서 호출
+    public async UniTask StopAsync()
     {
-        if (lines == null || _index >= lines.Count) return;
-
-        _cts?.Cancel();
-        _cts = new CancellationTokenSource();
-
-        RunAsync(lines[_index++], _cts.Token).Forget();
+        var run = active;
+        if (run == null) return;
+        run.Source.Cancel();
+        await run.Finished.Task;
     }
-    public void PlayNextLinePause()  // 타임라인 Signal에서 호출
+    public void PlayNextLine() => Next(false);
+    public void PlayNextLinePause() => Next(true);
+    void Next(bool pause) => RunAsync(pause).Forget(e =>
     {
-        if (lines == null || _index >= lines.Count) return;
+        if (e is OperationCanceledException) return;
+        LastError = e;
+        Debug.LogError("[Timeline Dialogue] " + e.Message);
+        if (director != null) director.Stop();
+    });
 
-        _cts?.Cancel();
-        _cts = new CancellationTokenSource();
-
-        RunAsyncPause(lines[_index++], _cts.Token).Forget();
-    }
-    async UniTaskVoid RunAsync(CutsceneLine line, CancellationToken token)
+    async UniTask RunAsync(bool pause)
     {
-        Logger.Log("PlayNextLine");
-
-        if (!line.data.isLunaSpeak && line.npcSpeaker != null)
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        var previous = active;
+        var run = new LineRun { Source = source };
+        active = run;
+        previous?.Source.Cancel();
+        try
         {
-            line.npcSpeaker.IsAvaliable = true;
-            npcTracker.SetTrackedTarget(line.npcSpeaker);
-            npcTracker.gameObject.SetActive(true);
+            if (previous != null) await previous.Finished.Task;
+            await NewDataLoadManager.WaitUntilLoadedAsync(source.Token);
+            source.Token.ThrowIfCancellationRequested();
+            if (director == null || view == null || scriptData == null ||
+                !scriptData.TryGetSteps(dialogueSceneId, out var steps))
+                throw new InvalidOperationException("Missing Timeline CSV dialogue: " + dialogueSceneId);
+            var ordered = steps.OrderBy(s => s.Seq).ToArray();
+            while (index < ordered.Length && conditions != null && !conditions.CheckRequired(ordered[index].When)) index++;
+            if (index >= ordered.Length) throw new InvalidOperationException("Timeline has more dialogue signals than CSV lines: " + dialogueSceneId);
+            var step = ordered[index++];
+            if (step.Type != "say") throw new InvalidOperationException("Timeline signal dialogue must be say: " + step.Type);
+            if (conditions == null && (!string.IsNullOrEmpty(step.When) || !string.IsNullOrEmpty(step.Effects)))
+                throw new InvalidOperationException("Timeline condition scope is missing.");
+            bool english = GameStateManager.Instance.Language == ELanguage.En;
+            string text = english && !string.IsNullOrEmpty(step.Text?.En) ? step.Text.En : step.Text?.Ko;
+            if (string.IsNullOrEmpty(text)) throw new InvalidOperationException("Timeline dialogue text is empty.");
+            var character = characters?.characterData?.FirstOrDefault(c => c.Id == step.Actor);
+            string name = character.HasValue ? (english ? character.Value.Name.En : character.Value.Name.Ko) : step.Actor;
+            if (string.IsNullOrEmpty(name)) name = step.Actor;
+            bool player = step.Actor == "luna";
+            var speaker = speakerBindings.FirstOrDefault(b => b.actorId == step.Actor).target;
+            if (pause) director.Pause();
+            if (!player && speaker != null && npcTracker != null)
+            {
+                npcTracker.SetTrackedTarget(speaker);
+                npcTracker.gameObject.SetActive(true);
+            }
+            await view.StartType(new TypingData(text, name, Vector3.zero, Color.white, player), token: source.Token);
+            source.Token.ThrowIfCancellationRequested();
+            conditions?.ApplyRequired(step.Effects);
+            if (pause && ReferenceEquals(active, run)) director.Resume();
         }
-
-        await view.StartType(line.data);
-
-        await UniTask.Delay(TimeSpan.FromSeconds(line.delay));
-
-        npcTracker.StopTracking();
-        playerTracker.StopTracking();
-    }
-    async UniTaskVoid RunAsyncPause(CutsceneLine line, CancellationToken token)
-    {
-        director.Pause();
-
-        Logger.Log("PlayNextLine Pause");
-
-        if (line.data.isLunaSpeak && line.npcSpeaker != null)
+        catch (Exception e)
         {
-            npcTracker.SetTrackedTarget(line.npcSpeaker);
-            npcTracker.gameObject.SetActive(true);
+            if (e is not OperationCanceledException) LastError = e;
+            throw;
         }
-        await view.StartType(line.data);
-
-        await UniTask.Delay(TimeSpan.FromSeconds(line.delay));
-
-        npcTracker.StopTracking();
-        playerTracker.StopTracking();
-
-        if (!token.IsCancellationRequested)
-            director.Resume();
+        finally
+        {
+            if (ReferenceEquals(active, run))
+            {
+                if (npcTracker != null) npcTracker.StopTracking();
+                if (playerTracker != null) playerTracker.StopTracking();
+                if (view != null) view.ClearText();
+                active = null;
+            }
+            run.Finished.TrySetResult();
+        }
     }
-
-
-
-
-    void OnDisable() { _cts?.Cancel(); _cts?.Dispose(); _cts = null; }
 }

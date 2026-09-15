@@ -53,117 +53,158 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
              "비워 두면 정산 없이 진행한다.")]
     [SerializeField] GuestManager guestManager;
 
-    /// <summary>지금 화면에 나와 있는 서빙 자리. 주문 하나에 하나뿐이다.</summary>
-    GameObject serveZone;
-
-    // ── 주문 ────────────────────────────────────────────────────────────
+    // 주문과 제조 세션은 원본 참조를 공유한다.
+    sealed class OrderPresentation
+    {
+        public StoryOrder Order;
+        public GameObject Zone;
+        public readonly CancellationTokenSource Lifetime = new();
+        public bool WaitingForServe;
+    }
+    sealed class CraftRequest
+    {
+        public CancellationTokenSource Lifetime;
+        public CraftSession Session;
+    }
+    OrderPresentation orderView;
+    CraftRequest craftRequest;
 
     public void OpenOrder(StoryOrder order)
     {
-        Debug.Log($"[StoryCraft] 주문 생성 — {order.GuestActorId}({order.Seat}) / {order.OrderedCocktailId}");
-
+        if (order == null || order.IsServed) throw new ArgumentException("An unserved order is required.");
+        if (orderView != null) throw new InvalidOperationException("Close the current story order first.");
+        orderView = new OrderPresentation { Order = order };
         BuildServeZone(order);
     }
 
     public void CloseOrder(StoryOrder order)
     {
-        if (serveZone == null) return;
-
-        Destroy(serveZone);
-        serveZone = null;
+        var view = orderView;
+        if (view == null || !ReferenceEquals(view.Order, order)) return;
+        orderView = null;
+        view.Lifetime.Cancel();
+        view.Lifetime.Dispose();
+        RemoveServeZone(view);
+        craftRequest?.Lifetime.Cancel();
+        SetCraftUiActive(false);
     }
 
-    // ── 제조 ────────────────────────────────────────────────────────────
+    static void RemoveServeZone(OrderPresentation view)
+    {
+        if (view.Zone == null) return;
+        view.Zone.GetComponent<StoryServeDropTarget>().Bind(null);
+        view.Zone.SetActive(false);
+        Destroy(view.Zone);
+        view.Zone = null;
+    }
+
+    void OnDisable()
+    {
+        craftRequest?.Lifetime.Cancel();
+        if (orderView != null) CloseOrder(orderView.Order);
+    }
+
+    static bool IsBusy(CraftSession session) => session != null &&
+        (session.Phase == ECraftPhase.Preparing || session.Phase == ECraftPhase.Playing);
 
     public async UniTask<bool> RunCraftAsync(StoryOrder order, string tutorialCocktailId, CancellationToken token)
     {
-        if (craftFlow == null)
-        {
-            Debug.LogError("[StoryCraft] craftFlow가 비어 있어 제조를 시작하지 못했습니다.");
-            return false;
-        }
+        token.ThrowIfCancellationRequested();
+        if (craftFlow == null || craftRequest != null || IsBusy(craftFlow.Current))
+            throw new InvalidOperationException("Craft flow is missing or a previous craft is still running.");
+        if (order != null && (orderView == null || !ReferenceEquals(orderView.Order, order) || order.IsServed))
+            throw new InvalidOperationException("Craft order is no longer active.");
+        if (order == null && string.IsNullOrEmpty(tutorialCocktailId))
+            throw new InvalidOperationException("Craft needs an order or tutorial cocktail.");
 
-        SetCraftUiActive(true);
-
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
+        var request = new CraftRequest { Lifetime = source };
+        craftRequest = request;
         var completion = new UniTaskCompletionSource<bool>();
-
-        void OnCraftCompleted(CraftSession session, CraftJudgement judgement) => completion.TrySetResult(true);
-
-        craftFlow.CraftCompleted += OnCraftCompleted;
-
+        bool completed = false;
+        var flow = craftFlow;
+        void OnBegan(CraftSession session)
+        {
+            if (!ReferenceEquals(craftRequest, request) || source.IsCancellationRequested || request.Session != null) return;
+            if (session == null || (!string.IsNullOrEmpty(tutorialCocktailId) && session.SelectedCocktailId != tutorialCocktailId)) return;
+            request.Session = session;
+        }
+        void OnCompleted(CraftSession session, CraftJudgement judgement)
+        {
+            if (ReferenceEquals(craftRequest, request) && !source.IsCancellationRequested &&
+                request.Session != null && ReferenceEquals(request.Session, session))
+                completion.TrySetResult(session.Phase == ECraftPhase.Completed && judgement != null);
+        }
+        flow.CraftBegan += OnBegan;
+        flow.CraftCompleted += OnCompleted;
         try
         {
+            SetCraftUiActive(true);
             if (!string.IsNullOrEmpty(tutorialCocktailId))
             {
-                // 튜토리얼은 무엇을 만들지가 이미 정해져 있다. 메뉴를 거치지 않고 곧장 연다.
-                craftFlow.BeginCraft(tutorialCocktailId);
+                flow.BeginCraft(tutorialCocktailId);
+                if (request.Session == null) throw new InvalidOperationException("CraftFlow did not start the requested tutorial craft.");
             }
             else
             {
-                // 주문과 다른 칵테일을 골라도 막지 않는다(§8.2). 고르는 것은 플레이어의 일이고,
-                // 틀린 잔인지는 낼 때 가려진다.
-                if (craftPanel == null)
-                {
-                    Debug.LogError("[StoryCraft] craftPanel이 비어 있어 칵테일 메뉴를 열지 못했습니다.");
-                }
-                else if (!craftPanel.gameObject.activeInHierarchy)
-                {
-                    // 부모가 꺼져 있으면 이쪽에서 켠 것이 소용없다. 무엇이 막고 있는지 이름으로 알린다.
-                    Debug.LogError($"[StoryCraft] '{craftPanel.name}'이 꺼져 있어 칵테일 메뉴를 열지 못했습니다. " +
-                                   "부모 오브젝트가 꺼져 있는지, craftUiRoots 연결이 맞는지 확인하세요.");
-                }
-                else
-                {
-                    craftPanel.Open();
-                }
+                if (craftPanel == null || !craftPanel.gameObject.activeInHierarchy)
+                    throw new InvalidOperationException("The story craft menu cannot be opened; check craftPanel and craftUiRoots.");
+                craftPanel.Open();
             }
-
-            return await completion.Task.AttachExternalCancellation(token);
-        }
-        catch (OperationCanceledException)
-        {
-            SetCraftUiActive(false);
-            throw;
+            completed = await completion.Task.AttachExternalCancellation(source.Token);
+            source.Token.ThrowIfCancellationRequested();
+            return completed;
         }
         finally
         {
-            craftFlow.CraftCompleted -= OnCraftCompleted;
+            flow.CraftBegan -= OnBegan;
+            flow.CraftCompleted -= OnCompleted;
+            if (ReferenceEquals(craftRequest, request))
+            {
+                craftRequest = null;
+                if (!completed) SetCraftUiActive(false);
+            }
+            // B의 CancelAsync가 없어 현재는 C의 완료 대기만 취소한다.
+            if (source.IsCancellationRequested && IsBusy(request.Session))
+                Debug.LogWarning("[StoryCraft] Story wait cancelled, but the B craft is still active. CraftFlowController needs a session-specific CancelAsync API.");
         }
     }
 
-    // ── 서빙 ────────────────────────────────────────────────────────────
-
     public async UniTask<CraftedDrink> WaitForServeAsync(StoryOrder order, CancellationToken token)
     {
-        if (serveZone == null) BuildServeZone(order);
-
-        if (serveZone == null)
-        {
-            Debug.LogError("[StoryCraft] 서빙 자리를 만들지 못해 잔을 낼 수 없습니다.");
-            return null;
-        }
-
+        token.ThrowIfCancellationRequested();
+        var view = orderView;
+        if (view == null || !ReferenceEquals(view.Order, order) || order.IsServed || view.WaitingForServe)
+            throw new InvalidOperationException("Serve order is missing, stale or already being served.");
+        if (view.Zone == null) BuildServeZone(order);
+        if (view.Zone == null) throw new InvalidOperationException("Story serve canvas or character manager is missing.");
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(token, view.Lifetime.Token, this.GetCancellationTokenOnDestroy());
         var completion = new UniTaskCompletionSource<CraftedDrink>();
-
-        serveZone.GetComponent<StoryServeDropTarget>().Bind(drink => completion.TrySetResult(drink));
-
+        view.WaitingForServe = true;
+        bool received = false;
+        view.Zone.GetComponent<StoryServeDropTarget>().Bind(drink =>
+        {
+            if (ReferenceEquals(orderView, view) && !source.IsCancellationRequested && drink != null)
+                completion.TrySetResult(drink);
+        });
         try
         {
-            CraftedDrink drink = await completion.Task.AttachExternalCancellation(token);
-
-            // 여기는 아직 드롭을 처리하는 도중이다. EventSystem은 이 뒤에 같은 프레임으로 끌던 잔에게
-            // OnEndDrag를 보내는데, 그 전에 화면을 꺼 버리면 잔이 꺼진 채로 남아 그 이벤트를 받지 못한다.
-            // 그러면 낸 잔이 트레이에서 치워지지 않아 화면에 유령으로 남는다. 한 프레임 넘겨
-            // 드래그가 제대로 끝난 뒤에 거둔다.
-            await UniTask.NextFrame();
-
+            var drink = await completion.Task.AttachExternalCancellation(source.Token);
+            // 드래그 종료 처리가 끝난 뒤 트레이를 숨긴다.
+            await UniTask.NextFrame(cancellationToken: source.Token);
+            source.Token.ThrowIfCancellationRequested();
+            received = true;
             return drink;
         }
         finally
         {
-            // 잔이 나갔든 씬이 끊겼든 서빙 자리는 거둔다. 남겨 두면 다음 주문 전까지 아무 데나 낼 수 있다.
-            CloseOrder(order);
-            SetCraftUiActive(false);
+            view.WaitingForServe = false;
+            RemoveServeZone(view);
+            if (ReferenceEquals(orderView, view))
+            {
+                if (!received) CloseOrder(order);
+                else SetCraftUiActive(false);
+            }
         }
     }
 
@@ -182,7 +223,8 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
             return;
         }
 
-        if (serveZone != null) Destroy(serveZone);
+        if (orderView == null || !ReferenceEquals(orderView.Order, order)) return;
+        RemoveServeZone(orderView);
 
         var go = new GameObject($"Story Serve Zone ({order.GuestActorId})",
             typeof(RectTransform), typeof(Image), typeof(StoryServeDropTarget));
@@ -200,7 +242,7 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
         // 평소에는 잔 클릭을 가리지 않고, 잔을 집은 동안에만 StoryServeDropTarget이 켠다.
         image.raycastTarget = false;
 
-        serveZone = go;
+        orderView.Zone = go;
     }
 
     Vector2 ResolveSeatCanvasPoint(string actorId)
@@ -222,7 +264,8 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
 
     public StoryResultContext CommitServe(StoryOrder order, CraftedDrink drink)
     {
-        if (drink == null) return null;
+        if (drink == null || order == null || order.IsServed || orderView == null ||
+            !ReferenceEquals(orderView.Order, order)) return null;
 
         if (balanceData?.balanceData == null)
         {
@@ -238,8 +281,6 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
         Debug.Log($"[StoryCraft] 서빙 {order.GuestActorId} ← {drink.CocktailId} (주문 {order.OrderedCocktailId}) / " +
                   $"제조등급 {drink.CraftGrade?.ToString() ?? "채점 불가"} → 최종등급 {finalGrade?.ToString() ?? "채점 불가"}");
 
-        CommitSettlement(order, finalGrade);
-
         if (drink.CraftGrade == null || finalGrade == null)
         {
             // 등급을 내지 못한 잔이다. 결과 문맥을 만들지 않으면 뒤의 grade 조건이 터지는데,
@@ -248,6 +289,9 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
             return null;
         }
 
+        CommitSettlement(order, finalGrade);
+        order.MarkServed();
+        CloseOrder(order);
         return new StoryResultContext(drink.CraftGrade.Value, finalGrade.Value, orderMatch,
                                       order.OrderedCocktailId, drink.CocktailId);
     }
@@ -287,7 +331,7 @@ public class StoryCraftGate : MonoBehaviour, IStoryCraftGate
     /// </summary>
     void SetCraftUiActive(bool active)
     {
-        if (!active) craftPanel?.Close();
+        if (!active && craftPanel != null && craftPanel.gameObject.activeInHierarchy) craftPanel.Close();
 
         if (craftUiRoots != null)
         {
