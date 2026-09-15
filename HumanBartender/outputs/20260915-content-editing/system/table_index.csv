@@ -1,0 +1,44 @@
+﻿table,book,editable,description,path
+BalanceConfig,Game,True,전역 밸런스 키와 값. value_type에 맞춰 편집,settings/balance_config.csv
+GradeCuts,Game,True,등급별 점수 경계,settings/grade_cuts.csv
+SettlementRules,Game,True,정산 규칙 키와 값,settings/settlement_rules.csv
+ScoreBands,Game,True,점수 구간별 보상 배율,settings/score_bands.csv
+AffinityMatrix,Game,True,취향·등급에 따른 호감도 변화,settings/affinity_matrix.csv
+BarkSituations,Game,True,일반 손님 대사 상황별 기본 표정,guests/bark_situations.csv
+Barks,Game,True,일반 손님 상황별 대사와 추첨 가중치,guests/barks.csv
+AnimationCharacters,C,True,표정 사전의 캐릭터 키,characters/animation_characters.csv
+Expressions,C,True,표정 이름·표시 방식·이미지·말하기 애니메이션,characters/expressions.csv
+ExpressionParts,C,True,표정별 눈·입·몸 등 부위의 클립과 반복 설정,characters/expression_parts.csv
+Characters,C,True,캐릭터 이름·색상·역할·기본 외형,characters/characters.csv
+CharacterExpressions,C,True,캐릭터가 사용할 수 있는 표정 목록,characters/character_expressions.csv
+Cocktails,Game,True,칵테일 이름·가격·도수·제조 조건,craft/cocktails.csv
+CocktailTags,Game,True,칵테일별 맛·느낌 태그,craft/cocktail_tags.csv
+Recipes,Game,True,칵테일별 제조 동작·재료·수량·필수 재료 여부,craft/recipes.csv
+Cutscenes,C,True,컷신 ID·재생 종류·리소스 주소,story/cutscenes.csv
+Days,Game,True,날짜별 시작 단계·배경음·유지비,settings/days.csv
+Dossier,C,True,캐릭터 정보 공개 조건과 문구,characters/dossier.csv
+Endings,Game,True,엔딩 선택 조건과 장면 ID,settings/endings.csv
+FieldAnimations,C,True,필드 캐릭터 동작과 리소스,characters/field_animations.csv
+GuestSettings,Game,True,일반 손님 외형의 기본 조합,guests/guest_settings.csv
+GuestParts,Game,True,부위별 일반 손님 외형·가중치,guests/guest_parts.csv
+GuestPersonalities,Game,True,외형 부품에 허용된 성격. 현재 원본은 모두 빈 목록,guests/guest_personalities.csv
+GuestExclusions,Game,True,동시에 사용할 수 없는 외형 조합,guests/guest_exclusions.csv
+InteractPoints,C,True,상호작용 대상·장소·등장 조건·행동,interaction/interact_points.csv
+DialogueFlows,C,True,상호작용별 대화 장면·날짜·선택 순서·반복 여부,interaction/dialogue_flows.csv
+OrderRules,Game,True,주문 결과 판정 조건과 효과,craft/order_rules.csv
+Personalities,Game,True,손님 성격·팁·인내심 배율,guests/personalities.csv
+RandomWaves,Game,True,날짜별 일반 손님 등장 순서,guests/random_waves.csv
+RegularSlots,Game,True,단골 등장·주문·서빙 효과,guests/regular_slots.csv
+ScriptFiles,C,True,대본 파일의 장소·기본 날짜. 하위 Scene 표와 연결,story/script_files.csv
+Scenes,C,True,장면의 실행 날짜·단계·조건·순서,story/scenes.csv
+Steps,C,True,대사·등장·퇴장·주문·효과 등 실행 단위. 결과 대사도 포함,story/steps.csv
+BarChoiceGroups,C,True,바·공통 대본의 선택지 묶음 ID,story/bar_choice_groups.csv
+BarChoices,C,True,바·공통 대본의 선택 문구·조건·효과·이동 장면,story/bar_choices.csv
+StreetChoices,C,True,거리 대본의 선택 문구·조건. 결과 Steps의 부모,story/street_choices.csv
+ShelfItems,Game,True,재료·도구·진열·해금 설정,craft/shelf_items.csv
+Spots,C,True,장소 ID와 설명. 좌표는 Unity 씬에서 편집,interaction/spots.csv
+Tastes,Game,True,캐릭터별 술 취향 조건과 우선순위,craft/tastes.csv
+TextTags,C,True,대사 태그의 색상·속도·크기,settings/text_tags.csv
+Transitions,Game,True,장소 이동 ID·목적지·연출,settings/transitions.csv
+UIStrings,Game,True,UI 문구의 한국어·영어,settings/ui_strings.csv
+BalanceRoot,Game,False,BalanceRoot,system/balance_root.csv

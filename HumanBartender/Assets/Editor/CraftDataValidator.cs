@@ -14,13 +14,13 @@ using UnityEngine;
 /// 그 값이 비어 있거나 서로 어긋나면 기믹이 조용히 빠지거나 늘 0점이 나오는 식으로 드러나는데,
 /// 그때는 원인이 데이터인지 코드인지 구분하기 어렵다. 그래서 값을 쓰기 전에 여기서 먼저 걸러낸다.
 ///
-/// StreamingAssets의 json을 직접 읽는다. SO 에셋에 직렬화되어 남아 있는 값이 아니라 정본을 본다.
+/// StreamingAssets의 CSV를 직접 읽는다. SO 에셋에 직렬화되어 남아 있는 값이 아니라 정본을 본다.
 /// </summary>
 public static class CraftDataValidator
 {
-    const string CocktailFile = "json/cocktails.json";
-    const string ShelfItemFile = "json/shelf_items.json";
-    const string BalanceFile = "json/balance.json";
+    const string CocktailFile = "cocktails";
+    const string ShelfItemFile = "shelf_items";
+    const string BalanceFile = "balance";
 
     readonly struct Issue
     {
@@ -37,13 +37,14 @@ public static class CraftDataValidator
     [MenuItem("Tools/Craft/Validate Craft Data")]
     public static void Run()
     {
-        var cocktails = JsonManager<NewCocktailData[]>.LoadGameData_StreamingAssets(CocktailFile);
-        var shelfItems = JsonManager<NewShelfItemData[]>.LoadGameData_StreamingAssets(ShelfItemFile);
-        var balance = JsonManager<NewBalanceDataBase>.LoadGameData_StreamingAssets(BalanceFile);
+        var catalog = CsvDataReader.LoadDirectory(System.IO.Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
+        var cocktails = catalog.Read<NewCocktailData[]>(CocktailFile);
+        var shelfItems = catalog.Read<NewShelfItemData[]>(ShelfItemFile);
+        var balance = catalog.Read<NewBalanceDataBase>(BalanceFile);
 
         if (cocktails == null || shelfItems == null || balance == null)
         {
-            Debug.LogError("[CraftData] json을 읽지 못했습니다. StreamingAssets/json 경로를 확인하세요.");
+            Debug.LogError("[CraftData] CSV를 읽지 못했습니다. StreamingAssets/csv 경로를 확인하세요.");
             return;
         }
 

@@ -47,7 +47,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         //
         // 로더를 인스펙터로 꽂지 않는다. 그쪽은 Play 씬이 아니라 VContainer 루트 스코프에 얹혀
         // 실행 중에 만들어져서, 씬 오브젝트가 참조할 수 있는 대상이 아니다.
-        await NewDataLoadManager.WaitUntilLoadedAsync();
+        await NewDataLoadManager.WaitUntilLoadedAsync(this.GetCancellationTokenOnDestroy());
 
         if (!NewDataLoadManager.TryGetBarScript(day, out NewDayScriptBase script))
         {
@@ -70,7 +70,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         // 하루가 새로 시작하므로 지난 적용 기록을 비운다. 평가기는 루트 스코프에 하나뿐이라
         // 비우지 않으면 같은 날을 다시 열었을 때 effects가 통째로 건너뛰어진다.
-        conditions.ResetAppliedTokens();
+        // The runner owns its execution result and effect tokens.
 
         runner.Bind(storyPresenter, conditions, craftGate as IStoryCraftGate, cutScenePlayer);
 
@@ -79,7 +79,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         Debug.Log($"[Story] Day {day} 2부 시작");
 
-        await runner.RunAsync(script, this.GetCancellationTokenOnDestroy());
+        var result = await runner.RunAsync(script, this.GetCancellationTokenOnDestroy());
+        if (!result.Completed)
+        {
+            if (result.Status == StoryExecutionStatus.Failed) Debug.LogError($"[Story] {result.Error}");
+            return;
+        }
 
         Debug.Log($"[Story] Day {day} 2부 종료");
 

@@ -70,50 +70,51 @@ public class StoryScriptRunner : MonoBehaviour
     /// <summary>
     /// 그날의 바 대본을 끝까지 실행한다. 자동 씬이 하나도 없으면 아무것도 하지 않고 돌아온다.
     /// </summary>
-    public async UniTask RunAsync(NewDayScriptBase dayScript, CancellationToken token)
+    public StoryExecutionResult LastResult { get; private set; }
+
+    public async UniTask<StoryExecutionResult> RunAsync(NewDayScriptBase dayScript, CancellationToken token)
     {
-        script = dayScript;
-
+        if (IsRunning) return new StoryExecutionResult(StoryExecutionStatus.Failed, "Story is already running.");
         if (presenter == null || conditions == null)
-        {
-            Debug.LogError("[Story] Bind가 먼저 불려야 합니다.");
-            return;
-        }
-
-        var cursor = new StorySceneCursor(script, conditions);
-
-        if (cursor.IsEmpty)
-        {
-            Debug.Log("[Story] 자동으로 실행할 바 씬이 없습니다. 2부를 건너뜁니다.");
-            return;
-        }
-
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "Story must be bound before running.");
+        script = dayScript;
+        conditions = conditions.CreateExecutionScope();
         IsRunning = true;
-
         try
         {
-            // 첫 손님이 들어오기 전에 2부의 기본 프레임에 선다. 이걸 빼면 1부가 카메라를 어디에
-            // 두고 끝났는지에 따라 2부 첫 화면이 달라진다.
-            await ApplyFramingAsync(token);
-
-            while (cursor.TryTakeNext(out NewScriptSceneData scene))
+            token.ThrowIfCancellationRequested();
+            var cursor = new StorySceneCursor(script, conditions);
+            if (!cursor.IsEmpty)
             {
-                if (await PlayFromAsync(scene, token)) break;
+                await ApplyFramingAsync(token);
+                while (cursor.TryTakeNext(out NewScriptSceneData scene))
+                {
+                    token.ThrowIfCancellationRequested();
+                    if (await PlayFromAsync(scene, token)) break;
+                }
             }
+            token.ThrowIfCancellationRequested();
+            LastResult = new StoryExecutionResult(StoryExecutionStatus.Completed);
         }
+        catch (OperationCanceledException) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
+        catch (Exception e) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, e.Message); }
         finally
         {
-            IsRunning = false;
             advanceSignal = null;
             seatActors.Clear();
-
-            // 잔을 못 낸 채로 끝났어도 주문은 거둔다. 남겨 두면 다음 날 대본이 지난 주문을 물고 시작한다.
-            if (currentOrder != null) craftGate?.CloseOrder(currentOrder);
-            currentOrder = null;
-            conditions.Result = null;
-
-            presenter.Clear();
+            try
+            {
+                if (currentOrder != null) craftGate?.CloseOrder(currentOrder);
+                presenter.Clear();
+            }
+            finally
+            {
+                currentOrder = null;
+                conditions.Result = null;
+                IsRunning = false;
+            }
         }
+        return LastResult;
     }
 
     /// <summary>
@@ -134,7 +135,7 @@ public class StoryScriptRunner : MonoBehaviour
         {
             if (!visited.Add(scene.Id))
             {
-                Debug.LogError($"[Story] 씬 '{scene.Id}'로 되돌아왔습니다. goto가 고리를 이룹니다.");
+                throw new InvalidOperationException($"[Story] 씬 '{scene.Id}'로 되돌아왔습니다. goto가 고리를 이룹니다.");
                 return false;
             }
 
@@ -150,7 +151,7 @@ public class StoryScriptRunner : MonoBehaviour
             if (!TryFindScene(gotoSceneId, out scene))
             {
                 // 없는 씬을 가리키면 아무 씬으로도 대신하지 않는다(§14 SCENE_REFERENCE_MISSING).
-                Debug.LogError($"[Story] goto가 가리키는 씬 '{gotoSceneId}'을 찾지 못했습니다.");
+                throw new InvalidOperationException($"[Story] goto가 가리키는 씬 '{gotoSceneId}'을 찾지 못했습니다.");
                 return false;
             }
         }
@@ -166,8 +167,9 @@ public class StoryScriptRunner : MonoBehaviour
 
         foreach (var step in scene.Steps)
         {
+            token.ThrowIfCancellationRequested();
             // 조건이 거짓인 스텝은 그것 하나만 건너뛴다. 씬 전체를 멈추지 않는다(§9.1).
-            if (!conditions.Check(step.When)) continue;
+            if (!conditions.CheckRequired(step.When)) continue;
 
             if (step.Type == ENewStepType.EndPart)
             {
@@ -175,7 +177,7 @@ public class StoryScriptRunner : MonoBehaviour
                 // 대본이 잘못 적힌 것이므로 임의로 주문을 지우지 않고 알린 뒤 계속 간다.
                 if (currentOrder != null && !currentOrder.IsServed)
                 {
-                    Debug.LogError($"[Story] 처리하지 않은 주문({currentOrder.GuestActorId} / " +
+                    throw new InvalidOperationException($"[Story] 처리하지 않은 주문({currentOrder.GuestActorId} / " +
                                    $"{currentOrder.OrderedCocktailId})이 남아 end_part를 받아들이지 않습니다: {scene.Id}");
                     continue;
                 }
@@ -189,7 +191,9 @@ public class StoryScriptRunner : MonoBehaviour
                 string target = await PlayChoiceAsync(scene, step, token);
 
                 // 선택지의 effects는 고른 항목의 것을 이미 적용했다. 스텝 자체의 effects는 그다음이다.
-                conditions.Set(step.Effects, $"{scene.Id}#{step.Seq}");
+                token.ThrowIfCancellationRequested();
+                token.ThrowIfCancellationRequested();
+            conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
 
                 if (target != null) return (false, target);
 
@@ -200,7 +204,8 @@ public class StoryScriptRunner : MonoBehaviour
 
             // effects는 스텝을 확정한 순간 한 번만. 같은 스텝을 두 번 지나도 값이 두 번 움직이지 않게
             // 씬과 seq를 합친 것을 표로 쓴다.
-            conditions.Set(step.Effects, $"{scene.Id}#{step.Seq}");
+            token.ThrowIfCancellationRequested();
+            conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
         }
 
         return (false, null);
@@ -258,7 +263,7 @@ public class StoryScriptRunner : MonoBehaviour
 
             default:
                 // 아직 붙이지 않은 스텝. 조용히 지나가면 대본이 어디까지 왔는지 알 수 없어 남긴다.
-                Debug.Log($"[Story] (미구현) {step.Type} — {scene.Id}#{step.Seq} arg={step.Arg ?? "없음"}");
+                throw new NotSupportedException($"Unsupported required step: {step.Type} ({scene.Id}#{step.Seq})");
                 return;
         }
     }
@@ -278,7 +283,7 @@ public class StoryScriptRunner : MonoBehaviour
     {
         if (!TryGetChoices(step.Arg, out NewChoiceOptionData[] choices))
         {
-            Debug.LogError($"[Story] 선택지 '{step.Arg}'를 대본에서 찾지 못했습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] 선택지 '{step.Arg}'를 대본에서 찾지 못했습니다: {scene.Id}#{step.Seq}");
             return null;
         }
 
@@ -287,7 +292,7 @@ public class StoryScriptRunner : MonoBehaviour
 
         foreach (var choice in choices)
         {
-            bool selectable = conditions.Check(choice.When);
+            bool selectable = conditions.CheckRequired(choice.When);
             anySelectable |= selectable;
 
             options.Add(new StoryChoiceOption(choice.Text?.Ko, selectable, choice.LockReason?.Ko));
@@ -297,17 +302,19 @@ public class StoryScriptRunner : MonoBehaviour
         // (§14 NO_SELECTABLE_CHOICE).
         if (!anySelectable)
         {
-            Debug.LogError($"[Story] 고를 수 있는 선택지가 하나도 없습니다: {step.Arg} ({scene.Id}#{step.Seq})");
+            throw new InvalidOperationException($"[Story] 고를 수 있는 선택지가 하나도 없습니다: {step.Arg} ({scene.Id}#{step.Seq})");
             return null;
         }
 
         int picked = await presenter.ShowChoicesAsync(options, token);
 
-        if (picked < 0 || picked >= choices.Length) return null;
+        if (picked < 0 || picked >= choices.Length) throw new InvalidOperationException("No valid choice was selected.");
 
         NewChoiceOptionData chosen = choices[picked];
 
-        conditions.Set(chosen.Effects, $"{scene.Id}#{step.Seq}#choice{picked}");
+        token.ThrowIfCancellationRequested();
+        if (!options[picked].IsSelectable) throw new InvalidOperationException("A locked choice was selected.");
+        conditions.ApplyRequired(chosen.Effects, $"{scene.Id}#{step.Seq}#choice{picked}");
 
         Debug.Log($"[Story] 선택 — {step.Arg}[{picked}] \"{chosen.Text?.Ko}\"" +
                   (string.IsNullOrEmpty(chosen.Goto) ? "" : $" → {chosen.Goto}"));
@@ -335,7 +342,7 @@ public class StoryScriptRunner : MonoBehaviour
 
         if (string.IsNullOrEmpty(body))
         {
-            Debug.LogError($"[Story] 본문이 없는 say입니다: {step.DialogueId ?? $"seq {step.Seq}"}");
+            throw new InvalidOperationException($"[Story] 본문이 없는 say입니다: {step.DialogueId ?? $"seq {step.Seq}"}");
             return;
         }
 
@@ -353,20 +360,19 @@ public class StoryScriptRunner : MonoBehaviour
     /// 끝나면 화면을 비운다(ClearCutScene). 안 비우면 컷씬 그림이 남은 채로 다음 대사가 시작돼,
     /// 대본상으로는 바로 돌아온 것인데 화면만 연출에 머문다.
     ///
-    /// 재생에 실패해도 대본은 이어 간다. 연출 하나 때문에 그날 2부가 통째로 멈추면,
-    /// 빠진 것은 그림 한 컷인데 잃는 것은 하루 전체다.
+    /// 필수 연출의 실패는 상위 실행 결과로 전파하고, effects는 적용하지 않는다.
     /// </summary>
     async UniTask TimelineAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
         if (string.IsNullOrEmpty(step.Arg))
         {
-            Debug.LogError($"[Story] timeline 스텝에 컷씬 id(arg)가 없습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] timeline 스텝에 컷씬 id(arg)가 없습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
         if (cutScenePlayer == null)
         {
-            Debug.LogError($"[Story] 컷씬 재생기가 없어 '{step.Arg}'를 건너뜁니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] 컷씬 재생기가 없어 '{step.Arg}'를 건너뜁니다: {scene.Id}#{step.Seq}");
             return;
         }
 
@@ -386,7 +392,7 @@ public class StoryScriptRunner : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"[Story] 컷씬 '{step.Arg}' 재생에 실패했습니다: {scene.Id}#{step.Seq}\n{e}");
+            throw new InvalidOperationException($"[Story] 컷씬 '{step.Arg}' 재생에 실패했습니다: {scene.Id}#{step.Seq}\n{e}");
         }
         finally
         {
@@ -410,13 +416,13 @@ public class StoryScriptRunner : MonoBehaviour
     {
         if (!TryParseOrderedCocktail(step.Arg, out string cocktailId))
         {
-            Debug.LogError($"[Story] 주문 칵테일을 읽지 못했습니다(arg=\"{step.Arg}\"): {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] 주문 칵테일을 읽지 못했습니다(arg=\"{step.Arg}\"): {scene.Id}#{step.Seq}");
             return;
         }
 
         if (currentOrder != null && !currentOrder.IsServed)
         {
-            Debug.LogError($"[Story] 앞 주문({currentOrder.GuestActorId})이 아직 끝나지 않아 새 주문을 만들지 않습니다: " +
+            throw new InvalidOperationException($"[Story] 앞 주문({currentOrder.GuestActorId})이 아직 끝나지 않아 새 주문을 만들지 않습니다: " +
                            $"{scene.Id}#{step.Seq}");
             return;
         }
@@ -435,7 +441,7 @@ public class StoryScriptRunner : MonoBehaviour
         {
             // 앉지 않은 인물은 잔을 받을 자리가 없다. 가운데 자리로 대신하지 않는다 —
             // 그러면 엉뚱한 자리에 코스터가 놓이고 원인이 멀어진다.
-            Debug.LogError($"[Story] 주문자 '{step.Actor}'가 앉아 있지 않습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] 주문자 '{step.Actor}'가 앉아 있지 않습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
@@ -453,7 +459,7 @@ public class StoryScriptRunner : MonoBehaviour
     {
         if (craftGate == null)
         {
-            Debug.LogError($"[Story] craftGate가 없어 제조로 넘어가지 못했습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] craftGate가 없어 제조로 넘어가지 못했습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
@@ -462,11 +468,12 @@ public class StoryScriptRunner : MonoBehaviour
         // 튜토리얼은 무엇을 만들지가 대본에 적혀 있어 주문 없이도 열 수 있다.
         if (currentOrder == null && tutorialCocktailId == null)
         {
-            Debug.LogError($"[Story] 주문이 없어 제조를 시작할 수 없습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] 주문이 없어 제조를 시작할 수 없습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
-        await craftGate.RunCraftAsync(currentOrder, tutorialCocktailId, token);
+        if (!await craftGate.RunCraftAsync(currentOrder, tutorialCocktailId, token))
+            throw new InvalidOperationException($"Craft failed: {scene.Id}#{step.Seq}");
     }
 
     /// <summary>
@@ -479,14 +486,14 @@ public class StoryScriptRunner : MonoBehaviour
     {
         if (craftGate == null || currentOrder == null)
         {
-            Debug.LogError($"[Story] 낼 주문이 없어 서빙할 수 없습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] 낼 주문이 없어 서빙할 수 없습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
         if (!string.IsNullOrEmpty(step.Actor) && step.Actor != currentOrder.GuestActorId)
         {
             // serve.actor는 주문자와 같아야 한다. 다르면 대본이 어긋난 것이라 주문자 쪽을 따른다.
-            Debug.LogError($"[Story] serve의 actor '{step.Actor}'가 주문자 '{currentOrder.GuestActorId}'와 다릅니다: " +
+            throw new InvalidOperationException($"[Story] serve의 actor '{step.Actor}'가 주문자 '{currentOrder.GuestActorId}'와 다릅니다: " +
                            $"{scene.Id}#{step.Seq}");
         }
 
@@ -496,13 +503,14 @@ public class StoryScriptRunner : MonoBehaviour
 
         if (drink == null)
         {
-            Debug.LogError($"[Story] 낸 잔을 받지 못했습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] 낸 잔을 받지 못했습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
-        order.MarkServed();
-
+        token.ThrowIfCancellationRequested();
         StoryResultContext result = craftGate.CommitServe(order, drink);
+        if (result == null) throw new InvalidOperationException("Serve could not be committed.");
+        order.MarkServed();
 
         // 채점하지 못한 잔이면 결과가 없다. 그때는 결과 문맥을 비워 둔 채 간다 —
         // 뒤에서 grade를 묻는 조건식이 있으면 거기서 데이터 오류로 드러나는 편이 낫다.
@@ -541,12 +549,12 @@ public class StoryScriptRunner : MonoBehaviour
     {
         if (!TryParseSlot(step.Arg, out ESlotType slot))
         {
-            Debug.LogError($"[Story] enter의 자리를 읽지 못했습니다: '{step.Arg}' (L·M·R이어야 합니다)");
+            throw new InvalidOperationException($"[Story] enter의 자리를 읽지 못했습니다: '{step.Arg}' (L·M·R이어야 합니다)");
             return;
         }
 
         if (seatActors.TryGetValue(slot, out string sitting) && sitting != step.Actor)
-            Debug.LogError($"[Story] {slot} 자리에 '{sitting}'가 앉아 있는데 '{step.Actor}'가 또 앉습니다.");
+            throw new InvalidOperationException($"[Story] {slot} 자리에 '{sitting}'가 앉아 있는데 '{step.Actor}'가 또 앉습니다.");
 
         seatActors[slot] = step.Actor;
         WarnIfSeatingInvalid();
@@ -612,7 +620,7 @@ public class StoryScriptRunner : MonoBehaviour
                 continue;
             }
 
-            if (!conditions.Check(candidate.When)) continue;
+            if (!conditions.CheckRequired(candidate.When)) continue;
 
             return candidate.Type == ENewStepType.Enter;
         }
@@ -656,14 +664,14 @@ public class StoryScriptRunner : MonoBehaviour
     {
         if (seatActors.Count > 2)
         {
-            Debug.LogError($"[Story] 한 화면에 {seatActors.Count}명이 앉았습니다. 2부는 최대 두 명입니다.");
+            throw new InvalidOperationException($"[Story] 한 화면에 {seatActors.Count}명이 앉았습니다. 2부는 최대 두 명입니다.");
             return;
         }
 
         if (seatActors.Count == 2 &&
             !(seatActors.ContainsKey(ESlotType.Left) && seatActors.ContainsKey(ESlotType.Right)))
         {
-            Debug.LogError("[Story] 두 손님이 L·R이 아닌 자리에 앉았습니다. 2부의 2인 배치는 L·R입니다.");
+            throw new InvalidOperationException("[Story] 두 손님이 L·R이 아닌 자리에 앉았습니다. 2부의 2인 배치는 L·R입니다.");
         }
     }
 
@@ -683,10 +691,6 @@ public class StoryScriptRunner : MonoBehaviour
         try
         {
             await advanceSignal.Task.AttachExternalCancellation(token);
-        }
-        catch (OperationCanceledException)
-        {
-            // 씬이 끝나거나 게임이 멈춘 것이다. 기다림만 풀고 조용히 나간다.
         }
         finally
         {

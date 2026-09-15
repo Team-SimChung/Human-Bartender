@@ -18,18 +18,19 @@ using UnityEngine;
 /// </summary>
 public static class GimmickQueuePreview
 {
-    const string CocktailFile = "json/cocktails.json";
-    const string ShelfItemFile = "json/shelf_items.json";
+    const string CocktailFile = "cocktails";
+    const string ShelfItemFile = "shelf_items";
 
     [MenuItem("Tools/Craft/Preview Gimmick Queue")]
     public static void Run()
     {
-        var cocktails = JsonManager<NewCocktailData[]>.LoadGameData_StreamingAssets(CocktailFile);
-        var shelfItems = JsonManager<NewShelfItemData[]>.LoadGameData_StreamingAssets(ShelfItemFile);
+        var catalog = CsvDataReader.LoadDirectory(System.IO.Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
+        var cocktails = catalog.Read<NewCocktailData[]>(CocktailFile);
+        var shelfItems = catalog.Read<NewShelfItemData[]>(ShelfItemFile);
 
         if (cocktails == null)
         {
-            Debug.LogError("[GimmickQueue] cocktails.json을 읽지 못했습니다.");
+            Debug.LogError("[GimmickQueue] Cocktails.csv를 읽지 못했습니다.");
             return;
         }
 

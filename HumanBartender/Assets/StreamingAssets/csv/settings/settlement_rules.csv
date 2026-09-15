@@ -1,0 +1,6 @@
+﻿setting,value_type,sale_rate,tip_rate,refund_rate,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+excellent,dict,1,0.2,0,balance,settlement_rules_excellent,balance_root,settlement_rules,0,settlement_rules_format_01
+good,dict,1,0,0,balance,settlement_rules_good,balance_root,settlement_rules,1,settlement_rules_format_01
+decent,dict,1,0,0,balance,settlement_rules_decent,balance_root,settlement_rules,2,settlement_rules_format_01
+poor,dict,1,0,0,balance,settlement_rules_poor,balance_root,settlement_rules,3,settlement_rules_format_01
+sewage,dict,0,0,1,balance,settlement_rules_sewage,balance_root,settlement_rules,4,settlement_rules_format_01

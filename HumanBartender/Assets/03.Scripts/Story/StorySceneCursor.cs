@@ -91,7 +91,7 @@ public class StorySceneCursor
 
         foreach (var scene in group)
         {
-            if (!conditions.Check(scene.When)) continue;
+            if (!conditions.CheckRequired(scene.When)) continue;
 
             matched++;
             if (matched == 1) picked = scene;
@@ -102,10 +102,10 @@ public class StorySceneCursor
         var ids = new List<string>(group.Count);
         foreach (var scene in group)
         {
-            if (conditions.Check(scene.When)) ids.Add(scene.Id);
+            if (conditions.CheckRequired(scene.When)) ids.Add(scene.Id);
         }
 
-        Debug.LogError($"[Story] 같은 순서(seq {group[0].Seq})에서 씬이 둘 이상 참이라 고를 수 없습니다: " +
+        throw new System.InvalidOperationException($"[Story] 같은 순서(seq {group[0].Seq})에서 씬이 둘 이상 참이라 고를 수 없습니다: " +
                        $"{string.Join(", ", ids)} — 대본의 when을 확인하세요.");
 
         picked = default;

@@ -1,0 +1,20 @@
+﻿id,area,desc,note,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+bar_door,street,바 '언노운' 정문 앞,출근 도착점 / 퇴근 출발점,spots,spots_bar_door,@spots,\N,0,spots_format_01
+street_mid,street,거리 중간,걷기 연출 기본 목적지,spots,spots_street_mid,@spots,\N,1,spots_format_01
+street_wall,street,전단이 붙은 벽,구엔진 outside_objects 이식(전단·포스터류),spots,spots_street_wall,@spots,\N,2,spots_format_01
+home_door,street,집 현관 앞,퇴근 도착점 / 출근 출발점,spots,spots_home_door,@spots,\N,3,spots_format_01
+alley_in,alley,뒷골목 입구,골목 이벤트 얕은 쪽 + 임상시험 전단,spots,spots_alley_in,@spots,\N,4,spots_format_01
+alley_deep,alley,뒷골목 안쪽,골목 이벤트 깊은 쪽(상자·고양이·쓰레기통),spots,spots_alley_deep,@spots,\N,5,spots_format_01
+elevator,street,엘리베이터 앞,배드엔딩2 연출 예약,spots,spots_elevator,@spots,\N,6,spots_format_01
+qa_pair_left,qa,QA 거리 좌측 NPC 자리,Day 99: 행인 A·B 대화 배치,spots,spots_qa_pair_left,@spots,\N,7,spots_format_01
+qa_pair_right,qa,QA 거리 우측 NPC 자리,Day 99: 행인 A·B 대화 배치,spots,spots_qa_pair_right,@spots,\N,8,spots_format_01
+qa_text_object,qa,QA 일반 오브젝트,Day 99: E 조사 말풍선,spots,spots_qa_text_object,@spots,\N,9,spots_format_01
+qa_sequence_object,qa,QA 순차 조사 오브젝트,Day 99: sequential 선택,spots,spots_qa_sequence_object,@spots,\N,10,spots_format_01
+qa_probe_object,qa,QA 조건 검증 오브젝트,Day 99: 스텝 when·effects,spots,spots_qa_probe_object,@spots,\N,11,spots_format_01
+qa_monologue,qa,QA 1인 NPC 독백 자리,Day 99: E로 시작하는 단일 NPC 독백,spots,spots_qa_monologue,@spots,\N,12,spots_format_01
+qa_choice_npc,qa,QA 선택지 NPC 자리,Day 99: continue·goto·조건 잠금 선택지,spots,spots_qa_choice_npc,@spots,\N,13,spots_format_01
+home_spawn_entry,home,집 중앙 현관문 안쪽,집 진입·수동 저장 불러오기 시 플레이어 생성,spots,spots_home_spawn_entry,@spots,\N,14,spots_format_01
+home_exit_door,home,집 중앙 현관문,출근길 이동 또는 퇴근 후 출입 제한 안내,spots,spots_home_exit_door,@spots,\N,15,spots_format_01
+home_sofa,home,집 오른쪽 거실 소파 앞,수동 저장·취침 상호작용,spots,spots_home_sofa,@spots,\N,16,spots_format_01
+home_tv,home,집 오른쪽 거실 TV 앞,후순위 TV 상호작용 예약,spots,spots_home_tv,@spots,\N,17,spots_format_01
+home_terrace_door,home,집 오른쪽 끝 테라스 문,후속 기능용 앵커 예약,spots,spots_home_terrace_door,@spots,\N,18,spots_format_01

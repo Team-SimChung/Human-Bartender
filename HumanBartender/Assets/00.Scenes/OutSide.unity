@@ -6798,10 +6798,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 792483998}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbc48242b440fba47b29342cdebf4ffb, type: 3}
+  m_Script: {fileID: 11500000, guid: 751709c61d70ba847812a269e78aefad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractiveObjectEntity
-  souceid: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
+  souceid: real_estate_posting
   priority: 0
   isAvaliable: 1
   isInteracting: 0
@@ -6817,12 +6817,8 @@ MonoBehaviour:
   ActionType: 0
   steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
-  object_Id: real_estate_posting
-  flows: []
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
-  curFlowIndex: 0
-  selectionType: 2
 --- !u!61 &792484002
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -8319,7 +8315,6 @@ MonoBehaviour:
   autoInjectGameObjects:
   - {fileID: 720587697}
   - {fileID: 1478680161}
-  - {fileID: 2138728359}
   - {fileID: 1021899252}
 --- !u!1 &901115601
 GameObject:
@@ -9401,7 +9396,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OutsideDialoguePresenter
   dialoguePanel: {fileID: 210951130}
   typer: {fileID: 804521287}
-  triggerManager: {fileID: 2138728361}
   choiceManager: {fileID: 1631891296}
   playMode: 0
 --- !u!1 &980668470
@@ -12987,10 +12981,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1209062152}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbc48242b440fba47b29342cdebf4ffb, type: 3}
+  m_Script: {fileID: 11500000, guid: 751709c61d70ba847812a269e78aefad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractiveObjectEntity
-  souceid: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
+  souceid: poster_human_trafficking
   priority: 0
   isAvaliable: 1
   isInteracting: 0
@@ -13006,12 +13000,8 @@ MonoBehaviour:
   ActionType: 0
   steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
-  object_Id: poster_human_trafficking
-  flows: []
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
-  curFlowIndex: 0
-  selectionType: 2
 --- !u!61 &1209062156
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -13600,10 +13590,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1286119212}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbc48242b440fba47b29342cdebf4ffb, type: 3}
+  m_Script: {fileID: 11500000, guid: 751709c61d70ba847812a269e78aefad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractiveObjectEntity
-  souceid: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
+  souceid: toilet_bin
   priority: 0
   isAvaliable: 1
   isInteracting: 0
@@ -13619,12 +13609,8 @@ MonoBehaviour:
   ActionType: 0
   steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
-  object_Id: toilet_bin
-  flows: []
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
-  curFlowIndex: 0
-  selectionType: 2
 --- !u!61 &1286119216
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -14664,10 +14650,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1331420471}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbc48242b440fba47b29342cdebf4ffb, type: 3}
+  m_Script: {fileID: 11500000, guid: 751709c61d70ba847812a269e78aefad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractiveObjectEntity
-  souceid: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
+  souceid: vending_machine
   priority: 0
   isAvaliable: 1
   isInteracting: 0
@@ -14683,12 +14669,8 @@ MonoBehaviour:
   ActionType: 0
   steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
-  object_Id: vending_machine
-  flows: []
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
-  curFlowIndex: 0
-  selectionType: 2
 --- !u!61 &1331420475
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15018,10 +15000,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1366513156}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbc48242b440fba47b29342cdebf4ffb, type: 3}
+  m_Script: {fileID: 11500000, guid: 751709c61d70ba847812a269e78aefad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractiveObjectEntity
-  souceid: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractiveNPCEntity
+  souceid: poster_shiba_wanted_day1
   priority: 0
   isAvaliable: 1
   isInteracting: 0
@@ -15037,12 +15019,8 @@ MonoBehaviour:
   ActionType: 0
   steps: []
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
-  object_Id: poster_shiba_wanted_day1
-  flows: []
   runner: {fileID: 1021899254}
   presenter: {fileID: 980302854}
-  curFlowIndex: 0
-  selectionType: 2
 --- !u!61 &1366513160
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15945,7 +15923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 223b415c8a9ac22429b43c8b47dd4ce7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractiveEntityManager
-  isTest: 1
+  isTest: 0
   testDay: 2
   testFlow: 1
   testFlags: []
@@ -23124,7 +23102,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2138728360}
-  - component: {fileID: 2138728361}
   m_Layer: 0
   m_Name: Trigger
   m_TagString: Untagged
@@ -23147,18 +23124,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 980302853}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2138728361
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2138728359}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dda68d5026bbbb943a20381150a0083b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueTriggerManager
 --- !u!1 &2146678057
 GameObject:
   m_ObjectHideFlags: 0

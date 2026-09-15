@@ -54,13 +54,15 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
     }
 
     /// <summary>
-    /// (인수인계 메모) 매개변수 cost를 사용하지 않고 100으로 고정 차감한다 — 호출부와 의도가 다를 수 있으니 확인 필요.
+    /// 요청한 비용만 차감한다. 음수 비용은 허용하지 않는다.
     /// </summary>
     public bool TrySpend(int cost)
     {
-        if (HasEnoughMoney(100))
+        if (cost < 0) throw new System.ArgumentOutOfRangeException(nameof(cost));
+        if (cost == 0) return true;
+        if (HasEnoughMoney(cost))
         {
-            AddMoney(-100);
+            AddMoney(-cost);
             return true;
         }
 
