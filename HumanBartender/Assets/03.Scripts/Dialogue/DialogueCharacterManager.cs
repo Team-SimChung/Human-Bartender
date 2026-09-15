@@ -53,7 +53,7 @@ public class SlotCharacterPart
 public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialogueFader
 {
     [Header("DATA")]
-    [SerializeField] private CharacterAnimSO animConfig;
+    [SerializeField] private NewExpressionDataSO animConfig;
 
    
     [Header("Parts")]
@@ -180,7 +180,7 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
         slotData.slotCharacterName = characterId;
         slotData.expression = expression;
 
-        bool isSprite = animConfig.CheckExpressionPortailSprite(characterId, expression);
+        bool isSprite = animConfig.IsPortraitSprite(characterId, expression);
         var parts = slotData.parts;
 
         if (!isSprite)
@@ -308,6 +308,24 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
         {
             ResetCharacter(slot.type);
         }
+    }
+
+    /// <summary>
+    /// 슬롯이 서 있는 world x를 알려 준다. 2부 카메라가 어디로 갈지 여기서 읽는다.
+    ///
+    /// 좌석 좌표를 따로 표로 들지 않는다. 인물이 실제로 서 있는 곳이 정본이고, 표를 한 벌 더 두면
+    /// 씬에서 슬롯만 옮겼을 때 카메라가 조용히 빈 자리를 비춘다.
+    /// </summary>
+    public bool TryGetSlotX(ESlotType slot, out float x)
+    {
+        if (_slotMap.TryGetValue(slot, out var slotData) && slotData.slot != null)
+        {
+            x = slotData.slot.transform.position.x;
+            return true;
+        }
+
+        x = 0f;
+        return false;
     }
 
     /// <summary>지정 슬롯의 모든 파츠를 동시에 페이드 인 시킨다.</summary>

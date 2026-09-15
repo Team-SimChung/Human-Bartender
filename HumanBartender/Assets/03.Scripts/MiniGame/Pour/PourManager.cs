@@ -30,7 +30,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [Header("Data")]
     [SerializeField] CraftStationData data;
     [SerializeField] CategoryColorData colorData;
-    [SerializeField] CocktailDataSO cocktailDataSO;
+    [SerializeField] NewCocktailDataSO cocktailDataSO;
     [Tooltip("실제로 따르는 재료의 액체 색을 읽어온다.")]
     [SerializeField] NewShelfItemDataSO shelfData;
     [Tooltip("pour_emit_rate_ml_per_sec(방출률)와 단위 환산 계수를 읽어온다.")]
@@ -146,7 +146,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     {
         if (isTest)
         {
-            data.targetCocktailData = cocktailDataSO.allCocktails[data.targetCocktailId];
+            if (cocktailDataSO.TryGet(data.targetCocktailId, out NewCocktailData cocktail))
+                data.targetCocktailData = cocktail;
+            else
+                Debug.LogWarning($"[Pour] 테스트 칵테일 '{data.targetCocktailId}'를 찾지 못했습니다.");
+
             data.targetCraft_tolerance = testToleranceCount;
         }
 
@@ -548,7 +552,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         runnerCompletion?.TrySetResult();
 
-        // 실제 게임 흐름에서는 CocktailCraftManager가 완성/서빙 컷씬을 재생한 뒤 OnNextButton()을 부른다.
+        // 실제 게임 흐름에서는 기믹 큐(GimmickRunner)가 결과를 받아 다음 스텝으로 넘긴다.
         // 독립 테스트 씬에는 그 흐름이 없어서, 끝났다는 신호가 전혀 없으면 그냥 멈춘 것처럼 보인다.
         if (isTest)
         {
@@ -575,13 +579,14 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             return Color.white;
         }
 
-        if (data == null || data.targetCocktailData.Keywords == null ||
-            data.targetCocktailData.Keywords.Length == 0)
+        NewCocktailTag[] tags = data != null ? data.targetCocktailData.Tags : null;
+
+        if (tags == null || tags.Length == 0)
         {
             return Color.white;
         }
 
-        int n = colorData.categorys.FindIndex(a => a.Contains(data.targetCocktailData.Keywords[0]));
+        int n = colorData.categorys.FindIndex(a => a.Contains(tags[0].Ko));
         return n >= 0 ? colorData.colors[n] : Color.white;
     }
 

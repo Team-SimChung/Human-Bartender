@@ -35,6 +35,12 @@ public class UIInteractableButton : UIOutsideTracker
     /// <summary>타겟이 있으면 버튼을 표시하고 라벨/추적 대상을 갱신, null이면 버튼을 숨긴다.</summary>
     public void OnVisibleInteractButton(IInteractable interactable)
     {
+        if (target == null)
+        {
+            trackedTarget = null;
+            return;
+        }
+
         if (interactable == null)
         {
             target.gameObject.SetActive(false);
@@ -43,7 +49,10 @@ public class UIInteractableButton : UIOutsideTracker
         }
 
         SetTrackedTarget(interactable);
-        interactText.text = interactable.Label;
+
+        if (interactText != null)
+            interactText.text = interactable.Label;
+
         target.gameObject.SetActive(true);
     }
 

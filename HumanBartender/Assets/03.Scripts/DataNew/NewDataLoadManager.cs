@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Threading;
-using TreeEditor;
 using UnityEngine;
 using VContainer.Unity;
 
@@ -9,18 +9,16 @@ using VContainer.Unity;
 /// VContainer의 IAsyncStartable로 StreamingAssets/json 폴더에서 신규 JSON 게임 데이터를 로드하여
 /// 각 New*DataSO에 주입하는 매니저. ProjectLifetimeScope에 엔트리포인트로 등록되어
 /// 컨테이너 빌드 시점에 StartAsync가 호출된다(Awake 순서에 기대지 않음).
-/// json/script/day_N.json은 날짜별로 캐싱해두고 SwitchDay(int)로 현재 날짜의 스크립트를 교체하며,
+/// 2부 바 대본(script/bar/dayN.json)은 일차별로 캐싱해두고 TryGetBarScript(int)로 꺼내 쓴다.
 /// json/script/common.json은 날짜와 무관하게 항상 쓰이는 공용 상호작용 스크립트라 별도 SO에 고정 로드한다.
+///
+/// 구형 DataLoadManager와 그것이 읽던 파일은 모두 걷어냈다. 데이터 로더는 이것 하나다.
 /// </summary>
-public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartable
+public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
 {
-    [Header("Test")]
-    [SerializeField] bool isTest;
-    [SerializeField] int testDay = 1;
-
-    [Header("Day Script (json/script/day_N.json)")]
-    [SerializeField] int startDay = 1;
-    [SerializeField] List<int> dayNumbers = new() { 1, 2, 3 };   // 알고 있는 날짜 목록
+    [Header("Bar Script (json/script/bar/dayN.json)")]
+    [Tooltip("2부 바 대본(script/bar/dayN.json)이 있는 일차. 목록에 있어도 파일이 없으면 그날 2부를 건너뛴다.")]
+    [SerializeField] List<int> barDayNumbers = new() { 0, 1, 2, 3, 99 };
 
     [Header("Target SO")]
     [SerializeField] NewBalanceDataSO balanceData;
@@ -29,7 +27,6 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] NewCocktailDataSO cocktailData;
     [SerializeField] NewCutSceneDataSO cutSceneData;
     [SerializeField] NewDayInfoDataSO dayInfoData;
-    [SerializeField] NewDayScriptDataSO dayScriptData;
     [SerializeField] NewDayScriptDataSO commonScriptData;
     [SerializeField] NewDossierDataSO dossierData;
     [SerializeField] NewEndingDataSO endingData;
@@ -37,6 +34,7 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] NewFieldAnimDataSO fieldAnimData;
     [SerializeField] NewGuestBodyDataSO guestBodyData;
     [SerializeField] NewInteractPointDataSO interactPointData;
+    [SerializeField] NewInteractPointDataSO homeinteractPointData;
     [SerializeField] NewOrderRuleDataSO orderRuleData;
     [SerializeField] NewPersonalityDataSO personalityData;
     [SerializeField] NewQuestDataSO questData;
@@ -45,8 +43,11 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] NewShelfItemDataSO shelfItemData;
     [SerializeField] NewSpotDataSO spotData;
     [SerializeField] NewTasteDataSO tasteData;
+    [Tooltip("대사창의 <name>/<world>/<order> 색 치환에 쓴다. UIDialogueTextView와 GuestManager가 읽는다.")]
+    [SerializeField] NewTextTagDataSO textTagData;
     [SerializeField] NewUIStringDataSO uiStringData;
     [SerializeField] NewStreetDataSO streetData;
+
 
     [Header("DataFile Name (json/*.json)")]
     [SerializeField] string balanceFileName = "json/balance.json";
@@ -58,10 +59,13 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] string commonScriptFileName = "json/script/common.json";
     [SerializeField] string dossierFileName = "json/dossier.json";
     [SerializeField] string endingFileName = "json/endings.json";
-    [SerializeField] string expressionFileName = "json/expressions.json";
+    [Tooltip("표정 정본. expressions.json이 이 이름으로 넘어왔고, 거리 행인 넉 명이 여기에만 있다.")]
+    [SerializeField] string expressionFileName = "json/character_anim.json";
     [SerializeField] string fieldAnimFileName = "json/field_anims.json";
     [SerializeField] string guestBodyFileName = "json/guest_bodies.json";
-    [SerializeField] string interactPointFileName = "json/interact_points.json";
+    [Tooltip("인터랙트 지점은 장소별로 파일이 나뉘어 있다(집·실외). 읽는 쪽이 phase로 걸러 쓰므로 한 배열로 합쳐 담는다.")]
+    [SerializeField] string interactPointFile = "json/interact_points_home.json";
+    [SerializeField] string homeinteractPointFile = "json/interact_points_outside.json";
     [SerializeField] string orderRuleFileName = "json/order_rules.json";
     [SerializeField] string personalityFileName = "json/personalities.json";
     [SerializeField] string questFileName = "json/quests.json";
@@ -70,10 +74,31 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
     [SerializeField] string shelfItemFileName = "json/shelf_items.json";
     [SerializeField] string spotFileName = "json/spots.json";
     [SerializeField] string tasteFileName = "json/tastes.json";
+    [SerializeField] string textTagFileName = "json/text_tags.json";
     [SerializeField] string uiStringFileName = "json/ui_strings.json";
     [SerializeField] string streetFileName = "json/script/street.json";
 
-    Dictionary<int, NewDayScriptBase> _dayScriptCache = new();
+
+    /// <summary>
+    /// 2부 바 대본(script/bar/dayN.json). 일차별로 들고 있다가 2부가 시작할 때 그날 것을 꺼내 쓴다.
+    ///
+    /// day_N.json처럼 SO 한 칸에 갈아 끼우지 않는다. 그쪽은 "지금 보고 있는 하루" 하나만 있으면 되지만,
+    /// 바 대본은 없는 날(Day 3)과 있는 날을 구분해야 해서 없다는 사실 자체가 값이다.
+    ///
+    /// static인 이유는 이 로더가 Play 씬에 없기 때문이다. VContainer 루트 스코프(ProjectLifeScope)에
+    /// 얹혀 실행 중에 만들어지므로 씬의 오브젝트가 인스펙터로 꽂을 수 없고, 등록도
+    /// AsImplementedInterfaces뿐이라 구체 타입으로 주입받을 수도 없다. 로딩 완료 신호와 같은 사정이다.
+    /// </summary>
+    static readonly Dictionary<int, NewDayScriptBase> _barScriptCache = new();
+
+    /// <summary>
+    /// 그날의 2부 바 대본을 꺼낸다. 그 일차의 파일이 아예 없으면 false —
+    /// 씬이 0개인 것(Day 3)과 파일이 없는 것은 다르므로, 부르는 쪽이 구분할 수 있게 나눠 돌려준다.
+    /// </summary>
+    public static bool TryGetBarScript(int day, out NewDayScriptBase script)
+    {
+        return _barScriptCache.TryGetValue(day, out script) && script != null;
+    }
 
     static UniTaskCompletionSource loadCompletion = new();
 
@@ -113,19 +138,21 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         await LoadDataAsync();
     }
 
-    static string DayScriptFileName(int day) => $"json/script/day_{day}.json";
+    static string BarScriptFileName(int day) => $"json/script/bar/day{day}.json";
 
     public void LoadData()
     {
         Logger.Log("[New] Load Data");
         BeginLoad();
 
-        foreach (var day in dayNumbers)
-            _dayScriptCache[day] = JsonManager<NewDayScriptBase>.LoadGameData_StreamingAssets(DayScriptFileName(day));
+        _barScriptCache.Clear();
+        foreach (var day in barDayNumbers)
+        {
+            var bar = JsonManager<NewDayScriptBase>.LoadGameData_StreamingAssets(BarScriptFileName(day));
+            if (bar != null) _barScriptCache[day] = bar;
+        }
 
         commonScriptData.dayScriptData = JsonManager<NewDayScriptBase>.LoadGameData_StreamingAssets(commonScriptFileName);
-
-        SwitchDay(isTest ? testDay : startDay);
 
         balanceData.balanceData = JsonManager<NewBalanceDataBase>.LoadGameData_StreamingAssets(balanceFileName);
         barkData.barkData = JsonManager<NewBarkData[]>.LoadGameData_StreamingAssets(barkFileName);
@@ -138,7 +165,8 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         expressionData.expressionData = JsonManager<Dictionary<string, Dictionary<string, NewExpressionEntry>>>.LoadGameData_StreamingAssets(expressionFileName);
         fieldAnimData.fieldAnimData = JsonManager<NewFieldAnimData[]>.LoadGameData_StreamingAssets(fieldAnimFileName);
         guestBodyData.guestBodyData = JsonManager<NewGuestBodyDataBase>.LoadGameData_StreamingAssets(guestBodyFileName);
-        interactPointData.interactPointData = JsonManager<NewInteractPointData[]>.LoadGameData_StreamingAssets(interactPointFileName);
+        interactPointData.interactPointData = JsonManager<NewInteractPointData[]>.LoadGameData_StreamingAssets(interactPointFile);
+        homeinteractPointData.interactPointData = JsonManager<NewInteractPointData[]>.LoadGameData_StreamingAssets(homeinteractPointFile);
         orderRuleData.orderRuleData = JsonManager<NewOrderRuleData[]>.LoadGameData_StreamingAssets(orderRuleFileName);
         personalityData.personalityData = JsonManager<NewPersonalityData[]>.LoadGameData_StreamingAssets(personalityFileName);
         questData.questData = JsonManager<NewQuestDataBase>.LoadGameData_StreamingAssets(questFileName);
@@ -147,11 +175,14 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         shelfItemData.shelfItemData = JsonManager<NewShelfItemData[]>.LoadGameData_StreamingAssets(shelfItemFileName);
         spotData.spotData = JsonManager<NewSpotData[]>.LoadGameData_StreamingAssets(spotFileName);
         tasteData.tasteData = JsonManager<NewTasteData[]>.LoadGameData_StreamingAssets(tasteFileName);
+        textTagData.textTagData = JsonManager<Dictionary<string, NewTextTagData>>.LoadGameData_StreamingAssets(textTagFileName);
         uiStringData.uiStringData = JsonManager<Dictionary<string, LocalizedText>>.LoadGameData_StreamingAssets(uiStringFileName);
         streetData.newStreetData = JsonManager<NewStreetData>.LoadGameData_StreamingAssets(streetFileName);
 
-        EndLoad();
+        // 완료를 알리기 전에 찍는다. UniTask는 TrySetResult 시점에 기다리던 쪽을 동기로 이어서 돌리기
+        // 때문에, 순서를 바꾸면 로딩이 끝났다는 줄보다 그 뒤에 벌어지는 일이 먼저 찍힌다.
         Logger.Log("[New] Load end");
+        EndLoad();
     }
 
     public async UniTask LoadDataAsync()
@@ -159,12 +190,14 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         Logger.Log("[New] Load Data");
         BeginLoad();
 
-        foreach (var day in dayNumbers)
-            _dayScriptCache[day] = await JsonManager<NewDayScriptBase>.LoadAsync<NewDayScriptBase>(DayScriptFileName(day));
+        _barScriptCache.Clear();
+        foreach (var day in barDayNumbers)
+        {
+            NewDayScriptBase bar = await LoadOptionalAsync(BarScriptFileName(day));
+            if (bar != null) _barScriptCache[day] = bar;
+        }
 
         commonScriptData.dayScriptData = await JsonManager<NewDayScriptBase>.LoadAsync<NewDayScriptBase>(commonScriptFileName);
-
-        SwitchDay(isTest ? testDay : startDay);
 
         balanceData.balanceData = await JsonManager<NewBalanceDataBase>.LoadAsync<NewBalanceDataBase>(balanceFileName);
         barkData.barkData = await JsonManager<NewBarkData[]>.LoadAsync<NewBarkData[]>(barkFileName);
@@ -177,7 +210,8 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         expressionData.expressionData = await JsonManager<Dictionary<string, Dictionary<string, NewExpressionEntry>>>.LoadAsync<Dictionary<string, Dictionary<string, NewExpressionEntry>>>(expressionFileName);
         fieldAnimData.fieldAnimData = await JsonManager<NewFieldAnimData[]>.LoadAsync<NewFieldAnimData[]>(fieldAnimFileName);
         guestBodyData.guestBodyData = await JsonManager<NewGuestBodyDataBase>.LoadAsync<NewGuestBodyDataBase>(guestBodyFileName);
-        interactPointData.interactPointData = await JsonManager<NewInteractPointData[]>.LoadAsync<NewInteractPointData[]>(interactPointFileName);
+        interactPointData.interactPointData = await JsonManager<NewInteractPointData[]>.LoadAsync<NewInteractPointData[]>(interactPointFile);
+        homeinteractPointData.interactPointData = await JsonManager<NewInteractPointData[]>.LoadAsync<NewInteractPointData[]>(homeinteractPointFile);
         orderRuleData.orderRuleData = await JsonManager<NewOrderRuleData[]>.LoadAsync<NewOrderRuleData[]>(orderRuleFileName);
         personalityData.personalityData = await JsonManager<NewPersonalityData[]>.LoadAsync<NewPersonalityData[]>(personalityFileName);
         questData.questData = await JsonManager<NewQuestDataBase>.LoadAsync<NewQuestDataBase>(questFileName);
@@ -186,18 +220,34 @@ public class NewDataLoadManager : MonoBehaviour, INewDataSwitcher, IAsyncStartab
         shelfItemData.shelfItemData = await JsonManager<NewShelfItemData[]>.LoadAsync<NewShelfItemData[]>(shelfItemFileName);
         spotData.spotData = await JsonManager<NewSpotData[]>.LoadAsync<NewSpotData[]>(spotFileName);
         tasteData.tasteData = await JsonManager<NewTasteData[]>.LoadAsync<NewTasteData[]>(tasteFileName);
+        textTagData.textTagData = await JsonManager<Dictionary<string, NewTextTagData>>.LoadAsync<Dictionary<string, NewTextTagData>>(textTagFileName);
         uiStringData.uiStringData = await JsonManager<Dictionary<string, LocalizedText>>.LoadAsync<Dictionary<string, LocalizedText>>(uiStringFileName);
         streetData.newStreetData = await JsonManager<NewStreetData>.LoadAsync<NewStreetData>(streetFileName);
 
-        EndLoad();
+        // 완료를 알리기 전에 찍는다. UniTask는 TrySetResult 시점에 기다리던 쪽을 동기로 이어서 돌리기
+        // 때문에, 순서를 바꾸면 로딩이 끝났다는 줄보다 그 뒤에 벌어지는 일이 먼저 찍힌다.
         Logger.Log("[New] Load end");
+        EndLoad();
     }
 
-    /// <summary>day_N.json을 dayScriptData에 주입한다. common.json은 날짜와 무관하게 commonScriptData에 항상 고정되어 있다.</summary>
-    public void SwitchDay(int day)
+    /// <summary>
+    /// 대본 파일 하나를 읽되, 없으면 예외 대신 null을 돌려준다.
+    ///
+    /// 로딩은 파일을 순서대로 기다리며 진행하기 때문에, 중간에 하나가 예외를 던지면 그 뒤 파일이
+    /// 통째로 로드되지 않는다. 대본은 일차에 따라 없을 수 있는 데이터라(빈 날, 아직 안 쓴 날)
+    /// 그 하나 때문에 게임 전체 데이터가 비는 것은 맞지 않는다.
+    /// </summary>
+    static async UniTask<NewDayScriptBase> LoadOptionalAsync(string fileName)
     {
-        dayScriptData.dayScriptData = _dayScriptCache[day];
+        try
+        {
+            return await JsonManager<NewDayScriptBase>.LoadAsync<NewDayScriptBase>(fileName);
+        }
+        catch (Exception e)
+        {
+            Logger.LogWarning($"[New] 대본을 읽지 못해 건너뜁니다: {fileName} / {e.Message}");
+            return null;
+        }
     }
-
 
 }

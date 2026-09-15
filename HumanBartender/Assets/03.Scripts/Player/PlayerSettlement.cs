@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>하루 영업 정산 기록을 누적하는 인터페이스. CocktailCraftManager 등에서 DI로 주입받아 사용.</summary>
+/// <summary>하루 영업 정산 기록을 누적하는 인터페이스. 제조 루프가 DI로 주입받아 쓴다.</summary>
 interface ISettlementLog
 {
     public void AddSalesQty(string id, int val);

@@ -49,7 +49,9 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         trayIndex = rect.GetSiblingIndex();
 
         rect.SetParent(rootCanvas.transform, true);
+        rect.SetAsLastSibling();
         canvasGroup.blocksRaycasts = false; // 드롭존이 자기 자신에게 가려지지 않도록
+        StoryServeDropTarget.SetRaycastEnabledWhileDragging(true);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -59,11 +61,11 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        StoryServeDropTarget.SetRaycastEnabledWhileDragging(false);
         canvasGroup.blocksRaycasts = true;
 
         if (served)
         {
-            Served?.Invoke(this);
             Destroy(gameObject);
             return;
         }
@@ -73,11 +75,20 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     }
 
     /// <summary>
-    /// 손님이 잔을 받아들였을 때 드롭존에서 호출한다. 실제로 치우는 것은 곧바로 이어지는
-    /// OnEndDrag에서 한다 — 드래그가 끝나기 전에 오브젝트를 지우면 그 뒤 이벤트가 사라진 대상에게 간다.
+    /// 손님이 잔을 받아들였을 때 드롭존에서 호출한다.
+    ///
+    /// 나갔다는 사실은 여기서 바로 알린다. OnEndDrag까지 미루면, 잔을 놓는 순간 트레이가 놓인 화면이
+    /// 꺼지는 경우(2부 서빙) 그 이벤트가 오지 않아 트레이는 낸 잔을 아직 들고 있는 것으로 셈하고,
+    /// "아직 내지 않은 잔"이 다음 제조를 영영 막는다.
+    ///
+    /// 오브젝트를 치우는 것만 OnEndDrag에 남긴다 — 드래그가 끝나기 전에 지우면 그 뒤 이벤트가
+    /// 사라진 대상에게 간다.
     /// </summary>
     public void MarkServed()
     {
+        if (served) return;
+
         served = true;
+        Served?.Invoke(this);
     }
 }

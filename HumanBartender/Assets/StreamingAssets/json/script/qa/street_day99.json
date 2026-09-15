@@ -14,7 +14,7 @@
             "en": "Public notice. Power in District 3 will be shut down in stages from 11 p.m. tonight."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 1
         },
         {
@@ -27,7 +27,7 @@
             "en": "Citizens heading home should check the nearest charging station and evacuation route in advance."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 2
         },
         {
@@ -40,7 +40,7 @@
             "en": "This message was brought to you by the Seoul Metropolitan Safety Bureau."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 3
         }
       ]
@@ -58,7 +58,7 @@
             "en": "That dog looks hungry. Do you have a treat you could give it?"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
@@ -71,7 +71,7 @@
             "en": "Let me check my bag."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 2
         },
         {
@@ -80,7 +80,6 @@
           "dialogue_id": null,
           "text": null,
           "when": null,
-          "sync": "wait",
           "options": [
             {
               "id": "ch_qa_street_choice_1",
@@ -149,7 +148,7 @@
             "en": "I don't have a treat to give right now."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 4
         }
       ]
@@ -167,7 +166,7 @@
             "en": "It's eating well. The treat you had is gone now."
           },
           "when": "flag.qa_dog_fed",
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
@@ -180,7 +179,7 @@
             "en": "Right. I don't have any treats left now."
           },
           "when": "flag.qa_dog_fed",
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 2
         },
         {
@@ -193,14 +192,13 @@
             "en": "All right. Let's just keep moving, then."
           },
           "when": "flag.qa_choice_declined",
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 3
         },
         {
           "type": "set_state",
           "effects": "flag.qa_dog_fed = false; flag.qa_choice_declined = false",
           "when": null,
-          "sync": "wait",
           "seq": 4
         }
       ]
@@ -218,7 +216,7 @@
             "en": "Did you hear? That bastard running the Animal gang suddenly wiped out a whole crew of Freud gangsters."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
@@ -231,7 +229,7 @@
             "en": "What? Things finally seemed quiet, and now they're raising hell again."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 2
         },
         {
@@ -244,7 +242,7 @@
             "en": "Exactly. Figures their boss would act like the animal he is."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 3
         }
       ]
@@ -262,7 +260,7 @@
             "en": "A notice on the wall reads, 'Power will be cut at 3:00 a.m. today.'"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         }
       ]
@@ -280,7 +278,7 @@
             "en": "Heading home? At this hour, the main street is safer than the alley."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
@@ -293,7 +291,7 @@
             "en": "Thanks for the warning. I'll take the main street."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 2
         },
         {
@@ -306,7 +304,7 @@
             "en": "Good. Get home safe tonight."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 3
         }
       ]
@@ -324,14 +322,12 @@
             "en": "[QA] CLINICAL TRIAL PARTICIPANTS WANTED · neural network analysis · CoraTech Inc. · 070*8812*0031"
           },
           "when": null,
-          "sync": "wait",
           "seq": 1
         },
         {
           "type": "set_state",
           "effects": "flag.qa_poster_seen = true",
           "when": null,
-          "sync": "wait",
           "seq": 2
         }
       ]
@@ -349,7 +345,6 @@
             "en": "[QA] PART-TIMER WANTED · Bc25 convenience store · night shifts · 154*455*587"
           },
           "when": null,
-          "sync": "wait",
           "seq": 1
         }
       ]
@@ -367,14 +362,13 @@
             "en": "First inspection: the device display flickers."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
           "type": "set_state",
           "effects": "flag.qa_sequence_1_done = true",
           "when": null,
-          "sync": "wait",
           "seq": 2
         }
       ]
@@ -392,14 +386,13 @@
             "en": "Second inspection: encrypted numbers appear on the display."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
           "type": "set_state",
           "effects": "flag.qa_sequence_2_done = true",
           "when": null,
-          "sync": "wait",
           "seq": 2
         }
       ]
@@ -417,7 +410,7 @@
             "en": "Third inspection: 'Access denied.' It no longer changes."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         }
       ]
@@ -435,14 +428,13 @@
             "en": "[QA] This sign must disappear from the field after the confirmation input."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
           "type": "set_state",
           "effects": "flag.qa_spawn_removed = true",
           "when": null,
-          "sync": "wait",
           "seq": 2
         }
       ]
@@ -460,14 +452,13 @@
             "en": "You take one sealed dog treat from the test container."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
           "type": "set_state",
           "effects": "flag.qa_has_snack = true",
           "when": null,
-          "sync": "wait",
           "seq": 2
         },
         {
@@ -480,7 +471,7 @@
             "en": "You now have a treat. Talk to the nearby passerby to use the conditional option."
           },
           "when": "flag.qa_has_snack",
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 3
         },
         {
@@ -493,7 +484,7 @@
             "en": "The container is locked, so you cannot take a treat."
           },
           "when": "!flag.qa_has_snack",
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 4
         }
       ]

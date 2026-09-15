@@ -23,7 +23,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
     [Header("Data")]
     [SerializeField] CraftStationData data;
-    [SerializeField] CocktailDataSO cocktailDataSO;
+    [SerializeField] NewCocktailDataSO cocktailDataSO;
 
     [Header("Ring")]
     [Tooltip("조여드는 고리. 바깥에서 목표 고리까지 좁혀 온다.")]
@@ -103,7 +103,11 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     {
         if (isTest)
         {
-            data.targetCocktailData = cocktailDataSO.allCocktails[data.targetCocktailId];
+            if (cocktailDataSO.TryGet(data.targetCocktailId, out NewCocktailData cocktail))
+                data.targetCocktailData = cocktail;
+            else
+                Debug.LogWarning($"[Cap] 테스트 칵테일 '{data.targetCocktailId}'를 찾지 못했습니다.");
+
             data.targetCraft_tolerance = testLimitFailCount;
         }
 
@@ -240,7 +244,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
         runnerCompletion?.TrySetResult();
 
-        // 실제 게임 흐름에서는 CocktailCraftManager가 완성/서빙 컷씬을 재생한 뒤 OnNextButton()을 부른다.
+        // 실제 게임 흐름에서는 기믹 큐(GimmickRunner)가 결과를 받아 다음 스텝으로 넘긴다.
         // 독립 테스트 씬에는 그 흐름이 없어서, 끝났다는 신호가 없으면 그냥 멈춘 것처럼 보인다.
         if (isTest)
         {

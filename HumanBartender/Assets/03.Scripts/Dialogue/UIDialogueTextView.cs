@@ -17,7 +17,7 @@ public class TypingData
     public Color32 nameColor;
     public bool isLunaSpeak = false;
     public EBubbleArrowType eBubbleArrowType = EBubbleArrowType.Center;
-
+    public DialogueBubbleType bubbleType = DialogueBubbleType.Auto;
     public TypingData()
     {
     }
@@ -28,16 +28,24 @@ public class TypingData
         Vector3 speakerPos, 
         Color32 nameColor, 
         bool isLunaSpeak,
-        EBubbleArrowType eBubbleArrowType = EBubbleArrowType.Center)
+        EBubbleArrowType eBubbleArrowType = EBubbleArrowType.Center,
+        DialogueBubbleType bubbleType = DialogueBubbleType.Auto)
     {
         this.speaker = speaker;
         this.speakerPos = speakerPos;
         this.str = str;
         this.nameColor = nameColor;
         this.isLunaSpeak = isLunaSpeak;
+        this.bubbleType = bubbleType;
     }
 }
-
+public enum DialogueBubbleType
+{
+    Auto,       // 기존처럼 화자가 루나인지로 결정
+    Player,
+    Customer,
+    Narration
+}
 
 /// <summary>
 /// 루나(플레이어)/손님 말풍선 두 개를 관리하며 텍스트 타이핑 연출을 담당한다.
@@ -46,11 +54,12 @@ public class TypingData
 public class UIDialogueTextView : MonoBehaviour
 {
     [Header("Data")]
-    [SerializeField] TextTagDataSO textTagData;
+    [SerializeField] NewTextTagDataSO textTagData;
 
     [Header("UI Components")]
     public DynamicSpeechBubble lunaSpeechBubble;
     public DynamicSpeechBubble customerSpeechBubble;
+    [SerializeField] private DynamicSpeechBubble narrationSpeechBubble;
     public RectTransform canvasRect;
 
     [Header("Slot")]
@@ -79,19 +88,38 @@ public class UIDialogueTextView : MonoBehaviour
     {
         if (data == null)
         {
-            Logger.LogWarning("Typing Data is Null");
+            Debug.LogError("[DialogueTextView] 타이핑 데이터가 없어 대사를 표시하지 못했습니다.");
             return;
         }
 
-        curTypingData = data;
+        var type = data.bubbleType;
 
+        if (type == DialogueBubbleType.Auto)
+        {
+            type = data.isLunaSpeak
+                ? DialogueBubbleType.Player
+                : DialogueBubbleType.Customer;
+        }
 
-        targetBubble = data.isLunaSpeak ? lunaSpeechBubble : customerSpeechBubble;
+        targetBubble = type switch
+        {
+            DialogueBubbleType.Player => lunaSpeechBubble,
+            DialogueBubbleType.Customer => customerSpeechBubble,
+            DialogueBubbleType.Narration => narrationSpeechBubble,
+            _ => customerSpeechBubble
+        };
 
-        if (!data.isLunaSpeak)
+        if (targetBubble == null)
+        {
+            Debug.LogError($"[DialogueTextView] '{type}' 말풍선이 연결되어 있지 않습니다.");
+            return;
+        }
+
+        if (type == DialogueBubbleType.Customer)
             SetBubblePosition(data.speakerPos);
 
-        await TypeSentenceTMP(curTypingData, cocktailName);
+        curTypingData = data;
+        await TypeSentenceTMP(data, cocktailName);
     }
 
     /// <summary>캐릭터의 월드 좌표를 화면 좌표로 변환해 말풍선 위치를 캐릭터 머리 위(subOffset)로 맞춘다.</summary>
@@ -110,23 +138,25 @@ public class UIDialogueTextView : MonoBehaviour
 
 
     /// <summary>두 말풍선의 텍스트와 폰트 크기를 초기화하고 비활성화한다.</summary>
-    public void ClearText()
+    private void ClearBubble(DynamicSpeechBubble bubble)
     {
-        if (lunaSpeechBubble != null && lunaSpeechBubble.textLabel != null)
+        if (bubble == null) return;
+
+        if (bubble.textLabel != null)
         {
-            lunaSpeechBubble.textLabel.enableAutoSizing = false;
-            lunaSpeechBubble.textLabel.text = "";
-            lunaSpeechBubble.textLabel.fontSize = lunaSpeechBubble.baseFontSize;
-            lunaSpeechBubble.gameObject.SetActive(false);
+            bubble.textLabel.enableAutoSizing = false;
+            bubble.textLabel.text = "";
+            bubble.textLabel.fontSize = bubble.baseFontSize;
         }
 
-        if (customerSpeechBubble != null && customerSpeechBubble.textLabel != null)
-        {
-            customerSpeechBubble.textLabel.enableAutoSizing = false;
-            customerSpeechBubble.textLabel.text = "";
-            customerSpeechBubble.textLabel.fontSize = customerSpeechBubble.baseFontSize;
-            customerSpeechBubble.gameObject.SetActive(false);
-        }
+        bubble.gameObject.SetActive(false);
+    }
+
+    public void ClearText()
+    {
+        ClearBubble(lunaSpeechBubble);
+        ClearBubble(customerSpeechBubble);
+        ClearBubble(narrationSpeechBubble);
     }
 
     /// <summary>화면 클릭 시 타이핑을 중단(스킵)한다.</summary>
@@ -157,7 +187,7 @@ public class UIDialogueTextView : MonoBehaviour
     /// </summary>
     public async UniTask TypeSentenceTMP(TypingData data, string cocktailName = null)
     {
-        if (!(data.str.Length > 0)) return;
+        if (string.IsNullOrEmpty(data?.str)) return;
 
         StopTyping();
         typingCts = new CancellationTokenSource();

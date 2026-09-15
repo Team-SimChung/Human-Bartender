@@ -10,6 +10,8 @@ public class InteractEntrance : InteractiveEntity
 
     public override void Interact(IInteractor player)
     {
+        isInteract = false;
+        player.State = EInteractorState.Interct;
         if (GameStateManager.Instance.GameFlow == eGameFlow)
             SceneTransitionManager.Instance.LoadScene(targetScene);
     }

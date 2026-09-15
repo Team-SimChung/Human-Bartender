@@ -41,7 +41,7 @@
           "type": "enter",
           "actor": "port",
           "dialogue_id": null,
-          "arg": "M",
+          "arg": "L",
           "text": null,
           "when": null,
           "effects": null,
@@ -367,7 +367,7 @@
           "type": "enter",
           "actor": "aili",
           "dialogue_id": null,
-          "arg": "M",
+          "arg": "R",
           "text": null,
           "when": null,
           "effects": null,
@@ -380,8 +380,8 @@
           "dialogue_id": "dlg_t99_seats_002",
           "arg": "default",
           "text": {
-            "ko": "2인 프레임(1280×720)으로 부드럽게 축소됐으면 정상. 인접 좌석 L·M.",
-            "en": "Smooth zoom-out to the two-guest frame (1280×720). Adjacent seats L·M."
+            "ko": "2인 프레임(1280×720)으로 부드럽게 축소됐으면 정상. 포트는 L, 나는 R 좌석이다.",
+            "en": "The camera should smoothly zoom out to the two-guest frame (1280×720). Port is in L, and I am in R."
           },
           "when": null,
           "effects": null,
@@ -443,7 +443,7 @@
       "seq": 8,
       "trigger": "manual",
       "when": null,
-      "title": "테스트 — fx·sfx·컷씬",
+      "title": "테스트 — fx·sfx",
       "skippable": false,
       "group": null,
       "steps": [
@@ -475,17 +475,6 @@
           "actor": null,
           "dialogue_id": null,
           "arg": "hard_cut",
-          "text": null,
-          "when": null,
-          "effects": null,
-          "sync": "wait"
-        },
-        {
-          "seq": 4,
-          "type": "timeline",
-          "actor": null,
-          "dialogue_id": null,
-          "arg": "tl_catmilk",
           "text": null,
           "when": null,
           "effects": null,
@@ -568,7 +557,7 @@
           "type": "enter",
           "actor": "port",
           "dialogue_id": null,
-          "arg": "M",
+          "arg": "L",
           "text": null,
           "when": null,
           "effects": null,
@@ -955,7 +944,7 @@
       "seq": 4,
       "trigger": "manual",
       "when": null,
-      "title": "테스트 — 2인 연속 주문·서빙 대상 분리",
+      "title": "테스트 — 2인 동시 입장·연속 주문·서빙 대상 분리",
       "skippable": false,
       "group": null,
       "steps": [
@@ -968,14 +957,14 @@
           "text": null,
           "when": null,
           "effects": null,
-          "sync": "wait"
+          "sync": "no_wait"
         },
         {
           "seq": 2,
           "type": "enter",
           "actor": "aili",
           "dialogue_id": null,
-          "arg": "M",
+          "arg": "R",
           "text": null,
           "when": null,
           "effects": null,
@@ -988,8 +977,8 @@
           "dialogue_id": "dlg_t99_two_guests_001",
           "arg": "default",
           "text": {
-            "ko": "연속 주문 테스트. 내가 먼저다.",
-            "en": "Back-to-back order test. Me first."
+            "ko": "우리 둘이 함께 입장하고, 두 사람의 등장과 카메라 전환이 끝난 뒤 이 대사가 나오면 정상이다. L은 나, R은 아일리다. 주문은 내가 먼저 하지.",
+            "en": "This line should appear after we enter together and both entrances and the camera transition finish. I am in L, and Aili is in R. I will order first."
           },
           "when": null,
           "effects": null,
@@ -1108,6 +1097,20 @@
         },
         {
           "seq": 13,
+          "type": "say",
+          "actor": "aili",
+          "dialogue_id": "dlg_t99_two_guests_006",
+          "arg": "default",
+          "text": {
+            "ko": "포트가 나갔으니 R에 남은 나를 화면 중앙에 잡고, 1인 프레임(960×540)으로 돌아오면 정상이다.",
+            "en": "Port has left. The camera should center on me in R and return to the one-guest frame (960×540)."
+          },
+          "when": null,
+          "effects": null,
+          "sync": "wait"
+        },
+        {
+          "seq": 14,
           "type": "exit",
           "actor": "aili",
           "dialogue_id": null,
@@ -1118,7 +1121,7 @@
           "sync": "wait"
         },
         {
-          "seq": 14,
+          "seq": 15,
           "type": "choice",
           "actor": null,
           "dialogue_id": null,
@@ -1340,8 +1343,8 @@
       {
         "seq": 3,
         "text": {
-          "ko": "[테스트] 2인 연속 주문 · 서빙 대상 분리",
-          "en": "[Test] Two guests, back-to-back orders"
+          "ko": "[테스트] 2인 동시 입장 · 연속 주문 · 서빙 대상 분리",
+          "en": "[Test] Simultaneous entrance · back-to-back orders · separate serving targets"
         },
         "when": null,
         "effects": null,
@@ -1542,8 +1545,8 @@
       {
         "seq": 2,
         "text": {
-          "ko": "fx · sfx · 컷씬",
-          "en": "fx · sfx · cutscene"
+          "ko": "fx · sfx",
+          "en": "fx · sfx"
         },
         "when": null,
         "effects": null,

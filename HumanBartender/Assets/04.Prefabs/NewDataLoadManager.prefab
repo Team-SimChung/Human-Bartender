@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &16813888149333624114
+--- !u!1 &7629928868551439479
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 13484701114051743199}
-  - component: {fileID: 12062383342904561195}
+  - component: {fileID: 6518893514829662082}
+  - component: {fileID: 212527835083036052}
   m_Layer: 0
   m_Name: NewDataLoadManager
   m_TagString: Untagged
@@ -17,13 +17,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &13484701114051743199
+--- !u!4 &6518893514829662082
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 16813888149333624114}
+  m_GameObject: {fileID: 7629928868551439479}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -32,32 +32,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &12062383342904561195
+--- !u!114 &212527835083036052
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 16813888149333624114}
+  m_GameObject: {fileID: 7629928868551439479}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0941d2b0f184dd84c8e419fb00ba4793, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewDataLoadManager
-  isTest: 0
-  testDay: 1
-  startDay: 1
-  dayNumbers:
-  - 1
-  - 2
-  - 3
+  barDayNumbers: 0000000001000000020000000300000063000000
   balanceData: {fileID: 11400000, guid: 63f99327f1a0418a94d6ec6cd9c49dca, type: 2}
   barkData: {fileID: 11400000, guid: a71d1ae375e54257bcbbee7dbef3fd54, type: 2}
   characterData: {fileID: 11400000, guid: 5226867dabf2416db88a6084fcd100e7, type: 2}
   cocktailData: {fileID: 11400000, guid: 4cdd38f0ff8842f8a80c5e7c1fec4ecf, type: 2}
   cutSceneData: {fileID: 11400000, guid: 022803ba51e14b0e968c41bb410aaab9, type: 2}
   dayInfoData: {fileID: 11400000, guid: 2ceb0e3fd0ec46be9b0b412a9d538c72, type: 2}
-  dayScriptData: {fileID: 11400000, guid: 9bdfc980e3db4ef5abbf3d19ae507f80, type: 2}
   commonScriptData: {fileID: 11400000, guid: 76497c4ca4ba4d678fe9aae3cb9e9db8, type: 2}
   dossierData: {fileID: 11400000, guid: 45d1e6eda494495c893cc60bc453c325, type: 2}
   endingData: {fileID: 11400000, guid: f8c6a16086c8406c87f9911de8196062, type: 2}
@@ -65,6 +58,7 @@ MonoBehaviour:
   fieldAnimData: {fileID: 11400000, guid: 51a8288bc4bb42258cc5bcb4d498f439, type: 2}
   guestBodyData: {fileID: 11400000, guid: 726a89cc663346839730e4420015a326, type: 2}
   interactPointData: {fileID: 11400000, guid: 5ed93d5bb4b64ebeb2e3ef0656aa378c, type: 2}
+  homeinteractPointData: {fileID: 11400000, guid: 50632a3f3de1b9549a4da9fae0d5be12, type: 2}
   orderRuleData: {fileID: 11400000, guid: 392eaf6f57fe45d7b9581cb8d72b468c, type: 2}
   personalityData: {fileID: 11400000, guid: 1788c316189244baa8caf415c02339c0, type: 2}
   questData: {fileID: 11400000, guid: 9cf0cd665b6e43bd893b1b35c1edde9d, type: 2}
@@ -73,7 +67,9 @@ MonoBehaviour:
   shelfItemData: {fileID: 11400000, guid: f79c175af95447bba922a8c3fdddff37, type: 2}
   spotData: {fileID: 11400000, guid: 2aec38dee5aa4aa0bf346a3d87d40428, type: 2}
   tasteData: {fileID: 11400000, guid: 4fed73f749dc492ca5cb7558765b976c, type: 2}
+  textTagData: {fileID: 11400000, guid: a4036fdbe34f51f32d1cb38225f1d890, type: 2}
   uiStringData: {fileID: 11400000, guid: 71205796125f439391152ee18d0c6ca7, type: 2}
+  streetData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
   balanceFileName: json/balance.json
   barkFileName: json/barks.json
   characterFileName: json/characters.json
@@ -83,10 +79,11 @@ MonoBehaviour:
   commonScriptFileName: json/script/common.json
   dossierFileName: json/dossier.json
   endingFileName: json/endings.json
-  expressionFileName: json/expressions.json
+  expressionFileName: json/character_anim.json
   fieldAnimFileName: json/field_anims.json
   guestBodyFileName: json/guest_bodies.json
-  interactPointFileName: json/interact_points.json
+  interactPointFile: json/interact_points_outside.json
+  homeinteractPointFile: json/interact_points_home.json
   orderRuleFileName: json/order_rules.json
   personalityFileName: json/personalities.json
   questFileName: json/quests.json
@@ -95,4 +92,6 @@ MonoBehaviour:
   shelfItemFileName: json/shelf_items.json
   spotFileName: json/spots.json
   tasteFileName: json/tastes.json
+  textTagFileName: json/text_tags.json
   uiStringFileName: json/ui_strings.json
+  streetFileName: json/script/street.json

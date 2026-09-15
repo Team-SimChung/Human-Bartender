@@ -9,7 +9,19 @@ public static class ServeJudge
     /// <summary>이 잔이 손님이 주문한 칵테일인지.</summary>
     public static bool IsOrderMatch(CraftedDrink drink, Guest guest)
     {
-        return drink != null && guest != null && drink.CocktailId == guest.targetCocktailId;
+        return guest != null && IsOrderMatch(drink, guest.targetCocktailId);
+    }
+
+    /// <summary>
+    /// 이 잔이 주문한 칵테일인지. 주문한 쪽을 id로만 받는다.
+    ///
+    /// 2부의 주문자는 Guest가 아니라 대본이 앉힌 단골이라 손님 객체가 없다. 판정 규칙은 같아야 하므로
+    /// 규칙을 옮겨 적지 않고, 손님을 받는 쪽이 이 함수로 넘어온다.
+    /// </summary>
+    public static bool IsOrderMatch(CraftedDrink drink, string orderedCocktailId)
+    {
+        return drink != null && !string.IsNullOrEmpty(orderedCocktailId) &&
+               drink.CocktailId == orderedCocktailId;
     }
 
     /// <summary>
@@ -21,9 +33,16 @@ public static class ServeJudge
     /// </summary>
     public static ENewGrade? ResolveFinalGrade(CraftedDrink drink, Guest guest, NewBalanceConfig config)
     {
+        return ResolveFinalGrade(drink, guest?.targetCocktailId, config);
+    }
+
+    /// <summary>주문한 쪽을 id로만 받는 최종 등급. 2부가 쓴다.</summary>
+    public static ENewGrade? ResolveFinalGrade(CraftedDrink drink, string orderedCocktailId,
+                                               NewBalanceConfig config)
+    {
         if (drink == null) return null;
 
-        if (config.ForceSewageOnOrderMismatch && !IsOrderMatch(drink, guest)) return ENewGrade.Sewage;
+        if (config.ForceSewageOnOrderMismatch && !IsOrderMatch(drink, orderedCocktailId)) return ENewGrade.Sewage;
         if (config.ForceSewageOnMissingCore && drink.HasMissingCore) return ENewGrade.Sewage;
 
         return drink.CraftGrade;

@@ -48,6 +48,10 @@ public class OutsideElevator : InteractiveEntity
         this.isTop = isTop;
         transform.position = isTop ? topPoint.transform.position : bottomPoint.transform.position;
     }
+    private void Start()
+    {
+        SetPosition(GameStateManager.Instance.GameFlow == EGameFlow.CommuteIn);
+    }
 
     /// <summary>
     /// 엘리베이터 탑승 연출: 플레이어를 강제 이동 상태로 잠그고 엘리베이터의 자식으로 붙여 함께 이동시키며,
@@ -60,7 +64,6 @@ public class OutsideElevator : InteractiveEntity
         // 1. 상태 및 플래그 설정
         isMoving = true;
         isInteracting = true;
-
         player.State = EInteractorState.ForceMove;
 
 

@@ -26,14 +26,14 @@ public class CraftIngrediantData
 
 /// <summary>
 /// 현재 제조대(Craft Station)에 담긴 재료 구성과 진행 상태를 보관하는 ScriptableObject.
-/// 여러 매니저(CocktailCraftManager, UI 패널 등)가 공유하는 런타임 상태 저장소로 사용된다.
+/// 미니게임 독립 테스트 씬이 목표 칵테일을 넘겨받는 데 쓴다. 신형 제조 루프는 CraftContext로 대신한다.
 /// </summary>
 [CreateAssetMenu(fileName = "CraftLiquidData", menuName = "Scriptable Objects/CraftLiquidData")]
 public class CraftStationData : ScriptableObject
 {
     public string targetCocktailId;
     public int targetCraft_tolerance;
-    public CocktailData targetCocktailData;
+    public NewCocktailData targetCocktailData;
 
     public Dictionary<string, CraftIngrediantData> ingredientDatas = new();
     

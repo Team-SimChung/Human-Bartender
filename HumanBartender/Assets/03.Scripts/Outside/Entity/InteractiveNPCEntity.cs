@@ -1,63 +1,75 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 대사를 가진 NPC 엔티티의 베이스. InteractiveObjectEntity와 로직이 거의 동일하게 중복 구현되어 있으니
-/// 함께 참고할 것. 여러 FlowData 중 하나를 순환(또는 조건부)으로 재생한다.
+/// 대사를 가진 NPC 엔티티의 베이스. 상호작용 오브젝트도 이 클래스를 쓴다 —
+/// 따로 있던 InteractiveObjectEntity는 구형 대사(flows) 전용이라 걷어냈다.
+///
+/// 대사는 InteractiveEntityManager가 street 데이터에서 찾아 steps에 꽂아 준다.
 /// </summary>
-public abstract class InteractiveNPCEntity : InteractiveEntity
+public class InteractiveNPCEntity : InteractiveEntity
 {
     [SerializeField] protected ITrackedbleEvent OnTrackedText;
-
-    [SerializeField] protected List<FlowData> flows;
     [SerializeField] protected DialogueRunner runner;
     [SerializeField] protected OutsideDialoguePresenter presenter;
-
+    protected InteractiveEntityManager entityManager;
 
     protected bool isTalking = false;
 
-    int curFlowIndex = 0;
-    ESelectionType selectionType = ESelectionType.Random;
-
-    /// <summary>외부(매니저 등)에서 대사 목록과 선택 방식을 주입한다.</summary>
-    public void InjectDialogue(List<FlowData> data, ESelectionType selection)
+    public void Init(
+        InteractableEvent onInteracted,
+        VoidEvent onRefresh,
+        ITrackedbleEvent onTrackedText,
+        DialogueRunner runner,
+        OutsideDialoguePresenter presenter,
+        InteractiveEntityManager manager)
     {
-        if (data.Count == 0)
-            Logger.LogError($"Select Flow Data is Null");
-
-        flows = data;
-        selectionType = selection;
+        // 부모 필드 초기화
+        base.Init(onInteracted, onRefresh);
+        entityManager = manager;
+        // NPC 전용 필드 초기화
+        OnTrackedText = onTrackedText;
+        this.runner = runner;
+        this.presenter = presenter;
     }
-
-
     /// <summary>
     /// 플레이어 상태를 Interct로 잠그고 대사를 재생한다. 재생 완료 후 다음 flow로 인덱스를 순환시키고
     /// (Conditional이면 매번 0으로 리셋) 상태를 원복, 조건 갱신 이벤트를 발생시킨다.
     /// </summary>
     public override async void Interact(IInteractor player)
     {
+        if (isTalking)
+        {
+            return;
+        }
+        if (presenter.playMode == EActivationMode.Proximity&&ActionType==EActionType.Dialogue)
+        {
+            runner.Stop();
+        }
         isTalking = true;
         isInteracting = true;
+        if(ActivationMode == EActivationMode.Interact)
         player.State = EInteractorState.Interct;
-
+        string playingSceneId = DialogueSceneId;
         OnInteracted?.Raise(this);
         OnTrackedText?.Raise(this);
-
         player.InteractorEvent();
-
-        if (selectionType == ESelectionType.Conditional)
-            curFlowIndex = 0;
-
+        presenter.playMode = ActivationMode;
         runner.Bind(presenter);
-        await runner.PlayAsync(flows[curFlowIndex].Dialogues);
+
+        // SO에서 첫 번째 Scene의 Steps 배열을 추출하여 실행
+        if (steps != null)
+        {
+            await runner.PlayOutsideAsync(steps);
+        }
+        else
+        {
+            Debug.LogError($"[Interact] 지정된 스크립트를 찾을 수 없습니다.");
+        }
 
         isTalking = false;
         isInteracting = false;
         player.State = EInteractorState.None;
-
-        curFlowIndex++;
-        curFlowIndex %= flows.Count;
-
+        entityManager.CompleteDialogue(playingSceneId);
         OnRefreshCondition?.Raise(new Void());
     }
 }

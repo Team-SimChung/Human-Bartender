@@ -12,3 +12,603 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e166613ba25a84e41bef2f81d5cec5a1, type: 3}
   m_Name: NewStreetDataSO
   m_EditorClassIdentifier: Assembly-CSharp::NewStreetDataSO
+  newStreetData:
+    Place: street
+    Scenes:
+    - Id: d1_elevator
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: say
+        Actor: radio
+        DialogueId: dlg_d1_elevator_001
+        Arg: 
+        Text:
+          <Ko>k__BackingField: "\u2026\uB2E4\uC74C \uB274\uC2A4\uC785\uB2C8\uB2E4."
+          <En>k__BackingField: ...In other news.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 2
+        Type: say
+        Actor: radio
+        DialogueId: dlg_d1_elevator_002
+        Arg: 
+        Text:
+          <Ko>k__BackingField: "\uB274\uB7F0 \uD2B8\uB864\uD504 \uC8FC\uB2C8\uC5B4\uAC00
+            \uB300\uD1B5\uB839 8\uC5F0\uC784\uC5D0 \uC131\uACF5\uD558\uBA70,\n\uC2E0\uBBF8\uD569\uC911\uAD6D\uC758
+            \uC81C67\uB300 \uB300\uD1B5\uB839\uC73C\uB85C \uB2E4\uC2DC \uD55C\uBC88
+            \uB2F9\uC120\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+          <En>k__BackingField: 'Newron Trolph Jr. has won his eighth term,
+
+            re-elected
+            as the 67th President of the New United States.'
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 3
+        Type: say
+        Actor: radio
+        DialogueId: dlg_d1_elevator_003
+        Arg: 
+        Text:
+          <Ko>k__BackingField: "\uD2B8\uB864\uD504 \uB300\uD1B5\uB839\uC740 \uB2F9\uC120
+            \uC9C1\uD6C4 \uC5F0\uC124\uC5D0\uC11C"
+          <En>k__BackingField: 'In his victory speech, President Trolph declared:'
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 4
+        Type: say
+        Actor: radio
+        DialogueId: dlg_d1_elevator_004
+        Arg: 
+        Text:
+          <Ko>k__BackingField: "\"\uC704\uB300\uD55C \uAD6D\uAC00 \uC7AC\uAC74\uC740
+            \uC544\uC9C1 \uB05D\uB098\uC9C0 \uC54A\uC558\uB2E4.\"\n\"\uC2E0\uBBF8\uD569\uC911\uAD6D\uC740
+            \uB2E4\uC2DC \uD55C \uBC88 \uC138\uACC4\uC758 \uC911\uC2EC\uC5D0 \uC124
+            \uAC83\uC774\uB2E4.\""
+          <En>k__BackingField: '"The great national rebuilding is not over."
+
+            "The
+            New United States will stand at the center of the world once more."'
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 5
+        Type: say
+        Actor: radio
+        DialogueId: dlg_d1_elevator_005
+        Arg: 
+        Text:
+          <Ko>k__BackingField: "\uB77C\uACE0 \uBC1D\uD614\uC2B5\uB2C8\uB2E4."
+          <En>k__BackingField: "\u2014 he stated."
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 
+    - Id: d3_alley_cat
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: say
+        Actor: bubi
+        DialogueId: dlg_d3_alley_cat_001
+        Arg: 
+        Text:
+          <Ko>k__BackingField: "\uB0D0\uC639."
+          <En>k__BackingField: Meow.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 2
+        Type: set_state
+        Actor: 
+        DialogueId: 
+        Arg: 
+        Text:
+          <Ko>k__BackingField: 
+          <En>k__BackingField: 
+        When: 
+        Effects: flag.d3_cat_seen = true
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 
+    - Id: np_shiba_1
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_1_001
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\u2026"
+          <En>k__BackingField: ...
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 2
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_1_002
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uBB58 \uBD10? \uC2DC\uBC14."
+          <En>k__BackingField: What're you looking at? Shiba.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 3
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_1_003
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC548\uB155\uD558\uC138\uC694."
+          <En>k__BackingField: Hello.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 4
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_1_004
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uD558. \uC774 \uB3D9\uB124\uC5D0\uC11C \uC778\uC0AC\uD558\uACE0\n\uB3CC\uC544\uB2E4\uB2C8\uB294
+            \uB188\uC774 \uC788\uB124."
+          <En>k__BackingField: 'Ha. Someone in this neighborhood
+
+            actually
+            goes around greeting people.'
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 5
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_1_005
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uD639\uC2DC \uC778\uAC04\uC785\uB2C8\uAE4C?"
+          <En>k__BackingField: Are you, by any chance, human?
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 6
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_1_006
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uBB50\uB798, \uB108 \uBA38\uB9AC \uB098\uC058\uB0D0?"
+          <En>k__BackingField: What? Are you slow or something?
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 7
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_1_007
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC721\uC548\uC73C\uB85C \uBD24\uC744 \uB54C \uAC15\uC544\uC9C0\uB85C
+            \uD310\uB2E8\uB429\uB2C8\uB2E4."
+          <En>k__BackingField: 'Visual assessment indicates: dog.'
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 8
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_1_008
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC0AC\uB78C\uC744 \uC5BC\uAD74\uB85C \uD310\uB2E8\uD558\uC9C0
+            \uB9D0\uB77C\uACE0.\n\uBABB\uC0DD\uAE34 \uB188 \uAC19\uC73C\uB2C8."
+          <En>k__BackingField: 'Don''t judge people by their faces,
+
+            you
+            ugly mug.'
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 9
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_1_009
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\u2026\uADF8\uB7FC \uC0AC\uB78C\uC774 \uB9DE\uB294
+            \uAC74\uAC00\uC694?"
+          <En>k__BackingField: ...So you ARE a person?
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 10
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_1_010
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC544\uB2C8?"
+          <En>k__BackingField: Nope?
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 11
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_1_011
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uB531 \uBCF4\uBA74 \uC2DC\uBC14\uC796\uC544, \uC2DC\uBC14."
+          <En>k__BackingField: One look and you can tell I'm a shiba, shiba.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 12
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_1_012
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC544\uD558\u2026 \uD655\uC778\uD588\uC2B5\uB2C8\uB2E4."
+          <En>k__BackingField: I see... confirmed.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 13
+        Type: set_state
+        Actor: 
+        DialogueId: 
+        Arg: 
+        Text:
+          <Ko>k__BackingField: 
+          <En>k__BackingField: 
+        When: 
+        Effects: flag.shiba_met = true
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 
+    - Id: np_shiba_2
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_2_001
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC774\uC81C \uC880 \uAC00, \uC2DC\uBC14."
+          <En>k__BackingField: Go away already, shiba.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 2
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_2_002
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC65C\uC8E0?"
+          <En>k__BackingField: Why?
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 3
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_2_003
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC774\uC81C \uB354 \uB300\uD654\uD560 \uB300\uC0AC
+            \uB370\uC774\uD130\uB3C4 \uC5C6\uB2E8 \uB9D0\uC774\uC57C."
+          <En>k__BackingField: I'm out of dialogue data, that's why.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 4
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_2_004
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\u2026?"
+          <En>k__BackingField: ...?
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 5
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_2_005
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uBD88\uB9CC \uC788\uC73C\uBA74 \uC774\uB7F0 \uC815\uC2E0
+            \uB098\uAC04 \uAC8C\uC784\uC744 \uAE30\uD68D\uD55C\nPD\uD55C\uD14C \uAC00\uC11C
+            \uB530\uC838, \uC2DC\uBC14."
+          <En>k__BackingField: 'Got complaints? Take it up with the PD
+
+            who
+            designed this insane game, shiba.'
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 
+    - Id: np_shiba_3
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_3_001
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uB610 \uC654\uB0D0, \uC2DC\uBC14."
+          <En>k__BackingField: You again, shiba.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 2
+        Type: say
+        Actor: luna
+        DialogueId: dlg_np_shiba_3_002
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uB124. \uC9C0\uB098\uAC00\uB358 \uAE38\uC774\uC5D0\uC694."
+          <En>k__BackingField: Yes. Just passing by.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 3
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_3_003
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\u2026\uBB50, \uBCFC\uC77C \uC788\uC73C\uBA74 \uBE68\uB9AC
+            \uB9D0\uD574, \uC2DC\uBC14."
+          <En>k__BackingField: ...If you want something, spit it out, shiba.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 4
+        Type: choice
+        Actor: 
+        DialogueId: 
+        Arg: 
+        Text:
+          <Ko>k__BackingField: 
+          <En>k__BackingField: 
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options:
+        - Id: ch_st_shiba_1
+          Seq: 1
+          Text:
+            <Ko>k__BackingField: "\uC544\uB1E8, \uADF8\uB0E5 \uC9C0\uB098\uAC08\uAC8C\uC694."
+            <En>k__BackingField: No, I'll just be on my way.
+          When: 
+          LockReason:
+            <Ko>k__BackingField: 
+            <En>k__BackingField: 
+          ResultSteps: []
+        - Id: ch_st_shiba_2
+          Seq: 2
+          Text:
+            <Ko>k__BackingField: "\uAC04\uC2DD \uC880 \uB4DC\uB9B4\uAE4C\uC694?"
+            <En>k__BackingField: Want a little treat?
+          When: flag.has_snack
+          LockReason:
+            <Ko>k__BackingField: "\uC904 \uC218 \uC788\uB294 \uAC04\uC2DD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4."
+            <En>k__BackingField: You don't have a treat to give.
+          ResultSteps:
+          - Seq: 0
+            Type: set_state
+            Actor: 
+            DialogueId: 
+            Arg: 
+            Text:
+              <Ko>k__BackingField: 
+              <En>k__BackingField: 
+            When: 
+            Effects: flag.has_snack = false; flag.shiba_fed = true
+            Sync: 
+            SceneId: 
+            Options: []
+          - Seq: 0
+            Type: goto
+            Actor: 
+            DialogueId: 
+            Arg: 
+            Text:
+              <Ko>k__BackingField: 
+              <En>k__BackingField: 
+            When: 
+            Effects: 
+            Sync: 
+            SceneId: np_shiba_treat
+            Options: []
+      - Seq: 5
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_3_004
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\uC190\uB300\uBA74 \uBB38\uB2E4, \uC2DC\uBC14."
+          <En>k__BackingField: Touch me and I bite, shiba.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 
+    - Id: np_shiba_treat
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: say
+        Actor: shiba
+        DialogueId: dlg_np_shiba_treat_001
+        Arg: idle
+        Text:
+          <Ko>k__BackingField: "\u2026\uD765. \uBB50, \uBABB \uBA39\uC744 \uAC74
+            \uC544\uB2C8\uB124, \uC2DC\uBC14."
+          <En>k__BackingField: ...Hmph. Well, it's not inedible, shiba.
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 
+    - Id: ob_experiment_1
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: timeline
+        Actor: 
+        DialogueId: 
+        Arg: sp_experiment_poster
+        Text:
+          <Ko>k__BackingField: "\uC784\uC0C1\uC2DC\uD5D8 \uCC38\uAC00\uC790 \uBAA8\uC9D1
+            \xB7 \uC778\uACF5 \uC2E0\uACBD\uB9DD \uBD84\uC11D \xB7 \uC8FC\uAD00 (\uC8FC)\uCF54\uB77C\uD14C\uD06C
+            \xB7 \uBB38\uC758 070*8812*0031"
+          <En>k__BackingField: "CLINICAL TRIAL PARTICIPANTS WANTED \xB7 neural network
+            analysis \xB7 CoraTech Inc. \xB7 070*8812*0031"
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      - Seq: 2
+        Type: set_state
+        Actor: 
+        DialogueId: 
+        Arg: 
+        Text:
+          <Ko>k__BackingField: 
+          <En>k__BackingField: 
+        When: 
+        Effects: flag.seen_coratech_ad = true
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 
+    - Id: ob_parttime_1
+      Phase: 0
+      Seq: 0
+      StartMode: 0
+      When: 
+      Title: 
+      Skippable: 0
+      Steps:
+      - Seq: 1
+        Type: timeline
+        Actor: 
+        DialogueId: 
+        Arg: sp_parttime_poster
+        Text:
+          <Ko>k__BackingField: "\uC544\uB974\uBC14\uC774\uD2B8 \uAD6C\uD568 \xB7
+            Bc25 \uD3B8\uC758\uC810 \xB7 \uC57C\uAC04 3\uAD50\uB300 \xB7 \uC5F0\uB77D\uCC98
+            154*455*587"
+          <En>k__BackingField: "PART-TIMER WANTED \xB7 Bc25 convenience store \xB7
+            night shifts \xB7 154*455*587"
+        When: 
+        Effects: 
+        Sync: wait
+        SceneId: 
+        Options: []
+      Note: 

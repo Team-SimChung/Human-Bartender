@@ -16,4 +16,26 @@ public struct NewCutSceneRefData
 public class NewCutSceneDataSO : ScriptableObject
 {
     public NewCutSceneRefData[] cutSceneData;
+
+    /// <summary>
+    /// 컷씬 id로 참조 항목을 찾는다. 없으면 false.
+    ///
+    /// 대본(2부 timeline 스텝)이 적어 놓은 id를 그대로 받는 자리라, 없는 id는 흔한 오타다.
+    /// 부르는 쪽이 어느 id를 못 찾았는지 말할 수 있게 예외 대신 false로 돌려준다.
+    /// </summary>
+    public bool TryGet(string id, out NewCutSceneRefData cutScene)
+    {
+        cutScene = default;
+        if (string.IsNullOrEmpty(id) || cutSceneData == null) return false;
+
+        foreach (var candidate in cutSceneData)
+        {
+            if (candidate.Id != id) continue;
+
+            cutScene = candidate;
+            return true;
+        }
+
+        return false;
+    }
 }

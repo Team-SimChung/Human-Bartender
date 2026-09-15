@@ -19,6 +19,7 @@ public class InteractionDetector : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Transform origin;
+    [SerializeField] private Player _player;
 
     [Header("Detection")]
     [Tooltip("감지 반경")]
@@ -98,6 +99,7 @@ public class InteractionDetector : MonoBehaviour
     {
         ScanCandidates();
         UpdateCurrentTarget();
+
     }
 
     /// <summary>감지 범위 내 콜라이더를 원형으로 검사해 사용 가능한 IInteractable 후보 목록을 갱신한다.</summary>
@@ -114,11 +116,18 @@ public class InteractionDetector : MonoBehaviour
             if (col == null) continue;
 
             if (!col.TryGetComponent<IInteractable>(out var interactable))
+            {
                 interactable = col.GetComponentInParent<IInteractable>();
-
+            }
+            
             if (interactable == null) continue;
             if (!interactable.IsAvaliable) continue;
-
+            if (!interactable.isInteract) continue;
+            if (col.GetComponentInParent<InteractiveEntity>().ActivationMode == EActivationMode.Proximity)
+            {
+                col.GetComponentInParent<InteractiveEntity>().Interact(_player);
+                continue;
+            }
             currentFrameCandidates.Add(interactable);
         }
     }
@@ -175,7 +184,6 @@ public class InteractionDetector : MonoBehaviour
     private void HandleInteractInput(IInteractor interactor)
     {
         if (currentTarget == null || !currentTarget.IsAvaliable) return;
-
         PlayerStopEvent?.Raise(new Void());
         currentTarget.Interact(interactor);
     }

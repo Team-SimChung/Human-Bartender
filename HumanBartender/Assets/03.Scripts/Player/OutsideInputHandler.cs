@@ -3,7 +3,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Unity Input System의 PlayerInput 메시지(OnXxx)를 받아 이벤트 채널로 브로드캐스트하는 입력 어댑터.
+/// Unity Input System의 
+/// 
+/// Input 메시지(OnXxx)를 받아 이벤트 채널로 브로드캐스트하는 입력 어댑터.
 /// 상호작용 입력은 대화 진행(runnerAdvanceInputEvent)과 상호작용 시도(interactPressedEvent) 두 채널에 동시에 알린다.
 /// </summary>
 public class OutsideInputHandler : MonoBehaviour

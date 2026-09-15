@@ -14,5 +14,13 @@
     "target_spot": "home_spawn_entry",
     "effect": "fade",
     "note": "집 현관에서 E → 집 내부 입장"
+  },
+  {
+    "id": "exit_home",
+    "target_location": "street",
+    "target_phase": "commute_in",
+    "target_spot": "home_door",
+    "effect": "fade",
+    "note": "집 현관에서 상호작용 → 출근길 거리의 home_door에서 생성"
   }
 ]

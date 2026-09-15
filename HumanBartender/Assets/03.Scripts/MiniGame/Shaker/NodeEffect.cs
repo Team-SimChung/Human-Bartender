@@ -33,9 +33,14 @@ public class NodeEffect : PooledObject
 
     public async UniTask ReturnEffect()
     {
-        await UniTask.Delay(TimeSpan.FromSeconds(duration));
-        parentPool.Return(this.gameObject);
-        return;
+        bool canceled = await UniTask.Delay(
+            TimeSpan.FromSeconds(duration),
+            cancellationToken: this.GetCancellationTokenOnDestroy()
+        ).SuppressCancellationThrow();
+
+        if (canceled || this == null) return;
+
+        parentPool.Return(gameObject);
     }
 
     public async UniTaskVoid ActiveEffect()

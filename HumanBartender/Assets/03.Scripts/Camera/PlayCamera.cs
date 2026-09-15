@@ -19,7 +19,8 @@ public class PlayCamera : MonoBehaviour, ISlotCamera
     [Header("References")]
     [SerializeField] private CameraControllerNew cameraZoom;
 
-    [Header("Slot Options")]
+    [Header("Slot Options (1부)")]
+    [Tooltip("1부 손님 자리별 카메라 위치. 2부는 이 표를 쓰지 않는다 — 자리도 프레임도 다르다.")]
     [SerializeField] private SlotCameraOption[] slotOptions;
     [SerializeField] private AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -46,6 +47,18 @@ public class PlayCamera : MonoBehaviour, ISlotCamera
 
         int idx = System.Array.IndexOf(SlotOrder, slot);
         if (idx >= 0) _currentSlotIndex = idx;
+    }
+
+    /// <summary>
+    /// cameraAnchor를 world x로 dur초 동안 옮긴다. 2부가 계산해 온 좌표를 그대로 받는다.
+    ///
+    /// 슬롯 앵커에 붙지 않으므로 따라다니던 부모가 있으면 먼저 뗀다. 붙은 채로 두면 넘겨받은 값이
+    /// 그 부모 기준으로 읽혀 엉뚱한 곳에 선다.
+    /// </summary>
+    public void MoveToX(float worldX, float dur = 1f)
+    {
+        cameraZoom.Unfollow();
+        cameraZoom.TransitionFollowOffset(new Vector3(worldX, 0f, 0f), dur, ease);
     }
 
     /// <summary>현재 슬롯 기준으로 한 칸 옆(step: -1=왼쪽, +1=오른쪽) 슬롯으로 이동시킨다.</summary>

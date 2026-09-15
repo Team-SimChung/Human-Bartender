@@ -23,7 +23,7 @@ public class GuestManager : MonoBehaviour
     [SerializeField] NewPersonalityDataSO personalityData;
     [SerializeField] NewGuestBodyDataSO guestBodyData;
     [SerializeField] NewBarkDataSO barkData;
-    [SerializeField] TextTagDataSO textTagData;
+    [SerializeField] NewTextTagDataSO textTagData;
     [SerializeField] NewCharacterDataSO characterData;
     [SerializeField] GuestSlot[] slots;
 
@@ -44,12 +44,8 @@ public class GuestManager : MonoBehaviour
 
     [Header("Test")]
     [Tooltip("파츠 addressable 로딩을 생략하고 GuestSlot의 임시 오브젝트만 On/Off한다. " +
-             "testDay가 0보다 크면 진행 일차도 그 값으로 바꾼다.")]
+             "손님 외형에만 관여한다 — 진행 일차는 PlayPhaseController의 Test Day가 정한다.")]
     [SerializeField] bool useTempAppearance;
-
-    [Tooltip("테스트용 진행 일차. useTempAppearance가 켜져 있을 때만 쓰고, 0이면 데이터 로더가 정한 일차를 그대로 둔다. " +
-             "일차가 바뀌면 등장 손님과 해금 칵테일이 통째로 달라진다.")]
-    [SerializeField] int testDay = 2;
 
     const string PlayerCharacterId = "luna";
 
@@ -176,15 +172,8 @@ public class GuestManager : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        if (useTempAppearance && testDay > 0)
-        {
-            // 이름은 외형이지만 일차까지 바꾼다. 일차가 달라지면 등장 손님과 해금 칵테일이 통째로
-            // 바뀌므로, 조용히 넘어가지 않고 남긴다 — 1일차인 줄 알았는데 2일차 단골이 나오는 식이다.
-            GameStateManager.Instance.CurrentDay = testDay;
-            Debug.LogWarning($"[Guest] 테스트 설정으로 진행 일차를 {testDay}일차로 바꿨습니다. " +
-                             "실제 일차로 돌리려면 GuestManager의 useTempAppearance를 끄거나 testDay를 0으로 두세요.");
-        }
-
+        // 진행 일차는 여기서 손대지 않는다. 외형 스위치가 일차까지 바꾸던 탓에 "외형만 임시로 볼까"가
+        // 등장 손님과 해금 칵테일을 통째로 바꾸는 일이 됐다. 일차는 국면을 여는 PlayPhaseController가 정한다.
         foreach (var slot in slots)
             slot.SetTempAppearanceMode(useTempAppearance);
     }

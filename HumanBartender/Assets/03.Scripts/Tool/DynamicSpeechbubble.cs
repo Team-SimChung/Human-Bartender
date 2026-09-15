@@ -22,7 +22,9 @@ public class DynamicSpeechBubble : MonoBehaviour
     public enum BubbleSizeMode
     {
         GrowPerCharacter, // 한 글자씩 박스가 늘어남 (기존 방식)
-        PreExpand         // 시작부터 최종 크기로 펼쳐 두고 그 안에서 타이핑만
+        PreExpand,         // 시작부터 최종 크기로 펼쳐 두고 그 안에서 타이핑만
+
+        Fixed // 인스펙터에서 변경없음
     }
 
     [Header("Mode")]
@@ -121,6 +123,43 @@ public class DynamicSpeechBubble : MonoBehaviour
         sizeMode = mode;
         _ready = false;
         _fullText = fullClean ?? "";
+
+        if (sizeMode == BubbleSizeMode.Fixed)
+        {
+            // 위쪽 고정 → 높이가 늘어나면 아래로 확장
+            bubble.pivot = new Vector2(0.5f, 1f);
+
+            textLabel.margin = Vector4.zero;
+            textLabel.enableAutoSizing = false;
+            textLabel.fontSize = baseFontSize;
+
+            // 현재 말풍선 너비는 유지
+            float width = bubble.rect.width;
+            float textWidth = Mathf.Max(1f, width - PaddingH);
+
+            Vector2 preferred = textLabel.GetPreferredValues(
+                _fullText, textWidth, Mathf.Infinity);
+
+            float height = Mathf.Max(
+                minSize.y,
+                preferred.y + PaddingV);
+
+            bubble.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical, height);
+
+            textLabel.text = _fullText;
+            textLabel.maxVisibleCharacters = int.MaxValue;
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(bubble);
+            textLabel.ForceMeshUpdate(true, true);
+
+            _visibleCount = textLabel.textInfo.characterCount;
+            textLabel.maxVisibleCharacters = 0;
+
+            _ready = true;
+            return;
+        }
+
         textLabel.margin = Vector4.zero;
         textLabel.enableAutoSizing = false;
         textLabel.fontSize = baseFontSize;
@@ -209,6 +248,8 @@ public class DynamicSpeechBubble : MonoBehaviour
     public void UpdateForVisible(int visibleCount)
     {
         if (!_ready) return;
+        if (sizeMode == BubbleSizeMode.Fixed) return;
+
         visibleCount = Mathf.Clamp(visibleCount, 0, _visibleCount);
 
         // ── PreExpand: 항상 최종 크기로 고정 ──────────────────────────

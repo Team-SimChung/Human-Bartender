@@ -45,12 +45,12 @@ public enum EEffectType
 
 /// <summary>
 /// 컷씬 재생과 화면 이펙트를 담당하는 메인 매니저. IEffectPlayer와 ICutScenePlayer를 구현한다.
-/// Sprite/Spine/Comic/Timeline 컷씬 타입을 처리하며, FadeIn/FadeOut/FlashWhite/ScreenShake 등
+/// json/cutscenes.json이 말하는 kind(timeline·sprite)에 맞춰 재생하고, FadeIn/FadeOut/FlashWhite/ScreenShake 등
 /// 다양한 화면 이펙트를 effectOverlay Image와 DOTween으로 수행한다.
 /// </summary>
 public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
 {
-    [SerializeField] CutSceneDataSO data;
+    [SerializeField] NewCutSceneDataSO data;
 
     [SerializeField] SpriteAnimationManager spriteAnimationManager;
     [SerializeField] SpineAnimationManager spineAnimationManager;
@@ -125,7 +125,7 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     {
         Logger.Log($"Play CutScene : {id}");
 
-        if (!data.spriteCutsceneCachedById.TryGetValue(id, out SpriteCutscene cutScene))
+        if (!data.TryGet(id, out NewCutSceneRefData cutScene))
         {
             Debug.LogWarning($"[CutsceneManager] 컷씬 ID를 찾을 수 없음: {id}");
             return;
@@ -143,46 +143,46 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
 
         //Enter, Exit 구조 변경.
 
-        switch (cutScene.Type)
+        switch (cutScene.Kind)
         {
-            case CutsceneType.Sprite:
-                await PlaySpriteAnimationCutScene(cutScene, token, tcs);
-                break;
-
-            case CutsceneType.Spine:
-                await PlaySpineAnimationCutScene(cutScene, token, tcs);
-                break;
-
-            case CutsceneType.Comic:
-                await PlayComicCutSceneAsync(id, token, tcs);
-                break;
-
-            case CutsceneType.Timeline:
+            case ENewCutSceneKind.Timeline:
                 await PlayTimelineCutScene(cutScene, token, tcs);
                 break;
 
-            default: break;
+            case ENewCutSceneKind.Sprite:
+                await PlaySpriteAnimationCutScene(cutScene, token, tcs);
+                break;
+
+            default:
+                // gif는 아직 재생기가 없다. 조용히 지나가면 연출이 빠진 것을 알 수 없어 남긴다.
+                Logger.LogWarning($"[CutsceneManager] 재생기가 없는 컷씬 종류입니다: {cutScene.Kind} ({id})");
+                tcs?.TrySetResult();
+                break;
         }
     }
 
 
+    /// <summary>
+    /// 타임라인 컷씬을 재생하고 길이만큼 기다린다.
+    ///
+    /// 어드레서블 키는 컷씬 id가 아니라 resource_key다. 둘은 다르다 — tl_intro_lab의 실제 키는
+    /// "Intro lab"이다. 예전에는 id를 그대로 키로 썼는데, 그래서 이름을 바꾸면 로드가 끊겼다.
+    /// </summary>
     public async UniTask PlayTimelineCutScene(
-        SpriteCutscene data,
+        NewCutSceneRefData data,
         CancellationToken token,
         UniTaskCompletionSource tcs = null)
     {
-
-        var handle = await ResourceLoader.TryLoadAsync<TimelineAsset>(data.Id, token);
+        var handle = await ResourceLoader.TryLoadAsync<TimelineAsset>(data.ResourceKey, token);
 
         if (handle.HasValue)
         {
-            Logger.LogWarning($"{data.Id} is Play");
             timelineManager.PlayTimelineCutScene(handle.Value.Result);
             await UniTask.WaitForSeconds((float)handle.Value.Result.duration);
         }
         else
         {
-            Logger.LogWarning($"{data.Id} is Not Exist or Load Failed");
+            Logger.LogWarning($"[CutsceneManager] 타임라인을 찾지 못했습니다: {data.Id} (resource_key={data.ResourceKey})");
             await UniTask.WaitForSeconds(1f);
         }
 
@@ -203,13 +203,11 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     /// <param name="tcs"></param>
     /// <returns></returns>
     private async UniTask PlaySpriteAnimationCutScene(
-        SpriteCutscene data, 
+        NewCutSceneRefData data,
         CancellationToken token,
         UniTaskCompletionSource tcs = null)
     {
-        UniTaskCompletionSource cameraTcs = new UniTaskCompletionSource();
-
-        var handle = await ResourceLoader.TryLoadAsync<AnimationClip>(data.Id, token);
+        var handle = await ResourceLoader.TryLoadAsync<AnimationClip>(data.ResourceKey, token);
 
         if (handle.HasValue)
         {
@@ -222,69 +220,14 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         }
         else
         {
+            Logger.LogWarning($"[CutsceneManager] 스프라이트 애니메이션을 찾지 못했습니다: {data.Id} (resource_key={data.ResourceKey})");
             await UniTask.WaitForSeconds(1f);
         }
-            
+
         if (tcs != null)
             tcs.TrySetResult();
 
         ResourceLoader.ReleaseHandle<AnimationClip>(ref handle);
-    }
-
-
-    /// <summary>
-    /// Spine 컷씬 재생.
-    /// data.Id 로 SkeletonDataAsset 을 로드 → SkeletonGraphic 에 주입 → 첫 애니메이션 재생 후 완료 대기.
-    /// 추후 처리 예정: position, loop, 특정 애니메이션 이름 지정(blocking 등).
-    /// </summary>
-    private async UniTask PlaySpineAnimationCutScene(
-        SpriteCutscene data,
-        CancellationToken token,
-        UniTaskCompletionSource tcs = null)
-    {
-        var handle = await ResourceLoader.TryLoadAsync<SkeletonDataAsset>(data.Id, token);
-
-        if (handle.HasValue && spineAnimationManager.SetSkeletonData(handle.Value.Result))
-        {
-            spineAnimationManager.ActiveSelf(true);
-
-            // 데이터에 별도 애니메이션 키가 생기면 이 부분을 교체 (예: data.AnimationName)
-            string animName = spineAnimationManager.GetFirstAnimationName();
-
-            await spineAnimationManager.PlayAnimation(animName, loop: false, token);
-        }
-        else
-        {
-            Logger.LogWarning($"{data.Id} is Not Exist or Load Failed (Spine)");
-            await UniTask.WaitForSeconds(1f);
-        }
-
-        if (tcs != null)
-            tcs.TrySetResult();
-
-        ResourceLoader.ReleaseHandle<SkeletonDataAsset>(ref handle);
-    }
-
-
-
-    private async UniTask PlayComicCutSceneAsync(
-        string id, 
-        CancellationToken token, 
-        UniTaskCompletionSource tcs = null)
-    {
-        cutSceneCanvas.worldCamera = Camera.main;
-
-        if (!data.spriteCutsceneCachedById.TryGetValue(id, out SpriteCutscene cutScene))
-        {
-            Debug.LogWarning($"[CutsceneManager] 컷씬 ID를 찾을 수 없음: {id}");
-            return;
-        }
-
-        //await RunSequenceAsync(cutScene);
-
-        if (tcs != null)
-            tcs.TrySetResult();
-        
     }
 
 

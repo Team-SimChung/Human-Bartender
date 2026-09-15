@@ -25,7 +25,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     [Header("Data")]
     [SerializeField] CraftStationData data;
     [SerializeField] CategoryColorData colorData;
-    [SerializeField] CocktailDataSO cocktailDataSO;
+    [SerializeField] NewCocktailDataSO cocktailDataSO;
     [Tooltip("shake_target_stacks(목표 스택)를 읽어온다. 기믹 큐가 돌릴 때의 종료 조건이자 점수 분모다.")]
     [SerializeField] NewBalanceDataSO balanceData;
 
@@ -75,7 +75,11 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
         if (isTest)
         {
-            data.targetCocktailData = cocktailDataSO.allCocktails[data.targetCocktailId];
+            if (cocktailDataSO.TryGet(data.targetCocktailId, out NewCocktailData cocktail))
+                data.targetCocktailData = cocktail;
+            else
+                Debug.LogWarning($"[Shake] 테스트 칵테일 '{data.targetCocktailId}'를 찾지 못했습니다.");
+
             data.targetCraft_tolerance = 15;
         }
 
@@ -135,15 +139,15 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     /// </summary>
     Color[] ResolveNodeColors()
     {
-        string[] keywords = data != null ? data.targetCocktailData.Keywords : null;
+        NewCocktailTag[] tags = data != null ? data.targetCocktailData.Tags : null;
 
-        if (keywords == null || keywords.Length == 0 || colorData == null)
+        if (tags == null || tags.Length == 0 || colorData == null)
             return new[] { Color.white };
 
-        var colors = new Color[keywords.Length];
+        var colors = new Color[tags.Length];
         for (int i = 0; i < colors.Length; i++)
         {
-            int n = colorData.categorys.FindIndex(a => a.Contains(keywords[i]));
+            int n = colorData.categorys.FindIndex(a => a.Contains(tags[i].Ko));
             colors[i] = n >= 0 ? colorData.colors[n] : Color.white;
         }
 

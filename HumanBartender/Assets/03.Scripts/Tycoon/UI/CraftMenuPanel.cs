@@ -87,7 +87,7 @@ public class CraftMenuPanel : MonoBehaviour
     /// </summary>
     public void SetCraftEnabled(bool enabled)
     {
-        //if (craftButton != null) craftButton.interactable = enabled;
+        if (craftButton != null) craftButton.interactable = enabled;
         if (startCraftButton != null) startCraftButton.interactable = enabled;
     }
 

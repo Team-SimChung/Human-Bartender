@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb3881e7e75f6b948b8ace28a001b452, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animConfig: {fileID: 11400000, guid: 37dcf18dad1864f45a0beb8c4ee3fffb, type: 2}
+  animConfig: {fileID: 11400000, guid: 673249a265b74ef9953af487647e6d03, type: 2}
   slotParts:
   - slot: {fileID: 1931732897}
     type: 1
@@ -2416,7 +2416,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1811782417}
-  - component: {fileID: 1811782416}
   - component: {fileID: 1811782418}
   m_Layer: 0
   m_Name: GameObject
@@ -2425,23 +2424,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1811782416
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1811782415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c16f8956fd8c7c4bb171cdc9113bd8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UITest
-  playerDataAsset: {fileID: 11400000, guid: 2fd3768d3d1393647a7e88b72e79c9e0, type: 2}
-  textView: {fileID: 1811782418}
-  currency: {fileID: 0}
-  settlement: {fileID: 0}
-  showSettleMent: {fileID: 11400000, guid: 346b8f58b38d03549bf1022f14637c40, type: 2}
 --- !u!4 &1811782417
 Transform:
   m_ObjectHideFlags: 0
@@ -2469,7 +2451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3df068dc8ea8f6248a4c7d3c6d4c3857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIDialogueTextView
-  textTagData: {fileID: 11400000, guid: 29643d496f8bbbc4dac66d58dd79453a, type: 2}
+  textTagData: {fileID: 11400000, guid: a4036fdbe34f51f32d1cb38225f1d890, type: 2}
   lunaSpeechBubble: {fileID: 96362529}
   customerSpeechBubble: {fileID: 96362529}
   canvasRect: {fileID: 562793721}

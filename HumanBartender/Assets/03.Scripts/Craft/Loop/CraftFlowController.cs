@@ -179,9 +179,9 @@ public class CraftFlowController : MonoBehaviour
     /// </summary>
     public void BeginCraft(string cocktailId)
     {
-        if (Current != null && Current.Phase == ECraftPhase.Playing)
+        if (IsCraftBusy)
         {
-            Debug.LogWarning("[CraftFlow] 이미 제조 중입니다. 새 제조를 시작하지 않습니다.");
+            Debug.LogWarning("[CraftFlow] 이미 제조 준비 또는 기믹이 진행 중입니다. 새 제조를 시작하지 않습니다.");
             return;
         }
 
@@ -206,8 +206,8 @@ public class CraftFlowController : MonoBehaviour
 
         // 고르는 일이 끝났으므로 메뉴를 접고 처음 화면으로 되돌린다. 상세 뷰를 켠 채로 닫으면
         // 다음에 열었을 때 지난번 칵테일 설명이 그대로 남아 있다.
-        craftPanel?.Close();
         menuPanel?.ResetToMenu();
+        RefreshCraftAvailability();
 
         CraftBegan?.Invoke(Current);
         PreparationChanged?.Invoke(Preparation);
@@ -225,7 +225,10 @@ public class CraftFlowController : MonoBehaviour
     /// </summary>
     public void RefreshCraftAvailability()
     {
-        menuPanel?.SetCraftEnabled(CraftBlockedReason() == null);
+        bool enabled = !IsCraftBusy && CraftBlockedReason() == null;
+
+        menuPanel?.SetCraftEnabled(enabled);
+        craftPanel?.SetToggleInteractable(enabled);
     }
 
     // ── 제조 준비 (준비 화면이 부를 자리) ───────────────────────────────
@@ -367,6 +370,7 @@ public class CraftFlowController : MonoBehaviour
             //
             // 결과 화면이 붙으면 이 자리는 '제공하기'를 누른 시점으로 옮긴다(balance.json의 craft_pause_end).
             SetCraftFlowActive(false);
+            RefreshCraftAvailability();
         }
     }
 

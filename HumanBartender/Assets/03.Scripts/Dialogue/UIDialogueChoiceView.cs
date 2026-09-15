@@ -1,127 +1,191 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
-/// <summary>선택지 표시에 필요한 데이터와 선택 시 호출할 콜백을 묶은 컨테이너.</summary>
-[System.Serializable]
-public class ChoiceSelectData
-{
-    public ChoiceData[] data;
-    public Action<ChoiceData> callBackEvent;
-
-    public ChoiceSelectData()
-    {
-    }
-
-    public ChoiceSelectData(ChoiceData[] data, Action<ChoiceData> callBackEvent)
-    {
-        this.data = data;
-        this.callBackEvent = callBackEvent;
-    }
-}
-
-
-
 /// <summary>
-/// 선택지 UI 패널들을 관리한다. 각 선택지의 조건(호감도/스킬/재화/플래그)을 검사해 조건 미충족 시 숨긴다.
+/// 선택지 UI 패널들을 관리한다. 조건 판정은 부르는 쪽이 끝내고 넘긴다 —
+/// 2부는 when DSL(IConditionUtil)로, 실외는 스텝의 options를 그대로 그린다.
 /// </summary>
 public class UIDialogueChoiceView : MonoBehaviour
 {
-    [SerializeField] PlayerDataSO playerDataAsset;
-    [SerializeField] GameObject choicesPanel;
-    [SerializeField] List<ChoicePanel> choicePanels = new();
+    [SerializeField] private GameObject choicesPanel;
+    [SerializeField] private List<ChoicePanel> choicePanels = new();
 
-    IPlayerDataReader PlayerData => playerDataAsset;
 
-    ChoiceData[] curChoiceData;
+    // 실행 중 선택 콜백만 쓰는 임시 상태다. 도메인 리로드 때 Unity가 이 재귀적인
+    // result_steps/options 그래프를 백업하면 직렬화 깊이 초과와 오브젝트 로드 경고가 난다.
+    [NonSerialized] private NewStreetOptionData[] curOutsideOptions;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // GameStateManager의 언어 설정을 실시간 참조
+    public ELanguage CurrentLanguage => GameStateManager.Instance != null
+        ? GameStateManager.Instance.Language
+        : ELanguage.Ko;
+
     void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     /// <summary>
-    /// 선택지 패널들을 초기화하고, 조건을 만족하는 선택지만 텍스트를 채워 활성화한 뒤 클릭 콜백을 등록한다.
+    /// [신규] Step 기반 아웃사이드 선택지(NewStreetOptionData[]) 패널 표시 및 이벤트 등록
     /// </summary>
-    public void ShowChoice(ChoiceSelectData data)
+    public void ShowOutsideChoice(NewStreetOptionData[] options, Action<NewStreetOptionData> onSelected)
     {
-        Debug.Log("선택지 UI 표시 중...");
+        if (options == null || options.Length == 0) return;
+
+        Debug.Log("아웃사이드 선택지 UI 표시 중...");
 
         choicesPanel.SetActive(true);
-
-        curChoiceData = data.data;
+        curOutsideOptions = options;
 
         for (int i = 0; i < choicePanels.Count; i++)
-            choicePanels[i].SetActive(false);
-
-        for (int i = 0; i < curChoiceData.Length; i++)
         {
-            if (curChoiceData[i].Condition != null)
+            choicePanels[i].ResetPanel();
+            choicePanels[i].SetActive(false);
+        }
+
+        int visibleIndex = 0;
+        for (int i = 0; i < curOutsideOptions.Length; i++)
+        {
+            if (visibleIndex >= choicePanels.Count)
             {
-                var condition = curChoiceData[i].Condition.Value;
-
-                bool isConditionMet = condition.Operator == "and"
-                    ? condition.Checks.All(item => CheckCondition(item))
-                    : condition.Checks.Any(item => CheckCondition(item));
-
-                if (!isConditionMet) continue;
+                Debug.LogWarning("[UIDialogueChoiceView] 표시할 선택지 수가 choicePanels 슬롯 수를 초과했습니다.");
+                break;
             }
 
+            var option = curOutsideOptions[i];
+
+            // LocalizedText? 또는 Texts? 타입 파싱 처리
+            string optionText = GetText(option.Text);
 
             int num = i;
-            choicePanels[i].SetPanelText(curChoiceData[i].Text);
-            choicePanels[i].GetButton().onClick.AddListener
-                (() => data.callBackEvent.Invoke(curChoiceData[num]));
-            choicePanels[i].GetButton().onClick.AddListener(() => ChoiceSelect(num));
-            choicePanels[i].SetActive(true);
+            choicePanels[visibleIndex].SetPanelText(optionText);
+
+            var button = choicePanels[visibleIndex].GetButton();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() =>
+            {
+                OutsideChoiceSelect();
+                onSelected?.Invoke(curOutsideOptions[num]);
+            });
+
+            choicePanels[visibleIndex].SetActive(true);
+            visibleIndex++;
         }
     }
 
-    /// <summary>선택지 노출 조건 하나를 검사한다 (호감도 등급/스킬 등급/보유 재화/플래그).</summary>
-    public bool CheckCondition(ChoiceConditionCheck checkType)
+    /// <summary>
+    /// 선택지를 띄우되 고를 수 없는 항목을 감추지 않고 비활성으로 남긴다.
+    ///
+    /// 조건에 걸린 항목을 감추지 않고 회색으로 남긴다. 2부 대본은 그것을
+    /// 회색으로 두고 왜 못 고르는지를 대신 보여 준다(2부 운영 명세 §12.4). 무엇을 놓쳤는지 보이지
+    /// 않으면 조건이 없는 것과 같기 때문이다.
+    ///
+    /// 조건 판정은 하지 않는다. 부르는 쪽이 이미 끝낸 결과(selectable)와 대신 적을 문구(texts)만 받는다 —
+    /// 판정 방식이 서로 다르고(등급 기반 vs when DSL) 그 차이를 이 뷰가 알 이유가 없다.
+    /// </summary>
+    /// <param name="texts">칸에 적을 문구. 고를 수 없는 칸에는 그 이유를 넣어 보낸다.</param>
+    /// <param name="selectable">칸을 누를 수 있는지. texts와 같은 길이여야 한다.</param>
+    /// <param name="onSelected">고른 칸의 자리 번호를 받는다.</param>
+    public void ShowChoice(IReadOnlyList<string> texts, IReadOnlyList<bool> selectable, Action<int> onSelected)
     {
-        switch (checkType.Type)
+        if (texts == null || selectable == null || texts.Count != selectable.Count)
         {
-            case EConditionCheckType.None:
-                break;
-
-            case EConditionCheckType.Affinity:
-                EAffinityTier characterTier = PlayerData.GetCurCharacterAffinityTier(checkType.Character);
-                EAffinityTier targettier = (EAffinityTier)Enum.Parse(typeof(EAffinityTier), checkType.minTier, true);
-                return characterTier >= targettier;
-
-            case EConditionCheckType.Skill:
-                ESkillTier targetSkill = (ESkillTier)Enum.Parse(typeof(ESkillTier), checkType.minTier, true);
-                return PlayerData.GetSkillTier() >= targetSkill;
-            
-            case EConditionCheckType.Money:
-                return PlayerData.HasEnoughMoney(checkType.minAmount.Value);
-                
-            case EConditionCheckType.Flag:
-                //추후 작업
-                break;
+            Debug.LogError("[ChoiceView] 문구와 선택 가능 여부의 개수가 다릅니다.");
+            return;
         }
 
-        return false;
+        // ResetPanel은 문구와 리스너만 지운다. interactable은 그대로 남아서, 여기서 회색으로 둔 칸이
+        // 다음에 다른 경로(ShowChoice/ShowOutsideChoice)로 열릴 때까지 눌리지 않는 채로 남는다.
+        for (int i = 0; i < choicePanels.Count; i++)
+        {
+            choicePanels[i].ResetPanel();
+            choicePanels[i].GetButton().interactable = true;
+        }
+
+        if (texts.Count > choicePanels.Count)
+            Debug.LogError($"[ChoiceView] 선택지가 {texts.Count}개인데 칸은 {choicePanels.Count}개뿐입니다.");
+
+        int shown = Mathf.Min(texts.Count, choicePanels.Count);
+
+        for (int i = 0; i < shown; i++)
+        {
+            ChoicePanel panel = choicePanels[i];
+
+            panel.SetPanelText(texts[i]);
+            panel.SetActive(true);
+
+            // 비활성 칸은 보이되 눌리지 않는다. 회색 처리는 Button이 하는 색 전이에 맡긴다.
+            panel.GetButton().interactable = selectable[i];
+
+            if (!selectable[i]) continue;
+
+            int index = i;
+            panel.GetButton().onClick.AddListener(() =>
+            {
+                CloseChoices();
+                onSelected?.Invoke(index);
+            });
+        }
+
+        choicesPanel.SetActive(true);
     }
 
-    /// <summary>선택된 항목의 콜백은 이미 리스너에서 처리되었으므로, 여기서는 패널을 닫고 초기화만 한다.</summary>
+    /// <summary>선택지를 닫고 칸을 비운다.</summary>
+    public void CloseChoices()
+    {
+        choicesPanel.SetActive(false);
+
+        for (int i = 0; i < choicePanels.Count; i++)
+        {
+            choicePanels[i].ResetPanel();
+            choicePanels[i].GetButton().interactable = true;
+        }
+    }
+
     public void ChoiceSelect(int num)
     {
-        ChoiceData choiceData = curChoiceData[num];
-
         choicesPanel.SetActive(false);
 
         for (int i = 0; i < choicePanels.Count; i++)
             choicePanels[i].ResetPanel();
+    }
+
+    private void OutsideChoiceSelect()
+    {
+        choicesPanel.SetActive(false);
+
+        for (int i = 0; i < choicePanels.Count; i++)
+            choicePanels[i].ResetPanel();
+    }
+
+    // LocalizedText? 지원
+    private string GetText(LocalizedText? textData)
+    {
+        if (!textData.HasValue) return string.Empty;
+
+        var text = textData.Value;
+        return CurrentLanguage switch
+        {
+            ELanguage.En => !string.IsNullOrEmpty(text.En) ? text.En : text.Ko,
+            _ => text.Ko
+        };
+    }
+
+    // Texts? 지원 오버로드
+    private string GetText(Texts textData)
+    {
+        if (textData == null) return string.Empty;
+
+        return CurrentLanguage switch
+        {
+            ELanguage.En => !string.IsNullOrEmpty(textData.En) ? textData.En : textData.Ko,
+            _ => textData.Ko
+        };
     }
 }

@@ -74,7 +74,8 @@ public class CraftPrepScreen : MonoBehaviour
     [SerializeField] Color guideColor = new(0.36f, 0.76f, 0.72f, 0.30f);
 
     [Header("Test")]
-    [Tooltip("단독 테스트 씬용. 켜 두면 시작할 때 testCocktailId로 준비 화면을 연다.")]
+    [Tooltip("단독 테스트 씬용. 켜 두면 시작할 때 testCocktailId로 준비 화면을 연다. " +
+             "손님이 있는 씬(Play)에서는 켜져 있어도 무시한다 — 진행 일차를 덮어쓰고 주문 없는 제조를 여는 탓이다.")]
     [SerializeField] bool openOnStartForTest;
     [SerializeField] string testCocktailId = "gin_fizz";
     [SerializeField] int testDay = 1;
@@ -132,6 +133,18 @@ public class CraftPrepScreen : MonoBehaviour
     void Start()
     {
         if (!openOnStartForTest) return;
+
+        // 손님을 들이는 씬에서는 테스트 자동 열기를 쓰지 않는다.
+        //
+        // OpenForTest는 진행 일차를 testDay로 덮어쓰고 주문 없이 제조를 연다. 단독 테스트 씬에서는
+        // 그게 목적이지만, 1부가 도는 씬에서는 일차가 바뀌어 엉뚱한 손님이 오고 "받을 주문이 없다"는
+        // 경고만 남는다. 프리팹에 켜진 채로 저장돼 있어 얹을 때마다 되풀이되므로 여기서 막는다.
+        if (FindAnyObjectByType<GuestManager>() != null)
+        {
+            Debug.LogWarning("[CraftPrep] 손님이 있는 씬이라 테스트 자동 열기를 건너뜁니다. " +
+                             "Open On Start For Test를 꺼 두세요.");
+            return;
+        }
 
         OpenAfterDataLoadAsync().Forget();
     }
@@ -195,7 +208,8 @@ public class CraftPrepScreen : MonoBehaviour
     /// </summary>
     public void OpenForTest()
     {
-        GameStateManager.Instance.CurrentDay = testDay;
+        // 일차를 바꾸는 것은 단독 테스트 씬에서만 뜻이 있다. 0 이하면 지금 일차를 그대로 쓴다.
+        if (testDay > 0) GameStateManager.Instance.CurrentDay = testDay;
 
         if (craftFlow != null)
         {

@@ -30,7 +30,7 @@ public class BuildManager : MonoBehaviour, IMiniGameController
     {
         buttonCanvas.gameObject.SetActive(true);
     }
-    /// <summary>서빙 버튼 클릭 시 craftServe 이벤트를 발생시켜 CocktailCraftManager에 결과 판정을 요청한다.</summary>
+    /// <summary>서빙 버튼 클릭 시 craftServe 이벤트를 발생시킨다. 받던 쪽(구형 제조)은 걷어냈다.</summary>
     public void Serve()
     {
         craftServe?.Raise(new Void());

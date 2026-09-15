@@ -25,7 +25,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     [Header("Data")]
     [SerializeField] CraftStationData data;
-    [SerializeField] CocktailDataSO cocktailDataSO;
+    [SerializeField] NewCocktailDataSO cocktailDataSO;
     [Tooltip("stir_target_stacks(판정 횟수)와 stir_circle_limit_sec(한 바퀴 제한시간)을 읽어온다. " +
              "스터 수치는 코드에 고정하지 않고 balance.json을 정본으로 쓴다.")]
     [SerializeField] NewBalanceDataSO balanceData;
@@ -121,11 +121,8 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
 
     /// <summary>
-    /// 독립 테스트 씬용 배선. 실제 흐름에서는 CocktailCraftManager가 targetCocktailData를 채워주지만
+    /// 독립 테스트 씬용 배선. 실제 흐름에서는 CraftContext가 고른 칵테일을 넘겨주지만
     /// 테스트 씬에는 그 단계가 없어서 직접 꽂는다.
-    ///
-    /// CocktailDataSO의 allCocktails는 직렬화되지 않는 런타임 캐시라, DataLoadManager 없이 씬을 켜면
-    /// 비어 있다. 여기서 Cached()를 한 번 불러 SO에 저장된 원본에서 다시 만든다.
     /// </summary>
     void SetupTestCocktail()
     {
@@ -135,20 +132,14 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             return;
         }
 
-        if (cocktailDataSO.allCocktails == null || cocktailDataSO.allCocktails.Count == 0)
-        {
-            cocktailDataSO.Cached();
-        }
-
-        if (cocktailDataSO.allCocktails != null &&
-            cocktailDataSO.allCocktails.TryGetValue(testCocktailId, out CocktailData cocktail))
+        if (cocktailDataSO.TryGet(testCocktailId, out NewCocktailData cocktail))
         {
             data.targetCocktailData = cocktail;
             data.targetCocktailId = testCocktailId;
         }
         else
         {
-            Debug.LogWarning($"[Stir] '{testCocktailId}'를 CocktailDataSO에서 찾지 못했습니다. 이름 표시만 비게 됩니다.");
+            Debug.LogWarning($"[Stir] '{testCocktailId}'를 NewCocktailDataSO에서 찾지 못했습니다. 이름 표시만 비게 됩니다.");
         }
     }
 
@@ -337,7 +328,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         CompleteMade();
 
-        // 실제 흐름에서는 CocktailCraftManager가 완성/서빙 컷씬을 재생한 뒤 OnNextButton()을 부른다.
+        // 실제 흐름에서는 기믹 큐(GimmickRunner)가 결과를 받아 다음 스텝으로 넘긴다.
         // 독립 테스트 씬에는 그 흐름이 없어서 끝났다는 신호가 없으면 멈춘 것처럼 보인다.
         if (isTest) OnNextButton();
     }

@@ -14,7 +14,7 @@
             "en": "...In other news."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 1
         },
         {
@@ -27,7 +27,7 @@
             "en": "Newron Trolph Jr. has won his eighth term,\nre-elected as the 67th President of the New United States."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 2
         },
         {
@@ -40,7 +40,7 @@
             "en": "In his victory speech, President Trolph declared:"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 3
         },
         {
@@ -53,7 +53,7 @@
             "en": "\"The great national rebuilding is not over.\"\n\"The New United States will stand at the center of the world once more.\""
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 4
         },
         {
@@ -66,7 +66,7 @@
             "en": "— he stated."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "auto",
           "seq": 5
         }
       ]
@@ -84,14 +84,13 @@
             "en": "Meow."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
           "type": "set_state",
           "effects": "flag.d3_cat_seen = true",
           "when": null,
-          "sync": "wait",
           "seq": 2
         }
       ]
@@ -109,7 +108,7 @@
             "en": "..."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
@@ -122,7 +121,7 @@
             "en": "What're you looking at? Shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 2
         },
         {
@@ -135,7 +134,7 @@
             "en": "Hello."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 3
         },
         {
@@ -148,7 +147,7 @@
             "en": "Ha. Someone in this neighborhood\nactually goes around greeting people."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 4
         },
         {
@@ -161,7 +160,7 @@
             "en": "Are you, by any chance, human?"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 5
         },
         {
@@ -174,7 +173,7 @@
             "en": "What? Are you slow or something?"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 6
         },
         {
@@ -187,7 +186,7 @@
             "en": "Visual assessment indicates: dog."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 7
         },
         {
@@ -200,7 +199,7 @@
             "en": "Don't judge people by their faces,\nyou ugly mug."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 8
         },
         {
@@ -213,7 +212,7 @@
             "en": "...So you ARE a person?"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 9
         },
         {
@@ -226,7 +225,7 @@
             "en": "Nope?"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 10
         },
         {
@@ -239,7 +238,7 @@
             "en": "One look and you can tell I'm a shiba, shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 11
         },
         {
@@ -252,14 +251,13 @@
             "en": "I see... confirmed."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 12
         },
         {
           "type": "set_state",
           "effects": "flag.shiba_met = true",
           "when": null,
-          "sync": "wait",
           "seq": 13
         }
       ]
@@ -277,7 +275,7 @@
             "en": "Go away already, shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
@@ -290,7 +288,7 @@
             "en": "Why?"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 2
         },
         {
@@ -303,7 +301,7 @@
             "en": "I'm out of dialogue data, that's why."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 3
         },
         {
@@ -316,7 +314,7 @@
             "en": "...?"
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 4
         },
         {
@@ -329,7 +327,7 @@
             "en": "Got complaints? Take it up with the PD\nwho designed this insane game, shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 5
         }
       ]
@@ -347,7 +345,7 @@
             "en": "You again, shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         },
         {
@@ -360,7 +358,7 @@
             "en": "Yes. Just passing by."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 2
         },
         {
@@ -373,7 +371,7 @@
             "en": "...If you want something, spit it out, shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 3
         },
         {
@@ -382,7 +380,6 @@
           "dialogue_id": null,
           "text": null,
           "when": null,
-          "sync": "wait",
           "options": [
             {
               "id": "ch_st_shiba_1",
@@ -431,7 +428,7 @@
             "en": "Touch me and I bite, shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 5
         }
       ]
@@ -449,7 +446,7 @@
             "en": "...Hmph. Well, it's not inedible, shiba."
           },
           "when": null,
-          "sync": "wait",
+          "sync": "player_input",
           "seq": 1
         }
       ]
@@ -467,14 +464,12 @@
             "en": "CLINICAL TRIAL PARTICIPANTS WANTED · neural network analysis · CoraTech Inc. · 070*8812*0031"
           },
           "when": null,
-          "sync": "wait",
           "seq": 1
         },
         {
           "type": "set_state",
           "effects": "flag.seen_coratech_ad = true",
           "when": null,
-          "sync": "wait",
           "seq": 2
         }
       ]
@@ -492,7 +487,6 @@
             "en": "PART-TIMER WANTED · Bc25 convenience store · night shifts · 154*455*587"
           },
           "when": null,
-          "sync": "wait",
           "seq": 1
         }
       ]

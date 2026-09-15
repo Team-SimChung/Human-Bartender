@@ -182,6 +182,9 @@ public class CraftGimmickHud : MonoBehaviour
 
     void OnNextClicked()
     {
+        Debug.Log(
+        $"[CraftHud] 다음 클릭 / 연결={manualEnd != null} / " +
+        $"종료가능={manualEnd?.CanEndNow}");
         // 눌렀는데 아무 일도 안 일어나는 게 제일 알기 어렵다. 무시했다면 왜 무시했는지 남긴다.
         if (manualEnd == null)
         {

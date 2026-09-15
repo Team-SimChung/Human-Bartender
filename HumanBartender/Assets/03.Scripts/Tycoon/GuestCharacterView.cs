@@ -17,7 +17,7 @@ public class GuestCharacterView : MonoBehaviour
 {
     [Header("Data")]
     [Tooltip("캐릭터별 표정·파츠 애니메이션 정보. 2부 대화가 쓰는 것과 같은 에셋을 꽂는다.")]
-    [SerializeField] CharacterAnimSO animConfig;
+    [SerializeField] NewExpressionDataSO animConfig;
 
     [Header("Rig")]
     [Tooltip("이 좌석의 캐릭터 리그. parts에 파츠별 Animator/SpriteRenderer를, portaitSpriteRenderer에 " +
@@ -72,7 +72,7 @@ public class GuestCharacterView : MonoBehaviour
 
         try
         {
-            if (animConfig.CheckExpressionPortailSprite(characterId, expression))
+            if (animConfig.IsPortraitSprite(characterId, expression))
                 await ApplyPortraitAsync(characterId, expression, token);
             else
                 await ApplyPartsAsync(characterId, expression, token);

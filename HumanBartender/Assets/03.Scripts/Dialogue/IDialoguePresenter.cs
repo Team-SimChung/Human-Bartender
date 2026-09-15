@@ -3,24 +3,22 @@ using System;
 using System.Threading;
 
 /// <summary>
-/// DialogueRunner가 대화 진행 상태에 따라 호출하는 화면 표시 인터페이스.
-/// 실제 UI 연출(텍스트 타이핑, 선택지, 트리거 실행 등)은 구현체에서 처리한다.
+/// DialogueRunner가 실외 대사 스텝을 진행하며 호출하는 화면 표시 인터페이스.
+/// 실제 UI 연출(텍스트 타이핑, 선택지)은 구현체에서 처리한다.
 /// </summary>
 public interface IDialoguePresenter
 {
-    /// <summary>대사 하나를 화면에 표시(타이핑 포함)한다.</summary>
-    UniTask ShowDialogueAsync(DialogueData dialogue, CancellationToken token);
-    /// <summary>선택지 목록을 표시하고, 선택 시 onSelected 콜백을 호출한다.</summary>
-    void ShowChoices(ChoiceData[] choices, Action<ChoiceData> onSelected);
     /// <summary>타이핑 중인 텍스트를 즉시 완성한다.</summary>
     void SkipTyping();
     /// <summary>대사창을 숨긴다.</summary>
     void HideDialogue();
-    /// <summary>시스템 연출을 위해 대사창을 숨기는 등 시스템 액션 상태로 전환한다.</summary>
-    void ShowSystemAction();
     /// <summary>씬 종료 처리.</summary>
     void EndScene();
+    EActivationMode GetPlayMode();
 
-    /// <summary>트리거(연출/미니게임 등)를 실행하고 다음 대사 id를 반환한다.</summary>
-    UniTask<string> ExecuteTriggerAsync(TriggerData? trigger);
+    /// <summary>Step 하나의 대사를 표시한다.</summary>
+    UniTask ShowDialogueAsync(string actor, string text, string arg, CancellationToken ct);
+
+    /// <summary>실외 선택지를 표시하고, 선택 시 onSelected 콜백을 호출한다.</summary>
+    void ShowOutsideChoices(NewStreetOptionData[] options, Action<NewStreetOptionData> onSelected);
 }

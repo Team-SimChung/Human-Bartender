@@ -120,54 +120,6 @@
     "liquid_alpha": 0.35
   },
   {
-    "id": "sugar",
-    "kind": "ingredient",
-    "name": {
-      "ko": "설탕",
-      "en": "Sugar"
-    },
-    "category": "powder",
-    "color": "250,250,245",
-    "sprite": null,
-    "unlock_day": 0,
-    "unlock_when": null,
-    "shop_price": null,
-    "desc": {
-      "ko": "달콤함의 기본값. 데모에선 손대지 않아도 알아서 들어간다.",
-      "en": "Sweetness by default. In the demo it adds itself."
-    },
-    "default_action": "powder",
-    "prep_action": null,
-    "default_target_qty": 1.0,
-    "default_target_unit": "tsp",
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
-    "id": "lemon",
-    "kind": "ingredient",
-    "name": {
-      "ko": "레몬",
-      "en": "Lemon"
-    },
-    "category": "fruit",
-    "color": null,
-    "sprite": null,
-    "unlock_day": 0,
-    "unlock_when": null,
-    "shop_price": 20,
-    "desc": {
-      "ko": "스퀴즈용. 새콤함의 표준.",
-      "en": "For squeezing. The standard of sour."
-    },
-    "default_action": "squeeze",
-    "prep_action": null,
-    "default_target_qty": 0.5,
-    "default_target_unit": "oz",
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
     "id": "tequila",
     "kind": "ingredient",
     "name": {
@@ -312,30 +264,6 @@
     "liquid_alpha": 0.75
   },
   {
-    "id": "lime",
-    "kind": "ingredient",
-    "name": {
-      "ko": "라임",
-      "en": "Lime"
-    },
-    "category": "fruit",
-    "color": null,
-    "sprite": null,
-    "unlock_day": 1,
-    "unlock_when": null,
-    "shop_price": 20,
-    "desc": {
-      "ko": "스퀴즈용. 레몬보다 한 톤 낮은 산미.",
-      "en": "For squeezing. One tone lower than lemon."
-    },
-    "default_action": "squeeze",
-    "prep_action": null,
-    "default_target_qty": 0.5,
-    "default_target_unit": "oz",
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
     "id": "whiskey",
     "kind": "ingredient",
     "name": {
@@ -441,7 +369,7 @@
     "category": "liqueur",
     "color": "235,200,140",
     "sprite": null,
-    "unlock_day": 3,
+    "unlock_day": 1,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -465,7 +393,7 @@
     "category": "juice",
     "color": "170,30,60",
     "sprite": null,
-    "unlock_day": 3,
+    "unlock_day": 1,
     "unlock_when": null,
     "shop_price": 25,
     "desc": {
@@ -489,7 +417,7 @@
     "category": "liqueur",
     "color": "235,225,200",
     "sprite": null,
-    "unlock_day": 4,
+    "unlock_day": 2,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -513,7 +441,7 @@
     "category": "liqueur",
     "color": "60,35,25",
     "sprite": null,
-    "unlock_day": 4,
+    "unlock_day": 1,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -537,7 +465,7 @@
     "category": "dairy",
     "color": "245,245,240",
     "sprite": null,
-    "unlock_day": 4,
+    "unlock_day": 1,
     "unlock_when": null,
     "shop_price": 15,
     "desc": {
@@ -561,7 +489,7 @@
     "category": "base",
     "color": "170,90,35",
     "sprite": null,
-    "unlock_day": 5,
+    "unlock_day": 2,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -585,7 +513,7 @@
     "category": "liqueur",
     "color": "135,75,35",
     "sprite": null,
-    "unlock_day": 5,
+    "unlock_day": 2,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -609,7 +537,7 @@
     "category": "dairy",
     "color": "240,228,205",
     "sprite": null,
-    "unlock_day": 5,
+    "unlock_day": 2,
     "unlock_when": null,
     "shop_price": 15,
     "desc": {
@@ -633,7 +561,7 @@
     "category": "liqueur",
     "color": "45,160,110",
     "sprite": null,
-    "unlock_day": 6,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -657,7 +585,7 @@
     "category": "liqueur",
     "color": "232,220,188",
     "sprite": null,
-    "unlock_day": 6,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -681,7 +609,7 @@
     "category": "other",
     "color": "70,45,30",
     "sprite": null,
-    "unlock_day": 6,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": 15,
     "desc": {
@@ -705,7 +633,7 @@
     "category": "liqueur",
     "color": "200,45,45",
     "sprite": null,
-    "unlock_day": 7,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -729,7 +657,7 @@
     "category": "liqueur",
     "color": "0,145,200",
     "sprite": null,
-    "unlock_day": 7,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -753,7 +681,7 @@
     "category": "juice",
     "color": "235,200,75",
     "sprite": null,
-    "unlock_day": 7,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": 25,
     "desc": {
@@ -777,7 +705,7 @@
     "category": "dairy",
     "color": "243,238,220",
     "sprite": null,
-    "unlock_day": 7,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": 15,
     "desc": {
@@ -801,7 +729,7 @@
     "category": "liqueur",
     "color": "225,145,100",
     "sprite": null,
-    "unlock_day": 8,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -825,7 +753,7 @@
     "category": "liqueur",
     "color": "130,190,55",
     "sprite": null,
-    "unlock_day": 9,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -849,7 +777,7 @@
     "category": "liqueur",
     "color": "242,238,220",
     "sprite": null,
-    "unlock_day": 9,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -873,7 +801,7 @@
     "category": "liqueur",
     "color": "235,205,65",
     "sprite": null,
-    "unlock_day": 9,
+    "unlock_day": 3,
     "unlock_when": null,
     "shop_price": null,
     "desc": {
@@ -1071,126 +999,6 @@
     "desc": {
       "ko": "스터 기믹용 — 잔에 붓기 전 여기서 젓는다.",
       "en": "For the stirring gimmick — stir here before pouring."
-    },
-    "default_action": null,
-    "prep_action": null,
-    "default_target_qty": null,
-    "default_target_unit": null,
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
-    "id": "lime_wedge",
-    "kind": "garnish",
-    "name": {
-      "ko": "라임 웨지",
-      "en": "Lime Wedge"
-    },
-    "category": null,
-    "color": null,
-    "sprite": "gn_lime",
-    "unlock_day": 0,
-    "unlock_when": null,
-    "shop_price": null,
-    "desc": {
-      "ko": "라임 조각 장식.",
-      "en": "A lime garnish."
-    },
-    "default_action": null,
-    "prep_action": null,
-    "default_target_qty": null,
-    "default_target_unit": null,
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
-    "id": "lemon_slice",
-    "kind": "garnish",
-    "name": {
-      "ko": "레몬 슬라이스",
-      "en": "Lemon Slice"
-    },
-    "category": null,
-    "color": null,
-    "sprite": "gn_lemon",
-    "unlock_day": 0,
-    "unlock_when": null,
-    "shop_price": null,
-    "desc": {
-      "ko": "레몬 슬라이스 장식.",
-      "en": "A lemon slice garnish."
-    },
-    "default_action": null,
-    "prep_action": null,
-    "default_target_qty": null,
-    "default_target_unit": null,
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
-    "id": "olive",
-    "kind": "garnish",
-    "name": {
-      "ko": "올리브",
-      "en": "Olive"
-    },
-    "category": null,
-    "color": null,
-    "sprite": "gn_olive",
-    "unlock_day": 0,
-    "unlock_when": null,
-    "shop_price": null,
-    "desc": {
-      "ko": "마티니의 완성.",
-      "en": "What completes a martini."
-    },
-    "default_action": null,
-    "prep_action": null,
-    "default_target_qty": null,
-    "default_target_unit": null,
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
-    "id": "cherry",
-    "kind": "garnish",
-    "name": {
-      "ko": "체리",
-      "en": "Cherry"
-    },
-    "category": null,
-    "color": null,
-    "sprite": "gn_cherry",
-    "unlock_day": 0,
-    "unlock_when": null,
-    "shop_price": null,
-    "desc": {
-      "ko": "사워 칵테일의 마침표.",
-      "en": "The period at the end of a sour."
-    },
-    "default_action": null,
-    "prep_action": null,
-    "default_target_qty": null,
-    "default_target_unit": null,
-    "shelf_group": null,
-    "liquid_alpha": null
-  },
-  {
-    "id": "orange_slice",
-    "kind": "garnish",
-    "name": {
-      "ko": "오렌지 슬라이스",
-      "en": "Orange Slice"
-    },
-    "category": null,
-    "color": null,
-    "sprite": "gn_orange",
-    "unlock_day": 0,
-    "unlock_when": null,
-    "shop_price": null,
-    "desc": {
-      "ko": "선라이즈의 태양.",
-      "en": "The sun of a sunrise."
     },
     "default_action": null,
     "prep_action": null,

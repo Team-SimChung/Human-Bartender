@@ -8,6 +8,7 @@ public interface IInteractable : IEntity, ITrackedble
     string Label { get; }           // 상호작용 UI에 표시할 텍스트
     bool IsInteracting { get; set; }
 
+    public bool isInteract { get; set; }
     public void Interact(IInteractor player);   // 실제 상호작용 실행
     public void OnFocusEnter();                 // 상호작용 가능 범위 진입(포커스) 시 호출
     public void OnFocusExit();                  // 포커스 이탈 시 호출

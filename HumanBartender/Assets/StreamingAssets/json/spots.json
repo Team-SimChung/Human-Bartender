@@ -82,5 +82,35 @@
     "area": "qa",
     "desc": "QA 선택지 NPC 자리",
     "note": "Day 99: continue·goto·조건 잠금 선택지"
+  },
+  {
+    "id": "home_spawn_entry",
+    "area": "home",
+    "desc": "집 중앙 현관문 안쪽",
+    "note": "집 진입·수동 저장 불러오기 시 플레이어 생성"
+  },
+  {
+    "id": "home_exit_door",
+    "area": "home",
+    "desc": "집 중앙 현관문",
+    "note": "출근길 이동 또는 퇴근 후 출입 제한 안내"
+  },
+  {
+    "id": "home_sofa",
+    "area": "home",
+    "desc": "집 오른쪽 거실 소파 앞",
+    "note": "수동 저장·취침 상호작용"
+  },
+  {
+    "id": "home_tv",
+    "area": "home",
+    "desc": "집 오른쪽 거실 TV 앞",
+    "note": "후순위 TV 상호작용 예약"
+  },
+  {
+    "id": "home_terrace_door",
+    "area": "home",
+    "desc": "집 오른쪽 끝 테라스 문",
+    "note": "후속 기능용 앵커 예약"
   }
 ]

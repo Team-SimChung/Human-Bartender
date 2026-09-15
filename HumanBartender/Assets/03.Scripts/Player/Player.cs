@@ -18,7 +18,8 @@ public class Player : MonoBehaviour, IInteractor
     [SerializeField] protected ITrackedbleEvent OnTrackedText;
     [SerializeField] private bool isAvaliable;
     [SerializeField] protected Vector2 buttonOffset;
-
+    [SerializeField] Transform barspawn;
+    [SerializeField] Transform homespawn;
 
     public GameObject GameObject => gameObject;
     public Transform Transform => transform;
@@ -29,9 +30,23 @@ public class Player : MonoBehaviour, IInteractor
     Vector2 ITrackedble.TextOffset => buttonOffset;
     bool ITrackedble.IsAvaliable => isAvaliable;
 
-    
 
 
+    public void setpos()
+    {
+        if(barspawn != null && homespawn != null)
+        {
+            Debug.Log($"{GameStateManager.Instance.GameFlow}");
+            if(GameStateManager.Instance.GameFlow != EGameFlow.CommuteOut)
+            {
+                transform.position = homespawn.position;
+            }
+            else
+            {
+                transform.position = barspawn.position;
+            }
+        }
+    }
     /// <summary>
     /// 상태별 게이트: Lock/Interct 상태에서는 완전히 정지, ForceMove(엘리베이터 탑승 등) 상태에서는
     /// 이동/애니메이션은 계속하되 상호작용 감지는 멈춘다.

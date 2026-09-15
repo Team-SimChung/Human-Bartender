@@ -46,6 +46,7 @@ public enum ENewSceneTrigger
     [EnumMember(Value = "interact")] Interact,
     [EnumMember(Value = "cameo")] Cameo,
     [EnumMember(Value = "manual")] Manual,
+    [EnumMember(Value = "proximity")] Proximity
 }
 
 /// <summary>캐릭터의 등장 역할군을 나타내는 열거형.</summary>
@@ -201,6 +202,8 @@ public enum ENewInteractKind
     // 데이터에서 npc가 actor로 바뀌었다. interact_points.json에 npc는 한 곳도 남아 있지 않다.
     [EnumMember(Value = "actor")] Actor,
     [EnumMember(Value = "shop")] Shop,
+    [EnumMember(Value = "gimmick")] Gimmick,
+
 }
 
 /// <summary>인터랙트 포인트가 활성화되는 출퇴근 구간을 나타내는 열거형.</summary>
@@ -270,7 +273,11 @@ public enum ENewExpressionMode
 
 /// <summary>
 /// 표정 파츠 애니메이션의 반복 모드를 나타내는 열거형.
-/// 기존 EAnimLoopMode와 의미는 같지만 json/expressions.json의 표기(소문자 special_on_dialogue)에 맞춰 새로 정의했다.
+/// 기존 EAnimLoopMode와 의미는 같지만 json 쪽 표기(소문자)에 맞춰 새로 정의했다.
+///
+/// special_on_dialogue와 on_dialogue는 같은 뜻이다. 데이터가 expressions.json에서
+/// character_anim.json으로 넘어오며 표기가 짧아졌는데, 옛 파일도 그대로 읽히게 둘 다 남긴다.
+/// 없는 표기를 만나면 Newtonsoft가 예외를 던지고, 그 예외는 뒤따르는 파일 로드를 전부 막는다.
 /// </summary>
 [JsonConverter(typeof(StringEnumConverter))]
 public enum ENewAnimLoopMode
@@ -278,6 +285,7 @@ public enum ENewAnimLoopMode
     [EnumMember(Value = "always")] Always,
     [EnumMember(Value = "always_on_dialogue")] AlwaysOnDialogue,
     [EnumMember(Value = "special_on_dialogue")] SpecialOnDialogue,
+    [EnumMember(Value = "on_dialogue")] OnDialogue,
 }
 
 /// <summary>인물 정보(dossier) 항목의 분류를 나타내는 열거형.</summary>
@@ -298,4 +306,44 @@ public enum ENewCutSceneKind
     [EnumMember(Value = "timeline")] Timeline,
     [EnumMember(Value = "sprite")] Sprite,
     [EnumMember(Value = "gif")] Gif,
+}
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum EFacing
+{
+    [EnumMember(Value = null)] None, // JSON의 null 또는 미지정에 대응
+    [EnumMember(Value = "left")] Left,
+    [EnumMember(Value = "right")] Right
+}
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum EPlayType
+{
+    [EnumMember(Value = null)] None, // JSON의 null 또는 미지정에 대응
+    [EnumMember(Value = "once")] Once,
+    [EnumMember(Value = "repeat")] Repeat
+}
+[JsonConverter(typeof(StringEnumConverter))]
+public enum EActivationMode
+{
+    [EnumMember(Value = null)] None,
+    [EnumMember(Value = "interact")] Interact,
+    [EnumMember(Value = "proximity")] Proximity
+}
+[JsonConverter(typeof(StringEnumConverter))]
+public enum EActionType
+{
+    [EnumMember(Value = null)] None, // JSON의 null 또는 미지정에 대응
+    [EnumMember(Value = "scene")] Scene,
+    [EnumMember(Value = "scene_group")] Scene_group,
+    [EnumMember(Value = "transition")] Transition,
+    [EnumMember(Value = "dialogue")] Dialogue,
+
+    /// <summary>대화도 이동도 아닌, 그 자리에서 게임이 처리하는 일(소파에 앉기·엘리베이터 조작 등).</summary>
+    [EnumMember(Value = "system")] System
+}
+public enum ELanguage
+{
+    Ko,
+    En
 }

@@ -16,7 +16,7 @@ public class SturManagerNew : MonoBehaviour, IMiniGameController
     [Header("Data")]
     [SerializeField] CraftStationData data;
     [SerializeField] CategoryColorData colorData;
-    [SerializeField] CocktailDataSO cocktailDataSO;
+    [SerializeField] NewCocktailDataSO cocktailDataSO;
 
     [Header("Manager")]
     [SerializeField] SturStrikeNode sturStrikeNode;
@@ -61,18 +61,30 @@ public class SturManagerNew : MonoBehaviour, IMiniGameController
 
         if (isTest)
         {
-            data.targetCocktailData = cocktailDataSO.allCocktails[data.targetCocktailId];
+            if (cocktailDataSO.TryGet(data.targetCocktailId, out NewCocktailData cocktail))
+                data.targetCocktailData = cocktail;
+            else
+                Logger.LogWarning($"[Stur] 테스트 칵테일 '{data.targetCocktailId}'를 찾지 못했습니다.");
+
             data.targetCraft_tolerance = 15;
         }
 
-        colors = new Color[data.targetCocktailData.Keywords.Length];
-        for (int i = 0; i < colors.Length; i++)
-        {
-            Logger.Log(data.targetCocktailData.Keywords[i]);
-            int n = colorData.categorys.
-                FindIndex(a => a.Contains(data.targetCocktailData.Keywords[i]));
+        // 태그가 없으면 색 하나로 돌린다. 기믹 큐가 돌릴 때는 목표 칵테일이 여기 꽂히지 않으므로
+        // 비어 있는 것이 정상이다 — 예전에는 그대로 Length를 읽어 터졌다.
+        NewCocktailTag[] tags = data != null ? data.targetCocktailData.Tags : null;
 
-            colors[i] = colorData.colors[n];
+        if (tags == null || tags.Length == 0 || colorData == null)
+        {
+            colors = new[] { Color.white };
+        }
+        else
+        {
+            colors = new Color[tags.Length];
+            for (int i = 0; i < colors.Length; i++)
+            {
+                int n = colorData.categorys.FindIndex(a => a.Contains(tags[i].Ko));
+                colors[i] = n >= 0 ? colorData.colors[n] : Color.white;
+            }
         }
 
 
