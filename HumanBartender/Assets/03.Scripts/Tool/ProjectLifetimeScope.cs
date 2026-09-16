@@ -36,6 +36,9 @@ public class ProjectLifetimeScope : LifetimeScope
         builder.Register<DisplaySettings>(Lifetime.Singleton)
             .AsImplementedInterfaces();
 
+        builder.RegisterComponentInHierarchy<SceneTransitionManager>()
+            .As<ISceneTransitionService>();
+
         // 데이터 로더는 하나다. 구형 DataLoadManager는 걷어냈고, 그것이 채우던 SO 중 남은 것
         // (칵테일·컷씬·등급표·표정·태그)까지 이쪽이 채운다.
         builder.RegisterComponentInHierarchy<NewDataLoadManager>()
