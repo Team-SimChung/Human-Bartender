@@ -13,18 +13,6 @@ public class BuildManager : MonoBehaviour, IMiniGameController
 
     [SerializeField] Canvas buttonCanvas;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     /// <summary>제조 완료 후 다음 진행 버튼(서빙/재시도) 캔버스를 표시한다.</summary>
     public void OnNextButton()
     {

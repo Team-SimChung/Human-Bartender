@@ -6,15 +6,14 @@ using UnityEngine;
 using VContainer;
 
 /// <summary>
-/// 기믹 큐를 앞에서부터 하나씩 실행한다.
-///
-/// 무슨 기믹인지에 따라 프리팹을 띄우고, 끝나면 결과를 받아 제조 기록에 붙이고, 다음으로 넘긴다.
-/// 각 기믹이 안에서 무엇을 하는지는 모른다. 그래서 기믹이 늘어나도 이 클래스는 그대로다.
+/// CraftFlowController가 요청한 기믹 한 단계를 실행한다.
+/// 프리팹·카메라·HUD와 입력 가능한 동안의 시간 갱신을 맡는다.
+/// 실행 순서, 제조 기록과 작업 종료는 CraftFlowController가 소유한다.
 ///
 /// 한 잔 전체의 시계도 여기서 돌린다. 시계는 기믹이 아니라 제조에 속한 것이라, 기믹이 바뀌어도
 /// 멈추거나 초기화되지 않고 이어져야 하기 때문이다.
 /// </summary>
-public class GimmickRunner : MonoBehaviour
+public class GimmickRunner : MonoBehaviour, ICraftExecutor
 {
     [Serializable]
     public struct GimmickPrefabEntry
@@ -29,7 +28,7 @@ public class GimmickRunner : MonoBehaviour
     [Tooltip("띄운 기믹을 놓을 자리. 비어 있으면 이 오브젝트 아래에 만든다.")]
     [SerializeField] Transform gimmickRoot;
 
-    [Tooltip("기믹이 바뀌어도 남아 있는 공통 표시. 비워두면 표시 없이 기믹만 돈다.")]
+    [Tooltip("기믹이 바뀌어도 남아 있는 공통 표시. 실행 전 연결을 검증한다.")]
     [SerializeField] CraftGimmickHud hud;
 
     [Tooltip("기믹만 비추는 카메라. 바에서 멀리 떨어진 자리를 찍으므로 바의 배경과 손님이 함께 담기지 않는다.")]
@@ -52,9 +51,6 @@ public class GimmickRunner : MonoBehaviour
     /// <summary>지금 돌고 있는 기믹. 시계를 재울지 굴릴지 이 기믹에게 묻는다.</summary>
     ICraftGimmick currentGimmick;
 
-    /// <summary>기믹 하나가 끝날 때마다 발생한다. 진행 표시를 갱신하는 쪽에서 쓴다.</summary>
-    public event Action<GimmickStep, GimmickResult> GimmickFinished;
-
     void Update()
     {
         // 플레이어가 실제로 조작할 수 있는 동안만 시간을 센다. 기믹 사이의 전환, 성공 연출,
@@ -64,80 +60,47 @@ public class GimmickRunner : MonoBehaviour
         runningTimer?.Tick(Time.deltaTime);
     }
 
-    /// <summary>
-    /// 큐를 끝까지 실행한다. 마지막 기믹의 결과까지 기록한 뒤 제조를 확정하고 돌아온다.
-    /// </summary>
-    public async UniTask RunAsync(CraftSession session, GimmickQueue queue,
-                                  CraftRunDisplay display, CancellationToken token)
+    /// <summary>공통 화면을 준비한다. 실패하더라도 호출자는 End를 호출해야 한다.</summary>
+    public void Begin(CraftTimer timer, CraftRunDisplay display)
     {
-        if (session == null || queue == null) return;
-
-        session.BeginGimmicks();
-        runningTimer = session.Timer;
-
-        // 잔과 도구는 기믹이 도는 동안 바뀌지 않으므로 한 번만 만들어 모든 스텝에 같은 것을 넘긴다.
-        CraftContext context = CraftContext.From(session);
-
+        if (gimmickCamera == null)
+            throw new InvalidOperationException("기믹 카메라가 없습니다.");
+        if (hud == null)
+            throw new InvalidOperationException("기믹 HUD가 없습니다.");
+        runningTimer = timer;
         ShowCraftScreen(true);
-        hud?.BeginCraft(session.Timer, display.TimeLimitSec, display.HideTime);
-
-        try
-        {
-            for (int i = 0; i < queue.Count; i++)
-            {
-                GimmickStep step = queue.Steps[i];
-
-                Debug.Log($"[GimmickRunner] {i + 1}/{queue.Count} 시작 — {step}");
-
-                GimmickResult result = await PlayStepAsync(step, context, session.Timer, token);
-
-                Debug.Log($"[GimmickRunner] {i + 1}/{queue.Count} 종료 — {step}" +
-                          (result == null ? " (결과 없음)" : $" / 종료방식 {result.EndType}"));
-
-                if (result != null)
-                {
-                    session.Actual.Record(result);
-                    GimmickFinished?.Invoke(step, result);
-                }
-
-                session.AdvanceGimmick();
-            }
-        }
-        finally
-        {
-            // 도중에 취소되더라도 시계는 멈춰야 한다. 계속 돌면 다음 제조의 시간까지 얹힌다.
-            runningTimer = null;
-            hud?.EndCraft();
-            ShowCraftScreen(false);
-        }
-
-        session.Complete();
+        hud.BeginCraft(timer, display.TimeLimitSec, display.HideTime);
     }
 
+    /// <summary>화면을 복구한다. 단계 진행과 세션 종료는 CraftFlowController가 담당한다.</summary>
+    public void End()
+    {
+        runningTimer = null;
+        try { hud?.EndCraft(); }
+        finally { ShowCraftScreen(false); }
+    }
     /// <summary>기믹 프리팹을 띄우고 끝날 때까지 기다린 뒤 치운다.</summary>
-    async UniTask<GimmickResult> PlayStepAsync(GimmickStep step, CraftContext context,
+    public async UniTask<GimmickResult> ExecuteAsync(GimmickStep step, CraftContext context,
                                               CraftTimer timer, CancellationToken token)
     {
+        token.ThrowIfCancellationRequested();
         GameObject prefab = ResolvePrefab(step.Type);
 
         if (prefab == null)
         {
-            Debug.LogError($"[GimmickRunner] '{step.Type}' 기믹의 프리팹이 없습니다. 이 스텝을 건너뜁니다: {step}");
-            return null;
+            throw new InvalidOperationException($"'{step.Type}' 기믹의 프리팹이 없습니다: {step}");
         }
 
         GameObject instance = Instantiate(prefab, gimmickRoot != null ? gimmickRoot : transform);
 
-        LiftAboveBarUi(instance);
-
         try
         {
+            LiftAboveBarUi(instance);
             var gimmick = instance.GetComponentInChildren<ICraftGimmick>();
 
             if (gimmick == null)
             {
-                Debug.LogError($"[GimmickRunner] '{prefab.name}'에 ICraftGimmick 구현이 없습니다.");
-                return null;
+                throw new InvalidOperationException($"'{prefab.name}'에 ICraftGimmick 구현이 없습니다.");
             }
 
             // 기믹 안에서도 데이터나 사운드 같은 걸 주입받을 수 있어야 한다.
@@ -148,16 +111,18 @@ public class GimmickRunner : MonoBehaviour
 
             currentGimmick = gimmick;
 
-            return await gimmick.PlayAsync(step, context, timer, token);
+            var result = await gimmick.PlayAsync(step, context, timer, token);
+            token.ThrowIfCancellationRequested();
+            if (result == null) throw new InvalidOperationException($"'{step.Type}' 결과가 없습니다.");
+            return result;
         }
         finally
         {
             // 이 기믹이 사라진 뒤에도 시계가 돌면, 다음 기믹을 띄우는 사이의 시간이 끼어든다.
             currentGimmick = null;
 
-            hud?.UnbindGimmick();
-
-            if (instance != null) Destroy(instance);
+            try { hud?.UnbindGimmick(); }
+            finally { if (instance != null) Destroy(instance); }
         }
     }
 
@@ -184,7 +149,7 @@ public class GimmickRunner : MonoBehaviour
         }
 
         if (gimmickCamera != null) gimmickCamera.gameObject.SetActive(visible);
-        else Debug.LogError("[GimmickRunner] 기믹 카메라가 없습니다. 바 화면이 뒤에 그대로 보입니다.");
+        else if (visible) throw new InvalidOperationException("기믹 카메라가 없습니다.");
     }
 
     /// <summary>

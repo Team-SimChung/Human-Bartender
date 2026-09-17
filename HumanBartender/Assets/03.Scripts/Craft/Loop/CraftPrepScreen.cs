@@ -120,6 +120,7 @@ public class CraftPrepScreen : MonoBehaviour
 
         craftFlow.CraftBegan += OnCraftBegan;
         craftFlow.CraftCompleted += OnCraftCompleted;
+        craftFlow.CraftEnded += OnCraftEnded;
     }
 
     void OnDisable()
@@ -128,6 +129,7 @@ public class CraftPrepScreen : MonoBehaviour
 
         craftFlow.CraftBegan -= OnCraftBegan;
         craftFlow.CraftCompleted -= OnCraftCompleted;
+        craftFlow.CraftEnded -= OnCraftEnded;
     }
 
     void Start()
@@ -193,6 +195,11 @@ public class CraftPrepScreen : MonoBehaviour
     void OnDestroy()
     {
         Close();
+    }
+
+    void OnCraftEnded(CraftSession session)
+    {
+        if (session.Phase != ECraftPhase.Completed) Close();
     }
 
     void OnCraftBegan(CraftSession session)

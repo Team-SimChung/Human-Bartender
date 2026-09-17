@@ -10,6 +10,8 @@
 /// </summary>
 public class CraftSession
 {
+    public string JobId { get; } = System.Guid.NewGuid().ToString("N");
+    public string FailureReason { get; private set; }
     /// <summary>
     /// 손님이 주문한 칵테일. 아직 어느 손님에게 낼지 정해지지 않았다면 null이다.
     ///
@@ -91,6 +93,19 @@ public class CraftSession
     /// </summary>
     public void Discard()
     {
+        if (Phase != ECraftPhase.Completed) return;
         Phase = ECraftPhase.Discarded;
+    }
+
+    public void Cancel() => EndUnsuccessful(ECraftPhase.Cancelled, null);
+    public void Fail(string reason) => EndUnsuccessful(ECraftPhase.Failed, reason);
+
+    void EndUnsuccessful(ECraftPhase phase, string reason)
+    {
+        if (Phase != ECraftPhase.Preparing && Phase != ECraftPhase.Playing) return;
+        Timer.Stop();
+        Actual.FixElapsedManual(Timer.ElapsedSec);
+        FailureReason = reason;
+        Phase = phase;
     }
 }
