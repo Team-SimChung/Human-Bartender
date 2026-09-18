@@ -6,7 +6,7 @@ using UnityEngine;
 
 /// <summary>
 /// UI 버튼과 외부 코드가 함께 사용하는 제조 관리자.
-/// 요청·준비·순서·기록·판정·종료를 관리하고 오브젝트 실행은 GimmickRunner에 맡긴다.
+    /// 제조 요청·준비·순서·기록·판정·종료를 관리하고 오브젝트 실행은 GimmickRunner에 맡긴다.
 /// 기존 씬 연결을 보존하기 위해 CraftFlowController 이름과 스크립트 GUID를 유지한다.
 /// </summary>
 public class CraftFlowController : MonoBehaviour
@@ -30,20 +30,40 @@ public class CraftFlowController : MonoBehaviour
     [SerializeField] bool autoPrepareForTest = true;
 
 
+    // 실행 중 상태
+    readonly List<Func<string>> blockers = new();
+    CancellationTokenSource cancellation;
+    UniTaskCompletionSource<CraftSession> completionSource;
+    NewCocktailData selected;
+    bool running;
+    bool finishing;
+
+    // 외부 조회: 주문 상태는 OrderRequestController에서 관리한다.
+    protected virtual ICraftExecutor Executor => runner;
+    public CraftSession Current { get; private set; }
+    public CraftPreparation Preparation { get; private set; }
+    public GimmickQueue Plan { get; private set; }
+    public CraftJudgement Judgement { get; private set; }
+    /// <summary>현재 요청의 최종 결과. 수락 직후 보관하면 준비 중 취소도 기다릴 수 있다.</summary>
+    public UniTask<CraftSession> Completion { get; private set; }
+    public bool IsPreparing => Current?.Phase == ECraftPhase.Preparing && !running && !finishing;
+    public bool IsBusy => running || finishing || IsPreparing;
+    public bool CanStartGimmicks => IsPreparing && Current.Actual.CanStartGimmicks;
     public bool IsCraftFlowActive { get; private set; }
+
+    // 외부 알림
+    public event Action<CraftSession> CraftBegan;
+    public event Action<CraftPreparation> PreparationChanged;
+    public event Action<CraftSession, CraftJudgement> CraftCompleted;
+    /// <summary>성공·실패·취소 모두 정리가 끝난 뒤 한 번 알린다.</summary>
+    public event Action<CraftSession> CraftEnded;
+    public event Action AvailabilityChanged;
+
+
+
     public event Action<bool> CraftFlowActiveChanged;
 
-    public void CancelCurrentCraft()
-    {
-        if (Current != null) CancelCraft(Current.JobId);
-    }
-
-    void UpdateAvailability()
-    {
-        bool available = !IsBusy && CraftBlockedReason() == null;
-        menuPanel?.SetCraftEnabled(available);
-        craftPanel?.SetToggleInteractable(available);
-    }
+    // Unity 수명과 메뉴 연결
     void OnEnable()
     {
         if (menuPanel != null)
@@ -103,6 +123,12 @@ public class CraftFlowController : MonoBehaviour
     }
 
 
+    // UI 버튼 진입점
+    public void CancelCurrentCraft()
+    {
+        if (Current != null) CancelCraft(Current.JobId);
+    }
+
     public void BeginCraft(string cocktailId)
     {
         if (!isActiveAndEnabled) return;
@@ -128,31 +154,13 @@ public class CraftFlowController : MonoBehaviour
         StartGimmicksAsync().Forget();
     }
 
-    protected virtual ICraftExecutor Executor => runner;
-    readonly List<Func<string>> blockers = new();
-    CancellationTokenSource cancellation;
-    UniTaskCompletionSource<CraftSession> completionSource;
-    NewCocktailData selected;
-    bool running;
-    bool finishing;
-
-    public CraftSession Current { get; private set; }
-    public CraftPreparation Preparation { get; private set; }
-    public GimmickQueue Plan { get; private set; }
-    public CraftJudgement Judgement { get; private set; }
-    /// <summary>현재 요청의 최종 결과. 수락 직후 보관하면 준비 중 취소도 기다릴 수 있다.</summary>
-    public UniTask<CraftSession> Completion { get; private set; }
-    public bool IsPreparing => Current?.Phase == ECraftPhase.Preparing && !running && !finishing;
-    public bool IsBusy => running || finishing || IsPreparing;
-    public bool CanStartGimmicks => IsPreparing && Current.Actual.CanStartGimmicks;
-
-    public event Action<CraftSession> CraftBegan;
-    public event Action<CraftPreparation> PreparationChanged;
-    public event Action<CraftSession, CraftJudgement> CraftCompleted;
-    /// <summary>성공·실패·취소 모두 정리가 끝난 뒤 한 번 알린다.</summary>
-    public event Action<CraftSession> CraftEnded;
-    public event Action AvailabilityChanged;
-
+    // 제조 가능 조건
+    void UpdateAvailability()
+    {
+        bool available = !IsBusy && CraftBlockedReason() == null;
+        menuPanel?.SetCraftEnabled(available);
+        craftPanel?.SetToggleInteractable(available);
+    }
 
     public string CraftBlockedReason()
     {
@@ -182,6 +190,7 @@ public class CraftFlowController : MonoBehaviour
         Notify(AvailabilityChanged);
     }
 
+    // 제조 시작과 준비 입력
     /// <summary>수락되면 작업 ID를 가진 세션을 반환한다. 거절은 진행 중인 작업을 변경하지 않는다.</summary>
     public bool TryBegin(string cocktailId, out CraftSession session, out string reason)
     {
@@ -238,6 +247,13 @@ public class CraftFlowController : MonoBehaviour
         NotifyPreparationChanged();
     }
 
+    public List<NewShelfItemData> GetShelfGlasses() =>
+        CraftShelf.GetGlasses(shelfData, GameStateManager.Instance.CurrentDay);
+    public List<NewShelfItemData> GetShelfTools() =>
+        CraftShelf.GetTools(shelfData, GameStateManager.Instance.CurrentDay);
+    public List<NewShelfItemData> GetShelfIngredients(ENewShelfGroup group) =>
+        CraftShelf.GetIngredients(shelfData, group, GameStateManager.Instance.CurrentDay);
+
     void NotifyPreparationChanged()
     {
         var preparation = Preparation;
@@ -252,6 +268,7 @@ public class CraftFlowController : MonoBehaviour
         Preparation = null;
     }
 
+    // 기믹 실행과 종료
     /// <summary>준비된 작업을 실행한다. 반환 시에는 화면 정리와 종료 상태 확정까지 끝나 있다.</summary>
     public async UniTask<CraftSession> StartGimmicksAsync()
     {
@@ -393,13 +410,6 @@ public class CraftFlowController : MonoBehaviour
         foreach (Action<T, U> handler in handlers.GetInvocationList())
             try { handler(first, second); } catch (Exception e) { Debug.LogException(e); }
     }
-    public List<NewShelfItemData> GetShelfGlasses() =>
-        CraftShelf.GetGlasses(shelfData, GameStateManager.Instance.CurrentDay);
-    public List<NewShelfItemData> GetShelfTools() =>
-        CraftShelf.GetTools(shelfData, GameStateManager.Instance.CurrentDay);
-    public List<NewShelfItemData> GetShelfIngredients(ENewShelfGroup group) =>
-        CraftShelf.GetIngredients(shelfData, group, GameStateManager.Instance.CurrentDay);
-
     static string BuildActualReport(CraftSession session)
     {
         ActualCraft actual = session.Actual;

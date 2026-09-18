@@ -30,6 +30,7 @@ public class GuestManager : MonoBehaviour
     [Header("Craft")]
     [Tooltip("제조 흐름에 들어갔는지를 알려주는 곳. 제조 중에는 손님 쪽 시간을 멈춘다. 비우면 멈추지 않는다.")]
     [SerializeField] CraftFlowController craftFlow;
+    [SerializeField] OrderRequestController orderController;
 
     [Header("Dialogue")]
     [SerializeField] UIDialogueTextView dialogueTextView; // ask_order 등 플레이어(바텐더) 대사를 띄우는 다이얼로그 말풍선
@@ -115,8 +116,12 @@ public class GuestManager : MonoBehaviour
 
     void OnDisable()
     {
-        if (craftFlow == null) return;
+        if (slots != null && orderController != null)
+            foreach (var slot in slots)
+                if (slot != null && slot.CurrentGuest?.CurrentOrder != null)
+                    orderController.CancelOrder(slot.CurrentGuest.CurrentOrder.Id);
 
+        if (craftFlow == null) return;
         craftFlow.CraftFlowActiveChanged -= OnCraftFlowActiveChanged;
         craftFlow.RemoveCraftBlocker(DescribeNoOrderBlock);
     }
@@ -770,7 +775,7 @@ public class GuestManager : MonoBehaviour
         if (!await WaitWhileSeatedAsync(slot, guest, orderDelaySec, token)) return;
         ShowBark(slot, "order");
         guest.orderRound = 1;
-        guest.hasOrdered = true; // 여기서부터 잔을 받는다.
+        RegisterGuestOrder(slot, guest);
         RefreshCraftAvailability();
 
         await WatchServeAsync(slot, guest, token);
@@ -824,31 +829,53 @@ public class GuestManager : MonoBehaviour
     /// </summary>
     public bool TryServeDrink(GuestSlot slot, CraftedDrink drink)
     {
-        if (drink == null || !slot.CanReceiveDrink) return false;
-
-        Guest guest = slot.CurrentGuest;
-
-        if (HasServeTimedOut(guest))
-        {
-            Logger.Log($"[Serve] {guest.id}의 서빙 시간이 이미 지나 잔을 받지 않습니다(타임아웃 우선).");
-            return false;
-        }
-
-        guest.serveDeadlineSec = 0f; // 이 회차는 잔이 나갔으므로 마감 시각을 지운다.
-        bool orderMatches = ServeJudge.IsOrderMatch(drink, guest);
-        ENewGrade? finalGrade = ServeJudge.ResolveFinalGrade(drink, guest, Config);
-
-        Logger.Log($"[Serve] {guest.id} ← {drink.CocktailId} (주문 {guest.targetCocktailId}) / " +
-                   $"제조등급 {drink.CraftGrade?.ToString() ?? "채점 불가"} → 최종등급 {finalGrade?.ToString() ?? "채점 불가"}");
-
-        // 잔이 나갔으므로 더는 기다리지 않는다. 반응이 도는 동안 이탈 타이머가 살아 있으면
-        // 잔을 받고도 시간이 다 돼서 화내며 나가는 손님이 생긴다.
+        if (slot == null || !slot.CanReceiveDrink || orderController == null) return false;
+        var guest = slot.CurrentGuest;
+        if (HasServeTimedOut(guest)) return false;
+        if (!orderController.TryServe(guest.CurrentOrder.Id, drink)) return false;
+        guest.serveDeadlineSec = 0f;
+        StopPatienceTimer(slot);
         slot.MarkLeaving();
-        RefreshCraftAvailability(); // 이 주문은 소비됐다.
-
-        var token = RegisterSlotTimer(slot);
-        ReactToDrinkAsync(slot, guest, finalGrade, orderMatches, token).Forget();
+        RefreshCraftAvailability();
         return true;
+    }
+
+    // 주문 대사 확정/재주문 시 호출한다. 상태는 guest.CurrentOrder에서만 읽는다.
+    void RegisterGuestOrder(GuestSlot slot, Guest guest)
+    {
+        if (orderController == null) throw new InvalidOperationException("OrderRequestController 연결이 필요합니다.");
+        var details = new OrderDetails($"{guest.id}_r{guest.orderRound}", guest.id,
+            guest.targetCocktailId, guest.tipMultiplier);
+        guest.CurrentOrder = orderController.Request(details,
+            result =>
+            {
+                if (this == null || !isActiveAndEnabled || slot.CurrentGuest != guest) return;
+                RefreshCraftAvailability();
+                if (result.Completed)
+                {
+                    guest.settlements.Add(result.Serve.Settlement);
+                    ContinueAfterServeAsync(slot, guest, result.Serve, RegisterSlotTimer(slot)).Forget();
+                }
+                else if (result.State == OrderState.Failed)
+                    Debug.LogError(result.Error);
+            },
+            new GuestOrderPresentation(this),
+            (result, token) => ReactToDrinkAsync(slot, guest, result, token),
+            () => this != null && isActiveAndEnabled && slot.CurrentGuest == guest &&
+                  slot.CanReceiveDrink && !HasServeTimedOut(guest));
+    }
+
+    sealed class GuestOrderPresentation : IOrderPresentation
+    {
+        readonly GuestManager owner;
+        public GuestOrderPresentation(GuestManager owner) => this.owner = owner;
+        public void Open(Func<CraftedDrink, bool> receive) { }
+        public void Unbind() { }
+        public UniTask CloseAsync()
+        {
+            if (owner != null) owner.RefreshCraftAvailability();
+            return UniTask.CompletedTask;
+        }
     }
 
     /// <summary>
@@ -877,63 +904,34 @@ public class GuestManager : MonoBehaviour
     /// 주문과 다른 잔이면 받아드는 대사부터 갈라진다(wrong_receive → wrong_drink).
     /// 채점하지 못한 잔은 맛 반응을 건너뛴다 — 등급을 임의로 만들어 반응을 고르지 않는다.
     /// </summary>
-    async UniTaskVoid ReactToDrinkAsync(GuestSlot slot, Guest guest, ENewGrade? finalGrade,
-                                        bool orderMatches, CancellationToken token)
+    async UniTask ReactToDrinkAsync(GuestSlot slot, Guest guest, ServeResult result, CancellationToken token)
     {
-        ShowBark(slot, orderMatches ? "serve_thanks" : "wrong_receive", serveBarkGapSec);
-        if (!await WaitWhileSeatedAsync(slot, guest, serveBarkGapSec, token)) return;
+        ShowBark(slot, result.OrderMatch ? "serve_thanks" : "wrong_receive", serveBarkGapSec);
+        await WaitForReactionAsync(slot, guest, serveBarkGapSec, token);
+        await WaitForReactionAsync(slot, guest, drinkWaitSec, token);
+        ShowBark(slot, result.OrderMatch ? ServeJudge.ReactSituation(result.FinalGrade) : "wrong_drink",
+            serveBarkGapSec);
+        await WaitForReactionAsync(slot, guest, serveBarkGapSec, token);
+        // 반환 후 OrderRequestController가 정산하고 최종 콜백을 호출한다.
+    }
 
-        // 마시는 시간. 말풍선을 띄우지 않아 손님이 잔을 들고 있는 동안으로 읽힌다.
-        if (!await WaitWhileSeatedAsync(slot, guest, drinkWaitSec, token)) return;
+    async UniTask WaitForReactionAsync(GuestSlot slot, Guest guest, float seconds, CancellationToken token)
+    {
+        if (!await WaitWhileSeatedAsync(slot, guest, seconds, token))
+            throw new OperationCanceledException(token);
+    }
 
-        string reactSituation = orderMatches
-            ? finalGrade.HasValue ? ServeJudge.ReactSituation(finalGrade.Value) : null
-            : "wrong_drink";
-
-        if (reactSituation != null)
-        {
-            ShowBark(slot, reactSituation, serveBarkGapSec);
-            if (!await WaitWhileSeatedAsync(slot, guest, serveBarkGapSec, token)) return;
-        }
-
-        // 반응이 끝나야 정산한다. 순서를 뒤집으면 대사가 도는 도중에 손님이 사라지거나
-        // 아직 확정되지 않은 결과가 매출에 들어간다(§6.3.1).
-        OrderSettlement settlement = SettleOrder(guest, finalGrade);
-
-        if (CanReorder(guest, settlement))
+    // 최종 콜백의 호출 대상. 장부 반영은 이미 끝났으며 후속 손님 처리만 한다.
+    async UniTask ContinueAfterServeAsync(GuestSlot slot, Guest guest, ServeResult result, CancellationToken token)
+    {
+        if (CanReorder(guest, result.Settlement))
         {
             await StartNextOrderAsync(slot, guest, token);
             return;
         }
-
-        ShowBark(slot, orderMatches && ServeJudge.IsSatisfied(finalGrade) ? "bye_good" : "bye_bad", serveBarkGapSec);
-        if (!await WaitWhileSeatedAsync(slot, guest, serveBarkGapSec, token)) return;
-
-        ReleaseGuest(slot);
-    }
-
-    /// <summary>
-    /// 이 회차의 판매금액·팁·배상액을 계산해 당일 매출에 한 번 반영한다(§6.3.2~6.3.4).
-    /// 채점하지 못한 잔은 정산하지 않는다 — 등급이 없으면 어느 규칙을 쓸지 고를 수 없다.
-    /// </summary>
-    OrderSettlement SettleOrder(Guest guest, ENewGrade? finalGrade)
-    {
-        var cocktail = cocktailData.cocktailData.FirstOrDefault(c => c.Id == guest.targetCocktailId);
-        int price = cocktail.Id != null ? cocktail.Price : 0;
-
-        string round = $"{guest.id}_r{guest.orderRound}";
-        OrderSettlement settlement = OrderSettlement.Calculate(
-            $"{round}_settle", $"{round}_serve", finalGrade, price, guest.tipMultiplier, Balance);
-
-        if (settlement == null) return null;
-
-        guest.settlements.Add(settlement);
-        dailySales.Apply(settlement);
-
-        Logger.Log($"[Settle] {guest.id} {guest.orderRound}회차 {guest.targetCocktailId}(가격 {price}) " +
-                   $"{settlement.FinalGrade} / {settlement} / 당일 누계 {dailySales.Total}");
-
-        return settlement;
+        ShowBark(slot, result.OrderMatch && ServeJudge.IsSatisfied(result.FinalGrade) ? "bye_good" : "bye_bad",
+            serveBarkGapSec);
+        if (await WaitWhileSeatedAsync(slot, guest, serveBarkGapSec, token)) ReleaseGuest(slot);
     }
 
     /// <summary>
@@ -959,13 +957,13 @@ public class GuestManager : MonoBehaviour
     async UniTask StartNextOrderAsync(GuestSlot slot, Guest guest, CancellationToken token)
     {
         guest.orderRound++;
-        guest.hasOrdered = false;
+        guest.CurrentOrder = null;
         guest.targetCocktailId = ResolveOrderCocktailId(guest.specifiedOrder);
 
         slot.MarkWaitingOrder();
 
         ShowBark(slot, "reorder", serveBarkGapSec);
-        guest.hasOrdered = true; // 여기서부터 다음 잔을 받는다.
+        RegisterGuestOrder(slot, guest);
         RefreshCraftAvailability();
 
         Logger.Log($"[Guest] {guest.id} {guest.orderRound}회차 주문 {guest.targetCocktailId} " +
@@ -1026,6 +1024,7 @@ public class GuestManager : MonoBehaviour
     public void ReleaseGuest(GuestSlot slot)
     {
         Guest guest = slot.CurrentGuest;
+        if (guest?.CurrentOrder != null) orderController?.CancelOrder(guest.CurrentOrder.Id);
 
         // 손님 단위 합계는 회차별 정산이 이미 매출에 들어간 값을 다시 더한 것이다. 확인용으로만 남기고
         // 누계에 반영하지 않는다(§6.4.7).

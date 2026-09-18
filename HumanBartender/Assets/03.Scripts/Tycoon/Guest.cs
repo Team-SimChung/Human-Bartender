@@ -53,7 +53,8 @@ public class Guest
     /// 주문 대사를 이미 말했는지. 주문을 듣기 전에는 잔을 받지 않는다 —
     /// 무엇을 시킬지 말하지도 않은 손님 앞에 잔이 놓이면 그 주문 장면 자체가 없던 일이 된다.
     /// </summary>
-    public bool hasOrdered;
+    public OrderRequest CurrentOrder { get; internal set; }
+    public bool hasOrdered => CurrentOrder?.State == OrderState.Waiting;
 
     /// <summary>
     /// 이번 회차 서빙 제한시간이 끝나는 시각(BarOperationClock 기준, 초). 잔이 나갔거나 대기 중이 아니면 0이다.

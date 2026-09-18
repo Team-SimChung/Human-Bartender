@@ -41,7 +41,7 @@ var result = await completion;
 - `Completion`은 종료 알림 및 제조 가능 상태 갱신 후 완료된다. 정리 중 새 요청은 거절한다.
 - 비활성화/파괴 시 진행 중 작업을 취소한다. 전역 싱글톤은 도입하지 않았다.
 - 기믹 순서·오선택·자동 재료·점수 계산은 유지한다. 빈 큐와 실행 설정 누락/예외는 실패 종료한다.
-- `StoryCraftGate`와 대본은 수정하지 않았다. C의 실제 취소 연결은 후속 작업이다.
+- 주문은 별도 `OrderRequestController.Request`/`CancelOrder`를 사용한다. 스토리와 손님은 정리 후 완료 콜백을 받는다. 제조 컨트롤러는 주문을 보관하지 않는다. 상세 흐름은 `OrderServing.md` 참고.
 
 ## 검증
 

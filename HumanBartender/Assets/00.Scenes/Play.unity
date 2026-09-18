@@ -5479,6 +5479,7 @@ MonoBehaviour:
   - {fileID: 1603532184}
   craftFlow: {fileID: 1024022784}
   dialogueTextView: {fileID: 1390939187}
+  orderController: {fileID: 749266213}
   drinkWaitSec: 4
   serveBarkGapSec: 2.5
   useTempAppearance: 1
@@ -6396,8 +6397,9 @@ GameObject:
   m_Component:
   - component: {fileID: 749266212}
   - component: {fileID: 749266211}
+  - component: {fileID: 749266213}
   m_Layer: 0
-  m_Name: StoryCraftGate
+  m_Name: CraftServingView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6414,8 +6416,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a288ff8c83d76f4da6b4bd49462a0e8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryCraftGate
-  craftFlow: {fileID: 1024022784}
+  m_EditorClassIdentifier: Assembly-CSharp::CraftServingView
   craftPanel: {fileID: 844190253}
   craftUiRoots:
   - {fileID: 844190252}
@@ -6426,9 +6427,23 @@ MonoBehaviour:
   serveZoneWorldOffset: {x: 0, y: -0.6, z: 0}
   showServeZoneGuide: 1
   serveZoneColor: {r: 1, g: 1, b: 1, a: 0.12}
+  craftFlow: {fileID: 1024022784}
+--- !u!114 &749266213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 749266210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffbf489293c948f3b20f30d01d5463c7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OrderRequestController
+  servingView: {fileID: 749266211}
   cocktailData: {fileID: 11400000, guid: 4cdd38f0ff8842f8a80c5e7c1fec4ecf, type: 2}
   balanceData: {fileID: 11400000, guid: 63f99327f1a0418a94d6ec6cd9c49dca, type: 2}
-  guestManager: {fileID: 673860024}
+  salesOwner: {fileID: 673860024}
 --- !u!4 &749266212
 Transform:
   m_ObjectHideFlags: 0
@@ -7841,7 +7856,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StoryFlow
   runner: {fileID: 2031132091}
   presenter: {fileID: 236135905}
-  craftGate: {fileID: 749266211}
+  orderController: {fileID: 749266213}
 --- !u!4 &910050655
 Transform:
   m_ObjectHideFlags: 0

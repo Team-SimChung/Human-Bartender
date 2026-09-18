@@ -26,7 +26,8 @@ public class StoryScriptRunner : MonoBehaviour
 
     IStoryPresenter presenter;
     IConditionUtil conditions;
-    IStoryCraftGate craftGate;
+    OrderRequestController orderController;
+    UniTaskCompletionSource<OrderResult> orderResultSignal;
 
     /// <summary>
     /// 살아 있는 주문(§8.2의 current_order). order가 만들고 serve가 소비한다.
@@ -34,7 +35,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// 한 번에 하나만 든다. craft와 serve가 "직전 order"를 되짚는 대신 같은 객체를 보게 해서,
     /// 씬 제목이나 화면 가운데 인물로 서빙 대상을 추측하는 일이 생기지 않게 한다.
     /// </summary>
-    StoryOrder currentOrder;
+    OrderRequest currentOrder;
 
     /// <summary>대사를 넘기라는 입력을 기다리는 곳. 기다리는 중이 아니면 null이다.</summary>
     UniTaskCompletionSource advanceSignal;
@@ -59,11 +60,11 @@ public class StoryScriptRunner : MonoBehaviour
 
     /// <summary>화면과 평가기를 연결한다. RunAsync 전에 반드시 불러야 한다.</summary>
     public void Bind(IStoryPresenter storyPresenter, IConditionUtil conditionEvaluator,
-                     IStoryCraftGate storyCraftGate, ICutScenePlayer cutScenePlayerImpl)
+                     OrderRequestController requests, ICutScenePlayer cutScenePlayerImpl)
     {
         presenter = storyPresenter;
         conditions = conditionEvaluator;
-        craftGate = storyCraftGate;
+        orderController = requests;
         cutScenePlayer = cutScenePlayerImpl;
     }
 
@@ -108,7 +109,8 @@ public class StoryScriptRunner : MonoBehaviour
                 try { action(); }
                 catch (Exception e) { cleanupErrors.Add(e.Message); }
             }
-            if (currentOrder != null && IsAlive(craftGate)) Cleanup(() => craftGate.CloseOrder(currentOrder));
+            if (currentOrder != null && orderController != null) Cleanup(() => orderController.CancelOrder(currentOrder.Id));
+            orderResultSignal = null;
             if (IsAlive(presenter)) Cleanup(presenter.Clear);
             currentOrder = null;
             Cleanup(() => conditions.Result = null);
@@ -183,10 +185,10 @@ public class StoryScriptRunner : MonoBehaviour
             {
                 // 아직 내지 않은 잔이 남았는데 끝내면 그 주문은 영영 처리되지 않는다(§5 종료 금지 조건).
                 // 대본이 잘못 적힌 것이므로 임의로 주문을 지우지 않고 알린 뒤 계속 간다.
-                if (currentOrder != null && !currentOrder.IsServed)
+                if (currentOrder != null && currentOrder.State != OrderState.Completed)
                 {
-                    throw new InvalidOperationException($"[Story] 처리하지 않은 주문({currentOrder.GuestActorId} / " +
-                                   $"{currentOrder.OrderedCocktailId})이 남아 end_part를 받아들이지 않습니다: {scene.Id}");
+                    throw new InvalidOperationException($"[Story] 처리하지 않은 주문({currentOrder.Details.ReceiverId} / " +
+                                   $"{currentOrder.Details.CocktailId})이 남아 end_part를 받아들이지 않습니다: {scene.Id}");
                     continue;
                 }
 
@@ -425,9 +427,9 @@ public class StoryScriptRunner : MonoBehaviour
             return;
         }
 
-        if (currentOrder != null && !currentOrder.IsServed)
+        if (currentOrder != null && currentOrder.State != OrderState.Completed)
         {
-            throw new InvalidOperationException($"[Story] 앞 주문({currentOrder.GuestActorId})이 아직 끝나지 않아 새 주문을 만들지 않습니다: " +
+            throw new InvalidOperationException($"[Story] 앞 주문({currentOrder.Details.ReceiverId})이 아직 끝나지 않아 새 주문을 만들지 않습니다: " +
                            $"{scene.Id}#{step.Seq}");
             return;
         }
@@ -455,17 +457,20 @@ public class StoryScriptRunner : MonoBehaviour
         conditions.Result = null;
 
         if (currentOrder != null) throw new InvalidOperationException("Previous story order has not been served.");
-        currentOrder = new StoryOrder(step.Actor, cocktailId, seat, $"{scene.Id}#{step.Seq}");
-
-        craftGate?.OpenOrder(currentOrder);
+        if (orderController == null) throw new InvalidOperationException("OrderRequestController 연결이 필요합니다.");
+        var details = new OrderDetails($"{scene.Id}#{step.Seq}", step.Actor, cocktailId);
+        var signal = new UniTaskCompletionSource<OrderResult>();
+        orderResultSignal = signal;
+        // 지역 신호를 캡처해 이전 주문의 늦은 콜백이 새 주문에 적용되지 않게 한다.
+        currentOrder = orderController.Request(details, result => signal.TrySetResult(result));
     }
 
-    /// <summary>제조 화면을 열고 잔 하나가 완성될 때까지 기다린다.</summary>
+    /// <summary>기존 craft 스텝 진입점. 제조는 UI에서 진행하고 다음 serve 스텝이 주문 결과를 기다린다.</summary>
     async UniTask CraftAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
-        if (craftGate == null)
+        if (orderController == null)
         {
-            throw new InvalidOperationException($"[Story] craftGate가 없어 제조로 넘어가지 못했습니다: {scene.Id}#{step.Seq}");
+            throw new InvalidOperationException($"[Story] orderController가 없어 제조로 넘어가지 못했습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
@@ -478,8 +483,9 @@ public class StoryScriptRunner : MonoBehaviour
             return;
         }
 
-        if (!await craftGate.RunCraftAsync(currentOrder, tutorialCocktailId, token))
-            throw new InvalidOperationException($"Craft failed: {scene.Id}#{step.Seq}");
+        token.ThrowIfCancellationRequested();
+        if (currentOrder == null) orderController.OpenMenu();
+        await UniTask.CompletedTask;
     }
 
     /// <summary>
@@ -490,38 +496,31 @@ public class StoryScriptRunner : MonoBehaviour
     /// </summary>
     async UniTask ServeAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
-        if (craftGate == null || currentOrder == null)
+        if (orderController == null || currentOrder == null)
         {
             throw new InvalidOperationException($"[Story] 낼 주문이 없어 서빙할 수 없습니다: {scene.Id}#{step.Seq}");
             return;
         }
 
-        if (!string.IsNullOrEmpty(step.Actor) && step.Actor != currentOrder.GuestActorId)
+        if (!string.IsNullOrEmpty(step.Actor) && step.Actor != currentOrder.Details.ReceiverId)
         {
             // serve.actor는 주문자와 같아야 한다. 다르면 대본이 어긋난 것이라 주문자 쪽을 따른다.
-            throw new InvalidOperationException($"[Story] serve의 actor '{step.Actor}'가 주문자 '{currentOrder.GuestActorId}'와 다릅니다: " +
+            throw new InvalidOperationException($"[Story] serve의 actor '{step.Actor}'가 주문자 '{currentOrder.Details.ReceiverId}'와 다릅니다: " +
                            $"{scene.Id}#{step.Seq}");
         }
 
-        StoryOrder order = currentOrder;
+        if (orderResultSignal == null)
+            throw new InvalidOperationException("주문 결과 콜백이 등록되지 않았습니다.");
 
-        CraftedDrink drink = await craftGate.WaitForServeAsync(order, token);
-
-        if (drink == null)
-        {
-            throw new InvalidOperationException($"[Story] 낸 잔을 받지 못했습니다: {scene.Id}#{step.Seq}");
-            return;
-        }
-
+        var result = await orderResultSignal.Task.AttachExternalCancellation(token);
         token.ThrowIfCancellationRequested();
-        StoryResultContext result = craftGate.CommitServe(order, drink);
-        if (result == null) throw new InvalidOperationException("Serve could not be committed.");
-
-        // 채점하지 못한 잔이면 결과가 없다. 그때는 결과 문맥을 비워 둔 채 간다 —
-        // 뒤에서 grade를 묻는 조건식이 있으면 거기서 데이터 오류로 드러나는 편이 낫다.
-        conditions.Result = result;
-
+        if (result.State == OrderState.Cancelled) throw new OperationCanceledException("주문이 취소되었습니다.");
+        if (!result.Completed) throw new InvalidOperationException(result.Error ?? "서빙 처리에 실패했습니다.");
+        var serve = result.Serve;
+        conditions.Result = new StoryResultContext(serve.CraftGrade, serve.FinalGrade,
+            serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
         currentOrder = null;
+        orderResultSignal = null;
     }
 
     /// <summary>order.arg의 "exact:&lt;cocktail_id&gt;"에서 칵테일 id를 꺼낸다.</summary>
