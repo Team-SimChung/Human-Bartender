@@ -128,6 +128,7 @@ public class SturManagerNew : MonoBehaviour, IMiniGameController
     public void CompleteMade()
     {
         bgmSource.Stop();
+        nodeCreator.StopAndReturnNodes();
         data.craftingResult.isResult = true;
         data.craftingResult.actionFailCount = failJudge;
         data.craftingResult.limitFailCount = limitFailJudge;
@@ -170,12 +171,18 @@ public class SturManagerNew : MonoBehaviour, IMiniGameController
         if (!isPlay) return;
 
         Logger.Log("Click Event");
-        CategoryNode node = nodeCreator.GetNearestNode(sturStrikeNode.transform.position, judgeRange);
+        Vector3 hitPosition;
+        Color hitColor;
+        bool hit = nodeCreator.TryHitNearestNode(
+            sturStrikeNode.transform.position,
+            judgeRange,
+            out hitPosition,
+            out hitColor);
 
-        if (node != null)
+        if (hit)
         {
             Logger.Log("Judge");
-            nodeCreator.CreateEffectNode(node.transform.position, node.curColor);
+            nodeCreator.CreateEffectNode(hitPosition, hitColor);
             successJudge++;
         }
         else

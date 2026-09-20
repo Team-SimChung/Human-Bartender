@@ -188,6 +188,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     public void CompleteMade()
     {
         bgmSource.Stop();
+        nodeCreator.StopAndReturnNodes();
 
         // 기믹 큐가 돌릴 때는 결과를 GimmickResult로 돌려주므로 이 저장소를 쓰지 않는다.
         if (data != null)
@@ -238,9 +239,15 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         if (!isPlay) return;
 
         Logger.Log("Click Event");
-        CategoryNode node =  nodeCreator.GetNearestNode(shakingStrikeNode.transform.position, judgeRange);
+        Vector3 hitPosition;
+        Color hitColor;
+        bool hit = nodeCreator.TryHitNearestNode(
+            shakingStrikeNode.transform.position,
+            judgeRange,
+            out hitPosition,
+            out hitColor);
 
-        if (node != null)
+        if (hit)
         {          
             Logger.Log("Judge");
 
@@ -248,7 +255,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
                 soundManager.PlaySE("SFX_shaking");
 
             characterAnim.PlayAnim();
-            nodeCreator.CreateEffectNode(node.transform.position, node.curColor);
+            nodeCreator.CreateEffectNode(hitPosition, hitColor);
             successJudge++;
         }
         else
