@@ -16,6 +16,7 @@ using VContainer;
 /// </summary>
 public class GuestManager : MonoBehaviour
 {
+    [Inject] IPlayerDataWriter playerDataWriter;
     [SerializeField] NewBalanceDataSO configData;
     [SerializeField] NewRandomWaveDataSO randomWaveData;
     [SerializeField] NewRegularSlotDataSO regularSlotData;
@@ -1027,12 +1028,15 @@ public class GuestManager : MonoBehaviour
     {
         Guest guest = slot.CurrentGuest;
 
-        // 손님 단위 합계는 회차별 정산이 이미 매출에 들어간 값을 다시 더한 것이다. 확인용으로만 남기고
-        // 누계에 반영하지 않는다(§6.4.7).
+        // 손님 단위 합계는 회차별 정산이 이미 DailySales에 들어간 값이므로 당일 누계에는 다시 더하지 않는다.
+        // 다만 PlayerData의 보유 재화에는 아직 반영되지 않았으므로 주문 세션이 끝날 때 한 번 지급한다(§6.4.7).
         if (guest != null && guest.settlements.Count > 0)
         {
+            int sessionTotal = guest.SessionTotal;
+            playerDataWriter.AddMoney(sessionTotal);
+
             Logger.Log($"[Settle] {guest.id} 주문 세션 종료 — {guest.settlements.Count}회차 합계 " +
-                       $"{guest.SessionTotal} (당일 누계 {dailySales.Total}, 재반영 없음)");
+                       $"{sessionTotal} (당일 누계 {dailySales.Total}, PlayerData 반영 완료)");
         }
 
         StopPatienceTimer(slot);
