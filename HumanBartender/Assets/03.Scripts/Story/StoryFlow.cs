@@ -19,9 +19,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
              "공용 대화 시스템이 IDialoguePresenter를 씬마다 갈아 끼우는 것과 같은 자리다.")]
     [SerializeField] MonoBehaviour presenter;
 
-    [Tooltip("주문·제조·서빙을 이어 주는 창구(IStoryCraftGate). StoryCraftGate를 꽂는다. " +
-             "비우면 order·craft·serve 스텝에서 오류가 나고 그 자리에서 멈춘다.")]
-    [SerializeField] MonoBehaviour craftGate;
+    [SerializeField] OrderRequestController orderController;
 
     [Inject] ISoundManager soundManager;
 
@@ -62,17 +60,11 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
             return;
         }
 
-        if (craftGate != null && craftGate is not IStoryCraftGate)
-        {
-            Debug.LogError("[Story] craftGate가 IStoryCraftGate가 아닙니다. StoryCraftGate를 꽂으세요.");
-            return;
-        }
-
         // 하루가 새로 시작하므로 지난 적용 기록을 비운다. 평가기는 루트 스코프에 하나뿐이라
         // 비우지 않으면 같은 날을 다시 열었을 때 effects가 통째로 건너뛰어진다.
         // The runner owns its execution result and effect tokens.
 
-        runner.Bind(storyPresenter, conditions, craftGate as IStoryCraftGate, cutScenePlayer);
+        runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
 
         GameStateManager.Instance.GameFlow = EGameFlow.Bar;
         soundManager?.PlayBGM("BGM_bar_01", 1f, true);

@@ -18,7 +18,7 @@ public class StoryServeDropTarget : MonoBehaviour, IDropHandler
 {
     static readonly HashSet<StoryServeDropTarget> activeTargets = new();
 
-    Action<CraftedDrink> onServed;
+    Func<CraftedDrink, bool> onServed;
     Image targetGraphic;
 
     void Awake()
@@ -58,7 +58,7 @@ public class StoryServeDropTarget : MonoBehaviour, IDropHandler
     }
 
     /// <summary>잔이 놓였을 때 부를 곳을 건다. 한 번 놓이면 스스로 연결을 끊는다.</summary>
-    public void Bind(Action<CraftedDrink> handler)
+    public void Bind(Func<CraftedDrink, bool> handler)
     {
         onServed = handler;
     }
@@ -70,12 +70,10 @@ public class StoryServeDropTarget : MonoBehaviour, IDropHandler
         GameObject dragged = eventData.pointerDrag;
         if (dragged == null || !dragged.TryGetComponent(out DrinkDragItem item)) return;
 
-        // 먼저 표시하고 알린다. 잔을 실제로 치우는 것은 곧 이어지는 OnEndDrag가 하는데,
-        // 그 전에 오브젝트가 사라지면 남은 드래그 이벤트가 없는 대상에게 간다.
+        // 주문 담당이 서빙을 확정한 경우에만 소비한다. 실패하면 트레이로 돌아간다.
+        // 잔 오브젝트 제거는 기존 OnEndDrag에서 수행한다.
+        if (!onServed(item.Drink)) return;
         item.MarkServed();
-
-        Action<CraftedDrink> handler = onServed;
         onServed = null;
-        handler(item.Drink);
     }
 }
