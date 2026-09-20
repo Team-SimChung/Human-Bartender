@@ -3,8 +3,9 @@
 /// </summary>
 public enum EPlayPhase
 {
-    StokcIn,
-    BarOpen,
-    Tycoon,
-    Dialogue,
+    None = -1,
+    StokcIn = 0,
+    BarOpen = 1,
+    Tycoon = 2,
+    Dialogue = 3,
 }
