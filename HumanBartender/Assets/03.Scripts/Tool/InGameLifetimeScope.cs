@@ -40,6 +40,9 @@ public class InGameLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<GimmickRunner>();
         builder.RegisterComponentInHierarchy<CraftFlowController>();
 
+        // 손님 주문 세션이 끝날 때 확정된 매출을 프로젝트 전역 PlayerData에 반영한다.
+        builder.RegisterComponentInHierarchy<GuestManager>();
+
         //builder.RegisterBuildCallback(container =>
         //{
         //    _cutSceneManager = FindAnyObjectByType<CutSceneManager>();
