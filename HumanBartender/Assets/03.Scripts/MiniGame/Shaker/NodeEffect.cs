@@ -25,13 +25,11 @@ public class NodeEffect : PooledObject
     }
     public void PlayEffect()
     {
-        //sprite.transform.localScale = effectfromSize;
-        //ActiveEffect().Forget();
-
-        ReturnEffect().Forget();
+        ulong leaseId = LeaseId;
+        ReturnEffect(leaseId).Forget();
     }
 
-    public async UniTask ReturnEffect()
+    async UniTask ReturnEffect(ulong leaseId)
     {
         bool canceled = await UniTask.Delay(
             TimeSpan.FromSeconds(duration),
@@ -40,11 +38,12 @@ public class NodeEffect : PooledObject
 
         if (canceled || this == null) return;
 
-        parentPool.Return(gameObject);
+        TryReturnToPool(leaseId);
     }
 
     public async UniTaskVoid ActiveEffect()
     {
+        ulong leaseId = LeaseId;
         float duraion = 0.5f;
         float t = 0f;
 
@@ -61,7 +60,7 @@ public class NodeEffect : PooledObject
             await UniTask.Yield();
         }
 
-        parentPool.Return(this.gameObject);
+        TryReturnToPool(leaseId);
         return;
     }
 }
