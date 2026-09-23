@@ -5515,7 +5515,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -5.100006, y: -2}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &643165759
@@ -6135,10 +6135,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    cameraTarget: {fileID: 49123263}
     cameraParent: {fileID: 398070675}
     cameraOffset: {x: 0, y: 0, z: 0}
-    isFirstChangeParent: 0
     offsetDuration: 2
     resolutionDuration: 2
     isChangeResolution: 1
@@ -6201,10 +6199,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    cameraTarget: {fileID: 49123263}
     cameraParent: {fileID: 1582674271}
     cameraOffset: {x: 5.7, y: 0, z: 0}
-    isFirstChangeParent: 1
     offsetDuration: 6
     resolutionDuration: 6
     isChangeResolution: 1
@@ -6267,10 +6263,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    cameraTarget: {fileID: 49123263}
     cameraParent: {fileID: 1582674271}
     cameraOffset: {x: 0, y: 0, z: 0}
-    isFirstChangeParent: 0
     offsetDuration: 6
     resolutionDuration: 6
     isChangeResolution: 1
@@ -15770,39 +15764,6 @@ MonoBehaviour:
   InteractPointData: {fileID: 11400000, guid: 5ed93d5bb4b64ebeb2e3ef0656aa378c, type: 2}
   streetData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
   SpotData: {fileID: 11400000, guid: 2aec38dee5aa4aa0bf346a3d87d40428, type: 2}
-  obejcts:
-  - id: poster_help_wanted
-    entity: {fileID: 0}
-  - id: poster_shiba_wanted_day1
-    entity: {fileID: 1366513159}
-  - id: vending_machine
-    entity: {fileID: 1331420474}
-  - id: experiment_recruit
-    entity: {fileID: 0}
-  - id: toilet_bin
-    entity: {fileID: 1286119215}
-  - id: poster_human_trafficking
-    entity: {fileID: 1209062155}
-  - id: real_estate_posting
-    entity: {fileID: 792484001}
-  npcs:
-  - id: bubi
-    data: {fileID: 11400000, guid: 0af93deea26a383409dfdb2207af611d, type: 2}
-    entity: {fileID: 1699909092}
-  - id: shiba
-    data: {fileID: 11400000, guid: 43b643060d5f22749bbb7e0051b2392c, type: 2}
-    entity: {fileID: 2074752857}
-  - id: samho
-    data: {fileID: 11400000, guid: f5f7dc4a44934e84d9c088737a8cd0ce, type: 2}
-    entity: {fileID: 2030078811}
-  - id: samhodeath
-    data: {fileID: 11400000, guid: 973a6f8a579ff3f498b835bb2c21fc13, type: 2}
-    entity: {fileID: 901115607}
-  triggers:
-  - id: samho_death_cutscene
-    entity: {fileID: 1905454072}
-  - id: samho_survived_cutscene
-    entity: {fileID: 1074330138}
   player: {fileID: 398070673}
   OnTrackedText: {fileID: 11400000, guid: e8071577f80d02d4e9ebdeba72bcd84c, type: 2}
   runner: {fileID: 1021899254}
@@ -17120,7 +17081,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30a1031f76aeb144daed9cf18bce8eb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIDialogueChoice
-  playerDataAsset: {fileID: 11400000, guid: 2fd3768d3d1393647a7e88b72e79c9e0, type: 2}
   choicesPanel: {fileID: 1655909912}
   choicePanels:
   - {fileID: 7973958275921236028}
@@ -23100,6 +23060,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player OutsideDialogue TextBox
       objectReference: {fileID: 0}
+    - target: {fileID: 3800628170868476413, guid: 894f115616d2c6a4ea84dd51c9d0b45d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -24036,7 +24000,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &8327247412059281314
 MonoBehaviour:
   m_ObjectHideFlags: 0
