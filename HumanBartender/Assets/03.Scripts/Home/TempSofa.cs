@@ -1,28 +1,61 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
+
 public class TempSofa : InteractiveEntity
 {
-    public override bool SupportsAction(NewInteractPointData definition) =>
-        definition.ActionType == EActionType.System && definition.ActionRef == "home_sofa_interaction";
+    [Inject] IGameProgressionService progression;
 
-    public override async void Interact(IInteractor player)
+    public override bool SupportsAction(NewInteractPointData definition)
+    {
+        return definition.ActionType == EActionType.System &&
+               definition.ActionRef == "home_sofa_interaction";
+    }
+
+    public override void Interact(IInteractor player)
     {
         if (!isActiveAndEnabled || !isInteract || isInteracting || player == null) return;
+        if (progression == null)
+        {
+            Debug.LogError("[Sleep] 하루 진행 서비스가 연결되지 않았습니다.");
+            return;
+        }
 
         isInteracting = true;
         isInteract = false;
+        SleepAsync().Forget(ReportException);
+    }
+
+    async UniTask SleepAsync()
+    {
         try
         {
-            OnInteracted?.Raise(this);
-            Debug.Log("[Sleep] 페이드 시작");
-            await SceneTransitionManager.Instance.FadeOutAsync(0.5f);
-            GameStateManager.Instance.CurrentDay++;
-            GameStateManager.Instance.GameFlow = EGameFlow.CommuteIn;
-            OnRefreshCondition?.Raise(new Void());
-            await SceneTransitionManager.Instance.FadeInAsync(0.5f);
+            GameProgressionResult result = await progression.SleepAsync(RefreshConditions,
+                this.GetCancellationTokenOnDestroy());
+            if (result.Succeeded)
+            {
+                OnInteracted?.Raise(this);
+                return;
+            }
+            isInteract = true;
+            if (result.Outcome == GameProgressionOutcome.Rejected)
+                Debug.LogWarning($"[Sleep] 취침 요청 거절: {result.Message}");
+            else if (result.Outcome == GameProgressionOutcome.Failed)
+                Debug.LogError($"[Sleep] 취침 실패: {result.Message}");
         }
         finally
         {
             isInteracting = false;
         }
+    }
+
+    void RefreshConditions()
+    {
+        OnRefreshCondition?.Raise(new Void());
+    }
+
+    static void ReportException(System.Exception error)
+    {
+        Debug.LogException(error);
     }
 }

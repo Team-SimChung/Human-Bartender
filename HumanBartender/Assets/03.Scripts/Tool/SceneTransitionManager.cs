@@ -21,7 +21,7 @@ enum FadeDirection
 /// 페이드와 Unity 씬 작업을 하나의 수명으로 조정하는 전환 서비스.
 /// 요청 하나가 페이드 아웃부터 씬 작업, 페이드 인, 입력 복구까지 소유한다.
 /// </summary>
-public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService
+public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, ISceneFadeService
 {
     public static SceneTransitionManager Instance { get; private set; }
 

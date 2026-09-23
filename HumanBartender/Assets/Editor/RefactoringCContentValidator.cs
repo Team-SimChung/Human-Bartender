@@ -53,7 +53,7 @@ public static class RefactoringCContentValidator
             {
                 var location=source+"/"+point.Id;
                 if (!spots.Contains(point.SpotId)) Add("ERROR",location,"Unknown spot: "+point.SpotId);
-                if (point.ActionType == EActionType.Transition && !OutsideActions.TryGetScene(point.ActionRef, out _))
+                if (point.ActionType == EActionType.Transition && !OutsideActions.TryGetDestination(point.ActionRef, out _))
                     Add("ERROR",location,"Unsupported transition action_ref: "+point.ActionRef);
                 if (point.ActionType == EActionType.Scene && !cutIds.Contains(point.ActionRef ?? ""))
                     Add("ERROR",location,"Unknown cutscene action_ref: "+point.ActionRef);

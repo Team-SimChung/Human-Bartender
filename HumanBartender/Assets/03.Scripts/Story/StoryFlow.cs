@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
 using VContainer;
 
@@ -56,8 +57,8 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         if (presenter is not IStoryPresenter storyPresenter)
         {
-            Debug.LogError("[Story] presenter가 IStoryPresenter가 아닙니다. BarStoryPresenter를 꽂으세요.");
-            return;
+            throw new InvalidOperationException(
+                "[Story] presenter가 IStoryPresenter가 아닙니다. BarStoryPresenter를 꽂으세요.");
         }
 
         // 하루가 새로 시작하므로 지난 적용 기록을 비운다. 평가기는 루트 스코프에 하나뿐이라
@@ -66,7 +67,6 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
 
-        GameStateManager.Instance.GameFlow = EGameFlow.Bar;
         soundManager?.PlayBGM("BGM_bar_01", 1f, true);
 
         Debug.Log($"[Story] Day {day} 2부 시작");
@@ -74,17 +74,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         var result = await runner.RunAsync(script, this.GetCancellationTokenOnDestroy());
         if (!result.Completed)
         {
-            if (result.Status == StoryExecutionStatus.Failed) Debug.LogError($"[Story] {result.Error}");
-            return;
+            if (result.Status == StoryExecutionStatus.Cancelled)
+                throw new OperationCanceledException("2부 대본 실행이 취소되었습니다.");
+            throw new InvalidOperationException(result.Error ?? "2부 대본 실행에 실패했습니다.");
         }
 
         Debug.Log($"[Story] Day {day} 2부 종료");
-
-        GameStateManager.Instance.GameFlow = EGameFlow.CommuteOut;
-
-        await SceneTransitionManager.Instance.FadeOutAsync(2f);
-
-        SceneTransitionManager.Instance.LoadScene("Outside");
     }
 
     /// <summary>

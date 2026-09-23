@@ -37,7 +37,8 @@ public class ProjectLifetimeScope : LifetimeScope
             .AsImplementedInterfaces();
 
         builder.RegisterComponentInHierarchy<SceneTransitionManager>()
-            .As<ISceneTransitionService>();
+            .As<ISceneTransitionService>()
+            .As<ISceneFadeService>();
 
         // 데이터 로더는 하나다. 구형 DataLoadManager는 걷어냈고, 그것이 채우던 SO 중 남은 것
         // (칵테일·컷씬·등급표·표정·태그)까지 이쪽이 채운다.
@@ -45,6 +46,7 @@ public class ProjectLifetimeScope : LifetimeScope
             .AsImplementedInterfaces();
         //치우 수정
         builder.RegisterInstance(GameStateManager.Instance);
+        builder.Register<IGameProgressionService, GameProgressionService>(Lifetime.Singleton);
         builder.Register<IConditionUtil, ConditionUtil>(Lifetime.Singleton);
     }
 }

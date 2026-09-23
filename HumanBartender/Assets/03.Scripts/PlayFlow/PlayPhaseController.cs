@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// Play 씬의 데이터 준비, 1부와 2부 실행, 화면 전환, 입력 허용 순서를 소유한다.
@@ -13,6 +14,8 @@ public class PlayPhaseController : MonoBehaviour
 
     [Tooltip("2부 대본 국면. script/bar/dayN.json을 실행한다.")]
     [SerializeField] StoryFlow storyFlow;
+
+    [Inject] IGameProgressionService progression;
 
     [Header("국면별 화면")]
     [Tooltip("1부에만 보이는 것. 손님 자리(Tycoon Resource), 코스터 트레이 캔버스, 제조 슬라이드 패널 캔버스.")]
@@ -96,6 +99,15 @@ public class PlayPhaseController : MonoBehaviour
             return new PlayPhaseRunRequest(rejectedResult);
         }
 
+        if (progression == null)
+        {
+            PlayPhaseRunResult rejectedResult = new(
+                PlayPhaseRunOutcome.Rejected,
+                0,
+                "하루 진행 서비스가 연결되지 않았습니다.");
+            return new PlayPhaseRunRequest(rejectedResult);
+        }
+
         long operationId = ++nextOperationId;
         currentOperationId = operationId;
         State = PlayPhaseRunState.Preparing;
@@ -140,6 +152,12 @@ public class PlayPhaseController : MonoBehaviour
             BeginPhase(EPlayPhase.Dialogue);
             await RunPhaseAsync(storyFlow, cancellationToken);
             EndCurrentPhase();
+
+            GameProgressionResult departure = await progression.CompleteBarAsync(cancellationToken);
+            if (departure.Outcome == GameProgressionOutcome.Canceled)
+                throw new OperationCanceledException(departure.Message, cancellationToken);
+            if (!departure.Succeeded)
+                throw new InvalidOperationException(departure.Message ?? "퇴근 이동에 실패했습니다.", departure.Error);
 
             State = PlayPhaseRunState.Completed;
             return new PlayPhaseRunResult(PlayPhaseRunOutcome.Succeeded, operationId);
