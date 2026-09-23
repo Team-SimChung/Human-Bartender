@@ -90,6 +90,20 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
     /// AsImplementedInterfaces뿐이라 구체 타입으로 주입받을 수도 없다. 로딩 완료 신호와 같은 사정이다.
     /// </summary>
     static readonly Dictionary<int, NewDayScriptBase> _barScriptCache = new();
+    static NewDayInfoData[] loadedDays;
+
+    public static bool TryGetDayInfo(int day, out NewDayInfoData info)
+    {
+        if (IsLoaded && loadedDays != null)
+            foreach (var candidate in loadedDays)
+                if (candidate.Day == day)
+                {
+                    info = candidate;
+                    return true;
+                }
+        info = default;
+        return false;
+    }
 
     /// <summary>
     /// 그날의 2부 바 대본을 꺼낸다. 그 일차의 파일이 아예 없으면 false —
@@ -115,6 +129,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         LastLoadError = null;
         LoadVersion = 0;
         _barScriptCache.Clear();
+        loadedDays = null;
     }
 
     /// <summary>
@@ -136,6 +151,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
     {
         if (IsLoaded || LastLoadError != null) loadCompletion = new UniTaskCompletionSource();
         IsLoaded = false;
+        loadedDays = null;
         LastLoadError = null;
         loading = true;
     }
@@ -232,6 +248,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         // 때문에, 순서를 바꾸면 로딩이 끝났다는 줄보다 그 뒤에 벌어지는 일이 먼저 찍힌다.
         token.ThrowIfCancellationRequested();
         foreach (var publish in pending) publish();
+        loadedDays = dayInfoData.dayInfoData;
         _barScriptCache.Clear();
         foreach (var pair in barScripts) _barScriptCache.Add(pair.Key, pair.Value);
         // Content lookups are rebuilt before a scene can register its runtime anchors.

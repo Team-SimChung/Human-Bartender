@@ -42,6 +42,7 @@ public interface ISceneFadeService
 
 public interface IGameProgressionService
 {
+    UniTask<GameProgressionResult> WaitForBarEntryAsync(CancellationToken cancellationToken = default);
     UniTask<GameProgressionResult> CompleteBarAsync(CancellationToken cancellationToken = default);
     UniTask<GameProgressionResult> EnterAsync(GameProgressionDestination destination,
         CancellationToken cancellationToken = default);
@@ -58,6 +59,7 @@ public sealed class GameProgressionService : IGameProgressionService
     readonly ISceneTransitionService sceneTransitions;
     readonly ISceneFadeService sceneFades;
     bool isRunning;
+    UniTaskCompletionSource<GameProgressionResult> barEntryCompletion;
 
     public GameProgressionService(GameStateManager gameState, ISceneTransitionService sceneTransitions,
         ISceneFadeService sceneFades)
@@ -70,6 +72,13 @@ public sealed class GameProgressionService : IGameProgressionService
     public UniTask<GameProgressionResult> CompleteBarAsync(CancellationToken cancellationToken = default)
     {
         return MoveAsync("Play", "OutSide", EGameFlow.Bar, EGameFlow.CommuteOut, cancellationToken);
+    }
+
+    public UniTask<GameProgressionResult> WaitForBarEntryAsync(CancellationToken cancellationToken = default)
+    {
+        return barEntryCompletion == null
+            ? UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Succeeded))
+            : barEntryCompletion.Task.AttachExternalCancellation(cancellationToken);
     }
 
     public UniTask<GameProgressionResult> EnterAsync(GameProgressionDestination destination,
@@ -104,12 +113,17 @@ public sealed class GameProgressionService : IGameProgressionService
 
         isRunning = true;
         EGameFlow previousFlow = gameState.GameFlow;
+        UniTaskCompletionSource<GameProgressionResult> barEntry = null;
+        GameProgressionResult outcome = default;
         try
         {
             SceneTransitionRequest request = sceneTransitions.RequestLoadScene(destinationScene,
                 cancellationToken: cancellationToken);
             if (!request.Accepted)
-                return ConvertSceneResult(await request.Completion);
+                return outcome = ConvertSceneResult(await request.Completion);
+
+            if (destinationScene == "Play")
+                barEntryCompletion = barEntry = new UniTaskCompletionSource<GameProgressionResult>();
 
             // 새 씬의 Start가 전환 Completion보다 먼저 실행되므로, 수락된 요청에 한해서
             // 목적지의 출퇴근 문맥을 준비한다. 씬이 바뀌지 않은 실패는 아래에서 되돌린다.
@@ -119,23 +133,28 @@ public sealed class GameProgressionService : IGameProgressionService
                 gameState.GameFlow = previousFlow;
             if (result.Succeeded)
                 Debug.Log($"[Progression] {sourceScene} → {destinationScene}, Day {gameState.CurrentDay}, {gameState.GameFlow}");
-            return ConvertSceneResult(result);
+            return outcome = ConvertSceneResult(result);
         }
         catch (OperationCanceledException error)
         {
             if (SceneManager.GetActiveScene().name != destinationScene)
                 gameState.GameFlow = previousFlow;
-            return new GameProgressionResult(GameProgressionOutcome.Canceled, error.Message, error);
+            return outcome = new GameProgressionResult(GameProgressionOutcome.Canceled, error.Message, error);
         }
         catch (Exception error)
         {
             if (SceneManager.GetActiveScene().name != destinationScene)
                 gameState.GameFlow = previousFlow;
-            return new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
+            return outcome = new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
         }
         finally
         {
             isRunning = false;
+            if (barEntry != null)
+            {
+                if (ReferenceEquals(barEntryCompletion, barEntry)) barEntryCompletion = null;
+                barEntry.TrySetResult(outcome);
+            }
         }
     }
 
@@ -153,12 +172,43 @@ public sealed class GameProgressionService : IGameProgressionService
 
         isRunning = true;
         int previousDay = gameState.CurrentDay;
+        EGameFlow previousFlow = gameState.GameFlow;
         bool changed = false;
         try
         {
+            await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
+            int nextDay = previousDay + 1;
+            if (!NewDataLoadManager.TryGetDayInfo(nextDay, out NewDayInfoData next))
+                return new GameProgressionResult(GameProgressionOutcome.Rejected,
+                    $"등록되지 않은 다음 일차입니다: Day {nextDay}");
+
+            if (next.StartPhase == "commute_out")
+            {
+                SceneTransitionRequest request = sceneTransitions.RequestLoadScene("OutSide",
+                    cancellationToken: cancellationToken);
+                if (!request.Accepted)
+                    return ConvertSceneResult(await request.Completion);
+
+                // OutSide.Start보다 먼저 다음 일차 문맥을 준비한다. 씬이 바뀐 뒤의 실패는 되돌리지 않는다.
+                gameState.CurrentDay = nextDay;
+                gameState.GameFlow = EGameFlow.CommuteOut;
+                changed = true;
+                SceneTransitionResult result = await request.Completion;
+                if (!result.Succeeded && SceneManager.GetActiveScene().name == "Home")
+                {
+                    gameState.CurrentDay = previousDay;
+                    gameState.GameFlow = previousFlow;
+                }
+                return ConvertSceneResult(result);
+            }
+
+            if (next.StartPhase != "home")
+                return new GameProgressionResult(GameProgressionOutcome.Rejected,
+                    $"알 수 없는 시작 국면입니다: Day {nextDay}/{next.StartPhase}");
+
             await sceneFades.FadeOutAsync(0.5f, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
-            gameState.CurrentDay = previousDay + 1;
+            gameState.CurrentDay = nextDay;
             gameState.GameFlow = EGameFlow.CommuteIn;
             changed = true;
             refreshConditions?.Invoke();
@@ -168,12 +218,15 @@ public sealed class GameProgressionService : IGameProgressionService
         }
         catch (OperationCanceledException error)
         {
-            await RestoreFailedSleepAsync(previousDay, changed, refreshConditions);
+            if (SceneManager.GetActiveScene().name == "Home")
+                await RestoreFailedSleepAsync(previousDay, previousFlow, changed, refreshConditions);
             return new GameProgressionResult(GameProgressionOutcome.Canceled, error.Message, error);
         }
         catch (Exception error)
         {
-            await RestoreFailedSleepAsync(previousDay, changed, refreshConditions);
+            if (SceneManager.GetActiveScene().name != "Home")
+                return new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
+            await RestoreFailedSleepAsync(previousDay, previousFlow, changed, refreshConditions);
             return new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
         }
         finally
@@ -182,12 +235,13 @@ public sealed class GameProgressionService : IGameProgressionService
         }
     }
 
-    async UniTask RestoreFailedSleepAsync(int previousDay, bool changed, Action refreshConditions)
+    async UniTask RestoreFailedSleepAsync(int previousDay, EGameFlow previousFlow, bool changed,
+        Action refreshConditions)
     {
         if (changed)
         {
             gameState.CurrentDay = previousDay;
-            gameState.GameFlow = EGameFlow.CommuteOut;
+            gameState.GameFlow = previousFlow;
             try { refreshConditions?.Invoke(); }
             catch (Exception refreshError) { Debug.LogException(refreshError); }
         }

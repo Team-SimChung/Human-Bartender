@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 
 /// <summary>
@@ -36,6 +37,8 @@ public class PlayPhaseController : MonoBehaviour
     long nextOperationId;
     long currentOperationId;
     bool phaseInputEnabled;
+    bool departurePending;
+    string departureError;
 
     public EPlayPhase CurrentPhase { get; private set; } = EPlayPhase.None;
     public PlayPhaseRunState State { get; private set; } = PlayPhaseRunState.Idle;
@@ -116,6 +119,67 @@ public class PlayPhaseController : MonoBehaviour
         return new PlayPhaseRunRequest(true, completion);
     }
 
+    /// <summary>1부와 2부가 이미 끝난 경우 퇴근 이동만 다시 요청한다.</summary>
+    public PlayPhaseRunRequest RequestRetryDeparture()
+    {
+        if (!departurePending || currentOperationId != 0 ||
+            (State != PlayPhaseRunState.Failed && State != PlayPhaseRunState.Canceled) ||
+            SceneManager.GetActiveScene().name != "Play" ||
+            GameStateManager.Instance.GameFlow != EGameFlow.Bar)
+            return new PlayPhaseRunRequest(new PlayPhaseRunResult(
+                PlayPhaseRunOutcome.Rejected, currentOperationId, "재시도할 퇴근 이동이 없습니다."));
+
+        long operationId = ++nextOperationId;
+        currentOperationId = operationId;
+        State = PlayPhaseRunState.Transitioning;
+        return new PlayPhaseRunRequest(true, RetryDepartureAsync(operationId, this.GetCancellationTokenOnDestroy()));
+    }
+
+    async UniTask<PlayPhaseRunResult> RetryDepartureAsync(long operationId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            GameProgressionResult result = await progression.CompleteBarAsync(cancellationToken);
+            if (result.Outcome == GameProgressionOutcome.Canceled)
+            {
+                State = PlayPhaseRunState.Canceled;
+                departureError = result.Message;
+                return new PlayPhaseRunResult(PlayPhaseRunOutcome.Canceled, operationId, result.Message);
+            }
+            if (!result.Succeeded)
+                throw new InvalidOperationException(result.Message ?? "퇴근 이동에 실패했습니다.", result.Error);
+
+            departurePending = false;
+            departureError = null;
+            State = PlayPhaseRunState.Completed;
+            return new PlayPhaseRunResult(PlayPhaseRunOutcome.Succeeded, operationId);
+        }
+        catch (Exception error)
+        {
+            State = PlayPhaseRunState.Failed;
+            departureError = error.Message;
+            return new PlayPhaseRunResult(PlayPhaseRunOutcome.Failed, operationId, error.Message, error);
+        }
+        finally
+        {
+            if (SceneManager.GetActiveScene().name != "Play") departurePending = false;
+            if (currentOperationId == operationId) currentOperationId = 0;
+        }
+    }
+
+    void OnGUI()
+    {
+        if (!departurePending || currentOperationId != 0 ||
+            (State != PlayPhaseRunState.Failed && State != PlayPhaseRunState.Canceled) ||
+            SceneManager.GetActiveScene().name != "Play") return;
+
+        var area = new Rect((Screen.width - 360f) / 2f, (Screen.height - 120f) / 2f, 360f, 120f);
+        GUI.Box(area, "퇴근 이동에 실패했습니다.");
+        GUI.Label(new Rect(area.x + 15f, area.y + 28f, 330f, 36f), departureError ?? "이동을 다시 시도하세요.");
+        if (GUI.Button(new Rect(area.x + 80f, area.y + 72f, 200f, 35f), "퇴근 이동 재시도"))
+            ObserveAsync(RequestRetryDeparture()).Forget();
+    }
+
     public bool CanReceiveInput(EPlayPhase phase)
     {
         if (!phaseInputEnabled) return false;
@@ -133,6 +197,12 @@ public class PlayPhaseController : MonoBehaviour
         try
         {
             HidePhaseObjects();
+
+            GameProgressionResult entry = await progression.WaitForBarEntryAsync(cancellationToken);
+            if (entry.Outcome == GameProgressionOutcome.Canceled)
+                throw new OperationCanceledException(entry.Message, cancellationToken);
+            if (!entry.Succeeded)
+                throw new InvalidOperationException(entry.Message ?? "바 입장에 실패했습니다.", entry.Error);
 
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
@@ -153,17 +223,20 @@ public class PlayPhaseController : MonoBehaviour
             await RunPhaseAsync(storyFlow, cancellationToken);
             EndCurrentPhase();
 
+            departurePending = true;
             GameProgressionResult departure = await progression.CompleteBarAsync(cancellationToken);
             if (departure.Outcome == GameProgressionOutcome.Canceled)
                 throw new OperationCanceledException(departure.Message, cancellationToken);
             if (!departure.Succeeded)
                 throw new InvalidOperationException(departure.Message ?? "퇴근 이동에 실패했습니다.", departure.Error);
 
+            departurePending = false;
             State = PlayPhaseRunState.Completed;
             return new PlayPhaseRunResult(PlayPhaseRunOutcome.Succeeded, operationId);
         }
         catch (OperationCanceledException)
         {
+            if (departurePending) departureError = "퇴근 이동이 취소되었습니다.";
             State = PlayPhaseRunState.Canceled;
             return new PlayPhaseRunResult(
                 PlayPhaseRunOutcome.Canceled,
@@ -172,6 +245,7 @@ public class PlayPhaseController : MonoBehaviour
         }
         catch (Exception error)
         {
+            if (departurePending) departureError = error.Message;
             State = PlayPhaseRunState.Failed;
             return new PlayPhaseRunResult(
                 PlayPhaseRunOutcome.Failed,
@@ -181,6 +255,7 @@ public class PlayPhaseController : MonoBehaviour
         }
         finally
         {
+            if (SceneManager.GetActiveScene().name != "Play") departurePending = false;
             if (currentOperationId == operationId)
             {
                 phaseInputEnabled = false;

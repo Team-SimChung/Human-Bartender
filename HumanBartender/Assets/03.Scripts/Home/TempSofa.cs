@@ -34,7 +34,8 @@ public class TempSofa : InteractiveEntity
                 this.GetCancellationTokenOnDestroy());
             if (result.Succeeded)
             {
-                OnInteracted?.Raise(this);
+                // 다음 일차가 실외에서 시작하면 Home은 이미 언로드되었을 수 있다.
+                if (this != null && gameObject.scene.isLoaded) OnInteracted?.Raise(this);
                 return;
             }
             isInteract = true;
