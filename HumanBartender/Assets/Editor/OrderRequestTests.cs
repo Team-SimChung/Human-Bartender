@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 
@@ -31,14 +32,24 @@ public class OrderRequestTests
         new CraftSession(id), new CraftJudgement { CraftGrade = scored ? ENewGrade.Good : null },
         new NewCocktailData { Id = id });
 
-    [UnityTest] public IEnumerator CallbackAfterSettlementAndCleanup() => CallbackCase().ToCoroutine();
-    [UnityTest] public IEnumerator CancellationDuringReactionStopsSettlement() => CancelServingCase().ToCoroutine();
-    [UnityTest] public IEnumerator OrdersAndCraftAreIndependent() => IndependenceCase().ToCoroutine();
-    [UnityTest] public IEnumerator NoCallbackStillCleansUp() => NoCallbackCase().ToCoroutine();
-    [UnityTest] public IEnumerator RejectedDrinkAndDuplicateRequest() => RejectionCase().ToCoroutine();
-    [UnityTest] public IEnumerator OpenFailureReportsAfterCleanup() => OpenFailureCase().ToCoroutine();
-    [UnityTest] public IEnumerator LateReceiverCannotServeReplacement() => LateReceiverCase().ToCoroutine();
+    [UnityTest] public IEnumerator CallbackAfterSettlementAndCleanup() => RunWithEditorFrames(CallbackCase());
+    [UnityTest] public IEnumerator CancellationDuringReactionStopsSettlement() => RunWithEditorFrames(CancelServingCase());
+    [UnityTest] public IEnumerator OrdersAndCraftAreIndependent() => RunWithEditorFrames(IndependenceCase());
+    [UnityTest] public IEnumerator NoCallbackStillCleansUp() => RunWithEditorFrames(NoCallbackCase());
+    [UnityTest] public IEnumerator RejectedDrinkAndDuplicateRequest() => RunWithEditorFrames(RejectionCase());
+    [UnityTest] public IEnumerator OpenFailureReportsAfterCleanup() => RunWithEditorFrames(OpenFailureCase());
+    [UnityTest] public IEnumerator LateReceiverCannotServeReplacement() => RunWithEditorFrames(LateReceiverCase());
     [Test] public void ExistingJudgementAndSettlementRulesPreserved() => CalculationCase();
+
+    static IEnumerator RunWithEditorFrames(UniTask task)
+    {
+        var routine = task.ToCoroutine();
+        while (routine.MoveNext())
+        {
+            EditorApplication.QueuePlayerLoopUpdate();
+            yield return routine.Current;
+        }
+    }
 
     public async UniTask CallbackCase()
     {

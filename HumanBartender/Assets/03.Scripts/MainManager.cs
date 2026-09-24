@@ -9,6 +9,7 @@ using VContainer.Unity;
 /// </summary>
 public class MainManager : MonoBehaviour
 {
+    static readonly Rect ContinueButton = new(20, 20, 150, 38);
     bool starting;
     bool continueOpen;
     string startError;
@@ -16,6 +17,10 @@ public class MainManager : MonoBehaviour
     /// <summary>Day 0의 2부 Play에서 새 게임을 시작한다.</summary>
     public void TempStart()
     {
+        // 타이틀의 새 게임 버튼은 전체 화면을 덮는다. IMGUI 이어하기 영역의 클릭은 새 게임으로 보내지 않는다.
+        var pointer = Input.mousePosition;
+        if (continueOpen || (Input.GetMouseButtonUp(0) && ContinueButton.Contains(
+                new Vector2(pointer.x, Screen.height - pointer.y)))) return;
         if (!starting) StartNewGameAsync().Forget(Debug.LogException);
     }
 
@@ -69,7 +74,7 @@ public class MainManager : MonoBehaviour
 
     void OnGUI()
     {
-        if (GUI.Button(new Rect(20, 20, 150, 38), continueOpen ? "이어하기 닫기" : "이어하기"))
+        if (GUI.Button(ContinueButton, continueOpen ? "이어하기 닫기" : "이어하기"))
             continueOpen = !continueOpen;
         if (continueOpen)
         {

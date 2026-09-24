@@ -54,20 +54,27 @@ public class TycoonFlow : MonoBehaviour, IPlayPhaseFlow
             dialogueClickCatcher.SetActive(false);
 
         guestManager.GuestReleased += OnGuestReleased;
-        UniTask spawn = guestManager.RunSpawnLoopAsync(token).Preserve();
+        var spawn = guestManager.RunSpawnLoopAsync(token).AsTask();
         try
         {
-            int first = await UniTask.WhenAny(completionSource.Task.AttachExternalCancellation(token), spawn);
-            if (first == 1) await completionSource.Task.AttachExternalCancellation(token);
+            int first = await UniTask.WhenAny(completionSource.Task.AttachExternalCancellation(token), spawn.AsUniTask());
+            if (first == 1)
+            {
+                await spawn;
+                await completionSource.Task.AttachExternalCancellation(token);
+            }
         }
         finally
         {
             linked.Cancel();
             try { await spawn; }
             catch (OperationCanceledException) when (token.IsCancellationRequested) { }
-            guestManager.GuestReleased -= OnGuestReleased;
-            if (dialogueClickCatcher != null)
-                dialogueClickCatcher.SetActive(true);
+            finally
+            {
+                guestManager.GuestReleased -= OnGuestReleased;
+                if (dialogueClickCatcher != null)
+                    dialogueClickCatcher.SetActive(true);
+            }
         }
     }
 
