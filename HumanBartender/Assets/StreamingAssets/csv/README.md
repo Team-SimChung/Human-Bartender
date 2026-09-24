@@ -16,6 +16,7 @@
 | `system/` | 표 연결·형식 규칙 | 일반 콘텐츠 편집 때 유지 |
 
 각 폴더의 README에 모든 파일의 역할과 엑셀 시트 이름을 적었습니다.
+대사 한 글자·구간의 색, 크기, 속도, 움직임 태그는 [DialogueFX.md](DialogueFX.md)에 적었습니다.
 편집용 엑셀과 내보내기 도구는 프로젝트의 `outputs/20260915-content-editing`에 있습니다.
 엑셀의 **Index**에서 표와 CSV 경로를, **FieldGuide**에서 열 설명을 찾을 수 있습니다.
 

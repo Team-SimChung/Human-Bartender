@@ -137,29 +137,74 @@ public class GuestSlot : MonoBehaviour
     /// 말풍선에 텍스트를 즉시 표시한다. durationSec이 0보다 크면 그 시간 뒤 자동으로 숨긴다.
     /// 슬롯이 고정 위치라 Outside처럼 매 프레임 화면 좌표를 추적할 필요는 없다.
     /// </summary>
-    public void ShowBark(string text, float durationSec = 3f)
+    public void ShowBark(string text, float durationSec = 3f, NewTextTagDataSO tags = null,
+        string cocktailName = null, bool typewriter = false)
     {
         bubbleCts?.Cancel();
-        bubbleCts?.Dispose();
-        bubbleCts = new CancellationTokenSource();
 
         if (bubbleRoot != null) bubbleRoot.SetActive(true);
-        speechBubble.SetText(text);
+        if (typewriter && durationSec > 0f)
+        {
+            if (!DialogueTextCompiler.TryCompile(text, tags, DialoguePresentationSettings.Shared,
+                    cocktailName, 0.05f, out var plan, out _)) typewriter = false;
+            else
+            {
+                float estimated = 0f;
+                foreach (var style in plan.SourceStyles) estimated += style.SpeedSeconds;
+                foreach (var wait in plan.SourceWaits.Values) estimated += wait;
+                if (estimated > durationSec)
+                {
+                    Debug.LogWarning($"[DialogueFX] Bark typing exceeds {durationSec:0.##}s display budget; showing instantly.");
+                    typewriter = false;
+                }
+            }
+        }
+        if (typewriter)
+            TypeBarkAsync(text, tags, cocktailName).Forget(Debug.LogException);
+        else
+            speechBubble.SetText(text, tags, cocktailName);
 
         if (durationSec > 0f)
-            HideBarkAfterAsync(durationSec, bubbleCts.Token).Forget();
+        {
+            var source = new CancellationTokenSource();
+            bubbleCts = source;
+            HideBarkAfterAsync(durationSec, source).Forget();
+        }
     }
 
-    async UniTaskVoid HideBarkAfterAsync(float durationSec, CancellationToken token)
+    async UniTask TypeBarkAsync(string text, NewTextTagDataSO tags, string cocktailName)
     {
-        await UniTask.Delay(TimeSpan.FromSeconds(durationSec), cancellationToken: token);
-        HideBark();
+        try
+        {
+            await speechBubble.TextPlayer.PlayAsync(
+                new TypingData(text, speechBubble.nameLabel != null ? speechBubble.nameLabel.text : "",
+                    Vector3.zero, speechBubble.nameLabel != null ? speechBubble.nameLabel.color : Color.white,
+                    false), tags, 0.05f,
+                this.GetCancellationTokenOnDestroy(), cocktailName);
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    async UniTaskVoid HideBarkAfterAsync(float durationSec, CancellationTokenSource source)
+    {
+        try
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(durationSec), cancellationToken: source.Token);
+            if (ReferenceEquals(bubbleCts, source)) HideBark();
+        }
+        catch (OperationCanceledException) { }
+        finally
+        {
+            if (ReferenceEquals(bubbleCts, source)) bubbleCts = null;
+            source.Dispose();
+        }
     }
 
     /// <summary>말풍선을 즉시 숨긴다.</summary>
     public void HideBark()
     {
         bubbleCts?.Cancel();
+        if (speechBubble != null) speechBubble.GetComponent<DialogueTextPlayer>()?.Stop();
         if (bubbleRoot != null) bubbleRoot.SetActive(false);
     }
 

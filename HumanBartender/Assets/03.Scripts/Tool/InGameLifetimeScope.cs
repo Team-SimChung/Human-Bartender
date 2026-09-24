@@ -20,6 +20,7 @@ public class InGameLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<DialogueCharacterManager>()
             .As<ICharacterSetter>()
             .As<IDialogueFader>();
+        builder.RegisterComponentInHierarchy<UIDialogueTextView>();
 
         // DialogueRunner는 여기서 등록하지 않는다. Play에서 그것을 여는 곳(VisualNovelFlow)을 걷어냈고,
         // 붙일 IDialoguePresenter 구현(DialogueSceneDirector)도 함께 없앴다. 실외 씬은 그대로 쓴다.

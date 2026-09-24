@@ -124,6 +124,9 @@ public class GuestManager : MonoBehaviour
 
     void OnDisable()
     {
+        lunaBarkCts?.Cancel();
+        if (dialogueTextView != null && dialogueTextView.lunaSpeechBubble != null)
+            dialogueTextView.lunaSpeechBubble.gameObject.SetActive(false);
         appearanceLoads.Cancel();
         if (slots != null && orderController != null)
             foreach (var slot in slots)
@@ -680,8 +683,7 @@ public class GuestManager : MonoBehaviour
         NewBarkData bark = PickBarkAvoidingRepeat($"{situation}/{voiceId}", candidates);
 
         string cocktailName = GetCocktailName(guest?.targetCocktailId);
-        string text = DialogueTypingService.ApplyCustomTags(bark.Text.Ko, textTagData, cocktailName);
-        slot.ShowBark(text, durationSec);
+        slot.ShowBark(bark.Text.Ko, durationSec, textTagData, cocktailName);
     }
 
     // ── 잡담 ────────────────────────────────────────────────────────────
@@ -1028,29 +1030,30 @@ public class GuestManager : MonoBehaviour
         var typingData = new TypingData(rawText, speakerName, Vector3.zero, nameColor, isLunaSpeak: true);
 
         lunaBarkCts?.Cancel();
-        lunaBarkCts?.Dispose();
-        lunaBarkCts = new CancellationTokenSource();
-        HideLunaBarkAfterAsync(typingData, cocktailName, lunaBarkCts.Token).Forget();
+        var source = new CancellationTokenSource();
+        lunaBarkCts = source;
+        HideLunaBarkAfterAsync(typingData, cocktailName, source).Forget();
     }
 
     /// <summary>
     /// 타이핑이 끝난 뒤 PlayerBarkDurationSec만큼 더 보여주다가 다이얼로그 말풍선을 끈다.
     /// 그 사이 새 ask_order 대사가 다시 뜨면(lunaBarkCts 교체) 조용히 중단한다.
     /// </summary>
-    async UniTaskVoid HideLunaBarkAfterAsync(TypingData typingData, string cocktailName, CancellationToken token)
+    async UniTaskVoid HideLunaBarkAfterAsync(TypingData typingData, string cocktailName, CancellationTokenSource source)
     {
-        await dialogueTextView.StartType(typingData, cocktailName);
-
         try
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(PlayerBarkDurationSec), cancellationToken: token);
+            await dialogueTextView.StartType(typingData, cocktailName, source.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(PlayerBarkDurationSec), cancellationToken: source.Token);
+            if (ReferenceEquals(lunaBarkCts, source))
+                dialogueTextView.lunaSpeechBubble.gameObject.SetActive(false);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) { }
+        finally
         {
-            return;
+            if (ReferenceEquals(lunaBarkCts, source)) lunaBarkCts = null;
+            source.Dispose();
         }
-
-        dialogueTextView.lunaSpeechBubble.gameObject.SetActive(false);
     }
 
     /// <summary>지정 슬롯의 손님 응대가 끝났을 때 호출한다. 인내 타이머를 멈추고 슬롯을 비운 뒤 TycoonFlow에 알린다.</summary>

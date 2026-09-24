@@ -1,11 +1,8 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Data.SqlTypes;
 using System.Threading;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
+using VContainer;
 
 /// <summary>말풍선 타이핑에 필요한 데이터(대사 내용, 화자, 위치, 색상 등)를 담는 컨테이너.</summary>
 [System.Serializable]
@@ -55,6 +52,7 @@ public class UIDialogueTextView : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] NewTextTagDataSO textTagData;
+    [Inject] ISoundManager soundManager;
 
     [Header("UI Components")]
     public DynamicSpeechBubble lunaSpeechBubble;
@@ -69,8 +67,7 @@ public class UIDialogueTextView : MonoBehaviour
 
 
     private TypingData curTypingData;
-    private CancellationTokenSource typingCts;
-    private CancellationTokenSource skippedTyping;
+    private DialogueTextPlayer currentPlayer;
 
     [SerializeField] private float defaultTypingDelay = 0.05f;
 
@@ -139,6 +136,7 @@ public class UIDialogueTextView : MonoBehaviour
     {
         if (bubble == null) return;
 
+        bubble.TextPlayer.Stop();
         if (bubble.textLabel != null)
         {
             bubble.textLabel.enableAutoSizing = false;
@@ -160,8 +158,7 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>화면 클릭 시 타이핑을 중단(스킵)한다.</summary>
     public void OnScreenClick()
     {
-        skippedTyping = typingCts;
-        typingCts?.Cancel();
+        currentPlayer?.Skip();
     }
 
     void OnDisable() => StopTyping();
@@ -175,11 +172,8 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>진행 중인 타이핑 코루틴을 취소한다.</summary>
     public void StopTyping()
     {
-        var previous = typingCts;
-        typingCts = null;
-        skippedTyping = null;
-        previous?.Cancel(); // The awaiting operation owns disposal.
-
+        currentPlayer?.Stop();
+        currentPlayer = null;
     }
 
     /// <summary>
@@ -188,33 +182,23 @@ public class UIDialogueTextView : MonoBehaviour
     public async UniTask TypeSentenceTMP(TypingData data, string cocktailName = null, CancellationToken token = default)
     {
         token.ThrowIfCancellationRequested();
-        if (string.IsNullOrEmpty(data?.str)) return;
+        if (data == null) throw new ArgumentNullException(nameof(data));
         StopTyping();
-        var lifetime = this.GetCancellationTokenOnDestroy();
-        using var source = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime);
-        typingCts = source;
         var bubble = targetBubble;
+        var player = bubble.TextPlayer;
+        player.ConfigureAudio(soundManager);
+        currentPlayer = player;
+        UniTask playback = DialogueTypingService.TypeSentenceTMP(data, bubble, textTagData,
+            defaultTypingDelay, token, cocktailName);
+        int sessionId = player.CurrentSessionId;
         try
         {
-            await DialogueTypingService.TypeSentenceTMP(data, bubble, textTagData, defaultTypingDelay, source.Token, cocktailName);
-        }
-        catch (OperationCanceledException) when (skippedTyping == source && typingCts == source && !token.IsCancellationRequested && !lifetime.IsCancellationRequested)
-        {
-            // Only a player skip completes the text. Execution cancellation still propagates.
-            if (bubble != null && bubble.textLabel != null)
-            {
-                bubble.textLabel.maxVisibleCharacters = bubble.TotalVisibleCharacters;
-                bubble.UpdateForVisible(bubble.TotalVisibleCharacters);
-            }
+            await playback;
         }
         finally
         {
-            if (typingCts == source)
-            {
-                typingCts = null;
-                skippedTyping = null;
+            if (ReferenceEquals(currentPlayer, player) && sessionId == player.CurrentSessionId)
                 CompleteTyping();
-            }
         }
     }
 
