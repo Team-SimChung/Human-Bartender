@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>슬롯 타입(Left/Right/Middle)별로 카메라(cameraAnchor)가 따라갈 Transform과 오프셋을 매핑하는 데이터.</summary>
@@ -61,9 +63,12 @@ public class PlayCamera : MonoBehaviour, ISlotCamera
     /// 그 부모 기준으로 읽혀 엉뚱한 곳에 선다.
     /// </summary>
     public void MoveToX(float worldX, float dur = 1f)
+        => MoveToXAsync(worldX, dur).Forget(Debug.LogException);
+
+    public UniTask MoveToXAsync(float worldX, float dur = 1f, CancellationToken token = default)
     {
         cameraZoom.Unfollow();
-        cameraZoom.TransitionFollowOffset(new Vector3(worldX, 0f, 0f), dur, ease);
+        return cameraZoom.TransitionFollowOffsetAsync(new Vector3(worldX, 0f, 0f), dur, ease, token);
     }
 
     /// <summary>현재 슬롯 기준으로 한 칸 옆(step: -1=왼쪽, +1=오른쪽) 슬롯으로 이동시킨다.</summary>

@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using UnityEngine;
 using VContainer;
 
@@ -38,7 +39,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     [Inject] IConditionUtil conditions;
 
-    public async UniTask RunAsync()
+    public async UniTask RunAsync(CancellationToken cancellationToken = default)
     {
         int day = GameStateManager.Instance.CurrentDay;
 
@@ -46,7 +47,9 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         //
         // 로더를 인스펙터로 꽂지 않는다. 그쪽은 Play 씬이 아니라 VContainer 루트 스코프에 얹혀
         // 실행 중에 만들어져서, 씬 오브젝트가 참조할 수 있는 대상이 아니다.
-        await NewDataLoadManager.WaitUntilLoadedAsync(this.GetCancellationTokenOnDestroy());
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
+            this.GetCancellationTokenOnDestroy());
+        await NewDataLoadManager.WaitUntilLoadedAsync(linked.Token);
 
         if (!NewDataLoadManager.TryGetBarScript(day, out NewDayScriptBase script))
         {
@@ -71,7 +74,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         Debug.Log($"[Story] Day {day} 2부 시작");
 
-        var result = await runner.RunAsync(script, this.GetCancellationTokenOnDestroy());
+        var result = await runner.RunAsync(script, linked.Token);
         if (!result.Completed)
         {
             if (result.Status == StoryExecutionStatus.Cancelled)

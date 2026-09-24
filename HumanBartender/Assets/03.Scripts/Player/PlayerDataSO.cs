@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -31,12 +32,7 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
     /// <summary>새 게임/데이터 초기화. 모든 캐릭터 호감도와 플래그를 비우고 재화·스킬을 0으로 되돌린다.</summary>
     public void Init()
     {
-        characterAffinityDatas = new List<CharacterAffinityData>();
-
-        flagList = new Dictionary<string, bool>();
-
-        SetMoney(0);
-        skillTierAmount = 0;
+        ReplaceProgress(0, 0, new Dictionary<string, int>(), new Dictionary<string, bool>());
     }
 
     #region Money
@@ -189,6 +185,7 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
     {
         skillTierAmount += val;
     }
+    public void SetSkillAmount(int value) => skillTierAmount = value;
     public int GetSkillValue()
     {
         return skillTierAmount;
@@ -202,18 +199,54 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
     /// <summary>스토리 플래그 값을 설정한다 (없으면 추가, 있으면 갱신).</summary>
     public void AddFlag(string id, bool value)
     {
-        if (flagList.ContainsKey(id))
-            flagList[id] = value;
-        else
-            flagList.Add(id, value);
-
+        flagList[CanonicalFlagKey(id)] = value;
     }
     /// <summary>플래그 값을 조회한다. 등록되지 않았으면 false.</summary>
     public bool CheckFlag(string id)
     {
-        if (!flagList.ContainsKey(id)) return false;
+        return flagList.TryGetValue(CanonicalFlagKey(id), out bool value) && value;
+    }
 
-        return flagList[id];
+    public static string CanonicalFlagKey(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("플래그 키가 비어 있습니다.", nameof(id));
+        string key = id.StartsWith("flag.", StringComparison.Ordinal) ? id.Substring(5) : id;
+        if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("플래그 키가 비어 있습니다.", nameof(id));
+        return key;
+    }
+
+    public Dictionary<string, int> ReadAffinity()
+    {
+        var values = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var item in characterAffinityDatas)
+            if (item != null) values.Add(item.characterId, item.affinityAmount);
+        return values;
+    }
+
+    public Dictionary<string, bool> ReadFlags() => new(flagList, StringComparer.Ordinal);
+
+    /// <summary>검증된 진행 값 전체를 알림 없이 교체한 뒤 최종 잔액만 알린다.</summary>
+    public void ReplaceProgress(int newMoney, int newSkill, IReadOnlyDictionary<string, int> affinity,
+        IReadOnlyDictionary<string, bool> flags)
+    {
+        if (newMoney < 0) throw new ArgumentOutOfRangeException(nameof(newMoney));
+        if (affinity == null || flags == null) throw new ArgumentNullException("진행 목록");
+        var nextAffinity = new List<CharacterAffinityData>();
+        foreach (var pair in affinity)
+        {
+            if (string.IsNullOrWhiteSpace(pair.Key)) throw new ArgumentException("빈 캐릭터 ID입니다.");
+            nextAffinity.Add(new CharacterAffinityData(pair.Key, pair.Value));
+        }
+        var nextFlags = new Dictionary<string, bool>(StringComparer.Ordinal);
+        foreach (var pair in flags)
+            if (!nextFlags.TryAdd(CanonicalFlagKey(pair.Key), pair.Value))
+                throw new ArgumentException($"중복 플래그 키입니다: {pair.Key}");
+
+        money = newMoney;
+        skillTierAmount = newSkill;
+        characterAffinityDatas = nextAffinity;
+        flagList = nextFlags;
+        NotifyMoneyEvent(setMoneyEvent, money, "OnSetMoney");
     }
 
 

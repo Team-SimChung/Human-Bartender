@@ -6458,7 +6458,6 @@ MonoBehaviour:
   servingView: {fileID: 749266211}
   cocktailData: {fileID: 11400000, guid: 4cdd38f0ff8842f8a80c5e7c1fec4ecf, type: 2}
   balanceData: {fileID: 11400000, guid: 63f99327f1a0418a94d6ec6cd9c49dca, type: 2}
-  salesOwner: {fileID: 673860024}
 --- !u!1 &767173203
 GameObject:
   m_ObjectHideFlags: 0
@@ -7247,8 +7246,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ComponentVersion: 1
   m_AssetsPPU: 100
-  m_RefResolutionX: 960
-  m_RefResolutionY: 540
+  m_RefResolutionX: 1280
+  m_RefResolutionY: 720
   m_CropFrame: 4
   m_GridSnapping: 1
   m_FilterMode: 0
@@ -8120,6 +8119,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayPhaseController
   tycoonFlow: {fileID: 1306118333}
   storyFlow: {fileID: 910050654}
+  orderController: {fileID: 749266213}
+  craftFlow: {fileID: 1024022784}
   tycoonOnlyObjects:
   - {fileID: 955020915}
   - {fileID: 2013979233}
@@ -8886,6 +8887,10 @@ MonoBehaviour:
   gimmickCamera: {fileID: 1751156103}
   sortingBase: 1000
   hudSortingOffset: 500
+  barCanvases:
+  - {fileID: 409941407}
+  - {fileID: 844190256}
+  - {fileID: 2013979236}
 --- !u!4 &1024022786
 Transform:
   m_ObjectHideFlags: 0
@@ -11919,6 +11924,7 @@ MonoBehaviour:
   targetResolution: {x: 960, y: 540}
   outSideResolution: {x: 480, y: 270}
   defaultTransitionDuration: 1
+  keepRenderResolutionDuringZoom: 1
   ease:
     serializedVersion: 2
     m_Curve:

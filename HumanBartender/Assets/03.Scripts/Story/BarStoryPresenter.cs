@@ -92,7 +92,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     /// <summary>
     /// 앉은 사람 수에 맞춰 화면을 잡는다(§10.1.1).
     ///
-    /// 1명이면 그 자리로 다가가 960×540(Sub), 2명이면 두 자리의 중점으로 물러나 1280×720(Base).
+    /// 1명이면 그 자리로 다가가 Sub 화각, 2명이면 두 자리의 중점으로 물러나 Base 화각.
     /// 이동과 줌을 끈어 실행하지 않고 같은 시간 안에서 함께 건다 — 나눠 부르면 화면이 두 번 움직인다.
     ///
     /// 아무도 없으면 L·R을 담는 기본 프레임에 선다 — 2부 시작 화면이다. 셋 이상은 이미 실행기가
@@ -116,8 +116,9 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
         {
             if (!TryGetSeatX(occupiedSlots[0], out float x)) return;
 
-            cameraZoom.TransitionCameraZoom(ECameraZoomType.Sub, cameraTransitionSec);
-            slotCamera.MoveToX(x, cameraTransitionSec);
+            await UniTask.WhenAll(
+                cameraZoom.TransitionCameraZoomAsync(ECameraZoomType.Sub, cameraTransitionSec, token: token),
+                slotCamera.MoveToXAsync(x, cameraTransitionSec, token));
         }
         else
         {
@@ -130,12 +131,14 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             if (!TryGetSeatX(left, out float leftX)) return;
             if (!TryGetSeatX(right, out float rightX)) return;
 
-            cameraZoom.TransitionCameraZoom(ECameraZoomType.Base, cameraTransitionSec);
-            slotCamera.MoveToX((leftX + rightX) * 0.5f, cameraTransitionSec);
+            await UniTask.WhenAll(
+                cameraZoom.TransitionCameraZoomAsync(ECameraZoomType.Base, cameraTransitionSec, token: token),
+                slotCamera.MoveToXAsync((leftX + rightX) * 0.5f, cameraTransitionSec, token));
         }
 
-        // 움직이는 중에 다음 대사가 뜨면 말하는 사람이 아직 화면 밖에 있다(§10.1.1 전환 완료).
-        await UniTask.WaitForSeconds(cameraTransitionSec, cancellationToken: token);
+        // 목표점과 렌즈 보간은 Update에서 끝난다. CinemachineBrain이 LateUpdate에서
+        // 실제 카메라에 반영한 다음 대사를 열어야 첫 말풍선 프레임과 카메라 위치가 일치한다.
+        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, token);
     }
 
     /// <summary>자리가 서 있는 x를 인물 슬롯에서 읽는다. 슬롯이 없으면 세울 곳이 없다는 뜻이다.</summary>

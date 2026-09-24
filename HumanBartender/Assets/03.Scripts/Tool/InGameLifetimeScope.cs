@@ -39,6 +39,8 @@ public class InGameLifetimeScope : LifetimeScope
         // 실행기가 IObjectResolver를 받을 수 있도록 스코프에 올린다.
         builder.RegisterComponentInHierarchy<GimmickRunner>();
         builder.RegisterComponentInHierarchy<CraftFlowController>();
+        builder.Register<DailySales>(Lifetime.Scoped);
+        builder.RegisterComponentInHierarchy<OrderRequestController>();
 
         // 손님 주문 세션이 끝날 때 확정된 매출을 프로젝트 전역 PlayerData에 반영한다.
         builder.RegisterComponentInHierarchy<GuestManager>();

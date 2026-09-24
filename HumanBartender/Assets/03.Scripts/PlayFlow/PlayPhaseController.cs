@@ -15,8 +15,11 @@ public class PlayPhaseController : MonoBehaviour
 
     [Tooltip("2부 대본 국면. script/bar/dayN.json을 실행한다.")]
     [SerializeField] StoryFlow storyFlow;
+    [SerializeField] OrderRequestController orderController;
+    [SerializeField] CraftFlowController craftFlow;
 
     [Inject] IGameProgressionService progression;
+    [Inject] PlayerSettlement settlement;
 
     [Header("국면별 화면")]
     [Tooltip("1부에만 보이는 것. 손님 자리(Tycoon Resource), 코스터 트레이 캔버스, 제조 슬라이드 패널 캔버스.")]
@@ -169,6 +172,15 @@ public class PlayPhaseController : MonoBehaviour
 
     void OnGUI()
     {
+        if (!departurePending && currentOperationId == 0 && State == PlayPhaseRunState.Failed &&
+            SceneManager.GetActiveScene().name == "Play")
+        {
+            var recovery = new Rect((Screen.width - 360f) / 2f, (Screen.height - 115f) / 2f, 360f, 115f);
+            GUI.Box(recovery, "입장 또는 하루 실행에 실패했습니다.");
+            if (GUI.Button(new Rect(recovery.x + 80f, recovery.y + 65f, 200f, 35f), "타이틀로 돌아가기"))
+                SceneTransitionManager.Instance?.LoadScene("Main");
+            return;
+        }
         if (!departurePending || currentOperationId != 0 ||
             (State != PlayPhaseRunState.Failed && State != PlayPhaseRunState.Canceled) ||
             SceneManager.GetActiveScene().name != "Play") return;
@@ -201,11 +213,15 @@ public class PlayPhaseController : MonoBehaviour
             GameProgressionResult entry = await progression.WaitForBarEntryAsync(cancellationToken);
             if (entry.Outcome == GameProgressionOutcome.Canceled)
                 throw new OperationCanceledException(entry.Message, cancellationToken);
-            if (!entry.Succeeded)
+            if (!entry.Succeeded && Application.isEditor && testDay >= 0 &&
+                entry.Outcome == GameProgressionOutcome.Rejected)
+                Debug.LogWarning("[PlayPhase] 명시적 Test Day로 Play 씬을 직접 실행합니다.");
+            else if (!entry.Succeeded)
                 throw new InvalidOperationException(entry.Message ?? "바 입장에 실패했습니다.", entry.Error);
 
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
+            settlement?.Init();
 
             if (skipTycoonForTest)
             {
@@ -266,12 +282,24 @@ public class PlayPhaseController : MonoBehaviour
         }
     }
 
-    static async UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken)
+    async UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        UniTask phaseTask = flow.RunAsync();
-        await phaseTask.AttachExternalCancellation(cancellationToken);
-        cancellationToken.ThrowIfCancellationRequested();
+        try
+        {
+            await flow.RunAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+        }
+        finally
+        {
+            if (orderController != null) await orderController.CancelAllAndWaitAsync();
+            if (craftFlow != null && craftFlow.IsBusy && craftFlow.Current != null)
+            {
+                var completion = craftFlow.Completion;
+                if (!await craftFlow.CancelCraftAsync(craftFlow.Current.JobId)) await completion;
+            }
+            orderController?.CloseIdleView();
+        }
     }
 
     void BeginPhase(EPlayPhase phase)

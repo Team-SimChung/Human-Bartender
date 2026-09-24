@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
 /// <summary>
@@ -16,6 +17,7 @@ using VContainer.Unity;
 /// </summary>
 public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
 {
+    [Inject] GameProgressionService progression;
     [Header("Bar Script dataset_id (script/bar/dayN)")]
     [Tooltip("2부 바 대본(script/bar/dayN)이 있는 일차. 목록에 있어도 파일이 없으면 그날 2부를 건너뛴다.")]
     [SerializeField] List<int> barDayNumbers = new() { 0, 1, 2, 3, 99 };
@@ -177,6 +179,9 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
     public async UniTask LoadDataAsync(CancellationToken cancellation = default)
     {
         if (loading) { await WaitUntilLoadedAsync(cancellation); return; }
+        if ((IsLoaded || LastLoadError != null || LoadVersion != 0) &&
+            (progression == null || !progression.CanReloadData))
+            throw new InvalidOperationException("진행 또는 저장 중에는 게임 데이터를 다시 읽을 수 없습니다.");
         Logger.Log("[New] Load Data");
         BeginLoad();
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellation, this.GetCancellationTokenOnDestroy());

@@ -29,18 +29,27 @@ public readonly struct SceneTransitionResult
     public string Message { get; }
     public Exception Error { get; }
     public bool Succeeded { get; }
+    public bool SceneActivated { get; }
 
     internal SceneTransitionResult(
         SceneTransitionOutcome outcome,
         string sceneName,
         string message = null,
-        Exception error = null)
+        Exception error = null) : this(outcome, sceneName, message, error, false) { }
+
+    internal SceneTransitionResult(
+        SceneTransitionOutcome outcome,
+        string sceneName,
+        string message,
+        Exception error,
+        bool sceneActivated)
     {
         Outcome = outcome;
         SceneName = sceneName;
         Message = message;
         Error = error;
         Succeeded = outcome == SceneTransitionOutcome.Succeeded;
+        SceneActivated = sceneActivated || Succeeded;
     }
 }
 

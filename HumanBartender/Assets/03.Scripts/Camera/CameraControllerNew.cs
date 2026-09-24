@@ -55,6 +55,8 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     [Header("Transition")]
     [SerializeField] private float defaultTransitionDuration = 1f;
     [SerializeField] private AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [Tooltip("줌 도중 Pixel Perfect 렌더 크기를 고정하고 Cinemachine 렌즈만 움직인다.")]
+    [SerializeField] private bool keepRenderResolutionDuringZoom;
 
     CancellationTokenSource resolution;
     CancellationTokenSource offset;
@@ -138,17 +140,25 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     {
         token.ThrowIfCancellationRequested();
         EnsureCamera();
+        var target = GetResolution(zoomType);
+        float targetSize = ResToOrthoSize(target);
+        if (resolution == null && pixelPerfectCamera.enabled &&
+            (keepRenderResolutionDuringZoom ||
+             pixelPerfectCamera.refResolutionX == target.x && pixelPerfectCamera.refResolutionY == target.y) &&
+            Mathf.Approximately(vcam.Lens.OrthographicSize, targetSize))
+            return;
         CancelResolution();
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         resolution = source;
         CaptureResolution();
-        var target = GetResolution(zoomType);
         float start = vcam.Lens.OrthographicSize;
-        float targetSize = ResToOrthoSize(target);
         bool completed = false;
         try
         {
-            pixelPerfectCamera.enabled = false;
+            if (keepRenderResolutionDuringZoom)
+                pixelPerfectCamera.CorrectCinemachineOrthoSize(start);
+            else
+                pixelPerfectCamera.enabled = false;
             for (float elapsed = 0; elapsed < duration;)
             {
                 source.Token.ThrowIfCancellationRequested();
@@ -156,11 +166,19 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
                 var lens = vcam.Lens;
                 lens.OrthographicSize = Mathf.Lerp(start, targetSize, SafeCurve(curve).Evaluate(Mathf.Clamp01(elapsed / duration)));
                 vcam.Lens = lens;
-                InvalidateConfinerCache();
+                InvalidateConfinerLensCache();
                 await UniTask.Yield(source.Token);
             }
             source.Token.ThrowIfCancellationRequested();
-            SetResolution(target);
+            if (keepRenderResolutionDuringZoom)
+            {
+                var lens = vcam.Lens;
+                lens.OrthographicSize = targetSize;
+                vcam.Lens = lens;
+                InvalidateConfinerLensCache();
+            }
+            else
+                SetResolution(target);
             completed = true;
         }
         finally { FinishResolution(source, !completed); }
@@ -180,7 +198,7 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
                 pixelPerfectCamera.enabled = enabled;
             }
             if (vcam != null) vcam.Lens = lens;
-            InvalidateConfinerCache();
+            InvalidateConfinerLensCache();
         };
     }
     // 이전 전환을 복원한 뒤 다음 전환이 화면을 소유한다.
@@ -205,7 +223,7 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
         pixelPerfectCamera.refResolutionY = value.y;
         pixelPerfectCamera.enabled = true;
         SyncLensToPPC();
-        InvalidateConfinerCache();
+        InvalidateConfinerLensCache();
     }
     void EnsureCamera()
     {
@@ -230,5 +248,5 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
         lens.OrthographicSize = ResToOrthoSize(new Vector2Int(pixelPerfectCamera.refResolutionX, pixelPerfectCamera.refResolutionY));
         vcam.Lens = lens;
     }
-    void InvalidateConfinerCache() { if (confiner != null) confiner.InvalidateBoundingShapeCache(); }
+    void InvalidateConfinerLensCache() { if (confiner != null) confiner.InvalidateLensCache(); }
 }

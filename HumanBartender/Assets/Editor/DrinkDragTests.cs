@@ -80,7 +80,10 @@ public class DrinkDragTests
             item.OnBeginDrag(null);
             item.MarkServed();
             go.SetActive(false);
-            go.SendMessage("OnDisable"); // EditMode에서도 수명 종료 경로를 검증한다.
+            // EditMode에서는 비활성 오브젝트에 SendMessage를 보낼 수 없으므로 수명 콜백을 직접 확인한다.
+            typeof(DrinkDragItem).GetMethod("OnDisable",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(item, null);
             item.OnEndDrag(null);
             Assert.AreEqual(1, returned);
         }

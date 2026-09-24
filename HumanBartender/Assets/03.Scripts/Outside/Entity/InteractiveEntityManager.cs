@@ -25,7 +25,17 @@ public class InteractiveEntityManager : MonoBehaviour
     readonly Dictionary<string, InteractiveEntity> entities = new(StringComparer.Ordinal);
     readonly Dictionary<string, SpotPoint> sceneSpots = new(StringComparer.Ordinal);
     readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
+    readonly UniTaskCompletionSource<bool> readiness = new();
     public bool IsReady { get; private set; }
+    public string InitializationError { get; private set; }
+    public bool IsSafeForSave => IsReady && (runner == null || !runner.IsRunning) &&
+        entities.Values.All(entity => entity == null || !entity.IsInteracting);
+    public UniTask<bool> WaitUntilReadyAsync() => readiness.Task;
+    public void ReportArrivalFailure(string reason)
+    {
+        IsReady = false;
+        InitializationError = string.IsNullOrWhiteSpace(reason) ? "도착 후 화면 전환에 실패했습니다." : reason;
+    }
 
     async void Start()
     {
@@ -54,14 +64,24 @@ public class InteractiveEntityManager : MonoBehaviour
                     npc.Init(OnInteracted, OnRefreshCondition, OnTrackedText, runner, presenter, this);
                 else entity.Init(OnInteracted, OnRefreshCondition);
             }
+            RefreshEntityCore();
+            if (player == null || !player.TryGetComponent<Player>(out var actor) || !actor.TrySetPosition())
+                throw new InvalidOperationException("Player 또는 현재 씬의 안전 시작 위치가 연결되지 않았습니다.");
             soundManager?.PlayBGM("BGM_outside");
             IsReady = true;
-            RefreshEntity();
-            if (player != null && player.TryGetComponent<Player>(out var actor)) actor.setpos();
+            readiness.TrySetResult(true);
         }
-        catch (OperationCanceledException) { }
-        catch (Exception e) { IsReady = false; Debug.LogError($"[EntityManager] 초기화 실패: {e}"); }
+        catch (OperationCanceledException) { readiness.TrySetResult(false); }
+        catch (Exception e)
+        {
+            IsReady = false;
+            InitializationError = e.Message;
+            readiness.TrySetResult(false);
+            Debug.LogError($"[EntityManager] 초기화 실패: {e}");
+        }
     }
+
+    void OnDestroy() => readiness.TrySetResult(false);
 
     // 같은 source_id는 높은 priority, 동률이면 고정 ID 순으로 선택한다.
     public static NewInteractPointData? SelectDefinition(IEnumerable<NewInteractPointData> rows,
@@ -76,7 +96,23 @@ public class InteractiveEntityManager : MonoBehaviour
     public void RefreshEntity()
     {
         if (!IsReady) return;
+        try { RefreshEntityCore(); }
+        catch (Exception error)
+        {
+            IsReady = false;
+            InitializationError = error.Message;
+            Debug.LogError($"[EntityManager] 필수 상호작용 갱신 실패: {error}");
+        }
+    }
+
+    void RefreshEntityCore()
+    {
         var rows = InteractPointData.interactPointData ?? Array.Empty<NewInteractPointData>();
+        string requiredSource = gameObject.scene.name == "Home"
+            ? GameStateManager.Instance.GameFlow == EGameFlow.CommuteOut ? "home_sofa" : "home_exit_door"
+            : null;
+        bool requiredReady = requiredSource == null;
+        string requiredError = null;
         foreach (var pair in entities)
         {
             var target = pair.Value;
@@ -86,6 +122,8 @@ public class InteractiveEntityManager : MonoBehaviour
                 var selected = SelectDefinition(rows, pair.Key, GameStateManager.Instance.GameFlow, conditionUtil.CheckRequired);
                 if (!selected.HasValue)
                 {
+                    if (pair.Key == requiredSource)
+                        requiredError = $"필수 Home 상호작용 데이터가 없습니다: {requiredSource}";
                     target.BindContent(null, null, false);
                     target.gameObject.SetActive(false);
                     continue;
@@ -111,6 +149,11 @@ public class InteractiveEntityManager : MonoBehaviour
                 if (row.ActionType != EActionType.None && !target.SupportsAction(row))
                     throw new InvalidOperationException($"{target.GetType().Name} cannot run {row.ActionType}/{row.ActionRef} ({row.Id})");
                 target.BindContent(row, dialogue, allowed);
+                if (pair.Key == requiredSource)
+                {
+                    requiredReady = allowed;
+                    if (!allowed) requiredError = $"필수 Home 상호작용을 사용할 수 없습니다: {requiredSource}";
+                }
                 target.ApplySpot(spot);
                 if (row.Facing is "left" or "right")
                 {
@@ -125,8 +168,21 @@ public class InteractiveEntityManager : MonoBehaviour
                 target.BindContent(null, null, false);
                 target.gameObject.SetActive(false);
                 Debug.LogError($"[EntityManager] {pair.Key}: {e.Message}");
+                if (pair.Key == requiredSource) requiredError = e.Message;
             }
         }
+        if (!requiredReady || requiredError != null)
+            throw new InvalidOperationException(requiredError ?? $"필수 Home 엔티티가 없습니다: {requiredSource}");
+    }
+
+    void OnGUI()
+    {
+        if (string.IsNullOrEmpty(InitializationError)) return;
+        var area = new Rect((Screen.width - 450f) / 2f, 20f, 450f, 110f);
+        GUI.Box(area, "씬 준비에 실패했습니다.");
+        GUI.Label(new Rect(area.x + 15f, area.y + 28f, 420f, 40f), InitializationError);
+        if (GUI.Button(new Rect(area.x + 125f, area.y + 70f, 200f, 30f), "타이틀로 돌아가기"))
+            SceneTransitionManager.Instance?.LoadScene("Main");
     }
 
     NewInteractDialogueFlowData? SelectDialogue(NewInteractPointData row)

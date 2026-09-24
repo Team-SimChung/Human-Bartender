@@ -71,7 +71,7 @@ public class GuestManager : MonoBehaviour
     NewBalanceConfig Config => Balance.Config;
 
     /// <summary>당일 매출 누계. 잔별 팝업 없이 값만 쌓아 두고, 화면 표시는 2부 종료 뒤 정산 화면 몫이다.</summary>
-    readonly DailySales dailySales = new();
+    [Inject] DailySales dailySales;
 
     BarReputation reputation;
 
@@ -81,6 +81,7 @@ public class GuestManager : MonoBehaviour
     GuestAppearanceBuilder appearanceBuilder;
 
     readonly Queue<Guest> guestQueue = new();
+    readonly HashSet<Guest> releasedGuests = new();
     readonly Dictionary<GuestSlot, CancellationTokenSource> patienceCtsBySlot = new();
 
     /// <summary>자리별 다음 잡담(idle) 시각. BarOperationClock 기준이라 제조 중에는 차례가 오지 않는다.</summary>
@@ -89,11 +90,12 @@ public class GuestManager : MonoBehaviour
     /// <summary>상황·목소리별로 직전에 고른 대사. 같은 줄이 연달아 나오는 것을 줄이는 데 쓴다.</summary>
     readonly Dictionary<string, string> lastBarkTextByKey = new();
     CancellationTokenSource lunaBarkCts;
+    CancellationTokenSource appearanceLoads = new();
 
     public int QueuedGuestCount => guestQueue.Count;
 
     /// <summary>당일 매출 누계. 매출 현황 패널이 읽기용으로 쓴다.</summary>
-    public DailySales Sales => dailySales;
+    public DailySales Sales => dailySales ??= new DailySales();
 
     /// <summary>
     /// 현재 바 평판. 처음 쓸 때 만든다 — 시작값이 balance.json에서 오는데 Awake 시점에는 아직 로딩 전일 수 있다.
@@ -105,6 +107,11 @@ public class GuestManager : MonoBehaviour
 
     void OnEnable()
     {
+        if (appearanceLoads.IsCancellationRequested)
+        {
+            appearanceLoads.Dispose();
+            appearanceLoads = new CancellationTokenSource();
+        }
         if (craftFlow == null)
         {
             Debug.LogWarning("[Guest] craftFlow가 비어 있어 제조 중에도 손님 대기 시간이 계속 흐릅니다.");
@@ -117,6 +124,7 @@ public class GuestManager : MonoBehaviour
 
     void OnDisable()
     {
+        appearanceLoads.Cancel();
         if (slots != null && orderController != null)
             foreach (var slot in slots)
                 if (slot != null && slot.CurrentGuest?.CurrentOrder != null)
@@ -191,7 +199,8 @@ public class GuestManager : MonoBehaviour
     {
         int day = GameStateManager.Instance.CurrentDay;
         guestQueue.Clear();
-        dailySales.Reset(); // 하루가 새로 시작되므로 매출 누계도 비운다.
+        releasedGuests.Clear();
+        Sales.Reset(); // 하루가 새로 시작되므로 매출 누계도 비운다.
 
         var randomGuests = randomWaveData.randomWaveData
             .Where(wave => wave.Day == day)
@@ -378,30 +387,39 @@ public class GuestManager : MonoBehaviour
     /// </summary>
     async UniTaskVoid LoadAppearanceAsync(Guest guest)
     {
-        var token = this.GetCancellationTokenOnDestroy();
-
-        GuestBodySprites sprites = await LoadSpritesAsync(guest.appearance, token);
-
-        if (!sprites.HasRequiredSlots(guest.appearance))
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(
+            appearanceLoads.Token, this.GetCancellationTokenOnDestroy());
+        var token = linked.Token;
+        GuestBodySprites sprites = null;
+        try
         {
-            Debug.LogWarning($"[Guest] {guest.id}의 파츠를 불러오지 못해 성별 {guest.appearance.Gender}의 " +
-                             "기본 조합으로 바꿉니다.");
-
-            sprites.Release();
-
-            GuestBodyAppearance fallback = AppearanceBuilder.BuildDefault(guest.appearance.Gender);
-
-            if (fallback == null)
+            sprites = await LoadSpritesAsync(guest.appearance, token);
+            if (!sprites.HasRequiredSlots(guest.appearance))
             {
-                Debug.LogError($"[Guest] {guest.id}의 기본 조합도 만들지 못해 자리에 아무 그림도 나오지 않습니다.");
-                return;
+                Debug.LogWarning($"[Guest] {guest.id}의 파츠를 불러오지 못해 성별 {guest.appearance.Gender}의 " +
+                                 "기본 조합으로 바꿉니다.");
+
+                sprites.Release();
+                sprites = null;
+
+                GuestBodyAppearance fallback = AppearanceBuilder.BuildDefault(guest.appearance.Gender);
+
+                if (fallback == null)
+                {
+                    Debug.LogError($"[Guest] {guest.id}의 기본 조합도 만들지 못해 자리에 아무 그림도 나오지 않습니다.");
+                    return;
+                }
+
+                guest.appearance = fallback;
+                sprites = await LoadSpritesAsync(fallback, token);
             }
-
-            guest.appearance = fallback;
-            sprites = await LoadSpritesAsync(fallback, token);
+            token.ThrowIfCancellationRequested();
+            if (!slots.Any(slot => slot != null && slot.CurrentGuest == guest)) return;
+            guest.bodySprites = sprites;
+            sprites = null;
         }
-
-        guest.bodySprites = sprites;
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        finally { sprites?.Release(); }
     }
 
     /// <summary>조합의 모든 슬롯을 한꺼번에 불러온다.</summary>
@@ -410,21 +428,35 @@ public class GuestManager : MonoBehaviour
         var slotOrder = new List<EGuestBodySlot>();
         var loads = new List<UniTask<AsyncOperationHandle<Sprite>?>>();
 
+        Exception loadError = null;
         foreach (var slot in NewGuestBodyDataBase.AllSlots)
         {
             if (!appearance.TryGet(slot, out var part)) continue;
 
             slotOrder.Add(slot);
-            loads.Add(ResourceLoader.TryLoadAsync<Sprite>(part.Sprite, token));
+            loads.Add(LoadPartAsync(part.Sprite));
         }
 
         var handles = await UniTask.WhenAll(loads);
+        if (token.IsCancellationRequested || loadError != null)
+        {
+            foreach (var candidate in handles) { var handle = candidate; ResourceLoader.ReleaseHandle(ref handle); }
+            if (loadError != null) throw loadError;
+            throw new OperationCanceledException(token);
+        }
 
         var sprites = new GuestBodySprites();
         for (int i = 0; i < slotOrder.Count; i++)
             sprites.Set(slotOrder[i], handles[i]);
 
         return sprites;
+
+        async UniTask<AsyncOperationHandle<Sprite>?> LoadPartAsync(string address)
+        {
+            try { return await ResourceLoader.TryLoadAsync<Sprite>(address, token); }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { return null; }
+            catch (Exception error) { loadError ??= error; return null; }
+        }
     }
 
     Guest CreateFromRegularSlot(NewRegularSlotData slot)
@@ -1024,24 +1056,26 @@ public class GuestManager : MonoBehaviour
     /// <summary>지정 슬롯의 손님 응대가 끝났을 때 호출한다. 인내 타이머를 멈추고 슬롯을 비운 뒤 TycoonFlow에 알린다.</summary>
     public void ReleaseGuest(GuestSlot slot)
     {
-        Guest guest = slot.CurrentGuest;
-        if (guest?.CurrentOrder != null) orderController?.CancelOrder(guest.CurrentOrder.Id);
+        Guest guest = slot != null ? slot.CurrentGuest : null;
+        if (guest == null || !releasedGuests.Add(guest)) return;
+        string orderId = guest.CurrentOrder?.Id;
+        StopPatienceTimer(slot);
+        nextIdleChatterSecBySlot.Remove(slot);
+        ClearSlotCharacter(slot, guest);
+        slot.Clear();
+        if (orderId != null) orderController?.CancelOrder(orderId);
 
         // 손님 단위 합계는 회차별 정산이 이미 DailySales에 들어간 값이므로 당일 누계에는 다시 더하지 않는다.
         // 다만 PlayerData의 보유 재화에는 아직 반영되지 않았으므로 주문 세션이 끝날 때 한 번 지급한다(§6.4.7).
-        if (guest != null && guest.settlements.Count > 0)
+        if (guest.settlements.Count > 0)
         {
             int sessionTotal = guest.SessionTotal;
             playerDataWriter.AddMoney(sessionTotal);
 
             Logger.Log($"[Settle] {guest.id} 주문 세션 종료 — {guest.settlements.Count}회차 합계 " +
-                       $"{sessionTotal} (당일 누계 {dailySales.Total}, PlayerData 반영 완료)");
+                       $"{sessionTotal} (당일 누계 {Sales.Total}, PlayerData 반영 완료)");
         }
 
-        StopPatienceTimer(slot);
-        nextIdleChatterSecBySlot.Remove(slot);
-        ClearSlotCharacter(slot, guest);
-        slot.Clear();
         RefreshCraftAvailability();
         GuestReleased?.Invoke(guest);
     }

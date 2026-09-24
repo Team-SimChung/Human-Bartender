@@ -69,6 +69,15 @@ public class CraftManagerTests
         var session = Prepare();
         manager.SelectTool(NewToolIds.MixingGlass); // 오선택 도구도 실제로 실행한다.
         int completed = 0, ended = 0;
+        int preparationCleared = 0;
+        manager.PreparationChanged += current =>
+        {
+            if (current == null)
+            {
+                Assert.IsNull(manager.Preparation);
+                preparationCleared++;
+            }
+        };
         manager.CraftCompleted += (s, j) =>
         {
             Assert.AreEqual(1, executor.EndCount);
@@ -86,6 +95,7 @@ public class CraftManagerTests
         Assert.IsFalse(manager.IsBusy);
         Assert.AreEqual(1, completed);
         Assert.AreEqual(1, ended);
+        Assert.AreEqual(1, preparationCleared);
     }
 
     [Test]
@@ -199,6 +209,8 @@ public class CraftManagerTests
         manager.ToggleIngredient("gin");
         manager.StartGimmicks();
         Assert.AreEqual(ECraftPhase.Completed, first.Phase);
+        Assert.IsFalse(manager.TryBegin("test", out _, out _), "미서빙 잔이 있으면 다음 제조를 막는다.");
+        Assert.IsTrue(manager.ConsumeDrink(manager.PendingDrink));
         manager.BeginCraft("test");
         manager.CancelCurrentCraft();
         Assert.AreEqual(ECraftPhase.Cancelled, manager.Current.Phase);

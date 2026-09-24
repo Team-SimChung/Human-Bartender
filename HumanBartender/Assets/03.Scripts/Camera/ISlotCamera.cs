@@ -1,3 +1,6 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
+
 /// <summary>Play(Bar) 씬에서 카메라를 옮기는 창구.</summary>
 public interface ISlotCamera
 {
@@ -12,4 +15,5 @@ public interface ISlotCamera
     /// BarStoryPresenter가 거기서 읽어 계산한 값을 그대로 넘긴다.
     /// </summary>
     public void MoveToX(float worldX, float dur = 1f);
+    UniTask MoveToXAsync(float worldX, float dur = 1f, CancellationToken token = default);
 }

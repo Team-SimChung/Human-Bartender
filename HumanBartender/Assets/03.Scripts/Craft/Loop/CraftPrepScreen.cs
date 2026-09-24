@@ -119,6 +119,7 @@ public class CraftPrepScreen : MonoBehaviour
         if (craftFlow == null) return;
 
         craftFlow.CraftBegan += OnCraftBegan;
+        craftFlow.PreparationChanged += OnPreparationChanged;
         craftFlow.CraftCompleted += OnCraftCompleted;
         craftFlow.CraftEnded += OnCraftEnded;
     }
@@ -128,6 +129,7 @@ public class CraftPrepScreen : MonoBehaviour
         if (craftFlow == null) return;
 
         craftFlow.CraftBegan -= OnCraftBegan;
+        craftFlow.PreparationChanged -= OnPreparationChanged;
         craftFlow.CraftCompleted -= OnCraftCompleted;
         craftFlow.CraftEnded -= OnCraftEnded;
     }
@@ -205,6 +207,11 @@ public class CraftPrepScreen : MonoBehaviour
     void OnCraftBegan(CraftSession session)
     {
         Open(craftFlow.Preparation);
+    }
+
+    void OnPreparationChanged(CraftPreparation current)
+    {
+        if (current == null) Close();
     }
 
     /// <summary>

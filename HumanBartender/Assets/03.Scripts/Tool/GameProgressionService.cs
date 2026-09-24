@@ -59,7 +59,42 @@ public sealed class GameProgressionService : IGameProgressionService
     readonly ISceneTransitionService sceneTransitions;
     readonly ISceneFadeService sceneFades;
     bool isRunning;
+    bool homeReturned;
+    bool manualSaveRunning;
     UniTaskCompletionSource<GameProgressionResult> barEntryCompletion;
+    bool hasBarEntry;
+
+    public bool CanReloadData => !isRunning && !sceneTransitions.IsBusy &&
+        SceneManager.GetActiveScene().name == "Main";
+
+    public bool IsReturnedHome => homeReturned && !isRunning && !sceneTransitions.IsBusy &&
+        SceneManager.GetActiveScene().name == "Home" && gameState.GameFlow == EGameFlow.CommuteOut;
+
+    public bool TryBeginManualSave(out string reason)
+    {
+        if (manualSaveRunning || !IsReturnedHome)
+        {
+            reason = "귀가 후 Home 준비 완료 상태에서만 저장할 수 있습니다.";
+            return false;
+        }
+        var manager = FindActiveEntityManager("Home");
+        if (manager == null || !manager.IsSafeForSave)
+        {
+            reason = "Home의 상호작용 또는 화면 준비가 완료되지 않았습니다.";
+            return false;
+        }
+        manualSaveRunning = true;
+        isRunning = true;
+        reason = null;
+        return true;
+    }
+
+    public void EndManualSave()
+    {
+        if (!manualSaveRunning) return;
+        manualSaveRunning = false;
+        isRunning = false;
+    }
 
     public GameProgressionService(GameStateManager gameState, ISceneTransitionService sceneTransitions,
         ISceneFadeService sceneFades)
@@ -74,10 +109,171 @@ public sealed class GameProgressionService : IGameProgressionService
         return MoveAsync("Play", "OutSide", EGameFlow.Bar, EGameFlow.CommuteOut, cancellationToken);
     }
 
+    public async UniTask<GameProgressionResult> StartNewGameAsync(Action initializeRuntime,
+        Action restoreRuntime, CancellationToken cancellationToken = default)
+    {
+        if (isRunning || sceneTransitions.IsBusy)
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "다른 진행 작업이 실행 중입니다.");
+        if (SceneManager.GetActiveScene().name != "Main")
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "타이틀에서만 새 게임을 시작할 수 있습니다.");
+        if (initializeRuntime == null || restoreRuntime == null)
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "새 게임 초기화가 연결되지 않았습니다.");
+
+        isRunning = true;
+        int previousDay = gameState.CurrentDay;
+        EGameFlow previousFlow = gameState.GameFlow;
+        bool previousReturned = homeReturned;
+        bool initialized = false;
+        UniTaskCompletionSource<GameProgressionResult> entry = null;
+        GameProgressionResult outcome = default;
+        try
+        {
+            await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
+            if (!NewDataLoadManager.TryGetDayInfo(0, out _))
+                return outcome = new GameProgressionResult(GameProgressionOutcome.Rejected,
+                    "Day 0 데이터가 없습니다.");
+
+            gameState.CurrentDay = 0;
+            gameState.GameFlow = EGameFlow.Bar;
+            initialized = true;
+            initializeRuntime();
+            homeReturned = false;
+            hasBarEntry = true;
+            barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
+
+            // 첫 새 게임은 Day 0의 2부 Play로 직접 들어간다. Play.Start는 이 작업의
+            // 최종 결과를 기다리므로 페이드 도중 국면을 시작하지 않는다.
+            SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Play",
+                cancellationToken: cancellationToken);
+            if (!request.Accepted)
+            {
+                gameState.CurrentDay = previousDay;
+                gameState.GameFlow = previousFlow;
+                homeReturned = previousReturned;
+                restoreRuntime();
+                hasBarEntry = false;
+                barEntryCompletion = null;
+                return outcome = ConvertSceneResult(await request.Completion);
+            }
+
+            SceneTransitionResult result = await request.Completion;
+            if (!result.Succeeded && !result.SceneActivated &&
+                SceneManager.GetActiveScene().name != "Play")
+            {
+                gameState.CurrentDay = previousDay;
+                gameState.GameFlow = previousFlow;
+                homeReturned = previousReturned;
+                restoreRuntime();
+            }
+            return outcome = ConvertSceneResult(result);
+        }
+        catch (OperationCanceledException error)
+        {
+            if (initialized && SceneManager.GetActiveScene().name != "Play")
+            {
+                gameState.CurrentDay = previousDay;
+                gameState.GameFlow = previousFlow;
+                homeReturned = previousReturned;
+                restoreRuntime();
+            }
+            return outcome = new GameProgressionResult(GameProgressionOutcome.Canceled, error.Message, error);
+        }
+        catch (Exception error)
+        {
+            if (initialized && SceneManager.GetActiveScene().name != "Play")
+            {
+                gameState.CurrentDay = previousDay;
+                gameState.GameFlow = previousFlow;
+                homeReturned = previousReturned;
+                restoreRuntime();
+            }
+            return outcome = new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
+        }
+        finally
+        {
+            isRunning = false;
+            entry?.TrySetResult(outcome);
+        }
+    }
+
+    public async UniTask<GameProgressionResult> RestoreHomeAsync(int day, Action applyPlayer,
+        Action restorePlayer, CancellationToken cancellationToken = default)
+    {
+        if (isRunning || sceneTransitions.IsBusy)
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "다른 진행 작업이 실행 중입니다.");
+        string source = SceneManager.GetActiveScene().name;
+        if (source != "Main" && !(source == "Home" && IsReturnedHome))
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "타이틀 또는 귀가 후 Home에서만 불러올 수 있습니다.");
+        if (applyPlayer == null || restorePlayer == null || !NewDataLoadManager.TryGetDayInfo(day, out _))
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "불러올 일차 또는 플레이어 값이 유효하지 않습니다.");
+
+        isRunning = true;
+        int previousDay = gameState.CurrentDay;
+        EGameFlow previousFlow = gameState.GameFlow;
+        bool previousReturned = homeReturned;
+        bool applied = false;
+        try
+        {
+            SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Home",
+                cancellationToken: cancellationToken);
+            if (!request.Accepted) return ConvertSceneResult(await request.Completion);
+            gameState.CurrentDay = day;
+            gameState.GameFlow = EGameFlow.CommuteOut;
+            homeReturned = false;
+            applyPlayer();
+            applied = true;
+            hasBarEntry = false;
+            barEntryCompletion = null;
+            SceneTransitionResult result = await request.Completion;
+            if (!result.Succeeded && !result.SceneActivated)
+            {
+                gameState.CurrentDay = previousDay;
+                gameState.GameFlow = previousFlow;
+                homeReturned = previousReturned;
+                restorePlayer();
+            }
+            if (!result.Succeeded && result.SceneActivated)
+                FindActiveEntityManager("Home")?.ReportArrivalFailure(result.Message);
+            if (!result.Succeeded) return ConvertSceneResult(result);
+            if (!await WaitForHomeReadyAsync())
+                return new GameProgressionResult(GameProgressionOutcome.Failed, "Home의 필수 준비에 실패했습니다.");
+            homeReturned = true;
+            return new GameProgressionResult(GameProgressionOutcome.Succeeded);
+        }
+        catch (Exception error)
+        {
+            if (applied && SceneManager.GetActiveScene().name != "Home")
+            {
+                gameState.CurrentDay = previousDay;
+                gameState.GameFlow = previousFlow;
+                homeReturned = previousReturned;
+                restorePlayer();
+            }
+            return new GameProgressionResult(error is OperationCanceledException
+                ? GameProgressionOutcome.Canceled : GameProgressionOutcome.Failed, error.Message, error);
+        }
+        finally { isRunning = false; }
+    }
+
+    static InteractiveEntityManager FindActiveEntityManager(string sceneName)
+    {
+        foreach (var manager in UnityEngine.Object.FindObjectsByType<InteractiveEntityManager>(
+            UnityEngine.FindObjectsSortMode.None))
+            if (manager.gameObject.scene.name == sceneName) return manager;
+        return null;
+    }
+
+    static async UniTask<bool> WaitForHomeReadyAsync()
+    {
+        var manager = FindActiveEntityManager("Home");
+        return manager != null && await manager.WaitUntilReadyAsync();
+    }
+
     public UniTask<GameProgressionResult> WaitForBarEntryAsync(CancellationToken cancellationToken = default)
     {
-        return barEntryCompletion == null
-            ? UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Succeeded))
+        return !hasBarEntry || barEntryCompletion == null
+            ? UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
+                "이 Play 진입에 대한 진행 작업이 없습니다."))
             : barEntryCompletion.Task.AttachExternalCancellation(cancellationToken);
     }
 
@@ -123,16 +319,29 @@ public sealed class GameProgressionService : IGameProgressionService
                 return outcome = ConvertSceneResult(await request.Completion);
 
             if (destinationScene == "Play")
+            {
+                hasBarEntry = true;
                 barEntryCompletion = barEntry = new UniTaskCompletionSource<GameProgressionResult>();
+            }
 
             // 새 씬의 Start가 전환 Completion보다 먼저 실행되므로, 수락된 요청에 한해서
             // 목적지의 출퇴근 문맥을 준비한다. 씬이 바뀌지 않은 실패는 아래에서 되돌린다.
             gameState.GameFlow = destinationFlow;
             SceneTransitionResult result = await request.Completion;
-            if (!result.Succeeded && SceneManager.GetActiveScene().name != destinationScene)
+            if (!result.Succeeded && !result.SceneActivated &&
+                SceneManager.GetActiveScene().name != destinationScene)
                 gameState.GameFlow = previousFlow;
+            if (!result.Succeeded && result.SceneActivated)
+                FindActiveEntityManager(destinationScene)?.ReportArrivalFailure(result.Message);
             if (result.Succeeded)
                 Debug.Log($"[Progression] {sourceScene} → {destinationScene}, Day {gameState.CurrentDay}, {gameState.GameFlow}");
+            if (result.Succeeded && destinationScene == "Home")
+            {
+                if (!await WaitForHomeReadyAsync())
+                    return outcome = new GameProgressionResult(GameProgressionOutcome.Failed,
+                        "Home의 필수 준비에 실패했습니다.");
+                homeReturned = true;
+            }
             return outcome = ConvertSceneResult(result);
         }
         catch (OperationCanceledException error)
@@ -152,7 +361,6 @@ public sealed class GameProgressionService : IGameProgressionService
             isRunning = false;
             if (barEntry != null)
             {
-                if (ReferenceEquals(barEntryCompletion, barEntry)) barEntryCompletion = null;
                 barEntry.TrySetResult(outcome);
             }
         }
@@ -173,6 +381,7 @@ public sealed class GameProgressionService : IGameProgressionService
         isRunning = true;
         int previousDay = gameState.CurrentDay;
         EGameFlow previousFlow = gameState.GameFlow;
+        bool previousReturned = homeReturned;
         bool changed = false;
         try
         {
@@ -192,13 +401,17 @@ public sealed class GameProgressionService : IGameProgressionService
                 // OutSide.Start보다 먼저 다음 일차 문맥을 준비한다. 씬이 바뀐 뒤의 실패는 되돌리지 않는다.
                 gameState.CurrentDay = nextDay;
                 gameState.GameFlow = EGameFlow.CommuteOut;
+                homeReturned = false;
                 changed = true;
                 SceneTransitionResult result = await request.Completion;
                 if (!result.Succeeded && SceneManager.GetActiveScene().name == "Home")
                 {
                     gameState.CurrentDay = previousDay;
                     gameState.GameFlow = previousFlow;
+                    homeReturned = previousReturned;
                 }
+                if (!result.Succeeded && result.SceneActivated)
+                    FindActiveEntityManager("OutSide")?.ReportArrivalFailure(result.Message);
                 return ConvertSceneResult(result);
             }
 
@@ -210,6 +423,7 @@ public sealed class GameProgressionService : IGameProgressionService
             cancellationToken.ThrowIfCancellationRequested();
             gameState.CurrentDay = nextDay;
             gameState.GameFlow = EGameFlow.CommuteIn;
+            homeReturned = false;
             changed = true;
             refreshConditions?.Invoke();
             await sceneFades.FadeInAsync(0.5f, CancellationToken.None);
@@ -219,14 +433,14 @@ public sealed class GameProgressionService : IGameProgressionService
         catch (OperationCanceledException error)
         {
             if (SceneManager.GetActiveScene().name == "Home")
-                await RestoreFailedSleepAsync(previousDay, previousFlow, changed, refreshConditions);
+                await RestoreFailedSleepAsync(previousDay, previousFlow, previousReturned, changed, refreshConditions);
             return new GameProgressionResult(GameProgressionOutcome.Canceled, error.Message, error);
         }
         catch (Exception error)
         {
             if (SceneManager.GetActiveScene().name != "Home")
                 return new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
-            await RestoreFailedSleepAsync(previousDay, previousFlow, changed, refreshConditions);
+            await RestoreFailedSleepAsync(previousDay, previousFlow, previousReturned, changed, refreshConditions);
             return new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
         }
         finally
@@ -235,13 +449,14 @@ public sealed class GameProgressionService : IGameProgressionService
         }
     }
 
-    async UniTask RestoreFailedSleepAsync(int previousDay, EGameFlow previousFlow, bool changed,
+    async UniTask RestoreFailedSleepAsync(int previousDay, EGameFlow previousFlow, bool previousReturned, bool changed,
         Action refreshConditions)
     {
         if (changed)
         {
             gameState.CurrentDay = previousDay;
             gameState.GameFlow = previousFlow;
+            homeReturned = previousReturned;
             try { refreshConditions?.Invoke(); }
             catch (Exception refreshError) { Debug.LogException(refreshError); }
         }

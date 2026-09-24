@@ -50,6 +50,8 @@ public class CraftFlowController : MonoBehaviour
     public bool IsBusy => running || finishing || IsPreparing;
     public bool CanStartGimmicks => IsPreparing && Current.Actual.CanStartGimmicks;
     public bool IsCraftFlowActive { get; private set; }
+    public CraftedDrink PendingDrink { get; private set; }
+    public event Action<CraftedDrink> DrinkReady;
 
     // 외부 알림
     public event Action<CraftSession> CraftBegan;
@@ -164,6 +166,7 @@ public class CraftFlowController : MonoBehaviour
 
     public string CraftBlockedReason()
     {
+        if (PendingDrink != null) return "아직 내지 않은 잔이 있습니다.";
         foreach (var blocker in blockers.ToArray())
         {
             string reason = blocker();
@@ -196,7 +199,8 @@ public class CraftFlowController : MonoBehaviour
     {
         session = null;
         if (!isActiveAndEnabled) { reason = "제조 컴포넌트가 비활성 상태입니다."; return false; }
-        reason = IsBusy ? "이미 제조 또는 정리가 진행 중입니다." : CraftBlockedReason();
+        reason = IsBusy ? "이미 제조 또는 정리가 진행 중입니다." :
+            PendingDrink != null ? "아직 내지 않은 잔이 있습니다." : CraftBlockedReason();
         if (reason != null) return false;
         if (cocktailData == null || !cocktailData.TryGet(cocktailId, out selected))
         {
@@ -266,6 +270,9 @@ public class CraftFlowController : MonoBehaviour
         if (Preparation == null) return;
         Preparation.Changed -= NotifyPreparationChanged;
         Preparation = null;
+        // 준비 화면의 표시 여부는 이 상태가 정본이다. 기믹이 시작되거나 준비가
+        // 취소되면 구독 화면에도 같은 전환을 알린다.
+        Notify(PreparationChanged, null);
     }
 
     // 기믹 실행과 종료
@@ -372,6 +379,8 @@ public class CraftFlowController : MonoBehaviour
         if (session.Phase == ECraftPhase.Completed)
         {
             Notify<CraftSession, CraftJudgement>(OnCraftJudged, session, Judgement);
+            PendingDrink = new CraftedDrink(session, Judgement, selected);
+            Notify(DrinkReady, PendingDrink);
             Notify(CraftCompleted, session, Judgement);
         }
         SetCraftFlowActive(false);
@@ -381,6 +390,14 @@ public class CraftFlowController : MonoBehaviour
         finishing = false;
         RefreshCraftAvailability();
         completedRequest.TrySetResult(session);
+    }
+
+    public bool ConsumeDrink(CraftedDrink drink)
+    {
+        if (!ReferenceEquals(PendingDrink, drink)) return false;
+        PendingDrink = null;
+        RefreshCraftAvailability();
+        return true;
     }
 
     bool ShouldHideTime(CraftSession session)

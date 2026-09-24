@@ -41,6 +41,9 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     [Tooltip("공통 표시를 기믹보다 얼마나 위에 둘지. 기믹 안에서 쓰는 순서보다 커야 한다.")]
     [SerializeField] int hudSortingOffset = 500;
 
+    [Tooltip("기믹 중 숨길 Play 바 UI 캔버스만 명시한다. 페이드·오류·저장 화면은 여기에 넣지 않는다.")]
+    [SerializeField] Canvas[] barCanvases;
+
     [Inject] IObjectResolver resolver;
 
     CraftTimer runningTimer;
@@ -155,8 +158,7 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     /// <summary>
     /// 바 화면의 UI를 잠시 끈다. 제조 루프가 가진 것(공통 표시, 띄운 기믹)은 건드리지 않는다.
     ///
-    /// 어떤 UI가 있는지 미리 알아 두지 않고 그때그때 찾는다. 바에 UI가 늘어나도 여기를 고칠 일이
-    /// 없고, 무엇을 꺼야 하는지 목록으로 관리하다 빠뜨리는 일도 생기지 않는다.
+    /// 바 UI 소유자가 지정한 캔버스만 끈다.
     /// </summary>
     void HideBarCanvases()
     {
@@ -167,17 +169,9 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
             RestoreBarCanvases();
         }
 
-        var canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-
-        foreach (var canvas in canvases)
+        foreach (var canvas in barCanvases ?? Array.Empty<Canvas>())
         {
-            if (!canvas.isRootCanvas || !canvas.enabled) continue;
-
-            // 겹쳐 그리는 UI만 문제가 된다. 카메라에 붙거나 월드에 놓인 UI는 기믹 카메라가 알아서 지운다.
-            if (canvas.renderMode != RenderMode.ScreenSpaceOverlay) continue;
-
-            // 제조 루프가 가진 것은 남긴다.
-            if (canvas.transform.IsChildOf(transform)) continue;
+            if (canvas == null || !canvas.enabled) continue;
 
             canvas.enabled = false;
             hiddenBarCanvases.Add(canvas);

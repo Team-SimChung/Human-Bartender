@@ -220,6 +220,7 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
     {
         float restoreAlpha = fadeCanvasGroup.alpha;
         bool nativeOperationStarted = false;
+        bool sceneActivated = false;
 
         try
         {
@@ -248,6 +249,7 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
                 throw new InvalidOperationException($"Unity가 씬 작업을 만들지 못했습니다: {sceneName}");
 
             await sceneOperation;
+            sceneActivated = true;
 
             coordinator.TrySetState(operationId, SceneTransitionState.FadingIn);
             await FadeCoreAsync(0f, fadeDuration, CancellationToken.None);
@@ -264,7 +266,8 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         catch (Exception error)
         {
             RestoreVisibleState(restoreAlpha);
-            return new SceneTransitionResult(SceneTransitionOutcome.Failed, sceneName, error.Message, error);
+            return new SceneTransitionResult(SceneTransitionOutcome.Failed, sceneName, error.Message, error,
+                sceneActivated);
         }
         finally
         {
@@ -294,9 +297,9 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         }
         duration = Mathf.Max(0f, duration);
 
-        // 기존 Fade API는 전환 중 호출되면 아무 작업도 하지 않았다. 그 호환성은 유지하되,
-        // 수락 여부가 필요한 씬 전환은 Request* API를 사용한다.
-        if (!coordinator.TryBegin(out long operationId)) return;
+        // 완료를 기다리는 호출자는 실제 연출이 수락되었는지 알아야 한다.
+        if (!coordinator.TryBegin(out long operationId))
+            throw new InvalidOperationException($"다른 화면 전환이 진행 중입니다: #{coordinator.CurrentOperationId}");
 
         float restoreAlpha = fadeCanvasGroup.alpha;
         try

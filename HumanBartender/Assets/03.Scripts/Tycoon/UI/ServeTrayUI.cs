@@ -80,8 +80,10 @@ public class ServeTrayUI : MonoBehaviour
             return;
         }
 
-        craftFlow.CraftCompleted += OnCraftCompleted;
-        craftFlow.AddCraftBlocker(DescribeCraftBlock);
+        craftFlow.DrinkReady += AddDrink;
+        if (craftFlow.PendingDrink != null && items.TrueForAll(item => item == null ||
+            !ReferenceEquals(item.Drink, craftFlow.PendingDrink)))
+            AddDrink(craftFlow.PendingDrink);
     }
 
     void OnDisable()
@@ -93,21 +95,14 @@ public class ServeTrayUI : MonoBehaviour
         if (discardZone != null) discardZone.SetActive(false);
         if (craftFlow == null) return;
 
-        craftFlow.CraftCompleted -= OnCraftCompleted;
-
-        // 트레이가 없으면 막을 사람도 없다. 걸어 둔 채로 꺼지면 제조가 영영 막힌다.
-        craftFlow.RemoveCraftBlocker(DescribeCraftBlock);
+        craftFlow.DrinkReady -= AddDrink;
     }
 
     /// <summary>
     /// 아직 내지 않은 잔이 남아 있으면 새 제조를 막는 이유를 댄다. 막을 것이 없으면 null이다.
     /// </summary>
-    string DescribeCraftBlock()
-    {
-        if (items.Count == 0) return null;
-
-        return $"아직 내지 않은 잔({items[0].Drink.DisplayName})이 트레이에 있어 새로 만들 수 없습니다.";
-    }
+    string DescribeCraftBlock() => craftFlow?.PendingDrink == null ? null :
+        $"아직 내지 않은 잔({craftFlow.PendingDrink.DisplayName})이 트레이에 있습니다.";
 
     /// <summary>잔들이 가로로 늘어설 자리를 화면 하단 가운데에 만든다. 잔 수에 따라 폭은 스스로 늘어난다.</summary>
     void BuildTrayRoot()
@@ -136,22 +131,11 @@ public class ServeTrayUI : MonoBehaviour
     }
 
     /// <summary>제조가 끝나 기록이 확정되면 그 잔을 트레이에 올린다.</summary>
-    void OnCraftCompleted(CraftSession session, CraftJudgement judgement)
-    {
-        if (trayRoot == null) return;
-
-        if (!cocktailData.TryGet(session.SelectedCocktailId, out NewCocktailData cocktail))
-        {
-            Debug.LogError($"[ServeTray] {session.SelectedCocktailId} 칵테일을 데이터에서 찾지 못해 잔을 만들지 못했습니다.");
-            return;
-        }
-
-        AddDrink(new CraftedDrink(session, judgement, cocktail));
-    }
-
     /// <summary>완성한 잔 하나를 트레이 맨 뒤에 올린다.</summary>
     public void AddDrink(CraftedDrink drink)
     {
+        if (trayRoot == null || drink == null || items.Exists(item => item != null && ReferenceEquals(item.Drink, drink)))
+            return;
         DrinkDragItem item = TakeItem();
         item.transform.SetParent(trayRoot, false);
         item.Initialize(drink, rootCanvas, ReturnItem);
@@ -173,6 +157,7 @@ public class ServeTrayUI : MonoBehaviour
     /// <summary>서빙·폐기된 잔을 목록에서 지운다. UI 반환은 드래그 종료 뒤 수행한다.</summary>
     void OnItemRemoved(DrinkDragItem item, DrinkRemovalReason reason)
     {
+        craftFlow?.ConsumeDrink(item.Drink);
         item.Removed -= OnItemRemoved;
         items.Remove(item);
 

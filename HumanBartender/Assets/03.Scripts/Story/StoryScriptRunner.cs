@@ -87,10 +87,17 @@ public class StoryScriptRunner : MonoBehaviour
             var cursor = new StorySceneCursor(script, conditions);
             if (!cursor.IsEmpty)
             {
-                await ApplyFramingAsync(token);
+                bool initialFramingDone = false;
                 while (cursor.TryTakeNext(out NewScriptSceneData scene))
                 {
                     token.ThrowIfCancellationRequested();
+                    if (!initialFramingDone && TryGetFirstExecutableStep(scene, out ENewStepType firstStep))
+                    {
+                        // 첫 동작이 입장이면 그 입장의 프레임을 바로 잡는다. 빈 좌석 프레임을
+                        // 먼저 재생하면 첫 손님 앞에서 카메라가 물러났다가 다시 다가온다.
+                        if (firstStep != ENewStepType.Enter) await ApplyFramingAsync(token);
+                        initialFramingDone = true;
+                    }
                     if (await PlayFromAsync(scene, token)) break;
                 }
             }
@@ -126,6 +133,19 @@ public class StoryScriptRunner : MonoBehaviour
     }
 
     static bool IsAlive(object target) => target != null && (target is not UnityEngine.Object obj || obj != null);
+
+    bool TryGetFirstExecutableStep(NewScriptSceneData scene, out ENewStepType type)
+    {
+        if (scene.Steps != null)
+            foreach (var step in scene.Steps)
+                if (conditions.CheckRequired(step.When))
+                {
+                    type = step.Type;
+                    return true;
+                }
+        type = default;
+        return false;
+    }
 
     /// <summary>
     /// 씬 하나를 재생하고, 선택지가 다른 씬을 가리키면 그쪽으로 이어 간다.

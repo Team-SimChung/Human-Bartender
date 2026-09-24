@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 /// <summary>외부 주문의 단일 진입점. 제조 컨트롤러나 제조 세션을 소유하지 않는다.</summary>
 public class OrderRequestController : MonoBehaviour
@@ -13,8 +14,7 @@ public class OrderRequestController : MonoBehaviour
     [Header("Settlement")]
     [SerializeField] NewCocktailDataSO cocktailData;
     [SerializeField] NewBalanceDataSO balanceData;
-    [Tooltip("기존 장부의 소유자. 새 장부를 만들지 않고 Sales를 공유합니다.")]
-    [SerializeField] GuestManager salesOwner;
+    [Inject] DailySales sales;
 
     sealed class Entry
     {
@@ -27,11 +27,19 @@ public class OrderRequestController : MonoBehaviour
 
     readonly Dictionary<string, Entry> requests = new();
     readonly HashSet<CraftedDrink> consumedDrinks = new();
+    UniTaskCompletionSource idle = CompletedIdle();
+    bool closingPhase;
     IServeProcessor processor;
 
     public int ActiveCount => requests.Count;
+    static UniTaskCompletionSource CompletedIdle()
+    {
+        var source = new UniTaskCompletionSource();
+        source.TrySetResult();
+        return source;
+    }
     protected virtual IServeProcessor Processor => processor ??= new ServeProcessor(
-        cocktailData, balanceData, salesOwner != null ? salesOwner.Sales : null);
+        cocktailData, balanceData, sales);
 
     /// <summary>주문 담당이 호출한다. 콜백은 성공·취소·실패 모두 정리 후 한 번 호출된다.</summary>
     public OrderRequest Request(OrderDetails details, Action<OrderResult> onFinished,
@@ -40,6 +48,7 @@ public class OrderRequestController : MonoBehaviour
         Func<bool> canServe = null)
     {
         if (!isActiveAndEnabled) throw new InvalidOperationException("주문 컨트롤러가 비활성 상태입니다.");
+        if (closingPhase) throw new InvalidOperationException("국면 종료 중에는 주문을 받을 수 없습니다.");
         if (details == null) throw new ArgumentNullException(nameof(details));
         if (requests.ContainsKey(details.Id)) throw new InvalidOperationException("이미 등록된 주문입니다: " + details.Id);
         if (presentation == null)
@@ -54,6 +63,7 @@ public class OrderRequestController : MonoBehaviour
             BeforeSettlement = beforeSettlement,
             CanServe = canServe
         };
+        if (requests.Count == 0) idle = new UniTaskCompletionSource();
         requests.Add(details.Id, entry);
         try { presentation.Open(drink => TryServe(entry, drink)); }
         catch (Exception exception)
@@ -142,6 +152,7 @@ public class OrderRequestController : MonoBehaviour
         finally
         {
             requests.Remove(entry.Request.Id);
+            if (requests.Count == 0) idle.TrySetResult();
             entry.Lifetime.Dispose();
             entry.BeforeSettlement = null;
             entry.CanServe = null;
@@ -153,5 +164,21 @@ public class OrderRequestController : MonoBehaviour
     void OnDisable()
     {
         foreach (var id in new List<string>(requests.Keys)) CancelOrder(id);
+    }
+
+    public async UniTask CancelAllAndWaitAsync()
+    {
+        closingPhase = true;
+        try
+        {
+            foreach (var id in new List<string>(requests.Keys)) CancelOrder(id);
+            await idle.Task;
+        }
+        finally { closingPhase = false; }
+    }
+
+    public void CloseIdleView()
+    {
+        if (requests.Count == 0) servingView?.CloseUi();
     }
 }
