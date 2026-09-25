@@ -2,7 +2,7 @@
 d1_tutorial_chris,2,enter,chris,R,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_enter_2,scene_d1_tutorial_chris,steps,0,steps_format_01
 d1_tutorial_chris,3,say,chris,default,루나.,Luna.,dlg_d1_tutorial_chris_001,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_001,scene_d1_tutorial_chris,steps,1,steps_format_02
 d1_tutorial_chris,4,say,luna,default,네?,Yes?,dlg_d1_tutorial_chris_002,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_002,scene_d1_tutorial_chris,steps,2,steps_format_02
-d1_tutorial_chris,5,say,chris,default,방금 내가 무슨 말을 했는지 듣긴 한 거야?,Did you hear a word of what I just said?,dlg_d1_tutorial_chris_003,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_003,scene_d1_tutorial_chris,steps,3,steps_format_02
+d1_tutorial_chris,5,say,chris,default,방금 내가 무슨 말을 했는지 <fx=reproach>듣긴 한 거야?</fx>,Did you hear a word of what I just said?,dlg_d1_tutorial_chris_003,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_003,scene_d1_tutorial_chris,steps,3,steps_format_02
 d1_tutorial_chris,6,say,luna,default,무슨 말이요?,What did you say?,dlg_d1_tutorial_chris_004,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_004,scene_d1_tutorial_chris,steps,4,steps_format_02
 d1_tutorial_chris,7,say,chris,fail,.....,.....,dlg_d1_tutorial_chris_005,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_005,scene_d1_tutorial_chris,steps,5,steps_format_02
 d1_tutorial_chris,8,say,chris,default,집중해. 이제 와서 관두지도 못한다고.,Focus. It's too late to quit now.,dlg_d1_tutorial_chris_006,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_006,scene_d1_tutorial_chris,steps,6,steps_format_02
@@ -13,7 +13,7 @@ d1_tutorial_chris,12,say,chris,default,"<order>진토닉</order> 하나만 만�
 금방 하는 거니까 지루해도 참아.","Once you can make a single <order>Gin & Tonic</order>, I'll stop checking on you.
 It won't take long, so bear with the boredom.",dlg_d1_tutorial_chris_010,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_010,scene_d1_tutorial_chris,steps,10,steps_format_02
 d1_tutorial_chris,13,say,luna,default,(진과 탄산수를 섞는 게 그렇게 어려운 일일까.),(Can mixing gin and carbonated water really be that difficult?),dlg_d1_tutorial_chris_011,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_011,scene_d1_tutorial_chris,steps,11,steps_format_02
-d1_tutorial_chris,14,say,chris,fail,또 딴생각하지.,You're drifting off again.,dlg_d1_tutorial_chris_012,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_012,scene_d1_tutorial_chris,steps,12,steps_format_02
+d1_tutorial_chris,14,say,chris,fail,<fx=mutter>또</fx> <fx=burst>딴생각하지.</fx>,You're drifting off again.,dlg_d1_tutorial_chris_012,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_012,scene_d1_tutorial_chris,steps,12,steps_format_02
 d1_tutorial_chris,15,say,luna,default,아니요. 바로 시작하죠.,No. Let's start right away.,dlg_d1_tutorial_chris_013,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_013,scene_d1_tutorial_chris,steps,13,steps_format_02
 d1_tutorial_chris,16,say,chris,default,좋아.,Good.,dlg_d1_tutorial_chris_014,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_014,scene_d1_tutorial_chris,steps,14,steps_format_02
 d1_tutorial_chris,17,say,chris,default,"먼저 손님의 주문을 받은 뒤 칵테일을 만드는 상황이 되면
@@ -85,21 +85,21 @@ d1_tutorial_chris,54,order,chris,exact:gin_tonic,진토닉 한 잔. 진을 먼�
 d1_tutorial_chris,55,craft,\N,tutorial:gin_tonic,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_craft_55,scene_d1_tutorial_chris,steps,53,steps_format_03
 d1_tutorial_chris,56,serve,chris,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_serve_56,scene_d1_tutorial_chris,steps,54,steps_format_04
 d1_tutorial_chris,57,say,luna,default,어떤가요?,How is it?,dlg_d1_tutorial_chris_053,grade >= excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_053,scene_d1_tutorial_chris,steps,55,steps_format_05
-d1_tutorial_chris,58,say,chris,success,…생각보다 재능이 있군.,...More talent than I expected.,dlg_d1_tutorial_chris_054,grade >= excellent,affinity.chris += 5,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_054,scene_d1_tutorial_chris,steps,56,steps_format_06
+d1_tutorial_chris,58,say,chris,success,…생각보다 <fx=admire>재능이 있군</fx>.,...More talent than I expected.,dlg_d1_tutorial_chris_054,grade >= excellent,affinity.chris += 5,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_054,scene_d1_tutorial_chris,steps,56,steps_format_06
 d1_tutorial_chris,59,say,luna,default,이제 반복 학습에서 벗어날 수 있나요?,Does this mean I'm free from the repetition drills?,dlg_d1_tutorial_chris_055,grade >= excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_055,scene_d1_tutorial_chris,steps,57,steps_format_05
 d1_tutorial_chris,60,say,chris,default,그래. 기본적인 제조 수업은 끝이야.,Yes. The basic mixing lessons are over.,dlg_d1_tutorial_chris_056,grade >= excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_056,scene_d1_tutorial_chris,steps,58,steps_format_05
 d1_tutorial_chris,61,say,luna,default,어떤가요?,How is it?,dlg_d1_tutorial_chris_057,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_057,scene_d1_tutorial_chris,steps,59,steps_format_05
 d1_tutorial_chris,62,say,chris,default,.....,.....,dlg_d1_tutorial_chris_058,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_058,scene_d1_tutorial_chris,steps,60,steps_format_05
 d1_tutorial_chris,63,say,luna,default,맛이 이상합니까?,Does it taste wrong?,dlg_d1_tutorial_chris_059,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_059,scene_d1_tutorial_chris,steps,61,steps_format_05
-d1_tutorial_chris,64,say,chris,default,괜찮군.,Not bad.,dlg_d1_tutorial_chris_060,grade >= good && grade < excellent,affinity.chris += 1,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_060,scene_d1_tutorial_chris,steps,62,steps_format_06
+d1_tutorial_chris,64,say,chris,default,<fx=approve>괜찮군</fx>.,Not bad.,dlg_d1_tutorial_chris_060,grade >= good && grade < excellent,affinity.chris += 1,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_060,scene_d1_tutorial_chris,steps,62,steps_format_06
 d1_tutorial_chris,65,say,chris,default,이 정도면 기본적인 제조법은 익힌 것 같아.,"At this level, I'd say you've got the basics down.",dlg_d1_tutorial_chris_061,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_061,scene_d1_tutorial_chris,steps,63,steps_format_05
 d1_tutorial_chris,66,say,luna,default,다행이네요.,That's a relief.,dlg_d1_tutorial_chris_062,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_062,scene_d1_tutorial_chris,steps,64,steps_format_05
 d1_tutorial_chris,67,say,chris,default,"아직 개선할 부분은 있지만, 나머지는 일하면서 익히면 되겠어.","There's still room to improve, but the rest you can pick up on the job.",dlg_d1_tutorial_chris_063,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_063,scene_d1_tutorial_chris,steps,65,steps_format_05
 d1_tutorial_chris,68,say,luna,default,확인했습니다.,Acknowledged.,dlg_d1_tutorial_chris_064,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_064,scene_d1_tutorial_chris,steps,66,steps_format_05
-d1_tutorial_chris,69,say,chris,fail,아직 손님에게 내놓기엔 완성도가 부족한데.,This isn't ready to serve to a customer yet.,dlg_d1_tutorial_chris_065,grade < good,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_065,scene_d1_tutorial_chris,steps,67,steps_format_05
+d1_tutorial_chris,69,say,chris,fail,아직 손님에게 내놓기엔 완성도가 <fx=disappoint>부족한데</fx>.,This isn't ready to serve to a customer yet.,dlg_d1_tutorial_chris_065,grade < good,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_065,scene_d1_tutorial_chris,steps,67,steps_format_05
 d1_tutorial_chris,70,say,luna,default,레시피와 제조 과정을 다시 확인하겠습니다.,I'll check the recipe and how I made it again.,dlg_d1_tutorial_chris_066,grade < good,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_066,scene_d1_tutorial_chris,steps,68,steps_format_05
 d1_tutorial_chris,71,say,chris,default,"이런 식이면 곤란한데, 루나.
-제대로 만들어.","This won't do, Luna.
+<fx=command>제대로 만들어.</fx>","This won't do, Luna.
 Make it properly.",dlg_d1_tutorial_chris_067,grade < good,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_067,scene_d1_tutorial_chris,steps,69,steps_format_05
 d1_tutorial_chris,72,say,luna,default,"네, 알겠습니다.","Yes, understood.",dlg_d1_tutorial_chris_068,grade < good,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_068,scene_d1_tutorial_chris,steps,70,steps_format_05
 d1_tutorial_chris,73,say,luna,default,(<order>진토닉</order> 한 잔이야… 제대로 확인해 보자.),(One <order>Gin & Tonic</order>... let's check it properly this time.),dlg_d1_tutorial_chris_069,grade < good,flag.d1_tutorial_retry = true,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_069,scene_d1_tutorial_chris,steps,71,steps_format_06
@@ -124,7 +124,7 @@ d1_tutorial_chris,85,say,chris,default,"거기에 맛을 기준으로 <name>필�
 그걸 활용해도 좋고.","There's also a <name>filter</name> that sorts by flavor.
 Feel free to lean on that, too.",dlg_d1_tutorial_wrap_009,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_009,scene_d1_tutorial_chris,steps,83,steps_format_02
 d1_tutorial_chris,86,say,luna,default,노력해 보겠습니다.,I will try.,dlg_d1_tutorial_wrap_010,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_010,scene_d1_tutorial_chris,steps,84,steps_format_02
-d1_tutorial_chris,87,say,chris,default,좋아. 처음에는 그렇게 시작하는 거지.,Good. That's how everyone starts.,dlg_d1_tutorial_wrap_011,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_011,scene_d1_tutorial_chris,steps,85,steps_format_02
+d1_tutorial_chris,87,say,chris,default,<fx=encourage>좋아.</fx> 처음에는 그렇게 시작하는 거지.,Good. That's how everyone starts.,dlg_d1_tutorial_wrap_011,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_011,scene_d1_tutorial_chris,steps,85,steps_format_02
 d1_tutorial_chris,88,say,luna,default,아직 배워야 될 게 또 남았나요?,Is there more I need to learn?,dlg_d1_tutorial_wrap_012,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_012,scene_d1_tutorial_chris,steps,86,steps_format_02
 d1_tutorial_chris,89,say,chris,default,"음... 바텐더의 마음가짐이라든가,
 손님 대하는 방법 같은 것들도 알려 줘야 하지만…","Hm... there's still the bartender's mindset,

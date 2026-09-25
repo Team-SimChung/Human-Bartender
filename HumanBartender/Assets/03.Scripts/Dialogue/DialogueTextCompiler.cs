@@ -58,6 +58,7 @@ public static class DialogueTextCompiler
         public string Name;
         public Style Previous;
         public string TmpClose;
+        public float PauseAfter;
     }
 
     const int MaxLength = 8192;
@@ -118,9 +119,11 @@ public static class DialogueTextCompiler
                     }
                     bool closing = token.StartsWith("/", StringComparison.Ordinal);
                     string head = (closing ? token.Substring(1) : token).Split(Spaces, 2)[0];
+                    bool preset = !closing && token.StartsWith("fx=", StringComparison.Ordinal) || closing && token == "/fx";
+                    if (preset) head = "fx";
                     bool alias = tags != null && tags.textTagData != null && tags.textTagData.TryGetValue(head, out _);
                     bool effect = head is "shake" or "wave" or "pop";
-                    if (alias || effect)
+                    if (alias || effect || preset)
                     {
                         if (closing)
                         {
@@ -129,6 +132,7 @@ public static class DialogueTextCompiler
                             Frame frame = stack[stack.Count - 1];
                             stack.RemoveAt(stack.Count - 1);
                             if (frame.TmpClose != null) AppendTag(frame.TmpClose, output, styles);
+                            AddWait(waits, output.Length, frame.PauseAfter);
                             current = frame.Previous;
                         }
                         else
@@ -136,16 +140,20 @@ public static class DialogueTextCompiler
                             if (stack.Count >= MaxDepth) throw new ArgumentException($"Tag depth exceeds {MaxDepth} at UTF-16 {i}.");
                             Style next = current;
                             string tmpOpen = null, tmpClose = null;
+                            float pauseBefore = 0, pauseAfter = 0;
                             if (effect) ParseEffect(head, token, settings, ref next, i);
+                            else if (preset) ParsePreset(token, settings, ref next,
+                                out tmpOpen, out tmpClose, out pauseBefore, out pauseAfter, i);
                             else ParseAlias(head, tags.textTagData[head], ref next, out tmpOpen, out tmpClose, i);
-                            stack.Add(new Frame { Name = head, Previous = current, TmpClose = tmpClose });
+                            stack.Add(new Frame { Name = head, Previous = current, TmpClose = tmpClose, PauseAfter = pauseAfter });
+                            AddWait(waits, output.Length, pauseBefore);
                             if (tmpOpen != null) AppendTag(tmpOpen, output, styles);
                             current = next;
                         }
                         i = end + 1;
                         continue;
                     }
-                    if (head is "shake" or "wave" or "pop")
+                    if (head is "shake" or "wave" or "pop" || head.StartsWith("fx", StringComparison.Ordinal))
                         throw new ArgumentException($"Invalid <{head}> at UTF-16 {i}.");
                     // Existing TMP tags, including color, size, sprite and br, remain TMP's responsibility.
                     AppendTag(raw.Substring(i, end - i + 1), output, styles);
@@ -167,6 +175,66 @@ public static class DialogueTextCompiler
 
     static void AppendTag(string tag, StringBuilder output, List<Style> styles)
     { foreach (char ch in tag) Append(ch, default, output, styles); }
+
+    static void AddWait(Dictionary<int, float> waits, int source, float seconds)
+    {
+        if (seconds <= 0) return;
+        waits.TryGetValue(source, out float previous);
+        waits[source] = previous + seconds;
+    }
+
+    static void ParsePreset(string token, DialoguePresentationSettings settings, ref Style style,
+        out string open, out string close, out float pauseBefore, out float pauseAfter, int position)
+    {
+        string id = token.Substring(3);
+        if (id.Length == 0 || !char.IsLower(id[0]))
+            throw new ArgumentException($"Invalid FX preset name at UTF-16 {position}.");
+        foreach (char ch in id)
+            if (!(ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_'))
+                throw new ArgumentException($"Invalid FX preset name at UTF-16 {position}.");
+        DialogueFxPreset fx = settings != null ? settings.GetPreset(id) :
+            throw new ArgumentException($"No dialogue FX settings for '{id}' at UTF-16 {position}.");
+        if (!Valid(fx.SizePercent) || fx.SizePercent < 1 || fx.SizePercent > 400 ||
+            !Valid(fx.TypingIntervalMs) || fx.TypingIntervalMs < 0 || fx.TypingIntervalMs > 60000 ||
+            !Valid(fx.PauseBeforeMs) || fx.PauseBeforeMs < 0 || fx.PauseBeforeMs > 60000 ||
+            !Valid(fx.PauseAfterMs) || fx.PauseAfterMs < 0 || fx.PauseAfterMs > 60000 ||
+            !Valid(fx.Amplitude) || fx.Amplitude < 0 || fx.Amplitude > 100 ||
+            !Valid(fx.Frequency) || fx.Frequency < 0 || fx.Frequency > 120 ||
+            fx.Motion is not (DialogueFxMotion.None or DialogueFxMotion.Shake or DialogueFxMotion.Wave))
+            throw new ArgumentException($"Invalid FX preset '{id}' at UTF-16 {position}.");
+        string color = fx.ColorHex;
+        if (!string.IsNullOrEmpty(color))
+        {
+            if (color.Length != 7 || color[0] != '#')
+                throw new ArgumentException($"Invalid FX color in '{id}' at UTF-16 {position}.");
+            for (int c = 1; c < color.Length; c++)
+                if (!Uri.IsHexDigit(color[c]))
+                    throw new ArgumentException($"Invalid FX color in '{id}' at UTF-16 {position}.");
+        }
+        if (fx.OverrideSpeed) style.SpeedSeconds = fx.TypingIntervalMs / 1000f;
+        if (fx.Motion == DialogueFxMotion.Shake)
+        {
+            style.Shake = true;
+            style.ShakeAmp = fx.Amplitude;
+            style.ShakeHz = fx.Frequency;
+        }
+        else if (fx.Motion == DialogueFxMotion.Wave)
+        {
+            style.Wave = true;
+            style.WaveAmp = fx.Amplitude;
+            style.WaveHz = fx.Frequency;
+            style.WavePhase = settings.WavePhase;
+        }
+        open = close = null;
+        if (!string.IsNullOrEmpty(color)) { open = $"<color={color}>"; close = "</color>"; }
+        if (fx.SizePercent != 100)
+        {
+            open += "<size=" + fx.SizePercent.ToString(CultureInfo.InvariantCulture) + "%>";
+            close = "</size>" + close;
+        }
+        pauseBefore = fx.PauseBeforeMs / 1000f;
+        pauseAfter = fx.PauseAfterMs / 1000f;
+    }
 
     static bool TryDelay(string token, out float seconds)
     {

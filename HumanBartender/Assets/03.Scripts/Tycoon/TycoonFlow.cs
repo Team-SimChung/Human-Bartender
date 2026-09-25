@@ -27,7 +27,7 @@ public class TycoonFlow : MonoBehaviour, IPlayPhaseFlow
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
             this.GetCancellationTokenOnDestroy());
         var token = linked.Token;
-        // json 로딩이 끝나기를 먼저 기다린다. 로딩은 프레임을 넘겨 가며 도는데 씬의 Start는 그와
+        // CSV 로딩이 끝나기를 먼저 기다린다. 로딩은 프레임을 넘겨 가며 도는데 씬의 Start는 그와
         // 무관하게 먼저 끝나서, 기다리지 않으면 SO에 구워져 있는 빈 배열을 오늘 데이터로 읽는다.
         // 그러면 예외도 없이 "오늘 손님 0명"이 되어 1부를 통째로 건너뛴다.
         await NewDataLoadManager.WaitUntilLoadedAsync(token);

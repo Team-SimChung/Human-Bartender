@@ -21,3 +21,94 @@ MonoBehaviour:
   PopDuration: 0.12
   ReducedMotion: 0
   TypingSoundKey:
+  Presets:
+  - Id: reproach
+    Motion: 1
+    SizePercent: 115
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 20
+    PauseBeforeMs: 150
+    PauseAfterMs: 0
+    Amplitude: 0.8
+    Frequency: 14
+  - Id: mutter
+    Motion: 1
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 0
+    Amplitude: 0.8
+    Frequency: 14
+  - Id: burst
+    Motion: 0
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 20
+    PauseBeforeMs: 100
+    PauseAfterMs: 0
+    Amplitude: 0
+    Frequency: 0
+  - Id: admire
+    Motion: 2
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 120
+    PauseBeforeMs: 180
+    PauseAfterMs: 0
+    Amplitude: 1.2
+    Frequency: 2
+  - Id: approve
+    Motion: 2
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 0
+    Amplitude: 1.1
+    Frequency: 2
+  - Id: disappoint
+    Motion: 1
+    SizePercent: 120
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 120
+    PauseBeforeMs: 180
+    PauseAfterMs: 0
+    Amplitude: 1.1
+    Frequency: 17
+  - Id: command
+    Motion: 1
+    SizePercent: 120
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 20
+    PauseBeforeMs: 250
+    PauseAfterMs: 0
+    Amplitude: 1.1
+    Frequency: 17
+  - Id: encourage
+    Motion: 2
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 120
+    Amplitude: 1.1
+    Frequency: 2
+  - Id: angry
+    Motion: 1
+    SizePercent: 120
+    ColorHex: '#FF6666'
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 0
+    Amplitude: 1.2
+    Frequency: 18

@@ -27,7 +27,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     [SerializeField] UIDialogueChoiceView choiceView;
 
     [Header("Camera")]
-    [Tooltip("자리 수에 따라 화면을 잡는 데 걸리는 시간(§10.1.1 camera_transition_sec). 이동과 줌을 같은 시간 안에서 동시에 진행한다.")]
+    [Tooltip("자리 수에 따라 화면을 잡는 데 걸리는 시간(§10.1.1 camera_transition_sec). Day 0은 이동만, 이후 일차는 이동과 줌을 같은 시간 안에서 진행한다.")]
     [SerializeField] float cameraTransitionSec = 0.8f;
 
     [Header("Data")]
@@ -92,8 +92,8 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     /// <summary>
     /// 앉은 사람 수에 맞춰 화면을 잡는다(§10.1.1).
     ///
-    /// 1명이면 그 자리로 다가가 Sub 화각, 2명이면 두 자리의 중점으로 물러나 Base 화각.
-    /// 이동과 줌을 끈어 실행하지 않고 같은 시간 안에서 함께 건다 — 나눠 부르면 화면이 두 번 움직인다.
+    /// 1명이면 그 자리로, 2명이면 두 자리의 중점으로 이동한다. Day 0은 이전 Play 씬의
+    /// 960×540 화각을 유지하고 위치만 옮긴다. 이후 일차는 자리 수에 맞춰 줌도 함께 진행한다.
     ///
     /// 아무도 없으면 L·R을 담는 기본 프레임에 선다 — 2부 시작 화면이다. 셋 이상은 이미 실행기가
     /// 데이터 오류로 알린 뒤라 건들지 않는다.
@@ -111,14 +111,15 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
 
         if (count > 2) return;
 
-        // 2부 손님은 자리에서 움직이지 않는다. 인원이 바뀌면 카메라만 좁혔다 넓힌다.
+        float targetX;
+        ECameraZoomType targetZoom;
+
+        // 2부 손님은 자리에서 움직이지 않는다. 인원이 바뀌면 카메라가 좌석을 따라간다.
         if (count == 1)
         {
             if (!TryGetSeatX(occupiedSlots[0], out float x)) return;
-
-            await UniTask.WhenAll(
-                cameraZoom.TransitionCameraZoomAsync(ECameraZoomType.Sub, cameraTransitionSec, token: token),
-                slotCamera.MoveToXAsync(x, cameraTransitionSec, token));
+            targetX = x;
+            targetZoom = ECameraZoomType.Sub;
         }
         else
         {
@@ -131,10 +132,16 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             if (!TryGetSeatX(left, out float leftX)) return;
             if (!TryGetSeatX(right, out float rightX)) return;
 
-            await UniTask.WhenAll(
-                cameraZoom.TransitionCameraZoomAsync(ECameraZoomType.Base, cameraTransitionSec, token: token),
-                slotCamera.MoveToXAsync((leftX + rightX) * 0.5f, cameraTransitionSec, token));
+            targetX = (leftX + rightX) * 0.5f;
+            targetZoom = ECameraZoomType.Base;
         }
+
+        if (GameStateManager.Instance.CurrentDay == 0)
+            await slotCamera.MoveToXAsync(targetX, cameraTransitionSec, token);
+        else
+            await UniTask.WhenAll(
+                cameraZoom.TransitionCameraZoomAsync(targetZoom, cameraTransitionSec, token: token),
+                slotCamera.MoveToXAsync(targetX, cameraTransitionSec, token));
 
         // 목표점과 렌즈 보간은 Update에서 끝난다. CinemachineBrain이 LateUpdate에서
         // 실제 카메라에 반영한 다음 대사를 열어야 첫 말풍선 프레임과 카메라 위치가 일치한다.

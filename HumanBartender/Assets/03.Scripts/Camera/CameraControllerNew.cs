@@ -58,6 +58,9 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     [Tooltip("줌 도중 Pixel Perfect 렌더 크기를 고정하고 Cinemachine 렌즈만 움직인다.")]
     [SerializeField] private bool keepRenderResolutionDuringZoom;
 
+    // 캐릭터 리소스 로드 직후 한 프레임이 길어져도 0.8초 이동이 한두 프레임에 끝나지 않게 한다.
+    const float MaxTransitionStep = 1f / 30f;
+
     CancellationTokenSource resolution;
     CancellationTokenSource offset;
     System.Action restoreResolution;
@@ -97,7 +100,7 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
             for (float elapsed = 0; elapsed < duration;)
             {
                 source.Token.ThrowIfCancellationRequested();
-                elapsed += Time.deltaTime;
+                elapsed += Mathf.Min(Time.deltaTime, MaxTransitionStep);
                 cameraAnchor.localPosition = Vector3.Lerp(start, targetOffset, SafeCurve(curve).Evaluate(Mathf.Clamp01(elapsed / duration)));
                 await UniTask.Yield(source.Token);
             }

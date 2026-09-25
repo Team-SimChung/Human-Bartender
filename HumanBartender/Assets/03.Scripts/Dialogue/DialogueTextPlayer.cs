@@ -202,7 +202,8 @@ static class DialogueTextFallback
                     string tag = raw.Substring(i + 1, end - i - 1);
                     if (tag.StartsWith("shake", StringComparison.Ordinal) || tag.StartsWith("/shake", StringComparison.Ordinal) ||
                         tag.StartsWith("wave", StringComparison.Ordinal) || tag.StartsWith("/wave", StringComparison.Ordinal) ||
-                        tag.StartsWith("pop", StringComparison.Ordinal) || tag.StartsWith("/pop", StringComparison.Ordinal))
+                        tag.StartsWith("pop", StringComparison.Ordinal) || tag.StartsWith("/pop", StringComparison.Ordinal) ||
+                        tag.StartsWith("fx=", StringComparison.Ordinal) || tag == "/fx")
                     { i = end; continue; }
                     if (tag is "slow" or "/slow" or "fast" or "/fast" or "big" or "/big" or
                         "small" or "/small" or "world" or "/world" or "name" or "/name" or

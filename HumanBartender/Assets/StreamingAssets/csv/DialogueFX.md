@@ -2,6 +2,23 @@
 
 같은 대사와 말풍선 안에서 원하는 글자만 감싸세요. 효과 태그는 대사 순서, 플래그, 보상에 영향을 주지 않습니다.
 
+## 기획자용 프리셋
+
+대사 CSV 또는 원본 워크북에는 강조할 구절과 프리셋 이름만 적습니다.
+
+```text
+방금 내가 무슨 말을 했는지 <fx=reproach>듣긴 한 거야?</fx>
+…생각보다 <fx=admire>재능이 있군</fx>.
+```
+
+Unity Project 창의 `Assets/Resources/DialoguePresentationSettings.asset`을 선택하면 `Presets` 목록에서 이름별 색, 크기, 떨림/웨이브, 타이핑 간격, 앞뒤 쉼을 조절할 수 있습니다. 여러 대사가 같은 이름을 쓰면 에셋 수정 한 번으로 함께 바뀝니다. `PauseBeforeMs`는 감싼 구절의 첫 글자 앞, `PauseAfterMs`는 다음 글자 앞에 적용됩니다. `OverrideSpeed`를 끄면 말풍선의 기본 타이핑 속도를 따릅니다. 프리셋 ID는 소문자 영문으로 시작하고 소문자·숫자·밑줄만 사용합니다. 없는 이름과 중복 이름은 오류로 보고합니다.
+
+현재 이름: `reproach`(따짐), `mutter`(투덜거림), `burst`(빠른 말), `admire`(감탄), `approve`(긍정), `disappoint`(아쉬움), `command`(명령), `encourage`(격려), `angry`(화난 손님). 문맥에 맞는 기존 이름을 재사용하고, 다른 연출이 필요할 때만 에셋에 새 이름을 추가하세요. 게임 CSV를 직접 수정했다면 원본 워크북에도 같은 문구를 반영해야 다음 내보내기에서 유지됩니다.
+
+## 고급 직접 태그
+
+기존 직접 태그도 계속 사용할 수 있습니다. 한 문장에만 필요한 특수 연출에 사용하세요.
+
 ```text
 이 잔을 <color=#FF5555><size=130%><shake amp=1.5 hz=18>또</shake></size></color> 버렸다고<pop peak=1.2 duration=0.12><size=150%>!</size></pop>
 ```

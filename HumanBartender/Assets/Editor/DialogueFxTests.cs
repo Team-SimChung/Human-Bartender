@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
@@ -42,9 +44,10 @@ public sealed class DialogueFxTests
         UnityEngine.Object.DestroyImmediate(tags);
     }
 
-    DialogueTextCompiler.Line Bind(string raw)
+    DialogueTextCompiler.Line Bind(string raw, float defaultSpeed = 0.05f,
+        DialoguePresentationSettings settings = null)
     {
-        var line = DialogueTextCompiler.Compile(raw, tags, null);
+        var line = DialogueTextCompiler.Compile(raw, tags, settings, null, defaultSpeed);
         label.text = line.Text;
         label.ForceMeshUpdate(true, true);
         line.Bind(label.textInfo);
@@ -62,6 +65,110 @@ public sealed class DialogueFxTests
         Assert.That(line.Characters[2].Shake, Is.False);
         Assert.That(line.Text, Does.Contain("<size=130%>"));
         Assert.That(line.Text, Does.Contain("<color=#FF5555>"));
+    }
+
+    [Test]
+    public void DayOneTouchyUrgeBarkFromCsvEmphasizesItsAccusation()
+    {
+        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
+        var barks = CsvDataReader.LoadDirectory(directory).Read<NewBarkData[]>("barks");
+        string raw = barks.Single(b => b.VoiceId == "touchy" && b.Situation == "call_urge" &&
+            b.Text.Ko.StartsWith("사람 ", StringComparison.Ordinal)).Text.Ko;
+        var line = Bind(raw, settings: DialoguePresentationSettings.Shared);
+        Assert.That(label.GetParsedText(), Is.EqualTo("사람 무시하나 지금..."));
+        Assert.That(line.Characters.Length, Is.EqualTo(13));
+        for (int i = 0; i < line.Characters.Length; i++)
+            Assert.That(line.Characters[i].Shake, Is.EqualTo(i >= 3 && i <= 6), $"glyph {i}");
+
+        var info = label.textInfo;
+        var normal = info.characterInfo[0];
+        var emphasized = info.characterInfo[3];
+        Assert.That(emphasized.ascender - emphasized.descender,
+            Is.GreaterThan((normal.ascender - normal.descender) * 1.1f));
+        var color = info.meshInfo[emphasized.materialReferenceIndex].colors32[emphasized.vertexIndex];
+        Assert.That(color.r, Is.GreaterThan(color.g));
+
+        var animator = textObject.AddComponent<DialogueTextAnimator>();
+        animator.Bind(label, line, false);
+        Vector3 beforeEmphasis = info.meshInfo[emphasized.materialReferenceIndex].vertices[emphasized.vertexIndex];
+        Vector3 beforeNormal = info.meshInfo[normal.materialReferenceIndex].vertices[normal.vertexIndex];
+        animator.SetVisible(line.Characters.Length, 1f, false);
+        animator.SetVisible(line.Characters.Length, 1.042f, false);
+        Assert.That(info.meshInfo[emphasized.materialReferenceIndex].vertices[emphasized.vertexIndex],
+            Is.Not.EqualTo(beforeEmphasis));
+        Assert.That(info.meshInfo[normal.materialReferenceIndex].vertices[normal.vertexIndex],
+            Is.EqualTo(beforeNormal));
+        animator.Clear();
+    }
+
+    [Test]
+    public void DayZeroChrisCsvKeepsWordsAndAppliesEffectsOnlyToEmotionalPhrases()
+    {
+        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
+        var script = CsvDataReader.LoadDirectory(directory).Read<NewDayScriptBase>("script/bar/day0");
+        var steps = script.Scenes.SelectMany(scene => scene.Steps)
+            .Where(step => step.DialogueId != null).ToDictionary(step => step.DialogueId);
+        var cases = new[]
+        {
+            (id: "dlg_d1_tutorial_chris_003", plain: "방금 내가 무슨 말을 했는지 듣긴 한 거야?", phrase: "듣긴 한 거야?", shake: true, wave: false, enlarged: true),
+            (id: "dlg_d1_tutorial_chris_012", plain: "또 딴생각하지.", phrase: "또", shake: true, wave: false, enlarged: false),
+            (id: "dlg_d1_tutorial_chris_054", plain: "…생각보다 재능이 있군.", phrase: "재능이 있군", shake: false, wave: true, enlarged: false),
+            (id: "dlg_d1_tutorial_chris_060", plain: "괜찮군.", phrase: "괜찮군", shake: false, wave: true, enlarged: false),
+            (id: "dlg_d1_tutorial_chris_065", plain: "아직 손님에게 내놓기엔 완성도가 부족한데.", phrase: "부족한데", shake: true, wave: false, enlarged: true),
+            (id: "dlg_d1_tutorial_chris_067", plain: "이런 식이면 곤란한데, 루나.\n제대로 만들어.", phrase: "제대로 만들어.", shake: true, wave: false, enlarged: true),
+            (id: "dlg_d1_tutorial_wrap_011", plain: "좋아. 처음에는 그렇게 시작하는 거지.", phrase: "좋아.", shake: false, wave: true, enlarged: false),
+        };
+
+        foreach (var item in cases)
+        {
+            var step = steps[item.id];
+            Assert.That(step.Actor, Is.EqualTo("chris"), item.id);
+            var line = Bind(step.Text.Value.Ko, settings: DialoguePresentationSettings.Shared);
+            string parsed = label.GetParsedText();
+            Assert.That(parsed, Is.EqualTo(item.plain), item.id);
+            int first = parsed.IndexOf(item.phrase, StringComparison.Ordinal);
+            Assert.That(first, Is.GreaterThanOrEqualTo(0), item.id);
+            for (int i = 0; i < line.Characters.Length; i++)
+            {
+                bool emphasized = i >= first && i < first + item.phrase.Length;
+                Assert.That(line.Characters[i].Shake, Is.EqualTo(emphasized && item.shake), $"{item.id} glyph {i} shake");
+                Assert.That(line.Characters[i].Wave, Is.EqualTo(emphasized && item.wave), $"{item.id} glyph {i} wave");
+            }
+            if (item.enlarged)
+            {
+                var normal = label.textInfo.characterInfo[0];
+                var emphasized = label.textInfo.characterInfo[first];
+                Assert.That(emphasized.ascender - emphasized.descender,
+                    Is.GreaterThan((normal.ascender - normal.descender) * 1.1f), item.id);
+            }
+        }
+    }
+
+    [Test]
+    public void DayZeroChrisCsvPacesItsEmotionalBeats()
+    {
+        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
+        var script = CsvDataReader.LoadDirectory(directory).Read<NewDayScriptBase>("script/bar/day0");
+        var steps = script.Scenes.SelectMany(scene => scene.Steps)
+            .Where(step => step.DialogueId != null).ToDictionary(step => step.DialogueId);
+        var beats = new[]
+        {
+            (id: "dlg_d1_tutorial_chris_003", phrase: "듣긴", wait: 0.15f, speed: 0.02f),
+            (id: "dlg_d1_tutorial_chris_012", phrase: "딴생각하지", wait: 0.10f, speed: 0.02f),
+            (id: "dlg_d1_tutorial_chris_054", phrase: "재능이", wait: 0.18f, speed: 0.12f),
+            (id: "dlg_d1_tutorial_chris_065", phrase: "부족한데", wait: 0.18f, speed: 0.12f),
+            (id: "dlg_d1_tutorial_chris_067", phrase: "제대로", wait: 0.25f, speed: 0.02f),
+            (id: "dlg_d1_tutorial_wrap_011", phrase: " 처음에는", wait: 0.12f, speed: 0.04f),
+        };
+
+        foreach (var beat in beats)
+        {
+            var line = Bind(steps[beat.id].Text.Value.Ko, 0.04f, DialoguePresentationSettings.Shared);
+            int first = label.GetParsedText().IndexOf(beat.phrase, StringComparison.Ordinal);
+            Assert.That(first, Is.GreaterThanOrEqualTo(0), beat.id);
+            Assert.That(line.WaitBefore[first], Is.EqualTo(beat.wait).Within(0.001f), beat.id);
+            Assert.That(line.Characters[first].SpeedSeconds, Is.EqualTo(beat.speed).Within(0.001f), beat.id);
+        }
     }
 
     [Test]
@@ -104,6 +211,29 @@ public sealed class DialogueFxTests
         Assert.That(line.Characters[2].SpeedSeconds, Is.EqualTo(0.02f).Within(0.001f));
         Assert.That(line.Characters[3].SpeedSeconds, Is.EqualTo(0.12f).Within(0.001f));
         Assert.That(line.Characters[4].SpeedSeconds, Is.EqualTo(0.05f).Within(0.001f));
+    }
+
+    [Test]
+    public void NamedPresetAppliesOnlyInsideItsSpanAndRestoresOuterStyle()
+    {
+        var settings = DialoguePresentationSettings.Shared;
+        Assert.That(settings, Is.Not.Null);
+        var line = Bind("가<fx=reproach>나<wave>다</wave></fx>라", settings: settings);
+        Assert.That(label.GetParsedText(), Is.EqualTo("가나다라"));
+        Assert.That(line.WaitBefore[1], Is.EqualTo(0.15f).Within(0.001f));
+        Assert.That(line.Characters[1].Shake, Is.True);
+        Assert.That(line.Characters[1].SpeedSeconds, Is.EqualTo(0.02f).Within(0.001f));
+        Assert.That(line.Characters[2].Shake && line.Characters[2].Wave, Is.True);
+        Assert.That(line.Characters[3].Shake || line.Characters[3].Wave, Is.False);
+        Assert.That(line.Characters[3].SpeedSeconds, Is.EqualTo(0.05f).Within(0.001f));
+    }
+
+    [Test]
+    public void UnknownNamedPresetDoesNotBecomeVisibleDialogue()
+    {
+        Assert.That(DialogueTextCompiler.TryCompile("<fx=missing>가</fx>", tags,
+            DialoguePresentationSettings.Shared, null, 0.05f, out _, out string error), Is.False);
+        Assert.That(error, Does.Contain("Unknown dialogue FX preset"));
     }
 
     [Test]
