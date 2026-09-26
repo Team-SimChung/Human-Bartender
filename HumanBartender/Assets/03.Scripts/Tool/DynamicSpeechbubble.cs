@@ -81,6 +81,9 @@ public class DynamicSpeechBubble : MonoBehaviour
     float MinTextW => minSize.x - PaddingH;
 
     public int TotalVisibleCharacters => _visibleCount;
+    DialogueTextPlayer textPlayer;
+    public DialogueTextPlayer TextPlayer => textPlayer != null ? textPlayer :
+        textPlayer = GetComponent<DialogueTextPlayer>() ?? gameObject.AddComponent<DialogueTextPlayer>();
 
     void OnEnable()
     {
@@ -328,10 +331,8 @@ public class DynamicSpeechBubble : MonoBehaviour
     }
 
     /// <summary>타이핑 없이 전체 텍스트를 한 번에 표시.</summary>
-    public void SetText(string content)
+    public void SetText(string content, NewTextTagDataSO tags = null, string cocktailName = null)
     {
-        PrepareForText(content);
-        textLabel.maxVisibleCharacters = int.MaxValue;
-        UpdateForVisible(_visibleCount);
+        TextPlayer.ShowInstant(content, tags, cocktailName);
     }
 }

@@ -25,9 +25,10 @@ public class ChoicePanel : MonoBehaviour
 
     public void ResetPanel()
     {
-        panelText.text = "";
-        panel.SetActive(false);
-        button.onClick.RemoveAllListeners();
+        if (panelText != null) panelText.text = "";
+        if (panelTMPText != null) panelTMPText.text = "";
+        if (panel != null) panel.SetActive(false);
+        if (button != null) button.onClick.RemoveAllListeners();
     }
     public Button GetButton()
     {

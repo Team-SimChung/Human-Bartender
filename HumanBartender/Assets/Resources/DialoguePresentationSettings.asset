@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92e667f963054e9fabb743553f6497ac, type: 3}
+  m_Name: DialoguePresentationSettings
+  m_EditorClassIdentifier:
+  ShakeAmplitude: 1.5
+  ShakeFrequency: 18
+  WaveAmplitude: 2
+  WaveFrequency: 2
+  WavePhase: 0.65
+  PopPeak: 1.2
+  PopDuration: 0.12
+  ReducedMotion: 0
+  TypingSoundKey:
+  Presets:
+  - Id: reproach
+    Motion: 1
+    SizePercent: 115
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 20
+    PauseBeforeMs: 150
+    PauseAfterMs: 0
+    Amplitude: 0.8
+    Frequency: 14
+  - Id: mutter
+    Motion: 1
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 0
+    Amplitude: 0.8
+    Frequency: 14
+  - Id: burst
+    Motion: 0
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 20
+    PauseBeforeMs: 100
+    PauseAfterMs: 0
+    Amplitude: 0
+    Frequency: 0
+  - Id: admire
+    Motion: 2
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 120
+    PauseBeforeMs: 180
+    PauseAfterMs: 0
+    Amplitude: 1.2
+    Frequency: 2
+  - Id: approve
+    Motion: 2
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 0
+    Amplitude: 1.1
+    Frequency: 2
+  - Id: disappoint
+    Motion: 1
+    SizePercent: 120
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 120
+    PauseBeforeMs: 180
+    PauseAfterMs: 0
+    Amplitude: 1.1
+    Frequency: 17
+  - Id: command
+    Motion: 1
+    SizePercent: 120
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 20
+    PauseBeforeMs: 250
+    PauseAfterMs: 0
+    Amplitude: 1.1
+    Frequency: 17
+  - Id: encourage
+    Motion: 2
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 120
+    Amplitude: 1.1
+    Frequency: 2
+  - Id: angry
+    Motion: 1
+    SizePercent: 120
+    ColorHex: '#FF6666'
+    OverrideSpeed: 0
+    TypingIntervalMs: 0
+    PauseBeforeMs: 0
+    PauseAfterMs: 0
+    Amplitude: 1.2
+    Frequency: 18

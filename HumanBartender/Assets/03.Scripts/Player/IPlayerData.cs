@@ -14,12 +14,11 @@ public interface IPlayerDataReader
 public interface IPlayerDataWriter
 {
     void AddMoney(int val);
+    void SetMoney(int val);
     bool TrySpend(int cost);
 
     void SetCharacterAffinityAmount(string id, int val);
     void AddCharacterAffinityAmount(string id, int val);
-    void SetCharacterKarmaAmount(string id, int val);
-    void AddCharacterKarmaAmount(string id, int val);
 
     void AddSkillTier(int val);
 

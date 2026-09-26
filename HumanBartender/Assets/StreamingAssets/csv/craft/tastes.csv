@@ -1,0 +1,11 @@
+﻿character_id,seq,when,tier,note,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+samho,1,flag.samho_calmed && cocktail.abv >= 20,dislike,[후속 일차 가안] 배려 루트 이후엔 독주를 밀어냄 — 상황부 취향 데모,tastes,tastes_tastes_samho,@tastes,\N,0,tastes_format_01
+samho,2,cocktail.abv >= 20,love,독한 술이 기본 취향,tastes,tastes_tastes_samho_2,@tastes,\N,1,tastes_format_01
+samho,3,cocktail.tag(달콤한),dislike,장사꾼 입맛에 단 건 안 맞음,tastes,tastes_tastes_samho_3,@tastes,\N,2,tastes_format_01
+port,1,cocktail.id == gin_fizz,love,수십 년 진피즈 한 우물,tastes,tastes_tastes_port,@tastes,\N,3,tastes_format_01
+port,2,cocktail.tag(클래식),good,옛날 사람,tastes,tastes_tastes_port_2,@tastes,\N,4,tastes_format_01
+aili,1,cocktail.id == champagne,love,새벽술은 무죄,tastes,tastes_tastes_aili,@tastes,\N,5,tastes_format_01
+aili,2,cocktail.tag(화사한),good,\E,tastes,tastes_tastes_aili_2,@tastes,\N,6,tastes_format_01
+aili,3,cocktail.abv >= 25,dislike,의사로서 독주는 사양,tastes,tastes_tastes_aili_3,@tastes,\N,7,tastes_format_01
+chris,1,cocktail.tag(클래식),good,말 없는 클래식파,tastes,tastes_chris,@tastes,\N,8,tastes_format_01
+bubi,1,cocktail.id == kahlua_milk,love,고양이도 탐내는 맛,tastes,tastes_bubi,@tastes,\N,9,tastes_format_01

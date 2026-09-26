@@ -1,0 +1,170 @@
+﻿expression,text.ko,text.en,voice_id,situation,weight,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+\N,"한 명이요, 자리 있을까요?","Table for one, please?",gentle,call,1,barks,barks_barks_call,@barks,\N,0,barks_format_01
+\N,안녕하세요!,Hello!,gentle,call,1,barks,barks_barks_call_2,@barks,\N,1,barks_format_01
+\N,"마스터, 자리 있나요?","Master, got a seat?",gentle,call,1,barks,barks_barks_call_3,@barks,\N,2,barks_format_01
+\N,안녕하세요.,Good evening.,gentle,call,1,barks,barks_barks_call_4,@barks,\N,3,barks_format_01
+\N,실례합니다...,Excuse me...,gentle,call,1,barks,barks_barks_call_5,@barks,\N,4,barks_format_01
+\N,저기요...,"Um, excuse me...",gentle,call_urge,1,barks,barks_barks_call_urge,@barks,\N,5,barks_format_01
+\N,음... 자리 없나요?,Hm... no seats?,gentle,call_urge,1,barks,barks_barks_call_urge_2,@barks,\N,6,barks_format_01
+\N,마스터?,Master?,gentle,call_urge,1,barks,barks_barks_call_urge_3,@barks,\N,7,barks_format_01
+\N,"저기요, 마스터.","Excuse me, master.",gentle,call_final,1,barks,barks_barks_call_final,@barks,\N,8,barks_format_01
+\N,왜 안 오시지...,Why isn't anyone coming...,gentle,call_final,1,barks,barks_barks_call_final_2,@barks,\N,9,barks_format_01
+\N,자리가 없나?,"No seats, maybe?",gentle,call_final,1,barks,barks_barks_call_final_3,@barks,\N,10,barks_format_01
+\N,{cocktail} 부탁드립니다.,"A {cocktail}, please.",gentle,order,1,barks,barks_barks_order,@barks,\N,11,barks_format_01
+\N,"음, {cocktail} 주문할게요.","Hm, I'll order a {cocktail}.",gentle,order,1,barks,barks_barks_order_2,@barks,\N,12,barks_format_01
+\N,{cocktail} 주세요.,"One {cocktail}, please.",gentle,order,1,barks,barks_barks_order_3,@barks,\N,13,barks_format_01
+\N,맛있다... 감사합니다.,Delicious... thank you.,gentle,react_excellent,1,barks,barks_barks_react_excellent,@barks,\N,14,barks_format_01
+\N,맛있네요! 감사합니다.,Tastes great! Thank you.,gentle,react_excellent,1,barks,barks_barks_react_excellent_2,@barks,\N,15,barks_format_01
+\N,"아, 이거 좋네요.","Oh, this is nice.",gentle,react_good,1,barks,barks_barks_react_good,@barks,\N,16,barks_format_01
+\N,"맛이 좀, ... 이상한 것 같은데요.","The taste is a little... off, I think.",gentle,react_poor,1,barks,barks_barks_react_poor,@barks,\N,17,barks_format_01
+\N,... 주문이 혹시 잘못 들어갔나요?,...Did my order get mixed up?,gentle,react_poor,1,barks,barks_barks_react_poor_2,@barks,\N,18,barks_format_01
+\N,저 {cocktail} 시켰는데... 맞다고요?,I ordered a {cocktail}... this is it?,gentle,wrong_drink,1,barks,barks_barks_wrong_drink,@barks,\N,19,barks_format_01
+\N,이번에는 {cocktail} 주문할게요.,I'll order a {cocktail} this time.,gentle,reorder,1,barks,barks_barks_reorder,@barks,\N,20,barks_format_01
+\N,{cocktail} 하나 더 부탁드립니다.,"One more {cocktail}, please.",gentle,reorder,1,barks,barks_barks_reorder_2,@barks,\N,21,barks_format_01
+\N,이번에는 {cocktail} 하나 주세요.,"This time, a {cocktail}, please.",gentle,reorder,1,barks,barks_barks_reorder_3,@barks,\N,22,barks_format_01
+\N,"감사합니다, 잘 마셨어요!","Thank you, that was lovely!",gentle,bye_good,1,barks,barks_barks_bye_good,@barks,\N,23,barks_format_01
+\N,"어이, 자리 있어?","Oi, got a seat?",rough,call,1,barks,barks_barks_call_6,@barks,\N,24,barks_format_01
+\N,이봐! 마스터!,Hey! Master!,rough,call,1,barks,barks_barks_call_7,@barks,\N,25,barks_format_01
+\N,한 명.,One.,rough,call,1,barks,barks_barks_call_8,@barks,\N,26,barks_format_01
+\N,마스터!!!,MASTER!!!,rough,call_urge,1,barks,barks_barks_call_urge_4,@barks,\N,27,barks_format_01
+\N,야!!! 손님 무시해?!,HEY!!! You ignoring a customer?!,rough,call_urge,1,barks,barks_barks_call_urge_5,@barks,\N,28,barks_format_01
+\N,자리 있냐고 물었잖아. 대답 안 해?,I asked if there's a seat. No answer?,rough,call_urge,1,barks,barks_barks_call_urge_6,@barks,\N,29,barks_format_01
+\N,빠져가지고... 쯧.,Tch... useless.,rough,call_final,1,barks,barks_barks_call_final_4,@barks,\N,30,barks_format_01
+\N,술이나 파는 새끼가 건방지게...,A booze peddler with an attitude...,rough,call_final,1,barks,barks_barks_call_final_5,@barks,\N,31,barks_format_01
+\N,...,...,rough,call_final,1,barks,barks_barks_call_final_6,@barks,\N,32,barks_format_01
+\N,{cocktail} 한 잔 말아와.,Mix me a {cocktail}.,rough,order,1,barks,barks_barks_order_4,@barks,\N,33,barks_format_01
+\N,{cocktail} 하나.,One {cocktail}.,rough,order,1,barks,barks_barks_order_5,@barks,\N,34,barks_format_01
+\N,{cocktail}.,{cocktail}.,rough,order,1,barks,barks_barks_order_6,@barks,\N,35,barks_format_01
+\N,"어이, 마스터! {cocktail} 하나!","Oi, master! One {cocktail}!",rough,order,1,barks,barks_barks_order_7,@barks,\N,36,barks_format_01
+\N,크하! 이거 맛 죽이네!,HAH! This hits!,rough,react_excellent,1,barks,barks_barks_react_excellent_3,@barks,\N,37,barks_format_01
+\N,"이게 술이지! 크흐, 좀 살겠다!","Now THAT's a drink! Whew, I'm alive again!",rough,react_excellent,1,barks,barks_barks_react_excellent_4,@barks,\N,38,barks_format_01
+\N,이 맛에 돈 쓰지. 오늘 좀 괜찮은데?,This is what I pay for. Not bad tonight?,rough,react_good,1,barks,barks_barks_react_good_2,@barks,\N,39,barks_format_01
+\N,"야, 돈 도로 뱉어. 돈 내고 이딴 건 못 마셔.","Hey, spit my money back. I'm not paying for this.",rough,react_poor,1,barks,barks_barks_react_poor_3,@barks,\N,40,barks_format_01
+\N,장난해?! 이걸 어떻게 마시라는 거야!!,You kidding?! How am I supposed to drink this?!,rough,react_sewage,1,barks,barks_barks_react_sewage,@barks,\N,41,barks_format_01
+\N,"아이 씹, 이딴 걸 술이라고 내와?",The hell — you call this booze?,rough,react_sewage,1,barks,barks_barks_react_sewage_2,@barks,\N,42,barks_format_01
+\N,쳐맞고 싶어서 환장했나... 맛이 왜 이래?,You asking for a beating... why does it taste like this?,rough,react_sewage,1,barks,barks_barks_react_sewage_3,@barks,\N,43,barks_format_01
+\N,"이봐, 마스터! {cocktail} 한 잔 말아줘!","Oi, master! Mix me another {cocktail}!",rough,reorder,1,barks,barks_barks_reorder_4,@barks,\N,44,barks_format_01
+\N,{cocktail} 하나 더!,One more {cocktail}!,rough,reorder,1,barks,barks_barks_reorder_5,@barks,\N,45,barks_format_01
+\N,{cocktail} 주쇼!,"{cocktail}, now!",rough,reorder,1,barks,barks_barks_reorder_6,@barks,\N,46,barks_format_01
+\N,안녕하세요.,Hello.,touchy,call,1,barks,barks_barks_call_9,@barks,\N,47,barks_format_01
+\N,1명이요.,"One, please.",touchy,call,1,barks,barks_barks_call_10,@barks,\N,48,barks_format_01
+\N,...,...,touchy,call,1,barks,barks_barks_call_11,@barks,\N,49,barks_format_01
+\N,사람 <fx=angry>무시하나</fx> 지금...,Am I invisible or something...,touchy,call_urge,1,barks,barks_barks_call_urge_7,@barks,\N,50,barks_format_01
+\N,여기 손님 응대가 왜 이래?,What's with the service here?,touchy,call_urge,1,barks,barks_barks_call_urge_8,@barks,\N,51,barks_format_01
+\N,"이봐요, 마스터.","Hey, master.",touchy,call_urge,1,barks,barks_barks_call_urge_9,@barks,\N,52,barks_format_01
+\N,지금 뭐 하자는 거야? 사람 안 보여?,What is this? Can't you see me?,touchy,call_final,1,barks,barks_barks_call_final_7,@barks,\N,53,barks_format_01
+\N,뭐 어쩌라는 건지...,What am I even supposed to do...,touchy,call_final,1,barks,barks_barks_call_final_8,@barks,\N,54,barks_format_01
+\N,마스터! 손님 응대 안 해요?,Master! No service here?,touchy,call_final,1,barks,barks_barks_call_final_9,@barks,\N,55,barks_format_01
+\N,{cocktail} 하나 줘봐요.,Give me a {cocktail}.,touchy,order,1,barks,barks_barks_order_8,@barks,\N,56,barks_format_01
+\N,{cocktail}.,{cocktail}.,touchy,order,1,barks,barks_barks_order_9,@barks,\N,57,barks_format_01
+\N,{cocktail} 하나.,One {cocktail}.,touchy,order,1,barks,barks_barks_order_10,@barks,\N,58,barks_format_01
+\N,"좋네요, 고마워요.",It's good. Thanks.,touchy,react_excellent,1,barks,barks_barks_react_excellent_5,@barks,\N,59,barks_format_01
+\N,... 괜찮네.,...Not bad.,touchy,react_good,1,barks,barks_barks_react_good_3,@barks,\N,60,barks_format_01
+\N,나쁘지 않네요.,Not bad at all.,touchy,react_good,1,barks,barks_barks_react_good_4,@barks,\N,61,barks_format_01
+\N,이걸 칵테일이라고 내온 건 아니죠?,"You're not calling this a cocktail, are you?",touchy,react_poor,1,barks,barks_barks_react_poor_4,@barks,\N,62,barks_format_01
+\N,무슨 이딴 걸 칵테일이라고...,What kind of cocktail is this...,touchy,react_sewage,1,barks,barks_barks_react_sewage_4,@barks,\N,63,barks_format_01
+\N,"시간이랑 돈 다 버렸네요, 이걸로 장사가 돼요?",Wasted my time and money. How is this place in business?,touchy,react_sewage,1,barks,barks_barks_react_sewage_5,@barks,\N,64,barks_format_01
+\N,물 있어요? 입 헹구려고요. 뭔 이런 걸 팔고 있어...,Got water? I need to rinse my mouth. Unbelievable...,touchy,react_sewage,1,barks,barks_barks_react_sewage_6,@barks,\N,65,barks_format_01
+\N,{cocktail} 하나 줘봐요.,Give me a {cocktail}.,touchy,reorder,1,barks,barks_barks_reorder_7,@barks,\N,66,barks_format_01
+\N,"추가 주문할게요, {cocktail}으로.",I'll add an order — {cocktail}.,touchy,reorder,1,barks,barks_barks_reorder_8,@barks,\N,67,barks_format_01
+\N,{cocktail} 하나 더.,One more {cocktail}.,touchy,reorder,1,barks,barks_barks_reorder_9,@barks,\N,68,barks_format_01
+\N,...,...,quiet,call,1,barks,barks_barks_call_12,@barks,\N,69,barks_format_01
+\N,마스터.,Master.,quiet,call,1,barks,barks_barks_call_13,@barks,\N,70,barks_format_01
+\N,한 명.,One.,quiet,call,1,barks,barks_barks_call_14,@barks,\N,71,barks_format_01
+\N,...,...,quiet,call_urge,1,barks,barks_barks_call_urge_10,@barks,\N,72,barks_format_01
+\N,"마스터, 자리 있나?","Master, any seats?",quiet,call_urge,1,barks,barks_barks_call_urge_11,@barks,\N,73,barks_format_01
+\N,마스터?,Master?,quiet,call_urge,1,barks,barks_barks_call_urge_12,@barks,\N,74,barks_format_01
+\N,...,...,quiet,call_final,1,barks,barks_barks_call_final_10,@barks,\N,75,barks_format_01
+\N,"마스터, 안내 좀 해줬으면 하는데.","Master, I'd like to be seated.",quiet,call_final,1,barks,barks_barks_call_final_11,@barks,\N,76,barks_format_01
+\N,"마스터, 지금 바쁩니까?","Master, are you busy?",quiet,call_final,1,barks,barks_barks_call_final_12,@barks,\N,77,barks_format_01
+\N,{cocktail} 하나.,One {cocktail}.,quiet,order,1,barks,barks_barks_order_11,@barks,\N,78,barks_format_01
+\N,{cocktail}으로.,"{cocktail}, then.",quiet,order,1,barks,barks_barks_order_12,@barks,\N,79,barks_format_01
+\N,{cocktail}.,{cocktail}.,quiet,order,1,barks,barks_barks_order_13,@barks,\N,80,barks_format_01
+\N,잘 마셨습니다.,That was good.,quiet,react_excellent,1,barks,barks_barks_react_excellent_6,@barks,\N,81,barks_format_01
+\N,맛있네요.,Tasty.,quiet,react_good,1,barks,barks_barks_react_good_5,@barks,\N,82,barks_format_01
+\N,감사합니다.,Thank you.,quiet,react_good,1,barks,barks_barks_react_good_6,@barks,\N,83,barks_format_01
+\N,"... 맛이 좀, 그렇군요.","...The taste is, well.",quiet,react_poor,1,barks,barks_barks_react_poor_5,@barks,\N,84,barks_format_01
+\N,... 뭔가 맛이 이상한데.,...Something's off.,quiet,react_poor,1,barks,barks_barks_react_poor_6,@barks,\N,85,barks_format_01
+\N,...,...,quiet,react_sewage,1,barks,barks_barks_react_sewage_7,@barks,\N,86,barks_format_01
+\N,{cocktail} 하나 부탁드립니다.,"One {cocktail}, please.",quiet,reorder,1,barks,barks_barks_reorder_10,@barks,\N,87,barks_format_01
+\N,이번에는 {cocktail}.,"This time, {cocktail}.",quiet,reorder,1,barks,barks_barks_reorder_11,@barks,\N,88,barks_format_01
+\N,추가로 {cocktail} 한 잔 부탁합니다.,"Another {cocktail}, please.",quiet,reorder,1,barks,barks_barks_reorder_12,@barks,\N,89,barks_format_01
+\N,마스터! 한 명이요~,"Master! One, please~",chatty,call,1,barks,barks_barks_call_15,@barks,\N,90,barks_format_01
+\N,"아이, 나 한 잔만 걸치고 갈게. 마스터!","C'mon, just one quick drink. Master!",chatty,call,1,barks,barks_barks_call_16,@barks,\N,91,barks_format_01
+\N,혼자 왔는데 자리 있을까요? 다리가 좀 아파서.,Alone tonight — got a seat? My legs are killing me.,chatty,call,1,barks,barks_barks_call_17,@barks,\N,92,barks_format_01
+\N,마스터? 여기 손님 받아주세요.,Master? Customer over here.,chatty,call_urge,1,barks,barks_barks_call_urge_13,@barks,\N,93,barks_format_01
+\N,... 왜 응대를 안 해주신담?,...Why is no one taking me?,chatty,call_urge,1,barks,barks_barks_call_urge_14,@barks,\N,94,barks_format_01
+\N,마스터? 못 들었나...,Master? Maybe he didn't hear...,chatty,call_urge,1,barks,barks_barks_call_urge_15,@barks,\N,95,barks_format_01
+\N,...,...,chatty,call_final,1,barks,barks_barks_call_final_13,@barks,\N,96,barks_format_01
+\N,마스터!,Master!,chatty,call_final,1,barks,barks_barks_call_final_14,@barks,\N,97,barks_format_01
+\N,"아직도 자리 없어요? 아니, 사람을 원래 기다리게 하고 그래?",Still no seat? Do you always keep people waiting?,chatty,call_final,1,barks,barks_barks_call_final_15,@barks,\N,98,barks_format_01
+\N,"보자보자, 뭘 마시는 게 좋을까... 일단 {cocktail} 하나!","Let's see, what should I drink... one {cocktail} for now!",chatty,order,1,barks,barks_barks_order_14,@barks,\N,99,barks_format_01
+\N,저번에 그거 괜찮았는데. {cocktail}? 그거 하나 주세요.,That one was good last time. {cocktail}? One of those.,chatty,order,1,barks,barks_barks_order_15,@barks,\N,100,barks_format_01
+\N,{cocktail}! {cocktail} 하나 주세요.,"{cocktail}! One {cocktail}, please.",chatty,order,1,barks,barks_barks_order_16,@barks,\N,101,barks_format_01
+\N,"아, 이거지! 맛이 좋은데요? 오늘 술이 잘 받네...",That's the stuff! Tastes great! Drinks are landing tonight...,chatty,react_excellent,1,barks,barks_barks_react_excellent_7,@barks,\N,102,barks_format_01
+\N,이거만한 게 또 없다니까? 고마워요.,"Nothing beats this, I'm telling you. Thanks.",chatty,react_good,1,barks,barks_barks_react_good_7,@barks,\N,103,barks_format_01
+\N,"음, 오늘 컨디션이 별로인가? 맛이 이상하네...","Hm, am I off today? Tastes weird...",chatty,react_poor,1,barks,barks_barks_react_poor_7,@barks,\N,104,barks_format_01
+\N,"저기, 마스터? 마스터! 이거 잘못 만들었어요?","Excuse me, master? Master! Did you make this wrong?",chatty,react_poor,1,barks,barks_barks_react_poor_8,@barks,\N,105,barks_format_01
+\N,"이거 맛이 왜 이래?... 마스터, 제대로 만든 거 맞죠?","Why does it taste like this?... You made it right, right?",chatty,react_sewage,1,barks,barks_barks_react_sewage_8,@barks,\N,106,barks_format_01
+\N,이번에는 {cocktail} 주문할게요~,This time I'll order a {cocktail}~,chatty,reorder,1,barks,barks_barks_reorder_13,@barks,\N,107,barks_format_01
+\N,{cocktail} 맛 괜찮아요? 궁금한데. 이거 추가로 주문할게요.,Is the {cocktail} good? I'm curious. Add that one.,chatty,reorder,1,barks,barks_barks_reorder_14,@barks,\N,108,barks_format_01
+\N,"{cocktail} 이거 괜찮다고 하던데, 이거 하나 줘요.",Heard the {cocktail}'s decent — give me one.,chatty,reorder,1,barks,barks_barks_reorder_15,@barks,\N,109,barks_format_01
+\N,"감사합니다, 잘 마셨어요! 다음에도 잘 좀 부탁할게요.","Thanks, that was great! Take care of me next time too.",chatty,bye_good,1,barks,barks_barks_bye_good_2,@barks,\N,110,barks_format_01
+\N,음료 아직인가요...?,Is the drink coming...?,\N,serve_urge,1,barks,barks_barks_serve_urge,@barks,\N,111,barks_format_02
+sadness,목이 타는데...,I'm parched...,\N,serve_urge,1,barks,barks_sadness,@barks,\N,112,barks_format_03
+\N,만들어 놓고 왜 안 줘요?,It's made — why aren't you serving it?,\N,serve_final,1,barks,barks_barks_serve_final,@barks,\N,113,barks_format_02
+\N,이제 그냥 갈까...,Maybe I should just go...,\N,serve_final,1,barks,barks_barks_serve_final_2,@barks,\N,114,barks_format_02
+\N,뭐... 마실 만하네요.,Well... it's drinkable.,\N,react_decent,1,barks,barks_barks_react_decent,@barks,\N,115,barks_format_02
+\N,됐어요. 다른 데 갑니다.,Forget it. I'm going somewhere else.,\N,leave_coaster,1,barks,barks_barks_leave_coaster,@barks,\N,116,barks_format_02
+\N,만들어 놓고 안 주는 건 무슨 경우야!,You made it and won't serve it?!,\N,leave_serve,1,barks,barks_barks_leave_serve,@barks,\N,117,barks_format_02
+\N,...내가 시킨 게 맞나?,...Is this what I ordered?,\N,wrong_receive,1,barks,barks_barks_wrong_receive,@barks,\N,118,barks_format_02
+\N,역시 내가 시킨 게 아니잖아!!,I knew it — this is NOT what I ordered!!,\N,wrong_drink,1,barks,barks_barks_wrong_drink_2,@barks,\N,119,barks_format_02
+\N,히끅... 한 잔 더어...,Hic... one more roundsh...,\N,drunk_enter,1,barks,barks_drunk_enter,@barks,\N,120,barks_format_02
+\N,우웁... 미안... 해요...,Urp... s-sorry...,\N,drunk_vomit,1,barks,barks_barks_drunk_vomit,@barks,\N,121,barks_format_02
+\N,속이... 안 좋아...,My stomach... not good...,\N,drunk_vomit,1,barks,barks_barks_drunk_vomit_2,@barks,\N,122,barks_format_02
+\N,감사합니다!,Thank you!,gentle,serve_thanks,1,barks,barks_barks_serve_thanks,@barks,\N,123,barks_format_01
+\N,"어, 왔군.",'Bout time.,rough,serve_thanks,1,barks,barks_barks_serve_thanks_2,@barks,\N,124,barks_format_01
+\N,...흘리신 건 아니죠?,"...You didn't spill any, right?",touchy,serve_thanks,1,barks,barks_barks_serve_thanks_3,@barks,\N,125,barks_format_01
+\N,고맙소.,Thanks.,quiet,serve_thanks,1,barks,barks_barks_serve_thanks_4,@barks,\N,126,barks_format_01
+\N,오~ 드디어! 기다렸다구요!,"Ooh, finally! Been waiting!",chatty,serve_thanks,1,barks,barks_barks_serve_thanks_5,@barks,\N,127,barks_format_01
+fear,저기... 이거 상한 건 아니죠...?,"Um... this isn't spoiled, is it...?",gentle,react_sewage,1,barks,barks_fear,@barks,\N,128,barks_format_04
+\N,바쁜가? 천천히 해도 되네.,Busy night? Take your time.,port,call_urge,1,barks,barks_barks_call_urge_16,@barks,\N,129,barks_format_01
+\N,허허... 오늘은 글렀나 보군.,Well... perhaps not tonight.,port,call_final,1,barks,barks_barks_call_final_16,@barks,\N,130,barks_format_01
+\N,뭘 마실지는 정해져 있네만.,As if I'd order anything else.,port,order_think,1,barks,barks_barks_order_think,@barks,\N,131,barks_format_01
+\N,"{cocktail}, 정석대로 부탁하네.","{cocktail}, by the book.",port,order,1,barks,barks_barks_order_17,@barks,\N,132,barks_format_01
+\N,재촉은 않겠네. 다만 잊진 말게나.,No rush. Just don't forget me.,port,serve_urge,1,barks,barks_barks_serve_urge_2,@barks,\N,133,barks_format_01
+\N,슬슬 걱정되는군.,Now I'm getting worried.,port,serve_final,1,barks,barks_barks_serve_final_3,@barks,\N,134,barks_format_01
+\N,고맙네.,Much obliged.,port,serve_thanks,1,barks,barks_barks_serve_thanks_6,@barks,\N,135,barks_format_01
+\N,...크리스보다 낫군. 이건 비밀일세.,...Better than Chris's. Our secret.,port,react_excellent,1,barks,barks_barks_react_excellent_8,@barks,\N,136,barks_format_01
+\N,좋군. 정석이야.,Good. By the book.,port,react_good,1,barks,barks_barks_react_good_8,@barks,\N,137,barks_format_01
+\N,무난하군.,Passable.,port,react_decent,1,barks,barks_barks_react_decent_2,@barks,\N,138,barks_format_01
+\N,...연습이 더 필요하겠어.,...You need more practice.,port,react_poor,1,barks,barks_barks_react_poor_9,@barks,\N,139,barks_format_01
+serious,"이건 기사감이군. '신입 바텐더, 손님을 독살하려 들다'.",This is front-page material: 'Rookie bartender attempts poisoning.',port,react_sewage,1,barks,barks_serious,@barks,\N,140,barks_format_04
+\N,흠? 내가 시킨 게 이거였나.,Hm? Is this what I ordered?,port,wrong_receive,1,barks,barks_barks_wrong_receive_2,@barks,\N,141,barks_format_01
+\N,역시 아니군. 나는 {cocktail}을 시켰네만.,As I thought. I ordered a {cocktail}.,port,wrong_drink,1,barks,barks_barks_wrong_drink_3,@barks,\N,142,barks_format_01
+\N,잘 마셨네. 크리스에게 안부 전해주게.,A fine drink. Give Chris my regards.,port,bye_good,1,barks,barks_barks_bye_good_3,@barks,\N,143,barks_format_01
+\N,오늘은 운이 없었다고 해두지.,Let's call it an off night.,port,bye_bad,1,barks,barks_barks_bye_bad,@barks,\N,144,barks_format_01
+\N,다음에 다시 오지.,I'll come back another time.,port,leave_coaster,1,barks,barks_barks_leave_coaster_2,@barks,\N,145,barks_format_01
+\N,시간이 다 됐군. 아쉽지만.,I'm out of time. A pity.,port,leave_serve,1,barks,barks_barks_leave_serve_2,@barks,\N,146,barks_format_01
+\N,이 바는 변한 게 없군.,This bar never changes.,port,idle,1,barks,barks_barks_idle,@barks,\N,147,barks_format_01
+\N,다음에 또 올게요!,See you next time!,\N,bye_good,1,barks,barks_barks_bye_good_4,@barks,\N,148,barks_format_02
+\N,뭐 이딴 가게가 다 있어?!,What kind of bar is this?!,\N,bye_bad,1,barks,barks_barks_bye_bad_2,@barks,\N,149,barks_format_02
+\N,"크리스는 안에 있나? ...아, 자네한테 시키면 되지.","Is Chris in? ...Ah, never mind. I can order from you.",port,call,1,barks,barks_barks_call_18,@barks,\N,150,barks_format_01
+\N,주문하시겠습니까?,May I take your order?,luna,ask_order,1,barks,barks_barks_ask_order,@barks,\N,151,barks_format_01
+\N,무엇으로 드릴까요?,What can I get you?,luna,ask_order,1,barks,barks_barks_ask_order_2,@barks,\N,152,barks_format_01
+\N,"메뉴, 보시겠어요?",Would you like the menu?,luna,ask_order,1,barks,barks_barks_ask_order_3,@barks,\N,153,barks_format_01
+\N,흠... 잠시만요.,Hmm... one moment.,\N,order_think,1,barks,barks_barks_order_think_2,@barks,\N,154,barks_format_02
+\N,어디 보자...,Let's see...,\N,order_think,1,barks,barks_barks_order_think_3,@barks,\N,155,barks_format_02
+\N,고민되네요... 뭐가 좋을까.,Tough choice... what's good tonight?,gentle,order_think,1,barks,barks_barks_order_think_4,@barks,\N,156,barks_format_01
+\N,뭐가 있더라...,What do you even got...,rough,order_think,1,barks,barks_barks_order_think_5,@barks,\N,157,barks_format_01
+\N,....,....,quiet,order_think,1,barks,barks_barks_order_think_6,@barks,\N,158,barks_format_01
+\N,아~ 뭐 마시지? 이럴 때가 제일 행복하다니까요.,"Ahh, what to drink? Honestly the best part of the night.",chatty,order_think,1,barks,barks_barks_order_think_7,@barks,\N,159,barks_format_01
+\N,(창밖을 물끄러미 바라본다),(stares out the window),\N,idle,1,barks,barks_barks_idle_2,@barks,\N,160,barks_format_02
+\N,오늘도 밤이 기네...,Long night again...,\N,idle,1,barks,barks_barks_idle_3,@barks,\N,161,barks_format_02
+\N,이 동네도 많이 변했지...,This block's changed a lot...,\N,idle,1,barks,barks_barks_idle_4,@barks,\N,162,barks_format_02
+\N,여긴 음악이 참 좋네요.,The music here is really nice.,gentle,idle,1,barks,barks_barks_idle_5,@barks,\N,163,barks_format_01
+\N,"...조용해서 좋군, 여긴.",...Quiet. I like that.,rough,idle,1,barks,barks_barks_idle_6,@barks,\N,164,barks_format_01
+\N,(손끝으로 카운터를 두드린다),(taps the counter),touchy,idle,1,barks,barks_barks_idle_7,@barks,\N,165,barks_format_01
+\N,.......,......,quiet,idle,1,barks,barks_barks_idle_8,@barks,\N,166,barks_format_01
+\N,"요즘 위쪽 구역은 난리라던데, 들었어요?",Uptown's a mess these days — you heard?,chatty,idle,1,barks,barks_barks_idle_9,@barks,\N,167,barks_format_01
+\N,"혼잣말이에요, 신경 쓰지 마세요.","Just talking to myself, don't mind me.",chatty,idle,1,barks,barks_barks_idle_10,@barks,\N,168,barks_format_01

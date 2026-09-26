@@ -1,13 +1,13 @@
 using Cysharp.Threading.Tasks;
+using System;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 
 /// <summary>
-/// Play 씬 진입 시 1부(TycoonFlow)와 2부(StoryFlow)를 순서대로 실행하는 중간관리자.
-///
-/// 2부는 원래 구형 비주얼노벨 경로가 맡았다. 그 경로는 걷어냈고, 지금은 script/bar/dayN.json을
-/// 읽는 StoryFlow가 맡는다.
-/// 각 Flow는 이 컨트롤러가 호출할 때만 시작되며, 완료(RunAsync 반환) 시 다음 국면으로 넘어간다.
+/// Play 씬의 데이터 준비, 1부와 2부 실행, 화면 전환, 입력 허용 순서를 소유한다.
+/// 하루 실행은 한 번만 수락하며 성공, 취소, 실패 중 하나로 정확히 한 번 종료한다.
 /// </summary>
 public class PlayPhaseController : MonoBehaviour
 {
@@ -15,11 +15,11 @@ public class PlayPhaseController : MonoBehaviour
 
     [Tooltip("2부 대본 국면. script/bar/dayN.json을 실행한다.")]
     [SerializeField] StoryFlow storyFlow;
+    [SerializeField] OrderRequestController orderController;
+    [SerializeField] CraftFlowController craftFlow;
 
-    // ── 국면별 화면 ────────────────────────────────────────────────
-    //
-    // 어느 국면에 무엇이 보이는지는 국면을 넘기는 이곳이 정한다. 각 Flow가 상대편 화면을 끄게 하면
-    // 1부는 2부 화면을, 2부는 1부 화면을 알아야 해서 둘이 서로를 붙들게 된다.
+    [Inject] IGameProgressionService progression;
+    [Inject] PlayerSettlement settlement;
 
     [Header("국면별 화면")]
     [Tooltip("1부에만 보이는 것. 손님 자리(Tycoon Resource), 코스터 트레이 캔버스, 제조 슬라이드 패널 캔버스.")]
@@ -30,23 +30,33 @@ public class PlayPhaseController : MonoBehaviour
 
     [Header("Test")]
     [Tooltip("켜면 1부를 건너뛰고 곧장 2부를 연다. 2부 대본만 확인할 때 쓴다. " +
-             "일차는 바꾸지 않는다 — 아래 Test Day가 따로 정한다.")]
+             "일차는 바꾸지 않는다. 아래 Test Day가 따로 정한다.")]
     [SerializeField] bool skipTycoonForTest;
 
     [Tooltip("테스트용 진행 일차. 음수면 실제 일차를 그대로 둔다. " +
-             "0일차도 실제로 쓰는 값이라(손님이 없어 1부를 건너뛰고 바로 2부로 간다) 0을 '끄기'로 쓸 수 없어 " +
-             "음수를 비활성 값으로 둔다. 일차가 바뀌면 등장 손님과 해금 칵테일이 통째로 달라진다.")]
+             "0일차도 실제로 쓰는 값이므로 음수를 비활성 값으로 사용한다.")]
     [SerializeField] int testDay = -1;
 
-    public EPlayPhase CurrentPhase { get; private set; } = EPlayPhase.Tycoon;
+    long nextOperationId;
+    long currentOperationId;
+    bool phaseInputEnabled;
+    bool departurePending;
+    string departureError;
 
-    /// <summary>
-    /// 테스트 일차를 Start보다 먼저 반영한다.
-    ///
-    /// 일차를 읽는 쪽(손님 대기열·해금 칵테일·그날 대본)은 모두 Start 이후에 묻기 때문에 여기서 정하면
-    /// 늦지 않는다. 정하는 곳을 하나로 두는 것이 요점이다 — 여럿이면 어느 쪽이 이겼는지 알 수 없다.
-    /// </summary>
-    private void Awake()
+    public EPlayPhase CurrentPhase { get; private set; } = EPlayPhase.None;
+    public PlayPhaseRunState State { get; private set; } = PlayPhaseRunState.Idle;
+
+    public bool IsRunning
+    {
+        get { return currentOperationId != 0; }
+    }
+
+    public long CurrentOperationId
+    {
+        get { return currentOperationId; }
+    }
+
+    void Awake()
     {
         if (testDay < 0) return;
 
@@ -55,56 +65,305 @@ public class PlayPhaseController : MonoBehaviour
                          "실제 일차로 돌리려면 PlayPhaseController의 Test Day를 음수로 두세요.");
     }
 
-    private void Start()
+    void Start()
     {
-        RunDayAsync().Forget();
+        StartDay();
     }
 
+    /// <summary>기존 UnityEvent 호출부를 유지한다. 이미 시작한 하루는 다시 실행하지 않는다.</summary>
     public void OpenBar()
     {
-        RunDayAsync().Forget();
+        StartDay();
     }
 
-    private async UniTask RunDayAsync()
+    public PlayPhaseRunRequest RequestRunDay()
     {
-        if (skipTycoonForTest)
+        if (State != PlayPhaseRunState.Idle)
         {
-            // 조용히 건너뛰지 않는다. 손님이 하나도 안 오는 것과 이 스위치가 켜진 것은 화면에서 똑같이
-            // 보여서, 남기지 않으면 "왜 1부가 안 뜨지"를 코드에서 찾게 된다.
-            Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
-                             "PlayPhaseController의 Skip Tycoon For Test를 끄면 원래대로 돌아옵니다.");
+            PlayPhaseRunResult rejectedResult = new(
+                PlayPhaseRunOutcome.Rejected,
+                currentOperationId,
+                $"하루 실행은 이미 시작되었거나 종료되었습니다. 현재 상태: {State}");
+            return new PlayPhaseRunRequest(rejectedResult);
+        }
+
+        if (!skipTycoonForTest && tycoonFlow == null)
+        {
+            PlayPhaseRunResult rejectedResult = new(
+                PlayPhaseRunOutcome.Rejected,
+                0,
+                "TycoonFlow 참조가 없습니다.");
+            return new PlayPhaseRunRequest(rejectedResult);
+        }
+
+        if (storyFlow == null)
+        {
+            PlayPhaseRunResult rejectedResult = new(
+                PlayPhaseRunOutcome.Rejected,
+                0,
+                "StoryFlow 참조가 없습니다.");
+            return new PlayPhaseRunRequest(rejectedResult);
+        }
+
+        if (progression == null)
+        {
+            PlayPhaseRunResult rejectedResult = new(
+                PlayPhaseRunOutcome.Rejected,
+                0,
+                "하루 진행 서비스가 연결되지 않았습니다.");
+            return new PlayPhaseRunRequest(rejectedResult);
+        }
+
+        long operationId = ++nextOperationId;
+        currentOperationId = operationId;
+        State = PlayPhaseRunState.Preparing;
+        CancellationToken destroyToken = this.GetCancellationTokenOnDestroy();
+        UniTask<PlayPhaseRunResult> completion = RunDayAsync(operationId, destroyToken);
+        return new PlayPhaseRunRequest(true, completion);
+    }
+
+    /// <summary>1부와 2부가 이미 끝난 경우 퇴근 이동만 다시 요청한다.</summary>
+    public PlayPhaseRunRequest RequestRetryDeparture()
+    {
+        if (!departurePending || currentOperationId != 0 ||
+            (State != PlayPhaseRunState.Failed && State != PlayPhaseRunState.Canceled) ||
+            SceneManager.GetActiveScene().name != "Play" ||
+            GameStateManager.Instance.GameFlow != EGameFlow.Bar)
+            return new PlayPhaseRunRequest(new PlayPhaseRunResult(
+                PlayPhaseRunOutcome.Rejected, currentOperationId, "재시도할 퇴근 이동이 없습니다."));
+
+        long operationId = ++nextOperationId;
+        currentOperationId = operationId;
+        State = PlayPhaseRunState.Transitioning;
+        return new PlayPhaseRunRequest(true, RetryDepartureAsync(operationId, this.GetCancellationTokenOnDestroy()));
+    }
+
+    async UniTask<PlayPhaseRunResult> RetryDepartureAsync(long operationId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            GameProgressionResult result = await progression.CompleteBarAsync(cancellationToken);
+            if (result.Outcome == GameProgressionOutcome.Canceled)
+            {
+                State = PlayPhaseRunState.Canceled;
+                departureError = result.Message;
+                return new PlayPhaseRunResult(PlayPhaseRunOutcome.Canceled, operationId, result.Message);
+            }
+            if (!result.Succeeded)
+                throw new InvalidOperationException(result.Message ?? "퇴근 이동에 실패했습니다.", result.Error);
+
+            departurePending = false;
+            departureError = null;
+            State = PlayPhaseRunState.Completed;
+            return new PlayPhaseRunResult(PlayPhaseRunOutcome.Succeeded, operationId);
+        }
+        catch (Exception error)
+        {
+            State = PlayPhaseRunState.Failed;
+            departureError = error.Message;
+            return new PlayPhaseRunResult(PlayPhaseRunOutcome.Failed, operationId, error.Message, error);
+        }
+        finally
+        {
+            if (SceneManager.GetActiveScene().name != "Play") departurePending = false;
+            if (currentOperationId == operationId) currentOperationId = 0;
+        }
+    }
+
+    void OnGUI()
+    {
+        if (!departurePending && currentOperationId == 0 && State == PlayPhaseRunState.Failed &&
+            SceneManager.GetActiveScene().name == "Play")
+        {
+            var recovery = new Rect((Screen.width - 360f) / 2f, (Screen.height - 115f) / 2f, 360f, 115f);
+            GUI.Box(recovery, "입장 또는 하루 실행에 실패했습니다.");
+            if (GUI.Button(new Rect(recovery.x + 80f, recovery.y + 65f, 200f, 35f), "타이틀로 돌아가기"))
+                SceneTransitionManager.Instance?.LoadScene("Main");
+            return;
+        }
+        if (!departurePending || currentOperationId != 0 ||
+            (State != PlayPhaseRunState.Failed && State != PlayPhaseRunState.Canceled) ||
+            SceneManager.GetActiveScene().name != "Play") return;
+
+        var area = new Rect((Screen.width - 360f) / 2f, (Screen.height - 120f) / 2f, 360f, 120f);
+        GUI.Box(area, "퇴근 이동에 실패했습니다.");
+        GUI.Label(new Rect(area.x + 15f, area.y + 28f, 330f, 36f), departureError ?? "이동을 다시 시도하세요.");
+        if (GUI.Button(new Rect(area.x + 80f, area.y + 72f, 200f, 35f), "퇴근 이동 재시도"))
+            ObserveAsync(RequestRetryDeparture()).Forget();
+    }
+
+    public bool CanReceiveInput(EPlayPhase phase)
+    {
+        if (!phaseInputEnabled) return false;
+        return CurrentPhase == phase;
+    }
+
+    void StartDay()
+    {
+        PlayPhaseRunRequest request = RequestRunDay();
+        ObserveAsync(request).Forget();
+    }
+
+    async UniTask<PlayPhaseRunResult> RunDayAsync(long operationId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            HidePhaseObjects();
+
+            GameProgressionResult entry = await progression.WaitForBarEntryAsync(cancellationToken);
+            if (entry.Outcome == GameProgressionOutcome.Canceled)
+                throw new OperationCanceledException(entry.Message, cancellationToken);
+            if (!entry.Succeeded && Application.isEditor && testDay >= 0 &&
+                entry.Outcome == GameProgressionOutcome.Rejected)
+                Debug.LogWarning("[PlayPhase] 명시적 Test Day로 Play 씬을 직접 실행합니다.");
+            else if (!entry.Succeeded)
+                throw new InvalidOperationException(entry.Message ?? "바 입장에 실패했습니다.", entry.Error);
+
+            await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            settlement?.Init();
+
+            if (skipTycoonForTest)
+            {
+                Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
+                                 "PlayPhaseController의 Skip Tycoon For Test를 끄면 원래대로 돌아옵니다.");
+            }
+            else
+            {
+                BeginPhase(EPlayPhase.Tycoon);
+                await RunPhaseAsync(tycoonFlow, cancellationToken);
+                EndCurrentPhase();
+            }
+
+            BeginPhase(EPlayPhase.Dialogue);
+            await RunPhaseAsync(storyFlow, cancellationToken);
+            EndCurrentPhase();
+
+            departurePending = true;
+            GameProgressionResult departure = await progression.CompleteBarAsync(cancellationToken);
+            if (departure.Outcome == GameProgressionOutcome.Canceled)
+                throw new OperationCanceledException(departure.Message, cancellationToken);
+            if (!departure.Succeeded)
+                throw new InvalidOperationException(departure.Message ?? "퇴근 이동에 실패했습니다.", departure.Error);
+
+            departurePending = false;
+            State = PlayPhaseRunState.Completed;
+            return new PlayPhaseRunResult(PlayPhaseRunOutcome.Succeeded, operationId);
+        }
+        catch (OperationCanceledException)
+        {
+            if (departurePending) departureError = "퇴근 이동이 취소되었습니다.";
+            State = PlayPhaseRunState.Canceled;
+            return new PlayPhaseRunResult(
+                PlayPhaseRunOutcome.Canceled,
+                operationId,
+                "Play 씬의 하루 실행이 취소되었습니다.");
+        }
+        catch (Exception error)
+        {
+            if (departurePending) departureError = error.Message;
+            State = PlayPhaseRunState.Failed;
+            return new PlayPhaseRunResult(
+                PlayPhaseRunOutcome.Failed,
+                operationId,
+                error.Message,
+                error);
+        }
+        finally
+        {
+            if (SceneManager.GetActiveScene().name != "Play") departurePending = false;
+            if (currentOperationId == operationId)
+            {
+                phaseInputEnabled = false;
+                CurrentPhase = EPlayPhase.None;
+                HidePhaseObjects();
+                currentOperationId = 0;
+            }
+        }
+    }
+
+    async UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        try
+        {
+            await flow.RunAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+        }
+        finally
+        {
+            if (orderController != null) await orderController.CancelAllAndWaitAsync();
+            if (craftFlow != null && craftFlow.IsBusy && craftFlow.Current != null)
+            {
+                var completion = craftFlow.Completion;
+                if (!await craftFlow.CancelCraftAsync(craftFlow.Current.JobId)) await completion;
+            }
+            orderController?.CloseIdleView();
+        }
+    }
+
+    void BeginPhase(EPlayPhase phase)
+    {
+        phaseInputEnabled = false;
+        CurrentPhase = EPlayPhase.None;
+        State = PlayPhaseRunState.Transitioning;
+
+        ShowPhase(phase);
+
+        CurrentPhase = phase;
+        if (phase == EPlayPhase.Tycoon)
+        {
+            State = PlayPhaseRunState.RunningTycoon;
         }
         else
         {
-            CurrentPhase = EPlayPhase.Tycoon;
-            ShowPhase(tycoon: true);
-            await tycoonFlow.RunAsync();
+            State = PlayPhaseRunState.RunningDialogue;
         }
-
-        CurrentPhase = EPlayPhase.Dialogue;
-        ShowPhase(tycoon: false);
-        await storyFlow.RunAsync();
+        phaseInputEnabled = true;
     }
 
-    /// <summary>
-    /// 지금 국면의 화면만 남긴다.
-    ///
-    /// 1부 화면을 2부에서 끄는 것이 핵심이다 — 코스터 트레이와 제조 패널은 Screen Space 캔버스라
-    /// 그냥 두면 대사 위에 그대로 얹히고, 클릭도 먼저 먹는다.
-    /// </summary>
-    void ShowPhase(bool tycoon)
+    void EndCurrentPhase()
     {
-        SetActive(tycoonOnlyObjects, tycoon);
-        SetActive(storyOnlyObjects, !tycoon);
+        phaseInputEnabled = false;
+        CurrentPhase = EPlayPhase.None;
+        State = PlayPhaseRunState.Transitioning;
+        HidePhaseObjects();
     }
 
-    static void SetActive(GameObject[] objects, bool on)
+    void ShowPhase(EPlayPhase phase)
+    {
+        bool showTycoon = phase == EPlayPhase.Tycoon;
+        bool showStory = phase == EPlayPhase.Dialogue;
+        SetActive(tycoonOnlyObjects, showTycoon);
+        SetActive(storyOnlyObjects, showStory);
+    }
+
+    void HidePhaseObjects()
+    {
+        SetActive(tycoonOnlyObjects, false);
+        SetActive(storyOnlyObjects, false);
+    }
+
+    static void SetActive(GameObject[] objects, bool active)
     {
         if (objects == null) return;
 
-        foreach (var target in objects)
+        foreach (GameObject target in objects)
         {
-            if (target != null) target.SetActive(on);
+            if (target != null) target.SetActive(active);
+        }
+    }
+
+    static async UniTask ObserveAsync(PlayPhaseRunRequest request)
+    {
+        PlayPhaseRunResult result = await request.Completion;
+        if (result.Outcome == PlayPhaseRunOutcome.Rejected)
+        {
+            Debug.LogWarning($"[PlayPhase] 실행 요청 거절: {result.Message}");
+        }
+        else if (result.Outcome == PlayPhaseRunOutcome.Failed)
+        {
+            Debug.LogException(result.Error);
         }
     }
 }

@@ -20,6 +20,7 @@ public class Player : MonoBehaviour, IInteractor
     [SerializeField] protected Vector2 buttonOffset;
     [SerializeField] Transform barspawn;
     [SerializeField] Transform homespawn;
+    InteractiveEntityManager sceneEntities;
 
     public GameObject GameObject => gameObject;
     public Transform Transform => transform;
@@ -32,20 +33,18 @@ public class Player : MonoBehaviour, IInteractor
 
 
 
+    public bool TrySetPosition()
+    {
+        bool atHome = gameObject.scene.name == "Home";
+        Transform destination = atHome || GameStateManager.Instance.GameFlow != EGameFlow.CommuteOut
+            ? homespawn : barspawn;
+        if (destination == null) return false;
+        transform.position = destination.position;
+        return true;
+    }
     public void setpos()
     {
-        if(barspawn != null && homespawn != null)
-        {
-            Debug.Log($"{GameStateManager.Instance.GameFlow}");
-            if(GameStateManager.Instance.GameFlow != EGameFlow.CommuteOut)
-            {
-                transform.position = homespawn.position;
-            }
-            else
-            {
-                transform.position = barspawn.position;
-            }
-        }
+        if (!TrySetPosition()) Debug.LogError("[Player] 현재 씬의 시작 위치가 연결되지 않았습니다.", this);
     }
     /// <summary>
     /// 상태별 게이트: Lock/Interct 상태에서는 완전히 정지, ForceMove(엘리베이터 탑승 등) 상태에서는
@@ -53,6 +52,13 @@ public class Player : MonoBehaviour, IInteractor
     /// </summary>
     public void Update()
     {
+        if (gameObject.scene.name is "Home" or "OutSide")
+        {
+            if (sceneEntities == null)
+                foreach (var candidate in FindObjectsByType<InteractiveEntityManager>(FindObjectsSortMode.None))
+                    if (candidate.gameObject.scene == gameObject.scene) { sceneEntities = candidate; break; }
+            if (sceneEntities == null || !sceneEntities.IsReady) return;
+        }
         if (state == EInteractorState.Lock) return;
         if (state == EInteractorState.Interct) return;
 

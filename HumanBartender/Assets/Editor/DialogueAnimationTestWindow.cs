@@ -1,6 +1,8 @@
 // Editor/DialogueAnimationTestWindow.cs
 // 메뉴: Tools > Dialogue > Animation Test
 
+using System;
+using System.Threading;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEditor;
@@ -21,6 +23,13 @@ public class DialogueAnimationTestWindow : EditorWindow
 
     // ─── 타겟 ────────────────────────────────────────────
     private DialogueCharacterManager _targetManager;
+    CancellationTokenSource preview;
+
+    bool CanControl => _targetManager != null && Application.isPlaying && preview == null &&
+        !(FindFirstObjectByType<StoryScriptRunner>()?.IsRunning ?? false) &&
+        !(FindFirstObjectByType<DialogueRunner>()?.IsRunning ?? false);
+
+    void OnDisable() => preview?.Cancel();
 
     // ─── 주소 미리보기 ───────────────────────────────────
     private bool _showAddressPreview = true;
@@ -102,7 +111,7 @@ public class DialogueAnimationTestWindow : EditorWindow
         // 재생/정지/릴리즈 버튼
         using (new EditorGUILayout.HorizontalScope())
         {
-            GUI.enabled = _targetManager != null && Application.isPlaying;
+            GUI.enabled = CanControl;
             if (GUILayout.Button("▶  Play", GUILayout.Height(30)))
                 PlayAsync(_slot, _speaker, _expression).Forget();
 
@@ -125,7 +134,7 @@ public class DialogueAnimationTestWindow : EditorWindow
         // On/Off Dialogue 파라미터 제어 버튼
         using (new EditorGUILayout.HorizontalScope())
         {
-            GUI.enabled = _targetManager != null && Application.isPlaying;
+            GUI.enabled = CanControl;
             if (GUILayout.Button("💬 On Dialogue", GUILayout.Height(26)))
                 SetDialogueBool(_slot, true);
 
@@ -164,18 +173,10 @@ public class DialogueAnimationTestWindow : EditorWindow
 
         using var box = new EditorGUILayout.VerticalScope(EditorStyles.helpBox);
 
-        foreach (var part in PART_NAMES)
-        {
-            string baseAddr = $"{_speaker}_{part}_{_expression}";
-            EditorGUILayout.LabelField($"{part}", EditorStyles.miniBoldLabel);
-            EditorGUI.indentLevel++;
-
-            DrawAddressLabel($"{baseAddr}_Intro");
-            DrawAddressLabel($"{baseAddr}_Loop");
-            DrawAddressLabel($"{baseAddr}_Dialogue");
-
-            EditorGUI.indentLevel--;
-        }
+        if (_targetManager == null || !Application.isPlaying)
+            EditorGUILayout.HelpBox("Play Mode에서 로드된 CSV의 리소스 후보 주소를 표시합니다.", MessageType.Info);
+        else
+            foreach (var key in _targetManager.GetConfiguredResourceKeys(_speaker, _expression)) DrawAddressLabel(key);
     }
 
     private void DrawAddressLabel(string address)
@@ -209,7 +210,7 @@ public class DialogueAnimationTestWindow : EditorWindow
             for (int j = i; j < Mathf.Min(i + columns, _presetExpressions.Count); j++)
             {
                 string exp = _presetExpressions[j];
-                GUI.enabled = _targetManager != null && Application.isPlaying;
+                GUI.enabled = CanControl;
                 if (GUILayout.Button(exp, GUILayout.Height(22)))
                 {
                     _speaker = _presetSpeaker;
@@ -252,24 +253,28 @@ public class DialogueAnimationTestWindow : EditorWindow
     // 재생 로직
     // ═══════════════════════════════════════════════════════
 
-    private async UniTaskVoid PlayAsync(ESlotType slot, string speaker, string expression)
+    private async UniTask PlayAsync(ESlotType slot, string speaker, string expression)
     {
-        if (_targetManager == null)
+        if (!CanControl) return;
+        var target = _targetManager;
+        using var source = new CancellationTokenSource();
+        preview = source;
+        try
         {
-            AddLog(LogLevel.Error, "DialogueCharacterManager가 없습니다.");
-            return;
+            AddLog(LogLevel.Info, $"[{slot} / {speaker} / {expression}] 로드 시작...");
+            foreach (var key in target.GetConfiguredResourceKeys(speaker, expression))
+            {
+                bool exists = await CheckAddressExistsAsync(key, source.Token);
+                AddLog(exists ? LogLevel.Success : LogLevel.Info, $"{key}: {(exists ? "있음" : "없음 (선택적 후보 포함)")}");
+            }
+            await target.SetCharacterAsync(speaker, expression, slot, source.Token);
+            source.Token.ThrowIfCancellationRequested();
+            ApplyPartToggles(slot);
+            AddLog(LogLevel.Success, $"[{slot} / {speaker} / {expression}] 완료");
         }
-
-        AddLog(LogLevel.Info, $"[{slot} / {speaker} / {expression}] 로드 시작...");
-
-        ApplyPartToggles(slot);
-        await ValidateAddressesAsync(speaker, expression);
-
-        // 정상 흐름: SetCharacterAsync (Intro → Loop 자동 전환)
-        await _targetManager.SetCharacterAsync(speaker, expression);
-
-        AddLog(LogLevel.Success, $"[{slot} / {speaker} / {expression}] 완료");
-        Repaint();
+        catch (OperationCanceledException) { }
+        catch (Exception e) { if (this != null) AddLog(LogLevel.Error, e.Message); }
+        finally { if (ReferenceEquals(preview, source)) preview = null; }
     }
 
     private void SetDialogueBool(ESlotType slot, bool value)
@@ -340,7 +345,11 @@ public class DialogueAnimationTestWindow : EditorWindow
                 var nameProp = partProp.FindPropertyRelative("partName");
                 if (nameProp == null) continue;
 
-                int idx = System.Array.IndexOf(PART_NAMES, nameProp.stringValue);
+                int idx = (EAnimationPart)nameProp.enumValueIndex switch
+                {
+                    EAnimationPart.Body => 0, EAnimationPart.Eyes => 1, EAnimationPart.Eyeblows => 2,
+                    EAnimationPart.Upper_Face => 3, EAnimationPart.Lower_Face => 4, EAnimationPart.Extra => 5, _ => -1
+                };
                 if (idx < 0) continue;
 
                 // 버그 수정: "Animator" (대문자) -> "animator" (소문자)
@@ -352,42 +361,15 @@ public class DialogueAnimationTestWindow : EditorWindow
         }
     }
 
-    private async UniTask ValidateAddressesAsync(string speaker, string expression)
-    {
-        foreach (var part in PART_NAMES)
-        {
-            string baseAddr = $"{speaker}_{part}_{expression}";
-
-            bool introExists = await CheckAddressExistsAsync($"{baseAddr}_Intro");
-            bool loopExists = await CheckAddressExistsAsync($"{baseAddr}_Loop");
-            bool dialogueExists = await CheckAddressExistsAsync($"{baseAddr}_Dialogue");
-
-            var found = new List<string>();
-            if (introExists) found.Add("Intro");
-            if (loopExists) found.Add("Loop");
-            if (dialogueExists) found.Add("Dialogue");
-
-            if (found.Count > 0)
-                AddLog(LogLevel.Success, $"  {part}: {string.Join(" + ", found)}");
-            else
-            {
-                bool spriteExists = await CheckAddressExistsAsync(baseAddr);
-                if (spriteExists)
-                    AddLog(LogLevel.Info, $"  {part}: Sprite only");
-                else
-                    AddLog(LogLevel.Warning, $"  {part}: 없음");
-            }
-        }
-    }
-
-    private async UniTask<bool> CheckAddressExistsAsync(string address)
+    private async UniTask<bool> CheckAddressExistsAsync(string address, CancellationToken token)
     {
         var handle = Addressables.LoadResourceLocationsAsync(address);
-        await handle.ToUniTask();
-
-        bool exists = handle.Status == AsyncOperationStatus.Succeeded && handle.Result.Count > 0;
-        Addressables.Release(handle);
-        return exists;
+        try
+        {
+            var locations = await handle.ToUniTask(cancellationToken: token);
+            return handle.Status == AsyncOperationStatus.Succeeded && locations.Count > 0;
+        }
+        finally { if (handle.IsValid()) Addressables.Release(handle); }
     }
 
     // ── 로그 유틸 ─────────────────────────────────────────

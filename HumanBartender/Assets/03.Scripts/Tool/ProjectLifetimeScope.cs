@@ -14,34 +14,43 @@ public class ProjectLifetimeScope : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
-        playerData.Init();
-        playerSettlementData.Init();
-
         builder.RegisterComponentInHierarchy<CutSceneManager>()
        .AsSelf()
        .As<IEffectPlayer>()
        .As<ICutScenePlayer>();
         
         builder.RegisterInstance(playerData)
+                      .AsSelf()
                       .As<IPlayerDataReader>()
                       .As<IPlayerDataWriter>();
 
         builder.RegisterInstance(playerSettlementData)
+                        .AsSelf()
                         .As<ISettlementLog>();
 
         builder.RegisterComponentInHierarchy<SoundManager>()
         .As<ISoundManager>();
 
         builder.RegisterComponentInHierarchy<UIDisplayOptions>();
+        builder.RegisterComponentInHierarchy<UICashPanel>();
         builder.Register<DisplaySettings>(Lifetime.Singleton)
             .AsImplementedInterfaces();
+
+        builder.RegisterComponentInHierarchy<SceneTransitionManager>()
+            .As<ISceneTransitionService>()
+            .As<ISceneFadeService>();
 
         // 데이터 로더는 하나다. 구형 DataLoadManager는 걷어냈고, 그것이 채우던 SO 중 남은 것
         // (칵테일·컷씬·등급표·표정·태그)까지 이쪽이 채운다.
         builder.RegisterComponentInHierarchy<NewDataLoadManager>()
+            .AsSelf()
             .AsImplementedInterfaces();
         //치우 수정
         builder.RegisterInstance(GameStateManager.Instance);
+        builder.Register<GameProgressionService>(Lifetime.Singleton)
+            .AsSelf()
+            .As<IGameProgressionService>();
+        builder.Register<SaveManager>(Lifetime.Singleton);
         builder.Register<IConditionUtil, ConditionUtil>(Lifetime.Singleton);
     }
 }

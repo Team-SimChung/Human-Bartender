@@ -137,8 +137,9 @@ namespace NKStudio
         private static VisualElement FindMainToolBarWindow()
         {
             var toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.MainToolbarWindow");
+            if (toolbarType == null) return null;
             Object[] toolbars = Resources.FindObjectsOfTypeAll(toolbarType);
-            var toolbarWindow = (EditorWindow)toolbars[0];
+            if (toolbars.Length == 0 || toolbars[0] is not EditorWindow toolbarWindow) return null;
             VisualElement root = toolbarWindow.rootVisualElement;
 
             return root;

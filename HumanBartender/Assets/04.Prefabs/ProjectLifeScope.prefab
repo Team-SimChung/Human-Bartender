@@ -2038,7 +2038,6 @@ GameObject:
   - component: {fileID: 5216898637986071559}
   - component: {fileID: 7101339493860331761}
   - component: {fileID: 5267579866043832131}
-  - component: {fileID: 4054476663439473594}
   m_Layer: 5
   m_Name: Menu Canvas
   m_TagString: Untagged
@@ -2146,26 +2145,6 @@ MonoBehaviour:
   windowSizeDropdown: {fileID: 5710637962415057405}
   bgmSlider: {fileID: 8568369260507963241}
   seSlider: {fileID: 7816603848138270406}
---- !u!114 &4054476663439473594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1304664799192405999}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed824a976cddb9a4da2a3f29cc8f8c2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueHistoryView
-  panel: {fileID: 4554128688371486384}
-  scrollRect: {fileID: 2859387321755199173}
-  content: {fileID: 6798025945712390990}
-  emptyLabel: {fileID: 0}
-  closeButton: {fileID: 1905763049551356573}
-  entryPrefab: {fileID: 0}
-  choicePrefab: {fileID: 0}
-  separatorPrefab: {fileID: 0}
 --- !u!1 &1381893336611020739
 GameObject:
   m_ObjectHideFlags: 0

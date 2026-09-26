@@ -35,6 +35,7 @@ public class UICashPanel : MonoBehaviour
     private int activeGainCount;
     private Coroutine punchRoutine;
     private Coroutine hideLineRoutine;
+    [Inject] IPlayerDataReader playerData;
 
     private void Awake()
     {
@@ -49,11 +50,19 @@ public class UICashPanel : MonoBehaviour
             cashLine.SetActive(false);
     }
 
-    private void Start() => Refresh();
+    private void OnEnable() => SyncFromModel();
+    private void Start() => SyncFromModel();
+
+    private void SyncFromModel()
+    {
+        if (playerData != null) currentAmount = playerData.HasMoney();
+        Refresh();
+    }
 
     /// <summary>재화 획득(+) 또는 차감(-). 팝업이 메인 텍스트에 도달하면 값이 반영된다.</summary>
     public void AddCurrency(int amount)
     {
+        SyncFromModel();
         if (amount == 0 || gainPrefab == null || gainLayer == null) return;
 
         // cashLine 표시 + 대기 중인 숨김 타이머 취소 (연속 호출 대응)
@@ -69,8 +78,7 @@ public class UICashPanel : MonoBehaviour
         CurrencyGainText popup = Instantiate(gainPrefab, gainLayer);
         popup.Play(amount, suffix, start, target, () =>
         {
-            currentAmount += amount;
-            Refresh();
+            SyncFromModel();
             Punch();
             activeGainCount = Mathf.Max(0, activeGainCount - 1);
 
@@ -83,7 +91,7 @@ public class UICashPanel : MonoBehaviour
     /// <summary>팝업 없이 즉시 값 설정 (세이브 로드 등).</summary>
     public void SetAmount(int amount)
     {
-        currentAmount = amount;
+        currentAmount = playerData != null ? playerData.HasMoney() : amount;
         Refresh();
     }
 

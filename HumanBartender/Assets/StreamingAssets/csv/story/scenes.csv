@@ -1,0 +1,66 @@
+﻿id,day,seq,phase,trigger,when,title,skippable,group,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+d1_tutorial_chris,0,1,bar,auto,\N,0일차 바 튜토리얼 — 크리스 진토닉 강습과 포트 진피즈 주문 (구 day0_chris·d0c_end·d1_port),false,\N,script/bar/day0,scene_d1_tutorial_chris,script_bar_day0,scenes,0,scenes_format_01
+d2_bar_open,1,1,bar_open,auto,\N,"개점 전 — 크리스의 확인, OPEN 간판을 걸기까지",false,\N,script/bar/day1,scene_d2_bar_open,script_bar_day1,scenes,0,scenes_format_01
+d2_aili_lady_q,1,0,bar,manual,\N,분기 — 섹시한 레이디란 무엇인가,false,\N,script/bar/day1,scene_d2_aili_lady_q,script_bar_day1,scenes,1,scenes_format_01
+d2_open,1,1,bar,auto,\N,개점 — 크리스와 교대 전 당부,false,\N,script/bar/day1,scene_d2_open,script_bar_day1,scenes,2,scenes_format_01
+d2_port,1,2,bar,auto,\N,"포트 첫 방문 — 진피즈, 조니 이야기, 부비 배달",false,\N,script/bar/day1,scene_d2_port,script_bar_day1,scenes,3,scenes_format_01
+d2_aili,1,3,bar,auto,\N,아일리 등장 — 박스 위의 레이디,false,\N,script/bar/day1,scene_d2_aili,script_bar_day1,scenes,4,scenes_format_01
+d2_aili_craft,1,4,bar,auto,\N,아일리 주문 — 그리고 부비의 한 잔,false,\N,script/bar/day1,scene_d2_aili_craft,script_bar_day1,scenes,5,scenes_format_01
+d2_close,1,5,bar,auto,\N,마감 — 크리스 교대,false,\N,script/bar/day1,scene_d2_close,script_bar_day1,scenes,6,scenes_format_01
+t99_open,99,1,bar_open,auto,\N,테스트 허브 — 개점(대사·분기·연출·1부 진입),false,\N,script/bar/day99,scene_t99_open,script_bar_day99,scenes,0,scenes_format_01
+t99_dialogue,99,2,bar_open,manual,\N,테스트 — 대사·표정·태그·읽음 스킵,false,\N,script/bar/day99,scene_t99_dialogue,script_bar_day99,scenes,1,scenes_format_01
+t99_branch_menu,99,3,bar_open,manual,\N,테스트 — 분기·효과 메뉴,false,\N,script/bar/day99,scene_t99_branch_menu,script_bar_day99,scenes,2,scenes_format_01
+t99_flag_test,99,4,bar_open,manual,\N,테스트 — 플래그 심고 when 분기,false,\N,script/bar/day99,scene_t99_flag_test,script_bar_day99,scenes,3,scenes_format_01
+t99_effect_check,99,5,bar_open,manual,\N,테스트 — 효과 적용 확인,false,\N,script/bar/day99,scene_t99_effect_check,script_bar_day99,scenes,4,scenes_format_01
+t99_stage_menu,99,6,bar_open,manual,\N,테스트 — 좌석·연출 메뉴,false,\N,script/bar/day99,scene_t99_stage_menu,script_bar_day99,scenes,5,scenes_format_01
+t99_seats,99,7,bar_open,manual,\N,테스트 — 좌석 등장·퇴장·카메라 전환,false,\N,script/bar/day99,scene_t99_seats,script_bar_day99,scenes,6,scenes_format_01
+t99_fxsfx,99,8,bar_open,manual,\N,테스트 — fx·sfx,false,\N,script/bar/day99,scene_t99_fxsfx,script_bar_day99,scenes,7,scenes_format_01
+t99_hub,99,10,bar_open,manual,\N,테스트 허브 — 메인 메뉴 재표시,false,\N,script/bar/day99,scene_t99_hub,script_bar_day99,scenes,8,scenes_format_01
+t99_bar,99,1,bar,auto,\N,테스트 허브 — 2부(주문·제조·정산),false,\N,script/bar/day99,scene_t99_bar,script_bar_day99,scenes,9,scenes_format_01
+t99_order_normal,99,2,bar,manual,\N,테스트 — 주문 세트 정상 흐름(진토닉),false,\N,script/bar/day99,scene_t99_order_normal,script_bar_day99,scenes,10,scenes_format_01
+t99_order_grade,99,3,bar,manual,\N,테스트 — 등급 5분기·실패 시 재제조(진피즈),false,\N,script/bar/day99,scene_t99_order_grade,script_bar_day99,scenes,11,scenes_format_01
+t99_two_guests,99,4,bar,manual,\N,테스트 — 2인 동시 입장·연속 주문·서빙 대상 분리,false,\N,script/bar/day99,scene_t99_two_guests,script_bar_day99,scenes,12,scenes_format_01
+t99_bar_hub,99,5,bar,manual,\N,테스트 허브 — 2부 메뉴 재표시,false,\N,script/bar/day99,scene_t99_bar_hub,script_bar_day99,scenes,13,scenes_format_01
+t99_end,99,9,bar,manual,\N,테스트 — end_part·일일 매출 정산,false,\N,script/bar/day99,scene_t99_end,script_bar_day99,scenes,14,scenes_format_01
+np_shiba_1,0,1,street,interact,!flag.shiba_met,[이식] 시바 첫 조우 (구 first_encounter),false,np_shiba,script/common,common_scene_np_shiba_1,script_common,scenes,0,scenes_format_02
+np_shiba_2,0,2,street,interact,\E,[이식] 시바 반복 대사 (구 revisit_repeat),false,np_shiba,script/common,common_scene_np_shiba_2,script_common,scenes,1,scenes_format_02
+np_tv_1,0,1,home,interact,!flag.tv_seen1,홀로그램 TV — 실종 뉴스 (구 radio 이식),false,home_tv,script/common,common_scene_np_tv_1,script_common,scenes,2,scenes_format_02
+np_tv_2,0,2,home,interact,\E,홀로그램 TV — 토크쇼 (구 radio 이식),false,home_tv,script/common,common_scene_np_tv_2,script_common,scenes,3,scenes_format_02
+ob_parttime_1,0,1,street,interact,\E,[이식] 전단 — 알바 공고 (1회차 감상),false,ob_parttime,script/common,common_scene_ob_parttime_1,script_common,scenes,4,scenes_format_02
+ob_parttime_2,0,2,street,interact,\E,[이식] 전단 — 알바 공고 (2회차 감상),false,ob_parttime,script/common,scene_ob_parttime_2,script_common,scenes,5,scenes_format_02
+ob_parttime_3,0,3,street,interact,\E,[이식] 전단 — 알바 공고 (3회차 감상),false,ob_parttime,script/common,scene_ob_parttime_3,script_common,scenes,6,scenes_format_02
+ob_vending_buy,0,1,street,interact,money >= 25,[이식] 자판기 — 구매 성공,false,ob_vending,script/common,scene_ob_vending_buy,script_common,scenes,7,scenes_format_02
+ob_vending_poor,0,2,street,interact,\E,[이식] 자판기 — 잔액 부족,false,ob_vending,script/common,scene_ob_vending_poor,script_common,scenes,8,scenes_format_02
+ob_experiment_1,0,1,street,interact,\E,[이식] 임상시험 전단 — 코라테크 복선,false,ob_experiment,script/common,common_scene_ob_experiment_1,script_common,scenes,9,scenes_format_02
+ob_toilet_1,0,1,street,interact,\E,[이식] 쓰레기통,false,ob_toilet,script/common,scene_ob_toilet_1,script_common,scenes,10,scenes_format_02
+d1_intro,0,1,intro,auto,\N,"인트로 — 검은 화면, 루나가 처음 눈뜨던 밤",false,\N,script/cutscene,scene_d1_intro,script_cutscene,scenes,0,scenes_format_01
+d2_dream,1,1,dream,auto,\N,꿈 — 습격 1: 유나의 목소리와 총성,false,\N,script/cutscene,scene_d2_dream,script_cutscene,scenes,1,scenes_format_01
+d3_dream,3,1,dream,auto,!flag.samho_death_route && !flag.samho_refused_drink,꿈 — 습격 2 (데모에선 분기 엔딩이 대체),false,\N,script/cutscene,scene_d3_dream,script_cutscene,scenes,2,scenes_format_03
+np_tv_1,\N,1,home,interact,!flag.tv_seen1,홀로그램 TV — 실종 뉴스 (구 radio 이식),false,home_tv,script/home,home_scene_np_tv_1,script_home,scenes,0,scenes_format_04
+np_tv_2,\N,2,home,interact,\N,홀로그램 TV — 토크쇼 (구 radio 이식),false,home_tv,script/home,home_scene_np_tv_2,script_home,scenes,1,scenes_format_05
+d1_home_talk,0,1,home,auto,\N,테라스 — 바텐더의 태도 + 근황,false,\N,script/home,scene_d1_home_talk,script_home,scenes,2,scenes_format_01
+d2_home_talk,1,1,home,auto,\N,테라스 — 이틀째 밤,false,\N,script/home,scene_d2_home_talk,script_home,scenes,3,scenes_format_01
+d3_home_talk,3,1,home,auto,!flag.samho_death_route && !flag.samho_refused_drink,테라스 — 은인들 (데모에선 분기 씬이 대체),false,\N,script/home,scene_d3_home_talk,script_home,scenes,4,scenes_format_03
+d3_chris_witness,3,2,home,auto,flag.samho_refused_drink,크리스의 목격 — 데모 컷,false,\N,script/home,scene_d3_chris_witness,script_home,scenes,5,scenes_format_03
+qa_auto_radio,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_auto_radio,script_qa_street_day99,scenes,0,scenes_format_06
+qa_choice,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_choice,script_qa_street_day99,scenes,1,scenes_format_06
+qa_choice_result,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_choice_result,script_qa_street_day99,scenes,2,scenes_format_06
+qa_np_conversation,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_np_conversation,script_qa_street_day99,scenes,3,scenes_format_06
+qa_object_text,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_object_text,script_qa_street_day99,scenes,4,scenes_format_06
+qa_player_npc_dialogue,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_player_npc_dialogue,script_qa_street_day99,scenes,5,scenes_format_06
+qa_poster_once,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_poster_once,script_qa_street_day99,scenes,6,scenes_format_06
+qa_poster_repeat,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_poster_repeat,script_qa_street_day99,scenes,7,scenes_format_06
+qa_sequence_1,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_sequence_1,script_qa_street_day99,scenes,8,scenes_format_06
+qa_sequence_2,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_sequence_2,script_qa_street_day99,scenes,9,scenes_format_06
+qa_sequence_3,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_sequence_3,script_qa_street_day99,scenes,10,scenes_format_06
+qa_spawn_remove,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_spawn_remove,script_qa_street_day99,scenes,11,scenes_format_06
+qa_step_probe,\N,\N,\N,\N,\N,\N,\N,\N,script/qa/street_day99,scene_qa_step_probe,script_qa_street_day99,scenes,12,scenes_format_06
+d1_elevator,\N,\N,\N,\N,\N,\N,\N,\N,script/street,scene_d1_elevator,script_street,scenes,0,scenes_format_06
+d3_alley_cat,\N,\N,\N,\N,\N,\N,\N,\N,script/street,scene_d3_alley_cat,script_street,scenes,1,scenes_format_06
+np_shiba_1,\N,\N,\N,\N,\N,\N,\N,\N,script/street,street_scene_np_shiba_1,script_street,scenes,2,scenes_format_06
+np_shiba_2,\N,\N,\N,\N,\N,\N,\N,\N,script/street,street_scene_np_shiba_2,script_street,scenes,3,scenes_format_06
+np_shiba_3,\N,\N,\N,\N,\N,\N,\N,\N,script/street,scene_np_shiba_3,script_street,scenes,4,scenes_format_06
+np_shiba_treat,\N,\N,\N,\N,\N,\N,\N,\N,script/street,scene_np_shiba_treat,script_street,scenes,5,scenes_format_06
+ob_experiment_1,\N,\N,\N,\N,\N,\N,\N,\N,script/street,street_scene_ob_experiment_1,script_street,scenes,6,scenes_format_06
+ob_parttime_1,\N,\N,\N,\N,\N,\N,\N,\N,script/street,street_scene_ob_parttime_1,script_street,scenes,7,scenes_format_06
+tl_samho_arrive,\N,\N,\N,\N,\N,\N,\N,\N,script/street,scene_tl_samho_arrive,script_street,scenes,8,scenes_format_06

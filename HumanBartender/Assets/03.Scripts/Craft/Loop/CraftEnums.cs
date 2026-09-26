@@ -51,4 +51,6 @@ public enum ECraftPhase
     /// 같은 주문을 다시 만들더라도 이전 시도가 사라지면 안 된다.
     /// </summary>
     Discarded,
+    Failed,
+    Cancelled,
 }

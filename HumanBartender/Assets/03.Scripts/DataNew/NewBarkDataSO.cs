@@ -13,7 +13,7 @@ public struct NewBarkData
     [field: SerializeField][JsonProperty("weight")] public int Weight { get; set; }
 }
 
-/// <summary>StreamingAssets/json/barks.json을 보유하는 ScriptableObject.</summary>
+/// <summary>StreamingAssets/csv/guests/barks.csv에서 읽은 1부 손님 대사를 보유하는 ScriptableObject.</summary>
 [CreateAssetMenu(fileName = "NewBarkDataSO", menuName = "Data/New/BarkDataSO")]
 public class NewBarkDataSO : ScriptableObject
 {

@@ -1,0 +1,38 @@
+﻿context,seq,text.ko,text.en,when,effects,goto,lock_reason.ko,lock_reason.en,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+ch_d2_aili_lady,1,섹시한 레이디가 뭔가요?,What is a 'sexy lady'?,\N,\N,d2_aili_lady_q,\N,\N,script/bar/day1,bar_choices_ch_d2_aili_lady_1,choice_group_ch_d2_aili_lady,value,0,bar_choices_format_01
+ch_d2_aili_lady,2,주문받았습니다.,Order received.,\N,\N,\N,\N,\N,script/bar/day1,bar_choices_ch_d2_aili_lady_2,choice_group_ch_d2_aili_lady,value,1,bar_choices_format_02
+ch_t99_back,1,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_back_1,choice_group_ch_t99_back,value,0,bar_choices_format_01
+ch_t99_back,2,다시 보기 (읽음 스킵 확인),Replay (check read-skip),\N,\N,t99_dialogue,\N,\N,script/bar/day99,bar_choices_ch_t99_back_2,choice_group_ch_t99_back,value,1,bar_choices_format_01
+ch_t99_back2,1,분기 메뉴로,Back to branch menu,\N,\N,t99_branch_menu,\N,\N,script/bar/day99,bar_choices_ch_t99_back2_1,choice_group_ch_t99_back2,value,0,bar_choices_format_01
+ch_t99_back2,2,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_back2_2,choice_group_ch_t99_back2,value,1,bar_choices_format_01
+ch_t99_back3,1,분기 메뉴로,Back to branch menu,\N,\N,t99_branch_menu,\N,\N,script/bar/day99,bar_choices_ch_t99_back3_1,choice_group_ch_t99_back3,value,0,bar_choices_format_01
+ch_t99_back3,2,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_back3_2,choice_group_ch_t99_back3,value,1,bar_choices_format_01
+ch_t99_back4,1,좌석·연출 메뉴로,Back to stage menu,\N,\N,t99_stage_menu,\N,\N,script/bar/day99,bar_choices_ch_t99_back4_1,choice_group_ch_t99_back4,value,0,bar_choices_format_01
+ch_t99_back4,2,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_back4_2,choice_group_ch_t99_back4,value,1,bar_choices_format_01
+ch_t99_back5,1,좌석·연출 메뉴로,Back to stage menu,\N,\N,t99_stage_menu,\N,\N,script/bar/day99,bar_choices_ch_t99_back5_1,choice_group_ch_t99_back5,value,0,bar_choices_format_01
+ch_t99_back5,2,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_back5_2,choice_group_ch_t99_back5,value,1,bar_choices_format_01
+ch_t99_bar,1,[테스트] 주문 세트 정상 흐름 (진토닉),"[Test] Order set, normal flow (Gin & Tonic)",\N,\N,t99_order_normal,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_1,choice_group_ch_t99_bar,value,0,bar_choices_format_01
+ch_t99_bar,2,[테스트] 등급 5분기 · 실패 시 재제조 (진피즈),[Test] 5 grade branches · re-craft on fail (Gin Fizz),\N,\N,t99_order_grade,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_2,choice_group_ch_t99_bar,value,1,bar_choices_format_01
+ch_t99_bar,3,[테스트] 2인 동시 입장 · 연속 주문 · 서빙 대상 분리,[Test] Simultaneous entrance · back-to-back orders · separate serving targets,\N,\N,t99_two_guests,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_3,choice_group_ch_t99_bar,value,2,bar_choices_format_01
+ch_t99_bar,4,[테스트] 2부 종료 → 일일 매출 정산,[Test] End Part 2 → daily settlement,\N,\N,t99_end,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_4,choice_group_ch_t99_bar,value,3,bar_choices_format_01
+ch_t99_bar_back,1,2부 허브로,Back to Part 2 hub,\N,\N,t99_bar_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_back_1,choice_group_ch_t99_bar_back,value,0,bar_choices_format_01
+ch_t99_bar_back,2,한 번 더,Once more,\N,\N,t99_order_normal,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_back_2,choice_group_ch_t99_bar_back,value,1,bar_choices_format_01
+ch_t99_bar_back2,1,2부 허브로,Back to Part 2 hub,\N,\N,t99_bar_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_back2_1,choice_group_ch_t99_bar_back2,value,0,bar_choices_format_01
+ch_t99_bar_back2,2,한 번 더,Once more,\N,\N,t99_order_grade,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_back2_2,choice_group_ch_t99_bar_back2,value,1,bar_choices_format_01
+ch_t99_bar_back3,1,2부 허브로,Back to Part 2 hub,\N,\N,t99_bar_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_back3_1,choice_group_ch_t99_bar_back3,value,0,bar_choices_format_01
+ch_t99_bar_back3,2,한 번 더,Once more,\N,\N,t99_two_guests,\N,\N,script/bar/day99,bar_choices_ch_t99_bar_back3_2,choice_group_ch_t99_bar_back3,value,1,bar_choices_format_01
+ch_t99_branch,1,플래그 심고 when 분기 확인,Set a flag and check when-branching,\N,\N,t99_flag_test,\N,\N,script/bar/day99,bar_choices_ch_t99_branch_1,choice_group_ch_t99_branch,value,0,bar_choices_format_01
+ch_t99_branch,2,효과 적용 — 골드+100 · 평판+1 · 포트 호감+2,Apply effects — Gold +100 · Rep +1 · Port +2,\N,money += 100; reputation += 1; affinity.port += 2; flag.t99_paid = true,t99_effect_check,\N,\N,script/bar/day99,bar_choices_ch_t99_branch_2,choice_group_ch_t99_branch,value,1,bar_choices_format_03
+ch_t99_branch,3,조건부 항목 — 플래그 테스트를 통과하면 활성화,Conditional — unlocks after the flag test,flag.t99_probe_done,\N,t99_flag_test,플래그 테스트를 먼저 완료해야 합니다.,Complete the flag test first.,script/bar/day99,bar_choices_ch_t99_branch_3,choice_group_ch_t99_branch,value,2,bar_choices_format_04
+ch_t99_branch,4,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_branch_4,choice_group_ch_t99_branch,value,3,bar_choices_format_01
+ch_t99_main,1,[테스트] 대사 · 표정 · 태그 · 읽음 스킵,[Test] Dialogue · expression · tags · read-skip,\N,\N,t99_dialogue,\N,\N,script/bar/day99,bar_choices_ch_t99_main_1,choice_group_ch_t99_main,value,0,bar_choices_format_01
+ch_t99_main,2,[테스트] 분기 · 효과 (when / effects),[Test] Branching · effects (when / effects),\N,\N,t99_branch_menu,\N,\N,script/bar/day99,bar_choices_ch_t99_main_2,choice_group_ch_t99_main,value,1,bar_choices_format_01
+ch_t99_main,3,[테스트] 좌석 · 카메라 · 연출,[Test] Seats · camera · presentation,\N,\N,t99_stage_menu,\N,\N,script/bar/day99,bar_choices_ch_t99_main_3,choice_group_ch_t99_main,value,2,bar_choices_format_01
+ch_t99_main,4,[테스트] 1부 시작 — 랜덤 손님 2팀 (개점 종료),[Test] Start Part 1 — 2 random guests (ends bar-open),\N,\N,\N,\N,\N,script/bar/day99,bar_choices_ch_t99_main_4,choice_group_ch_t99_main,value,3,bar_choices_format_02
+ch_t99_stage,1,좌석 등장·퇴장 (1↔2인 카메라 전환),Seat enter/exit (1↔2 guest camera),\N,\N,t99_seats,\N,\N,script/bar/day99,bar_choices_ch_t99_stage_1,choice_group_ch_t99_stage,value,0,bar_choices_format_01
+ch_t99_stage,2,fx · sfx,fx · sfx,\N,\N,t99_fxsfx,\N,\N,script/bar/day99,bar_choices_ch_t99_stage_2,choice_group_ch_t99_stage,value,1,bar_choices_format_01
+ch_t99_stage,3,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_stage_3,choice_group_ch_t99_stage,value,2,bar_choices_format_01
+ch_d1_home,1,지낼 만해요.,It's livable.,\N,affinity.chris += 2,\N,\N,\N,script/home,bar_choices_ch_d1_home_1,choice_group_ch_d1_home,value,0,bar_choices_format_05
+ch_d1_home,2,…아직 모르겠어요.,...I don't know yet.,\N,affinity.chris += 1,\N,\N,\N,script/home,bar_choices_ch_d1_home_2,choice_group_ch_d1_home,value,1,bar_choices_format_05
+ch_d3_home,1,만드는 건 재밌어요.,Making drinks is fun.,\N,affinity.chris += 2,\N,\N,\N,script/home,bar_choices_ch_d3_home_1,choice_group_ch_d3_home,value,0,bar_choices_format_05
+ch_d3_home,2,사람이… 어렵네요.,People are... difficult.,\N,affinity.chris += 2,\N,\N,\N,script/home,bar_choices_ch_d3_home_2,choice_group_ch_d3_home,value,1,bar_choices_format_05

@@ -26,7 +26,7 @@ public class SoundManager : MonoBehaviour, ISoundManager
     [SerializeField] private AudioSource bgmSource; // BG 전용 (Loop)
 
     [Header("SE Pool")]
-    [SerializeField] private int sePoolSize = 12;
+    [Min(1)][SerializeField] private int sePoolSize = 12;
     private readonly List<AudioSource> sePool = new();
     private int seCursor;
 
@@ -65,14 +65,38 @@ public class SoundManager : MonoBehaviour, ISoundManager
         _bgm = new Dictionary<string, Sound>();
         _se = new Dictionary<string, Sound>();
 
-        foreach (var s in bgmList) if (s != null && !string.IsNullOrEmpty(s.name)) _bgm[s.name] = s;
-        foreach (var s in seList) if (s != null && !string.IsNullOrEmpty(s.name)) _se[s.name] = s;
+        IndexSounds(bgmList, _bgm);
+        IndexSounds(seList, _se);
+    }
+
+    static void IndexSounds(List<Sound> sounds, Dictionary<string, Sound> index)
+    {
+        var duplicates = new HashSet<string>();
+        foreach (var sound in sounds)
+        {
+            if (sound == null || string.IsNullOrWhiteSpace(sound.name)) continue;
+            if (duplicates.Contains(sound.name)) continue;
+            if (!index.TryAdd(sound.name, sound))
+            {
+                index.Remove(sound.name);
+                duplicates.Add(sound.name);
+                Debug.LogError($"[SoundManager] 중복된 사운드 이름은 재생하지 않습니다: {sound.name}");
+            }
+        }
+    }
+
+    void OnDisable()
+    {
+        if (_bgmFadeRoutine != null) StopCoroutine(_bgmFadeRoutine);
+        _bgmFadeRoutine = null;
+        if (bgmSource != null) bgmSource.Stop();
+        foreach (var source in sePool) if (source != null) source.Stop();
     }
 
     private void BuildSePool()
     {
         var seGroup = mixer != null ? mixer.FindMatchingGroups("SE") : null;
-        for (int i = 0; i < sePoolSize; i++)
+        for (int i = 0; i < Mathf.Max(1, sePoolSize); i++)
         {
             var go = new GameObject($"SE_Source_{i}");
             go.transform.SetParent(transform);
@@ -86,13 +110,15 @@ public class SoundManager : MonoBehaviour, ISoundManager
     // ─── BG ─────────────────────────────────────────
     public void PlayBGM(string name, float fadeDuration = 1f, bool loop = true)
     {
-        if (!_bgm.TryGetValue(name, out var sound))
+        if (!isActiveAndEnabled) return;
+        if (bgmSource == null || string.IsNullOrEmpty(name) || !_bgm.TryGetValue(name, out var sound) || sound.clip == null)
         {
             Debug.LogWarning($"[SoundManager] BGM '{name}' 없음");
             return;
         }
 
         if (_bgmFadeRoutine != null) StopCoroutine(_bgmFadeRoutine);
+        _bgmFadeRoutine = null;
 
         if (fadeDuration <= 0f)
         {
@@ -139,8 +165,10 @@ public class SoundManager : MonoBehaviour, ISoundManager
 
     public void StopBGM(float fadeDuration = 1f)
     {
+        if (bgmSource == null) return;
         if (_bgmFadeRoutine != null) StopCoroutine(_bgmFadeRoutine);
-        if (fadeDuration <= 0f) { bgmSource.Stop(); return; }
+        _bgmFadeRoutine = null;
+        if (!isActiveAndEnabled || fadeDuration <= 0f) { bgmSource.Stop(); return; }
         _bgmFadeRoutine = StartCoroutine(FadeOutAndStop(fadeDuration));
     }
 
@@ -158,15 +186,16 @@ public class SoundManager : MonoBehaviour, ISoundManager
 
     public void PauseBGM()
     {
-        Logger.Log("asdad"); bgmSource.Pause();
+        if (bgmSource != null) bgmSource.Pause();
     }
 
-    public void ResumeBGM() => bgmSource.UnPause();
+    public void ResumeBGM() { if (bgmSource != null) bgmSource.UnPause(); }
 
     // ─── SE (동시 재생) ─────────────────────────────
     public void PlaySE(string name)
     {
-        if (!_se.TryGetValue(name, out var sound))
+        if (!isActiveAndEnabled) return;
+        if (string.IsNullOrEmpty(name) || !_se.TryGetValue(name, out var sound) || sound.clip == null)
         {
             Debug.LogWarning($"[SoundManager] SE '{name}' 없음");
             return;

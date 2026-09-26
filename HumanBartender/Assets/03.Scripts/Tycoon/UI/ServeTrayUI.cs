@@ -42,6 +42,10 @@ public class ServeTrayUI : MonoBehaviour
     [SerializeField] Color glassColor = new(1f, 1f, 1f, 0.55f);
 
     RectTransform trayRoot;
+    RectTransform poolRoot;
+    GameObject discardZone;
+    readonly List<(DrinkDragItem item, int frame)> cachedItems = new();
+    readonly List<DrinkDragItem> ownedItems = new();
     readonly List<DrinkDragItem> items = new();
 
     /// <summary>지금 트레이에 놓여 있는 잔의 수.</summary>
@@ -56,39 +60,49 @@ public class ServeTrayUI : MonoBehaviour
         }
 
         BuildTrayRoot();
+        var pool = new GameObject("Drink UI Pool", typeof(RectTransform));
+        pool.transform.SetParent(rootCanvas.transform, false);
+        poolRoot = (RectTransform)pool.transform;
+        pool.SetActive(false);
+        ReturnItem(CreateItem());
+        BuildDiscardZone();
     }
 
     void OnEnable()
     {
+        if (trayRoot != null) trayRoot.gameObject.SetActive(true);
+        foreach (var item in items)
+            if (item != null) item.gameObject.SetActive(true);
+        if (discardZone != null) discardZone.SetActive(true);
         if (craftFlow == null)
         {
             Debug.LogError("[ServeTray] craftFlow가 비어 있어 완성한 잔을 받을 수 없습니다.");
             return;
         }
 
-        craftFlow.CraftCompleted += OnCraftCompleted;
-        craftFlow.AddCraftBlocker(DescribeCraftBlock);
+        craftFlow.DrinkReady += AddDrink;
+        if (craftFlow.PendingDrink != null && items.TrueForAll(item => item == null ||
+            !ReferenceEquals(item.Drink, craftFlow.PendingDrink)))
+            AddDrink(craftFlow.PendingDrink);
     }
 
     void OnDisable()
     {
+        // 드래그 중에는 잔이 트레이 밖에 있으므로 먼저 비활성화해 종료시킨다.
+        foreach (var item in items.ToArray())
+            if (item != null) item.gameObject.SetActive(false);
+        if (trayRoot != null) trayRoot.gameObject.SetActive(false);
+        if (discardZone != null) discardZone.SetActive(false);
         if (craftFlow == null) return;
 
-        craftFlow.CraftCompleted -= OnCraftCompleted;
-
-        // 트레이가 없으면 막을 사람도 없다. 걸어 둔 채로 꺼지면 제조가 영영 막힌다.
-        craftFlow.RemoveCraftBlocker(DescribeCraftBlock);
+        craftFlow.DrinkReady -= AddDrink;
     }
 
     /// <summary>
     /// 아직 내지 않은 잔이 남아 있으면 새 제조를 막는 이유를 댄다. 막을 것이 없으면 null이다.
     /// </summary>
-    string DescribeCraftBlock()
-    {
-        if (items.Count == 0) return null;
-
-        return $"아직 내지 않은 잔({items[0].Drink.DisplayName})이 트레이에 있어 새로 만들 수 없습니다.";
-    }
+    string DescribeCraftBlock() => craftFlow?.PendingDrink == null ? null :
+        $"아직 내지 않은 잔({craftFlow.PendingDrink.DisplayName})이 트레이에 있습니다.";
 
     /// <summary>잔들이 가로로 늘어설 자리를 화면 하단 가운데에 만든다. 잔 수에 따라 폭은 스스로 늘어난다.</summary>
     void BuildTrayRoot()
@@ -117,35 +131,34 @@ public class ServeTrayUI : MonoBehaviour
     }
 
     /// <summary>제조가 끝나 기록이 확정되면 그 잔을 트레이에 올린다.</summary>
-    void OnCraftCompleted(CraftSession session, CraftJudgement judgement)
-    {
-        if (trayRoot == null) return;
-
-        if (!cocktailData.TryGet(session.SelectedCocktailId, out NewCocktailData cocktail))
-        {
-            Debug.LogError($"[ServeTray] {session.SelectedCocktailId} 칵테일을 데이터에서 찾지 못해 잔을 만들지 못했습니다.");
-            return;
-        }
-
-        AddDrink(new CraftedDrink(session, judgement, cocktail));
-    }
-
     /// <summary>완성한 잔 하나를 트레이 맨 뒤에 올린다.</summary>
     public void AddDrink(CraftedDrink drink)
     {
-        DrinkDragItem item = CreateItem(drink);
-        item.Served += OnItemServed;
+        if (trayRoot == null || drink == null || items.Exists(item => item != null && ReferenceEquals(item.Drink, drink)))
+            return;
+        DrinkDragItem item = TakeItem();
+        item.transform.SetParent(trayRoot, false);
+        item.Initialize(drink, rootCanvas, ReturnItem);
+        item.name = $"Drink {drink.CocktailId}";
+        item.transform.Find("Body").GetComponent<Image>().color = drink.Color;
+        var secondColor = item.transform.Find("Body/Body2").GetComponent<Image>();
+        secondColor.color = drink.Color2 ?? Color.clear;
+        secondColor.gameObject.SetActive(drink.Color2.HasValue);
+        item.transform.Find("Name").GetComponent<TextMeshProUGUI>().text = drink.DisplayName;
+        item.Removed += OnItemRemoved;
         items.Add(item);
+        item.gameObject.SetActive(true);
 
         craftFlow?.RefreshCraftAvailability();
 
         Debug.Log($"[ServeTray] {drink.DisplayName} 완성 — 트레이에 올렸습니다. (총 {items.Count}잔)");
     }
 
-    /// <summary>손님에게 나간 잔을 목록에서 지운다. 오브젝트를 치우는 것은 아이콘 쪽이 한다.</summary>
-    void OnItemServed(DrinkDragItem item)
+    /// <summary>서빙·폐기된 잔을 목록에서 지운다. UI 반환은 드래그 종료 뒤 수행한다.</summary>
+    void OnItemRemoved(DrinkDragItem item, DrinkRemovalReason reason)
     {
-        item.Served -= OnItemServed;
+        craftFlow?.ConsumeDrink(item.Drink);
+        item.Removed -= OnItemRemoved;
         items.Remove(item);
 
         craftFlow?.RefreshCraftAvailability();
@@ -157,9 +170,9 @@ public class ServeTrayUI : MonoBehaviour
     /// 잔 아이콘 하나를 만든다. 칸 위에 칵테일 색을 칠한 잔 몸통과 다리·받침, 그 아래 이름이 놓인다.
     /// 그라데이션 칵테일(color2)은 몸통 아래쪽 절반을 두 번째 색으로 칠해 두 층으로 보이게 한다.
     /// </summary>
-    DrinkDragItem CreateItem(CraftedDrink drink)
+    DrinkDragItem CreateItem()
     {
-        var go = new GameObject($"Drink {drink.CocktailId}",
+        var go = new GameObject("Cached Drink",
             typeof(RectTransform), typeof(Image), typeof(CanvasGroup), typeof(LayoutElement), typeof(DrinkDragItem));
         go.transform.SetParent(trayRoot, false);
 
@@ -174,19 +187,64 @@ public class ServeTrayUI : MonoBehaviour
 
         RectTransform body = CreateRect(rect, "Body",
             new Vector2(itemSize.x * 0.52f, itemSize.y * 0.44f),
-            new Vector2(0f, itemSize.y * 0.19f), drink.Color);
+            new Vector2(0f, itemSize.y * 0.19f), Color.clear);
 
-        if (drink.Color2.HasValue)
-            CreateBottomHalf(body, drink.Color2.Value);
+        CreateBottomHalf(body, Color.clear);
 
         CreateRect(rect, "Stem", new Vector2(6f, 14f), new Vector2(0f, -itemSize.y * 0.11f), glassColor);
         CreateRect(rect, "Base", new Vector2(itemSize.x * 0.31f, 4f), new Vector2(0f, -itemSize.y * 0.19f), glassColor);
 
-        CreateName(rect, drink.DisplayName);
+        CreateName(rect, string.Empty);
 
         var item = go.GetComponent<DrinkDragItem>();
-        item.Initialize(drink, rootCanvas);
+        ownedItems.Add(item);
         return item;
+    }
+
+    DrinkDragItem TakeItem()
+    {
+        // 같은 프레임의 이전 포인터 종료 이벤트가 새 잔에 적용되지 않게 한다.
+        for (int i = cachedItems.Count - 1; i >= 0; i--)
+        {
+            var cached = cachedItems[i];
+            if (cached.frame >= Time.frameCount) continue;
+            cachedItems.RemoveAt(i);
+            if (cached.item != null) return cached.item;
+        }
+        return CreateItem();
+    }
+
+    void ReturnItem(DrinkDragItem item)
+    {
+        item.gameObject.SetActive(false);
+        item.transform.SetParent(poolRoot, false);
+        cachedItems.Add((item, Time.frameCount));
+    }
+
+    void BuildDiscardZone()
+    {
+        var rect = CreateRect((RectTransform)rootCanvas.transform, "Drink Discard Zone",
+            new Vector2(150f, 90f), Vector2.zero, new Color(0.8f, 0.08f, 0.08f, 0.95f));
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1f, 0f);
+        rect.anchoredPosition = new Vector2(-24f, bottomMargin);
+        rect.GetComponent<Image>().raycastTarget = true;
+        rect.gameObject.AddComponent<DrinkDiscardDropZone>();
+        CreateName(rect, "비우기");
+        var label = (RectTransform)rect.Find("Name");
+        label.anchorMin = Vector2.zero;
+        label.anchorMax = Vector2.one;
+        label.offsetMin = label.offsetMax = Vector2.zero;
+        label.GetComponent<TextMeshProUGUI>().fontSize = 20f;
+        discardZone = rect.gameObject;
+    }
+
+    void OnDestroy()
+    {
+        foreach (var item in ownedItems)
+            if (item != null) Destroy(item.gameObject);
+        if (trayRoot != null) Destroy(trayRoot.gameObject);
+        if (poolRoot != null) Destroy(poolRoot.gameObject);
+        if (discardZone != null) Destroy(discardZone);
     }
 
     /// <summary>부모 중앙을 기준으로 size 크기의 단색 사각형을 만든다.</summary>

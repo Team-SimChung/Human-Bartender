@@ -1,4 +1,6 @@
 using Cysharp.Threading.Tasks;
+using System;
+using System.Threading;
 using UnityEngine;
 using VContainer;
 
@@ -20,12 +22,15 @@ public class TycoonFlow : MonoBehaviour, IPlayPhaseFlow
     int todayCustomerCount;
     UniTaskCompletionSource completionSource;
 
-    public async UniTask RunAsync()
+    public async UniTask RunAsync(CancellationToken cancellationToken = default)
     {
-        // json 로딩이 끝나기를 먼저 기다린다. 로딩은 프레임을 넘겨 가며 도는데 씬의 Start는 그와
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
+            this.GetCancellationTokenOnDestroy());
+        var token = linked.Token;
+        // CSV 로딩이 끝나기를 먼저 기다린다. 로딩은 프레임을 넘겨 가며 도는데 씬의 Start는 그와
         // 무관하게 먼저 끝나서, 기다리지 않으면 SO에 구워져 있는 빈 배열을 오늘 데이터로 읽는다.
         // 그러면 예외도 없이 "오늘 손님 0명"이 되어 1부를 통째로 건너뛴다.
-        await NewDataLoadManager.WaitUntilLoadedAsync();
+        await NewDataLoadManager.WaitUntilLoadedAsync(token);
 
         // 당일 대기열은 1부가 시작할 때 만든다. 여기서 만들어야 큐를 세는 시점이 큐를 채우는 시점보다
         // 확실히 뒤가 된다 — Start끼리는 실행 순서가 정해져 있지 않다.
@@ -49,14 +54,28 @@ public class TycoonFlow : MonoBehaviour, IPlayPhaseFlow
             dialogueClickCatcher.SetActive(false);
 
         guestManager.GuestReleased += OnGuestReleased;
-        guestManager.RunSpawnLoopAsync(this.GetCancellationTokenOnDestroy()).Forget();
-
-        await completionSource.Task;
-
-        guestManager.GuestReleased -= OnGuestReleased;
-
-        if (dialogueClickCatcher != null)
-            dialogueClickCatcher.SetActive(true);
+        var spawn = guestManager.RunSpawnLoopAsync(token).AsTask();
+        try
+        {
+            int first = await UniTask.WhenAny(completionSource.Task.AttachExternalCancellation(token), spawn.AsUniTask());
+            if (first == 1)
+            {
+                await spawn;
+                await completionSource.Task.AttachExternalCancellation(token);
+            }
+        }
+        finally
+        {
+            linked.Cancel();
+            try { await spawn; }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+            finally
+            {
+                guestManager.GuestReleased -= OnGuestReleased;
+                if (dialogueClickCatcher != null)
+                    dialogueClickCatcher.SetActive(true);
+            }
+        }
     }
 
     /// <summary>
@@ -65,6 +84,7 @@ public class TycoonFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     public void OnCustomerHandled()
     {
+        if (remainingCustomers <= 0) return;
         remainingCustomers--;
 
         if (remainingCustomers > 0)
@@ -97,6 +117,6 @@ public class TycoonFlow : MonoBehaviour, IPlayPhaseFlow
 
     void OnGuestReleased(Guest guest)
     {
-        OnCustomerHandled();
+        if (guest != null) OnCustomerHandled();
     }
 }

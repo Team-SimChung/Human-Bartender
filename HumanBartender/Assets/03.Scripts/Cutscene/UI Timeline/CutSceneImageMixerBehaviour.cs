@@ -1,3 +1,4 @@
+using System.Threading;
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
@@ -9,6 +10,7 @@ using UnityEngine.UI;
 /// <summary>Image 트랙 믹서. 활성 클립의 이미지 데이터를 읽어 CutSceneTimelineManager의 이미지 풀을 통해 표시한다.</summary>
 public class CutSceneImageMixerBehaviour : PlayableBehaviour
 {
+    readonly TimelineTransitionScope transitions = new();
     // Mixer가 Track에서 받아오는 바인딩
     internal CutSceneTimelineManager manager;
 
@@ -50,7 +52,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 behaviour.assignedImage = img;
                 manager.RegisterActive(activeKey, img);
 
-                PlayEnter(img, behaviour).Forget();
+                transitions.RunAsync(img, manager, token => PlayEnter(img, behaviour, token)).Forget();
             }
             else if (weight <= 0f && behaviour.isActive)
             {
@@ -60,7 +62,8 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 if (behaviour.assignedImage != null && !behaviour.exitDone)
                 {
                     behaviour.exitDone = true;
-                    PlayExit(behaviour.assignedImage, behaviour).Forget();
+                    var exiting = behaviour.assignedImage;
+                    transitions.RunAsync(exiting, manager, token => PlayExit(exiting, behaviour, token)).Forget();
                 }
             }
         }
@@ -68,6 +71,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
 
     public override void OnPlayableDestroy(Playable playable)
     {
+        transitions.CancelAll();
         if (manager != null)
             manager.ResetImages();
     }
@@ -76,7 +80,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
     //  Enter 애니메이션
     // ══════════════════════════════════════════════════════════════════
 
-    async UniTaskVoid PlayEnter(Image img, CutSceneImageBehaviour b)
+    async UniTask PlayEnter(Image img, CutSceneImageBehaviour b, CancellationToken token)
     {
         RectTransform rect = img.GetComponent<RectTransform>();
         float duration = b.enterDuration;
@@ -96,7 +100,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 img.gameObject.SetActive(true);
                 await img.DOFade(1f, duration)
                          .SetEase(b.enterEase == Ease.Unset ? Ease.Linear : b.enterEase)
-                         .ToUniTask();
+                         .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EEneterPreset.SlideLeft:
@@ -104,7 +108,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 Vector2 dest = rect.anchoredPosition;
                 rect.anchoredPosition = dest + new Vector2(canvasRect.rect.width * dist, 0);
                 img.gameObject.SetActive(true);
-                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EEneterPreset.SlideRight:
@@ -112,7 +116,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 Vector2 dest = rect.anchoredPosition;
                 rect.anchoredPosition = dest - new Vector2(canvasRect.rect.width * dist, 0);
                 img.gameObject.SetActive(true);
-                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EEneterPreset.SlideUp:
@@ -120,7 +124,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 Vector2 dest = rect.anchoredPosition;
                 rect.anchoredPosition = dest - new Vector2(0, canvasRect.rect.height * dist);
                 img.gameObject.SetActive(true);
-                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EEneterPreset.SlideDown:
@@ -128,7 +132,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 Vector2 dest = rect.anchoredPosition;
                 rect.anchoredPosition = dest + new Vector2(0, canvasRect.rect.height * dist);
                 img.gameObject.SetActive(true);
-                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(dest, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EEneterPreset.ScaleUp:
@@ -138,8 +142,8 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
                 img.color = new Color(1, 1, 1, 0);
                 img.gameObject.SetActive(true);
                 await UniTask.WhenAll(
-                    rect.DOScale(1f, duration).SetEase(scaleEase).ToUniTask(),
-                    img.DOFade(1f, duration).ToUniTask()
+                    rect.DOScale(1f, duration).SetEase(scaleEase).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token),
+                    img.DOFade(1f, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token)
                 );
                 break;
             }
@@ -154,7 +158,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
     //  Exit 애니메이션
     // ══════════════════════════════════════════════════════════════════
 
-    async UniTaskVoid PlayExit(Image img, CutSceneImageBehaviour b)
+    async UniTask PlayExit(Image img, CutSceneImageBehaviour b, CancellationToken token)
     {
         RectTransform rect = img.GetComponent<RectTransform>();
         float duration = b.exitDuration;
@@ -171,44 +175,44 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
             case EExitPreset.FadeOut:
                 await img.DOFade(0f, duration)
                          .SetEase(b.exitEase == Ease.Unset ? Ease.Linear : b.exitEase)
-                         .ToUniTask();
+                         .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
 
             case EExitPreset.SlideLeft:
             {
                 Vector2 target = rect.anchoredPosition - new Vector2(canvasRect.rect.width * dist, 0);
-                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EExitPreset.SlideRight:
             {
                 Vector2 target = rect.anchoredPosition + new Vector2(canvasRect.rect.width * dist, 0);
-                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EExitPreset.SlideUp:
             {
                 Vector2 target = rect.anchoredPosition + new Vector2(0, canvasRect.rect.height * dist);
-                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EExitPreset.SlideDown:
             {
                 Vector2 target = rect.anchoredPosition - new Vector2(0, canvasRect.rect.height * dist);
-                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask();
+                await rect.DOAnchorPos(target, duration).SetEase(ease).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
             }
             case EExitPreset.ScaleDown:
             {
                 Ease scaleEase = b.exitEase == Ease.Unset ? Ease.InBack : b.exitEase;
                 await UniTask.WhenAll(
-                    rect.DOScale(0f, duration).SetEase(scaleEase).ToUniTask(),
-                    img.DOFade(0f, duration).ToUniTask()
+                    rect.DOScale(0f, duration).SetEase(scaleEase).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token),
+                    img.DOFade(0f, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token)
                 );
                 break;
             }
             default:
-                await img.DOFade(0f, duration).ToUniTask();
+                await img.DOFade(0f, duration).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
                 break;
         }
 

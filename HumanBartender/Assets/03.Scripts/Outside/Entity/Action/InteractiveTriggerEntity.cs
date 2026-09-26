@@ -1,40 +1,38 @@
-using System.Collections.Generic;
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
-/// <summary>
-/// 클릭(Interact) 없이 포커스 진입만으로 컷씬을 재생하는 트리거 엔티티(예: 특정 구역 진입 시 자동 연출).
-/// 실제 상호작용(Interact)은 비어 있고 OnFocusEnter에서 바로 타임라인 컷씬을 실행한다.
-/// </summary>
+/// <summary>CSV action_ref의 컷신을 실행하며 성공한 경우에만 소비한다.</summary>
 public class InteractiveTriggerEntity : InteractiveEntity
 {
-    [Header("DAta")]
-    [SerializeField] string cutSceneId;
-    [SerializeField] List<CutsceneLine> lines;
-
     [Inject] IOutsideTimeliner timeliner;
-
-    /// <summary>InteractiveEntityManager가 데이터 기반으로 재생할 컷씬 id를 주입한다.</summary>
-    public void SetId(string id) => cutSceneId = id;
-
-
+    CancellationTokenSource playback;
+    string completedId;
+    void OnDisable() => playback?.Cancel();
+    public override bool SupportsAction(NewInteractPointData definition) =>
+        definition.ActionType == EActionType.Scene && !string.IsNullOrWhiteSpace(definition.ActionRef);
     public override void Interact(IInteractor player)
     {
-
+        if (!isInteract || !isActiveAndEnabled || playback != null || completedId == Definition?.Id) return;
+        PlayAsync().Forget(e => { if (e is not OperationCanceledException) Debug.LogException(e); });
     }
-
-    /// <summary>포커스(감지 범위 진입) 시 1회성으로 컷씬을 재생하고, 재사용되지 않도록 즉시 비활성화한다.</summary>
-    public override void OnFocusEnter()
+    async UniTask PlayAsync()
     {
-        OnInteracted?.Raise(this);
-        IsAvaliable = false;
-
-        timeliner.InitHandler(lines);
-        timeliner.PlayTimelineCutScene(cutSceneId);
-    }
-
-    public override void OnFocusExit()
-    {
-
+        if (timeliner == null) throw new InvalidOperationException("Outside Timeline service is missing.");
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        playback = source;
+        isInteracting = true;
+        var id = Definition?.Id;
+        try
+        {
+            OnInteracted?.Raise(this);
+            await timeliner.PlayTimelineCutSceneAsync(ActionRef, source.Token);
+            source.Token.ThrowIfCancellationRequested();
+            completedId = id;
+            isInteract = false;
+        }
+        finally { playback = null; isInteracting = false; }
     }
 }

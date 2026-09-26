@@ -1,0 +1,5 @@
+﻿day,start_phase,bgm_street,bgm_bar,upkeep_gold,note,label.ko,label.en,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+0,home,bgm_street_night,bgm_bar_calm,0,인트로→집 기상→쪽지→비 오는 출근길(행인 없음)→튜토리얼+포트 첫 잔→엘리베이터 컷씬→테라스,튜토리얼,Tutorial,days,days_1,@days,\N,0,days_format_01
+1,home,bgm_street_night,bgm_bar_main,0,첫 풀 사이클. 신규 입고 없음(day1 배치 공유). 밤: 습격의 꿈 1,첫 영업,First Night,days,days_2,@days,\N,1,days_format_01
+2,home,bgm_street_night,bgm_bar_main,0,삼호·아일리 영업. 선택 결과는 Day 3 퇴근길·집·꿈 장면에서 확인,삼호와 아일리,Samho & Aili,days,days_3,@days,\N,2,days_format_01
+3,commute_out,bgm_street_night,bgm_bar_main,0,데모 최종일. 삼호 사망·구출·일반 경로 결과를 확인한 뒤 엔딩으로 연결,선택의 결과,Consequences,days,days_4,@days,\N,3,days_format_01

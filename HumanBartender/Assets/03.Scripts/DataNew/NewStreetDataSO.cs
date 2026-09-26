@@ -103,7 +103,7 @@ public struct NewStreetData
 [CreateAssetMenu(fileName = "NewStreetDataSO", menuName = "Data/New/StreetDataSO")]
 public class NewStreetDataSO : ScriptableObject
 {
-    public NewStreetData newStreetData;
+    [NonSerialized] public NewStreetData newStreetData; // Runtime CSV cache, not an Inspector authoring source.
 
     // Fast-lookup Dictionary (Inspector 미노출)
     private Dictionary<string, NewSceneData> _sceneDict;

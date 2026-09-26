@@ -1,11 +1,8 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Data.SqlTypes;
 using System.Threading;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
+using VContainer;
 
 /// <summary>말풍선 타이핑에 필요한 데이터(대사 내용, 화자, 위치, 색상 등)를 담는 컨테이너.</summary>
 [System.Serializable]
@@ -55,6 +52,7 @@ public class UIDialogueTextView : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] NewTextTagDataSO textTagData;
+    [Inject] ISoundManager soundManager;
 
     [Header("UI Components")]
     public DynamicSpeechBubble lunaSpeechBubble;
@@ -69,7 +67,7 @@ public class UIDialogueTextView : MonoBehaviour
 
 
     private TypingData curTypingData;
-    private CancellationTokenSource typingCts;
+    private DialogueTextPlayer currentPlayer;
 
     [SerializeField] private float defaultTypingDelay = 0.05f;
 
@@ -84,13 +82,10 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>
     /// 화자에 맞는 말풍선(루나/손님)을 선택하고, 손님 발화면 캐릭터 위치에 맞춰 말풍선 위치를 조정한 뒤 타이핑을 시작한다.
     /// </summary>
-    public async UniTask StartType(TypingData data, string cocktailName = null)
+    public async UniTask StartType(TypingData data, string cocktailName = null, CancellationToken token = default)
     {
-        if (data == null)
-        {
-            Debug.LogError("[DialogueTextView] 타이핑 데이터가 없어 대사를 표시하지 못했습니다.");
-            return;
-        }
+        token.ThrowIfCancellationRequested();
+        if (data == null) throw new ArgumentNullException(nameof(data));
 
         var type = data.bubbleType;
 
@@ -111,15 +106,14 @@ public class UIDialogueTextView : MonoBehaviour
 
         if (targetBubble == null)
         {
-            Debug.LogError($"[DialogueTextView] '{type}' 말풍선이 연결되어 있지 않습니다.");
-            return;
+            throw new InvalidOperationException($"[DialogueTextView] '{type}' 말풍선이 연결되어 있지 않습니다.");
         }
 
         if (type == DialogueBubbleType.Customer)
             SetBubblePosition(data.speakerPos);
 
         curTypingData = data;
-        await TypeSentenceTMP(data, cocktailName);
+        await TypeSentenceTMP(data, cocktailName, token);
     }
 
     /// <summary>캐릭터의 월드 좌표를 화면 좌표로 변환해 말풍선 위치를 캐릭터 머리 위(subOffset)로 맞춘다.</summary>
@@ -142,6 +136,7 @@ public class UIDialogueTextView : MonoBehaviour
     {
         if (bubble == null) return;
 
+        bubble.TextPlayer.Stop();
         if (bubble.textLabel != null)
         {
             bubble.textLabel.enableAutoSizing = false;
@@ -154,6 +149,7 @@ public class UIDialogueTextView : MonoBehaviour
 
     public void ClearText()
     {
+        StopTyping();
         ClearBubble(lunaSpeechBubble);
         ClearBubble(customerSpeechBubble);
         ClearBubble(narrationSpeechBubble);
@@ -162,8 +158,10 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>화면 클릭 시 타이핑을 중단(스킵)한다.</summary>
     public void OnScreenClick()
     {
-        StopTyping();
+        currentPlayer?.Skip();
     }
+
+    void OnDisable() => StopTyping();
 
     /// <summary>타이핑 완료 후 현재 타이핑 데이터 참조를 정리한다.</summary>
     public void CompleteTyping()
@@ -174,27 +172,34 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>진행 중인 타이핑 코루틴을 취소한다.</summary>
     public void StopTyping()
     {
-        if (typingCts != null)
-        {
-            typingCts.Cancel();
-            typingCts.Dispose();
-            typingCts = null;
-        }
+        currentPlayer?.Stop();
+        currentPlayer = null;
     }
 
     /// <summary>
     /// 말풍선에 한 글자씩 순차 표시(타이핑 효과)한다. 실제 태그 파싱/애니메이션은 DialogueTypingService에 위임한다.
     /// </summary>
-    public async UniTask TypeSentenceTMP(TypingData data, string cocktailName = null)
+    public async UniTask TypeSentenceTMP(TypingData data, string cocktailName = null, CancellationToken token = default)
     {
-        if (string.IsNullOrEmpty(data?.str)) return;
-
+        token.ThrowIfCancellationRequested();
+        if (data == null) throw new ArgumentNullException(nameof(data));
         StopTyping();
-        typingCts = new CancellationTokenSource();
-
-        await DialogueTypingService.TypeSentenceTMP(data, targetBubble, textTagData, defaultTypingDelay, typingCts.Token, cocktailName);
-
-        CompleteTyping();
+        var bubble = targetBubble;
+        var player = bubble.TextPlayer;
+        player.ConfigureAudio(soundManager);
+        currentPlayer = player;
+        UniTask playback = DialogueTypingService.TypeSentenceTMP(data, bubble, textTagData,
+            defaultTypingDelay, token, cocktailName);
+        int sessionId = player.CurrentSessionId;
+        try
+        {
+            await playback;
+        }
+        finally
+        {
+            if (ReferenceEquals(currentPlayer, player) && sessionId == player.CurrentSessionId)
+                CompleteTyping();
+        }
     }
 
     /// <summary>표시 중인 글자 수(visibleCharCount)까지의 부분 문자열을 잘라 반환한다. (현재 미사용)</summary>

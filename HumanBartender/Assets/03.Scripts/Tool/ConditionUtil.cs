@@ -13,6 +13,9 @@ public interface IConditionUtil
 {
     /// <summary>조건식을 판정한다. 빈 값은 참이다.</summary>
     bool Check(string when);
+    ConditionResult Evaluate(string when);
+    EffectApplyResult ApplyEffects(string statement, string token = null);
+    IConditionUtil CreateExecutionScope();
 
     /// <summary>
     /// 대입식을 적용한다. token을 주면 그 토큰으로 한 번만 적용한다.
@@ -51,6 +54,7 @@ public interface IConditionUtil
 public class ConditionUtil : IConditionUtil
 {
     readonly GameStateManager _gameStateManager;
+    bool syntaxOnly;
     readonly IPlayerDataReader _playerDataReader;
     readonly IPlayerDataWriter _playerDataWriter;
 
@@ -61,7 +65,7 @@ public class ConditionUtil : IConditionUtil
     readonly Dictionary<string, Func<Value>> _databox;
 
     /// <summary>이미 적용한 대입식들. 같은 스텝을 두 번 확정해도 값이 두 번 움직이지 않게 한다.</summary>
-    readonly HashSet<string> _appliedTokens = new();
+    readonly Dictionary<string, EffectApplyResult> _effectResults = new();
 
     public StoryResultContext Result { get; set; }
 
@@ -80,15 +84,35 @@ public class ConditionUtil : IConditionUtil
             { "true",  () => Value.Of(true) },
             { "false", () => Value.Of(false) },
 
-            { "day",   () => Value.Of(_gameStateManager.CurrentDay) },
-            { "money", () => Value.Of(_playerDataReader.HasMoney()) },
+            { "day",   () => Value.Of(syntaxOnly ? 0 : _gameStateManager.CurrentDay) },
+            { "money", () => Value.Of(syntaxOnly ? 0 : _playerDataReader.HasMoney()) },
 
             // 서빙 결과. grade는 현행 대본 호환 키로 final_grade와 같은 값을 준다.
-            { "grade",       () => Value.Of(StoryGrade.ToRank(RequireResult("grade").FinalGrade)) },
-            { "final_grade", () => Value.Of(StoryGrade.ToRank(RequireResult("final_grade").FinalGrade)) },
-            { "craft_grade", () => Value.Of(StoryGrade.ToRank(RequireResult("craft_grade").CraftGrade)) },
-            { "order_match", () => Value.Of(RequireResult("order_match").OrderMatch) },
+            { "grade",       () => Value.Of(syntaxOnly ? 0 : StoryGrade.ToRank(RequireResult("grade").FinalGrade)) },
+            { "final_grade", () => Value.Of(syntaxOnly ? 0 : StoryGrade.ToRank(RequireResult("final_grade").FinalGrade)) },
+            { "craft_grade", () => Value.Of(syntaxOnly ? 0 : StoryGrade.ToRank(RequireResult("craft_grade").CraftGrade)) },
+            { "order_match", () => Value.Of(!syntaxOnly && RequireResult("order_match").OrderMatch) },
         };
+    }
+
+    /// <summary>Uses the runtime parser without reading or writing game state. Null means valid syntax/types.</summary>
+    public static string ValidateConditionSyntax(string expression) =>
+        new ConditionUtil(null, null, null) { syntaxOnly = true }.Evaluate(expression).Error;
+
+    public static string ValidateEffectSyntax(string statement)
+    {
+        var validator = new ConditionUtil(null, null, null) { syntaxOnly = true };
+        try
+        {
+            int unusedBalance = 0;
+            foreach (var raw in (statement ?? "").Split(';'))
+            {
+                var clause = raw.Trim();
+                if (clause.Length > 0) validator.ValidateClause(clause, ref unusedBalance);
+            }
+            return null;
+        }
+        catch (Exception e) { return e.Message; }
     }
 
     // ── 조건 ────────────────────────────────────────────────────────────
@@ -97,23 +121,27 @@ public class ConditionUtil : IConditionUtil
     /// 조건식을 판정한다. 빈 값은 참이다 — 조건을 적지 않은 씬과 스텝은 언제나 실행된다.
     /// 식을 읽지 못하면 거짓으로 두고 오류를 남긴다.
     /// </summary>
-    public bool Check(string when)
-    {
-        if (string.IsNullOrWhiteSpace(when)) return true;
+    public IConditionUtil CreateExecutionScope() =>
+        new ConditionUtil(_gameStateManager, _playerDataReader, _playerDataWriter);
 
+    public ConditionResult Evaluate(string when)
+    {
+        if (string.IsNullOrWhiteSpace(when)) return new ConditionResult(true);
         try
         {
             var parser = new Parser(when, this);
-            bool result = parser.ParseExpression().AsBool();
-
+            bool value = parser.ParseExpression().AsBool();
             parser.ExpectEnd();
-            return result;
+            return new ConditionResult(value);
         }
-        catch (Exception e)
-        {
-            Debug.LogError($"[Condition] 조건식을 판정하지 못했습니다: '{when}' — {e.Message}");
-            return false;
-        }
+        catch (Exception e) { return new ConditionResult(false, $"[Condition] '{when}': {e.Message}"); }
+    }
+
+    public bool Check(string when)
+    {
+        var result = Evaluate(when);
+        if (!result.IsValid) Debug.LogError(result.Error);
+        return result.IsValid && result.Value;
     }
 
     /// <summary>
@@ -125,10 +153,10 @@ public class ConditionUtil : IConditionUtil
         if (_databox.TryGetValue(key, out Func<Value> getter)) return getter.Invoke();
 
         if (key.StartsWith("flag.", StringComparison.Ordinal))
-            return Value.Of(_playerDataReader.CheckFlag(key));
+            return Value.Of(!syntaxOnly && _playerDataReader.CheckFlag(key));
 
         if (key.StartsWith("affinity.", StringComparison.Ordinal))
-            return Value.Of(_playerDataReader.GetCurCharacterAffinityValue(key.Substring("affinity.".Length)));
+            return Value.Of(syntaxOnly ? 0 : _playerDataReader.GetCurCharacterAffinityValue(key.Substring("affinity.".Length)));
 
         throw new InvalidOperationException($"'{key}'는 조건에 쓸 수 있는 값이 아닙니다.");
     }
@@ -151,41 +179,75 @@ public class ConditionUtil : IConditionUtil
     ///
     /// token을 주면 그 토큰으로 한 번만 적용한다. 스텝·선택지를 가리키는 고정 값이어야 한다.
     ///
-    /// 한 줄이 실패해도 나머지는 적용한다. 앞쪽 하나 때문에 뒤따르는 플래그가 통째로 빠지면,
-    /// 대본은 진행되는데 상태만 어긋난 채로 남는다.
+    /// 모든 문법과 비용을 먼저 검사한다. 실행 중 실패하면 후속 효과를 멈추고 적용 수를 반환한다.
     /// </summary>
     public bool Set(string statement, string token = null)
     {
-        if (string.IsNullOrWhiteSpace(statement)) return false;
-
-        if (!string.IsNullOrEmpty(token) && !_appliedTokens.Add(token))
-        {
-            Debug.LogWarning($"[Condition] 이미 적용한 effects라 건너뜁니다: {token}");
-            return false;
-        }
-
-        foreach (string clause in statement.Split(';'))
-        {
-            string trimmed = clause.Trim();
-            if (trimmed.Length == 0) continue;
-
-            try
-            {
-                ApplyClause(trimmed);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[Condition] '{trimmed}'를 적용하지 못했습니다 (전체: '{statement}') — {e.Message}");
-            }
-        }
-
-        return true;
+        var result = ApplyEffects(statement, token);
+        if (!result.Succeeded) Debug.LogError(result.Error);
+        return result.Status == EffectApplyStatus.Applied;
     }
 
-    /// <summary>적용 기록을 비운다. 하루가 끝나 같은 스텝이 다시 실행될 수 있을 때 부른다.</summary>
-    public void ResetAppliedTokens()
+    public EffectApplyResult ApplyEffects(string statement, string token = null)
     {
-        _appliedTokens.Clear();
+        if (string.IsNullOrWhiteSpace(statement)) return new EffectApplyResult(EffectApplyStatus.NoOp);
+        if (!string.IsNullOrEmpty(token) && _effectResults.TryGetValue(token, out var previous))
+            return previous.Succeeded ? new EffectApplyResult(EffectApplyStatus.AlreadyApplied) : previous;
+
+        var clauses = new List<string>();
+        try
+        {
+            int remainingMoney = _playerDataReader.HasMoney();
+            foreach (string rawClause in statement.Split(';'))
+            {
+                string clause = rawClause.Trim();
+                if (clause.Length == 0) continue;
+                ValidateClause(clause, ref remainingMoney);
+                clauses.Add(clause);
+            }
+        }
+        catch (Exception e) { return new EffectApplyResult(EffectApplyStatus.Failed, 0, e.Message); }
+
+        int applied = 0;
+        EffectApplyResult result;
+        try
+        {
+            foreach (string clause in clauses) { ApplyClause(clause); applied++; }
+            result = new EffectApplyResult(EffectApplyStatus.Applied, applied);
+        }
+        catch (Exception e)
+        {
+            result = new EffectApplyResult(applied == 0 ? EffectApplyStatus.Failed : EffectApplyStatus.PartialFailure,
+                applied, $"[Effects] Applied {applied}/{clauses.Count}: {e.Message}");
+        }
+        // A writer may have changed state before throwing. Do not retry this execution token blindly.
+        if (!string.IsNullOrEmpty(token)) _effectResults[token] = result;
+        return result;
+    }
+
+    public void ResetAppliedTokens() => _effectResults.Clear();
+
+    void ValidateClause(string clause, ref int remainingMoney)
+    {
+        if (!TrySplit(clause, "+=", out string target, out string raw, out EOp op) &&
+            !TrySplit(clause, "-=", out target, out raw, out op) &&
+            !TrySplit(clause, "=", out target, out raw, out op))
+            throw new InvalidOperationException($"Invalid effect: {clause}");
+        if (target.StartsWith("flag.", StringComparison.Ordinal) && target.Length > 5)
+        {
+            if (op != EOp.Set) throw new InvalidOperationException("Flags require =.");
+            ToBool(raw);
+        }
+        else if (target.StartsWith("affinity.", StringComparison.Ordinal) && target.Length > 9) ToInt(raw);
+        else if (target == "money")
+        {
+            int amount = ToInt(raw);
+            if (op == EOp.Set || amount < 0) throw new InvalidOperationException("Money requires += or -= with a nonnegative amount.");
+            if (syntaxOnly) return;
+            if (op == EOp.Subtract && remainingMoney < amount) throw new InvalidOperationException("Insufficient money.");
+            remainingMoney = checked(remainingMoney + (op == EOp.Add ? amount : -amount));
+        }
+        else throw new InvalidOperationException($"Unsupported effect target: {target}");
     }
 
     enum EOp { Set, Add, Subtract }
@@ -258,7 +320,7 @@ public class ConditionUtil : IConditionUtil
 
                 case EOp.Subtract:
                     if (!_playerDataWriter.TrySpend(amount))
-                        Debug.LogWarning($"[Condition] 돈이 모자라 {amount}를 쓰지 못했습니다.");
+                        throw new InvalidOperationException($"Insufficient money for {amount}.");
                     break;
 
                 // 대입은 지금까지 번 것을 지우는 뜻이 된다. 그렇게 쓴 데이터가 없어 실수로 본다.

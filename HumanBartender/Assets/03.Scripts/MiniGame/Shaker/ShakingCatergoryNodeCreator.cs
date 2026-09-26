@@ -35,7 +35,10 @@ public class ShakingCatergoryNodeCreator : MonoBehaviour
 
     public void Init()
     {
+        isStart = false;
+        curTargetNodeTime = 0f;
         curActiveTargetNodes = new();
+        staticActiveTargetNodes = new();
 
         effectPool.Init();
         targetNodePool.Init();
@@ -60,8 +63,7 @@ public class ShakingCatergoryNodeCreator : MonoBehaviour
             if (Time.time - node.spawnTime >= node.lifeTime)
             {
                 curActiveTargetNodes.RemoveAt(i);
-                //Shaking의 경우 strikeNode가 이벤트 호출해서 재생성
-                //targetNodePool.Return(node.gameObject);
+                targetNodePool.Return(node.gameObject);
             }
         }
     }
@@ -77,8 +79,11 @@ public class ShakingCatergoryNodeCreator : MonoBehaviour
         targetColors = colors;
     }
 
-    public CategoryNode GetNearestNode(Vector3 pos, float judgeRange)
+    public bool TryHitNearestNode(Vector3 pos, float judgeRange, out Vector3 hitPosition, out Color hitColor)
     {
+        hitPosition = default;
+        hitColor = default;
+
         CategoryNode nearest = null;
         float minSqr = float.MaxValue;
         float sqr;
@@ -106,21 +111,52 @@ public class ShakingCatergoryNodeCreator : MonoBehaviour
 
         if (nearest != null && minSqr <= judgeRange * judgeRange)
         {
-            if (isStatic) return nearest;
+            hitPosition = nearest.transform.position;
+            hitColor = nearest.curColor;
 
-            curActiveTargetNodes.Remove(nearest);
-            targetNodePool.Return(nearest.gameObject);
-            return nearest;
+            if (!isStatic)
+            {
+                curActiveTargetNodes.Remove(nearest);
+                targetNodePool.Return(nearest.gameObject);
+            }
+
+            return true;
         }
 
+        return false;
+    }
 
-        return null;
+    public void StopAndReturnNodes()
+    {
+        isStart = false;
+
+        ReturnNodes(curActiveTargetNodes);
+        ReturnNodes(staticActiveTargetNodes);
+
+        curActiveTargetNodes.Clear();
+        staticActiveTargetNodes.Clear();
+    }
+
+    void OnDisable()
+    {
+        StopAndReturnNodes();
+    }
+
+    void ReturnNodes(List<CategoryNode> nodes)
+    {
+        for (int i = nodes.Count - 1; i >= 0; i--)
+        {
+            CategoryNode node = nodes[i];
+            if (node != null) targetNodePool.Return(node.gameObject);
+        }
     }
 
 
     public void CreateEffectNode(Vector3 vec, Color color)
     {
-        NodeEffect node = effectPool.Get().GetComponent<NodeEffect>();
+        NodeEffect node;
+        if (!effectPool.TryGet(out node)) return;
+
         node.transform.position = vec;
         node.SetNodeColor(color);
         node.PlayEffect();
@@ -154,7 +190,8 @@ public class ShakingCatergoryNodeCreator : MonoBehaviour
     {
         Vector3 pos = GetSpawnPoint(a, b, t);
 
-        CategoryNode node = targetNodePool.Get().GetComponent<CategoryNode>();
+        CategoryNode node;
+        if (!targetNodePool.TryGet(out node)) return;
 
         node.transform.position = pos;
         node.spawnTime = Time.time;
@@ -170,7 +207,8 @@ public class ShakingCatergoryNodeCreator : MonoBehaviour
     {
         Vector3 pos = a;
 
-        CategoryNode node = targetNodePool.Get().GetComponent<CategoryNode>();
+        CategoryNode node;
+        if (!targetNodePool.TryGet(out node)) return;
 
         node.transform.position = pos;
         node.spawnTime = Time.time;

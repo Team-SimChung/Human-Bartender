@@ -20,6 +20,7 @@ public class InGameLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<DialogueCharacterManager>()
             .As<ICharacterSetter>()
             .As<IDialogueFader>();
+        builder.RegisterComponentInHierarchy<UIDialogueTextView>();
 
         // DialogueRunner는 여기서 등록하지 않는다. Play에서 그것을 여는 곳(VisualNovelFlow)을 걷어냈고,
         // 붙일 IDialoguePresenter 구현(DialogueSceneDirector)도 함께 없앴다. 실외 씬은 그대로 쓴다.
@@ -39,6 +40,11 @@ public class InGameLifetimeScope : LifetimeScope
         // 실행기가 IObjectResolver를 받을 수 있도록 스코프에 올린다.
         builder.RegisterComponentInHierarchy<GimmickRunner>();
         builder.RegisterComponentInHierarchy<CraftFlowController>();
+        builder.Register<DailySales>(Lifetime.Scoped);
+        builder.RegisterComponentInHierarchy<OrderRequestController>();
+
+        // 손님 주문 세션이 끝날 때 확정된 매출을 프로젝트 전역 PlayerData에 반영한다.
+        builder.RegisterComponentInHierarchy<GuestManager>();
 
         //builder.RegisterBuildCallback(container =>
         //{

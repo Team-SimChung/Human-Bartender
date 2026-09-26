@@ -1,10 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 이름 기반으로 UI 프리팹 오브젝트 풀을 관리하는 매니저.
-/// Awake 시 uiPrefabs 목록으로 ObjectPool을 초기화하고, GetUI/ReturnUI로 오브젝트를 대여/반납한다.
-/// </summary>
+/// <summary>이름별 UI 풀을 구성하고 대여·반납 요청을 해당 풀에 전달한다.</summary>
 public class PoolManager : MonoBehaviour
 {
     [System.Serializable]
@@ -16,40 +13,82 @@ public class PoolManager : MonoBehaviour
         public int initialSize = 10;
     }
 
-    [SerializeField] private List<PoolPrefab> uiPrefabs;
+    [SerializeField] List<PoolPrefab> uiPrefabs;
 
+    readonly Dictionary<string, ObjectPool> uiPools = new();
 
-    private Dictionary<string, ObjectPool> uiPools;
-
-    private void Awake()
+    void Awake()
     {
+        uiPools.Clear();
+        if (uiPrefabs == null) return;
 
-        uiPools = new Dictionary<string, ObjectPool>();
-
-        foreach (var ui in uiPrefabs)
+        for (int i = 0; i < uiPrefabs.Count; i++)
         {
-            if (!uiPools.ContainsKey(ui.name))
+            PoolPrefab definition = uiPrefabs[i];
+            if (definition == null || string.IsNullOrWhiteSpace(definition.name))
             {
-                uiPools.Add(ui.name, new ObjectPool(ui.prefab, ui.initialSize, ui.uiParent));
+                Debug.LogError($"[PoolManager] {i}번 UI 풀의 이름이 비어 있습니다.", this);
+                continue;
             }
+
+            if (definition.prefab == null)
+            {
+                Debug.LogError($"[PoolManager] '{definition.name}' UI 풀의 프리팹이 연결되지 않았습니다.", this);
+                continue;
+            }
+
+            if (uiPools.ContainsKey(definition.name))
+            {
+                Debug.LogError($"[PoolManager] '{definition.name}' UI 풀 이름이 중복되었습니다.", this);
+                continue;
+            }
+
+            ObjectPool pool = new ObjectPool(
+                definition.prefab,
+                Mathf.Max(0, definition.initialSize),
+                definition.uiParent);
+
+            uiPools.Add(definition.name, pool);
         }
     }
 
+    void OnDestroy()
+    {
+        foreach (KeyValuePair<string, ObjectPool> pair in uiPools)
+            pair.Value.Dispose();
+
+        uiPools.Clear();
+    }
 
     public GameObject GetUI(string name)
     {
-        if (!uiPools.ContainsKey(name))
-        {
-            Debug.LogWarning($"'{name}' UI를 찾을 수 없습니다.");
-            return null;
-        }
-
-        GameObject ui = uiPools[name].Get();
-        return ui;
+        GameObject result;
+        return TryGetUI(name, out result) ? result : null;
     }
 
-    public void ReturnUI(string name, GameObject obj)
+    public bool TryGetUI(string name, out GameObject result)
     {
-        uiPools[name].Return(obj);
+        result = null;
+
+        ObjectPool pool;
+        if (string.IsNullOrEmpty(name) || !uiPools.TryGetValue(name, out pool))
+        {
+            Debug.LogWarning($"[PoolManager] '{name}' UI 풀을 찾을 수 없습니다.", this);
+            return false;
+        }
+
+        return pool.TryGet(out result);
+    }
+
+    public bool ReturnUI(string name, GameObject obj)
+    {
+        ObjectPool pool;
+        if (string.IsNullOrEmpty(name) || !uiPools.TryGetValue(name, out pool))
+        {
+            Debug.LogWarning($"[PoolManager] '{name}' UI 풀을 찾을 수 없습니다.", this);
+            return false;
+        }
+
+        return pool.Return(obj);
     }
 }

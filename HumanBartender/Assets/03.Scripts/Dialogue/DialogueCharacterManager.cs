@@ -42,6 +42,8 @@ public class SlotCharacterPart
     [System.NonSerialized] public Stack<AsyncOperationHandle<AnimationClip>?> animRemoveHandles = new();
 
     [System.NonSerialized] public CancellationTokenSource cts;
+    [System.NonSerialized] public UniTaskCompletionSource loadFinished;
+    [System.NonSerialized] public int requestVersion;
 }
 
 
@@ -72,12 +74,13 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
     /// <summary>슬롯 배열을 타입별 딕셔너리로 인덱싱하고, 각 파츠의 AnimatorOverrideController를 초기화한다.</summary>
     private void Awake()
     {
-        _slotMap = new Dictionary<ESlotType, SlotCharacterPart>(slotParts.Length);
+        _slotMap = new Dictionary<ESlotType, SlotCharacterPart>();
         characterLoader = new CharacterLoader();
 
+        slotParts ??= Array.Empty<SlotCharacterPart>();
         foreach (var slot in slotParts)
         {
-            _slotMap[slot.type] = slot;
+            if (!_slotMap.TryAdd(slot.type, slot)) throw new InvalidOperationException("Duplicate character slot: " + slot.type);
             foreach (var part in slot.parts)
                 part.Initialize();
         }
@@ -128,8 +131,12 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
     /// 표정이 스프라이트 전용이면 초상화만 로드, 아니면 각 파츠를 비동기로 병렬 로드 후 Intro 애니메이션을 재생한다.
     /// 로드 중 취소되면 새로 받은 핸들만 정리하고, 예외 발생 시 현재 핸들을 정리한다.
     /// </summary>
-    public async UniTask SetCharacterAsync(string characterId, string expression, ESlotType slotType = ESlotType.None)
+    public UniTask SetCharacterAsync(string characterId, string expression, ESlotType slotType = ESlotType.None) =>
+        SetCharacterAsync(characterId, expression, slotType, default);
+
+    public async UniTask SetCharacterAsync(string characterId, string expression, ESlotType slotType, CancellationToken token)
     {
+        token.ThrowIfCancellationRequested();
         ESlotType slot = ESlotType.None;
 
         //위치가 지정된 경우는 문제가 없지만 지정되지 않았을 경우.
@@ -160,84 +167,106 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
         }
 
 
-        Logger.Log($"{characterId} Load, Slot, {slotData.type}, Expression {slotData.expression}, Express {expression}");
-
-        if (slotData.slotCharacterName == characterId && slotData.expression == expression) return;
-
-        Logger.Log($"{characterId} Load");
-
+        int version = ++slotData.requestVersion;
+        var previous = slotData.loadFinished;
         slotData.cts?.Cancel();
-        slotData.cts?.Dispose();
-        slotData.cts = new CancellationTokenSource();
-
-
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-        slotData.cts.Token, this.GetCancellationTokenOnDestroy());
-        var token = linkedCts.Token;
-
+        if (previous != null) await previous.Task;
+        token.ThrowIfCancellationRequested();
+        if (version != slotData.requestVersion) throw new OperationCanceledException("Character request was replaced.");
+        if (slotData.slotCharacterName == characterId && slotData.expression == expression) return;
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
+        var finished = new UniTaskCompletionSource();
+        slotData.cts = source;
+        slotData.loadFinished = finished;
+        token = source.Token;
         MoveCurrentHandlesToRemove(slotData);
-
-        slotData.slotCharacterName = characterId;
-        slotData.expression = expression;
-
-        bool isSprite = animConfig.IsPortraitSprite(characterId, expression);
-        var parts = slotData.parts;
-
-        if (!isSprite)
+        try
         {
-            slotData.portaitSpriteRenderer.gameObject.SetActive(false);
-
-            var tasks = new UniTask[parts.Length];
-            for (int i = 0; i < parts.Length; i++)
+            if (animConfig == null) throw new InvalidOperationException("Character expression data is missing.");
+            foreach (var part in slotData.parts) part.SetInactive();
+            if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.sprite = null;
+            bool isSprite = animConfig.IsPortraitSprite(characterId, expression);
+            if (!isSprite)
             {
-                PartAnimData data = animConfig.GetPartData(characterId, expression, parts[i].partName);
-                PartAnimData defaultData = animConfig.GetDefaultPartData(characterId, parts[i].partName);
-                tasks[i] = characterLoader.LoadPartAsync(slotData, parts[i], data, defaultData, token);
-            }
-
-            try
-            {
-                await UniTask.WhenAll(tasks);
-
-                ReleaseRemoveHandles(slotData);
-
-                tasks = new UniTask[parts.Length];
-                for (int i = 0; i < parts.Length; i++)
+                if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.gameObject.SetActive(false);
+                var loads = new List<UniTask<Exception>>();
+                foreach (var part in slotData.parts)
                 {
-                    tasks[i] = parts[i].PlayAnimation(SLOT_INTRO, token);
+                    var partData = animConfig.GetPartData(characterId, expression, part.partName);
+                    var fallback = animConfig.GetDefaultPartData(characterId, part.partName);
+                    loads.Add(ObserveChild(characterLoader.LoadPartAsync(slotData, part, partData, fallback, token)));
                 }
-
-                await UniTask.WhenAll(tasks);
-            }
-            catch (OperationCanceledException)
-            {
-                ReleaseCurrentHandles(slotData);
+                await AwaitChildren(loads);
+                token.ThrowIfCancellationRequested();
                 ReleaseRemoveHandles(slotData);
+                var intros = new List<UniTask<Exception>>();
+                foreach (var part in slotData.parts)
+                    if (!string.IsNullOrEmpty(part.partCurAnim)) intros.Add(ObserveChild(part.PlayAnimation(SLOT_INTRO, token)));
+                await AwaitChildren(intros);
             }
-            catch (Exception e)
+            else
             {
-                Logger.LogError($"[SetCharacterAsync] 실패 - char:{characterId}, expr:{expression}\n{e}");
-                ReleaseCurrentHandles(slotData);
+                string path = animConfig.GetSpritePath(characterId, expression);
+                if (!await characterLoader.LoadPortaitSpriteAsync(slotData, path, token))
+                    throw new InvalidOperationException("Character portrait is missing: " + path);
             }
+            token.ThrowIfCancellationRequested();
+            slotData.slotCharacterName = characterId;
+            slotData.expression = expression;
+            ReleaseRemoveHandles(slotData);
         }
-        else
+        catch
         {
-            for (int i = 0; i < parts.Length; i++)
-            {
-                parts[i].SetInactive();
-            }
-
-            string path = animConfig.GetSpritePath(characterId, expression);
-            await characterLoader.LoadPortaitSpriteAsync(slotData, path, token);
+            foreach (var part in slotData.parts) part.SetInactive();
+            if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.sprite = null;
+            slotData.slotCharacterName = "";
+            slotData.expression = "";
+            ReleaseCurrentHandles(slotData);
+            ReleaseRemoveHandles(slotData);
+            throw;
+        }
+        finally
+        {
+            if (ReferenceEquals(slotData.cts, source)) { slotData.cts = null; slotData.loadFinished = null; }
+            finished.TrySetResult();
         }
     }
 
+    // 실패해도 모든 자식 로드가 끝난 뒤 핸들을 정리한다.
+    static async UniTask<Exception> ObserveChild(UniTask child)
+    {
+        try { await child; return null; }
+        catch (Exception e) { return e; }
+    }
+    static async UniTask AwaitChildren(List<UniTask<Exception>> children)
+    {
+        var errors = await UniTask.WhenAll(children);
+        foreach (var error in errors) if (error != null) System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(error).Throw();
+    }
 
+    /// <summary>검증 도구도 런타임과 같은 표정 데이터·주소 규칙을 사용한다.</summary>
+    public IReadOnlyCollection<string> GetConfiguredResourceKeys(string characterId, string expression)
+    {
+        var keys = new HashSet<string>();
+        if (animConfig == null || animConfig.expressionData == null) return keys;
+        if (animConfig.IsPortraitSprite(characterId, expression))
+        {
+            var path = animConfig.GetSpritePath(characterId, expression);
+            if (!string.IsNullOrEmpty(path)) keys.Add(path);
+        }
+        else
+            foreach (EAnimationPart part in Enum.GetValues(typeof(EAnimationPart)))
+            {
+                foreach (var key in CharacterLoader.ResourceKeys(animConfig.GetPartData(characterId, expression, part))) keys.Add(key);
+                foreach (var key in CharacterLoader.ResourceKeys(animConfig.GetDefaultPartData(characterId, part))) keys.Add(key);
+            }
+        return keys;
+    }
 
     /// <summary>슬롯 타입으로 지정된 캐릭터의 모든 파츠에 대사 시작 애니메이션을 트리거한다.</summary>
     public void OnDialogueStart(ESlotType slot)
     {
-        if (!_slotMap.TryGetValue(slot, out var slotData)) return;
+        if (_slotMap == null || !_slotMap.TryGetValue(slot, out var slotData)) return;
         foreach (var part in slotData.parts)
             part.OnDialogueStart();
     }
@@ -257,7 +286,7 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
     /// <summary>슬롯 타입으로 지정된 캐릭터의 모든 파츠에 대사 종료 애니메이션을 트리거한다.</summary>
     public void OnDialogueEnd(ESlotType slot)
     {
-        if (!_slotMap.TryGetValue(slot, out var slotData)) return;
+        if (_slotMap == null || !_slotMap.TryGetValue(slot, out var slotData)) return;
         foreach (var part in slotData.parts)
             part.OnDialogueEnd();
     }
@@ -287,8 +316,10 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
     /// <summary>슬롯을 비우고(캐릭터명/표정 초기화, 파츠 비활성화) 해당 슬롯의 리소스 핸들을 모두 해제한다.</summary>
     public void ResetCharacter(ESlotType slot)
     {
-        if (!_slotMap.TryGetValue(slot, out var slotData)) return;
+        if (_slotMap == null || !_slotMap.TryGetValue(slot, out var slotData)) return;
 
+        slotData.requestVersion++;
+        slotData.cts?.Cancel();
         slotData.slotCharacterName = "";
         slotData.expression = "";
 
@@ -408,27 +439,14 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
     }
 
     /// <summary>모든 슬롯의 리소스 핸들을 해제하고 각 파츠의 오버라이드 컨트롤러를 파괴한다.</summary>
-    public void ReleaseAll()
-    {
-        foreach (var slot in slotParts)
-        {
-            ReleaseCurrentHandles(slot);
-            ReleaseRemoveHandles(slot);
-            foreach (var part in slot.parts)
-                part.Release();
-        }
-    }
+    public void ReleaseAll() => ResetCharacter();
 
-    /// <summary>파괴 시 모든 리소스와 취소 토큰을 정리한다.</summary>
+    private void OnDisable() => ResetCharacter();
+
     private void OnDestroy()
     {
-        ReleaseAll();
-
+        ResetCharacter();
         foreach (var slot in slotParts)
-        {
-            slot.cts?.Cancel();
-            slot.cts?.Dispose();
-            slot.cts = null;
-        }
+            foreach (var part in slot.parts) part.Release();
     }
 }

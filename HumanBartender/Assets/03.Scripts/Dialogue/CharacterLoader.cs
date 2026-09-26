@@ -1,6 +1,8 @@
 using Cysharp.Threading.Tasks;
 using System.Net;
 using System.Threading;
+using System.Collections.Generic;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine;
 
 /// <summary>
@@ -105,12 +107,11 @@ public class CharacterLoader
         part.SetLoopMode(data.Loop);
 
         string clipAddress = data.Clip;
-        string introAddress = $"{clipAddress}_Intro";
-        string loopAddress = $"{clipAddress}_Loop";
-        string dialogueAddress = $"{clipAddress}_Dialogue";
+        string introAddress = AnimationAddress(clipAddress, SLOT_INTRO);
+        string loopAddress = LoopResourceKey(clipAddress);
+        string dialogueAddress = AnimationAddress(clipAddress, SLOT_DIALOGUE);
 
-        var loopHandle = await ResourceLoader.TryLoadAsync<AnimationClip>(loopAddress, token);
-        slot.animHandles.Push(loopHandle);
+        var loopHandle = await LoadOwnedAsync(slot.animHandles, loopAddress, token);
 
         if (loopHandle.HasValue)
         {
@@ -121,8 +122,7 @@ public class CharacterLoader
 
 
             //Intro Setting
-            var introHandle = await ResourceLoader.TryLoadAsync<AnimationClip>(introAddress, token);
-            slot.animHandles.Push(introHandle);
+            var introHandle = await LoadOwnedAsync(slot.animHandles, introAddress, token);
 
             if (introHandle.HasValue)
                 part.SetClip(SLOT_INTRO, introHandle);
@@ -133,8 +133,7 @@ public class CharacterLoader
 
 
             //Dialogue Setting
-            var dialogueHandle = await ResourceLoader.TryLoadAsync<AnimationClip>(dialogueAddress, token);
-            slot.animHandles.Push(dialogueHandle);
+            var dialogueHandle = await LoadOwnedAsync(slot.animHandles, dialogueAddress, token);
 
 
             if (dialogueHandle.HasValue)
@@ -165,8 +164,7 @@ public class CharacterLoader
 
         string clipaddress = data.Clip;
 
-        var spriteHandle = await ResourceLoader.TryLoadAsync<Sprite>(clipaddress, token);
-        slot.spriteHandles.Push(spriteHandle);
+        var spriteHandle = await LoadOwnedAsync(slot.spriteHandles, clipaddress, token);
 
         if (spriteHandle.HasValue)
         {
@@ -189,13 +187,12 @@ public class CharacterLoader
         PartAnimData data,
         CancellationToken token)
     {
-        if (data.Clip == null)
+        if (data == null || data.Clip == null || slot.portaitSpriteRenderer == null)
             return false;
 
         string clipaddress = data.Clip;
 
-        var spriteHandle = await ResourceLoader.TryLoadAsync<Sprite>(clipaddress, token);
-        slot.spriteHandles.Push(spriteHandle);
+        var spriteHandle = await LoadOwnedAsync(slot.spriteHandles, clipaddress, token);
 
         if (spriteHandle.HasValue)
         {
@@ -218,15 +215,14 @@ public class CharacterLoader
         string dataPath,
         CancellationToken token)
     {
-        if (dataPath == null)
+        if (dataPath == null || slot.portaitSpriteRenderer == null)
             return false;
 
         Logger.Log("Load Portait");
 
         string clipaddress = dataPath;
 
-        var spriteHandle = await ResourceLoader.TryLoadAsync<Sprite>(clipaddress, token);
-        slot.spriteHandles.Push(spriteHandle);
+        var spriteHandle = await LoadOwnedAsync(slot.spriteHandles, clipaddress, token);
 
         if (spriteHandle.HasValue)
         {
@@ -237,5 +233,28 @@ public class CharacterLoader
 
         Logger.LogWarning($"[CharacterPart:Portait] '{clipaddress}' 리소스 없음");
         return false;
+    }
+
+    public static string LoopResourceKey(string clip) => AnimationAddress(clip, SLOT_LOOP);
+
+    static string AnimationAddress(string clip, string slot) => $"{clip}_{slot}";
+
+    public static IEnumerable<string> ResourceKeys(PartAnimData data)
+    {
+        if (data == null || data.Loop == EAnimLoopMode.None || string.IsNullOrEmpty(data.Clip)) yield break;
+        yield return AnimationAddress(data.Clip, SLOT_LOOP);
+        yield return AnimationAddress(data.Clip, SLOT_INTRO);
+        yield return AnimationAddress(data.Clip, SLOT_DIALOGUE);
+        yield return data.Clip;
+    }
+
+    static async UniTask<AsyncOperationHandle<T>?> LoadOwnedAsync<T>(Stack<AsyncOperationHandle<T>?> owner, string address, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var handle = await ResourceLoader.TryLoadAsync<T>(address, token);
+        try { token.ThrowIfCancellationRequested(); }
+        catch { ResourceLoader.ReleaseHandle<T>(ref handle); throw; }
+        if (handle.HasValue) owner.Push(handle);
+        return handle;
     }
 }

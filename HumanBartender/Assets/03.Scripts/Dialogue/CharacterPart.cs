@@ -79,6 +79,7 @@ public abstract class AnimationPart
     /// <summary>파츠를 비활성화하고 렌더러/오버라이드 클립을 모두 비운다.</summary>
     public void SetInactive()
     {
+        partCurAnim = "";
         if (animator != null)
             animator.enabled = false;
 
@@ -220,13 +221,13 @@ public class CharacterPart : AnimationPart, IFade
     public async UniTask FadeIn(CancellationToken token)
     {
         spriteRenderer.color = new Color(0, 0, 0, 1);
-        await spriteRenderer.DOColor(Color.white, 1f).ToUniTask();
+        await spriteRenderer.DOColor(Color.white, 1f).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
     }
     /// <summary>알파값 1에서 0(투명)으로 서서히 전환한다.</summary>
     public async UniTask FadeOut(CancellationToken token)
     {
         spriteRenderer.color = new Color(1, 1, 1, 1);
-        await spriteRenderer.DOColor(new Color(0, 0, 0, 0), 1f).ToUniTask();
+        await spriteRenderer.DOColor(new Color(0, 0, 0, 0), 1f).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
     }
 
 
@@ -239,7 +240,7 @@ public class CharacterPart : AnimationPart, IFade
     /// </summary>
     public void OnDialogueStart()
     {
-        if (_currentLoopMode == EAnimLoopMode.Once) return;
+        if (animator == null || !animator.enabled || _currentLoopMode == EAnimLoopMode.Once) return;
 
         if (partName != EAnimationPart.Lower_Face)
         {
@@ -262,7 +263,7 @@ public class CharacterPart : AnimationPart, IFade
     /// <summary>대사 종료 시 호출. Once 모드는 무시하고, 나머지는 Loop 애니메이션 재생을 재개한다.</summary>
     public void OnDialogueEnd()
     {
-        if (_currentLoopMode == EAnimLoopMode.Once) return;
+        if (animator == null || !animator.enabled || _currentLoopMode == EAnimLoopMode.Once) return;
 
         animator.speed = 1;
         animator.Play("Loop", 0, 0f);

@@ -1,4 +1,7 @@
 using UnityEngine;
+using System;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 /// <summary>
 /// 대사를 가진 NPC 엔티티의 베이스. 상호작용 오브젝트도 이 클래스를 쓴다 —
@@ -12,8 +15,11 @@ public class InteractiveNPCEntity : InteractiveEntity
     [SerializeField] protected DialogueRunner runner;
     [SerializeField] protected OutsideDialoguePresenter presenter;
     protected InteractiveEntityManager entityManager;
+    CancellationTokenSource interaction;
 
-    protected bool isTalking = false;
+    protected virtual void OnDisable() => interaction?.Cancel();
+
+    protected bool isTalking { get => isInteracting; set => isInteracting = value; }
 
     public void Init(
         InteractableEvent onInteracted,
@@ -32,44 +38,41 @@ public class InteractiveNPCEntity : InteractiveEntity
         this.presenter = presenter;
     }
     /// <summary>
-    /// 플레이어 상태를 Interct로 잠그고 대사를 재생한다. 재생 완료 후 다음 flow로 인덱스를 순환시키고
-    /// (Conditional이면 매번 0으로 리셋) 상태를 원복, 조건 갱신 이벤트를 발생시킨다.
+    /// 대화 종료·취소 후 입력을 복원하고 CSV 조건을 다시 확인한다.
     /// </summary>
     public override async void Interact(IInteractor player)
     {
-        if (isTalking)
-        {
-            return;
-        }
-        if (presenter.playMode == EActivationMode.Proximity&&ActionType==EActionType.Dialogue)
-        {
-            runner.Stop();
-        }
+        if (!isActiveAndEnabled || !isInteract || isTalking || entityManager == null || !entityManager.IsReady || runner == null || presenter == null) return;
+        if (runner.IsRunning && presenter.playMode != EActivationMode.Proximity) return;
         isTalking = true;
-        isInteracting = true;
-        if(ActivationMode == EActivationMode.Interact)
-        player.State = EInteractorState.Interct;
-        string playingSceneId = DialogueSceneId;
-        OnInteracted?.Raise(this);
-        OnTrackedText?.Raise(this);
-        player.InteractorEvent();
-        presenter.playMode = ActivationMode;
-        runner.Bind(presenter);
-
-        // SO에서 첫 번째 Scene의 Steps 배열을 추출하여 실행
-        if (steps != null)
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        interaction = source;
+        var selectedSteps = steps;
+        string sceneId = DialogueSceneId;
+        IDisposable lease = null;
+        try
         {
-            await runner.PlayOutsideAsync(steps);
+            await runner.StopAsync();
+            var token = source.Token;
+            token.ThrowIfCancellationRequested();
+            if (ActivationMode == EActivationMode.Interact) lease = InteractionStateLease.Acquire(player);
+            OnInteracted?.Raise(this);
+            OnTrackedText?.Raise(this);
+            player?.InteractorEvent();
+            presenter.playMode = ActivationMode;
+            runner.Bind(presenter);
+            var result = await runner.PlayOutsideAsync(selectedSteps, token);
+            if (entityManager != null) entityManager.CompleteDialogue(sceneId, result);
+            if (result.Status == StoryExecutionStatus.Failed) Debug.LogError($"[Interact] {sceneId}: {result.Error}");
         }
-        else
+        catch (OperationCanceledException) { }
+        catch (Exception e) { Debug.LogError($"[Interact] {DialogueSceneId}: {e}"); }
+        finally
         {
-            Debug.LogError($"[Interact] 지정된 스크립트를 찾을 수 없습니다.");
+            lease?.Dispose();
+            if (ReferenceEquals(interaction, source)) interaction = null;
+            isTalking = false;
+            if (this != null && OnRefreshCondition != null) OnRefreshCondition.Raise(new Void());
         }
-
-        isTalking = false;
-        isInteracting = false;
-        player.State = EInteractorState.None;
-        entityManager.CompleteDialogue(playingSceneId);
-        OnRefreshCondition?.Raise(new Void());
     }
 }

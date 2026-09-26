@@ -27,7 +27,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     [SerializeField] UIDialogueChoiceView choiceView;
 
     [Header("Camera")]
-    [Tooltip("자리 수에 따라 화면을 잡는 데 걸리는 시간(§10.1.1 camera_transition_sec). 이동과 줌을 같은 시간 안에서 동시에 진행한다.")]
+    [Tooltip("자리 수에 따라 화면을 잡는 데 걸리는 시간(§10.1.1 camera_transition_sec). Day 0은 이동만, 이후 일차는 이동과 줌을 같은 시간 안에서 진행한다.")]
     [SerializeField] float cameraTransitionSec = 0.8f;
 
     [Header("Data")]
@@ -53,12 +53,11 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     {
         if (textView == null)
         {
-            Debug.LogError("[BarStory] textView가 비어 있어 대사를 띄우지 못했습니다.");
-            return;
+            throw new InvalidOperationException("[BarStory] textView가 비어 있습니다.");
         }
 
         if (!request.IsPlayer && !string.IsNullOrEmpty(request.Expression) && characterManager != null)
-            await characterManager.SetCharacterAsync(request.ActorId, request.Expression);
+            await characterManager.SetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
 
         ResolveSpeaker(request.ActorId, out string displayName, out Color32 nameColor);
 
@@ -66,31 +65,35 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             ? characterManager.GetCharacterPosition(request.ActorId)
             : Vector3.zero;
 
-        characterManager?.OnDialogueStart(request.ActorId);
-
-        await textView.StartType(
-            new TypingData(request.Body, displayName, speakerPos, nameColor, request.IsPlayer));
-
-        characterManager?.OnDialogueEnd(request.ActorId);
+        token.ThrowIfCancellationRequested();
+        if (characterManager != null) characterManager.OnDialogueStart(request.ActorId);
+        try
+        {
+            await textView.StartType(new TypingData(request.Body, displayName, speakerPos, nameColor, request.IsPlayer), token: token);
+        }
+        finally
+        {
+            if (characterManager != null) characterManager.OnDialogueEnd(request.ActorId);
+        }
     }
 
     public async UniTask EnterAsync(string actorId, ESlotType slot, CancellationToken token)
     {
         if (characterManager == null) return;
 
-        await characterManager.SetCharacterAsync(actorId, DefaultExpression, slot);
+        await characterManager.SetCharacterAsync(actorId, DefaultExpression, slot, token);
     }
 
     public void Exit(ESlotType slot)
     {
-        characterManager?.ResetCharacter(slot);
+        if (characterManager != null) characterManager.ResetCharacter(slot);
     }
 
     /// <summary>
     /// 앉은 사람 수에 맞춰 화면을 잡는다(§10.1.1).
     ///
-    /// 1명이면 그 자리로 다가가 960×540(Sub), 2명이면 두 자리의 중점으로 물러나 1280×720(Base).
-    /// 이동과 줌을 끈어 실행하지 않고 같은 시간 안에서 함께 건다 — 나눠 부르면 화면이 두 번 움직인다.
+    /// 1명이면 그 자리로, 2명이면 두 자리의 중점으로 이동한다. Day 0은 이전 Play 씬의
+    /// 960×540 화각을 유지하고 위치만 옮긴다. 이후 일차는 자리 수에 맞춰 줌도 함께 진행한다.
     ///
     /// 아무도 없으면 L·R을 담는 기본 프레임에 선다 — 2부 시작 화면이다. 셋 이상은 이미 실행기가
     /// 데이터 오류로 알린 뒤라 건들지 않는다.
@@ -108,13 +111,15 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
 
         if (count > 2) return;
 
-        // 2부 손님은 자리에서 움직이지 않는다. 인원이 바뀌면 카메라만 좁혔다 넓힌다.
+        float targetX;
+        ECameraZoomType targetZoom;
+
+        // 2부 손님은 자리에서 움직이지 않는다. 인원이 바뀌면 카메라가 좌석을 따라간다.
         if (count == 1)
         {
             if (!TryGetSeatX(occupiedSlots[0], out float x)) return;
-
-            cameraZoom.TransitionCameraZoom(ECameraZoomType.Sub, cameraTransitionSec);
-            slotCamera.MoveToX(x, cameraTransitionSec);
+            targetX = x;
+            targetZoom = ECameraZoomType.Sub;
         }
         else
         {
@@ -127,12 +132,20 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             if (!TryGetSeatX(left, out float leftX)) return;
             if (!TryGetSeatX(right, out float rightX)) return;
 
-            cameraZoom.TransitionCameraZoom(ECameraZoomType.Base, cameraTransitionSec);
-            slotCamera.MoveToX((leftX + rightX) * 0.5f, cameraTransitionSec);
+            targetX = (leftX + rightX) * 0.5f;
+            targetZoom = ECameraZoomType.Base;
         }
 
-        // 움직이는 중에 다음 대사가 뜨면 말하는 사람이 아직 화면 밖에 있다(§10.1.1 전환 완료).
-        await UniTask.WaitForSeconds(cameraTransitionSec, cancellationToken: token);
+        if (GameStateManager.Instance.CurrentDay == 0)
+            await slotCamera.MoveToXAsync(targetX, cameraTransitionSec, token);
+        else
+            await UniTask.WhenAll(
+                cameraZoom.TransitionCameraZoomAsync(targetZoom, cameraTransitionSec, token: token),
+                slotCamera.MoveToXAsync(targetX, cameraTransitionSec, token));
+
+        // 목표점과 렌즈 보간은 Update에서 끝난다. CinemachineBrain이 LateUpdate에서
+        // 실제 카메라에 반영한 다음 대사를 열어야 첫 말풍선 프레임과 카메라 위치가 일치한다.
+        await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, token);
     }
 
     /// <summary>자리가 서 있는 x를 인물 슬롯에서 읽는다. 슬롯이 없으면 세울 곳이 없다는 뜻이다.</summary>
@@ -177,23 +190,22 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
         {
             return await completion.Task.AttachExternalCancellation(token);
         }
-        catch (OperationCanceledException)
+        finally
         {
-            // 씬이 끝나 기다림이 풀린 것이다. 띄워 둔 선택지는 치우고 나간다.
-            choiceView.CloseChoices();
-            throw;
+            if (choiceView != null) choiceView.CloseChoices();
         }
     }
 
     public void SkipTyping()
     {
-        textView?.OnScreenClick();
+        if (textView != null) textView.OnScreenClick();
     }
 
     public void Clear()
     {
-        characterManager?.ResetCharacter();
-        choiceView?.CloseChoices();
+        if (textView != null) textView.ClearText();
+        if (choiceView != null) choiceView.CloseChoices();
+        if (characterManager != null) characterManager.ResetCharacter();
     }
 
     /// <summary>characters.json에서 화면에 적을 이름과 색을 찾는다. 없으면 id를 그대로 쓴다.</summary>

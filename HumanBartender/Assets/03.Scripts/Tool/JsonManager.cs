@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Experimental.GlobalIllumination;
@@ -69,7 +70,7 @@ public static class JsonManager<T>
     /// 남기지 않아서 — "HTTP/1.1 404 Not Found", "Requested value 'system' was not found" —
     /// 그대로 두면 무엇이 잘못됐는지는 알아도 어디가 잘못됐는지는 찾아다녀야 한다.
     /// </summary>
-    public static async UniTask<T> LoadAsync<T>(string fileName)
+    public static async UniTask<T> LoadAsync<T>(string fileName, CancellationToken token = default)
     {
         string path = Path.Combine(Application.streamingAssetsPath, fileName);
 
@@ -78,8 +79,9 @@ public static class JsonManager<T>
         try
         {
             // UniTask의 awaiter는 실패를 예외로 알린다. req.result를 따로 보지 않는 이유다.
-            await req.SendWebRequest();
+            await req.SendWebRequest().ToUniTask(cancellationToken: token);
         }
+        catch (System.OperationCanceledException) { throw; }
         catch (System.Exception e)
         {
             throw new System.InvalidOperationException(
@@ -100,18 +102,12 @@ public static class JsonManager<T>
     public static async UniTask<T> LoadDataAsync<T>(string addressableKey)
     {
         var handle = Addressables.LoadAssetAsync<TextAsset>(addressableKey);
-        TextAsset textAsset = await handle.ToUniTask();
-
-        if (textAsset == null)
+        try
         {
-            Debug.LogError($"어드레서블 로드 실패: {addressableKey}");
-            return default;
+            TextAsset textAsset = await handle.ToUniTask();
+            if (textAsset == null) throw new System.InvalidOperationException($"Missing TextAsset: {addressableKey}");
+            return JsonConvert.DeserializeObject<T>(textAsset.text);
         }
-
-        T data = JsonConvert.DeserializeObject<T>(textAsset.text);
-
-        Addressables.Release(handle);
-
-        return data;
+        finally { if (handle.IsValid()) Addressables.Release(handle); }
     }
 }

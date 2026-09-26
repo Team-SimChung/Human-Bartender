@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="26" result="Passed" total="26" passed="26" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-15 07:27:38Z" end-time="2026-09-15 07:27:45Z" duration="7.3305941">
+  <test-suite type="TestSuite" id="1000" name="ProjectLUNA" fullname="ProjectLUNA" runstate="Runnable" testcasecount="34" result="Passed" start-time="2026-09-15 07:27:38Z" end-time="2026-09-15 07:27:45Z" duration="7.330594" total="26" passed="26" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1040" name="Assembly-CSharp-Editor.dll" fullname="/private/tmp/hb-c-work/unity-validation/HumanBartender/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="33" result="Passed" start-time="2026-09-15 07:27:41Z" end-time="2026-09-15 07:27:45Z" duration="4.446269" total="26" passed="26" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="25309" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1010" name="RefactoringCExecutionTests" fullname="RefactoringCExecutionTests" classname="RefactoringCExecutionTests" runstate="Runnable" testcasecount="26" result="Passed" start-time="2026-09-15 07:27:41Z" end-time="2026-09-15 07:27:45Z" duration="4.283370" total="26" passed="26" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1017" name="CancelledOutsideChoiceCannotCompleteLaterRun" fullname="RefactoringCExecutionTests.CancelledOutsideChoiceCannotCompleteLaterRun" methodname="CancelledOutsideChoiceCannotCompleteLaterRun" classname="RefactoringCExecutionTests" runstate="Runnable" seed="411975760" result="Passed" start-time="2026-09-15 07:26:39Z" end-time="2026-09-15 07:26:39Z" duration="0.066179" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1014" name="ChoiceCleanupIsSafeAfterPanelDestructionAndRepeatedCalls" fullname="RefactoringCExecutionTests.ChoiceCleanupIsSafeAfterPanelDestructionAndRepeatedCalls" methodname="ChoiceCleanupIsSafeAfterPanelDestructionAndRepeatedCalls" classname="RefactoringCExecutionTests" runstate="Runnable" seed="18368547" result="Passed" start-time="2026-09-15 07:26:39Z" end-time="2026-09-15 07:26:39Z" duration="0.003201" asserts="0">
+          <properties />
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1013" name="CleanupCannotOverwritePrimaryFailureOrCancellation" fullname="RefactoringCExecutionTests.CleanupCannotOverwritePrimaryFailureOrCancellation" classname="RefactoringCExecutionTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-15 07:26:39Z" end-time="2026-09-15 07:26:40Z" duration="0.140840" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1011" name="CleanupCannotOverwritePrimaryFailureOrCancellation(False)" fullname="RefactoringCExecutionTests.CleanupCannotOverwritePrimaryFailureOrCancellation(False)" methodname="CleanupCannotOverwritePrimaryFailureOrCancellation" classname="RefactoringCExecutionTests" runstate="Runnable" seed="642089316" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.041588" asserts="0">
+            <properties />
+            <output><![CDATA[[Story] 씬 시작 — test (seq 1)
+]]></output>
+          </test-case>
+          <test-case id="1012" name="CleanupCannotOverwritePrimaryFailureOrCancellation(True)" fullname="RefactoringCExecutionTests.CleanupCannotOverwritePrimaryFailureOrCancellation(True)" methodname="CleanupCannotOverwritePrimaryFailureOrCancellation" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1605192123" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.001420" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="1029" name="ContentConditionValidationUsesRuntimeTypesWithoutGameState" fullname="RefactoringCExecutionTests.ContentConditionValidationUsesRuntimeTypesWithoutGameState" classname="RefactoringCExecutionTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.083760" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1024" name="ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;flag.done == true &amp;&amp; day &gt;= 1&quot;,True)" fullname="RefactoringCExecutionTests.ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;flag.done == true &amp;&amp; day &gt;= 1&quot;,True)" methodname="ContentConditionValidationUsesRuntimeTypesWithoutGameState" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1146617065" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.005014" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1025" name="ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;final_grade &gt;= excellent &amp;&amp; order_match == true&quot;,True)" fullname="RefactoringCExecutionTests.ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;final_grade &gt;= excellent &amp;&amp; order_match == true&quot;,True)" methodname="ContentConditionValidationUsesRuntimeTypesWithoutGameState" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1905915489" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.000435" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1026" name="ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;flag.done &gt;= 1&quot;,False)" fullname="RefactoringCExecutionTests.ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;flag.done &gt;= 1&quot;,False)" methodname="ContentConditionValidationUsesRuntimeTypesWithoutGameState" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1136404435" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.000215" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1027" name="ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;unknown_value == 1&quot;,False)" fullname="RefactoringCExecutionTests.ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;unknown_value == 1&quot;,False)" methodname="ContentConditionValidationUsesRuntimeTypesWithoutGameState" classname="RefactoringCExecutionTests" runstate="Runnable" seed="2027456028" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.000176" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1028" name="ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;flag.done = true&quot;,False)" fullname="RefactoringCExecutionTests.ContentConditionValidationUsesRuntimeTypesWithoutGameState(&quot;flag.done = true&quot;,False)" methodname="ContentConditionValidationUsesRuntimeTypesWithoutGameState" classname="RefactoringCExecutionTests" runstate="Runnable" seed="855124638" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.000189" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-suite type="ParameterizedMethod" id="1034" name="ContentEffectsAreValidatedWithoutApplyingThem" fullname="RefactoringCExecutionTests.ContentEffectsAreValidatedWithoutApplyingThem" classname="RefactoringCExecutionTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.021812" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1030" name="ContentEffectsAreValidatedWithoutApplyingThem(&quot;money -= 999999; affinity.luna += 1; flag.done = true&quot;,True)" fullname="RefactoringCExecutionTests.ContentEffectsAreValidatedWithoutApplyingThem(&quot;money -= 999999; affinity.luna += 1; flag.done = true&quot;,True)" methodname="ContentEffectsAreValidatedWithoutApplyingThem" classname="RefactoringCExecutionTests" runstate="Runnable" seed="559323659" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.001289" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1031" name="ContentEffectsAreValidatedWithoutApplyingThem(&quot;money = 0&quot;,False)" fullname="RefactoringCExecutionTests.ContentEffectsAreValidatedWithoutApplyingThem(&quot;money = 0&quot;,False)" methodname="ContentEffectsAreValidatedWithoutApplyingThem" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1427006403" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.000191" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1032" name="ContentEffectsAreValidatedWithoutApplyingThem(&quot;flag.done += 1&quot;,False)" fullname="RefactoringCExecutionTests.ContentEffectsAreValidatedWithoutApplyingThem(&quot;flag.done += 1&quot;,False)" methodname="ContentEffectsAreValidatedWithoutApplyingThem" classname="RefactoringCExecutionTests" runstate="Runnable" seed="179249330" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.000162" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1033" name="ContentEffectsAreValidatedWithoutApplyingThem(&quot;reputation += 1&quot;,False)" fullname="RefactoringCExecutionTests.ContentEffectsAreValidatedWithoutApplyingThem(&quot;reputation += 1&quot;,False)" methodname="ContentEffectsAreValidatedWithoutApplyingThem" classname="RefactoringCExecutionTests" runstate="Runnable" seed="335082650" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:40Z" duration="0.000181" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="1036" name="ContentReportDoesNotModifyCsvOrSerializedData" fullname="RefactoringCExecutionTests.ContentReportDoesNotModifyCsvOrSerializedData" methodname="ContentReportDoesNotModifyCsvOrSerializedData" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1952993826" result="Passed" start-time="2026-09-15 07:26:40Z" end-time="2026-09-15 07:26:44Z" duration="3.950453" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1039" name="LegacyStreetResultStepsWithoutSeqPreserveCsvOrder" fullname="RefactoringCExecutionTests.LegacyStreetResultStepsWithoutSeqPreserveCsvOrder" methodname="LegacyStreetResultStepsWithoutSeqPreserveCsvOrder" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1059729995" result="Passed" start-time="2026-09-15 07:26:44Z" end-time="2026-09-15 07:26:44Z" duration="0.002156" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1018" name="OldInteractionCannotUnlockNewInteraction" fullname="RefactoringCExecutionTests.OldInteractionCannotUnlockNewInteraction" methodname="OldInteractionCannotUnlockNewInteraction" classname="RefactoringCExecutionTests" runstate="Runnable" seed="503609905" result="Passed" start-time="2026-09-15 07:26:44Z" end-time="2026-09-15 07:26:44Z" duration="0.001557" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1019" name="OnceHistoryOnlyAcceptsCompletedDialogue" fullname="RefactoringCExecutionTests.OnceHistoryOnlyAcceptsCompletedDialogue" methodname="OnceHistoryOnlyAcceptsCompletedDialogue" classname="RefactoringCExecutionTests" runstate="Runnable" seed="286459687" result="Passed" start-time="2026-09-15 07:26:44Z" end-time="2026-09-15 07:26:44Z" duration="0.004105" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1037" name="OutsideColdStartPublishesSceneSpotsAfterCsvLoading" fullname="RefactoringCExecutionTests.OutsideColdStartPublishesSceneSpotsAfterCsvLoading" methodname="OutsideColdStartPublishesSceneSpotsAfterCsvLoading" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1555135194" result="Passed" start-time="2026-09-15 07:26:44Z" end-time="2026-09-15 07:27:05Z" duration="21.657216" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[Lighting data asset ‘LightingData’ is incompatible with the current Unity version because the scene it was baked for was not serialized. Please use Generate Lighting to rebuild the lighting data, or assign the target scene to the Lighting Data Asset in the inspector.
+Material ‘SpriteEmission’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘New Material’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+]]></output>
+        </test-case>
+        <test-case id="1016" name="OutsideStopWaitsForChildCleanupBeforeAllowingRebind" fullname="RefactoringCExecutionTests.OutsideStopWaitsForChildCleanupBeforeAllowingRebind" methodname="OutsideStopWaitsForChildCleanupBeforeAllowingRebind" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1105263619" result="Passed" start-time="2026-09-15 07:27:05Z" end-time="2026-09-15 07:27:05Z" duration="0.038499" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1023" name="PausedTimelineWaitsForContinueAndNaturalPlaybackCompletes" fullname="RefactoringCExecutionTests.PausedTimelineWaitsForContinueAndNaturalPlaybackCompletes" methodname="PausedTimelineWaitsForContinueAndNaturalPlaybackCompletes" classname="RefactoringCExecutionTests" runstate="Runnable" seed="632879120" result="Passed" start-time="2026-09-15 07:27:05Z" end-time="2026-09-15 07:27:22Z" duration="16.639326" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+        </test-case>
+        <test-case id="1038" name="PlayStoryStartsAndCanBeStoppedDuringDialogue" fullname="RefactoringCExecutionTests.PlayStoryStartsAndCanBeStoppedDuringDialogue" methodname="PlayStoryStartsAndCanBeStoppedDuringDialogue" classname="RefactoringCExecutionTests" runstate="Runnable" seed="222752332" result="Passed" start-time="2026-09-15 07:27:22Z" end-time="2026-09-15 07:27:45Z" duration="23.012974" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[Story] 씬 시작 — d1_tutorial_chris (seq 1)
+[CharacterManager] PartAnimData null, Default Data
+Extra Null
+Extra Null
+[CharacterManager] PartAnimData null, Default Data
+Etc Null
+Etc Null
+Addressable key not found: chris_eyes_default_Intro
+Addressable key not found: chris_eyebrows_default_Intro
+Addressable key not found: chris_upper_face_default_Intro
+Addressable key not found: chris_lower_face_default_Intro
+Addressable key not found: chris_body_default_Intro
+]]></output>
+        </test-case>
+        <test-case id="1020" name="StoryCraftIgnoresOtherSessionsAndUnsubscribesAfterCancellation" fullname="RefactoringCExecutionTests.StoryCraftIgnoresOtherSessionsAndUnsubscribesAfterCancellation" methodname="StoryCraftIgnoresOtherSessionsAndUnsubscribesAfterCancellation" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1406049938" result="Passed" start-time="2026-09-15 07:27:45Z" end-time="2026-09-15 07:27:45Z" duration="0.031029" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[StoryCraft] Story wait cancelled, but the B craft is still active. CraftFlowController needs a session-specific CancelAsync API.
+]]></output>
+        </test-case>
+        <test-case id="1021" name="StoryCraftOnlyCompletesItsStartedSession" fullname="RefactoringCExecutionTests.StoryCraftOnlyCompletesItsStartedSession" methodname="StoryCraftOnlyCompletesItsStartedSession" classname="RefactoringCExecutionTests" runstate="Runnable" seed="2025521765" result="Passed" start-time="2026-09-15 07:27:45Z" end-time="2026-09-15 07:27:45Z" duration="0.002765" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1035" name="StreetContentValidatorReportsMissingBranchAndUnsupportedStep" fullname="RefactoringCExecutionTests.StreetContentValidatorReportsMissingBranchAndUnsupportedStep" methodname="StreetContentValidatorReportsMissingBranchAndUnsupportedStep" classname="RefactoringCExecutionTests" runstate="Runnable" seed="544809510" result="Passed" start-time="2026-09-15 07:27:45Z" end-time="2026-09-15 07:27:45Z" duration="0.008365" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1022" name="TimelineCancellationStopsDirectorAndRestoresItsAsset" fullname="RefactoringCExecutionTests.TimelineCancellationStopsDirectorAndRestoresItsAsset" methodname="TimelineCancellationStopsDirectorAndRestoresItsAsset" classname="RefactoringCExecutionTests" runstate="Runnable" seed="1774887544" result="Passed" start-time="2026-09-15 07:27:45Z" end-time="2026-09-15 07:27:45Z" duration="0.019961" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1015" name="TypingCancellationPropagatesBeforeTouchingDestroyedUi" fullname="RefactoringCExecutionTests.TypingCancellationPropagatesBeforeTouchingDestroyedUi" methodname="TypingCancellationPropagatesBeforeTouchingDestroyedUi" classname="RefactoringCExecutionTests" runstate="Runnable" seed="362357135" result="Passed" start-time="2026-09-15 07:27:45Z" end-time="2026-09-15 07:27:45Z" duration="0.001463" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Saving results to: /Users/yongseokpark/Library/Application Support/TeamSIMCHUNG/ProjectLUNA/TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
