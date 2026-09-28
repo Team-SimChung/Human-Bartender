@@ -156,14 +156,21 @@ public sealed class CocktailRecipePreview : MonoBehaviour
             Debug.LogError("[CocktailRecipePreview] Ingredient List와 Ingredient Prefab을 연결해 주세요.", this);
             return;
         }
+        var added = new HashSet<string>();
+        AddRequiredItem(cocktail.Glass, visuals, added);
+        AddRequiredItem(cocktail.TargetToolId, visuals, added);
         if (cocktail.Recipe == null) return;
 
-        var added = new HashSet<string>();
         foreach (NewCocktailRecipeStep step in cocktail.Recipe)
         {
-            if (string.IsNullOrEmpty(step.Ingredient) || !added.Add(step.Ingredient)) continue;
-            AddIngredient(step.Ingredient, visuals);
+            AddRequiredItem(step.Ingredient, visuals, added);
         }
+    }
+
+    private void AddRequiredItem(string id, CocktailRecipeVisualCatalog visuals, HashSet<string> added)
+    {
+        if (string.IsNullOrWhiteSpace(id) || !added.Add(id)) return;
+        AddIngredient(id, visuals);
     }
 
     private void AddIngredient(string id, CocktailRecipeVisualCatalog visuals)

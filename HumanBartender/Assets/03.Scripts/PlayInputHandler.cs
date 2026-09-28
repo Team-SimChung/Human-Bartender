@@ -13,6 +13,7 @@ public class PlayInputHandler : MonoBehaviour
     [SerializeField] private PlayPhaseController playPhaseController;
     [SerializeField] private ServicePanelController servicePanelController;
     [SerializeField] private RecipeBrowserScreen recipeScreen;
+    [SerializeField] private CraftPrepStageHost craftPrepStageHost;
 
     /// <summary>
     /// 대사 진행 입력. 2부(Dialogue) 국면에서만 동작한다.
@@ -50,5 +51,15 @@ public class PlayInputHandler : MonoBehaviour
         if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
         if (servicePanelController == null) return;
         servicePanelController.Toggle();
+    }
+
+    public void OnPrepPrevious(InputValue value)
+    {
+        if (craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Previous();
+    }
+
+    public void OnPrepNext(InputValue value)
+    {
+        if (craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Next();
     }
 }

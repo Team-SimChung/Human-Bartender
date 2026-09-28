@@ -17,6 +17,7 @@ public static class CoasterUISetup
 {
     const string TrayCanvasName = "Coaster Tray Canvas";
     const string DropZoneName = "Coaster Drop Zone";
+    const string SupplyTrayPrefabPath = "Assets/04.Prefabs/UI/CoasterSupplyTray.prefab";
 
     [MenuItem("Tools/Tycoon/Setup Coaster UI")]
     public static void Run()
@@ -41,7 +42,7 @@ public static class CoasterUISetup
         }
         else
         {
-            CreateTray(slots.Length);
+            CreateTray();
         }
 
         int created = 0;
@@ -94,8 +95,15 @@ public static class CoasterUISetup
         Debug.Log("[CoasterUISetup] TycoonFlow.dialogueClickCatcher를 'OnClickimage'에 연결했습니다.");
     }
 
-    static void CreateTray(int coasterCount)
+    static void CreateTray()
     {
+        var trayPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(SupplyTrayPrefabPath);
+        if (trayPrefab == null)
+        {
+            Debug.LogError($"[CoasterUISetup] 코스터 트레이 프리팹이 없습니다: {SupplyTrayPrefabPath}");
+            return;
+        }
+
         var canvasGO = new GameObject(TrayCanvasName, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
         var canvas = canvasGO.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -105,27 +113,10 @@ public static class CoasterUISetup
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(960, 540);
 
-        const float iconSize = 60f;
-        const float spacing = 10f;
-        const float marginRight = 20f;
-        const float marginBottom = 20f;
-
-        for (int i = 0; i < coasterCount; i++)
+        var tray = (GameObject)PrefabUtility.InstantiatePrefab(trayPrefab, canvasGO.transform);
+        foreach (CoasterDragItem coaster in tray.GetComponentsInChildren<CoasterDragItem>(true))
         {
-            var iconGO = new GameObject($"Coaster Icon {i + 1}", typeof(RectTransform), typeof(CanvasGroup), typeof(Image), typeof(CoasterDragItem));
-            iconGO.transform.SetParent(canvasGO.transform, false);
-
-            var rect = iconGO.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(1, 0);
-            rect.anchorMax = new Vector2(1, 0);
-            rect.pivot = new Vector2(1, 0);
-            rect.sizeDelta = new Vector2(iconSize, iconSize);
-            rect.anchoredPosition = new Vector2(-marginRight - i * (iconSize + spacing), marginBottom);
-
-            var image = iconGO.GetComponent<Image>();
-            image.color = new Color(0.82f, 0.62f, 0.38f, 1f); // 나무 코스터 placeholder 색
-
-            SetSerializedField(iconGO.GetComponent<CoasterDragItem>(), "rootCanvas", canvas);
+            SetSerializedField(coaster, "rootCanvas", canvas);
         }
     }
 
