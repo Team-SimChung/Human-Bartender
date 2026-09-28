@@ -269,6 +269,54 @@
             ]
         },
         {
+            "name": "CraftPrep",
+            "id": "769c84c4-3451-45b1-8541-d905a6702c85",
+            "actions": [
+                {
+                    "name": "PrepPrevious",
+                    "type": "Button",
+                    "id": "58dbfa08-702f-46db-ad75-3f0ca8d9d1f3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PrepNext",
+                    "type": "Button",
+                    "id": "85e4dfa1-3a5d-4fa5-a567-6c74679afaf0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "75371c5e-a165-4a93-9c93-99cde349a646",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "PrepPrevious",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bf04ee90-f12e-41c8-83ef-9956dd78d991",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "PrepNext",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
             "name": "CraftGimmick",
             "id": "95085384-c84a-5f3e-b2da-4931b051c0a1",
             "actions": [
