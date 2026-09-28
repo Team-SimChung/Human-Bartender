@@ -10,7 +10,18 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6e78d257-6d5e-4902-9480-b68a8df1a954" name="변경" comment="" />
+    <list default="true" id="6e78d257-6d5e-4902-9480-b68a8df1a954" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.HumanBartender/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.HumanBartender/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/00.Scenes/Play.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/00.Scenes/Play.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/03.Scripts/Craft/Loop/CraftFlowController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/03.Scripts/Craft/Loop/CraftFlowController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/03.Scripts/Craft/Loop/CraftServingView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/03.Scripts/Craft/Loop/CraftServingView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/03.Scripts/Craft/Loop/OrderRequestController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/03.Scripts/Craft/Loop/OrderRequestController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/03.Scripts/Option/UIDisplayOptions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/03.Scripts/Option/UIDisplayOptions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/03.Scripts/PlayInputHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/03.Scripts/PlayInputHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/03.Scripts/Tycoon/GuestManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/03.Scripts/Tycoon/GuestManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/04.Prefabs/ProjectLifeScope.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/04.Prefabs/ProjectLifeScope.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/PlayerInput.inputactions" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/PlayerInput.inputactions" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -38,13 +49,27 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;11-refactoring-c-issue&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;19-Service-Panel-Implementation&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;rider.unittesting.toolwindow.stripe.button.shown&quot;: &quot;true&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C#&quot;
   }
 }</component>
   <component name="RunManager" selected="Unity 에디터에 연결.Attach to Unity Editor">
+    <configuration name="유닛 테스트(배치 모드)" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.14f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath &quot;C:\Users\hanrc\OneDrive\Documents\Unity Projects\Human-Bartender\HumanBartender&quot; -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="C:\Users\hanrc\OneDrive\Documents\Unity Projects\Human-Bartender\HumanBartender" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="ENV_FILE_PATHS" value="" />
+      <option name="REDIRECT_INPUT_PATH" value="" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
+      <method v="2" />
+    </configuration>
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.14f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-projectPath &quot;C:\Unity Project\HumanBartender\HumanBartender&quot; -debugCodeOptimization" />
@@ -65,7 +90,30 @@
       <option name="MIXED_MODE_DEBUG" value="0" />
       <method v="2" />
     </configuration>
+    <configuration name="Unity 시작" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.14f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-projectPath &quot;C:\Users\hanrc\OneDrive\Documents\Unity Projects\Human-Bartender\HumanBartender&quot; -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="C:\Users\hanrc\OneDrive\Documents\Unity Projects\Human-Bartender\HumanBartender" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="ENV_FILE_PATHS" value="" />
+      <option name="REDIRECT_INPUT_PATH" value="" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
+      <method v="2" />
+    </configuration>
     <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+    <configuration name="Unity 에디터에 연결" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
@@ -84,6 +132,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
+      <changelist id="6e78d257-6d5e-4902-9480-b68a8df1a954" name="변경" comment="" />
       <created>1789707329799</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />

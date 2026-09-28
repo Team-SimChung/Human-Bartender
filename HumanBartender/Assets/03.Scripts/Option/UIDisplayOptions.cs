@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using TMPro;
@@ -24,30 +25,40 @@ public class UIDisplayOptions : MonoBehaviour
     [Inject] private IDisplaySettings _display;
     [Inject] private ISoundManager _sound;
 
-    bool isOnOption = false;
+    static UIDisplayOptions activeOptions;
+    public static bool IsOptionOpen
+    {
+        get
+        {
+            return activeOptions != null && activeOptions.optionUI != null && activeOptions.optionUI.activeInHierarchy;
+        }
+    }
 
     private void Start()
     {
         BuildDropdownOptions();
         SyncUIFromCurrentSettings();
 
-        isOnOption = false;
     }
 
     private void OnEnable()
     {
+        activeOptions = this;
         if (_sound == null) return;
         if (bgmSlider) bgmSlider.SetValueWithoutNotify(_sound.GetBGMVolume());
         if (seSlider) seSlider.SetValueWithoutNotify(_sound.GetSEVolume());
     }
 
+    private void OnDisable()
+    {
+        if (activeOptions == this) activeOptions = null;
+    }
+
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            isOnOption = !isOnOption;
-            optionUI.gameObject.SetActive(isOnOption);
-        }
+        if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+        if (ServicePanelController.TryCloseForEscape()) return;
+        if (optionUI != null) optionUI.SetActive(!optionUI.activeSelf);
     }
 
     public void QuitGame()

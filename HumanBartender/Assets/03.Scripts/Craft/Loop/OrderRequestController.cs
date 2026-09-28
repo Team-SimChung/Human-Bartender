@@ -32,6 +32,21 @@ public class OrderRequestController : MonoBehaviour
     IServeProcessor processor;
 
     public int ActiveCount => requests.Count;
+
+    /// <summary>대본이 지정한 미해금 레시피도 실제 대기 주문이면 일시적으로 선택할 수 있다.</summary>
+    public bool HasWaitingOrderForCocktail(string cocktailId)
+    {
+        if (string.IsNullOrEmpty(cocktailId)) return false;
+
+        foreach (Entry entry in requests.Values)
+        {
+            if (entry.Request.State == OrderState.Waiting &&
+                entry.Request.Details.CocktailId == cocktailId)
+                return true;
+        }
+
+        return false;
+    }
     static UniTaskCompletionSource CompletedIdle()
     {
         var source = new UniTaskCompletionSource();

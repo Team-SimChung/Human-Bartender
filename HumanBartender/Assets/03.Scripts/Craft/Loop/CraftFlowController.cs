@@ -20,6 +20,8 @@ public class CraftFlowController : MonoBehaviour
 
     [Header("Data")]
     [SerializeField] NewCocktailDataSO cocktailData;
+    [Tooltip("현재 대기 주문. 대본이 지정한 미해금 레시피의 일시적 선택 권한을 확인한다.")]
+    [SerializeField] private OrderRequestController orderRequests;
     [Tooltip("재료의 기본 동작(default_action)과 병 손질 여부(prep_action)를 읽는다.")]
     [SerializeField] NewShelfItemDataSO shelfData;
     [Tooltip("점수 구간표·가중치·감점값을 읽는다. 비우면 제조는 되지만 등급을 낼 수 없다.")]
@@ -205,6 +207,13 @@ public class CraftFlowController : MonoBehaviour
         if (cocktailData == null || !cocktailData.TryGet(cocktailId, out selected))
         {
             reason = $"'{cocktailId}' 칵테일 데이터를 찾지 못했습니다.";
+            return false;
+        }
+
+        bool isRequested = orderRequests != null && orderRequests.HasWaitingOrderForCocktail(selected.Id);
+        if (!CocktailUnlockPolicy.CanSelect(selected, GameStateManager.Instance.CurrentDay, isRequested))
+        {
+            reason = "아직 해금되지 않은 칵테일 레시피입니다.";
             return false;
         }
 

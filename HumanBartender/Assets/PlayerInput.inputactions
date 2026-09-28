@@ -210,6 +210,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ServicePanel",
+                    "type": "Button",
+                    "id": "eb5e0a96-697a-49aa-972f-877be736f27a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -243,6 +252,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4b038ae0-5c8d-44bd-9ba7-a8f4d92ca6b6",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ServicePanel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -3,15 +3,16 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>제조 메뉴와 서빙 위치 표시만 담당한다. 주문 상태와 판정·정산은 소유하지 않는다.</summary>
+/// <summary>서빙 위치와 트레이 표시를 담당한다. 대본의 구형 제조 메뉴는 별도로 연다.</summary>
 public class CraftServingView : MonoBehaviour
 {
-    [Tooltip("칵테일 메뉴가 들어 있는 좌측 슬라이드 패널. 제조 스텝에서 열어 준다.")]
-    [SerializeField] LeftSlidePanel craftPanel;
+    [Tooltip("대본의 주문 없는 튜토리얼에서만 여는 기존 제조 패널.")]
+    [SerializeField] private LeftSlidePanel craftPanel;
+    [Tooltip("주문 없는 튜토리얼에서만 켜는 기존 Craft Panel 오브젝트.")]
+    [SerializeField] private GameObject legacyMenuRoot;
 
-    [Tooltip("제조·서빙 동안에만 켜는 화면. 좌측 슬라이드 패널 캔버스와 완성 잔 트레이 캔버스를 꽂는다. " +
-             "2부 대화 중에는 꺼 두어야 대사 위에 얹히지 않는다.")]
-    [SerializeField] GameObject[] craftUiRoots;
+    [Tooltip("서빙 동안에만 켜는 트레이 등. 레시피 브라우저가 있는 Left Slide Panel Canvas는 넣지 않는다.")]
+    [SerializeField] private GameObject[] craftUiRoots;
 
     [Header("Serve")]
     [Tooltip("좌석에 앉은 인물의 위치를 묻는 곳. 서빙 자리를 그 앞에 놓는다.")]
@@ -56,7 +57,7 @@ public class CraftServingView : MonoBehaviour
             zone.GetComponent<StoryServeDropTarget>().Bind(receive);
             owner.openPresentations++;
             opened = true;
-            owner.OpenUi();
+            owner.OpenServeUi();
         }
 
         public void Unbind()
@@ -92,14 +93,29 @@ public class CraftServingView : MonoBehaviour
     {
         closeWhenIdle = false;
         SetCraftUiActive(true);
-        if (craftPanel == null || !craftPanel.gameObject.activeInHierarchy)
-            throw new InvalidOperationException("제조 메뉴 연결을 확인하세요.");
+        if (craftPanel == null || legacyMenuRoot == null)
+        {
+            Debug.LogWarning("[CraftServingView] 튜토리얼용 기존 패널과 Craft Panel 참조를 연결해 주세요.", this);
+            return;
+        }
+
+        craftPanel.gameObject.SetActive(true);
+        legacyMenuRoot.SetActive(true);
         craftPanel.Open();
+    }
+
+    private void OpenServeUi()
+    {
+        closeWhenIdle = false;
+        SetCraftUiActive(true);
     }
 
     public void CloseUi()
     {
         closeWhenIdle = false;
+        if (craftPanel != null && craftPanel.gameObject.activeInHierarchy) craftPanel.Close();
+        if (legacyMenuRoot != null) legacyMenuRoot.SetActive(false);
+        if (craftPanel != null) craftPanel.gameObject.SetActive(false);
         SetCraftUiActive(false);
     }
 
@@ -156,17 +172,10 @@ public class CraftServingView : MonoBehaviour
     /// <summary>
     /// 제조·서빙 화면을 켜고 끈다.
     ///
-    /// 닫는 일을 끄기 <b>전에</b> 한다. 슬라이드 패널은 코루틴으로 움직이는데 꺼진 오브젝트에서는
-    /// 코루틴이 시작조차 되지 않아서, 순서를 뒤집으면 "Coroutine couldn't be started because the
-    /// game object is inactive"가 난다.
-    ///
-    /// 패널 자신은 craftUiRoots와 별개로 켠다. 인스펙터에서 그 목록에 빠뜨리면 제조가 통째로 막히는데,
-    /// 화면에는 아무것도 나지 않아 원인이 멀다.
+    /// 레시피 브라우저의 Canvas는 서비스 패널이 소유하므로 여기서는 트레이만 켜고 끈다.
     /// </summary>
     void SetCraftUiActive(bool active)
     {
-        if (!active && craftPanel != null && craftPanel.gameObject.activeInHierarchy) craftPanel.Close();
-
         if (craftUiRoots != null)
         {
             foreach (var root in craftUiRoots)
@@ -175,6 +184,5 @@ public class CraftServingView : MonoBehaviour
             }
         }
 
-        if (craftPanel != null) craftPanel.gameObject.SetActive(active);
     }
 }
