@@ -15,13 +15,13 @@ using VContainer;
 public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 {
     [Header("Scene")]
-    [SerializeField] StoryScriptRunner runner;
+    [SerializeField] private StoryScriptRunner runner;
 
     [Tooltip("이 화면에 대본을 그리는 구현체(IStoryPresenter). 바에서는 BarStoryPresenter를 꽂는다. " +
              "공용 대화 시스템이 IDialoguePresenter를 씬마다 갈아 끼우는 것과 같은 자리다.")]
-    [SerializeField] MonoBehaviour presenter;
+    [SerializeField] private MonoBehaviour presenter;
 
-    [SerializeField] OrderRequestController orderController;
+    [SerializeField] private OrderRequestController orderController;
     [SerializeField] private CraftFlowController craftFlow;
 
     [Inject] ISoundManager soundManager;

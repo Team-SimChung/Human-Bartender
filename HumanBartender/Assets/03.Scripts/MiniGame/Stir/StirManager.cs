@@ -19,38 +19,38 @@ using UnityEngine;
 public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd
 {
-    [SerializeField] bool isTest = false;
+    [SerializeField] private bool isTest = false;
     [Tooltip("isTest일 때 표시할 칵테일 id. 스터 대상은 현재 dry_martini 1종이다.")]
-    [SerializeField] string testCocktailId = "dry_martini";
+    [SerializeField] private string testCocktailId = "dry_martini";
 
     [Header("Data")]
-    [SerializeField] CraftStationData data;
-    [SerializeField] NewCocktailDataSO cocktailDataSO;
+    [SerializeField] private CraftStationData data;
+    [SerializeField] private NewCocktailDataSO cocktailDataSO;
     [Tooltip("stir_target_stacks(판정 횟수)와 stir_circle_limit_sec(한 바퀴 제한시간)을 읽어온다. " +
              "스터 수치는 코드에 고정하지 않고 balance.json을 정본으로 쓴다.")]
-    [SerializeField] NewBalanceDataSO balanceData;
+    [SerializeField] private NewBalanceDataSO balanceData;
 
     [Header("Fallback")]
     [Tooltip("balanceData가 비었거나 아직 로드되지 않았을 때만 쓰는 값. " +
              "실제 플레이에서는 balance.json의 stir_target_stacks가 이긴다.")]
-    [SerializeField] int fallbackStackCount = 10;
+    [SerializeField] private int fallbackStackCount = 10;
     [Tooltip("같은 이유의 폴백. 실제 플레이에서는 balance.json의 stir_circle_limit_sec가 이긴다.")]
-    [SerializeField] float fallbackStackSeconds = 2f;
+    [SerializeField] private float fallbackStackSeconds = 2f;
 
     [Header("View")]
     [Tooltip("탑다운 잔(아레나) — 스푼 시침, 키 노드, 제한시간 링. 비워둬도 판정은 그대로 돌아간다.")]
-    [SerializeField] StirGlassView glass;
+    [SerializeField] private StirGlassView glass;
     [Tooltip("아레나 바깥 표시 — 상단 스탯, 라운드 타이머 카드, 사선 게이지, 시작 오버레이.")]
-    [SerializeField] StirHudView hud;
+    [SerializeField] private StirHudView hud;
     [Tooltip("잔 속 얼음. 정답마다 휘돌림을 한 번 밀어준다. 비워둬도 판정은 그대로 돌아간다.")]
-    [SerializeField] StirIceSwirl ice;
+    [SerializeField] private StirIceSwirl ice;
 
     [Header("UI")]
-    [SerializeField] Canvas buttonCanvas;
+    [SerializeField] private Canvas buttonCanvas;
 
     [Header("Craft Event")]
-    [SerializeField] VoidEvent craftServe;
-    [SerializeField] VoidEvent craftRetry;
+    [SerializeField] private VoidEvent craftServe;
+    [SerializeField] private VoidEvent craftRetry;
 
     /// <summary>판정이 모두 끝난 순간 한 번 발생한다. 입력 핸들러가 이걸 받아 입력을 해제한다.</summary>
     public event Action Completed;
@@ -449,7 +449,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         try
         {
             // 제조가 중단되면(창을 닫는 등) 기다림을 풀어 준다. 그러지 않으면 끝나지 않는 대기가 남는다.
-            using (token.Register(() => runnerCompletion.TrySetCanceled()))
+            using (token.Register(CancelRunnerCompletion))
             {
                 await runnerCompletion.Task;
             }
@@ -463,6 +463,11 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         return GimmickResult.Mix(ECraftGimmick.Stir, successCount, failCount, stackCount,
                                  ECraftEndType.AutoTarget,
                                  craftTimer != null ? craftTimer.ElapsedSec : elapsedTime);
+    }
+
+    private void CancelRunnerCompletion()
+    {
+        runnerCompletion?.TrySetCanceled();
     }
 
     void OnCompletedForRunner()

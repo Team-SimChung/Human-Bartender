@@ -9,11 +9,11 @@ using VContainer;
 public class OrderRequestController : MonoBehaviour
 {
     [Header("Presentation")]
-    [SerializeField] CraftServingView servingView;
+    [SerializeField] private CraftServingView servingView;
 
     [Header("Settlement")]
-    [SerializeField] NewCocktailDataSO cocktailData;
-    [SerializeField] NewBalanceDataSO balanceData;
+    [SerializeField] private NewCocktailDataSO cocktailData;
+    [SerializeField] private NewBalanceDataSO balanceData;
     [Inject] DailySales sales;
 
     sealed class Entry
@@ -46,6 +46,23 @@ public class OrderRequestController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private sealed class ServeCompletionCallback
+    {
+        private readonly OrderRequestController owner;
+        private readonly Entry entry;
+
+        public ServeCompletionCallback(OrderRequestController controller, Entry requestEntry)
+        {
+            owner = controller;
+            entry = requestEntry;
+        }
+
+        public bool TryServe(CraftedDrink drink)
+        {
+            return owner.TryServe(entry, drink);
+        }
     }
     static UniTaskCompletionSource CompletedIdle()
     {
@@ -80,7 +97,8 @@ public class OrderRequestController : MonoBehaviour
         };
         if (requests.Count == 0) idle = new UniTaskCompletionSource();
         requests.Add(details.Id, entry);
-        try { presentation.Open(drink => TryServe(entry, drink)); }
+        var callback = new ServeCompletionCallback(this, entry);
+        try { presentation.Open(callback.TryServe); }
         catch (Exception exception)
         {
             entry.Request.End(OrderState.Failed, error: exception.Message);

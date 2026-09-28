@@ -31,8 +31,6 @@ public sealed class CocktailRecipePreview : MonoBehaviour
     [SerializeField] private RectTransform tooltipCanvas;
     [SerializeField] private RecipeIngredientNameTooltip tooltipPrefab;
 
-    private const float IngredientTop = 225f;
-    private const float DescriptionTop = 295f;
     private const float SectionGap = 12f;
     private const float TextTopInset = 20f;
     private const float TextBottomInset = 10f;
@@ -42,6 +40,14 @@ public sealed class CocktailRecipePreview : MonoBehaviour
     private readonly List<RecipeIngredientCell> ingredientCells = new List<RecipeIngredientCell>();
     private RecipeIngredientNameTooltip tooltip;
     private RecipeIngredientCell hoveredIngredient;
+    private float ingredientTop;
+    private float minimumDescriptionTop;
+
+    private void Awake()
+    {
+        if (ingredientList != null) ingredientTop = -ingredientList.anchoredPosition.y;
+        if (descriptionSection != null) minimumDescriptionTop = -descriptionSection.anchoredPosition.y;
+    }
 
     public void Show(NewCocktailData cocktail, CocktailRecipeVisualCatalog visuals)
     {
@@ -209,7 +215,7 @@ public sealed class CocktailRecipePreview : MonoBehaviour
             ingredientHeight += rows * ingredientGrid.cellSize.y + (rows - 1) * ingredientGrid.spacing.y;
         ingredientList.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ingredientHeight);
 
-        float descriptionTop = Mathf.Max(DescriptionTop, IngredientTop + ingredientHeight + SectionGap);
+        float descriptionTop = Mathf.Max(minimumDescriptionTop, ingredientTop + ingredientHeight + SectionGap);
         float descriptionHeight = SetTextSectionHeight(descriptionSection, descriptionText, descriptionTop);
         float recipeTop = descriptionTop + descriptionHeight + SectionGap;
         float recipeHeight = SetTextSectionHeight(recipeSection, recipeText, recipeTop);

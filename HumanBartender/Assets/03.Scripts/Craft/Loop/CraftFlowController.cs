@@ -12,20 +12,20 @@ using UnityEngine;
 public class CraftFlowController : MonoBehaviour
 {
     [Header("Scene")]
-    [SerializeField] GimmickRunner runner;
+    [SerializeField] private GimmickRunner runner;
 
     [Header("Data")]
-    [SerializeField] NewCocktailDataSO cocktailData;
+    [SerializeField] private NewCocktailDataSO cocktailData;
     [Tooltip("현재 대기 주문. 대본이 지정한 미해금 레시피의 일시적 선택 권한을 확인한다.")]
     [SerializeField] private OrderRequestController orderRequests;
     [Tooltip("재료의 기본 동작(default_action)과 병 손질 여부(prep_action)를 읽는다.")]
-    [SerializeField] NewShelfItemDataSO shelfData;
+    [SerializeField] private NewShelfItemDataSO shelfData;
     [Tooltip("점수 구간표·가중치·감점값을 읽는다. 비우면 제조는 되지만 등급을 낼 수 없다.")]
-    [SerializeField] NewBalanceDataSO balanceData;
+    [SerializeField] private NewBalanceDataSO balanceData;
 
     [Header("Test")]
     [Tooltip("테스트용: 정답 구성(잔·도구·재료)을 자동으로 고르고 바로 기믹을 실행한다.")]
-    [SerializeField] bool autoPrepareForTest = true;
+    [SerializeField] private bool autoPrepareForTest = true;
 
 
     // 실행 중 상태

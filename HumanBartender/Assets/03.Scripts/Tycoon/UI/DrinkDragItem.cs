@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using TMPro;
 
 public enum DrinkRemovalReason { Served, Discarded }
 
@@ -8,6 +10,10 @@ public enum DrinkRemovalReason { Served, Discarded }
 [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
 public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    [SerializeField] private Image bodyImage;
+    [SerializeField] private Image secondBodyImage;
+    [SerializeField] private TextMeshProUGUI nameText;
+
     RectTransform rect;
     CanvasGroup canvasGroup;
     Canvas rootCanvas;
@@ -43,6 +49,13 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         rect.localScale = Vector3.one;
         rect.localRotation = Quaternion.identity;
         rect.anchoredPosition = Vector2.zero;
+        if (bodyImage != null) bodyImage.color = drink.Color;
+        if (secondBodyImage != null)
+        {
+            secondBodyImage.color = drink.Color2 ?? Color.clear;
+            secondBodyImage.gameObject.SetActive(drink.Color2.HasValue);
+        }
+        if (nameText != null) nameText.text = drink.DisplayName;
     }
 
     public void OnBeginDrag(PointerEventData eventData)

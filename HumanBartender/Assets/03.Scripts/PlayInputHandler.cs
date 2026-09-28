@@ -23,7 +23,7 @@ public class PlayInputHandler : MonoBehaviour
     public void OnAdvance(InputValue value)
     {
         if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
-        if (servicePanelController != null && servicePanelController.IsOpen) return;
+        if (servicePanelController != null && servicePanelController.IsMenuOpen) return;
         if (recipeScreen != null && recipeScreen.IsOpen) return;
 
         if (storyFlow != null) storyFlow.TryAdvance();

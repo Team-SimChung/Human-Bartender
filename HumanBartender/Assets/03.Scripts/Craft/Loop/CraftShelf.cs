@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -12,16 +11,18 @@ using System.Collections.Generic;
 /// </summary>
 public static class CraftShelf
 {
+    private enum ItemFilter { Glass, Tool, Ingredient }
+
     /// <summary>잔 선반에 놓을 잔.</summary>
     public static List<NewShelfItemData> GetGlasses(NewShelfItemDataSO shelfData, int day)
     {
-        return Collect(shelfData, item => item.Kind == ENewShelfKind.Glass, day);
+        return Collect(shelfData, ItemFilter.Glass, default, day);
     }
 
     /// <summary>도구 선반에 놓을 제조 도구.</summary>
     public static List<NewShelfItemData> GetTools(NewShelfItemDataSO shelfData, int day)
     {
-        return Collect(shelfData, item => item.Kind == ENewShelfKind.Tool, day);
+        return Collect(shelfData, ItemFilter.Tool, default, day);
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ public static class CraftShelf
     /// </summary>
     public static List<NewShelfItemData> GetIngredients(NewShelfItemDataSO shelfData, ENewShelfGroup group, int day)
     {
-        return Collect(shelfData, item => item.IsIngredient && item.ShelfGroup == group, day);
+        return Collect(shelfData, ItemFilter.Ingredient, group, day);
     }
 
     /// <summary>
@@ -39,19 +40,30 @@ public static class CraftShelf
     /// unlock_when(조건부 해금)은 보지 않는다. 진행 상태를 읽어야 판단할 수 있는 값이라,
     /// 선반이 임의로 해석하면 조건을 채우지 않은 재료가 조용히 진열된다.
     /// </summary>
-    static List<NewShelfItemData> Collect(NewShelfItemDataSO shelfData, Func<NewShelfItemData, bool> match, int day)
+    private static List<NewShelfItemData> Collect(NewShelfItemDataSO shelfData, ItemFilter filter,
+        ENewShelfGroup group, int day)
     {
         var items = new List<NewShelfItemData>();
         if (shelfData == null || shelfData.shelfItemData == null) return items;
 
         foreach (var item in shelfData.shelfItemData)
         {
-            if (!match(item)) continue;
+            if (!Matches(item, filter, group)) continue;
             if (item.UnlockDay > day) continue;
 
             items.Add(item);
         }
 
         return items;
+    }
+
+    private static bool Matches(NewShelfItemData item, ItemFilter filter, ENewShelfGroup group)
+    {
+        switch (filter)
+        {
+            case ItemFilter.Glass: return item.Kind == ENewShelfKind.Glass;
+            case ItemFilter.Tool: return item.Kind == ENewShelfKind.Tool;
+            default: return item.IsIngredient && item.ShelfGroup == group;
+        }
     }
 }

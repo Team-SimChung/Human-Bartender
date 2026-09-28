@@ -1007,6 +1007,7 @@ MonoBehaviour:
   shelfData: {fileID: 11400000, guid: f79c175af95447bba922a8c3fdddff37, type: 2}
   cocktailData: {fileID: 11400000, guid: 4cdd38f0ff8842f8a80c5e7c1fec4ecf, type: 2}
   craftFlow: {fileID: 0}
+  playGuestManager: {fileID: 0}
   content: {fileID: 2454030351046183645}
   shelfContent: {fileID: 2291231416237542880}
   trayContent: {fileID: 2067483892122964151}
@@ -1017,11 +1018,8 @@ MonoBehaviour:
   nextButton: {fileID: 5348546908739528625}
   nextLabel: {fileID: 6145481100076666213}
   recipeNoteButton: {fileID: 6682385955400484053}
-  font: {fileID: 11400000, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
-  cellSize: {x: 104, y: 116}
-  cellColor: {r: 1, g: 1, b: 1, a: 0.06}
-  cellSelectedColor: {r: 0.83, g: 0.55, b: 0.18, a: 0.28}
-  guideColor: {r: 0.36, g: 0.76, b: 0.72, a: 0.3}
+  shelfCellPrefab: {fileID: 7941662084607267464, guid: f1ce4b1fbedea3b4ca252bac1606ba07, type: 3}
+  trayChipPrefab: {fileID: 1555918953893398620, guid: e4df2cf6f3ef08c4b9065ae57c4a0000, type: 3}
   openOnStartForTest: 1
   testCocktailId: gin_fizz
   testDay: 1

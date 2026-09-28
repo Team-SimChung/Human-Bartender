@@ -11,23 +11,20 @@ public class CraftServingView : MonoBehaviour
 
     [Header("Serve")]
     [Tooltip("좌석에 앉은 인물의 위치를 묻는 곳. 서빙 자리를 그 앞에 놓는다.")]
-    [SerializeField] DialogueCharacterManager characterManager;
+    [SerializeField] private DialogueCharacterManager characterManager;
 
     [Tooltip("서빙 자리를 올려놓을 캔버스. 완성 잔 트레이가 쓰는 것과 같아야 잔을 끌어다 놓을 수 있다.")]
-    [SerializeField] Canvas serveCanvas;
-
-    [SerializeField] Vector2 serveZoneSize = new(220f, 180f);
+    [SerializeField] private Canvas serveCanvas;
+    [SerializeField] private StoryServeDropTarget serveZonePrefab;
 
     [Tooltip("좌석 월드 좌표에서 서빙 자리까지의 어긋남. 인물의 손 앞에 오도록 맞춘다.")]
-    [SerializeField] Vector3 serveZoneWorldOffset = new(0f, -0.6f, 0f);
+    [SerializeField] private Vector3 serveZoneWorldOffset = new(0f, -0.6f, 0f);
 
     [Tooltip("서빙 자리를 눈에 보이게 할지. 코스터 그림이 붙기 전까지 자리를 확인하는 용도다.")]
-    [SerializeField] bool showServeZoneGuide = true;
-
-    [SerializeField] Color serveZoneColor = new(1f, 1f, 1f, 0.12f);
+    [SerializeField] private bool showServeZoneGuide = true;
 
     [Header("Craft lifetime")]
-    [SerializeField] CraftFlowController craftFlow;
+    [SerializeField] private CraftFlowController craftFlow;
     int openPresentations;
     bool closeWhenIdle;
 
@@ -105,26 +102,22 @@ public class CraftServingView : MonoBehaviour
     /// </summary>
     GameObject BuildServeZone(OrderDetails order)
     {
-        if (serveCanvas == null || characterManager == null)
+        if (serveCanvas == null || characterManager == null || serveZonePrefab == null)
         {
-            throw new InvalidOperationException("serveCanvas 또는 characterManager 연결이 필요합니다.");
+            throw new InvalidOperationException("serveCanvas, characterManager, serveZonePrefab 연결이 필요합니다.");
         }
 
-        var go = new GameObject($"Story Serve Zone ({order.ReceiverId})",
-            typeof(RectTransform), typeof(Image), typeof(StoryServeDropTarget));
-        go.transform.SetParent(serveCanvas.transform, false);
-
-        var rect = (RectTransform)go.transform;
-        rect.sizeDelta = serveZoneSize;
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
+        StoryServeDropTarget zone = Instantiate(serveZonePrefab, serveCanvas.transform);
+        GameObject go = zone.gameObject;
+        go.name = $"Story Serve Zone ({order.ReceiverId})";
+        RectTransform rect = (RectTransform)zone.transform;
         rect.anchoredPosition = ResolveSeatCanvasPoint(order.ReceiverId);
 
-        var image = go.GetComponent<Image>();
-        image.color = showServeZoneGuide ? serveZoneColor : new Color(0f, 0f, 0f, 0f);
+        Image image = go.GetComponent<Image>();
+        if (image != null && !showServeZoneGuide)
+            image.color = new Color(image.color.r, image.color.g, image.color.b, 0f);
         // 평소에는 잔 클릭을 가리지 않고, 잔을 집은 동안에만 StoryServeDropTarget이 켠다.
-        image.raycastTarget = false;
+        if (image != null) image.raycastTarget = false;
 
         return go;
     }

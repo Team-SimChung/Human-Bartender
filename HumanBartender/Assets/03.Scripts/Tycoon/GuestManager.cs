@@ -192,7 +192,7 @@ public class GuestManager : MonoBehaviour
 
     void RefreshClockPause()
     {
-        bool servicePanelOpen = servicePanelController != null && servicePanelController.IsOpen;
+        bool servicePanelOpen = servicePanelController != null && servicePanelController.IsBlockingTycoonClock;
         if (servicePanelOpen || (craftFlow != null && craftFlow.IsCraftFlowActive)) barClock.Pause();
         else barClock.Resume();
     }

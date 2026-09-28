@@ -38,9 +38,14 @@ public static class GimmickQueueBuilder
         // 1차 정렬은 기믹 종류의 고정 순서다. 열거형 선언 순서가 곧 그 순서라서 값 비교로 끝난다.
         // OrderBy는 같은 값끼리의 순서를 흐트러뜨리지 않으므로, 위에서 넣은 순서 —
         // 재료는 선택 순서, 자동 호출은 레시피 순서 — 가 2차 정렬로 그대로 남는다.
-        var ordered = steps.OrderBy(step => (int)step.Type).ToList();
+        var ordered = steps.OrderBy(GetStepType).ToList();
 
         return new GimmickQueue(ordered, unresolved);
+    }
+
+    private static int GetStepType(GimmickStep step)
+    {
+        return (int)step.Type;
     }
 
     /// <summary>

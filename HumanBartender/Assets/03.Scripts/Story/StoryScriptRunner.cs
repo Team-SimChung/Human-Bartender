@@ -34,6 +34,21 @@ public class StoryScriptRunner : MonoBehaviour
     OrderRequestController orderController;
     UniTaskCompletionSource<OrderResult> orderResultSignal;
 
+    private sealed class OrderCompletionCallback
+    {
+        private readonly UniTaskCompletionSource<OrderResult> signal;
+
+        public OrderCompletionCallback(UniTaskCompletionSource<OrderResult> completion)
+        {
+            signal = completion;
+        }
+
+        public void Complete(OrderResult result)
+        {
+            signal.TrySetResult(result);
+        }
+    }
+
     /// <summary>
     /// 살아 있는 주문(§8.2의 current_order). order가 만들고 serve가 소비한다.
     ///
@@ -123,11 +138,11 @@ public class StoryScriptRunner : MonoBehaviour
                 try { action(); }
                 catch (Exception e) { cleanupErrors.Add(e.Message); }
             }
-            if (currentOrder != null && orderController != null) Cleanup(() => orderController.CancelOrder(currentOrder.Id));
+            if (currentOrder != null && orderController != null) Cleanup(CancelCurrentOrder);
             orderResultSignal = null;
             if (IsAlive(presenter)) Cleanup(presenter.Clear);
             currentOrder = null;
-            Cleanup(() => conditions.Result = null);
+            Cleanup(ClearConditionResult);
             IsRunning = false;
             if (cleanupErrors.Count > 0)
             {
@@ -140,6 +155,16 @@ public class StoryScriptRunner : MonoBehaviour
     }
 
     static bool IsAlive(object target) => target != null && (target is not UnityEngine.Object obj || obj != null);
+
+    private void CancelCurrentOrder()
+    {
+        orderController.CancelOrder(currentOrder.Id);
+    }
+
+    private void ClearConditionResult()
+    {
+        conditions.Result = null;
+    }
 
     bool TryGetFirstExecutableStep(NewScriptSceneData scene, out ENewStepType type)
     {
@@ -173,7 +198,6 @@ public class StoryScriptRunner : MonoBehaviour
             if (!visited.Add(scene.Id))
             {
                 throw new InvalidOperationException($"[Story] 씬 '{scene.Id}'로 되돌아왔습니다. goto가 고리를 이룹니다.");
-                return false;
             }
 
             Debug.Log($"[Story] 씬 시작 — {scene.Id} (seq {scene.Seq})");
@@ -189,7 +213,6 @@ public class StoryScriptRunner : MonoBehaviour
             {
                 // 없는 씬을 가리키면 아무 씬으로도 대신하지 않는다(§14 SCENE_REFERENCE_MISSING).
                 throw new InvalidOperationException($"[Story] goto가 가리키는 씬 '{gotoSceneId}'을 찾지 못했습니다.");
-                return false;
             }
         }
     }
@@ -216,7 +239,6 @@ public class StoryScriptRunner : MonoBehaviour
                 {
                     throw new InvalidOperationException($"[Story] 처리하지 않은 주문({currentOrder.Details.ReceiverId} / " +
                                    $"{currentOrder.Details.CocktailId})이 남아 end_part를 받아들이지 않습니다: {scene.Id}");
-                    continue;
                 }
 
                 Debug.Log($"[Story] end_part — {scene.Id}");
@@ -300,7 +322,6 @@ public class StoryScriptRunner : MonoBehaviour
             default:
                 // 아직 붙이지 않은 스텝. 조용히 지나가면 대본이 어디까지 왔는지 알 수 없어 남긴다.
                 throw new NotSupportedException($"Unsupported required step: {step.Type} ({scene.Id}#{step.Seq})");
-                return;
         }
     }
 
@@ -320,7 +341,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (!TryGetChoices(step.Arg, out NewChoiceOptionData[] choices))
         {
             throw new InvalidOperationException($"[Story] 선택지 '{step.Arg}'를 대본에서 찾지 못했습니다: {scene.Id}#{step.Seq}");
-            return null;
         }
 
         var options = new List<StoryChoiceOption>(choices.Length);
@@ -339,7 +359,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (!anySelectable)
         {
             throw new InvalidOperationException($"[Story] 고를 수 있는 선택지가 하나도 없습니다: {step.Arg} ({scene.Id}#{step.Seq})");
-            return null;
         }
 
         int picked = await presenter.ShowChoicesAsync(options, token);
@@ -379,7 +398,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (string.IsNullOrEmpty(body))
         {
             throw new InvalidOperationException($"[Story] 본문이 없는 say입니다: {step.DialogueId ?? $"seq {step.Seq}"}");
-            return;
         }
 
         await presenter.ShowSayAsync(
@@ -403,13 +421,11 @@ public class StoryScriptRunner : MonoBehaviour
         if (string.IsNullOrEmpty(step.Arg))
         {
             throw new InvalidOperationException($"[Story] timeline 스텝에 컷씬 id(arg)가 없습니다: {scene.Id}#{step.Seq}");
-            return;
         }
 
         if (cutScenePlayer == null)
         {
             throw new InvalidOperationException($"[Story] 컷씬 재생기가 없어 '{step.Arg}'를 건너뜁니다: {scene.Id}#{step.Seq}");
-            return;
         }
 
         Debug.Log($"[Story] 컷씬 — {step.Arg} ({scene.Id}#{step.Seq})");
@@ -452,14 +468,12 @@ public class StoryScriptRunner : MonoBehaviour
         if (!TryParseOrderedCocktail(step.Arg, out string cocktailId))
         {
             throw new InvalidOperationException($"[Story] 주문 칵테일을 읽지 못했습니다(arg=\"{step.Arg}\"): {scene.Id}#{step.Seq}");
-            return;
         }
 
         if (currentOrder != null && currentOrder.State != OrderState.Completed)
         {
             throw new InvalidOperationException($"[Story] 앞 주문({currentOrder.Details.ReceiverId})이 아직 끝나지 않아 새 주문을 만들지 않습니다: " +
                            $"{scene.Id}#{step.Seq}");
-            return;
         }
 
         // 주문 문구는 일반 say와 같은 규칙으로 낸다. 표정 인자는 order의 arg가 이미 차지하고 있어 없다.
@@ -477,7 +491,6 @@ public class StoryScriptRunner : MonoBehaviour
             // 앉지 않은 인물은 잔을 받을 자리가 없다. 가운데 자리로 대신하지 않는다 —
             // 그러면 엉뚱한 자리에 코스터가 놓이고 원인이 멀어진다.
             throw new InvalidOperationException($"[Story] 주문자 '{step.Actor}'가 앉아 있지 않습니다: {scene.Id}#{step.Seq}");
-            return;
         }
 
         // 지난 잔의 결과는 여기서 버린다. 새 주문이 시작됐는데 앞 잔의 등급이 남아 있으면
@@ -490,7 +503,8 @@ public class StoryScriptRunner : MonoBehaviour
         var signal = new UniTaskCompletionSource<OrderResult>();
         orderResultSignal = signal;
         // 지역 신호를 캡처해 이전 주문의 늦은 콜백이 새 주문에 적용되지 않게 한다.
-        currentOrder = orderController.Request(details, result => signal.TrySetResult(result));
+        var callback = new OrderCompletionCallback(signal);
+        currentOrder = orderController.Request(details, callback.Complete);
     }
 
     /// <summary>craft 스텝에서 레시피 화면을 연다. 다음 serve 스텝이 주문 결과를 기다린다.</summary>
@@ -499,7 +513,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (orderController == null)
         {
             throw new InvalidOperationException($"[Story] orderController가 없어 제조로 넘어가지 못했습니다: {scene.Id}#{step.Seq}");
-            return;
         }
 
         string tutorialCocktailId = ParseTutorialCocktail(step.Arg);
@@ -508,7 +521,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (currentOrder == null && tutorialCocktailId == null)
         {
             throw new InvalidOperationException($"[Story] 주문이 없어 제조를 시작할 수 없습니다: {scene.Id}#{step.Seq}");
-            return;
         }
 
         token.ThrowIfCancellationRequested();
@@ -530,7 +542,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (orderController == null || currentOrder == null)
         {
             throw new InvalidOperationException($"[Story] 낼 주문이 없어 서빙할 수 없습니다: {scene.Id}#{step.Seq}");
-            return;
         }
 
         if (!string.IsNullOrEmpty(step.Actor) && step.Actor != currentOrder.Details.ReceiverId)
@@ -593,7 +604,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (!TryParseSlot(step.Arg, out ESlotType slot))
         {
             throw new InvalidOperationException($"[Story] enter의 자리를 읽지 못했습니다: '{step.Arg}' (L·M·R이어야 합니다)");
-            return;
         }
 
         if (seatActors.TryGetValue(slot, out string sitting) && sitting != step.Actor)
@@ -708,7 +718,6 @@ public class StoryScriptRunner : MonoBehaviour
         if (seatActors.Count > 2)
         {
             throw new InvalidOperationException($"[Story] 한 화면에 {seatActors.Count}명이 앉았습니다. 2부는 최대 두 명입니다.");
-            return;
         }
 
         if (seatActors.Count == 2 &&

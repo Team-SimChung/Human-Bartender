@@ -24,7 +24,9 @@ public class ServicePanelController : MonoBehaviour
     private bool menuOpen;
     public event Action OpenChanged;
 
-    public bool IsOpen
+    public bool IsMenuOpen { get { return menuOpen; } }
+
+    public bool IsBlockingTycoonClock
     {
         get { return menuOpen || (recipeScreen != null && recipeScreen.IsOpen &&
                      playPhaseController != null && playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)); }
@@ -32,7 +34,7 @@ public class ServicePanelController : MonoBehaviour
 
     public static bool TryCloseForEscape()
     {
-        if (activePanel == null || !activePanel.IsOpen) return false;
+        if (activePanel == null || !activePanel.IsBlockingTycoonClock) return false;
         if (activePanel.recipeScreen != null && activePanel.recipeScreen.IsOpen)
             activePanel.recipeScreen.Close();
         else
