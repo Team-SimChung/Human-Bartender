@@ -22,6 +22,13 @@ public class ActualCraft
     /// 그때는 믹스 기믹 자체가 만들어지지 않는다.
     /// </summary>
     public string ToolId { get; private set; }
+    public bool IsBottleOpenerSelected => ToolId == NewToolIds.BottleOpener;
+
+    public void SetBottleOpener(bool selected)
+    {
+        if (selected) SetTool(NewToolIds.BottleOpener);
+        else if (IsBottleOpenerSelected) SetTool(null);
+    }
 
     /// <summary>
     /// 선반에서 직접 고른 재료. 리스트 순서가 곧 선택 순서다.

@@ -39,6 +39,12 @@ public class CraftPreparation
 
     /// <summary>실제로 고른 도구. 도구는 안 골라도 되므로 null일 수 있다.</summary>
     public string ToolId => actual.ToolId;
+    public bool IsBottleOpenerSelected => actual.IsBottleOpenerSelected;
+
+    public void ToggleBottleOpener()
+    {
+        ToggleTool(NewToolIds.BottleOpener);
+    }
 
     /// <summary>고른 재료를 고른 순서대로.</summary>
     public IReadOnlyList<string> IngredientIds => actual.IngredientIds;

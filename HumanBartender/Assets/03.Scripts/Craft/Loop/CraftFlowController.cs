@@ -46,7 +46,10 @@ public class CraftFlowController : MonoBehaviour
     public UniTask<CraftSession> Completion { get; private set; }
     public bool IsPreparing => Current?.Phase == ECraftPhase.Preparing && !running && !finishing;
     public bool IsBusy => running || finishing || IsPreparing;
-    public bool CanStartGimmicks => IsPreparing && Current.Actual.CanStartGimmicks;
+    public bool CanStartGimmicks => IsPreparing && Current.Actual.CanStartGimmicks && !NeedsBottleOpener;
+    public bool NeedsBottleOpener => IsPreparing && !Current.Actual.IsBottleOpenerSelected &&
+        shelfData != null && System.Linq.Enumerable.Any(Current.Actual.IngredientIds, shelfData.RequiresOpen);
+    public event Action<string> PreparationBlocked;
     public bool IsCraftFlowActive { get; private set; }
     public CraftedDrink PendingDrink { get; private set; }
     public event Action<CraftedDrink> DrinkReady;
@@ -123,6 +126,11 @@ public class CraftFlowController : MonoBehaviour
     {
         if (!CanStartGimmicks)
         {
+            if (NeedsBottleOpener)
+            {
+                Notify(PreparationBlocked, "병따기가 필요한 재료가 있습니다. 오프너를 선택한 후 제조를 시작해 주세요.");
+                return;
+            }
             Debug.LogWarning("[CraftFlow] 잔과 재료를 최소한 하나씩 골라야 기믹으로 넘어갈 수 있습니다.");
             return;
         }
@@ -220,6 +228,7 @@ public class CraftFlowController : MonoBehaviour
     {
         if (!IsPreparing) return;
         CraftPreset.ApplyTargetSetup(selected, Current.Actual);
+        if (NeedsBottleOpener) Current.Actual.SetBottleOpener(true);
         NotifyPreparationChanged();
     }
 
@@ -251,6 +260,11 @@ public class CraftFlowController : MonoBehaviour
     /// <summary>준비된 작업을 실행한다. 반환 시에는 화면 정리와 종료 상태 확정까지 끝나 있다.</summary>
     public async UniTask<CraftSession> StartGimmicksAsync()
     {
+        if (NeedsBottleOpener)
+        {
+            Notify(PreparationBlocked, "병따기가 필요한 재료가 있습니다. 오프너를 선택한 후 제조를 시작해 주세요.");
+            return Current;
+        }
         if (!CanStartGimmicks)
             throw new InvalidOperationException("제조 준비 중에 잔과 재료를 선택해야 합니다.");
 

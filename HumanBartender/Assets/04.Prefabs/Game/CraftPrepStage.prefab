@@ -6069,6 +6069,8 @@ MonoBehaviour:
   recipeCloseButton: {fileID: 4396656333527051548}
   startButton: {fileID: 3862920729502260431}
   backButton: {fileID: 3277070598455299242}
+  noticeFont: {fileID: 11400000, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
+  noticeFontSize: 22
   stageIndicators:
   - {fileID: 8170587216410206488}
   - {fileID: 8071989597993920148}
@@ -9506,6 +9508,8 @@ MonoBehaviour:
   owner: {fileID: 8244184963668552056}
   tooltip: {fileID: 6161592965792279878}
   infoAnchor: {fileID: 128454390080660919}
+  isBottleOpener: 1
+  selectionIcon: {fileID: 1027505914658542558}
   stage: 1
   infoDirection: 1
   displayName: "\uBCD1\uB530\uAC1C"

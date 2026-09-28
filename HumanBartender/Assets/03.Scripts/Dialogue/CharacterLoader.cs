@@ -40,7 +40,7 @@ public class CharacterLoader
         CharacterPart part,
         PartAnimData data,
         PartAnimData defaultData,
-        CancellationToken token)
+        CancellationToken token, List<System.Action> pendingApply = null)
     {
         if (data == null)
         {
@@ -49,42 +49,48 @@ public class CharacterLoader
         }
         else if (data.Loop == EAnimLoopMode.None)
         {
-            part.SetInactive();
+            ApplyOrQueue(pendingApply, part.SetInactive);
 
             if (slot.portaitSpriteRenderer != null)
-                slot.portaitSpriteRenderer.sprite = null;
+                ApplyOrQueue(pendingApply, () => slot.portaitSpriteRenderer.sprite = null);
 
             return;
         }
 
-        if (await LoadAnimAsync(slot, part, data, token)) //Part Anim
+        if (await LoadAnimAsync(slot, part, data, token, pendingApply)) //Part Anim
             return;
 
-        if (await LoadAnimAsync(slot, part, defaultData, token)) //Part Default Anim
+        if (await LoadAnimAsync(slot, part, defaultData, token, pendingApply)) //Part Default Anim
             return;
 
-        if (await LoadSpriteAsync(slot, part, data, token)) //Part Sprite
+        if (await LoadSpriteAsync(slot, part, data, token, pendingApply)) //Part Sprite
             return;
 
-        if (await LoadSpriteAsync(slot, part, defaultData, token)) //Part Default Sprite
+        if (await LoadSpriteAsync(slot, part, defaultData, token, pendingApply)) //Part Default Sprite
             return;
 
         if (part.partName != EAnimationPart.Body)  //body의 경우만 Portail Image 로드 시도.
         {
-            part.SetInactive();
+            ApplyOrQueue(pendingApply, part.SetInactive);
             return;
         }
 
-        if (await LoadPortaitSpriteAsync(slot, data, token))
+        if (await LoadPortaitSpriteAsync(slot, data, token, pendingApply))
+        {
+            ApplyOrQueue(pendingApply, part.SetInactive);
             return;
+        }
 
-        if (await LoadPortaitSpriteAsync(slot, defaultData, token))
+        if (await LoadPortaitSpriteAsync(slot, defaultData, token, pendingApply))
+        {
+            ApplyOrQueue(pendingApply, part.SetInactive);
             return;
+        }
 
-        part.SetInactive();
+        ApplyOrQueue(pendingApply, part.SetInactive);
 
         if (slot.portaitSpriteRenderer != null)
-            slot.portaitSpriteRenderer.sprite = null;
+            ApplyOrQueue(pendingApply, () => slot.portaitSpriteRenderer.sprite = null);
     }
 
     /// <summary>
@@ -96,7 +102,7 @@ public class CharacterLoader
         SlotCharacterPart slot,
         CharacterPart part,
         PartAnimData data,
-        CancellationToken token)
+        CancellationToken token, List<System.Action> pendingApply = null)
     {
         if (data == null) //clipData가 null이면 false, 추후 default anim 삽입.
         {
@@ -104,7 +110,7 @@ public class CharacterLoader
             return false;
         }
         
-        part.SetLoopMode(data.Loop);
+
 
         string clipAddress = data.Clip;
         string introAddress = AnimationAddress(clipAddress, SLOT_INTRO);
@@ -115,33 +121,17 @@ public class CharacterLoader
 
         if (loopHandle.HasValue)
         {
-            //LoopSetting
-
-            part.partCurAnim = clipAddress;
-            part.SetClip(SLOT_LOOP, loopHandle);
-
-
-            //Intro Setting
             var introHandle = await LoadOwnedAsync(slot.animHandles, introAddress, token);
-
-            if (introHandle.HasValue)
-                part.SetClip(SLOT_INTRO, introHandle);
-            else
-                part.SetClip(SLOT_INTRO, loopHandle);
-
-
-
-
-            //Dialogue Setting
             var dialogueHandle = await LoadOwnedAsync(slot.animHandles, dialogueAddress, token);
-
-
-            if (dialogueHandle.HasValue)
-                part.SetClip(SLOT_DIALOGUE, dialogueHandle);
-            else
-                part.SetClip(SLOT_DIALOGUE, loopHandle);
-
-
+            token.ThrowIfCancellationRequested();
+            ApplyOrQueue(pendingApply, () =>
+            {
+                part.SetLoopMode(data.Loop);
+                part.partCurAnim = clipAddress;
+                part.SetClip(SLOT_LOOP, loopHandle);
+                part.SetClip(SLOT_INTRO, introHandle ?? loopHandle);
+                part.SetClip(SLOT_DIALOGUE, dialogueHandle ?? loopHandle);
+            });
             return true;
         }
 
@@ -156,7 +146,7 @@ public class CharacterLoader
        SlotCharacterPart slot,
         CharacterPart part,
         PartAnimData data,
-        CancellationToken token)
+        CancellationToken token, List<System.Action> pendingApply = null)
     {
 
         if (data == null)
@@ -168,7 +158,7 @@ public class CharacterLoader
 
         if (spriteHandle.HasValue)
         {
-            part.ApplySprite(spriteHandle.Value.Result);
+            ApplyOrQueue(pendingApply, () => { part.partCurAnim = ""; part.ApplySprite(spriteHandle.Value.Result); });
             return true;
         }
 
@@ -185,7 +175,7 @@ public class CharacterLoader
     public async UniTask<bool> LoadPortaitSpriteAsync(
          SlotCharacterPart slot,
         PartAnimData data,
-        CancellationToken token)
+        CancellationToken token, List<System.Action> pendingApply = null)
     {
         if (data == null || data.Clip == null || slot.portaitSpriteRenderer == null)
             return false;
@@ -196,7 +186,7 @@ public class CharacterLoader
 
         if (spriteHandle.HasValue)
         {
-            slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result;
+            ApplyOrQueue(pendingApply, () => { slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result; slot.portaitSpriteRenderer.gameObject.SetActive(true); });
             return true;
         }
 
@@ -213,7 +203,7 @@ public class CharacterLoader
     public async UniTask<bool> LoadPortaitSpriteAsync(
         SlotCharacterPart slot,
         string dataPath,
-        CancellationToken token)
+        CancellationToken token, List<System.Action> pendingApply = null)
     {
         if (dataPath == null || slot.portaitSpriteRenderer == null)
             return false;
@@ -226,13 +216,19 @@ public class CharacterLoader
 
         if (spriteHandle.HasValue)
         {
-            slot.portaitSpriteRenderer.gameObject.SetActive(true);
-            slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result;
+
+            ApplyOrQueue(pendingApply, () => { slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result; slot.portaitSpriteRenderer.gameObject.SetActive(true); });
             return true;
         }
 
         Logger.LogWarning($"[CharacterPart:Portait] '{clipaddress}' 리소스 없음");
         return false;
+    }
+
+    static void ApplyOrQueue(List<System.Action> pendingApply, System.Action apply)
+    {
+        if (pendingApply == null) apply();
+        else pendingApply.Add(apply);
     }
 
     public static string LoopResourceKey(string clip) => AnimationAddress(clip, SLOT_LOOP);

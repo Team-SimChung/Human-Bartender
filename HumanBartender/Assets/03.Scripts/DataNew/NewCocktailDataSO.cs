@@ -14,6 +14,7 @@ public static class NewToolIds
 {
     public const string Shaker = "shaker";
     public const string MixingGlass = "mixing_glass";
+    public const string BottleOpener = "bottle_opener";
 
     /// <summary>
     /// 도구 하나가 어떤 믹스 기믹을 부르는지.

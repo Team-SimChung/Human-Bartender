@@ -336,9 +336,6 @@ MonoBehaviour:
   incomingColor: {r: 0.95, g: 0.76, b: 0.31, a: 1}
   targetColor: {r: 0.5, g: 0.94, b: 0.92, a: 1}
   buttonCanvas: {fileID: 6351956733559116451}
-  drinkNameText: {fileID: 5718043590368696317}
-  attemptText: {fileID: 8375159504744279224}
-  timeText: {fileID: 351376159692926942}
   judgeText: {fileID: 7060332286617787355}
   craftServe: {fileID: 0}
   craftRetry: {fileID: 0}
@@ -1609,8 +1606,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -1.5, z: 0}
-  m_LocalScale: {x: 0.9, y: 3, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3027291420814422353}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1663,8 +1660,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 10
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -3575711788482941401, guid: fe338dde503bb0740bd35c89cdea8ab9, type: 3}
-  m_Color: {r: 0.42, g: 0.24, b: 0.12, a: 1}
+  m_Sprite: {fileID: -864147579142882713, guid: c13ea890c7e47d8419ca202d96f05e89, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>제조 준비 프리팹의 표시와 입력만 담당한다. 선택 상태는 CraftPreparation이 소유한다.</summary>
 public sealed class CraftPrepStageScreen : MonoBehaviour
@@ -34,6 +35,10 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     [SerializeField] private Button recipeCloseButton;
     [SerializeField] private Button startButton;
     [SerializeField] private Button backButton;
+    [Header("Notice Popup")]
+    [SerializeField] private TMP_FontAsset noticeFont;
+    [SerializeField] private float noticeFontSize = 22f;
+    private GameObject openerPopup;
     [SerializeField] private Image[] stageIndicators;
     [SerializeField] private Sprite inactiveIndicator;
     [SerializeField] private Sprite activeIndicator;
@@ -49,6 +54,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     private CancellationTokenSource cameraMoveCancellation;
 
     public bool IsOpen { get { return preparation != null; } }
+    public bool IsBottleOpenerSelected => preparation != null && preparation.IsBottleOpenerSelected;
 
     private void Awake()
     {
@@ -58,6 +64,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         if (recipeButton != null) recipeButton.onClick.AddListener(ToggleRecipe);
         if (recipeCloseButton != null) recipeCloseButton.onClick.AddListener(CloseRecipe);
         if (startButton != null) startButton.onClick.AddListener(StartCraft);
+        EnsureOpenerPopup();
         if (backButton != null) backButton.onClick.AddListener(Back);
         if (startButton != null) startButton.interactable = false;
         if (previousButton != null) previousButton.interactable = false;
@@ -71,8 +78,10 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         if (stageCamera == null || stageAnchors == null || stageAnchors.Length == 0 || stageAnchors[0] == null)
             throw new System.InvalidOperationException("[CraftPrep] 전용 카메라와 선반 앵커를 연결해 주세요.");
         if (preparation != null) preparation.Changed -= Refresh;
+        if (craftFlow != null) craftFlow.PreparationBlocked -= ShowOpenerPopup;
         preparation = current;
         craftFlow = flow;
+        if (craftFlow != null) craftFlow.PreparationBlocked += ShowOpenerPopup;
         stageIndex = 0;
         recipeOpen = false;
         cameraMoving = false;
@@ -86,6 +95,8 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     public void Close()
     {
+        if (craftFlow != null) craftFlow.PreparationBlocked -= ShowOpenerPopup;
+        if (openerPopup != null) openerPopup.SetActive(false);
         if (cameraMoveCancellation != null) cameraMoveCancellation.Cancel();
         if (preparation != null) preparation.Changed -= Refresh;
         preparation = null;
@@ -149,7 +160,18 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     private void AddTrayItem(string id, Stage stage)
     {
-        if (trayItemPrefab == null || trayContent == null || shelfData == null || !shelfData.TryGet(id, out NewShelfItemData data)) return;
+        if (trayItemPrefab == null || trayContent == null) return;
+        if (id == NewToolIds.BottleOpener)
+        {
+            Sprite openerIcon = null;
+            foreach (CraftPrepInfoHotspot hotspot in GetComponentsInChildren<CraftPrepInfoHotspot>(true))
+                if (hotspot.IsBottleOpener) { openerIcon = hotspot.Icon; break; }
+            CraftPrepTrayItem openerEntry = Instantiate(trayItemPrefab, trayContent);
+            openerEntry.Bind(this, id, Stage.Tool, "병따개", openerIcon);
+            trayItems.Add(openerEntry);
+            return;
+        }
+        if (shelfData == null || !shelfData.TryGet(id, out NewShelfItemData data)) return;
         Sprite icon = null;
         if (slots != null)
             foreach (CraftPrepShelfSlot slot in slots)
@@ -258,6 +280,73 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     {
         if (preparation == null || !preparation.CanProceed) return;
         if (craftFlow != null) craftFlow.StartGimmicks();
+    }
+
+    public void ToggleBottleOpener()
+    {
+        if (preparation == null) return;
+        preparation.ToggleBottleOpener();
+        if (openerPopup != null) openerPopup.SetActive(false);
+    }
+
+    private void EnsureOpenerPopup()
+    {
+        Canvas canvas = startButton != null ? startButton.GetComponentInParent<Canvas>() : GetComponentInChildren<Canvas>(true);
+        if (canvas == null) return;
+        openerPopup = new GameObject("Opener Required Popup", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        openerPopup.transform.SetParent(canvas.transform, false);
+        RectTransform popupRect = (RectTransform)openerPopup.transform;
+        popupRect.anchorMin = Vector2.zero;
+        popupRect.anchorMax = Vector2.one;
+        popupRect.offsetMin = popupRect.offsetMax = Vector2.zero;
+        openerPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
+        TMP_Text message = CreateLabel(openerPopup.transform, "병따기가 필요한 재료가 있습니다.\n오프너를 선택한 후 제조를 시작해 주세요.");
+        ((RectTransform)message.transform).offsetMin = new Vector2(40f, 100f);
+        ((RectTransform)message.transform).offsetMax = new Vector2(-40f, -40f);
+        Button close = CreateButton(openerPopup.transform, "Confirm", new Vector2(0f, -100f), new Vector2(140f, 44f), "확인");
+        close.onClick.AddListener(() => openerPopup.SetActive(false));
+        openerPopup.SetActive(false);
+    }
+
+    private void ShowOpenerPopup(string message)
+    {
+        if (openerPopup == null) return;
+        openerPopup.transform.SetAsLastSibling();
+        openerPopup.SetActive(true);
+    }
+
+    private TMP_Text CreateLabel(Transform parent, string text)
+    {
+        var go = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+        go.transform.SetParent(parent, false);
+        var rect = (RectTransform)go.transform;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
+        var label = go.GetComponent<TextMeshProUGUI>();
+        TMP_Text source = startButton != null ? startButton.GetComponentInChildren<TMP_Text>(true) : null;
+        if (noticeFont != null) label.font = noticeFont;
+        else if (source != null) label.font = source.font;
+        label.text = text;
+        label.fontSize = noticeFontSize;
+        label.alignment = TextAlignmentOptions.Center;
+        label.raycastTarget = false;
+        return label;
+    }
+
+    private Button CreateButton(Transform parent, string name, Vector2 position, Vector2 size, string text)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+        go.transform.SetParent(parent, false);
+        var rect = (RectTransform)go.transform;
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+        go.GetComponent<Image>().color = new Color(0.1f, 0.25f, 0.35f, 1f);
+        var button = go.GetComponent<Button>();
+        button.targetGraphic = go.GetComponent<Image>();
+        CreateLabel(go.transform, text);
+        return button;
     }
 
     private void Back()

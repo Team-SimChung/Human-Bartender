@@ -179,26 +179,32 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
         slotData.cts = source;
         slotData.loadFinished = finished;
         token = source.Token;
-        MoveCurrentHandlesToRemove(slotData);
+        // 새 리소스는 별도로 보관한다. 취소되거나 로드에 실패해도 현재 캐릭터는 유지한다.
+        var staged = new SlotCharacterPart { portaitSpriteRenderer = slotData.portaitSpriteRenderer };
+        var pendingApply = new List<Action>();
+        bool committed = false;
         try
         {
             if (animConfig == null) throw new InvalidOperationException("Character expression data is missing.");
-            foreach (var part in slotData.parts) part.SetInactive();
-            if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.sprite = null;
             bool isSprite = animConfig.IsPortraitSprite(characterId, expression);
             if (!isSprite)
             {
-                if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.gameObject.SetActive(false);
                 var loads = new List<UniTask<Exception>>();
                 foreach (var part in slotData.parts)
                 {
                     var partData = animConfig.GetPartData(characterId, expression, part.partName);
                     var fallback = animConfig.GetDefaultPartData(characterId, part.partName);
-                    loads.Add(ObserveChild(characterLoader.LoadPartAsync(slotData, part, partData, fallback, token)));
+                    loads.Add(ObserveChild(characterLoader.LoadPartAsync(staged, part, partData, fallback, token, pendingApply)));
                 }
                 await AwaitChildren(loads);
                 token.ThrowIfCancellationRequested();
-                ReleaseRemoveHandles(slotData);
+                MoveCurrentHandlesToRemove(slotData);
+                TransferLoadedHandles(staged, slotData);
+                committed = true;
+                if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.gameObject.SetActive(false);
+                foreach (Action apply in pendingApply) apply();
+                slotData.slotCharacterName = characterId;
+                slotData.expression = expression;
                 var intros = new List<UniTask<Exception>>();
                 foreach (var part in slotData.parts)
                     if (!string.IsNullOrEmpty(part.partCurAnim)) intros.Add(ObserveChild(part.PlayAnimation(SLOT_INTRO, token)));
@@ -207,29 +213,51 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
             else
             {
                 string path = animConfig.GetSpritePath(characterId, expression);
-                if (!await characterLoader.LoadPortaitSpriteAsync(slotData, path, token))
+                if (!await characterLoader.LoadPortaitSpriteAsync(staged, path, token, pendingApply))
                     throw new InvalidOperationException("Character portrait is missing: " + path);
+                token.ThrowIfCancellationRequested();
+                MoveCurrentHandlesToRemove(slotData);
+                TransferLoadedHandles(staged, slotData);
+                committed = true;
+                foreach (var part in slotData.parts) part.SetInactive();
+                foreach (Action apply in pendingApply) apply();
             }
             token.ThrowIfCancellationRequested();
             slotData.slotCharacterName = characterId;
             slotData.expression = expression;
             ReleaseRemoveHandles(slotData);
         }
+        catch (OperationCanceledException)
+        {
+            // 다음 요청이 로드되는 동안 마지막으로 적용된 그림을 유지한다.
+            if (committed) ReleaseRemoveHandles(slotData);
+            throw;
+        }
         catch
         {
-            foreach (var part in slotData.parts) part.SetInactive();
-            if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.sprite = null;
-            slotData.slotCharacterName = "";
-            slotData.expression = "";
-            ReleaseCurrentHandles(slotData);
-            ReleaseRemoveHandles(slotData);
+            if (committed)
+            {
+                foreach (var part in slotData.parts) part.SetInactive();
+                if (slotData.portaitSpriteRenderer != null) slotData.portaitSpriteRenderer.sprite = null;
+                slotData.slotCharacterName = "";
+                slotData.expression = "";
+                ReleaseCurrentHandles(slotData);
+                ReleaseRemoveHandles(slotData);
+            }
             throw;
         }
         finally
         {
+            ReleaseCurrentHandles(staged);
             if (ReferenceEquals(slotData.cts, source)) { slotData.cts = null; slotData.loadFinished = null; }
             finished.TrySetResult();
         }
+    }
+
+    static void TransferLoadedHandles(SlotCharacterPart source, SlotCharacterPart target)
+    {
+        while (source.spriteHandles.Count > 0) target.spriteHandles.Push(source.spriteHandles.Pop());
+        while (source.animHandles.Count > 0) target.animHandles.Push(source.animHandles.Pop());
     }
 
     // 실패해도 모든 자식 로드가 끝난 뒤 핸들을 정리한다.

@@ -8,7 +8,6 @@ public class ServeTrayUI : MonoBehaviour
     [SerializeField] private Canvas rootCanvas;
     [SerializeField] private RectTransform trayRoot;
     [SerializeField] private RectTransform poolRoot;
-    [SerializeField] private GameObject discardZone;
     [SerializeField] private DrinkDragItem drinkPrefab;
 
     private readonly List<(DrinkDragItem item, int frame)> cachedItems = new();
@@ -19,9 +18,9 @@ public class ServeTrayUI : MonoBehaviour
 
     private void Awake()
     {
-        if (rootCanvas == null || trayRoot == null || poolRoot == null || discardZone == null || drinkPrefab == null)
+        if (rootCanvas == null || trayRoot == null || poolRoot == null || drinkPrefab == null)
         {
-            Debug.LogError("[ServeTray] Canvas, Tray Root, Pool Root, Discard Zone, Drink Prefab을 연결해 주세요.", this);
+            Debug.LogError("[ServeTray] Canvas, Tray Root, Pool Root, Drink Prefab을 연결해 주세요.", this);
             return;
         }
 
@@ -34,7 +33,6 @@ public class ServeTrayUI : MonoBehaviour
         if (trayRoot != null) trayRoot.gameObject.SetActive(true);
         foreach (DrinkDragItem item in items)
             if (item != null) item.gameObject.SetActive(true);
-        if (discardZone != null) discardZone.SetActive(true);
 
         if (craftFlow == null)
         {
@@ -52,7 +50,6 @@ public class ServeTrayUI : MonoBehaviour
         foreach (DrinkDragItem item in items.ToArray())
             if (item != null) item.gameObject.SetActive(false);
         if (trayRoot != null) trayRoot.gameObject.SetActive(false);
-        if (discardZone != null) discardZone.SetActive(false);
         if (craftFlow != null) craftFlow.DrinkReady -= AddDrink;
     }
 
@@ -78,6 +75,18 @@ public class ServeTrayUI : MonoBehaviour
 
         craftFlow?.RefreshCraftAvailability();
         Debug.Log($"[ServeTray] {drink.DisplayName} 완성 — 트레이에 올렸습니다. (총 {items.Count}잔)");
+    }
+
+    /// <summary>폐기 버튼에서 호출한다. 먼저 완성된 음료부터 한 잔씩 폐기한다.</summary>
+    public void DiscardDrink()
+    {
+        if (!isActiveAndEnabled) return;
+        foreach (DrinkDragItem item in items)
+        {
+            if (item == null || item.Drink == null) continue;
+            item.MarkDiscarded();
+            return;
+        }
     }
 
     private void OnItemRemoved(DrinkDragItem item, DrinkRemovalReason reason)

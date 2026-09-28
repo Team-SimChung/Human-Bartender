@@ -137,10 +137,9 @@ public class CharacterPart : AnimationPart, IFade
 {
      [SerializeField] EAnimLoopMode _currentLoopMode;
 
-    /// <summary>루프 모드를 변경하고 기존 스프라이트를 초기화한다.</summary>
+    /// <summary>새 애니메이션이 적용될 때까지 기존 그림을 유지한다.</summary>
     public void SetLoopMode(EAnimLoopMode loopMode)
     {
-        spriteRenderer.sprite = null;
         _currentLoopMode = loopMode;
     }
 
@@ -162,17 +161,20 @@ public class CharacterPart : AnimationPart, IFade
             case EAnimLoopMode.Always:
                 animator.speed = 1f;
                 animator.Play(animName, 0, 0f);
+                animator.Update(0f);
                 break;
 
             case EAnimLoopMode.Special_OnDialogue:
                 animator.speed = 1f;
                 animator.Play(animName, 0, 0f);
+                animator.Update(0f);
                 await WaitAndDelayAsync(animName, token);
                 break;
 
             case EAnimLoopMode.Once:
                 animator.speed = 1f;
                 animator.Play(animName, 0, 0f);
+                animator.Update(0f);
                 await WaitAndFreezeAsync(animName, token);
                 break;
         }
