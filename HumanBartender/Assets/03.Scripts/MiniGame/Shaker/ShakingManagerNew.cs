@@ -2,7 +2,6 @@ using Cysharp.Threading.Tasks;
 using Spine;
 using System.Collections.Generic;
 using System.Threading;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -42,7 +41,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     [SerializeField] private StirGaugeView attemptGauge;
 
     [Header("UI")]
-    [SerializeField] private TMP_Text elapsedText;
     [SerializeField] private List<Image> dots;
     [SerializeField] private Camera canvasCamera;
     [SerializeField] private Canvas gameCanvas;
@@ -64,10 +62,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     bool isPlay = false;
     bool hasStarted;
-    float elapsedTime;
-    int displayedElapsedSeconds = -1;
-    bool hasFocus = true;
-    bool isAppPaused;
 
     void Start()
     {
@@ -116,9 +110,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         successJudge = 0;
         failJudge = 0;
         hasStarted = false;
-        elapsedTime = 0f;
-        displayedElapsedSeconds = -1;
-        RefreshElapsedTime();
         endedManually = false;
         attemptGauge?.ResetAll();
         isPlay = true;
@@ -127,26 +118,10 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     void Update()
     {
         if (!isPlay || !hasStarted) return;
-        if (hasFocus && !isAppPaused)
-        {
-            elapsedTime += Time.deltaTime;
-            RefreshElapsedTime();
-        }
         shakingStrikeNode.Handle();
         nodeCreator.Handle();
     }
 
-    void RefreshElapsedTime()
-    {
-        int seconds = Mathf.FloorToInt(Mathf.Max(0f, elapsedTime));
-        if (elapsedText == null || seconds == displayedElapsedSeconds) return;
-        elapsedText.text = $"{seconds / 60:00}:{seconds % 60:00}";
-        displayedElapsedSeconds = seconds;
-    }
-
-    void OnApplicationFocus(bool focus) => hasFocus = focus;
-
-    void OnApplicationPause(bool pause) => isAppPaused = pause;
 
     /// <summary>
     /// 패턴 노드에 쓸 색. 기존 경로는 칵테일 키워드를 카테고리 색으로 바꿔 쓴다.

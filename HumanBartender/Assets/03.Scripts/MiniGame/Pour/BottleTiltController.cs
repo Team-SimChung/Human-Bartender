@@ -22,6 +22,20 @@ public class BottleTiltController : MonoBehaviour
     [Tooltip("손을 뗐을 때 초당 몇 도씩 되돌아올지. tiltSpeed보다 조금 빨라야 '멈추고 싶을 때 바로 멈추는' 느낌이 난다.")]
     [SerializeField] float returnSpeed = 80f;
 
+    [Header("Lift")]
+    [Tooltip("최대 기울기에서 병이 올라가는 높이(부모 기준 로컬 단위).")]
+    [SerializeField, Min(0f)] float liftHeight = 1.5f;
+
+    Vector3 restingLocalPosition;
+    Quaternion restingLocalRotation;
+
+    void Awake()
+    {
+        if (bottleVisual == null) bottleVisual = transform;
+        restingLocalPosition = bottleVisual.localPosition;
+        restingLocalRotation = bottleVisual.localRotation;
+    }
+
     float currentAngle;
     float inputHeld01;
 
@@ -40,6 +54,8 @@ public class BottleTiltController : MonoBehaviour
         float speed = targetAngle > currentAngle ? tiltSpeed : returnSpeed;
 
         currentAngle = Mathf.MoveTowards(currentAngle, targetAngle, speed * Time.deltaTime);
-        bottleVisual.localRotation = Quaternion.Euler(0f, 0f, -currentAngle);
+        float liftRatio = maxTiltAngle > 0f ? Mathf.Clamp01(currentAngle / maxTiltAngle) : 0f;
+        bottleVisual.localPosition = restingLocalPosition + Vector3.up * (liftHeight * liftRatio);
+        bottleVisual.localRotation = restingLocalRotation * Quaternion.Euler(0f, 0f, -currentAngle);
     }
 }

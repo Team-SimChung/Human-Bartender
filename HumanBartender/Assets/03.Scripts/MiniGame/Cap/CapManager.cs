@@ -59,6 +59,13 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     [Header("Visual")]
     [Tooltip("병뚜껑. 성공하면 튕겨 날아가고, 실패하면 살짝 꺾인다. 비워둬도 게임은 돌아간다.")]
     [SerializeField] private Transform capPiece;
+    [Header("Cap Physics")]
+    [Tooltip("병뚜껑의 발사 속도(월드 단위/초). X는 가로, Y는 위쪽이다.")]
+    [SerializeField] private Vector2 capLaunchVelocity = new Vector2(2f, 6f);
+    [Tooltip("병뚜껑의 회전 속도(도/초). 음수는 시계 방향이다.")]
+    [SerializeField] private float capSpinSpeed = -540f;
+    [SerializeField, Min(0f)] private float capGravityScale = 1f;
+    private Rigidbody2D capBody;
     [Tooltip("판정 구간에 들어왔을 때 조여드는 고리에 입힐 색. 이 신호가 없으면 " +
              "언제 눌러야 할지 눈으로 읽기 어렵다.")]
     [SerializeField] private Color nearColor = new Color(0.22f, 0.83f, 0.48f);
@@ -101,6 +108,13 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
     void Start()
     {
+        if (capPiece != null)
+        {
+            capBody = capPiece.GetComponent<Rigidbody2D>();
+            if (capBody == null) capBody = capPiece.gameObject.AddComponent<Rigidbody2D>();
+            // 성공 전에는 병에 붙어 있고, 실패 시에는 기존 꺾임 연출을 사용한다.
+            capBody.simulated = false;
+        }
         if (isTest)
         {
             if (cocktailDataSO.TryGet(data.targetCocktailId, out NewCocktailData cocktail))
@@ -271,10 +285,19 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     {
         if (capPiece == null) return;
 
-        // 실제 연출(튕겨 날아감)은 아트가 들어온 뒤에 애니메이션으로 붙인다. 지금은 위치만 옮겨
-        // 열렸다는 걸 알아볼 수 있게 한다.
-        capPiece.localPosition += new Vector3(0.25f, 0.9f, 0f);
-        capPiece.localRotation = Quaternion.Euler(0f, 0f, -40f);
+        if (capBody == null) return;
+        capBody.bodyType = RigidbodyType2D.Dynamic;
+        capBody.constraints = RigidbodyConstraints2D.None;
+        capBody.gravityScale = capGravityScale;
+        capBody.linearDamping = 0f;
+        capBody.angularDamping = 0f;
+        capBody.interpolation = RigidbodyInterpolation2D.Interpolate;
+        capBody.simulated = true;
+        capBody.position = capPiece.position;
+        capBody.rotation = capPiece.eulerAngles.z;
+        capBody.linearVelocity = capLaunchVelocity;
+        capBody.angularVelocity = capSpinSpeed;
+        capBody.WakeUp();
     }
 
     void BendCap()
