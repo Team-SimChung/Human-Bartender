@@ -37,6 +37,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private NewBalanceDataSO balanceData;
 
     [Header("Bottle")]
+    [Tooltip("재료 ID에 해당하는 병 스프라이트를 조회한다.")]
+    [SerializeField] private CocktailRecipeVisualCatalog bottleVisuals;
+    [Tooltip("켜면 실제 재료 ID 대신 아래 ID로 병 이미지만 테스트한다. 판정과 액체 색은 바꾸지 않는다.")]
+    [SerializeField] private bool useTestBottleId;
+    [SerializeField] private string testBottleId = "beer";
     [SerializeField] private BottleTiltController bottle;
     [Tooltip("병 외곽선을 그리는 컴포넌트. 아래 병 모양 값을 그대로 받아 그리므로 " +
              "보이는 입구와 액체가 나오는 위치가 항상 일치한다. 비워두면 외곽선을 그리지 않는다.")]
@@ -80,6 +85,24 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private Transform glassCenter;
     [Tooltip("잔에 담긴 것으로 칠 판정 영역(스케일 적용 전 잔 로컬 좌표).")]
     [SerializeField] private Vector2 glassInteriorHalfExtents = new Vector2(0.45f, 0.45f);
+    [Header("Target Height")]
+    [SerializeField] private bool showTargetHeight = true;
+    [Tooltip("SPH 간격으로 추정한 액체 높이의 보정 배율.")]
+    [SerializeField, Min(0.01f)] private float targetHeightScale = 1f;
+    [Tooltip("계산된 목표 높이에서 내릴 거리(잔 로컬 단위).")]
+    [SerializeField, Min(0f)] private float targetHeightOffsetDown = 0f;
+    [Tooltip("목표량(oz)에 따른 아래쪽 보정. 기본값은 1.5oz에서 0.06, 4oz에서 0.12다.")]
+    [SerializeField] private bool useTargetQuantityHeightCorrection = true;
+    [SerializeField] private Vector2 targetHeightCorrectionAmountsOz = new Vector2(1.5f, 4f);
+    [SerializeField] private Vector2 targetHeightCorrectionOffsets = new Vector2(0.06f, 0.12f);
+    [SerializeField, Min(0.001f)] private float targetMarkerSize = 0.08f;
+    [SerializeField, Min(0f)] private float targetMarkerGap = 0.04f;
+    [SerializeField] private bool showTargetHeightDashedLine = true;
+    [SerializeField, Min(0.001f)] private float targetDashLength = 0.06f;
+    [SerializeField, Min(0.001f)] private float targetDashGap = 0.035f;
+    [SerializeField, Min(0.001f)] private float targetDashThickness = 0.008f;
+    private Mesh targetHeightMesh;
+    private Material targetHeightMaterial;
 
     [Header("Liquid (SPH)")]
     [SerializeField] private SphLiquidRenderer liquidRenderer;
@@ -108,6 +131,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private GradientRatioController gageBar;
 
     [Header("Pour Settings")]
+    [Tooltip("목표 수량에 누적되는 속도 배율. 0.25면 기존의 1/4 속도로 숫자가 찬다. 액체 파티클 방출량은 바꾸지 않는다.")]
+    [SerializeField, Range(0.01f, 1f)] private float quantityAccumulateMultiplier = 0.25f;
     [Tooltip("isTest일 때 목표 파티클 개수로 사용. 실제 모드에서도 recipe 기반 목표 연결 전까지는 임시로 이 값을 쓴다.")]
     [SerializeField] private int testTargetParticleCount = 60;
     [SerializeField] private int testToleranceCount = 15;
@@ -179,13 +204,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         float scaleX = Mathf.Max(Mathf.Abs(bottle.BottleVisual.lossyScale.x), 0.0001f);
         neckHalfWidth = Spacing * neckWidthInParticles * 0.5f / scaleX;
 
-        if (bottleSilhouette != null)
+        bool hasBottleSprite = ApplyIngredientBottle();
+        if (!hasBottleSprite && bottleSilhouette != null)
             bottleSilhouette.Build(bottleInteriorHalfExtents, neckHalfWidth, ShoulderLocalY(), ChannelLocalY());
 
         simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax());
 
         CreatePool();
         CalibrateRestDensity();
+        CreateTargetHeightMarker();
 
         // 이 게이지는 파티클 개수를 기준으로 그린다. 큐가 돌릴 때는 투입량을 방출량으로 재기 때문에
         // 눈금이 실제 수량과 어긋난다 — 공통 표시가 정확한 수치를 보여주므로 여기서는 감춘다.
@@ -304,7 +331,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         // 방출률 × 시간은 그런 것에 흔들리지 않고 레시피의 oz 단위로 바로 환산된다.
         // 이 함수가 물리와 같은 고정 시간축(fixedStep)에서 돌기 때문에 프레임이 튀어도 값이 안 변한다.
         if (flow01 > 0f && (unlimitedLiquid || remainingInBottle > 0))
-            pouredMl += mlPerSecondAtFullFlow * flow01 * dt;
+            pouredMl += mlPerSecondAtFullFlow * flow01 * dt * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
 
         if (flow01 <= 0f || (!unlimitedLiquid && remainingInBottle <= 0))
         {
@@ -665,8 +692,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     public async UniTask<GimmickResult> PlayAsync(GimmickStep step, CraftContext context,
                                                  CraftTimer timer, CancellationToken token)
     {
-        // 액체 색은 이미 고른 재료를 따라간다(GetLiquidColor). 병 그림·크기와 받는 잔은 아직
-        // 프리팹에 고정돼 있는데, 그때 쓸 값이 step.IngredientId와 context.GlassId다.
+        // 병 그림은 현재 재료 ID로 조회하고, 잔은 프리팹의 고정 리소스를 사용한다.
         craftContext = context;
 
         // 아직 그리는 데 쓰지 않으므로, 값이 제대로 도착했는지는 이 줄로만 확인한다.
@@ -698,6 +724,136 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     private void CancelRunnerCompletion()
     {
         runnerCompletion?.TrySetCanceled();
+    }
+
+    bool ApplyIngredientBottle()
+    {
+        if ((!drivenByRunner && !useTestBottleId) || bottle == null || bottle.BottleVisual == null) return false;
+        string bottleId = useTestBottleId ? testBottleId : pourIngredientId;
+        Sprite sprite = bottleVisuals != null ? bottleVisuals.GetIngredientSprite(bottleId) : null;
+        if (sprite == null)
+        {
+            Debug.LogWarning($"[Pour] 재료 '{bottleId}'의 병 스프라이트가 없습니다. 기본 병을 사용합니다.", this);
+            return false;
+        }
+
+        Transform parent = bottle.BottleVisual;
+        var visual = new GameObject("Ingredient Bottle", typeof(SpriteRenderer));
+        visual.transform.SetParent(parent, false);
+        var renderer = visual.GetComponent<SpriteRenderer>();
+        renderer.sprite = sprite;
+        renderer.sortingOrder = 10;
+
+        // 서로 다른 PPU와 피벗을 가진 병도 기존 입구 위치에 맞춘다.
+        Vector3 size = sprite.bounds.size;
+        Vector3 parentScale = parent.lossyScale;
+        float sx = Mathf.Max(0.0001f, Mathf.Abs(parentScale.x));
+        float sy = Mathf.Max(0.0001f, Mathf.Abs(parentScale.y));
+        float worldScale = Mathf.Min(
+            bottleInteriorHalfExtents.x * 2f * sx / Mathf.Max(0.0001f, size.x),
+            bottleInteriorHalfExtents.y * 2f * sy / Mathf.Max(0.0001f, size.y));
+        Vector3 scale = new Vector3(worldScale / sx, worldScale / sy, 1f);
+        visual.transform.localScale = scale;
+        visual.transform.localPosition = new Vector3(
+            -sprite.bounds.center.x * scale.x,
+            bottleInteriorHalfExtents.y - sprite.bounds.max.y * scale.y, 0f);
+        return true;
+    }
+
+    void CreateTargetHeightMarker()
+    {
+        if (!showTargetHeight || glassCenter == null ||
+            (drivenByRunner && !pourStep.IsTargetVisible)) return;
+
+        float targetParticles = targetParticleCount;
+        if (drivenByRunner)
+        {
+            float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
+            float targetMl = pourStep.TargetValue.Value / Mathf.Max(0.0001f, mlPerUnit);
+            float particlesPerSecond = exitSpeed / Mathf.Max(0.0001f, Spacing) *
+                Mathf.Max(1, Mathf.FloorToInt(neckWidthInParticles));
+            float quantityPerSecond = mlPerSecondAtFullFlow * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
+            if (quantityPerSecond <= 0f) return;
+            targetParticles = targetMl * particlesPerSecond / quantityPerSecond;
+        }
+
+        // 2D 액체에서 파티클 한 개의 면적을 spacing²로 추정한다.
+        Vector3 glassScale = glassCenter.lossyScale;
+        float width = 2f * glassInteriorHalfExtents.x * Mathf.Abs(glassScale.x);
+        float worldHeight = targetParticles * Spacing * Spacing * targetHeightScale / Mathf.Max(0.0001f, width);
+        float localHeight = worldHeight / Mathf.Max(0.0001f, Mathf.Abs(glassScale.y));
+        float y = -glassInteriorHalfExtents.y + localHeight;
+        if (y > glassInteriorHalfExtents.y)
+            Debug.LogWarning("[Pour] 목표량의 예상 높이가 잔보다 높습니다. 목표선은 잔 상단에 표시합니다.", this);
+        float offsetDown = targetHeightOffsetDown + TargetQuantityHeightCorrection();
+        y = Mathf.Clamp(y - offsetDown, -glassInteriorHalfExtents.y, glassInteriorHalfExtents.y);
+
+        var marker = new GameObject("Target Liquid Height", typeof(MeshFilter), typeof(MeshRenderer));
+        marker.transform.SetParent(glassCenter, false);
+        marker.transform.localPosition = new Vector3(glassInteriorHalfExtents.x + targetMarkerGap, y, 0f);
+        targetHeightMesh = new Mesh { name = "Target Height Marker" };
+        var vertices = new List<Vector3> {
+            Vector3.zero,
+            new Vector3(targetMarkerSize, targetMarkerSize * 0.5f, 0f),
+            new Vector3(targetMarkerSize, -targetMarkerSize * 0.5f, 0f)
+        };
+        var triangles = new List<int> { 0, 1, 2 };
+        if (showTargetHeightDashedLine)
+        {
+            float originX = glassInteriorHalfExtents.x + targetMarkerGap;
+            float dashLength = Mathf.Max(0.001f, targetDashLength);
+            float step = dashLength + Mathf.Max(0.001f, targetDashGap);
+            float halfThickness = Mathf.Max(0.001f, targetDashThickness) * 0.5f;
+            for (float x = -glassInteriorHalfExtents.x; x < glassInteriorHalfExtents.x; x += step)
+            {
+                float left = x - originX;
+                float right = Mathf.Min(x + dashLength, glassInteriorHalfExtents.x) - originX;
+                int index = vertices.Count;
+                vertices.Add(new Vector3(left, -halfThickness, 0f));
+                vertices.Add(new Vector3(left, halfThickness, 0f));
+                vertices.Add(new Vector3(right, halfThickness, 0f));
+                vertices.Add(new Vector3(right, -halfThickness, 0f));
+                triangles.AddRange(new[] { index, index + 1, index + 2, index, index + 2, index + 3 });
+            }
+        }
+        targetHeightMesh.SetVertices(vertices);
+        targetHeightMesh.SetTriangles(triangles, 0);
+        Color markerColor = GetLiquidColor();
+        markerColor.a = 1f;
+        var colors = new List<Color>(vertices.Count);
+        var uv = new List<Vector2>(vertices.Count);
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            colors.Add(markerColor);
+            uv.Add(Vector2.zero);
+        }
+        targetHeightMesh.SetColors(colors);
+        targetHeightMesh.SetUVs(0, uv);
+        targetHeightMesh.RecalculateBounds();
+        marker.GetComponent<MeshFilter>().sharedMesh = targetHeightMesh;
+        var renderer = marker.GetComponent<MeshRenderer>();
+        targetHeightMaterial = new Material(Shader.Find("Sprites/Default"));
+        renderer.sharedMaterial = targetHeightMaterial;
+        SpriteRenderer glassRenderer = glassCenter.GetComponent<SpriteRenderer>();
+        if (glassRenderer != null) renderer.sortingLayerID = glassRenderer.sortingLayerID;
+        renderer.sortingOrder = glassRenderer != null ? glassRenderer.sortingOrder + 1 : 20;
+    }
+
+    float TargetQuantityHeightCorrection()
+    {
+        if (!useTargetQuantityHeightCorrection || !drivenByRunner || !pourStep.HasTarget) return 0f;
+        // ml/tsp 레시피도 같은 용량이면 같은 보정을 사용하도록 oz로 환산한다.
+        float unitsPerMl = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
+        float targetMl = pourStep.TargetValue.Value / Mathf.Max(0.0001f, unitsPerMl);
+        float targetOz = ConvertMlTo(targetMl, ENewUnit.Oz);
+        float ratio = Mathf.InverseLerp(targetHeightCorrectionAmountsOz.x, targetHeightCorrectionAmountsOz.y, targetOz);
+        return Mathf.Max(0f, Mathf.Lerp(targetHeightCorrectionOffsets.x, targetHeightCorrectionOffsets.y, ratio));
+    }
+
+    void OnDestroy()
+    {
+        if (targetHeightMesh != null) Destroy(targetHeightMesh);
+        if (targetHeightMaterial != null) Destroy(targetHeightMaterial);
     }
 
     /// <summary>
