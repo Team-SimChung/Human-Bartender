@@ -12,10 +12,6 @@ using UnityEngine;
 public class CraftFlowController : MonoBehaviour
 {
     [Header("Scene")]
-    [Tooltip("칵테일을 고르는 좌측 메뉴. 여기서 고른 순간 제조가 시작된다.")]
-    [SerializeField] CraftMenuPanel menuPanel;
-    [Tooltip("메뉴가 들어 있는 좌측 슬라이드 패널. 제조가 시작되면 닫는다.")]
-    [SerializeField] LeftSlidePanel craftPanel;
     [SerializeField] GimmickRunner runner;
 
     [Header("Data")]
@@ -67,42 +63,19 @@ public class CraftFlowController : MonoBehaviour
 
     public event Action<bool> CraftFlowActiveChanged;
 
-    // Unity 수명과 메뉴 연결
+    // Unity 수명주기
     void OnEnable()
     {
-        if (menuPanel != null)
-        {
-            menuPanel.CraftStarted += BeginCraft;
-            menuPanel.CraftFlowActiveChanged += OnMenuFlowChanged;
-        }
-        if (craftPanel != null) craftPanel.OpenChanged += OnCraftPanelOpenChanged;
         RefreshCraftAvailability();
     }
 
     void OnDisable()
     {
-        if (menuPanel != null)
-        {
-            menuPanel.CraftStarted -= BeginCraft;
-            menuPanel.CraftFlowActiveChanged -= OnMenuFlowChanged;
-        }
-        if (craftPanel != null) craftPanel.OpenChanged -= OnCraftPanelOpenChanged;
         CancelCurrentCraft();
         SetCraftFlowActive(false);
     }
 
     void OnDestroy() => CancelCurrentCraft();
-
-    void OnMenuFlowChanged(bool active)
-    {
-        if (!active && IsBusy) return;
-        SetCraftFlowActive(active);
-    }
-
-    void OnCraftPanelOpenChanged(bool open)
-    {
-        if (!open && !IsBusy) SetCraftFlowActive(false);
-    }
 
     void SetCraftFlowActive(bool active)
     {
@@ -114,8 +87,6 @@ public class CraftFlowController : MonoBehaviour
     void OnCraftAccepted()
     {
         SetCraftFlowActive(true);
-        menuPanel?.ResetToMenu();
-        UpdateAvailability();
     }
 
     void OnCraftJudged(CraftSession session, CraftJudgement judgement)
@@ -159,13 +130,6 @@ public class CraftFlowController : MonoBehaviour
     }
 
     // 제조 가능 조건
-    void UpdateAvailability()
-    {
-        bool available = !IsBusy && CraftBlockedReason() == null;
-        menuPanel?.SetCraftEnabled(available);
-        craftPanel?.SetToggleInteractable(available);
-    }
-
     public string CraftBlockedReason()
     {
         if (PendingDrink != null) return "아직 내지 않은 잔이 있습니다.";
@@ -191,7 +155,6 @@ public class CraftFlowController : MonoBehaviour
 
     public void RefreshCraftAvailability()
     {
-        UpdateAvailability();
         Notify(AvailabilityChanged);
     }
 

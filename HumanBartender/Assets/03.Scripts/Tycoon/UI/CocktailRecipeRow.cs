@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>칵테일 하나를 표시하고, 호버와 클릭을 목록 컨트롤러에 전달한다.</summary>
-public sealed class CocktailRecipeRow : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public sealed class CocktailRecipeRow : MonoBehaviour, IPointerEnterHandler
 {
     [SerializeField] private Button button;
     [SerializeField] private Image cocktailIcon;
@@ -62,11 +62,6 @@ public sealed class CocktailRecipeRow : MonoBehaviour, IPointerEnterHandler, IPo
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (unlocked && browser != null) browser.ShowPreview(cocktailId);
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (browser != null) browser.HidePreview(cocktailId);
     }
 
     private void HandleClick()

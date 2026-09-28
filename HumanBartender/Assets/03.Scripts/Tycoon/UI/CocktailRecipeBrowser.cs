@@ -24,7 +24,6 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
     private static readonly CompareInfo KoreanCompareInfo = CultureInfo.GetCultureInfo("ko-KR").CompareInfo;
     private readonly List<CocktailRecipeRow> rows = new List<CocktailRecipeRow>();
     private int currentDay;
-    private string previewedId;
     private string instructionText;
 
     public event Action CraftStarted;
@@ -38,7 +37,6 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
     {
         gameObject.SetActive(true);
         if (preview != null) preview.Hide();
-        previewedId = null;
         if (statusText != null) statusText.text = instructionText;
 
         ClearRows();
@@ -77,7 +75,6 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
 
     public void Close()
     {
-        previewedId = null;
         if (preview != null) preview.Hide();
         gameObject.SetActive(false);
     }
@@ -88,15 +85,7 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
             return;
         if (!IsSelectable(cocktail, GameStateManager.Instance.CurrentDay)) return;
 
-        previewedId = cocktailId;
         preview.Show(cocktail, visuals);
-    }
-
-    public void HidePreview(string cocktailId)
-    {
-        if (previewedId != cocktailId) return;
-        previewedId = null;
-        if (preview != null) preview.Hide();
     }
 
     public void TryStart(string cocktailId)

@@ -44,6 +44,9 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     [Tooltip("기믹 중 숨길 Play 바 UI 캔버스만 명시한다. 페이드·오류·저장 화면은 여기에 넣지 않는다.")]
     [SerializeField] Canvas[] barCanvases;
 
+    [Tooltip("Play 씬의 PlayerInput을 소유한 입력 라우터.")]
+    [SerializeField] private CraftGimmickInputRouter inputRouter;
+
     [Inject] IObjectResolver resolver;
 
     CraftTimer runningTimer;
@@ -70,7 +73,10 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
             throw new InvalidOperationException("기믹 카메라가 없습니다.");
         if (hud == null)
             throw new InvalidOperationException("기믹 HUD가 없습니다.");
+        if (inputRouter == null)
+            throw new InvalidOperationException("기믹 입력 라우터가 없습니다.");
         runningTimer = timer;
+        inputRouter.Begin();
         ShowCraftScreen(true);
         hud.BeginCraft(timer, display.TimeLimitSec, display.HideTime);
     }
@@ -80,7 +86,11 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     {
         runningTimer = null;
         try { hud?.EndCraft(); }
-        finally { ShowCraftScreen(false); }
+        finally
+        {
+            try { inputRouter?.End(); }
+            finally { ShowCraftScreen(false); }
+        }
     }
     /// <summary>기믹 프리팹을 띄우고 끝날 때까지 기다린 뒤 치운다.</summary>
     public async UniTask<GimmickResult> ExecuteAsync(GimmickStep step, CraftContext context,
@@ -98,6 +108,7 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
 
         try
         {
+            inputRouter.Bind(instance);
             LiftAboveBarUi(instance);
             var gimmick = instance.GetComponentInChildren<ICraftGimmick>();
 
@@ -124,8 +135,12 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
             // 이 기믹이 사라진 뒤에도 시계가 돌면, 다음 기믹을 띄우는 사이의 시간이 끼어든다.
             currentGimmick = null;
 
-            try { hud?.UnbindGimmick(); }
-            finally { if (instance != null) Destroy(instance); }
+            try { inputRouter.Unbind(); }
+            finally
+            {
+                try { hud?.UnbindGimmick(); }
+                finally { if (instance != null) Destroy(instance); }
+            }
         }
     }
 

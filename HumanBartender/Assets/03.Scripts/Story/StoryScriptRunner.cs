@@ -19,6 +19,11 @@ using UnityEngine;
 /// </summary>
 public class StoryScriptRunner : MonoBehaviour
 {
+    [SerializeField] private RecipeBrowserScreen recipeScreen;
+
+    public bool CanStartCraft { get; private set; }
+    public event Action CraftAuthorizationChanged;
+
     /// <summary>
     /// 플레이어. 바에서는 1인칭이라 초상을 세우지 않는데, 그 판단은 화면이 하고 여기서는 누구인지만 안다.
     /// </summary>
@@ -108,6 +113,8 @@ public class StoryScriptRunner : MonoBehaviour
         catch (Exception e) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, e.Message); }
         finally
         {
+            SetCraftAuthorization(false);
+            if (recipeScreen != null) recipeScreen.ForceClose();
             advanceSignal = null;
             seatActors.Clear();
             var cleanupErrors = new List<string>();
@@ -441,6 +448,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// </summary>
     async UniTask OrderAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
+        SetCraftAuthorization(false);
         if (!TryParseOrderedCocktail(step.Arg, out string cocktailId))
         {
             throw new InvalidOperationException($"[Story] 주문 칵테일을 읽지 못했습니다(arg=\"{step.Arg}\"): {scene.Id}#{step.Seq}");
@@ -485,7 +493,7 @@ public class StoryScriptRunner : MonoBehaviour
         currentOrder = orderController.Request(details, result => signal.TrySetResult(result));
     }
 
-    /// <summary>기존 craft 스텝 진입점. 제조는 UI에서 진행하고 다음 serve 스텝이 주문 결과를 기다린다.</summary>
+    /// <summary>craft 스텝에서 레시피 화면을 연다. 다음 serve 스텝이 주문 결과를 기다린다.</summary>
     async UniTask CraftAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
         if (orderController == null)
@@ -504,7 +512,10 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         token.ThrowIfCancellationRequested();
-        if (currentOrder == null) orderController.OpenMenu();
+        SetCraftAuthorization(true);
+        if (recipeScreen == null)
+            throw new InvalidOperationException("[Story] Recipe Browser Screen 참조가 필요합니다.");
+        recipeScreen.OpenForStoryOrder();
         await UniTask.CompletedTask;
     }
 
@@ -541,6 +552,14 @@ public class StoryScriptRunner : MonoBehaviour
             serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
         currentOrder = null;
         orderResultSignal = null;
+        SetCraftAuthorization(false);
+    }
+
+    private void SetCraftAuthorization(bool allowed)
+    {
+        if (CanStartCraft == allowed) return;
+        CanStartCraft = allowed;
+        CraftAuthorizationChanged?.Invoke();
     }
 
     /// <summary>order.arg의 "exact:&lt;cocktail_id&gt;"에서 칵테일 id를 꺼낸다.</summary>

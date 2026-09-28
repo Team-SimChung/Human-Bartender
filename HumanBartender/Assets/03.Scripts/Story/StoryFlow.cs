@@ -22,6 +22,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     [SerializeField] MonoBehaviour presenter;
 
     [SerializeField] OrderRequestController orderController;
+    [SerializeField] private CraftFlowController craftFlow;
 
     [Inject] ISoundManager soundManager;
 
@@ -69,12 +70,24 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         // The runner owns its execution result and effect tokens.
 
         runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
+        if (craftFlow == null) throw new InvalidOperationException("[Story] Craft Flow 참조가 필요합니다.");
 
         soundManager?.PlayBGM("BGM_bar_01", 1f, true);
 
         Debug.Log($"[Story] Day {day} 2부 시작");
 
-        var result = await runner.RunAsync(script, linked.Token);
+        craftFlow.AddCraftBlocker(DescribeStoryCraftBlock);
+        runner.CraftAuthorizationChanged += OnCraftAuthorizationChanged;
+        StoryExecutionResult result;
+        try
+        {
+            result = await runner.RunAsync(script, linked.Token);
+        }
+        finally
+        {
+            runner.CraftAuthorizationChanged -= OnCraftAuthorizationChanged;
+            craftFlow.RemoveCraftBlocker(DescribeStoryCraftBlock);
+        }
         if (!result.Completed)
         {
             if (result.Status == StoryExecutionStatus.Cancelled)
@@ -83,6 +96,16 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         }
 
         Debug.Log($"[Story] Day {day} 2부 종료");
+    }
+
+    private string DescribeStoryCraftBlock()
+    {
+        return runner != null && runner.CanStartCraft ? null : "스토리 주문 또는 제조 단계가 시작되지 않았습니다.";
+    }
+
+    private void OnCraftAuthorizationChanged()
+    {
+        craftFlow.RefreshCraftAvailability();
     }
 
     /// <summary>

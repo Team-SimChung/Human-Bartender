@@ -104,13 +104,6 @@ public class OrderRequestController : MonoBehaviour
         return true;
     }
 
-    /// <summary>주문 없는 기존 tutorial 스텝의 메뉴 개방 전용.</summary>
-    public void OpenMenu()
-    {
-        if (servingView == null) throw new InvalidOperationException("CraftServingView 연결이 필요합니다.");
-        servingView.OpenUi();
-    }
-
     bool TryServe(Entry entry, CraftedDrink drink)
     {
         if (!requests.TryGetValue(entry.Request.Id, out var current) || !ReferenceEquals(current, entry) ||

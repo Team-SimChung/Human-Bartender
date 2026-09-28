@@ -7,15 +7,28 @@ using UnityEngine.InputSystem;
 /// BottleTiltController의 tiltSpeed/returnSpeed가 담당한다. 새 Input System의 Pointer.current를
 /// Update에서 폴링한다(연속 입력이라 MinigameInputHandler의 SendMessages 콜백 방식 대신 사용).
 /// </summary>
-public class PourInputHandler : MonoBehaviour
+public class PourInputHandler : MonoBehaviour, ICraftPointerInput
 {
     [SerializeField] BottleTiltController bottle;
+    private bool routedInput;
+
+    public void SetRoutedInput(bool routed)
+    {
+        routedInput = routed;
+        if (!routed && bottle != null) bottle.SetTiltInput01(0f);
+    }
+
+    public void OnPointerInput(bool pressed)
+    {
+        if (bottle != null) bottle.SetTiltInput01(pressed ? 1f : 0f);
+    }
 
     void Update()
     {
+        if (routedInput) return;
         Pointer pointer = Pointer.current;
         if (pointer == null) return;
 
-        bottle.SetTiltInput01(pointer.press.isPressed ? 1f : 0f);
+        OnPointerInput(pointer.press.isPressed);
     }
 }

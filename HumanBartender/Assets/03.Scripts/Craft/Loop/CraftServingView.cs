@@ -3,14 +3,9 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>서빙 위치와 트레이 표시를 담당한다. 대본의 구형 제조 메뉴는 별도로 연다.</summary>
+/// <summary>서빙 위치와 트레이 표시를 담당한다.</summary>
 public class CraftServingView : MonoBehaviour
 {
-    [Tooltip("대본의 주문 없는 튜토리얼에서만 여는 기존 제조 패널.")]
-    [SerializeField] private LeftSlidePanel craftPanel;
-    [Tooltip("주문 없는 튜토리얼에서만 켜는 기존 Craft Panel 오브젝트.")]
-    [SerializeField] private GameObject legacyMenuRoot;
-
     [Tooltip("서빙 동안에만 켜는 트레이 등. 레시피 브라우저가 있는 Left Slide Panel Canvas는 넣지 않는다.")]
     [SerializeField] private GameObject[] craftUiRoots;
 
@@ -89,21 +84,6 @@ public class CraftServingView : MonoBehaviour
             CloseUi();
     }
 
-    public void OpenUi()
-    {
-        closeWhenIdle = false;
-        SetCraftUiActive(true);
-        if (craftPanel == null || legacyMenuRoot == null)
-        {
-            Debug.LogWarning("[CraftServingView] 튜토리얼용 기존 패널과 Craft Panel 참조를 연결해 주세요.", this);
-            return;
-        }
-
-        craftPanel.gameObject.SetActive(true);
-        legacyMenuRoot.SetActive(true);
-        craftPanel.Open();
-    }
-
     private void OpenServeUi()
     {
         closeWhenIdle = false;
@@ -113,9 +93,6 @@ public class CraftServingView : MonoBehaviour
     public void CloseUi()
     {
         closeWhenIdle = false;
-        if (craftPanel != null && craftPanel.gameObject.activeInHierarchy) craftPanel.Close();
-        if (legacyMenuRoot != null) legacyMenuRoot.SetActive(false);
-        if (craftPanel != null) craftPanel.gameObject.SetActive(false);
         SetCraftUiActive(false);
     }
 

@@ -15,14 +15,37 @@ public sealed class CocktailRecipePreview : MonoBehaviour
 
     [Header("Dynamic contents")]
     [SerializeField] private RectTransform tagList;
+    [SerializeField] private RecipeTagChip tagPrefab;
     [SerializeField] private RectTransform ingredientList;
+    [SerializeField] private RecipeIngredientCell ingredientPrefab;
     [SerializeField] private NewShelfItemDataSO shelfData;
-    [SerializeField] private TMP_FontAsset fontAsset;
-    [SerializeField] private Color tagBackgroundColor = new Color(0.08f, 0.16f, 0.23f, 1f);
-    [SerializeField] private Color ingredientBackgroundColor = new Color(0.10f, 0.18f, 0.26f, 1f);
+
+    [Header("Scrollable layout")]
+    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private RectTransform scrollContent;
+    [SerializeField] private GridLayoutGroup ingredientGrid;
+    [SerializeField] private RectTransform descriptionSection;
+    [SerializeField] private RectTransform recipeSection;
+
+    [Header("Ingredient name tooltip")]
+    [SerializeField] private RectTransform tooltipCanvas;
+    [SerializeField] private RecipeIngredientNameTooltip tooltipPrefab;
+
+    private const float IngredientTop = 225f;
+    private const float DescriptionTop = 295f;
+    private const float SectionGap = 12f;
+    private const float TextTopInset = 20f;
+    private const float TextBottomInset = 10f;
+    private const float ContentBottomInset = 20f;
+
+    private readonly List<RecipeTagChip> tagChips = new List<RecipeTagChip>();
+    private readonly List<RecipeIngredientCell> ingredientCells = new List<RecipeIngredientCell>();
+    private RecipeIngredientNameTooltip tooltip;
+    private RecipeIngredientCell hoveredIngredient;
 
     public void Show(NewCocktailData cocktail, CocktailRecipeVisualCatalog visuals)
     {
+        HideActiveTooltip();
         gameObject.SetActive(true);
 
         if (englishNameText != null) englishNameText.text = cocktail.Name.En;
@@ -40,17 +63,68 @@ public sealed class CocktailRecipePreview : MonoBehaviour
 
         PopulateTags(cocktail);
         PopulateIngredients(cocktail, visuals);
+        UpdateScrollableLayout();
     }
 
     public void Hide()
     {
+        HideActiveTooltip();
         gameObject.SetActive(false);
+    }
+
+    public void ShowIngredientName(RecipeIngredientCell cell, string name, Vector2 pointerPosition)
+    {
+        if (tooltipCanvas == null || tooltipPrefab == null)
+        {
+            Debug.LogError("[CocktailRecipePreview] Tooltip Canvas와 Tooltip Prefab을 연결해 주세요.", this);
+            return;
+        }
+
+        if (tooltip == null)
+        {
+            tooltip = Instantiate(tooltipPrefab, tooltipCanvas);
+            tooltip.gameObject.SetActive(false);
+        }
+
+        hoveredIngredient = cell;
+        tooltip.Show(name, pointerPosition, tooltipCanvas);
+    }
+
+    public void MoveIngredientName(RecipeIngredientCell cell, Vector2 pointerPosition)
+    {
+        if (cell == hoveredIngredient && tooltip != null)
+            tooltip.Move(pointerPosition, tooltipCanvas);
+    }
+
+    public void HideIngredientName(RecipeIngredientCell cell)
+    {
+        if (cell == hoveredIngredient) HideActiveTooltip();
+    }
+
+    private void OnDisable()
+    {
+        HideActiveTooltip();
+    }
+
+    private void OnDestroy()
+    {
+        if (tooltip != null) Destroy(tooltip.gameObject);
+    }
+
+    private void HideActiveTooltip()
+    {
+        hoveredIngredient = null;
+        if (tooltip != null) tooltip.Hide();
     }
 
     private void PopulateTags(NewCocktailData cocktail)
     {
-        if (tagList == null) return;
-        ClearChildren(tagList);
+        ClearTagChips();
+        if (tagList == null || tagPrefab == null)
+        {
+            Debug.LogError("[CocktailRecipePreview] Tag List와 Tag Prefab을 연결해 주세요.", this);
+            return;
+        }
 
         AddTag(cocktail.Mix.ToString().ToUpperInvariant());
         if (cocktail.Tags == null) return;
@@ -63,37 +137,19 @@ public sealed class CocktailRecipePreview : MonoBehaviour
 
     private void AddTag(string value)
     {
-        var chip = new GameObject("Tag " + value, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
-        chip.transform.SetParent(tagList, false);
-
-        Image background = chip.GetComponent<Image>();
-        background.color = tagBackgroundColor;
-        background.raycastTarget = false;
-
-        var labelObject = new GameObject("Text", typeof(RectTransform), typeof(TextMeshProUGUI));
-        labelObject.transform.SetParent(chip.transform, false);
-        var labelRect = (RectTransform)labelObject.transform;
-        labelRect.anchorMin = Vector2.zero;
-        labelRect.anchorMax = Vector2.one;
-        labelRect.offsetMin = Vector2.zero;
-        labelRect.offsetMax = Vector2.zero;
-
-        TextMeshProUGUI label = labelObject.GetComponent<TextMeshProUGUI>();
-        label.font = fontAsset;
-        label.fontSize = 11f;
-        label.alignment = TextAlignmentOptions.Center;
-        label.raycastTarget = false;
-        label.text = value;
-
-        LayoutElement layout = chip.GetComponent<LayoutElement>();
-        layout.preferredWidth = Mathf.Max(38f, label.GetPreferredValues(value).x + 16f);
-        layout.preferredHeight = 20f;
+        RecipeTagChip chip = Instantiate(tagPrefab, tagList);
+        chip.Bind(value);
+        tagChips.Add(chip);
     }
 
     private void PopulateIngredients(NewCocktailData cocktail, CocktailRecipeVisualCatalog visuals)
     {
-        if (ingredientList == null) return;
-        ClearChildren(ingredientList);
+        ClearIngredientCells();
+        if (ingredientList == null || ingredientPrefab == null)
+        {
+            Debug.LogError("[CocktailRecipePreview] Ingredient List와 Ingredient Prefab을 연결해 주세요.", this);
+            return;
+        }
         if (cocktail.Recipe == null) return;
 
         var added = new HashSet<string>();
@@ -106,60 +162,73 @@ public sealed class CocktailRecipePreview : MonoBehaviour
 
     private void AddIngredient(string id, CocktailRecipeVisualCatalog visuals)
     {
-        var cell = new GameObject("Ingredient " + id, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
-        cell.transform.SetParent(ingredientList, false);
-
-        Image background = cell.GetComponent<Image>();
-        background.color = ingredientBackgroundColor;
-        background.raycastTarget = false;
-
-        LayoutElement layout = cell.GetComponent<LayoutElement>();
-        layout.preferredWidth = 48f;
-        layout.preferredHeight = 48f;
-
         Sprite sprite = visuals != null ? visuals.GetIngredientSprite(id) : null;
-        if (sprite != null)
-        {
-            var iconObject = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-            iconObject.transform.SetParent(cell.transform, false);
-            var iconRect = (RectTransform)iconObject.transform;
-            iconRect.anchorMin = Vector2.zero;
-            iconRect.anchorMax = Vector2.one;
-            iconRect.offsetMin = new Vector2(4f, 4f);
-            iconRect.offsetMax = new Vector2(-4f, -4f);
+        string name = shelfData != null && shelfData.TryGet(id, out NewShelfItemData item)
+            ? item.Name.Ko : id;
+        RecipeIngredientCell cell = Instantiate(ingredientPrefab, ingredientList);
+        cell.Bind(sprite, name, this);
+        ingredientCells.Add(cell);
+    }
 
-            Image image = iconObject.GetComponent<Image>();
-            image.sprite = sprite;
-            image.preserveAspect = true;
-            image.raycastTarget = false;
+    private void ClearTagChips()
+    {
+        foreach (RecipeTagChip chip in tagChips)
+        {
+            if (chip == null) continue;
+            chip.gameObject.SetActive(false);
+            Destroy(chip.gameObject);
+        }
+        tagChips.Clear();
+    }
+
+    private void ClearIngredientCells()
+    {
+        foreach (RecipeIngredientCell cell in ingredientCells)
+        {
+            if (cell == null) continue;
+            cell.gameObject.SetActive(false);
+            Destroy(cell.gameObject);
+        }
+        ingredientCells.Clear();
+    }
+
+    private void UpdateScrollableLayout()
+    {
+        if (scrollRect == null || scrollRect.viewport == null || scrollContent == null || ingredientList == null || ingredientGrid == null ||
+            descriptionSection == null || recipeSection == null || descriptionText == null || recipeText == null)
+        {
+            Debug.LogError("[CocktailRecipePreview] Scroll Rect, Content, Grid, 설명/제조법 영역을 연결해 주세요.", this);
             return;
         }
 
-        var textObject = new GameObject("Name", typeof(RectTransform), typeof(TextMeshProUGUI));
-        textObject.transform.SetParent(cell.transform, false);
-        var textRect = (RectTransform)textObject.transform;
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = new Vector2(2f, 2f);
-        textRect.offsetMax = new Vector2(-2f, -2f);
+        Canvas.ForceUpdateCanvases();
+        int columns = Mathf.Max(1, ingredientGrid.constraintCount);
+        int rows = Mathf.CeilToInt((float)ingredientCells.Count / columns);
+        float ingredientHeight = ingredientGrid.padding.top + ingredientGrid.padding.bottom;
+        if (rows > 0)
+            ingredientHeight += rows * ingredientGrid.cellSize.y + (rows - 1) * ingredientGrid.spacing.y;
+        ingredientList.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ingredientHeight);
 
-        TextMeshProUGUI text = textObject.GetComponent<TextMeshProUGUI>();
-        text.font = fontAsset;
-        text.fontSize = 9f;
-        text.alignment = TextAlignmentOptions.Center;
-        text.textWrappingMode = TextWrappingModes.Normal;
-        text.raycastTarget = false;
-        text.text = shelfData != null && shelfData.TryGet(id, out NewShelfItemData item)
-            ? item.Name.Ko : id;
+        float descriptionTop = Mathf.Max(DescriptionTop, IngredientTop + ingredientHeight + SectionGap);
+        float descriptionHeight = SetTextSectionHeight(descriptionSection, descriptionText, descriptionTop);
+        float recipeTop = descriptionTop + descriptionHeight + SectionGap;
+        float recipeHeight = SetTextSectionHeight(recipeSection, recipeText, recipeTop);
+        float contentHeight = recipeTop + recipeHeight + ContentBottomInset;
+        contentHeight = Mathf.Max(contentHeight, scrollRect.viewport.rect.height);
+        scrollContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
+
+        Canvas.ForceUpdateCanvases();
+        scrollRect.StopMovement();
+        scrollRect.verticalNormalizedPosition = 1f;
     }
 
-    private static void ClearChildren(RectTransform parent)
+    private static float SetTextSectionHeight(RectTransform section, TextMeshProUGUI text, float top)
     {
-        for (int index = parent.childCount - 1; index >= 0; index--)
-        {
-            GameObject child = parent.GetChild(index).gameObject;
-            child.SetActive(false);
-            Destroy(child);
-        }
+        section.anchoredPosition = new Vector2(section.anchoredPosition.x, -top);
+        float textHeight = Mathf.Max(20f, text.GetPreferredValues(text.text, text.rectTransform.rect.width, 0f).y);
+        text.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, textHeight);
+        float sectionHeight = TextTopInset + textHeight + TextBottomInset;
+        section.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, sectionHeight);
+        return sectionHeight;
     }
 }
