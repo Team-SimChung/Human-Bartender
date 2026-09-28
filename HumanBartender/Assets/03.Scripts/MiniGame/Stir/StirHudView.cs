@@ -34,9 +34,8 @@ public class StirHudView : MonoBehaviour
     [SerializeField] GameObject startOverlay;
     [SerializeField] TMP_Text judgeText;
 
-    /// <summary>제한시간을 카드 머리글에 한 번 박아둔다.</summary>
     /// <summary>
-    /// 공통 표시와 겹치는 상단 스탯(경과 시간·판정 수·콤보)을 감춘다.
+    /// 공통 표시와 겹치는 상단 스탯(판정 수·콤보)을 감춘다.
     /// 같은 정보가 두 군데 뜨는 걸 막기 위해, 기믹 큐가 돌릴 때 한 번 부른다.
     ///
     /// 잔 주변 2초 게이지와 사선 진행 게이지는 감추지 않는다 — 스터에만 있는 판정 표시라
@@ -44,7 +43,6 @@ public class StirHudView : MonoBehaviour
     /// </summary>
     public void HideStatsSharedWithCommonHud()
     {
-        if (elapsedText != null) elapsedText.gameObject.SetActive(false);
         if (circleText != null) circleText.gameObject.SetActive(false);
         if (comboText != null) comboText.gameObject.SetActive(false);
     }
@@ -54,16 +52,13 @@ public class StirHudView : MonoBehaviour
         if (roundLimitText != null) roundLimitText.text = $"{seconds:0.00} SEC";
     }
 
-    /// <summary>프로토타입과 같은 mm:ss.cc 표기.</summary>
+    /// <summary>첫 입력부터의 총 소요시간을 mm:ss로 표시한다.</summary>
     public void SetElapsed(float seconds)
     {
         if (elapsedText == null) return;
 
-        int minutes = (int)(seconds / 60f);
-        int secs = (int)(seconds % 60f);
-        int hundredths = (int)((seconds - (int)seconds) * 100f);
-
-        elapsedText.text = $"{minutes:00}:{secs:00}.{hundredths:00}";
+        int totalSeconds = Mathf.FloorToInt(Mathf.Max(0f, seconds));
+        elapsedText.text = $"{totalSeconds / 60:00}:{totalSeconds % 60:00}";
     }
 
     public void SetCircle(int done, int total)
@@ -88,6 +83,8 @@ public class StirHudView : MonoBehaviour
     }
 
     public void SetGaugeResult(int index, bool success) => gauge?.SetResult(index, success);
+
+    public void SetGaugeNextSegment(int index) => gauge?.SetNextSegment(index);
 
     public void ResetGauge() => gauge?.ResetAll();
 

@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using Spine;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
@@ -13,9 +14,8 @@ using VContainer;
 /// 인터페이스를 둘 구현한다. ICraftGimmick은 1부의 기믹 큐가 부르는 새 경로이고,
 /// IMiniGameController는 2부 대화에서 컷씬과 함께 돌던 기존 경로다. 조작 코드는 양쪽이 공유한다.
 ///
-/// 두 경로의 종료 조건이 다르다. 기존 경로는 총 판정 수를 채우거나 실패 한계를 넘기면 끝났지만,
-/// 기믹 큐가 돌릴 때는 성공·실패를 합친 목표 스택(shake_target_stacks)에 도달할 때만 끝난다 —
-/// 못 채운 스택은 그대로 완성도에 반영되므로 실패로 조기 종료할 이유가 없다.
+/// 두 경로 모두 성공·실패를 합친 목표 시도 수(shake_target_stacks)에 도달하면 끝난다.
+/// 판정 순서대로 게이지를 채우며, 실패 횟수로 조기 종료하지 않는다.
 /// </summary>
 public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmick,
                                  ICraftGimmickProgress, ICraftGimmickManualEnd
@@ -26,12 +26,12 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     [SerializeField] private CraftStationData data;
     [SerializeField] private CategoryColorData colorData;
     [SerializeField] private NewCocktailDataSO cocktailDataSO;
-    [Tooltip("shake_target_stacks(목표 스택)를 읽어온다. 기믹 큐가 돌릴 때의 종료 조건이자 점수 분모다.")]
+    [Tooltip("shake_target_stacks(목표 시도 수)를 읽어온다. 종료 조건이자 점수 분모다.")]
     [SerializeField] private NewBalanceDataSO balanceData;
 
     [Tooltip("balanceData가 비었거나 아직 로드되지 않았을 때만 쓰는 값. " +
              "실제 플레이에서는 balance.json의 shake_target_stacks가 이긴다.")]
-    [SerializeField] private int fallbackTargetStacks = 20;
+    [SerializeField] private int fallbackTargetStacks = 15;
 
     [Header("Manager")]
     [SerializeField] private ShakeLineCreator shakeLineCreator;
@@ -39,9 +39,10 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     [SerializeField] private ShakingCatergoryNodeCreator nodeCreator;
     [SerializeField] private AnimSpeedController characterAnim;
     [SerializeField] private AudioSource bgmSource;
-    [SerializeField] private GradientRatioController gageBar;
+    [SerializeField] private StirGaugeView attemptGauge;
 
     [Header("UI")]
+    [SerializeField] private TMP_Text elapsedText;
     [SerializeField] private List<Image> dots;
     [SerializeField] private Camera canvasCamera;
     [SerializeField] private Canvas gameCanvas;
@@ -52,7 +53,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     [SerializeField] private int totalJudge;
     [SerializeField] private int successJudge;
     [SerializeField] private int failJudge;
-    [SerializeField] private int limitFailJudge;
 
     [Header("Craft Event")]
     [SerializeField] private VoidEvent craftServe;
@@ -63,6 +63,11 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     Vector3[] dotPositions;
 
     bool isPlay = false;
+    bool hasStarted;
+    float elapsedTime;
+    int displayedElapsedSeconds = -1;
+    bool hasFocus = true;
+    bool isAppPaused;
 
     void Start()
     {
@@ -102,34 +107,46 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         nodeCreator.Init();
         nodeCreator.InitToStart(dotPositions, ResolveNodeColors());
 
+        ResetJudgement();
+    }
+
+    void ResetJudgement()
+    {
+        totalJudge = Mathf.Max(1, ResolveTargetStacks());
         successJudge = 0;
         failJudge = 0;
-
-        if (drivenByRunner)
-        {
-            // 목표 스택은 balance.json이 정본이다. 성공·실패를 합쳐 이 수가 되면 끝난다.
-            totalJudge = Mathf.Max(1, ResolveTargetStacks());
-
-            // 큐가 돌릴 때는 실패로 조기 종료하지 않는다. 채우지 못한 성공 스택이 그대로 점수가 된다.
-            limitFailJudge = int.MaxValue;
-        }
-        else
-        {
-            totalJudge = Mathf.RoundToInt(data.targetCraft_tolerance * 1.3f);
-            limitFailJudge = Mathf.RoundToInt(data.targetCraft_tolerance * 0.3f);
-        }
-
-        gageBar.UpdateValues(totalJudge, 0, totalJudge, 0);
-
+        hasStarted = false;
+        elapsedTime = 0f;
+        displayedElapsedSeconds = -1;
+        RefreshElapsedTime();
+        endedManually = false;
+        attemptGauge?.ResetAll();
         isPlay = true;
     }
 
-    
     void Update()
     {
+        if (!isPlay || !hasStarted) return;
+        if (hasFocus && !isAppPaused)
+        {
+            elapsedTime += Time.deltaTime;
+            RefreshElapsedTime();
+        }
         shakingStrikeNode.Handle();
         nodeCreator.Handle();
     }
+
+    void RefreshElapsedTime()
+    {
+        int seconds = Mathf.FloorToInt(Mathf.Max(0f, elapsedTime));
+        if (elapsedText == null || seconds == displayedElapsedSeconds) return;
+        elapsedText.text = $"{seconds / 60:00}:{seconds % 60:00}";
+        displayedElapsedSeconds = seconds;
+    }
+
+    void OnApplicationFocus(bool focus) => hasFocus = focus;
+
+    void OnApplicationPause(bool pause) => isAppPaused = pause;
 
     /// <summary>
     /// 패턴 노드에 쓸 색. 기존 경로는 칵테일 키워드를 카테고리 색으로 바꿔 쓴다.
@@ -194,15 +211,17 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     public void CompleteMade()
     {
-        bgmSource.Stop();
-        nodeCreator.StopAndReturnNodes();
+        isPlay = false;
+        attemptGauge?.SetNextSegment(-1);
+        bgmSource?.Stop();
+        nodeCreator?.StopAndReturnNodes();
 
         // 기믹 큐가 돌릴 때는 결과를 GimmickResult로 돌려주므로 이 저장소를 쓰지 않는다.
         if (data != null)
         {
             data.craftingResult.isResult = true;
             data.craftingResult.actionFailCount = failJudge;
-            data.craftingResult.limitFailCount = limitFailJudge;
+            data.craftingResult.limitFailCount = totalJudge;
         }
 
         runnerCompletion?.TrySetResult();
@@ -232,18 +251,20 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     public void StartGame()
     {
-        if (!isPlay) return;
+        if (!isPlay || hasStarted) return;
 
         Logger.Log("Start Game");
 
-        bgmSource.PlayScheduled(AudioSettings.dspTime + 0.1f);
-        shakingStrikeNode.InitToStart(dotPositions, 60);
-        characterAnim.Init();
+        hasStarted = true;
+        attemptGauge?.SetNextSegment(successJudge + failJudge);
+        bgmSource?.PlayScheduled(AudioSettings.dspTime + 0.1f);
+        shakingStrikeNode?.InitToStart(dotPositions, 60);
+        characterAnim?.Init();
     }
 
     public void ClickEvent()
     {
-        if (!isPlay) return;
+        if (!isPlay || !hasStarted) return;
 
         Logger.Log("Click Event");
         Vector3 hitPosition;
@@ -263,26 +284,33 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
             characterAnim.PlayAnim();
             nodeCreator.CreateEffectNode(hitPosition, hitColor);
-            successJudge++;
         }
         else
         {
             Logger.Log("Judge Fail");
             nodeCreator.CreateEffectNode(shakingStrikeNode.transform.position, Color.white);
-            failJudge++;
         }
 
-        gageBar.UpdateValues(totalJudge, successJudge, totalJudge-successJudge-failJudge, failJudge);
+        RecordResult(hit);
+    }
 
-        if(successJudge + failJudge >= totalJudge)
+    /// <summary>성공과 실패 모두 한 칸을 소모한다. 마지막 시도 후 추가 입력은 무시한다.</summary>
+    void RecordResult(bool success)
+    {
+        if (!isPlay || !hasStarted) return;
+
+        int index = successJudge + failJudge;
+        if (success) successJudge++;
+        else failJudge++;
+        attemptGauge?.SetResult(index, success);
+
+        if (successJudge + failJudge >= totalJudge)
         {
-            isPlay = false;
             CompleteMade();
         }
-        else if(failJudge > limitFailJudge)
+        else
         {
-            isPlay = false;
-            CompleteMade();
+            attemptGauge?.SetNextSegment(successJudge + failJudge);
         }
     }
 
@@ -307,9 +335,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     // ── ICraftGimmick ───────────────────────────────────────────────────
 
-    /// <summary>기믹 큐가 이 기믹을 돌리고 있는지. 종료 조건과 목표 스택의 출처를 가른다.</summary>
-    bool drivenByRunner;
-
     UniTaskCompletionSource runnerCompletion;
     CraftTimer craftTimer;
 
@@ -330,7 +355,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         Debug.Log($"[Shake] 문맥 — 잔 {craftContext.GlassId ?? "없음"} / " +
                   $"도구 {craftContext.ToolId ?? "없음"} / 재료 {string.Join(", ", craftContext.IngredientIds)}");
 
-        drivenByRunner = true;
         craftTimer = timer;
         runnerCompletion = new UniTaskCompletionSource();
 

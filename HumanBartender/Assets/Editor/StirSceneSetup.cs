@@ -354,8 +354,8 @@ public static class StirSceneSetup
         CreateImage(rect, "Border", roundedSprite, new Color(Cyan.r, Cyan.g, Cyan.b, 0.33f),
             Vector2.zero, Vector2.zero, Vector2.one, Vector2.zero).type = Image.Type.Sliced;
 
-        // 칸 10개를 아래에서 위로 쌓는다.
-        const int segmentCount = 10;
+        // 칸 6개를 아래에서 위로 쌓는다.
+        const int segmentCount = 6;
         const float pad = 4f;
         float inner = gaugeH - pad * 2f;
         float segH = (inner - (segmentCount - 1) * 3f) / segmentCount;
@@ -372,6 +372,8 @@ public static class StirSceneSetup
 
         var gauge = go.AddComponent<StirGaugeView>();
         SetSerializedArray(gauge, "segments", segments);
+        gauge.SetNextSegment(0);
+        gauge.SetNextSegment(-1);
 
         return gauge;
     }

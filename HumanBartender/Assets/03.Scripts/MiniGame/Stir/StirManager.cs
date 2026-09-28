@@ -33,7 +33,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [Header("Fallback")]
     [Tooltip("balanceData가 비었거나 아직 로드되지 않았을 때만 쓰는 값. " +
              "실제 플레이에서는 balance.json의 stir_target_stacks가 이긴다.")]
-    [SerializeField] private int fallbackStackCount = 10;
+    [SerializeField] private int fallbackStackCount = 6;
     [Tooltip("같은 이유의 폴백. 실제 플레이에서는 balance.json의 stir_circle_limit_sec가 이긴다.")]
     [SerializeField] private float fallbackStackSeconds = 2f;
 
@@ -44,6 +44,8 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private StirHudView hud;
     [Tooltip("잔 속 얼음. 정답마다 휘돌림을 한 번 밀어준다. 비워둬도 판정은 그대로 돌아간다.")]
     [SerializeField] private StirIceSwirl ice;
+    [Tooltip("입력에 맞춰 3프레임 단위로 재생하는 스터 연출.")]
+    [SerializeField] private StirAnimationView stirAnimation;
 
     [Header("UI")]
     [SerializeField] private Canvas buttonCanvas;
@@ -105,6 +107,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         LoadBalance();
         ResetState();
+        stirAnimation?.ResetPlayback();
 
         if (hud != null)
         {
@@ -112,7 +115,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             hud.ResetGauge();
             hud.SetStartOverlay(true);
 
-            // 경과 시간·판정 수·콤보는 공통 표시가 그린다. 큐가 돌릴 때만 겹치므로 그때만 감춘다.
+            // 판정 수·콤보는 공통 표시가 그린다. 큐가 돌릴 때만 겹치므로 그때만 감춘다.
             if (drivenByRunner) hud.HideStatsSharedWithCommonHud();
         }
 
@@ -176,8 +179,6 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void Update()
     {
-        if (isCompleted) return;
-
         // 포커스가 없는 동안 들어온 입력은 없지만, 큐에 남아 있던 것도 돌아올 때까지 잡아둔다.
         if (!hasFocus || isAppPaused) return;
 
@@ -187,6 +188,9 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         {
             HandleDirection(inputQueue.Dequeue());
         }
+
+        // 마지막 판정 이후에도 예약된 중단점까지 연출을 마무리한다.
+        stirAnimation?.Tick(Time.deltaTime);
 
         if (isCompleted) return;
 
@@ -219,10 +223,15 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         // 시작 대기 중에는 W만 받는다. 나머지는 실패로 치지 않고 그냥 무시한다 (명세 §3).
         if (!isStarted)
         {
-            if (direction == (int)EStirDirection.Up) StartStir();
+            if (direction == (int)EStirDirection.Up)
+            {
+                stirAnimation?.PlayOnInput();
+                StartStir();
+            }
             return;
         }
 
+        stirAnimation?.PlayOnInput();
         if (direction == NextDirection) HandleCorrect(direction);
         else CommitAttempt(false, "WRONG");
     }
@@ -350,10 +359,13 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         if (hud != null)
         {
-            // 큐가 돌릴 때는 이 셋을 공통 표시가 맡는다. 기존 경로에서는 그대로 스터가 그린다.
+            // 스터의 총 소요시간은 실행 경로와 관계없이 씬의 타이머에 표시한다.
+            hud.SetElapsed(elapsedTime);
+            hud.SetGaugeNextSegment(isStarted && !isCompleted ? results.Count : -1);
+
+            // 큐가 돌릴 때 판정 수와 콤보는 공통 표시가 맡는다.
             if (!drivenByRunner)
             {
-                hud.SetElapsed(elapsedTime);
                 hud.SetCircle(results.Count, stackCount);
                 hud.SetCombo(combo, bestCombo);
             }
