@@ -278,7 +278,7 @@ public static class DialogueTextCompiler
     {
         if (name == "shake")
         {
-            style.ShakeAmp = settings != null ? settings.ShakeAmplitude : 1.5f;
+            style.ShakeAmp = settings != null ? settings.ShakeAmplitude : 0.7f;
             style.ShakeHz = settings != null ? settings.ShakeFrequency : 18f;
         }
         else if (name == "wave")

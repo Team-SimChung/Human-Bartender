@@ -31,6 +31,12 @@ public sealed class DialogueFxSceneWiringTests
             {
                 Assert.That(roots.SelectMany(root => root.GetComponentsInChildren<InGameLifetimeScope>(true)),
                     Is.Not.Empty, "Play: in-game DI scope");
+                var impulse = roots.SelectMany(root => root.GetComponentsInChildren<VerticalCameraImpulse>(true)).Single();
+                Assert.That(impulse.GetComponent<Unity.Cinemachine.CinemachineCamera>(), Is.Not.Null,
+                    "Play: impulse must run on the gameplay Cinemachine camera");
+                var phase = roots.SelectMany(root => root.GetComponentsInChildren<PlayPhaseController>(true)).Single();
+                Assert.That(new SerializedObject(phase).FindProperty("testDay").intValue, Is.EqualTo(-1));
+                Assert.That(new SerializedObject(phase).FindProperty("skipTycoonForTest").boolValue, Is.False);
                 var presenter = roots.SelectMany(root => root.GetComponentsInChildren<BarStoryPresenter>(true)).Single();
                 Assert.That(views.Contains(new SerializedObject(presenter).FindProperty("textView").objectReferenceValue
                     as UIDialogueTextView), Is.True, "Play: story presenter view");

@@ -23,7 +23,7 @@ public sealed class DialogueFxPreset
 [CreateAssetMenu(fileName = "DialoguePresentationSettings", menuName = "Dialogue/Presentation Settings")]
 public sealed class DialoguePresentationSettings : ScriptableObject
 {
-    [Min(0)] public float ShakeAmplitude = 1.5f;
+    [Min(0)] public float ShakeAmplitude = 0.7f;
     [Min(0)] public float ShakeFrequency = 18f;
     [Min(0)] public float WaveAmplitude = 2f;
     [Min(0)] public float WaveFrequency = 2f;

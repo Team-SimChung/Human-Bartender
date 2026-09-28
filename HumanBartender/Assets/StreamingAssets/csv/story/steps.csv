@@ -5,14 +5,14 @@ d1_tutorial_chris,4,say,luna,default,네?,Yes?,dlg_d1_tutorial_chris_002,\N,\N,w
 d1_tutorial_chris,5,say,chris,default,방금 내가 무슨 말을 했는지 <fx=reproach>듣긴 한 거야?</fx>,Did you hear a word of what I just said?,dlg_d1_tutorial_chris_003,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_003,scene_d1_tutorial_chris,steps,3,steps_format_02
 d1_tutorial_chris,6,say,luna,default,무슨 말이요?,What did you say?,dlg_d1_tutorial_chris_004,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_004,scene_d1_tutorial_chris,steps,4,steps_format_02
 d1_tutorial_chris,7,say,chris,fail,.....,.....,dlg_d1_tutorial_chris_005,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_005,scene_d1_tutorial_chris,steps,5,steps_format_02
-d1_tutorial_chris,8,say,chris,default,집중해. 이제 와서 관두지도 못한다고.,Focus. It's too late to quit now.,dlg_d1_tutorial_chris_006,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_006,scene_d1_tutorial_chris,steps,6,steps_format_02
+d1_tutorial_chris,8,say,chris,default,<shake amp=0.5 hz=16>집중해.</shake> 이제 와서 관두지도 못한다고.,Focus. It's too late to quit now.,dlg_d1_tutorial_chris_006,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_006,scene_d1_tutorial_chris,steps,6,steps_format_02
 d1_tutorial_chris,9,say,luna,default,네. 알겠습니다.,Yes. Understood.,dlg_d1_tutorial_chris_007,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_007,scene_d1_tutorial_chris,steps,7,steps_format_02
 d1_tutorial_chris,10,say,chris,default,그럼 방금 배웠던 내용을 다시 짚어보자.,Then let's go over what you just learned.,dlg_d1_tutorial_chris_008,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_008,scene_d1_tutorial_chris,steps,8,steps_format_02
 d1_tutorial_chris,11,say,luna,default,알겠습니다.,Understood.,dlg_d1_tutorial_chris_009,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_009,scene_d1_tutorial_chris,steps,9,steps_format_02
-d1_tutorial_chris,12,say,chris,default,"<order>진토닉</order> 하나만 만들 수 있게 되면 더는 확인하지 않을 거야.
+d1_tutorial_chris,12,say,chris,default,"<order>진토닉</order> <pop peak=1.11 duration=0.12>하나만</pop> 만들 수 있게 되면 더는 확인하지 않을 거야.
 금방 하는 거니까 지루해도 참아.","Once you can make a single <order>Gin & Tonic</order>, I'll stop checking on you.
 It won't take long, so bear with the boredom.",dlg_d1_tutorial_chris_010,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_010,scene_d1_tutorial_chris,steps,10,steps_format_02
-d1_tutorial_chris,13,say,luna,default,(진과 탄산수를 섞는 게 그렇게 어려운 일일까.),(Can mixing gin and carbonated water really be that difficult?),dlg_d1_tutorial_chris_011,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_011,scene_d1_tutorial_chris,steps,11,steps_format_02
+d1_tutorial_chris,13,say,luna,default,(진과 탄산수를 섞는 게 <wave amp=0.45 hz=1.4 phase=0.55>그렇게 어려운 일일까</wave>.),(Can mixing gin and carbonated water really be that difficult?),dlg_d1_tutorial_chris_011,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_011,scene_d1_tutorial_chris,steps,11,steps_format_02
 d1_tutorial_chris,14,say,chris,fail,<fx=mutter>또</fx> <fx=burst>딴생각하지.</fx>,You're drifting off again.,dlg_d1_tutorial_chris_012,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_012,scene_d1_tutorial_chris,steps,12,steps_format_02
 d1_tutorial_chris,15,say,luna,default,아니요. 바로 시작하죠.,No. Let's start right away.,dlg_d1_tutorial_chris_013,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_013,scene_d1_tutorial_chris,steps,13,steps_format_02
 d1_tutorial_chris,16,say,chris,default,좋아.,Good.,dlg_d1_tutorial_chris_014,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_014,scene_d1_tutorial_chris,steps,14,steps_format_02
@@ -30,8 +30,8 @@ d1_tutorial_chris,21,say,chris,default,"보고 싶은 칵테일을 눌러보면 
 d1_tutorial_chris,22,say,chris,default,"전에 이식한 <name>바텐더 가이드 칩</name>에 대부분의 칵테일 <name>레시피</name>가 들어 있어.
 하지만 지금은 레시피 정보가 조금밖에 안 보일 거야.","The <name>bartender guide chip</name> we implanted holds most of the cocktail <name>recipes</name>.
 For now, though, you'll only see a handful of them.",dlg_d1_tutorial_chris_020,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_020,scene_d1_tutorial_chris,steps,20,steps_format_02
-d1_tutorial_chris,23,say,luna,default,이유가 있습니까?,Is there a reason?,dlg_d1_tutorial_chris_021,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_021,scene_d1_tutorial_chris,steps,21,steps_format_02
-d1_tutorial_chris,24,say,chris,default,"“진토닉 하나도 제대로 만들지 못한다면,
+d1_tutorial_chris,23,say,luna,default,<wave amp=0.45 hz=1.4 phase=0.6>이유가 있습니까?</wave>,Is there a reason?,dlg_d1_tutorial_chris_021,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_021,scene_d1_tutorial_chris,steps,21,steps_format_02
+d1_tutorial_chris,24,say,chris,default,"“<pop peak=1.11 duration=0.12>진토닉 하나도 제대로 만들지 못한다면</pop>,
 다른 칵테일을 배울 필요도 없다.” 이게 전에 있던 마스터가 남긴 방침이야.","""If you can't make a single Gin & Tonic properly,
 you have no business learning any other cocktail."" That was the old master's policy.",dlg_d1_tutorial_chris_022,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_022,scene_d1_tutorial_chris,steps,22,steps_format_02
 d1_tutorial_chris,25,say,luna,default,옳은 생각인 것 같습니다.,That sounds like sound reasoning.,dlg_d1_tutorial_chris_023,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_023,scene_d1_tutorial_chris,steps,23,steps_format_02
@@ -42,8 +42,8 @@ d1_tutorial_chris,29,say,chris,default,"그날 사용할 수 있는 레시피는
 아직 사용할 수 없는 레시피는 잠겨 있을 거야.","The recipes available that day appear on the menu.
 Anything unavailable will remain locked.",dlg_d1_tutorial_chris_027,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_027,scene_d1_tutorial_chris,steps,27,steps_format_02
 d1_tutorial_chris,30,say,chris,default,새로운 레시피를 사용할 수 있게 되면 메뉴에서 확인할 수 있어.,"When a new recipe becomes available, you can check it there.",dlg_d1_tutorial_chris_028,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_028,scene_d1_tutorial_chris,steps,28,steps_format_02
-d1_tutorial_chris,31,say,luna,default,생각보다 유용한 칩이었네요.,The chip is more useful than I expected.,dlg_d1_tutorial_chris_029,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_029,scene_d1_tutorial_chris,steps,29,steps_format_02
-d1_tutorial_chris,32,say,chris,default,그거 만들겠다고 전 마스터가 고생 좀 했지.,The old master went through hell building that thing.,dlg_d1_tutorial_chris_030,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_030,scene_d1_tutorial_chris,steps,30,steps_format_02
+d1_tutorial_chris,31,say,luna,default,<wave amp=0.45 hz=1.4 phase=0.6>생각보다 유용한 칩</wave>이었네요.,The chip is more useful than I expected.,dlg_d1_tutorial_chris_029,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_029,scene_d1_tutorial_chris,steps,29,steps_format_02
+d1_tutorial_chris,32,say,chris,default,그거 만들겠다고 전 마스터가 <slow>고생 좀 했지</slow>.,The old master went through hell building that thing.,dlg_d1_tutorial_chris_030,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_030,scene_d1_tutorial_chris,steps,30,steps_format_02
 d1_tutorial_chris,33,say,chris,default,"메뉴에서 레시피를 고르면 선반이 차례로 나온다.
 잔, 도구, 재료 순서야. 필요한 걸 골라 담으면 돼.","Pick a recipe from the menu and the shelves come one by one —
 glass, tools, then ingredients. Take what you need.",dlg_d1_tutorial_chris_031,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_031,scene_d1_tutorial_chris,steps,31,steps_format_02
@@ -51,7 +51,7 @@ d1_tutorial_chris,34,say,chris,default,"잘못 담았으면 다시 눌러서 빼
 돌아갈 수도 있어. 다 담았으면 '제조 시작'이다.","Tap again to put something back, or use the arrows to revisit
 a shelf. When you have everything, hit 'Start'.",dlg_d1_tutorial_chris_032,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_032,scene_d1_tutorial_chris,steps,32,steps_format_02
 d1_tutorial_chris,35,say,luna,default,"제조 과정은 <world>쉐이킹</world>, <world>스터</world>, <world>빌드</world>, 이렇게 세 가지로 분류되는 것이 맞나요?","The methods fall into three categories — <world>shaking</world>, <world>stirring</world>, and <world>building</world>. Is that correct?",dlg_d1_tutorial_chris_033,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_033,scene_d1_tutorial_chris,steps,33,steps_format_02
-d1_tutorial_chris,36,say,chris,default,기억은 하는군. 각 방법이 뭐가 다른지에 대한 설명도 필요하나?,So you do remember. Need me to explain how they differ?,dlg_d1_tutorial_chris_034,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_034,scene_d1_tutorial_chris,steps,34,steps_format_02
+d1_tutorial_chris,36,say,chris,default,<pop peak=1.11 duration=0.12>기억은 하는군.</pop> 각 방법이 뭐가 다른지에 대한 설명도 필요하나?,So you do remember. Need me to explain how they differ?,dlg_d1_tutorial_chris_034,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_034,scene_d1_tutorial_chris,steps,34,steps_format_02
 d1_tutorial_chris,37,say,luna,default,원활한 업무를 위해 필요할 것 같습니다.,It would help me operate smoothly.,dlg_d1_tutorial_chris_035,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_035,scene_d1_tutorial_chris,steps,35,steps_format_02
 d1_tutorial_chris,38,say,chris,default,"좋아. 먼저 <world>쉐이킹</world>은 보스턴 쉐이커에 재료를 담은 뒤
 위아래로 강하게 흔들면서 섞는 방법이다.","Fine. <world>Shaking</world> first: load the ingredients into a Boston shaker
@@ -64,9 +64,9 @@ d1_tutorial_chris,41,say,chris,default,"<world>빌드</world>는 완성 잔에 �
 자연스럽게 섞이는 재료나 탄산이 들어가는 칵테일에 주로 사용하지.","<world>Building</world> means pouring the ingredients straight into the serving glass.
 It's for things that blend on their own, or anything with carbonation.",dlg_d1_tutorial_chris_039,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_039,scene_d1_tutorial_chris,steps,39,steps_format_02
 d1_tutorial_chris,42,say,chris,default,여기까지 이해했나.,Following so far?,dlg_d1_tutorial_chris_040,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_040,scene_d1_tutorial_chris,steps,40,steps_format_02
-d1_tutorial_chris,43,say,luna,default,평범한 사람이라면 전부 기억하기 힘들 것 같습니다.,An ordinary person would struggle to remember all of this.,dlg_d1_tutorial_chris_041,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_041,scene_d1_tutorial_chris,steps,41,steps_format_02
-d1_tutorial_chris,44,say,chris,default,그래. 그래도 넌 <world>평범한 사람</world>이 아니잖아.,"Right. But then, you're no <world>ordinary person</world>.",dlg_d1_tutorial_chris_042,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_042,scene_d1_tutorial_chris,steps,42,steps_format_02
-d1_tutorial_chris,45,say,luna,default,저는 평범하다고 생각합니다.,I consider myself ordinary.,dlg_d1_tutorial_chris_043,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_043,scene_d1_tutorial_chris,steps,43,steps_format_02
+d1_tutorial_chris,43,say,luna,default,평범한 사람이라면 <wave amp=0.45 hz=1.4 phase=0.6>전부 기억하기 힘들 것 같습니다.</wave>,An ordinary person would struggle to remember all of this.,dlg_d1_tutorial_chris_041,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_041,scene_d1_tutorial_chris,steps,41,steps_format_02
+d1_tutorial_chris,44,say,chris,default,그래. 그래도 넌 <pop peak=1.1 duration=0.14><world>평범한 사람</world></pop>이 아니잖아.,"Right. But then, you're no <world>ordinary person</world>.",dlg_d1_tutorial_chris_042,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_042,scene_d1_tutorial_chris,steps,42,steps_format_02
+d1_tutorial_chris,45,say,luna,default,저는 <pop peak=1.11 duration=0.12>평범하다고</pop> 생각합니다.,I consider myself ordinary.,dlg_d1_tutorial_chris_043,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_043,scene_d1_tutorial_chris,steps,43,steps_format_02
 d1_tutorial_chris,46,say,chris,default,"...그렇게 생각하면 할 말은 없지.
 지금 몰라도 나중에 또 알려 줄 테니 괜찮을 거다.","...If that's how you see it, I've got nothing to add.
 Don't worry — if it doesn't stick now, I'll walk you through it again later.",dlg_d1_tutorial_chris_044,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_044,scene_d1_tutorial_chris,steps,44,steps_format_02
@@ -87,13 +87,13 @@ d1_tutorial_chris,56,serve,chris,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_
 d1_tutorial_chris,57,say,luna,default,어떤가요?,How is it?,dlg_d1_tutorial_chris_053,grade >= excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_053,scene_d1_tutorial_chris,steps,55,steps_format_05
 d1_tutorial_chris,58,say,chris,success,…생각보다 <fx=admire>재능이 있군</fx>.,...More talent than I expected.,dlg_d1_tutorial_chris_054,grade >= excellent,affinity.chris += 5,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_054,scene_d1_tutorial_chris,steps,56,steps_format_06
 d1_tutorial_chris,59,say,luna,default,이제 반복 학습에서 벗어날 수 있나요?,Does this mean I'm free from the repetition drills?,dlg_d1_tutorial_chris_055,grade >= excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_055,scene_d1_tutorial_chris,steps,57,steps_format_05
-d1_tutorial_chris,60,say,chris,default,그래. 기본적인 제조 수업은 끝이야.,Yes. The basic mixing lessons are over.,dlg_d1_tutorial_chris_056,grade >= excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_056,scene_d1_tutorial_chris,steps,58,steps_format_05
+d1_tutorial_chris,60,say,chris,default,그래. 기본적인 <pop peak=1.14 duration=0.12>제조 수업은 끝이야.</pop>,Yes. The basic mixing lessons are over.,dlg_d1_tutorial_chris_056,grade >= excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_056,scene_d1_tutorial_chris,steps,58,steps_format_05
 d1_tutorial_chris,61,say,luna,default,어떤가요?,How is it?,dlg_d1_tutorial_chris_057,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_057,scene_d1_tutorial_chris,steps,59,steps_format_05
 d1_tutorial_chris,62,say,chris,default,.....,.....,dlg_d1_tutorial_chris_058,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_058,scene_d1_tutorial_chris,steps,60,steps_format_05
 d1_tutorial_chris,63,say,luna,default,맛이 이상합니까?,Does it taste wrong?,dlg_d1_tutorial_chris_059,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_059,scene_d1_tutorial_chris,steps,61,steps_format_05
 d1_tutorial_chris,64,say,chris,default,<fx=approve>괜찮군</fx>.,Not bad.,dlg_d1_tutorial_chris_060,grade >= good && grade < excellent,affinity.chris += 1,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_060,scene_d1_tutorial_chris,steps,62,steps_format_06
 d1_tutorial_chris,65,say,chris,default,이 정도면 기본적인 제조법은 익힌 것 같아.,"At this level, I'd say you've got the basics down.",dlg_d1_tutorial_chris_061,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_061,scene_d1_tutorial_chris,steps,63,steps_format_05
-d1_tutorial_chris,66,say,luna,default,다행이네요.,That's a relief.,dlg_d1_tutorial_chris_062,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_062,scene_d1_tutorial_chris,steps,64,steps_format_05
+d1_tutorial_chris,66,say,luna,default,<wave amp=0.45 hz=1.4 phase=0.6>다행이네요.</wave>,That's a relief.,dlg_d1_tutorial_chris_062,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_062,scene_d1_tutorial_chris,steps,64,steps_format_05
 d1_tutorial_chris,67,say,chris,default,"아직 개선할 부분은 있지만, 나머지는 일하면서 익히면 되겠어.","There's still room to improve, but the rest you can pick up on the job.",dlg_d1_tutorial_chris_063,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_063,scene_d1_tutorial_chris,steps,65,steps_format_05
 d1_tutorial_chris,68,say,luna,default,확인했습니다.,Acknowledged.,dlg_d1_tutorial_chris_064,grade >= good && grade < excellent,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_064,scene_d1_tutorial_chris,steps,66,steps_format_05
 d1_tutorial_chris,69,say,chris,fail,아직 손님에게 내놓기엔 완성도가 <fx=disappoint>부족한데</fx>.,This isn't ready to serve to a customer yet.,dlg_d1_tutorial_chris_065,grade < good,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_chris_065,scene_d1_tutorial_chris,steps,67,steps_format_05
@@ -109,14 +109,14 @@ d1_tutorial_chris,76,serve,chris,\N,\N,\N,\N,flag.d1_tutorial_retry,flag.d1_tuto
 d1_tutorial_chris,77,say,chris,default,"방금은 내가 원하는 칵테일을 정확히 주문했지만,
 손님에 따라서는 주문을 <world>애매하게</world> 하거나 <world>칵테일 선택</world>을 맡길 수도 있어.","Just now I told you exactly what I wanted — but some guests
 will order <world>vaguely</world>, or leave the <world>choice of cocktail</world> entirely to you.",dlg_d1_tutorial_wrap_001,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_001,scene_d1_tutorial_chris,steps,75,steps_format_02
-d1_tutorial_chris,78,say,luna,default,그러면 제 마음대로 만들어 주면 되는 건가요?,Then I may make whatever I like?,dlg_d1_tutorial_wrap_002,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_002,scene_d1_tutorial_chris,steps,76,steps_format_02
+d1_tutorial_chris,78,say,luna,default,그러면 <wave amp=0.45 hz=1.4 phase=0.6>제 마음대로</wave> 만들어 주면 되는 건가요?,Then I may make whatever I like?,dlg_d1_tutorial_wrap_002,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_002,scene_d1_tutorial_chris,steps,76,steps_format_02
 d1_tutorial_chris,79,say,chris,default,그래도 되겠지. 하지만 아무 생각 없이 만들어서는 안 돼.,You could. But never mix without thinking.,dlg_d1_tutorial_wrap_003,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_003,scene_d1_tutorial_chris,steps,77,steps_format_02
 d1_tutorial_chris,80,say,luna,default,그러면 어떻게 해야 하죠?,Then what should I do?,dlg_d1_tutorial_wrap_004,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_004,scene_d1_tutorial_chris,steps,78,steps_format_02
-d1_tutorial_chris,81,say,chris,default,"애매한 주문이라도 최대한 <world>의도</world>를 파악하려고 해 봐.
+d1_tutorial_chris,81,say,chris,default,"애매한 주문이라도 최대한 <pop peak=1.08 duration=0.12><world>의도</world></pop>를 파악하려고 해 봐.
 눈앞에 있는 손님이 어떤 맛을 좋아할지도 생각해 보고.","Even with a vague order, try to read the <world>intent</world> behind it.
 And think about what the guest in front of you might actually enjoy.",dlg_d1_tutorial_wrap_005,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_005,scene_d1_tutorial_chris,steps,79,steps_format_02
 d1_tutorial_chris,82,say,luna,default,크리스도 알다시피 저는 타인의 취향을 짐작하는 일에는 익숙하지 않습니다.,"As you well know, Chris, guessing other people's tastes is not something I'm used to.",dlg_d1_tutorial_wrap_006,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_006,scene_d1_tutorial_chris,steps,80,steps_format_02
-d1_tutorial_chris,83,say,chris,default,뭐든 해 보려는 마음가짐이 중요한 거지.,What matters is the willingness to try.,dlg_d1_tutorial_wrap_007,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_007,scene_d1_tutorial_chris,steps,81,steps_format_02
+d1_tutorial_chris,83,say,chris,default,뭐든 해 보려는 <pop peak=1.11 duration=0.12>마음가짐</pop>이 중요한 거지.,What matters is the willingness to try.,dlg_d1_tutorial_wrap_007,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_007,scene_d1_tutorial_chris,steps,81,steps_format_02
 d1_tutorial_chris,84,say,chris,default,"헷갈리면 가이드 칩에 기록된 <name>칵테일 설명</name>을 읽어 봐.
 어떤 사람에게 어울리는지 판단하는 데 도움이 될 거야.","If you get lost, read the <name>cocktail descriptions</name> on the guide chip.
 They'll help you judge who a drink suits.",dlg_d1_tutorial_wrap_008,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_008,scene_d1_tutorial_chris,steps,82,steps_format_02
@@ -125,7 +125,7 @@ d1_tutorial_chris,85,say,chris,default,"거기에 맛을 기준으로 <name>필�
 Feel free to lean on that, too.",dlg_d1_tutorial_wrap_009,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_009,scene_d1_tutorial_chris,steps,83,steps_format_02
 d1_tutorial_chris,86,say,luna,default,노력해 보겠습니다.,I will try.,dlg_d1_tutorial_wrap_010,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_010,scene_d1_tutorial_chris,steps,84,steps_format_02
 d1_tutorial_chris,87,say,chris,default,<fx=encourage>좋아.</fx> 처음에는 그렇게 시작하는 거지.,Good. That's how everyone starts.,dlg_d1_tutorial_wrap_011,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_011,scene_d1_tutorial_chris,steps,85,steps_format_02
-d1_tutorial_chris,88,say,luna,default,아직 배워야 될 게 또 남았나요?,Is there more I need to learn?,dlg_d1_tutorial_wrap_012,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_012,scene_d1_tutorial_chris,steps,86,steps_format_02
+d1_tutorial_chris,88,say,luna,default,아직 배워야 될 게 <wave amp=0.45 hz=1.4 phase=0.6>또 남았나요?</wave>,Is there more I need to learn?,dlg_d1_tutorial_wrap_012,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_012,scene_d1_tutorial_chris,steps,86,steps_format_02
 d1_tutorial_chris,89,say,chris,default,"음... 바텐더의 마음가짐이라든가,
 손님 대하는 방법 같은 것들도 알려 줘야 하지만…","Hm... there's still the bartender's mindset,
 how to handle guests, that sort of thing...",dlg_d1_tutorial_wrap_013,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_013,scene_d1_tutorial_chris,steps,87,steps_format_02
@@ -133,7 +133,7 @@ d1_tutorial_chris,90,say,luna,default,.....,.....,dlg_d1_tutorial_wrap_014,\N,\N
 d1_tutorial_chris,91,say,chris,default,"…그래. 오늘은 이 정도면 충분하겠지.
 나머지는 일하면서 배우는 걸로.","...Right. This is enough for today.
 You'll learn the rest on the job.",dlg_d1_tutorial_wrap_015,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_015,scene_d1_tutorial_chris,steps,89,steps_format_02
-d1_tutorial_chris,92,say,chris,default,이제 가게에서는 크리스 말고 보스라고 불러.,"From now on, in the bar, it's not 'Chris' — call me 'Boss.'",dlg_d1_tutorial_wrap_016,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_016,scene_d1_tutorial_chris,steps,90,steps_format_02
+d1_tutorial_chris,92,say,chris,default,이제 가게에서는 크리스 말고 <pop peak=1.12 duration=0.14>보스</pop>라고 불러.,"From now on, in the bar, it's not 'Chris' — call me 'Boss.'",dlg_d1_tutorial_wrap_016,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_016,scene_d1_tutorial_chris,steps,90,steps_format_02
 d1_tutorial_chris,93,say,luna,default,이유가 있습니까?,Is there a reason?,dlg_d1_tutorial_wrap_017,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_017,scene_d1_tutorial_chris,steps,91,steps_format_02
 d1_tutorial_chris,94,say,chris,default,"우리 가게 규칙이라고 생각하면 돼.
 나도 처음 왔을 때 그랬어.","Think of it as a house rule.
@@ -141,32 +141,32 @@ I did the same when I first came here.",dlg_d1_tutorial_wrap_018,\N,\N,wait,\N,s
 d1_tutorial_chris,95,say,luna,default,"알겠습니다, 보스.","Understood, Boss.",dlg_d1_tutorial_wrap_019,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_019,scene_d1_tutorial_chris,steps,93,steps_format_02
 d1_tutorial_chris,96,say,chris,default,진토닉은 이 정도면 됐어. 잠깐 숨 좀 돌려.,That covers the Gin and Tonic. Take a breather.,dlg_d1_tutorial_wrap_020,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_020,scene_d1_tutorial_chris,steps,94,steps_format_02
 d1_tutorial_chris,97,say,luna,default,보스는 아직 남으시는 겁니까?,"Are you staying a little longer, Boss?",dlg_d1_tutorial_wrap_021,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_021,scene_d1_tutorial_chris,steps,95,steps_format_02
-d1_tutorial_chris,98,say,chris,default,그래. 오늘은 쉬는 날이지만 거절할 수 없는 <world>손님</world>이 한 명 오기로 했어.,"Yes. Today's my day off, but there's a <world>guest</world> I can't turn away.",dlg_d1_tutorial_wrap_022,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_022,scene_d1_tutorial_chris,steps,96,steps_format_02
+d1_tutorial_chris,98,say,chris,default,그래. 오늘은 쉬는 날이지만 <slow>거절할 수 없는</slow> <wave amp=0.45 hz=1.2><world>손님</world></wave>이 한 명 오기로 했어.,"Yes. Today's my day off, but there's a <world>guest</world> I can't turn away.",dlg_d1_tutorial_wrap_022,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_022,scene_d1_tutorial_chris,steps,96,steps_format_02
 d1_tutorial_chris,99,say,chris,default,앞으로는 교대 근무로 할 거니까 손님 응대는 차차 익혀.,"We'll work in shifts from now on. You'll get used to serving customers.",dlg_d1_tutorial_wrap_023,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_023,scene_d1_tutorial_chris,steps,97,steps_format_02
 d1_tutorial_chris,100,say,luna,default,알겠습니다.,Understood.,dlg_d1_tutorial_wrap_024,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_024,scene_d1_tutorial_chris,steps,98,steps_format_02
 d1_tutorial_chris,101,say,chris,default,곧 올 거야. 아까 배운 대로 차분히 해.,He'll be here soon. Stay calm and use what you just learned.,dlg_d1_tutorial_wrap_025,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_025,scene_d1_tutorial_chris,steps,99,steps_format_02
 d1_tutorial_chris,102,say,luna,default,"네, 보스.","Yes, Boss.",dlg_d1_tutorial_wrap_026,\N,\N,wait,\N,script/bar/day0,dlg_d1_tutorial_wrap_026,scene_d1_tutorial_chris,steps,100,steps_format_02
 d1_tutorial_chris,103,enter,port,L,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_enter_103,scene_d1_tutorial_chris,steps,101,steps_format_01
-d1_tutorial_chris,104,say,port,default,…새 얼굴이군.,...A new face.,dlg_d1_port_001,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_001,scene_d1_tutorial_chris,steps,102,steps_format_02
+d1_tutorial_chris,104,say,port,default,…<slow>새 얼굴이군.</slow>,...A new face.,dlg_d1_port_001,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_001,scene_d1_tutorial_chris,steps,102,steps_format_02
 d1_tutorial_chris,105,say,chris,default,"포트. 인사해라, 루나다. 오늘부터 일한다.",Port. Meet Luna. She starts today.,dlg_d1_port_002,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_002,scene_d1_tutorial_chris,steps,103,steps_format_02
 d1_tutorial_chris,106,say,port,default,루나… 그래. 잘 부탁하네.,Luna... I see. Good to meet you.,dlg_d1_port_003,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_003,scene_d1_tutorial_chris,steps,104,steps_format_02
 d1_tutorial_chris,107,say,chris,default,"마침 잘 왔어. 루나, 연습 삼아 한 잔 더 만들어봐라.","Good timing. Luna — one more glass, for practice.",dlg_d1_port_004,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_004,scene_d1_tutorial_chris,steps,105,steps_format_02
 d1_tutorial_chris,108,say,port,default,"그럼, 늘 마시던 걸로.",Then I'll have my usual.,dlg_d1_port_005,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_005,scene_d1_tutorial_chris,steps,106,steps_format_02
-d1_tutorial_chris,109,order,port,exact:gin_fizz,"진피즈, 정석대로.",Gin Fizz. By the book.,dlg_d1_port_006,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_006,scene_d1_tutorial_chris,steps,107,steps_format_02
+d1_tutorial_chris,109,order,port,exact:gin_fizz,"<order>진피즈</order>, <pop peak=1.1 duration=0.12>정석대로</pop>.",Gin Fizz. By the book.,dlg_d1_port_006,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_006,scene_d1_tutorial_chris,steps,107,steps_format_02
 d1_tutorial_chris,110,craft,\N,order,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_craft_110,scene_d1_tutorial_chris,steps,108,steps_format_03
 d1_tutorial_chris,111,serve,port,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_serve_111,scene_d1_tutorial_chris,steps,109,steps_format_04
-d1_tutorial_chris,112,say,port,default,…손끝이 좋군. 오늘이 처음이라고?,"...Good hands. First day, you said?",dlg_d1_port_007,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_007,scene_d1_tutorial_chris,steps,110,steps_format_02
+d1_tutorial_chris,112,say,port,default,…<wave amp=0.5 hz=1.5>손끝이 좋군</wave>. 오늘이 처음이라고?,"...Good hands. First day, you said?",dlg_d1_port_007,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_007,scene_d1_tutorial_chris,steps,110,steps_format_02
 d1_tutorial_chris,113,say,chris,default,오늘이 처음이다.,First day.,dlg_d1_port_008,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_008,scene_d1_tutorial_chris,steps,111,steps_format_02
-d1_tutorial_chris,114,say,port,default,"허. …이 가게, 오래 다녀야겠어.",Hah. ...I'll be coming here a long while yet.,dlg_d1_port_009,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_009,scene_d1_tutorial_chris,steps,112,steps_format_02
+d1_tutorial_chris,114,say,port,default,"허. …이 가게, <wave amp=0.45 hz=1.4 phase=0.6>오래 다녀야겠어.</wave>",Hah. ...I'll be coming here a long while yet.,dlg_d1_port_009,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_009,scene_d1_tutorial_chris,steps,112,steps_format_02
 d1_tutorial_chris,115,exit,port,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_exit_115,scene_d1_tutorial_chris,steps,113,steps_format_04
 d1_tutorial_chris,116,say,chris,default,"오늘은 여기까지. 정리는 내가 한다.
 먼저 들어가라.","That's enough for today. I'll close up.
 Head home first.",dlg_d1_port_010,\N,\N,wait,\N,script/bar/day0,dlg_d1_port_010,scene_d1_tutorial_chris,steps,114,steps_format_02
 d1_tutorial_chris,117,end_part,\N,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day0,step_d1_tutorial_chris_end_part_117,scene_d1_tutorial_chris,steps,115,steps_format_09
 d2_aili,1,enter,aili,R,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_aili_enter_1,scene_d2_aili,steps,0,steps_format_01
-d2_aili,2,say,aili,default,손님 받아라!!!,Customer coming through!!!,dlg_d2_aili_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_001,scene_d2_aili,steps,1,steps_format_02
+d2_aili,2,say,aili,default,<fast><shake amp=0.65 hz=18>손님 받아라!!!</shake></fast>,Customer coming through!!!,dlg_d2_aili_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_001,scene_d2_aili,steps,1,steps_format_02
 d2_aili,3,say,luna,default,"어서 오세요, 손님.","Welcome in, ma'am.",dlg_d2_aili_002,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_002,scene_d2_aili,steps,2,steps_format_02
-d2_aili,4,say,aili,default,"오랜만이야, 이쁜이. 진짜 여기서 일하고 있었구나.","Long time no see, cutie. So you really are working here.",dlg_d2_aili_003,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_003,scene_d2_aili,steps,3,steps_format_02
+d2_aili,4,say,aili,default,"<wave amp=0.55 hz=1.7 phase=0.6>오랜만이야, 이쁜이.</wave> 진짜 여기서 일하고 있었구나.","Long time no see, cutie. So you really are working here.",dlg_d2_aili_003,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_003,scene_d2_aili,steps,3,steps_format_02
 d2_aili,5,say,luna,default,네? 누가 말해주던가요?,Pardon? Who told you?,dlg_d2_aili_004,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_004,scene_d2_aili,steps,4,steps_format_02
 d2_aili,6,say,aili,default,"방금 여기서 도망간 영감이 말해줬지.
 나한테 여기로 꺼지라는 말과 함께.","The old man who just fled this place told me.
@@ -182,10 +182,10 @@ But that one's a cat he's kept for ages.",dlg_d2_aili_009,\N,\N,wait,\N,script/b
 d2_aili,11,say,luna,default,무슨 이유로 저한테 맡긴 걸까요?,Why would he leave her with me?,dlg_d2_aili_010,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_010,scene_d2_aili,steps,10,steps_format_02
 d2_aili,12,say,aili,default,몰라. 오늘 혼자서 만들고 싶은 게 있다고 그러던데.,No idea. He said there was something he wanted to build alone today.,dlg_d2_aili_011,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_011,scene_d2_aili,steps,11,steps_format_02
 d2_aili,13,say,aili,default,"나도 쫓겨났다니까?
-빌어먹을 영감탱이.","He kicked me out too, you know?
+<shake amp=0.65 hz=18>빌어먹을 영감탱이.</shake>","He kicked me out too, you know?
 Damn old geezer.",dlg_d2_aili_012,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_012,scene_d2_aili,steps,12,steps_format_02
 d2_aili,14,say,luna,default,흠. 곤란하네요. 아직 동물을 다루는 방법은 배우지 못했습니다.,Hm. This is problematic. I have not yet learned how to handle animals.,dlg_d2_aili_013,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_013,scene_d2_aili,steps,13,steps_format_02
-d2_aili,15,say,aili,default,걱정 마. 부비가 평범한 고양이는 아니거든.,Don't worry. Bubi's no ordinary cat.,dlg_d2_aili_014,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_014,scene_d2_aili,steps,14,steps_format_02
+d2_aili,15,say,aili,default,걱정 마. 부비가 <pop peak=1.11 duration=0.12>평범한 고양이는 아니거든.</pop>,Don't worry. Bubi's no ordinary cat.,dlg_d2_aili_014,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_014,scene_d2_aili,steps,14,steps_format_02
 d2_aili,16,say,luna,default,이름이 부비인가요?,Her name is Bubi?,dlg_d2_aili_015,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_015,scene_d2_aili,steps,15,steps_format_02
 d2_aili,17,say,aili,default,"맞아. 나름 이 동네에서 악명을 떨치는 고양이니까 
 놀러 오면 잘 대접해주라고.","Yep. She's got quite the reputation around this neighborhood,
@@ -194,20 +194,20 @@ d2_aili,18,say,bubi,default,먀옹.,Meow.,dlg_d2_aili_017,\N,\N,wait,\N,script/b
 d2_aili,19,say,luna,default,네. 향후 바텐더 업무 내용에 참고하겠습니다.,Noted. I will factor it into future bartending duties.,dlg_d2_aili_018,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_018,scene_d2_aili,steps,18,steps_format_02
 d2_aili,20,say,luna,default,그리고 혹시 왜 의자에 앉지 않는 건지 알려주실 수 있나요?,"Also, may I ask why you will not sit on a chair?",dlg_d2_aili_019,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_019,scene_d2_aili,steps,19,steps_format_02
 d2_aili,21,say,aili,default,"난 날 내려다 보는 사람이 있으면 
-면상에 총알을 박아주고 싶은 병이있어.","I've got this condition — when someone looks down on me,
+<shake amp=0.65 hz=18>면상에 총알을 박아주고 싶은</shake> 병이있어.","I've got this condition — when someone looks down on me,
 I want to put a bullet in their face.",dlg_d2_aili_020,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_020,scene_d2_aili,steps,20,steps_format_02
 d2_aili,22,say,luna,default,그런 병은 처음 들어 봤습니다.,I have never heard of such a condition.,dlg_d2_aili_021,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_021,scene_d2_aili,steps,21,steps_format_02
 d2_aili,23,say,aili,default,음음. 그럴 수 있어. 이건 희귀한 병이기 때문이지.,Mm-hm. Understandable. It's a very rare condition.,dlg_d2_aili_022,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_022,scene_d2_aili,steps,22,steps_format_02
 d2_aili,24,say,aili,fail,아무튼 내가 의자에 앉으면 다른 사람들이 건방지게 날 깔본단 말이야.,"Anyway, when I sit on a chair, people get cocky and look down on me.",dlg_d2_aili_023,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_023,scene_d2_aili,steps,23,steps_format_02
 d2_aili,25,say,luna,default,그래서 그 박스를 밟고 서 계신 겁니까?,Is that why you are standing on that box?,dlg_d2_aili_024,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_024,scene_d2_aili,steps,24,steps_format_02
 d2_aili,26,say,aili,fail,"맞아 이 박스 덕분에 건방진 크리스가 아직 총에 맞지 않는거야.
-어떻게 보면 이 박스가 사람 하나 살려준 셈이지.","Exactly. Thanks to this box, that cocky Chris hasn't been shot yet.
+어떻게 보면 이 <wave amp=0.55 hz=1.7 phase=0.6>박스가 사람 하나 살려준 셈이지.</wave>","Exactly. Thanks to this box, that cocky Chris hasn't been shot yet.
 In a way, this box has saved a man's life.",dlg_d2_aili_025,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_025,scene_d2_aili,steps,25,steps_format_02
 d2_aili,27,say,luna,default,아하… 이해했습니다.,Ah... understood.,dlg_d2_aili_026,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_026,scene_d2_aili,steps,26,steps_format_02
 d2_aili,28,say,aili,default,좋아. 그럼 슬슬 이쁜이가 만들어 주는 술 한 번 먹어 볼까?,"Alright. Time to try a drink made by my cutie, shall we?",dlg_d2_aili_027,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_027,scene_d2_aili,steps,27,steps_format_02
 d2_aili,29,say,luna,default,주문은 어떤 걸로 하시겠습니까?,What would you like to order?,dlg_d2_aili_028,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_028,scene_d2_aili,steps,28,steps_format_02
 d2_aili,30,say,aili,default,"음…
-나 같은 섹시한 레이디한테 어울리는 술로 부탁해.","Hmm...
+나 같은 <wave amp=0.55 hz=1.7 phase=0.6>섹시한 레이디</wave>한테 어울리는 술로 부탁해.","Hmm...
 Make me something that suits a sexy lady like myself.",dlg_d2_aili_029,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_029,scene_d2_aili,steps,29,steps_format_02
 d2_aili,31,choice,\N,ch_d2_aili_lady,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_aili_choice_31,scene_d2_aili,steps,30,steps_format_03
 d2_aili_craft,1,say,luna,default,"네, 주문 받았습니다.","Yes, order received.",dlg_d2_aili_craft_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_001,scene_d2_aili_craft,steps,0,steps_format_02
@@ -217,7 +217,7 @@ d2_aili_craft,4,craft,\N,order,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_ai
 d2_aili_craft,5,serve,aili,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_aili_craft_serve_5,scene_d2_aili_craft,steps,4,steps_format_04
 d2_aili_craft,6,say,aili,success,……뭐지?,......What is this?,dlg_d2_aili_craft_004,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_004,scene_d2_aili_craft,steps,5,steps_format_05
 d2_aili_craft,7,say,luna,default,왜 그러시죠?,Is something wrong?,dlg_d2_aili_craft_005,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_005,scene_d2_aili_craft,steps,6,steps_format_05
-d2_aili_craft,8,say,aili,success,"존나 맛있어.
+d2_aili_craft,8,say,aili,success,"<pop peak=1.14 duration=0.12>존나 맛있어.</pop>
 왜 맛있지?","It's damn delicious.
 Why is it delicious?",dlg_d2_aili_craft_006,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_006,scene_d2_aili_craft,steps,7,steps_format_05
 d2_aili_craft,9,say,luna,default,"포트도 그렇고, 왜 다들 맛없는 술을 기대하고 오는 겁니까?",Port was the same — why does everyone come in expecting a bad drink?,dlg_d2_aili_craft_007,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_007,scene_d2_aili_craft,steps,8,steps_format_05
@@ -232,7 +232,7 @@ d2_aili_craft,13,say,aili,default,"음침하고 냄새나는 남자가 밸런타
 한 달 동안 정성 들여 만든 초콜릿 맛이었어.","It tasted like chocolate some creepy, smelly guy spent a whole month
 lovingly making as a Valentine's gift for me.",dlg_d2_aili_craft_011,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_011,scene_d2_aili_craft,steps,12,steps_format_05
 d2_aili_craft,14,say,luna,default,…무슨 맛이죠?,...What flavor is that?,dlg_d2_aili_craft_012,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_012,scene_d2_aili_craft,steps,13,steps_format_05
-d2_aili_craft,15,say,aili,default,정성 들인 쓰레기. 형용할 수 없는 최악의 맛이지.,Devoted garbage. The indescribable worst.,dlg_d2_aili_craft_013,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_013,scene_d2_aili_craft,steps,14,steps_format_05
+d2_aili_craft,15,say,aili,default,<shake amp=0.5 hz=16>정성 들인 쓰레기.</shake> 형용할 수 없는 최악의 맛이지.,Devoted garbage. The indescribable worst.,dlg_d2_aili_craft_013,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_013,scene_d2_aili_craft,steps,14,steps_format_05
 d2_aili_craft,16,say,luna,default,그건 그 사람의 노력을 무시하는 거 아닌가요?,Is that not dismissive of that person's effort?,dlg_d2_aili_craft_014,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_014,scene_d2_aili_craft,steps,15,steps_format_05
 d2_aili_craft,17,say,aili,default,"맞는 말이지만 넌 누군가가 정성을 들였다는 사실 하나만으로
 독약을 먹을 수 있을 것 같아?","Fair point — but could you drink poison
@@ -240,7 +240,7 @@ just because someone made it with love?",dlg_d2_aili_craft_015,grade >= excellen
 d2_aili_craft,18,say,luna,default,…..,.....,dlg_d2_aili_craft_016,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_016,scene_d2_aili_craft,steps,17,steps_format_05
 d2_aili_craft,19,say,aili,default,아무튼 크리스의 술을 마셨을 때는 그랬어.,"Anyway, that's what drinking Chris's stuff was like.",dlg_d2_aili_craft_017,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_017,scene_d2_aili_craft,steps,18,steps_format_05
 d2_aili_craft,20,say,luna,default,…그런 이야기는 듣지 못했습니다.,...I was never told any of this.,dlg_d2_aili_craft_018,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_018,scene_d2_aili_craft,steps,19,steps_format_05
-d2_aili_craft,21,say,aili,default,"크리스에 비하면 네가 만든 건 예술이지.
+d2_aili_craft,21,say,aili,default,"크리스에 비하면 네가 만든 건 <wave amp=0.55 hz=1.7 phase=0.6>예술이지.</wave>
 처음 봤을 때 어느 정도 예상하긴 했지만, 기대 이상이네. 이쁜이.
 앞으로 자주 와야겠는걸?","Compared to Chris, yours is a work of art.
 I had a feeling when I first saw you, but this exceeds expectations, cutie.
@@ -256,7 +256,7 @@ d2_aili_craft,27,say,aili,success,"응. 실패는 아니야.
 크리스 첫 술보단 이미 수십 배 낫다.","Right. Not a failure.
 Already dozens of times better than Chris's first drink.",dlg_d2_aili_craft_025,grade >= good && grade < excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_025,scene_d2_aili_craft,steps,26,steps_format_05
 d2_aili_craft,28,say,luna,default,보스의 술은 평가 기준으로 자주 사용되는군요.,The Boss's drink seems to be a frequently used benchmark.,dlg_d2_aili_craft_026,grade >= good && grade < excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_026,scene_d2_aili_craft,steps,27,steps_format_05
-d2_aili_craft,29,say,aili,default,안 좋은 쪽으로는 전설이지.,It's legendary — in the worst way.,dlg_d2_aili_craft_027,grade >= good && grade < excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_027,scene_d2_aili_craft,steps,28,steps_format_05
+d2_aili_craft,29,say,aili,default,안 좋은 쪽으로는 <pop peak=1.11 duration=0.12>전설이지.</pop>,It's legendary — in the worst way.,dlg_d2_aili_craft_027,grade >= good && grade < excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_027,scene_d2_aili_craft,steps,28,steps_format_05
 d2_aili_craft,30,say,aili,default,음……,Hmm......,dlg_d2_aili_craft_028,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_028,scene_d2_aili_craft,steps,29,steps_format_05
 d2_aili_craft,31,say,luna,default,맛이 없습니까?,Does it not taste good?,dlg_d2_aili_craft_029,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_029,scene_d2_aili_craft,steps,30,steps_format_05
 d2_aili_craft,32,say,aili,fail,"맛이 없다기보단.
@@ -264,14 +264,14 @@ d2_aili_craft,32,say,aili,fail,"맛이 없다기보단.
 It's just not the drink for me.",dlg_d2_aili_craft_030,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_030,scene_d2_aili_craft,steps,31,steps_format_05
 d2_aili_craft,33,say,luna,default,섹시한 레이디라는 기준이 아직 모호합니다.,The 'sexy lady' criterion remains ambiguous.,dlg_d2_aili_craft_031,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_031,scene_d2_aili_craft,steps,32,steps_format_05
 d2_aili_craft,34,say,aili,fail,"그걸 너무 진지하게 분석하지 마.
-그냥 느낌으로 가는 거야, 느낌.","Don't analyze it so seriously.
+그냥 <wave amp=0.55 hz=1.7 phase=0.6>느낌으로 가는 거야, 느낌.</wave>","Don't analyze it so seriously.
 You go by feel. Feel.",dlg_d2_aili_craft_032,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_032,scene_d2_aili_craft,steps,33,steps_format_05
 d2_aili_craft,35,say,luna,default,느낌이란 건 추상적이라 좀 어렵습니다.,"Feel is abstract, and therefore difficult.",dlg_d2_aili_craft_033,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_033,scene_d2_aili_craft,steps,34,steps_format_05
 d2_aili_craft,36,say,aili,default,인생은 원래 추상적이야. 그래서 재밌는 거지.,Life is abstract by nature. That's what makes it fun.,dlg_d2_aili_craft_034,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_034,scene_d2_aili_craft,steps,35,steps_format_05
 d2_aili_craft,37,say,aili,fail,……이쁜아.,......Cutie.,dlg_d2_aili_craft_035,grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_035,scene_d2_aili_craft,steps,36,steps_format_05
 d2_aili_craft,38,say,luna,default,네.,Yes.,dlg_d2_aili_craft_036,grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_036,scene_d2_aili_craft,steps,37,steps_format_05
 d2_aili_craft,39,say,aili,default,"아냐, 아냐. 오늘이 처음이니까 그럴 수 있지.","No, no. It's your first day — these things happen.",dlg_d2_aili_craft_037,grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_037,scene_d2_aili_craft,steps,38,steps_format_05
-d2_aili_craft,40,say,aili,fail,하지만 다음번에도 이렇게 만들어주면 나도 화낼 거라고.,"But serve me this again next time, and I will get angry.",dlg_d2_aili_craft_038,grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_038,scene_d2_aili_craft,steps,39,steps_format_05
+d2_aili_craft,40,say,aili,fail,하지만 다음번에도 이렇게 만들어주면 나도 <shake amp=0.5 hz=16>화낼 거라고.</shake>,"But serve me this again next time, and I will get angry.",dlg_d2_aili_craft_038,grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_038,scene_d2_aili_craft,steps,39,steps_format_05
 d2_aili_craft,41,say,luna,default,죄송합니다.,My apologies.,dlg_d2_aili_craft_039,grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_039,scene_d2_aili_craft,steps,40,steps_format_05
 d2_aili_craft,42,say,aili,default,"괜찮아.
 처음부터 잘하면 그것도 좀 무섭지.","It's fine.
@@ -288,11 +288,11 @@ d2_aili_craft,47,say,bubi,default,먀옹.,Meow.,dlg_d2_aili_craft_045,\N,\N,wait
 d2_aili_craft,48,say,aili,default,"봐봐. 문제없다고 하잖아.
 한 잔 만들어서 줘봐.","See? She says no problem.
 Go on, make her one.",dlg_d2_aili_craft_046,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_046,scene_d2_aili_craft,steps,47,steps_format_02
-d2_aili_craft,49,say,luna,default,(고양이가 좋아하는 칵테일… 그런 게 있는 건가?),(A cocktail cats enjoy... does such a thing exist?),dlg_d2_aili_craft_047,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_047,scene_d2_aili_craft,steps,48,steps_format_02
+d2_aili_craft,49,say,luna,default,(고양이가 좋아하는 칵테일… <wave amp=0.45 hz=1.4 phase=0.6>그런 게 있는 건가?</wave>),(A cocktail cats enjoy... does such a thing exist?),dlg_d2_aili_craft_047,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_047,scene_d2_aili_craft,steps,48,steps_format_02
 d2_aili_craft,50,order,bubi,exact:kahlua_milk,(고양이가 술을 마실 수 있었나?),(Could cats even drink alcohol?),dlg_d2_aili_craft_048,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_048,scene_d2_aili_craft,steps,49,steps_format_02
 d2_aili_craft,51,craft,\N,order,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_aili_craft_craft_51,scene_d2_aili_craft,steps,50,steps_format_03
 d2_aili_craft,52,serve,bubi,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_aili_craft_serve_52,scene_d2_aili_craft,steps,51,steps_format_04
-d2_aili_craft,53,say,bubi,default,미야아옹.,Meooow.,dlg_d2_aili_craft_049,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_049,scene_d2_aili_craft,steps,52,steps_format_05
+d2_aili_craft,53,say,bubi,default,<wave amp=0.55 hz=1.7 phase=0.6>미야아옹.</wave>,Meooow.,dlg_d2_aili_craft_049,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_049,scene_d2_aili_craft,steps,52,steps_format_05
 d2_aili_craft,54,say,luna,default,혹시 이건 무슨 반응입니까?,What sort of reaction is this?,dlg_d2_aili_craft_050,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_050,scene_d2_aili_craft,steps,53,steps_format_05
 d2_aili_craft,55,say,aili,success,좋아하는 것 같은데?,I'd say she likes it.,dlg_d2_aili_craft_051,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_051,scene_d2_aili_craft,steps,54,steps_format_05
 d2_aili_craft,56,say,luna,default,어떻게 아는 거죠?,How can you tell?,dlg_d2_aili_craft_052,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_052,scene_d2_aili_craft,steps,55,steps_format_05
@@ -300,7 +300,7 @@ d2_aili_craft,57,say,aili,default,"딱히 네 얼굴에 스크래치를 내거�
 d2_aili_craft,58,say,luna,default,원래 사나운 성격이었나 보네요.,So she is fierce by nature.,dlg_d2_aili_craft_054,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_054,scene_d2_aili_craft,steps,57,steps_format_05
 d2_aili_craft,59,say,bubi,default,먀옹.,Meow.,dlg_d2_aili_craft_055,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_055,scene_d2_aili_craft,steps,58,steps_format_05
 d2_aili_craft,60,say,aili,default,"실력이 꽤 괜찮나 보네.
-부비까지 만족시키다니.","Your skills must be decent.
+<pop peak=1.11 duration=0.12>부비까지 만족시키다니.</pop>","Your skills must be decent.
 Satisfying even Bubi, of all customers.",dlg_d2_aili_craft_056,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_056,scene_d2_aili_craft,steps,59,steps_format_05
 d2_aili_craft,61,say,luna,default,만족한 게 맞다면 다행이네요.,"If she is indeed satisfied, I am relieved.",dlg_d2_aili_craft_057,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_057,scene_d2_aili_craft,steps,60,steps_format_05
 d2_aili_craft,62,say,bubi,default,먀옹.,Meow.,dlg_d2_aili_craft_058,grade >= good && grade < excellent,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_058,scene_d2_aili_craft,steps,61,steps_format_05
@@ -330,7 +330,7 @@ d2_aili_craft,83,say,luna,default,"당신이랑 저만 남았네요.
 I do not yet understand cat language.",dlg_d2_aili_craft_075,flag.bubi_affinity_high,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_075,scene_d2_aili_craft,steps,81,steps_format_05
 d2_aili_craft,84,say,bubi,default,먀옹.,Meow.,dlg_d2_aili_craft_076,flag.bubi_affinity_high,\N,wait,\N,script/bar/day1,dlg_d2_aili_craft_076,scene_d2_aili_craft,steps,82,steps_format_05
 d2_aili_lady_q,1,say,luna,default,섹시한 레이디는 어떤 의미죠?,"What does 'sexy lady' mean, exactly?",dlg_d2_aili_lady_q_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_001,scene_d2_aili_lady_q,steps,0,steps_format_02
-d2_aili_lady_q,2,say,aili,default,"남녀 불문하고 내 매력에 빠져 돈이나 임플란트까지 뜯어다 바치는
+d2_aili_lady_q,2,say,aili,default,"남녀 불문하고 내 매력에 빠져 돈이나 <pop peak=1.14 duration=0.12>임플란트까지</pop> 뜯어다 바치는
 매력을 가진 레이디라는 거지.","It means a lady so charming that men and women alike fall for her
 and hand over their money — even their implants.",dlg_d2_aili_lady_q_002,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_002,scene_d2_aili_lady_q,steps,1,steps_format_02
 d2_aili_lady_q,3,say,luna,default,그런 적이 있나요?,Has that ever actually happened?,dlg_d2_aili_lady_q_003,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_003,scene_d2_aili_lady_q,steps,2,steps_format_02
@@ -343,8 +343,8 @@ scrambling to find me like dogs in heat.",dlg_d2_aili_lady_q_005,\N,\N,wait,\N,s
 d2_aili_lady_q,6,say,aili,default,"별것도 아닌 일로 왜 그렇게 피곤하게 하는지.
 정말 할 짓 없는 자식들이라니까?","All that fuss over nothing.
 Seriously, don't they have anything better to do?",dlg_d2_aili_lady_q_006,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_006,scene_d2_aili_lady_q,steps,5,steps_format_02
-d2_aili_lady_q,7,say,luna,default,그렇다면 섹시한 레이디란 건 많은 이들한테 쫓겨서 피곤한 사람이란 거네요.,So a 'sexy lady' is someone exhausted from being chased by many people.,dlg_d2_aili_lady_q_007,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_007,scene_d2_aili_lady_q,steps,6,steps_format_02
-d2_aili_lady_q,8,say,aili,default,"정확해. 내가 보기엔 루나 너도 재능이 충분히 있어 보여.
+d2_aili_lady_q,7,say,luna,default,그렇다면 섹시한 레이디란 건 많은 이들한테 <wave amp=0.45 hz=1.4 phase=0.6>쫓겨서 피곤한 사람</wave>이란 거네요.,So a 'sexy lady' is someone exhausted from being chased by many people.,dlg_d2_aili_lady_q_007,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_007,scene_d2_aili_lady_q,steps,6,steps_format_02
+d2_aili_lady_q,8,say,aili,default,"<pop peak=1.11 duration=0.12>정확해.</pop> 내가 보기엔 루나 너도 재능이 충분히 있어 보여.
 어때? 나한테 배워볼 생각은?","Exactly. And you know, Luna, I'd say you've got real talent.
 How about it? Want to learn from me?",dlg_d2_aili_lady_q_008,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_008,scene_d2_aili_lady_q,steps,7,steps_format_02
 d2_aili_lady_q,9,say,luna,default,거절합니다. 아직 일 시작한 지 하루밖에 되지 않았습니다.,I decline. I have only been on this job for one day.,dlg_d2_aili_lady_q_009,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_009,scene_d2_aili_lady_q,steps,8,steps_format_02
@@ -353,12 +353,12 @@ d2_aili_lady_q,10,say,aili,default,"쯧. 재미없게 하긴.온다고 하면 �
 Chris would nag me to death — what a hassle that'd be.",dlg_d2_aili_lady_q_010,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_010,scene_d2_aili_lady_q,steps,9,steps_format_02
 d2_aili_lady_q,11,say,aili,default,"뭐, 어쨌든 빨리 술 한 잔 만들어줘 봐.","Well, whatever. Hurry up and make me that drink.",dlg_d2_aili_lady_q_011,\N,\N,wait,\N,script/bar/day1,dlg_d2_aili_lady_q_011,scene_d2_aili_lady_q,steps,10,steps_format_02
 d2_bar_open,1,enter,chris,L,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_bar_open_enter_1,scene_d2_bar_open,steps,0,steps_format_01
-d2_bar_open,2,say,chris,default,오늘부터는 손님을 직접 받는다. 어제 배운 대로 할 수 있겠지?,"From tonight you take the guests yourself. You can do it the way I taught you, right?",dlg_d2_bar_open_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_001,scene_d2_bar_open,steps,1,steps_format_02
+d2_bar_open,2,say,chris,default,오늘부터는 <pop peak=1.14 duration=0.12>손님을 직접 받는다.</pop> 어제 배운 대로 할 수 있겠지?,"From tonight you take the guests yourself. You can do it the way I taught you, right?",dlg_d2_bar_open_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_001,scene_d2_bar_open,steps,1,steps_format_02
 d2_bar_open,3,say,luna,default,"코스터를 먼저 내고, 주문을 받고, 만들어서 코스터 위에 올린다.","Coaster first, then take the order, make it, and set it on the coaster.",dlg_d2_bar_open_002,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_002,scene_d2_bar_open,steps,2,steps_format_02
 d2_bar_open,4,say,chris,default,…외우긴 잘 외웠군. 손이 따라오는지는 해봐야 알겠지만.,...You memorized it well enough. Whether your hands follow is another matter.,dlg_d2_bar_open_003,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_003,scene_d2_bar_open,steps,3,steps_format_02
 d2_bar_open,5,say,luna,default,틀리면 어떻게 하죠?,What if I get it wrong?,dlg_d2_bar_open_004,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_004,scene_d2_bar_open,steps,4,steps_format_02
-d2_bar_open,6,say,chris,default,틀린 잔은 내가 물어준다. 두 번 틀리지만 마라.,I'll cover the wrong ones. Just don't make the same mistake twice.,dlg_d2_bar_open_005,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_005,scene_d2_bar_open,steps,5,steps_format_02
-d2_bar_open,7,say,chris,default,"좋아, 시작해보자. 간판 걸어라.",All right. Let's open. Go flip the sign.,dlg_d2_bar_open_006,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_006,scene_d2_bar_open,steps,6,steps_format_02
+d2_bar_open,6,say,chris,default,틀린 잔은 내가 물어준다. <shake amp=0.5 hz=16>두 번 틀리지만 마라.</shake>,I'll cover the wrong ones. Just don't make the same mistake twice.,dlg_d2_bar_open_005,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_005,scene_d2_bar_open,steps,5,steps_format_02
+d2_bar_open,7,say,chris,default,"좋아, 시작해보자. <pop peak=1.14 duration=0.12>간판 걸어라.</pop>",All right. Let's open. Go flip the sign.,dlg_d2_bar_open_006,\N,\N,wait,\N,script/bar/day1,dlg_d2_bar_open_006,scene_d2_bar_open,steps,6,steps_format_02
 d2_close,1,enter,chris,R,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_close_enter_1,scene_d2_close,steps,0,steps_format_01
 d2_close,2,say,chris,default,"루나.
 이제 슬슬 교대하자고.","Luna.
@@ -374,10 +374,10 @@ d2_close,6,say,chris,default,부비는 내가 돌봐줄 테니까 먼저 들어�
 d2_close,7,say,luna,default,"네, 보스.","Yes, Boss.",dlg_d2_close_006,!flag.bubi_affinity_high,\N,wait,\N,script/bar/day1,dlg_d2_close_006,scene_d2_close,steps,6,steps_format_05
 d2_close,8,say,chris,default,수고했어. 먼저 들어가 봐.,Good work. You head on home.,dlg_d2_close_007,!flag.bubi_affinity_high,\N,wait,\N,script/bar/day1,dlg_d2_close_007,scene_d2_close,steps,7,steps_format_05
 d2_close,9,say,luna,default,알겠습니다.,Understood.,dlg_d2_close_008,\N,\N,wait,\N,script/bar/day1,dlg_d2_close_008,scene_d2_close,steps,8,steps_format_02
-d2_close,10,say,chris,default,그래도 첫날치고는 잘했나 보네.,"Seems you did well, for a first day.",dlg_d2_close_009,\N,\N,wait,\N,script/bar/day1,dlg_d2_close_009,scene_d2_close,steps,9,steps_format_02
+d2_close,10,say,chris,default,그래도 <pop peak=1.11 duration=0.12>첫날치고는 잘했나 보네.</pop>,"Seems you did well, for a first day.",dlg_d2_close_009,\N,\N,wait,\N,script/bar/day1,dlg_d2_close_009,scene_d2_close,steps,9,steps_format_02
 d2_close,11,say,luna,default,잘했다는 걸 어떻게 아는 건가요?,How do you know I did well?,dlg_d2_close_010,\N,\N,wait,\N,script/bar/day1,dlg_d2_close_010,scene_d2_close,steps,10,steps_format_02
 d2_close,12,say,chris,default,"누가 소리 지르고 뭔갈 집어던지지는 않았잖아?
-그럼 잘한 거지.","Nobody screamed or threw anything, right?
+<wave amp=0.45 hz=1.4 phase=0.6>그럼 잘한 거지.</wave>","Nobody screamed or threw anything, right?
 Then you did well.",dlg_d2_close_011,\N,\N,wait,\N,script/bar/day1,dlg_d2_close_011,scene_d2_close,steps,11,steps_format_02
 d2_close,13,say,luna,default,아하… 확인했습니다.,Ah... confirmed.,dlg_d2_close_012,\N,\N,wait,\N,script/bar/day1,dlg_d2_close_012,scene_d2_close,steps,12,steps_format_02
 d2_close,14,say,chris,default,그래. 딴 길로 새지 말고 바로 들어가.,Right. No detours — go straight home.,dlg_d2_close_013,\N,\N,wait,\N,script/bar/day1,dlg_d2_close_013,scene_d2_close,steps,13,steps_format_02
@@ -386,13 +386,13 @@ d2_close,16,end_part,\N,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_close_
 d2_open,1,enter,chris,R,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_open_enter_1,scene_d2_open,steps,0,steps_format_01
 d2_open,2,say,chris,default,좋아. 그럼 부탁한다.,Alright. Then I'm counting on you.,dlg_d2_open_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_001,scene_d2_open,steps,1,steps_format_02
 d2_open,3,say,luna,default,"네, 크리스.","Yes, Chris.",dlg_d2_open_002,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_002,scene_d2_open,steps,2,steps_format_02
-d2_open,4,say,chris,default,보스.,Boss.,dlg_d2_open_003,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_003,scene_d2_open,steps,3,steps_format_02
+d2_open,4,say,chris,default,<pop peak=1.14 duration=0.12>보스.</pop>,Boss.,dlg_d2_open_003,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_003,scene_d2_open,steps,3,steps_format_02
 d2_open,5,say,luna,default,"네, 보스.","Yes, Boss.",dlg_d2_open_004,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_004,scene_d2_open,steps,4,steps_format_02
 d2_open,6,say,chris,default,"그래. 오늘이 첫날인데 너무 긴장하진 말고.
 물론 넌 안 할 것 같지만.","Good. It's your first day, so don't be too nervous.
 Not that you seem capable of it.",dlg_d2_open_005,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_005,scene_d2_open,steps,5,steps_format_02
 d2_open,7,say,luna,default,저도 긴장할 때가 있습니다.,I do get nervous sometimes.,dlg_d2_open_006,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_006,scene_d2_open,steps,6,steps_format_02
-d2_open,8,say,chris,default,..너가?,..You?,dlg_d2_open_007,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_007,scene_d2_open,steps,7,steps_format_02
+d2_open,8,say,chris,default,..<pop peak=1.11 duration=0.12>너가?</pop>,..You?,dlg_d2_open_007,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_007,scene_d2_open,steps,7,steps_format_02
 d2_open,9,say,luna,default,개와 흡사하게 생긴 사람을 보면 거부 반응을 일으킵니다.,I experience a rejection response when I see people who closely resemble dogs.,dlg_d2_open_008,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_008,scene_d2_open,steps,8,steps_format_02
 d2_open,10,say,chris,default,…무슨 이유인지 물어보진 않겠다.,...I'm not going to ask why.,dlg_d2_open_009,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_009,scene_d2_open,steps,9,steps_format_02
 d2_open,11,say,luna,default,"네, 보스.","Yes, Boss.",dlg_d2_open_010,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_010,scene_d2_open,steps,10,steps_format_02
@@ -405,18 +405,18 @@ d2_open,15,say,chris,default,"그래. 언제까지 놀고먹을 수는 없어.
 사회로 나왔으면 자기 몫은 해야지.","That's right. You can't freeload forever.
 You're out in the world now — pull your own weight.",dlg_d2_open_014,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_014,scene_d2_open,steps,14,steps_format_02
 d2_open,16,say,luna,default,"제가 생각하기엔 행복이란 건 
-일을 하지 않아도 되는 삶인 것 같습니다.","In my analysis, happiness is
+<wave amp=0.45 hz=1.4 phase=0.6>일을 하지 않아도 되는 삶</wave>인 것 같습니다.","In my analysis, happiness is
 a life where one does not have to work.",dlg_d2_open_015,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_015,scene_d2_open,steps,15,steps_format_02
-d2_open,17,say,chris,default,너 오늘 첫 출근이야. 앓는 소리는 짬 차면 해.,It's your first shift. Earn some seniority before you start whining.,dlg_d2_open_016,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_016,scene_d2_open,steps,16,steps_format_02
+d2_open,17,say,chris,default,너 오늘 <pop peak=1.11 duration=0.12>첫 출근</pop>이야. 앓는 소리는 짬 차면 해.,It's your first shift. Earn some seniority before you start whining.,dlg_d2_open_016,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_016,scene_d2_open,steps,16,steps_format_02
 d2_open,18,say,luna,default,노력해 보겠습니다.,I will make an effort.,dlg_d2_open_017,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_017,scene_d2_open,steps,17,steps_format_02
-d2_open,19,say,chris,default,또 몰래 재료 먹으면 안 돼.,And no sneaking bites of the ingredients again.,dlg_d2_open_018,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_018,scene_d2_open,steps,18,steps_format_02
+d2_open,19,say,chris,default,또 <shake amp=0.5 hz=16>몰래 재료 먹으면 안 돼.</shake>,And no sneaking bites of the ingredients again.,dlg_d2_open_018,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_018,scene_d2_open,steps,18,steps_format_02
 d2_open,20,say,luna,default,네. 알겠습니다.,Yes. Understood.,dlg_d2_open_019,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_019,scene_d2_open,steps,19,steps_format_02
 d2_open,21,say,chris,default,"그래, 간다.",Right. I'm off.,dlg_d2_open_020,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_020,scene_d2_open,steps,20,steps_format_02
 d2_open,22,exit,chris,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_open_exit_22,scene_d2_open,steps,21,steps_format_04
 d2_open,23,say,luna,default,……,......,dlg_d2_open_021,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_021,scene_d2_open,steps,22,steps_format_02
-d2_open,24,say,luna,default,이번엔 올리브를 한 번……,"This time, maybe an olive......",dlg_d2_open_022,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_022,scene_d2_open,steps,23,steps_format_02
+d2_open,24,say,luna,default,이번엔 <slow>올리브를 한 번</slow>……,"This time, maybe an olive......",dlg_d2_open_022,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_022,scene_d2_open,steps,23,steps_format_02
 d2_open,25,say,luna,default,……생각보다 기름지고 쓴맛이 느껴지네.,......Oilier and more bitter than expected.,dlg_d2_open_023,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_023,scene_d2_open,steps,24,steps_format_02
-d2_open,26,say,luna,default,이게 라임이었나?,Was this a lime?,dlg_d2_open_024,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_024,scene_d2_open,steps,25,steps_format_02
+d2_open,26,say,luna,default,이게 <wave amp=0.45 hz=1.4 phase=0.6>라임이었나?</wave>,Was this a lime?,dlg_d2_open_024,\N,\N,wait,\N,script/bar/day1,dlg_d2_open_024,scene_d2_open,steps,25,steps_format_02
 d2_port,1,enter,port,R,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_port_enter_1,scene_d2_port,steps,0,steps_format_01
 d2_port,2,say,port,default,뭐야. 진짜 여기서 일하고 있네.,What the. You really do work here.,dlg_d2_port_001,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_001,scene_d2_port,steps,1,steps_format_02
 d2_port,3,say,luna,default,아응넝하세요. 소응님.,"Wewcome in, shir. Guhd ebening.",dlg_d2_port_002,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_002,scene_d2_port,steps,2,steps_format_02
@@ -427,20 +427,20 @@ d2_port,7,say,luna,default,손님으로 온 건가요?,Are you here as a custome
 d2_port,8,say,port,default,당연하지. 내가 그럼 여기 일하러 왔을까 봐?,"Obviously. What, you think I came here to work?",dlg_d2_port_007,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_007,scene_d2_port,steps,7,steps_format_02
 d2_port,9,say,luna,default,확인했습니다. 혹시 옆에 있는 로봇은 무슨 로봇입니까?,"Confirmed. By the way, what is that robot next to you?",dlg_d2_port_008,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_008,scene_d2_port,steps,8,steps_format_02
 d2_port,10,say,port,default,뭐?,What?,dlg_d2_port_009,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_009,scene_d2_port,steps,9,steps_format_02
-d2_port,11,say,port,event_surprise,ㅁ..뭐야! 니미랄!!!,Wh..what the! Son of a—!!!,dlg_d2_port_010,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_010,scene_d2_port,steps,10,steps_format_02
+d2_port,11,say,port,event_surprise,ㅁ..<fast><shake amp=0.65 hz=18>뭐야! 니미랄!!!</shake></fast>,Wh..what the! Son of a—!!!,dlg_d2_port_010,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_010,scene_d2_port,steps,10,steps_format_02
 d2_port,12,say,luna,default,키우는 게 아니였군요.,So it is not a pet.,dlg_d2_port_011,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_011,scene_d2_port,steps,11,steps_format_02
 d2_port,13,say,port,default,흠.. 아까 폐기물 매립 구역에서 붙은 놈인가보군..,Hm.. must've latched onto me back at the waste landfill zone..,dlg_d2_port_012,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_012,scene_d2_port,steps,12,steps_format_02
 d2_port,14,say,port,default,이 놈도 이따 가서 한번 손 봐야겠어.,I'll have to take this one apart later too.,dlg_d2_port_013,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_013,scene_d2_port,steps,13,steps_format_02
 d2_port,15,say,luna,default,아재 주문을 부탁드립니다.,"Old-timer, your order, please.",dlg_d2_port_014,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_014,scene_d2_port,steps,14,steps_format_02
 d2_port,16,say,port,default,흠… 기다려 봐.,Hmm... hold on.,dlg_d2_port_015,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_015,scene_d2_port,steps,15,steps_format_02
-d2_port,17,say,luna,default,아쉽지만 '기다려 봐'라는 술은 없습니다.,"Unfortunately, we do not carry a drink called 'Hold On.'",dlg_d2_port_016,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_016,scene_d2_port,steps,16,steps_format_02
+d2_port,17,say,luna,default,아쉽지만 <wave amp=0.55 hz=1.7 phase=0.6>'기다려 봐'라는 술</wave>은 없습니다.,"Unfortunately, we do not carry a drink called 'Hold On.'",dlg_d2_port_016,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_016,scene_d2_port,steps,16,steps_format_02
 d2_port,18,say,port,default,야 이 또라이야 자꾸 그럴래?,"Hey, you lunatic, you gonna keep that up?",dlg_d2_port_017,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_017,scene_d2_port,steps,17,steps_format_02
 d2_port,19,say,port,default,크리스 이 자식은 대체 뭘 가르친 거야?,What the hell did Chris even teach you?,dlg_d2_port_018,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_018,scene_d2_port,steps,18,steps_format_02
 d2_port,20,say,luna,default,보스가 나머지는 일하면서 배우라고 했습니다.,Boss said I should learn the rest on the job.,dlg_d2_port_019,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_019,scene_d2_port,steps,19,steps_format_02
 d2_port,21,say,port,default,"어쩐지 나보고 오늘 일찍 끝내고 오라더니…
-이 썩을 놈이 날 교육 자료로 써?","No wonder he told me to close up early and come over...
+이 썩을 놈이 날 <pop peak=1.11 duration=0.12>교육 자료로 써?</pop>","No wonder he told me to close up early and come over...
 That rotten bastard's using me as training material?",dlg_d2_port_020,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_020,scene_d2_port,steps,20,steps_format_02
-d2_port,22,say,luna,default,교육 자료로 쓰기엔 많이 노후된 걸로 보입니다.,You appear too worn-out to serve as training material.,dlg_d2_port_021,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_021,scene_d2_port,steps,21,steps_format_02
+d2_port,22,say,luna,default,교육 자료로 쓰기엔 <pop peak=1.11 duration=0.12>많이 노후된</pop> 걸로 보입니다.,You appear too worn-out to serve as training material.,dlg_d2_port_021,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_021,scene_d2_port,steps,21,steps_format_02
 d2_port,23,say,port,default,……,......,dlg_d2_port_022,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_022,scene_d2_port,steps,22,steps_format_02
 d2_port,24,say,port,default,……일단 <name>진피즈</name> 한 잔 줘. 정석대로.,......Just get me a <name>Gin Fizz</name>. By the book.,dlg_d2_port_023,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_023,scene_d2_port,steps,23,steps_format_02
 d2_port,25,say,luna,default,"네, 손님.","Yes, sir.",dlg_d2_port_024,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_024,scene_d2_port,steps,24,steps_format_02
@@ -450,9 +450,9 @@ d2_port,28,craft,\N,order,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_port_cr
 d2_port,29,serve,port,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_port_serve_29,scene_d2_port,steps,28,steps_format_04
 d2_port,30,say,port,default,야!,Hey!,dlg_d2_port_027,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_027,scene_d2_port,steps,29,steps_format_05
 d2_port,31,say,luna,default,왜요?,Yes?,dlg_d2_port_028,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_028,scene_d2_port,steps,30,steps_format_05
-d2_port,32,say,port,default,이거 왜 맛있어?,Why does this taste good?,dlg_d2_port_029,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_029,scene_d2_port,steps,31,steps_format_05
+d2_port,32,say,port,default,이거 <pop peak=1.14 duration=0.12>왜 맛있어?</pop>,Why does this taste good?,dlg_d2_port_029,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_029,scene_d2_port,steps,31,steps_format_05
 d2_port,33,say,luna,default,혹시 주문이 맛없는 진피즈였습니까?,Was your order for a bad Gin Fizz?,dlg_d2_port_030,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_030,scene_d2_port,steps,32,steps_format_05
-d2_port,34,say,port,joy,아니. 그건 아니지만. 애송이가 만든 거라고 믿기지 않는군.,No. It's not that. Just hard to believe a greenhorn made this.,dlg_d2_port_031,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_031,scene_d2_port,steps,33,steps_format_05
+d2_port,34,say,port,joy,아니. 그건 아니지만. 애송이가 만든 거라고 <wave amp=0.45 hz=1.4 phase=0.6>믿기지 않는군.</wave>,No. It's not that. Just hard to believe a greenhorn made this.,dlg_d2_port_031,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_031,scene_d2_port,steps,33,steps_format_05
 d2_port,35,say,luna,default,"칭찬 감사합니다.
 나가실 때 추가 팁은 테이블 위에 올려두시면 됩니다.","Thank you for the compliment.
 Additional tips may be left on the table on your way out.",dlg_d2_port_032,grade >= excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_032,scene_d2_port,steps,34,steps_format_05
@@ -464,12 +464,12 @@ d2_port,40,say,luna,default,칭찬입니까?,Is that a compliment?,dlg_d2_port_0
 d2_port,41,say,port,joy,이제 막 시작한 애송이한테 이 정도면 칭찬이지.,"For a greenhorn who just started, that's a compliment, yeah.",dlg_d2_port_038,grade >= good && grade < excellent,\N,wait,\N,script/bar/day1,dlg_d2_port_038,scene_d2_port,steps,40,steps_format_05
 d2_port,42,say,port,serious,흐음.,Hmmm.,dlg_d2_port_039,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_port_039,scene_d2_port,steps,41,steps_format_05
 d2_port,43,say,luna,default,맛이 어떠십니까?,How does it taste?,dlg_d2_port_040,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_port_040,scene_d2_port,steps,42,steps_format_05
-d2_port,44,say,port,serious,진피즈긴 한데… 뭔가 어설퍼.,"It's a Gin Fizz, sure... but something's clumsy about it.",dlg_d2_port_041,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_port_041,scene_d2_port,steps,43,steps_format_05
+d2_port,44,say,port,serious,진피즈긴 한데… <wave amp=0.45 hz=1.4 phase=0.6>뭔가 어설퍼.</wave>,"It's a Gin Fizz, sure... but something's clumsy about it.",dlg_d2_port_041,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_port_041,scene_d2_port,steps,43,steps_format_05
 d2_port,45,say,luna,default,제조 과정에서 완성도가 부족했던 것 같습니다.,It appears the execution lacked polish.,dlg_d2_port_042,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_port_042,scene_d2_port,steps,44,steps_format_05
 d2_port,46,say,port,serious,마시는 데 지장은 없어. 다음엔 좀 더 정성 들여.,It's drinkable. Put more care into the next one.,dlg_d2_port_043,grade >= decent && grade < good,\N,wait,\N,script/bar/day1,dlg_d2_port_043,scene_d2_port,steps,45,steps_format_05
 d2_port,47,say,port,default,이야 대단한데?,"Wow, impressive.",dlg_d2_port_044,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_044,scene_d2_port,steps,46,steps_format_05
 d2_port,48,say,luna,default,네?,Pardon?,dlg_d2_port_045,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_045,scene_d2_port,steps,47,steps_format_05
-d2_port,49,say,port,serious,얼마나 자신있으면 시키지도 않은 술을 주는 거지?,How confident do you have to be to serve a drink nobody ordered?,dlg_d2_port_046,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_046,scene_d2_port,steps,48,steps_format_05
+d2_port,49,say,port,serious,얼마나 자신있으면 <pop peak=1.11 duration=0.12>시키지도 않은 술</pop>을 주는 거지?,How confident do you have to be to serve a drink nobody ordered?,dlg_d2_port_046,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_046,scene_d2_port,steps,48,steps_format_05
 d2_port,50,say,luna,default,죄송합니다. 레시피를 다른 것으로 찾은 것 같습니다.,My apologies. I appear to have pulled up the wrong recipe.,dlg_d2_port_047,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_047,scene_d2_port,steps,49,steps_format_05
 d2_port,51,say,port,serious,나 말고도 다른 손님한테 이러면 곤란할 텐데.,"You pull this on other customers, you're in trouble.",dlg_d2_port_048,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_048,scene_d2_port,steps,50,steps_format_05
 d2_port,52,say,luna,default,다시 만들어 드리겠습니다.,I will make it again.,dlg_d2_port_049,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_049,scene_d2_port,steps,51,steps_format_05
@@ -480,9 +480,9 @@ I'm not paying for it. Got it?",dlg_d2_port_051,grade >= poor && grade < decent,
 d2_port,55,say,luna,default,"네, 알겠습니다.","Yes, understood.",dlg_d2_port_052,grade >= poor && grade < decent,\N,wait,\N,script/bar/day1,dlg_d2_port_052,scene_d2_port,steps,54,steps_format_05
 d2_port,56,say,port,default,……,......,dlg_d2_port_053,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_053,scene_d2_port,steps,55,steps_format_05
 d2_port,57,say,luna,default,왜 아무 말도 없으십니까?,Why are you not saying anything?,dlg_d2_port_054,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_054,scene_d2_port,steps,56,steps_format_05
-d2_port,58,say,port,anger,이게 술이냐?,You call this a drink?,dlg_d2_port_055,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_055,scene_d2_port,steps,57,steps_format_05
+d2_port,58,say,port,anger,<shake amp=0.65 hz=18>이게 술이냐?</shake>,You call this a drink?,dlg_d2_port_055,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_055,scene_d2_port,steps,57,steps_format_05
 d2_port,59,say,luna,default,형식상으로는 그렇습니다.,"Technically, it qualifies as one.",dlg_d2_port_056,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_056,scene_d2_port,steps,58,steps_format_05
-d2_port,60,say,port,anger,"아니, 나는 내 미각을 마비시키는 무언가를 쓰레기라 부르기로 했어.",No. I've decided to call anything that paralyzes my taste buds garbage.,dlg_d2_port_057,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_057,scene_d2_port,steps,59,steps_format_05
+d2_port,60,say,port,anger,"아니, 나는 내 미각을 마비시키는 무언가를 <shake amp=0.5 hz=16>쓰레기</shake>라 부르기로 했어.",No. I've decided to call anything that paralyzes my taste buds garbage.,dlg_d2_port_057,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_057,scene_d2_port,steps,59,steps_format_05
 d2_port,61,say,luna,default,손님의 감각 기관에 손상을 줄 의도는 없었습니다.,There was no intent to damage your sensory organs.,dlg_d2_port_058,grade < poor,\N,wait,\N,script/bar/day1,dlg_d2_port_058,scene_d2_port,steps,60,steps_format_05
 d2_port,62,say,port,anger,"사람한테 총을 쏴 놓고 고의가 아니라고 하는 등신 같은 갱놈들 같군.
 기회를 주지. 다시 만들어.","You sound like those idiot gangers who shoot a man and claim it wasn't on purpose.
@@ -495,9 +495,9 @@ d2_port,67,craft,\N,order,\N,\N,\N,flag.d2_port_retry,\N,wait,\N,script/bar/day1
 d2_port,68,serve,port,\N,\N,\N,\N,flag.d2_port_retry,\N,wait,\N,script/bar/day1,step_d2_port_serve_68,scene_d2_port,steps,67,steps_format_11
 d2_port,69,say,port,default,네가 아무리 못 만들어도 크리스가 처음 만든 술보다는 훨씬 낫지.,"However badly you make it, it's still miles better than Chris's first drink.",dlg_d2_port_063,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_063,scene_d2_port,steps,68,steps_format_02
 d2_port,70,say,luna,default,보스가 만든 술은 맛이 없었습니까?,Was the Boss's drink that bad?,dlg_d2_port_064,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_064,scene_d2_port,steps,69,steps_format_02
-d2_port,71,say,port,serious,마시면 인생을 다시 생각하게 되는 맛이었지.,It was the kind of taste that makes you reconsider your whole life.,dlg_d2_port_065,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_065,scene_d2_port,steps,70,steps_format_02
+d2_port,71,say,port,serious,마시면 <wave amp=0.45 hz=1.4 phase=0.6>인생을 다시 생각하게 되는 맛</wave>이었지.,It was the kind of taste that makes you reconsider your whole life.,dlg_d2_port_065,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_065,scene_d2_port,steps,70,steps_format_02
 d2_port,72,say,luna,default,철학적인 맛이었나 보네요.,"A philosophical flavor, it seems.",dlg_d2_port_066,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_066,scene_d2_port,steps,71,steps_format_02
-d2_port,73,say,port,serious,"아니. 대체 어쩌다 내가 휘발유 맛이 나는 술을 마시고 있는
+d2_port,73,say,port,serious,"아니. 대체 어쩌다 내가 <pop peak=1.14 duration=0.12>휘발유 맛</pop>이 나는 술을 마시고 있는
 인생을 살게 되었는지 생각한 거야.","No. I mean I sat there wondering how my life had come to the point
 where I was drinking something that tasted like gasoline.",dlg_d2_port_067,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_067,scene_d2_port,steps,72,steps_format_02
 d2_port,74,say,luna,default,지금은 어떤가요?,And now?,dlg_d2_port_068,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_068,scene_d2_port,steps,73,steps_format_02
@@ -505,12 +505,12 @@ d2_port,75,say,port,serious,"처음보단 나아졌지만 여전히 쓰레기지
 무슨 수로 지금까지 버틴 건지 참……","Better than at first, but still garbage.
 How this place survived is beyond me......",dlg_d2_port_069,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_069,scene_d2_port,steps,74,steps_format_02
 d2_port,76,say,luna,default,이전에 보스가 바를 닫으려고 생각한 적이 있다고 했습니다.,The Boss once mentioned he'd thought about closing the bar.,dlg_d2_port_070,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_070,scene_d2_port,steps,75,steps_format_02
-d2_port,77,say,port,anger,뭐? 이 썩을 놈이 이 가게가 어떤 곳인 줄 알고 문을 닫아.,"What? That rotten punk — does he even know what this place is, talking about closing it?",dlg_d2_port_071,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_071,scene_d2_port,steps,76,steps_format_02
+d2_port,77,say,port,anger,뭐? 이 썩을 놈이 이 가게가 어떤 곳인 줄 알고 <shake amp=0.65 hz=18>문을 닫아.</shake>,"What? That rotten punk — does he even know what this place is, talking about closing it?",dlg_d2_port_071,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_071,scene_d2_port,steps,76,steps_format_02
 d2_port,78,say,luna,default,보스가 운영하던 가게가 아니었습니까?,Was it not the Boss's bar to begin with?,dlg_d2_port_072,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_072,scene_d2_port,steps,77,steps_format_02
-d2_port,79,say,port,serious,원래 이 바의 주인은 조니라는 친구였지.,The original owner of this bar was a guy named Johnny.,dlg_d2_port_073,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_073,scene_d2_port,steps,78,steps_format_02
-d2_port,80,say,port,serious,조니가 있었으면 언노운이 이렇게 되진 않았을 텐데.,"If Johnny were still around, Unknown wouldn't have ended up like this.",dlg_d2_port_074,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_074,scene_d2_port,steps,79,steps_format_02
+d2_port,79,say,port,serious,원래 이 바의 주인은 <slow>조니라는 친구</slow>였지.,The original owner of this bar was a guy named Johnny.,dlg_d2_port_073,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_073,scene_d2_port,steps,78,steps_format_02
+d2_port,80,say,port,serious,조니가 있었으면 언노운이 <wave amp=0.45 hz=1.4 phase=0.6>이렇게 되진 않았을 텐데.</wave>,"If Johnny were still around, Unknown wouldn't have ended up like this.",dlg_d2_port_074,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_074,scene_d2_port,steps,79,steps_format_02
 d2_port,81,say,luna,default,……,......,dlg_d2_port_075,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_075,scene_d2_port,steps,80,steps_format_02
-d2_port,82,say,port,default,"그래도 루나 널 보니 뭔가 달라질 수도 있을 것 같네.
+d2_port,82,say,port,default,"그래도 루나 널 보니 뭔가 <wave amp=0.45 hz=1.4 phase=0.6>달라질 수도 있을 것 같네.</wave>
 아직 애송이지만 말이야.","Still, looking at you, Luna, maybe things could change around here.
 Even if you're still a greenhorn.",dlg_d2_port_076,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_076,scene_d2_port,steps,81,steps_format_02
 d2_port,83,say,port,default,계속 크리스가 운영했었으면 십중팔구 갱단 아지트가 되었겠지.,"If Chris had kept running it alone, odds are it'd be a gang hideout by now.",dlg_d2_port_077,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_077,scene_d2_port,steps,82,steps_format_02
@@ -532,14 +532,14 @@ d2_port,94,say,port,default,그나저나 내가 첫 손님인데 부탁 하나 �
 d2_port,95,say,luna,default,여기는 유흥업소가 아닙니다.,This is not that kind of establishment.,dlg_d2_port_089,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_089,scene_d2_port,steps,94,steps_format_02
 d2_port,96,say,port,default,뭔 헛소리야? 그딴 주문 말고 다른 거.,What kind of nonsense is that? Not that kind of favor — something else.,dlg_d2_port_090,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_090,scene_d2_port,steps,95,steps_format_02
 d2_port,97,say,luna,default,말씀하세요.,Go ahead.,dlg_d2_port_091,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_091,scene_d2_port,steps,96,steps_format_02
-d2_port,98,say,port,default,"밖에 나가면 고양이 한 마리가 자고 있을 텐데.
+d2_port,98,say,port,default,"밖에 나가면 <pop peak=1.11 duration=0.12>고양이 한 마리</pop>가 자고 있을 텐데.
 데리고 와줘.","There should be a cat sleeping right outside.
 Bring it in for me.",dlg_d2_port_092,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_092,scene_d2_port,steps,97,steps_format_02
 d2_port,99,say,luna,default,혹시 바텐더 업무에 야생동물 포획이 포함되는 겁니까?,Does bartending duty include the capture of wild animals?,dlg_d2_port_093,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_093,scene_d2_port,steps,98,steps_format_02
 d2_port,100,say,port,joy,"내가 부탁이라고 했잖아. 나도 어찌 보면 생명의 은인인데,
 이 정도는 해 줄 수 있지?","I said it was a favor. I did save your life, in a manner of speaking —
 you can do this much for me, right?",dlg_d2_port_094,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_094,scene_d2_port,steps,99,steps_format_02
-d2_port,101,say,luna,default,보수가 충분하다면 못 할 일은 아닙니다.,"Given sufficient compensation, it is not impossible.",dlg_d2_port_095,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_095,scene_d2_port,steps,100,steps_format_02
+d2_port,101,say,luna,default,<pop peak=1.11 duration=0.12>보수가 충분하다면</pop> 못 할 일은 아닙니다.,"Given sufficient compensation, it is not impossible.",dlg_d2_port_095,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_095,scene_d2_port,steps,100,steps_format_02
 d2_port,102,say,port,serious,"…내가 아주 골치 아픈 놈을 고쳐놨군.
 알겠으니까 부탁하지.","...I really fixed up one troublesome piece of work.
 Fine, fine. Please.",dlg_d2_port_096,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_096,scene_d2_port,steps,101,steps_format_02
@@ -556,7 +556,7 @@ d2_port,111,say,port,joy,"맞아. 그럼 먼저 일어난다.
 잘 부탁할게.","That's right. Well, I'm off.
 Take good care of her.",dlg_d2_port_103,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_103,scene_d2_port,steps,109,steps_format_02
 d2_port,112,say,luna,default,네? 어디 가세요?,Pardon? Where are you going?,dlg_d2_port_104,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_104,scene_d2_port,steps,110,steps_format_02
-d2_port,113,say,port,joy,크크. 오랜만에 제대로 된 작업을 할 수 있겠구먼.,"Heh heh. Finally, some proper work after all this time.",dlg_d2_port_105,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_105,scene_d2_port,steps,111,steps_format_02
+d2_port,113,say,port,joy,크크. 오랜만에 <slow>제대로 된 작업</slow>을 할 수 있겠구먼.,"Heh heh. Finally, some proper work after all this time.",dlg_d2_port_105,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_105,scene_d2_port,steps,111,steps_format_02
 d2_port,114,exit,port,\N,\N,\N,\N,\N,\N,wait,\N,script/bar/day1,step_d2_port_exit_114,scene_d2_port,steps,112,steps_format_04
 d2_port,115,say,luna,default,……,......,dlg_d2_port_106,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_106,scene_d2_port,steps,113,steps_format_02
 d2_port,116,say,bubi,default,먀옹.,Meow.,dlg_d2_port_107,\N,\N,wait,\N,script/bar/day1,dlg_d2_port_107,scene_d2_port,steps,114,steps_format_02

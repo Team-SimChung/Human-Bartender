@@ -15,6 +15,9 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         public CancellationTokenSource Reveal;
         public bool Skipped;
         public bool Revealing;
+        public bool ReducedMotion;
+        public bool ShakeSpanNotified;
+        public bool[] VisibleGlyphs;
         public CancellationTokenRegistration ExternalRegistration;
         public CancellationTokenRegistration DestroyRegistration;
     }
@@ -36,6 +39,10 @@ public sealed class DialogueTextPlayer : MonoBehaviour
 
     public int CurrentSessionId => current?.Id ?? 0;
     public bool IsHolding => current != null && !current.Revealing;
+
+    // Presentation cues describe the revealed text; subscribers choose the response.
+    public event Action ShakeSpanRevealed;
+    public event Action MotionStopped;
 
     public async UniTask PlayAsync(TypingData data, NewTextTagDataSO tags, float defaultDelay,
         CancellationToken external = default, string cocktailName = null)
@@ -71,6 +78,9 @@ public sealed class DialogueTextPlayer : MonoBehaviour
                 animator.SetVisible(visible, Time.time, false);
                 if (visible == i + 1) DialogueTypingAudio.TryPlay(sound,
                     DialoguePresentationSettings.Shared, line.Text, bubble.textLabel.textInfo.characterInfo[i]);
+                NotifyShakeSpan(session, i, visible);
+                source.Token.ThrowIfCancellationRequested();
+                if (!ReferenceEquals(current, session)) throw new OperationCanceledException();
                 i = visible;
             }
             await Wait(line.WaitBefore[count], source.Token);
@@ -109,18 +119,51 @@ public sealed class DialogueTextPlayer : MonoBehaviour
             line = DialogueTextCompiler.Compile(DialogueTextFallback.Readable(text), null, settings, null, speed);
         }
         bubble.PrepareForText(line.Text);
+        // Bubble preparation may already rebuild with maxVisibleCharacters = 0.
+        // Capture the full layout before hiding it again below, in the same synchronous call.
+        bubble.textLabel.maxVisibleCharacters = int.MaxValue;
+        bubble.textLabel.ForceMeshUpdate(true, true);
         line.Bind(bubble.textLabel.textInfo);
-        var session = new Session { Id = ++nextId, Line = line };
+        var session = new Session
+        {
+            Id = ++nextId, Line = line,
+            ReducedMotion = settings != null && settings.ReducedMotion,
+            VisibleGlyphs = new bool[line.Characters.Length]
+        };
+        // Capture from the full layout: TMP can mark unrevealed glyphs invisible later.
+        for (int i = 0; i < session.VisibleGlyphs.Length; i++)
+        {
+            var ch = bubble.textLabel.textInfo.characterInfo[i];
+            session.VisibleGlyphs[i] = ch.isVisible && ch.elementType == TMP_TextElementType.Character;
+        }
         current = session;
         try
         {
             bubble.textLabel.maxVisibleCharacters = instant ? line.Characters.Length : 0;
             bubble.UpdateForVisible(instant ? line.Characters.Length : 0);
-            animator.Bind(bubble.textLabel, line, settings != null && settings.ReducedMotion);
+            animator.Bind(bubble.textLabel, line, session.ReducedMotion);
             animator.SetVisible(instant ? line.Characters.Length : 0, Time.time, instant);
         }
         catch { Stop(); throw; }
         return session;
+    }
+
+    void NotifyShakeSpan(Session session, int first, int end)
+    {
+        if (session.ReducedMotion) return;
+        for (int i = first; i < end; i++)
+        {
+            var style = session.Line.Characters[i];
+            if (!style.Shake || style.ShakeAmp <= 0f || style.ShakeHz <= 0f)
+            {
+                session.ShakeSpanNotified = false;
+                continue;
+            }
+            if (session.ShakeSpanNotified || !session.VisibleGlyphs[i]) continue;
+            session.ShakeSpanNotified = true;
+            ShakeSpanRevealed?.Invoke();
+            if (!ReferenceEquals(current, session) || session.Skipped) return;
+        }
     }
 
     static UniTask Wait(float seconds, CancellationToken token) => seconds <= 0f
@@ -139,8 +182,10 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public void Skip()
     {
         if (current == null || !current.Revealing || current.Skipped) return;
-        current.Skipped = true;
-        current.Reveal?.Cancel();
+        var session = current;
+        session.Skipped = true;
+        MotionStopped?.Invoke();
+        session.Reveal?.Cancel();
     }
 
     public void Stop()
@@ -152,6 +197,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         old.ExternalRegistration.Dispose();
         old.DestroyRegistration.Dispose();
         animator?.Clear();
+        MotionStopped?.Invoke();
     }
 
     void Close(Session session)

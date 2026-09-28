@@ -69,6 +69,12 @@ public class UIDialogueTextView : MonoBehaviour
     private TypingData curTypingData;
     private DialogueTextPlayer currentPlayer;
 
+    public event Action ShakeSpanRevealed;
+    public event Action MotionStopped;
+
+    void ForwardShakeSpan() => ShakeSpanRevealed?.Invoke();
+    void ForwardMotionStopped() => MotionStopped?.Invoke();
+
     [SerializeField] private float defaultTypingDelay = 0.05f;
 
     void Start()
@@ -172,8 +178,13 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>진행 중인 타이핑 코루틴을 취소한다.</summary>
     public void StopTyping()
     {
-        currentPlayer?.Stop();
+        var player = currentPlayer;
         currentPlayer = null;
+        if (player == null) return;
+        player.ShakeSpanRevealed -= ForwardShakeSpan;
+        player.MotionStopped -= ForwardMotionStopped;
+        player.Stop();
+        MotionStopped?.Invoke();
     }
 
     /// <summary>
@@ -188,6 +199,8 @@ public class UIDialogueTextView : MonoBehaviour
         var player = bubble.TextPlayer;
         player.ConfigureAudio(soundManager);
         currentPlayer = player;
+        player.ShakeSpanRevealed += ForwardShakeSpan;
+        player.MotionStopped += ForwardMotionStopped;
         UniTask playback = DialogueTypingService.TypeSentenceTMP(data, bubble, textTagData,
             defaultTypingDelay, token, cocktailName);
         int sessionId = player.CurrentSessionId;

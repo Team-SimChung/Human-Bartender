@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92e667f963054e9fabb743553f6497ac, type: 3}
   m_Name: DialoguePresentationSettings
   m_EditorClassIdentifier:
-  ShakeAmplitude: 1.5
+  ShakeAmplitude: 0.7
   ShakeFrequency: 18
   WaveAmplitude: 2
   WaveFrequency: 2
@@ -30,7 +30,7 @@ MonoBehaviour:
     TypingIntervalMs: 20
     PauseBeforeMs: 150
     PauseAfterMs: 0
-    Amplitude: 0.8
+    Amplitude: 0.5
     Frequency: 14
   - Id: mutter
     Motion: 1
@@ -40,7 +40,7 @@ MonoBehaviour:
     TypingIntervalMs: 0
     PauseBeforeMs: 0
     PauseAfterMs: 0
-    Amplitude: 0.8
+    Amplitude: 0.4
     Frequency: 14
   - Id: burst
     Motion: 0
@@ -80,7 +80,7 @@ MonoBehaviour:
     TypingIntervalMs: 120
     PauseBeforeMs: 180
     PauseAfterMs: 0
-    Amplitude: 1.1
+    Amplitude: 0.55
     Frequency: 17
   - Id: command
     Motion: 1
@@ -90,7 +90,7 @@ MonoBehaviour:
     TypingIntervalMs: 20
     PauseBeforeMs: 250
     PauseAfterMs: 0
-    Amplitude: 1.1
+    Amplitude: 0.6
     Frequency: 17
   - Id: encourage
     Motion: 2
@@ -110,5 +110,5 @@ MonoBehaviour:
     TypingIntervalMs: 0
     PauseBeforeMs: 0
     PauseAfterMs: 0
-    Amplitude: 1.2
+    Amplitude: 0.65
     Frequency: 18

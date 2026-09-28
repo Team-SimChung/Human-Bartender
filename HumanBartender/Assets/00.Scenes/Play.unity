@@ -7305,8 +7305,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
-    height: 0.99953836
+    width: 0.99987507
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -8135,7 +8135,7 @@ MonoBehaviour:
   storyOnlyObjects:
   - {fileID: 664356993}
   skipTycoonForTest: 0
-  testDay: 1
+  testDay: -1
 --- !u!1 &958751542
 GameObject:
   m_ObjectHideFlags: 0
@@ -14954,6 +14954,7 @@ GameObject:
   - component: {fileID: 1715343634}
   - component: {fileID: 1715343633}
   - component: {fileID: 1715343637}
+  - component: {fileID: 1715343638}
   m_Layer: 0
   m_Name: CM_GamePlay
   m_TagString: Untagged
@@ -15082,6 +15083,20 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
+--- !u!114 &1715343638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715343631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d012f27d183e4d68b7b8eea34cfd907c, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::VerticalCameraImpulse
+  amplitude: 0.04
+  duration: 0.11
 --- !u!1 &1730174764
 GameObject:
   m_ObjectHideFlags: 0
@@ -18839,7 +18854,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2013979234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19732,6 +19747,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2098874043}
   m_CullTransparentMesh: 1
+--- !u!1001 &2106000000
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2013979237}
+    m_Modifications:
+    - target: {fileID: 305, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
+      propertyPath: rootCanvas
+      value: 
+      objectReference: {fileID: 2013979236}
+    - target: {fileID: 405, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
+      propertyPath: rootCanvas
+      value: 
+      objectReference: {fileID: 2013979236}
+    - target: {fileID: 505, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
+      propertyPath: rootCanvas
+      value: 
+      objectReference: {fileID: 2013979236}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
+--- !u!224 &2106000001 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 101, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
+  m_PrefabInstance: {fileID: 2106000000}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2117660005
 GameObject:
   m_ObjectHideFlags: 0
@@ -20373,33 +20418,3 @@ SceneRoots:
   - {fileID: 749266212}
   - {fileID: 957151668}
   - {fileID: 1330551590}
---- !u!1001 &2106000000
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 2013979237}
-    m_Modifications:
-    - target: {fileID: 305, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
-      propertyPath: rootCanvas
-      value: 
-      objectReference: {fileID: 2013979236}
-    - target: {fileID: 405, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
-      propertyPath: rootCanvas
-      value: 
-      objectReference: {fileID: 2013979236}
-    - target: {fileID: 505, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
-      propertyPath: rootCanvas
-      value: 
-      objectReference: {fileID: 2013979236}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
---- !u!224 &2106000001 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 101, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
-  m_PrefabInstance: {fileID: 2106000000}
-  m_PrefabAsset: {fileID: 0}

@@ -28,14 +28,28 @@ public class PlayPhaseController : MonoBehaviour
     [Tooltip("2부에만 보이는 것. 좌석 인물(Story Resource).")]
     [SerializeField] GameObject[] storyOnlyObjects;
 
-    [Header("Test")]
+#if UNITY_EDITOR
+    [Header("Test (Editor Only)")]
     [Tooltip("켜면 1부를 건너뛰고 곧장 2부를 연다. 2부 대본만 확인할 때 쓴다. " +
              "일차는 바꾸지 않는다. 아래 Test Day가 따로 정한다.")]
     [SerializeField] bool skipTycoonForTest;
 
-    [Tooltip("테스트용 진행 일차. 음수면 실제 일차를 그대로 둔다. " +
-             "0일차도 실제로 쓰는 값이므로 음수를 비활성 값으로 사용한다.")]
+    [Tooltip("Play 씬을 에디터에서 직접 실행할 때만 적용할 일차. 정상 출근/새 게임/불러오기는 일차를 유지한다. " +
+             "음수면 직접 실행 테스트를 끈다. 빌드에는 적용되지 않는다.")]
     [SerializeField] int testDay = -1;
+#endif
+
+    bool SkipTycoonForTest
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return skipTycoonForTest;
+#else
+            return false;
+#endif
+        }
+    }
 
     long nextOperationId;
     long currentOperationId;
@@ -54,15 +68,6 @@ public class PlayPhaseController : MonoBehaviour
     public long CurrentOperationId
     {
         get { return currentOperationId; }
-    }
-
-    void Awake()
-    {
-        if (testDay < 0) return;
-
-        GameStateManager.Instance.CurrentDay = testDay;
-        Debug.LogWarning($"[PlayPhase] 테스트 설정으로 진행 일차를 {testDay}일차로 바꿨습니다. " +
-                         "실제 일차로 돌리려면 PlayPhaseController의 Test Day를 음수로 두세요.");
     }
 
     void Start()
@@ -87,7 +92,7 @@ public class PlayPhaseController : MonoBehaviour
             return new PlayPhaseRunRequest(rejectedResult);
         }
 
-        if (!skipTycoonForTest && tycoonFlow == null)
+        if (!SkipTycoonForTest && tycoonFlow == null)
         {
             PlayPhaseRunResult rejectedResult = new(
                 PlayPhaseRunOutcome.Rejected,
@@ -213,17 +218,24 @@ public class PlayPhaseController : MonoBehaviour
             GameProgressionResult entry = await progression.WaitForBarEntryAsync(cancellationToken);
             if (entry.Outcome == GameProgressionOutcome.Canceled)
                 throw new OperationCanceledException(entry.Message, cancellationToken);
-            if (!entry.Succeeded && Application.isEditor && testDay >= 0 &&
+#if UNITY_EDITOR
+            // A managed arrival already owns the day. Only an explicit direct-scene test may override it.
+            if (!entry.Succeeded && testDay >= 0 &&
                 entry.Outcome == GameProgressionOutcome.Rejected)
-                Debug.LogWarning("[PlayPhase] 명시적 Test Day로 Play 씬을 직접 실행합니다.");
-            else if (!entry.Succeeded)
+            {
+                GameStateManager.Instance.CurrentDay = testDay;
+                Debug.LogWarning($"[PlayPhase] 명시적 Test Day {testDay}로 Play 씬을 직접 실행합니다.");
+            }
+            else
+#endif
+            if (!entry.Succeeded)
                 throw new InvalidOperationException(entry.Message ?? "바 입장에 실패했습니다.", entry.Error);
 
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             settlement?.Init();
 
-            if (skipTycoonForTest)
+            if (SkipTycoonForTest)
             {
                 Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
                                  "PlayPhaseController의 Skip Tycoon For Test를 끄면 원래대로 돌아옵니다.");

@@ -20,19 +20,27 @@ Unity Project 창의 `Assets/Resources/DialoguePresentationSettings.asset`을 �
 기존 직접 태그도 계속 사용할 수 있습니다. 한 문장에만 필요한 특수 연출에 사용하세요.
 
 ```text
-이 잔을 <color=#FF5555><size=130%><shake amp=1.5 hz=18>또</shake></size></color> 버렸다고<pop peak=1.2 duration=0.12><size=150%>!</size></pop>
+이 잔을 <color=#FF5555><size=130%><shake amp=0.7 hz=18>또</shake></size></color> 버렸다고<pop peak=1.2 duration=0.12><size=150%>!</size></pop>
 ```
 
 - TMP 표준 `<color=#RRGGBB>`, `<size=130%>`는 정적 색과 크기입니다. `<big>`·`<small>`과 `<world>`·`<name>`·`<order>`는 `settings/text_tags.csv` 값으로 치환됩니다.
 - `<slow>`·`<fast>`는 같은 CSV의 `speed_ms`를 사용합니다. 가장 안쪽 속도가 우선하며 닫으면 바깥 속도로 돌아갑니다.
 - `<300>`은 다음 글자 전 300ms 대기입니다. 연달아 쓰면 합산합니다. 마지막 글자 뒤에도 쓸 수 있습니다.
-- `<shake amp=1.5 hz=18>`은 해당 글자의 TMP 정점을 계속 떱니다. `amp`는 라벨의 로컬 단위, `hz`는 초당 주기입니다.
+- `<shake amp=0.7 hz=18>`은 해당 글자의 TMP 정점을 계속 떱니다. `amp`는 라벨의 로컬 단위, `hz`는 초당 주기입니다.
 - `<wave amp=2 hz=2 phase=0.65>`는 각 글자를 위아래로 움직입니다. `phase`는 글자 사이 라디안 간격입니다.
 - `<pop peak=1.2 duration=0.12>`은 각 글자가 공개될 때 TMP가 계산한 정적 크기를 잠깐 확대합니다. 첫 35% 동안 1.0→peak, 나머지 동안 peak→1.0입니다.
 - 같은 종류를 중첩하면 가장 안쪽 정의가 우선합니다. 서로 다른 종류는 Pop 확대 후 위치 이동 순서로 합성합니다.
 - 효과 속성 생략값과 동작 감소 옵션은 `Assets/Resources/DialoguePresentationSettings.asset` 한 곳에서 편집합니다. `big/slow` 등 CSV 별칭 값은 이 에셋에 복사하지 않습니다.
 - 스킵은 남은 글자를 즉시 보이며 남은 대기와 새 Pop을 생략합니다. 이미 보인 글자의 Shake/Wave는 다음 대사까지 유지됩니다. 손님 Bark는 기존처럼 즉시 표시합니다.
 - 현재 타이핑음 키가 비어 있어 무음입니다. 적절한 SE 클립이 실제로 등록된 후에만 키를 지정하세요.
+
+## Play 씬 카메라 반응
+
+Play의 대사 타이핑 중 Shake가 적용된 연속 구간의 첫 보이는 글자에서 Y축 카메라 펄스를 한 번 재생합니다. `<shake>`와 Shake 프리셋 모두 컴파일된 글자 스타일을 기준으로 하므로 별도 카메라 태그나 대사 ID 목록이 필요하지 않습니다. 붙어 있는 Shake 구간은 하나로 취급하고, 일반 글자를 사이에 두면 다음 구간에서 다시 요청합니다. 공백·줄바꿈·스프라이트만 있는 구간, 진폭/주파수가 0인 구간은 요청하지 않습니다.
+
+`Play` 씬의 `CM_GamePlay → Vertical Camera Impulse`에서 이동 강도(`Amplitude`, 월드 단위)와 시간(`Duration`, 초)을 조절합니다. 초기값은 0.04 / 0.11초입니다. 처음 30% 동안 약 4 소스 픽셀만큼 위로 즉시 움직여 잠깐 멈추고, 다음 35% 동안 반대 방향으로 1픽셀 되받은 뒤 원위치로 돌아옵니다(Play 씬 100 PPU 기준). 재생 중 들어온 추가 요청은 겹치지 않습니다. Cinemachine의 Noise 단계에서 Y 위치에만 보정을 더하므로 추적 타깃과 기존 이동·줌 설정은 변경하지 않습니다. 화면 경계 제한 뒤에 적용되므로 배경 가장자리에서는 최대 진폭만큼 여유가 필요합니다.
+
+스킵·취소·대사 교체·뷰 비활성화는 진행 중인 펄스를 중지합니다. 즉시 표시(Bark 포함)와 `ReducedMotion`에서는 새 펄스를 만들지 않습니다. 이 연결은 Play 씬의 대사 뷰에만 등록되어 있습니다.
 
 ## 프리뷰
 

@@ -171,6 +171,37 @@ public sealed class DialogueFxTests
         }
     }
 
+    [TestCase("script/bar/day0", 20)]
+    [TestCase("script/bar/day1", 40)]
+    public void BarScriptEffectLinesCompileAndBind(string source, int minimumLines)
+    {
+        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
+        var script = CsvDataReader.LoadDirectory(directory).Read<NewDayScriptBase>(source);
+        int checkedLines = 0;
+        foreach (var step in script.Scenes.SelectMany(scene => scene.Steps))
+        {
+            if (!step.Text.HasValue) continue;
+            string raw = step.Text.Value.Ko;
+            if (string.IsNullOrEmpty(raw) ||
+                !(raw.Contains("<shake") || raw.Contains("<wave") || raw.Contains("<pop") ||
+                  raw.Contains("<slow") || raw.Contains("<fast") || raw.Contains("<fx=")))
+                continue;
+
+            bool compiled = DialogueTextCompiler.TryCompile(raw, tags, DialoguePresentationSettings.Shared,
+                null, 0.05f, out var line, out string error);
+            Assert.That(compiled, Is.True, $"{source} {step.DialogueId}: {error}");
+            label.text = line.Text;
+            label.ForceMeshUpdate(true, true);
+            line.Bind(label.textInfo);
+            Assert.That(line.Characters.Length, Is.GreaterThan(0), $"{source} {step.DialogueId}");
+            Assert.That(line.Characters.Any(character => character.Shake || character.Wave ||
+                character.Pop || Math.Abs(character.SpeedSeconds - 0.05f) > 0.0001f),
+                Is.True, $"{source} {step.DialogueId}: effect did not reach glyphs");
+            checkedLines++;
+        }
+        Assert.That(checkedLines, Is.GreaterThanOrEqualTo(minimumLines), source);
+    }
+
     [Test]
     public void OneKoreanGlyphMovesWhileNeighborsKeepTheirVertices()
     {
