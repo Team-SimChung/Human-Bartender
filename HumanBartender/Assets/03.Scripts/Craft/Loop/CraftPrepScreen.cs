@@ -17,7 +17,7 @@ using UnityEngine.UI;
 /// 이 화면은 그 둘을 옮겨 그리고 클릭을 돌려보내기만 한다 — 판정을 여기서 다시 하면 화면과 기록이
 /// 서로 다른 말을 하기 시작한다.
 ///
-/// 칸은 아직 색 사각형이다. 선반 아트가 나오면 CreateCell만 갈아 끼우면 된다.
+/// 선반 칸과 선택 칩의 모양은 프리팹에서 관리한다.
 /// </summary>
 public class CraftPrepScreen : MonoBehaviour
 {
@@ -42,49 +42,46 @@ public class CraftPrepScreen : MonoBehaviour
     };
 
     [Header("Data")]
-    [SerializeField] NewShelfItemDataSO shelfData;
-    [SerializeField] NewCocktailDataSO cocktailData;
+    [SerializeField] private NewShelfItemDataSO shelfData;
+    [SerializeField] private NewCocktailDataSO cocktailData;
 
     [Header("Scene")]
     [Tooltip("제조 흐름. 연결하면 칵테일을 고를 때 이 화면이 저절로 열린다. 단독 테스트 씬에서는 비워 둔다.")]
-    [SerializeField] CraftFlowController craftFlow;
+    [SerializeField] private CraftFlowController craftFlow;
+    [SerializeField] private GuestManager playGuestManager;
 
     [Header("Layout")]
     [Tooltip("준비 중에만 켜지는 묶음. 이 컴포넌트가 붙은 오브젝트는 계속 켜 둬야 한다 — " +
              "그걸 끄면 OnDisable이 돌아 제조 시작 신호 구독이 끊긴다.")]
-    [SerializeField] GameObject content;
+    [SerializeField] private GameObject content;
 
-    [SerializeField] RectTransform shelfContent;
-    [SerializeField] RectTransform trayContent;
-    [SerializeField] TextMeshProUGUI titleText;
-    [SerializeField] TextMeshProUGUI stageText;
-    [SerializeField] TextMeshProUGUI noticeText;
-    [SerializeField] Button prevButton;
-    [SerializeField] Button nextButton;
-    [SerializeField] TextMeshProUGUI nextLabel;
-    [SerializeField] Button recipeNoteButton;
+    [SerializeField] private RectTransform shelfContent;
+    [SerializeField] private RectTransform trayContent;
+    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private TextMeshProUGUI stageText;
+    [SerializeField] private TextMeshProUGUI noticeText;
+    [SerializeField] private Button prevButton;
+    [SerializeField] private Button nextButton;
+    [SerializeField] private TextMeshProUGUI nextLabel;
+    [SerializeField] private Button recipeNoteButton;
 
-    [Header("Font")]
-    [SerializeField] TMP_FontAsset font;
-
-    [Header("Style")]
-    [SerializeField] Vector2 cellSize = new(104f, 116f);
-    [SerializeField] Color cellColor = new(1f, 1f, 1f, 0.06f);
-    [SerializeField] Color cellSelectedColor = new(0.83f, 0.55f, 0.18f, 0.28f);
-    [SerializeField] Color guideColor = new(0.36f, 0.76f, 0.72f, 0.30f);
+    [Header("Item prefabs")]
+    [SerializeField] private CraftPrepItemView shelfCellPrefab;
+    [SerializeField] private CraftPrepItemView trayChipPrefab;
 
     [Header("Test")]
     [Tooltip("단독 테스트 씬용. 켜 두면 시작할 때 testCocktailId로 준비 화면을 연다. " +
              "손님이 있는 씬(Play)에서는 켜져 있어도 무시한다 — 진행 일차를 덮어쓰고 주문 없는 제조를 여는 탓이다.")]
-    [SerializeField] bool openOnStartForTest;
-    [SerializeField] string testCocktailId = "gin_fizz";
-    [SerializeField] int testDay = 1;
+    [SerializeField] private bool openOnStartForTest;
+    [SerializeField] private string testCocktailId = "gin_fizz";
+    [SerializeField] private int testDay = 1;
 
     CraftPreparation preparation;
     int stageIndex;
 
     /// <summary>다시 그릴 때 지워야 하는 칸들. 매번 자식을 통째로 훑지 않으려고 들고 있는다.</summary>
-    readonly List<GameObject> spawned = new();
+    private readonly List<CraftPrepItemView> spawned = new();
+    private readonly List<CraftPrepItemView> trayChips = new();
 
     /// <summary>지금 열려 있는 준비. 열려 있지 않으면 null이다.</summary>
     public CraftPreparation Preparation => preparation;
@@ -143,7 +140,7 @@ public class CraftPrepScreen : MonoBehaviour
         // OpenForTest는 진행 일차를 testDay로 덮어쓰고 주문 없이 제조를 연다. 단독 테스트 씬에서는
         // 그게 목적이지만, 1부가 도는 씬에서는 일차가 바뀌어 엉뚱한 손님이 오고 "받을 주문이 없다"는
         // 경고만 남는다. 프리팹에 켜진 채로 저장돼 있어 얹을 때마다 되풀이되므로 여기서 막는다.
-        if (FindAnyObjectByType<GuestManager>() != null)
+        if (playGuestManager != null)
         {
             Debug.LogWarning("[CraftPrep] 손님이 있는 씬이라 테스트 자동 열기를 건너뜁니다. " +
                              "Open On Start For Test를 꺼 두세요.");
@@ -191,6 +188,7 @@ public class CraftPrepScreen : MonoBehaviour
 
         preparation = null;
         ClearSpawned();
+        ClearTrayChips();
         SetVisible(false);
     }
 
@@ -256,7 +254,7 @@ public class CraftPrepScreen : MonoBehaviour
 
         Close();
 
-        if (openOnStartForTest) ReopenAfterCraftAsync().Forget();
+        if (openOnStartForTest && playGuestManager == null) ReopenAfterCraftAsync().Forget();
     }
 
     /// <summary>
@@ -376,63 +374,22 @@ public class CraftPrepScreen : MonoBehaviour
     {
         ClearSpawned();
 
-        if (shelfContent == null) return;
+        if (shelfContent == null || shelfCellPrefab == null) return;
 
         foreach (var item in CollectShelfItems())
-            spawned.Add(CreateCell(item));
-    }
-
-    /// <summary>
-    /// 선반 칸 하나. 색은 재료의 액체 색을 쓰고, 색이 없는 잔·도구는 회색으로 둔다.
-    ///
-    /// 고른 칸과 가이드 칸을 서로 다른 색으로 칠한다. 가이드는 노트를 한 번 열어 본 뒤에만 켜지고,
-    /// 켜져 있어도 다른 것을 고르는 것을 막지 않는다(§3.7.8).
-    /// </summary>
-    GameObject CreateCell(NewShelfItemData item)
-    {
-        var go = new GameObject($"Cell {item.Id}",
-            typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-        go.transform.SetParent(shelfContent, false);
-
-        var layout = go.GetComponent<LayoutElement>();
-        layout.preferredWidth = cellSize.x;
-        layout.preferredHeight = cellSize.y;
-
-        bool selected = preparation.IsSelected(item.Id);
-        bool guided = preparation.IsGuideTarget(item.Id);
-
-        go.GetComponent<Image>().color = selected ? cellSelectedColor : guided ? guideColor : cellColor;
-
-        CreateSwatch(go.transform, item);
-        CreateLabel(go.transform, ResolveName(item), 12f, new Vector2(4f, 6f), new Vector2(-4f, 30f));
-
-        string id = item.Id;
-        go.GetComponent<Button>().onClick.AddListener(() => Toggle(id, Stage));
-
-        return go;
-    }
-
-    /// <summary>칸 위쪽의 색 조각. 아트가 나오기 전까지 무엇인지 구분하는 유일한 단서다.</summary>
-    void CreateSwatch(Transform parent, NewShelfItemData item)
-    {
-        var go = new GameObject("Swatch", typeof(RectTransform), typeof(Image));
-        go.transform.SetParent(parent, false);
-
-        var rect = (RectTransform)go.transform;
-        rect.anchorMin = new Vector2(0.5f, 1f);
-        rect.anchorMax = new Vector2(0.5f, 1f);
-        rect.pivot = new Vector2(0.5f, 1f);
-        rect.sizeDelta = new Vector2(cellSize.x * 0.5f, cellSize.y * 0.44f);
-        rect.anchoredPosition = new Vector2(0f, -12f);
-
-        var image = go.GetComponent<Image>();
-        image.color = item.TryGetLiquidColor(out Color32 color) ? color : new Color(1f, 1f, 1f, 0.35f);
-        image.raycastTarget = false;
+        {
+            CraftPrepItemView cell = Instantiate(shelfCellPrefab, shelfContent);
+            cell.BindShelf(item, ResolveName(item), preparation.IsSelected(item.Id),
+                preparation.IsGuideTarget(item.Id), this, Stage);
+            spawned.Add(cell);
+        }
     }
 
     /// <summary>어느 선반에서 눌렀는지에 따라 잔·도구·재료 중 하나를 토글한다.</summary>
-    void Toggle(string id, EStage from)
+    public void ToggleItem(string id, EStage from)
     {
+        if (preparation == null) return;
+
         switch (from)
         {
             case EStage.Glass: preparation.ToggleGlass(id); break;
@@ -450,10 +407,8 @@ public class CraftPrepScreen : MonoBehaviour
     /// </summary>
     void RefreshTray()
     {
-        if (trayContent == null) return;
-
-        for (int i = trayContent.childCount - 1; i >= 0; i--)
-            Destroy(trayContent.GetChild(i).gameObject);
+        ClearTrayChips();
+        if (trayContent == null || trayChipPrefab == null) return;
 
         if (preparation.GlassId != null) CreateTrayChip(preparation.GlassId, EStage.Glass);
         if (preparation.ToolId != null) CreateTrayChip(preparation.ToolId, EStage.Tool);
@@ -464,20 +419,10 @@ public class CraftPrepScreen : MonoBehaviour
 
     void CreateTrayChip(string id, EStage from)
     {
-        var go = new GameObject($"Chip {id}",
-            typeof(RectTransform), typeof(Image), typeof(Button), typeof(LayoutElement));
-        go.transform.SetParent(trayContent, false);
-
-        go.GetComponent<Image>().color = cellSelectedColor;
-
-        var layout = go.GetComponent<LayoutElement>();
-        layout.preferredWidth = 96f;
-        layout.preferredHeight = 28f;
-
         string label = shelfData != null && shelfData.TryGet(id, out var item) ? ResolveName(item) : id;
-        CreateLabel(go.transform, label, 11.5f, new Vector2(6f, 2f), new Vector2(-6f, -2f));
-
-        go.GetComponent<Button>().onClick.AddListener(() => Toggle(id, from));
+        CraftPrepItemView chip = Instantiate(trayChipPrefab, trayContent);
+        chip.BindTray(id, label, this, from);
+        trayChips.Add(chip);
     }
 
     // ── 그 밖 ───────────────────────────────────────────────────────────
@@ -493,39 +438,30 @@ public class CraftPrepScreen : MonoBehaviour
 
     void ClearSpawned()
     {
-        foreach (var go in spawned)
+        foreach (CraftPrepItemView cell in spawned)
         {
-            if (go != null) Destroy(go);
+            if (cell == null) continue;
+            cell.gameObject.SetActive(false);
+            Destroy(cell.gameObject);
         }
 
         spawned.Clear();
+    }
+
+    private void ClearTrayChips()
+    {
+        foreach (CraftPrepItemView chip in trayChips)
+        {
+            if (chip == null) continue;
+            chip.gameObject.SetActive(false);
+            Destroy(chip.gameObject);
+        }
+        trayChips.Clear();
     }
 
     /// <summary>화면에 적을 이름. 한국어 이름이 없으면 id를 그대로 보여 준다 — 빈 칸보다 낫다.</summary>
     static string ResolveName(NewShelfItemData item)
     {
         return string.IsNullOrEmpty(item.Name.Ko) ? item.Id : item.Name.Ko;
-    }
-
-    void CreateLabel(Transform parent, string text, float size, Vector2 offsetMin, Vector2 offsetMax)
-    {
-        var go = new GameObject("Label", typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.transform.SetParent(parent, false);
-
-        var rect = (RectTransform)go.transform;
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = offsetMin;
-        rect.offsetMax = offsetMax;
-
-        var label = go.GetComponent<TextMeshProUGUI>();
-        label.text = text;
-        label.fontSize = size;
-        label.color = Color.white;
-        label.alignment = TextAlignmentOptions.Center;
-        label.overflowMode = TextOverflowModes.Ellipsis;
-        label.raycastTarget = false;
-
-        if (font != null) label.font = font;
     }
 }

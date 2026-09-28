@@ -25,25 +25,25 @@ using UnityEngine;
 public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd
 {
-    [SerializeField] bool isTest = false;
+    [SerializeField] private bool isTest = false;
 
     [Header("Data")]
-    [SerializeField] CraftStationData data;
-    [SerializeField] CategoryColorData colorData;
-    [SerializeField] NewCocktailDataSO cocktailDataSO;
+    [SerializeField] private CraftStationData data;
+    [SerializeField] private CategoryColorData colorData;
+    [SerializeField] private NewCocktailDataSO cocktailDataSO;
     [Tooltip("실제로 따르는 재료의 액체 색을 읽어온다.")]
-    [SerializeField] NewShelfItemDataSO shelfData;
+    [SerializeField] private NewShelfItemDataSO shelfData;
     [Tooltip("pour_emit_rate_ml_per_sec(방출률)와 단위 환산 계수를 읽어온다.")]
-    [SerializeField] NewBalanceDataSO balanceData;
+    [SerializeField] private NewBalanceDataSO balanceData;
 
     [Header("Bottle")]
-    [SerializeField] BottleTiltController bottle;
+    [SerializeField] private BottleTiltController bottle;
     [Tooltip("병 외곽선을 그리는 컴포넌트. 아래 병 모양 값을 그대로 받아 그리므로 " +
              "보이는 입구와 액체가 나오는 위치가 항상 일치한다. 비워두면 외곽선을 그리지 않는다.")]
-    [SerializeField] BottleSilhouette bottleSilhouette;
+    [SerializeField] private BottleSilhouette bottleSilhouette;
     [Tooltip("병 몸통 내부의 절반 크기(스케일 적용 전 병 로컬 좌표). 병을 그리는 데만 쓰인다 — " +
              "안에 액체가 없으므로 여기에 가두는 벽은 없다.")]
-    [SerializeField] Vector2 bottleInteriorHalfExtents = new Vector2(0.4f, 0.4f);
+    [SerializeField] private Vector2 bottleInteriorHalfExtents = new Vector2(0.4f, 0.4f);
 
     // ── 병목 ────────────────────────────────────────────────────────────
     // 아래에서부터 몸통 → 어깨(사선) → 통로다. 액체가 나오는 입구 폭이자 병을 그리는 모양이다.
@@ -53,68 +53,68 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
              "  4개 이상: 콸콸 쏟아지는 굵은 줄기\n" +
              "길이가 아니라 개수인 이유는 이 값이 프로파일의 spacing과 짝이기 때문이다 — " +
              "2개 폭이 안 되면 줄기가 한 줄로 늘어서 알갱이처럼 끊어져 보인다.")]
-    [SerializeField] float neckWidthInParticles = 2.5f;
+    [SerializeField] private float neckWidthInParticles = 2.5f;
     [Range(0f, 1f)]
     [Tooltip("어깨가 시작되는 높이(몸통의 끝). 0=바닥, 1=입구. 이 아래는 몸통 너비 그대로다.")]
-    [SerializeField] float neckStartHeight01 = 0.6f;
+    [SerializeField] private float neckStartHeight01 = 0.6f;
     [Range(0f, 1f)]
     [Tooltip("어깨가 끝나고 통로가 시작되는 높이. neckStartHeight01 ~ 이 값 사이에서 몸통 너비가 " +
              "통로 너비까지 사선으로 좁아지고, 그 위로는 입구까지 같은 폭이 유지된다.")]
-    [SerializeField] float neckChannelHeight01 = 0.75f;
+    [SerializeField] private float neckChannelHeight01 = 0.75f;
 
     // ── 배출 ────────────────────────────────────────────────────────────
     [Header("Pour Gate")]
     [Tooltip("이 각도 미만에서는 한 방울도 나오지 않는다. 병 안 액체를 시뮬레이션하지 않으므로 " +
              "이 값이 곧 임계각이다 — 원하는 각도를 그대로 적으면 된다.")]
-    [SerializeField] float pourStartAngle = 45f;
+    [SerializeField] private float pourStartAngle = 45f;
     [Tooltip("유량이 최대가 되는 각도. pourStartAngle과 벌려둘수록 졸졸 → 콸콸로 부드럽게 이어지고, " +
              "붙여두면 임계각을 넘는 순간 최대 유량으로 쏟아진다.\n" +
              "BottleTiltController의 maxTiltAngle보다 낮아야 최대 유량에 도달할 수 있다.")]
-    [SerializeField] float pourFullOpenAngle = 75f;
+    [SerializeField] private float pourFullOpenAngle = 75f;
     [Tooltip("최대 유량에서 액체가 입구를 떠나는 속도. 올리면 멀리 뻗어 나가고, 낮추면 입구에서 " +
              "바로 떨어진다. 방출 간격이 이 속도에서 유도되므로 줄기 굵기는 그대로다.")]
-    [SerializeField] float exitSpeed = 1.6f;
+    [SerializeField] private float exitSpeed = 1.6f;
 
     [Header("Glass")]
     [Tooltip("잔 스프라이트 자신의 Transform. InverseTransformPoint로 로컬 판정 영역을 계산한다.")]
-    [SerializeField] Transform glassCenter;
+    [SerializeField] private Transform glassCenter;
     [Tooltip("잔에 담긴 것으로 칠 판정 영역(스케일 적용 전 잔 로컬 좌표).")]
-    [SerializeField] Vector2 glassInteriorHalfExtents = new Vector2(0.45f, 0.45f);
+    [SerializeField] private Vector2 glassInteriorHalfExtents = new Vector2(0.45f, 0.45f);
 
     [Header("Liquid (SPH)")]
-    [SerializeField] SphLiquidRenderer liquidRenderer;
+    [SerializeField] private SphLiquidRenderer liquidRenderer;
     [Tooltip("액체의 물성과 질감 묶음. 술마다 다른 프로파일을 꽂으면 물처럼 찰랑이는 것부터 " +
              "시럽처럼 늘어지는 것까지 다르게 표현된다.")]
-    [SerializeField] LiquidProfile liquidProfile;
+    [SerializeField] private LiquidProfile liquidProfile;
     [Tooltip("켜면 병이 마르지 않는다(테스트용). 아래 총량을 무시하고 계속 쏟을 수 있다.")]
-    [SerializeField] bool unlimitedLiquid = false;
+    [SerializeField] private bool unlimitedLiquid = false;
     [Tooltip("병에 든 액체의 총량(파티클 수). 이만큼 다 쏟으면 더 나오지 않는다. " +
              "unlimitedLiquid가 켜져 있으면 무시된다.")]
-    [SerializeField] int bottleParticleCount = 400;
+    [SerializeField] private int bottleParticleCount = 400;
     [Tooltip("동시에 살아있을 수 있는 파티클 수(줄기 + 잔에 담긴 것). 재사용 풀 크기라 총량과 별개이고, " +
              "'한 번에 얼마나 많은 액체가 보이는가'는 총량이 아니라 이 값이 정한다.\n" +
              "렌더러가 2패스로 바뀐 뒤로는 여기에 렌더 한계가 없다 — 이제 걸리는 건 SPH 계산 쪽이다. " +
              "프레임이 떨어지면 이 값을 내리거나 프로파일의 spacing을 키울 것.")]
-    [SerializeField] int maxLiveParticles = 2000;
+    [SerializeField] private int maxLiveParticles = 2000;
     [Tooltip("이 깊이 아래로 떨어진 파티클은 흘린 것으로 보고 치운다(풀로 돌아간다). " +
              "이 기믹의 원점에서 잰 상대 높이라, 무대가 어디에 놓이든 같게 동작한다. " +
              "잔 바닥보다 확실히 아래로 잡아야 담긴 액체가 사라지지 않는다.")]
-    [SerializeField] float despawnBelowY = -6f;
+    [SerializeField] private float despawnBelowY = -6f;
     [Tooltip("SPH 공간분할그리드가 병/잔 위치 기준 사방으로 확보하는 여유 폭.")]
-    [SerializeField] float gridPadding = 3f;
+    [SerializeField] private float gridPadding = 3f;
 
     [Header("UI")]
-    [SerializeField] Canvas buttonCanvas;
-    [SerializeField] GradientRatioController gageBar;
+    [SerializeField] private Canvas buttonCanvas;
+    [SerializeField] private GradientRatioController gageBar;
 
     [Header("Pour Settings")]
     [Tooltip("isTest일 때 목표 파티클 개수로 사용. 실제 모드에서도 recipe 기반 목표 연결 전까지는 임시로 이 값을 쓴다.")]
-    [SerializeField] int testTargetParticleCount = 60;
-    [SerializeField] int testToleranceCount = 15;
+    [SerializeField] private int testTargetParticleCount = 60;
+    [SerializeField] private int testToleranceCount = 15;
 
     [Header("Craft Event")]
-    [SerializeField] VoidEvent craftServe;
-    [SerializeField] VoidEvent craftRetry;
+    [SerializeField] private VoidEvent craftServe;
+    [SerializeField] private VoidEvent craftRetry;
 
     int targetParticleCount;
     int toleranceCount;
@@ -586,7 +586,13 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             return Color.white;
         }
 
-        int n = colorData.categorys.FindIndex(a => a.Contains(tags[0].Ko));
+        int n = -1;
+        for (int i = 0; i < colorData.categorys.Count; i++)
+        {
+            if (!colorData.categorys[i].Contains(tags[0].Ko)) continue;
+            n = i;
+            break;
+        }
         return n >= 0 ? colorData.colors[n] : Color.white;
     }
 
@@ -676,7 +682,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         // "이미 끝났는지"는 보지 않는다. 이 함수는 Start()보다 먼저 불려서 상태가 초기값이다.
         // 기다림을 푸는 신호는 FinishPour() 한 곳에서만 나온다.
 
-        using (token.Register(() => runnerCompletion.TrySetCanceled()))
+        using (token.Register(CancelRunnerCompletion))
         {
             await runnerCompletion.Task;
         }
@@ -687,6 +693,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                                       step.TargetValue, step.TargetUnit, PouredInTargetUnit,
                                       ECraftEndType.ManualNext,
                                       craftTimer != null ? craftTimer.ElapsedSec : 0f);
+    }
+
+    private void CancelRunnerCompletion()
+    {
+        runnerCompletion?.TrySetCanceled();
     }
 
     /// <summary>

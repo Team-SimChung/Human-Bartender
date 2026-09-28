@@ -8,18 +8,29 @@ using UnityEngine.InputSystem;
 /// 게임 시작으로 소비하기 때문이다. 병따기는 첫 입력부터 판정 대상이라 그 규칙이 맞지 않는다.
 /// 그래서 Pour처럼 Update에서 직접 폴링한다.
 /// </summary>
-public class CapInputHandler : MonoBehaviour
+public class CapInputHandler : MonoBehaviour, ICraftCapInput
 {
     [SerializeField] CapManager cap;
+    private bool routedInput;
+
+    public void SetRoutedInput(bool routed)
+    {
+        routedInput = routed;
+    }
+
+    public void OnCapInput()
+    {
+        if (cap != null) cap.OnPress();
+    }
 
     void Update()
     {
-        if (cap == null) return;
+        if (cap == null || routedInput) return;
 
         // 같은 프레임에 둘 다 눌려도 한 번만 친다 — || 단축 평가로 자연스럽게 처리된다.
         bool pressed = WasSpacePressedThisFrame() || WasPointerPressedThisFrame();
 
-        if (pressed) cap.OnPress();
+        if (pressed) OnCapInput();
     }
 
     static bool WasSpacePressedThisFrame()

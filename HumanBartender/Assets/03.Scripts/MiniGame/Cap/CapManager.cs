@@ -19,62 +19,62 @@ using UnityEngine;
 /// </summary>
 public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICraftGimmickProgress
 {
-    [SerializeField] bool isTest = false;
+    [SerializeField] private bool isTest = false;
 
     [Header("Data")]
-    [SerializeField] CraftStationData data;
-    [SerializeField] NewCocktailDataSO cocktailDataSO;
+    [SerializeField] private CraftStationData data;
+    [SerializeField] private NewCocktailDataSO cocktailDataSO;
 
     [Header("Ring")]
     [Tooltip("조여드는 고리. 바깥에서 목표 고리까지 좁혀 온다.")]
-    [SerializeField] CapRing incomingRing;
+    [SerializeField] private CapRing incomingRing;
     [Tooltip("목표 고리. 병뚜껑 둘레에 고정되어 크기가 변하지 않는다.")]
-    [SerializeField] CapRing targetRing;
+    [SerializeField] private CapRing targetRing;
 
     [Tooltip("고리가 시작하는 반지름(월드 단위).")]
-    [SerializeField] float startRadius = 2.2f;
+    [SerializeField] private float startRadius = 2.2f;
     [Tooltip("목표 고리의 반지름. 병뚜껑 크기에 맞춰 잡는다.")]
-    [SerializeField] float targetRadius = 0.6f;
+    [SerializeField] private float targetRadius = 0.6f;
     [Tooltip("판정 폭. 두 고리의 반지름 차이가 이 값 이내일 때 누르면 성공이다. " +
              "넓힐수록 쉬워지고, 좁힐수록 정확한 타이밍을 요구한다.")]
-    [SerializeField] float judgeWindow = 0.14f;
+    [SerializeField] private float judgeWindow = 0.14f;
     [Tooltip("고리가 시작 크기에서 목표까지 조여드는 데 걸리는 시간(초). 짧을수록 어렵다.")]
-    [SerializeField] float approachSeconds = 1.6f;
+    [SerializeField] private float approachSeconds = 1.6f;
 
     [Header("Timing")]
     [Tooltip("실패한 뒤 고리가 다시 바깥에서 조여들기까지의 텀. 연출을 볼 시간이자, " +
              "연타로 우연히 맞히는 걸 막는 장치다.")]
-    [SerializeField] float failCooldown = 0.45f;
+    [SerializeField] private float failCooldown = 0.45f;
     [Tooltip("성공 연출을 보여준 뒤 결과로 넘어가기까지의 텀.")]
-    [SerializeField] float successCooldown = 0.9f;
+    [SerializeField] private float successCooldown = 0.9f;
     [Tooltip("제조 제한 시간(초). 넘기면 실패로 끝난다.")]
-    [SerializeField] float timeLimit = 25f;
+    [SerializeField] private float timeLimit = 25f;
 
     [Header("Judge")]
     [Tooltip("isTest일 때 쓸 허용 실패 횟수. 실제 모드에서는 " +
              "CraftStationData.targetCraft_tolerance에서 환산한다.\n" +
              "판정은 (실패 횟수 / 이 값)의 백분율이다 — 20% 이하 Perfect, 50% 이하 Normal, 초과 Failed.")]
-    [SerializeField] int testLimitFailCount = 5;
+    [SerializeField] private int testLimitFailCount = 5;
 
     [Header("Visual")]
     [Tooltip("병뚜껑. 성공하면 튕겨 날아가고, 실패하면 살짝 꺾인다. 비워둬도 게임은 돌아간다.")]
-    [SerializeField] Transform capPiece;
+    [SerializeField] private Transform capPiece;
     [Tooltip("판정 구간에 들어왔을 때 조여드는 고리에 입힐 색. 이 신호가 없으면 " +
              "언제 눌러야 할지 눈으로 읽기 어렵다.")]
-    [SerializeField] Color nearColor = new Color(0.22f, 0.83f, 0.48f);
-    [SerializeField] Color incomingColor = new Color(0.95f, 0.76f, 0.31f);
-    [SerializeField] Color targetColor = new Color(0.5f, 0.94f, 0.92f);
+    [SerializeField] private Color nearColor = new Color(0.22f, 0.83f, 0.48f);
+    [SerializeField] private Color incomingColor = new Color(0.95f, 0.76f, 0.31f);
+    [SerializeField] private Color targetColor = new Color(0.5f, 0.94f, 0.92f);
 
     [Header("UI")]
-    [SerializeField] Canvas buttonCanvas;
+    [SerializeField] private Canvas buttonCanvas;
     // 재료명·시도 횟수·전체 시간은 공통 HUD가 그린다. 여기서는 판정 순간의 피드백만 맡는다 —
     // PERFECT/FAIL은 고리 판정에 붙는 연출이라 공통 표시에 자리가 없다.
     [Tooltip("성공·실패 판정 텍스트. 고리 근처에 뜨는 기믹 고유 연출이다.")]
-    [SerializeField] TMP_Text judgeText;
+    [SerializeField] private TMP_Text judgeText;
 
     [Header("Craft Event")]
-    [SerializeField] VoidEvent craftServe;
-    [SerializeField] VoidEvent craftRetry;
+    [SerializeField] private VoidEvent craftServe;
+    [SerializeField] private VoidEvent craftRetry;
 
     /// <summary>고리 상태. 조여드는 중 → (성공/실패) 쿨다운 → 다시 조여드는 중.</summary>
     enum Phase { Approaching, Cooldown, Finished }
@@ -354,7 +354,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
         // 여기서 "이미 끝났는지" 미리 보지 않는다. 이 함수는 프리팹을 띄운 직후, 아직 Start()가
         // 돌기 전에 불려서 상태가 초기값이다. 기다림을 푸는 신호는 Finish() 한 곳에서만 나온다.
 
-        using (token.Register(() => runnerCompletion.TrySetCanceled()))
+        using (token.Register(CancelRunnerCompletion))
         {
             await runnerCompletion.Task;
         }
@@ -362,6 +362,11 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
         // 병따기는 다음 버튼이 없다. 열려야만 끝나므로 종료 방식이 하나뿐이다.
         return GimmickResult.Open(step.IngredientId, attempts, FailCount, opened,
                                   craftTimer != null ? craftTimer.ElapsedSec : elapsed);
+    }
+
+    private void CancelRunnerCompletion()
+    {
+        runnerCompletion?.TrySetCanceled();
     }
 
     /// <summary>

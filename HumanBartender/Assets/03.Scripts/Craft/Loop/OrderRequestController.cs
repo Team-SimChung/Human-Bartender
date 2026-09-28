@@ -9,11 +9,11 @@ using VContainer;
 public class OrderRequestController : MonoBehaviour
 {
     [Header("Presentation")]
-    [SerializeField] CraftServingView servingView;
+    [SerializeField] private CraftServingView servingView;
 
     [Header("Settlement")]
-    [SerializeField] NewCocktailDataSO cocktailData;
-    [SerializeField] NewBalanceDataSO balanceData;
+    [SerializeField] private NewCocktailDataSO cocktailData;
+    [SerializeField] private NewBalanceDataSO balanceData;
     [Inject] DailySales sales;
 
     sealed class Entry
@@ -32,6 +32,38 @@ public class OrderRequestController : MonoBehaviour
     IServeProcessor processor;
 
     public int ActiveCount => requests.Count;
+
+    /// <summary>대본이 지정한 미해금 레시피도 실제 대기 주문이면 일시적으로 선택할 수 있다.</summary>
+    public bool HasWaitingOrderForCocktail(string cocktailId)
+    {
+        if (string.IsNullOrEmpty(cocktailId)) return false;
+
+        foreach (Entry entry in requests.Values)
+        {
+            if (entry.Request.State == OrderState.Waiting &&
+                entry.Request.Details.CocktailId == cocktailId)
+                return true;
+        }
+
+        return false;
+    }
+
+    private sealed class ServeCompletionCallback
+    {
+        private readonly OrderRequestController owner;
+        private readonly Entry entry;
+
+        public ServeCompletionCallback(OrderRequestController controller, Entry requestEntry)
+        {
+            owner = controller;
+            entry = requestEntry;
+        }
+
+        public bool TryServe(CraftedDrink drink)
+        {
+            return owner.TryServe(entry, drink);
+        }
+    }
     static UniTaskCompletionSource CompletedIdle()
     {
         var source = new UniTaskCompletionSource();
@@ -65,7 +97,8 @@ public class OrderRequestController : MonoBehaviour
         };
         if (requests.Count == 0) idle = new UniTaskCompletionSource();
         requests.Add(details.Id, entry);
-        try { presentation.Open(drink => TryServe(entry, drink)); }
+        var callback = new ServeCompletionCallback(this, entry);
+        try { presentation.Open(callback.TryServe); }
         catch (Exception exception)
         {
             entry.Request.End(OrderState.Failed, error: exception.Message);
@@ -87,13 +120,6 @@ public class OrderRequestController : MonoBehaviour
         entry.Lifetime.Cancel();
         if (wasWaiting) FinishAsync(entry).Forget();
         return true;
-    }
-
-    /// <summary>주문 없는 기존 tutorial 스텝의 메뉴 개방 전용.</summary>
-    public void OpenMenu()
-    {
-        if (servingView == null) throw new InvalidOperationException("CraftServingView 연결이 필요합니다.");
-        servingView.OpenUi();
     }
 
     bool TryServe(Entry entry, CraftedDrink drink)

@@ -32,6 +32,7 @@ public class GuestManager : MonoBehaviour
     [Tooltip("제조 흐름에 들어갔는지를 알려주는 곳. 제조 중에는 손님 쪽 시간을 멈춘다. 비우면 멈추지 않는다.")]
     [SerializeField] CraftFlowController craftFlow;
     [SerializeField] OrderRequestController orderController;
+    [SerializeField] private ServicePanelController servicePanelController;
 
     [Header("Dialogue")]
     [SerializeField] UIDialogueTextView dialogueTextView; // ask_order 등 플레이어(바텐더) 대사를 띄우는 다이얼로그 말풍선
@@ -107,6 +108,11 @@ public class GuestManager : MonoBehaviour
 
     void OnEnable()
     {
+        if (servicePanelController != null)
+        {
+            servicePanelController.OpenChanged += OnServicePanelOpenChanged;
+            RefreshClockPause();
+        }
         if (appearanceLoads.IsCancellationRequested)
         {
             appearanceLoads.Dispose();
@@ -124,6 +130,8 @@ public class GuestManager : MonoBehaviour
 
     void OnDisable()
     {
+        if (servicePanelController != null)
+            servicePanelController.OpenChanged -= OnServicePanelOpenChanged;
         lunaBarkCts?.Cancel();
         if (dialogueTextView != null && dialogueTextView.lunaSpeechBubble != null)
             dialogueTextView.lunaSpeechBubble.gameObject.SetActive(false);
@@ -172,10 +180,21 @@ public class GuestManager : MonoBehaviour
     /// </summary>
     void OnCraftFlowActiveChanged(bool craftFlowActive)
     {
-        if (craftFlowActive) barClock.Pause();
-        else barClock.Resume();
+        RefreshClockPause();
 
-        Logger.Log($"[Guest] 바 운영 시간 {(craftFlowActive ? "정지" : "재개")} (제조 흐름 {(craftFlowActive ? "진입" : "종료")})");
+        Logger.Log($"[Guest] 바 운영 시간 {(barClock.IsPaused ? "정지" : "재개")} (제조 흐름 {(craftFlowActive ? "진입" : "종료")})");
+    }
+
+    void OnServicePanelOpenChanged()
+    {
+        RefreshClockPause();
+    }
+
+    void RefreshClockPause()
+    {
+        bool servicePanelOpen = servicePanelController != null && servicePanelController.IsBlockingTycoonClock;
+        if (servicePanelOpen || (craftFlow != null && craftFlow.IsCraftFlowActive)) barClock.Pause();
+        else barClock.Resume();
     }
 
     /// <summary>
@@ -510,17 +529,22 @@ public class GuestManager : MonoBehaviour
     {
         int day = GameStateManager.Instance.CurrentDay;
 
-        var candidates = cocktailData.cocktailData
-            .Where(c => c.UnlockDay <= day && c.Status == ENewDataStatus.Confirmed)
-            .ToArray();
+        var candidates = new List<NewCocktailData>();
+        if (cocktailData != null && cocktailData.cocktailData != null)
+        {
+            foreach (NewCocktailData cocktail in cocktailData.cocktailData)
+            {
+                if (CocktailUnlockPolicy.IsUnlocked(cocktail, day)) candidates.Add(cocktail);
+            }
+        }
 
-        if (candidates.Length == 0)
+        if (candidates.Count == 0)
         {
             Logger.Log($"[Guest] {day}일차에 주문할 수 있는 칵테일이 없습니다.");
             return null;
         }
 
-        return candidates[UnityEngine.Random.Range(0, candidates.Length)].Id;
+        return candidates[UnityEngine.Random.Range(0, candidates.Count)].Id;
     }
 
     /// <summary>

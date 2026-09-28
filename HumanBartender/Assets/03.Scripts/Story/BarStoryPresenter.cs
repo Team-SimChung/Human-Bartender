@@ -16,23 +16,38 @@ using VContainer;
 /// </summary>
 public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
 {
+    private sealed class ChoiceCompletionCallback
+    {
+        private readonly UniTaskCompletionSource<int> completion;
+
+        public ChoiceCompletionCallback(UniTaskCompletionSource<int> source)
+        {
+            completion = source;
+        }
+
+        public void Complete(int picked)
+        {
+            completion.TrySetResult(picked);
+        }
+    }
+
     [Header("View")]
     [Tooltip("대사창. 공용 대화 시스템이 쓰는 것과 같은 것을 꽂는다.")]
-    [SerializeField] UIDialogueTextView textView;
+    [SerializeField] private UIDialogueTextView textView;
 
     [Tooltip("좌석에 인물을 세우는 곳. 1부 카메오와 같은 체계다.")]
-    [SerializeField] DialogueCharacterManager characterManager;
+    [SerializeField] private DialogueCharacterManager characterManager;
 
     [Tooltip("선택지 UI. 공용 대화 시스템이 쓰는 것과 같은 것을 꽂는다.")]
-    [SerializeField] UIDialogueChoiceView choiceView;
+    [SerializeField] private UIDialogueChoiceView choiceView;
 
     [Header("Camera")]
     [Tooltip("자리 수에 따라 화면을 잡는 데 걸리는 시간(§10.1.1 camera_transition_sec). Day 0은 이동만, 이후 일차는 이동과 줌을 같은 시간 안에서 진행한다.")]
-    [SerializeField] float cameraTransitionSec = 0.8f;
+    [SerializeField] private float cameraTransitionSec = 0.8f;
 
     [Header("Data")]
     [Tooltip("화면에 적을 이름과 이름 색을 찾는다.")]
-    [SerializeField] NewCharacterDataSO characterData;
+    [SerializeField] private NewCharacterDataSO characterData;
 
     /// <summary>표정을 따로 정하지 않은 등장에 쓰는 값.</summary>
     const string DefaultExpression = "default";
@@ -184,7 +199,8 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
 
         var completion = new UniTaskCompletionSource<int>();
 
-        choiceView.ShowChoice(texts, selectable, picked => completion.TrySetResult(picked));
+        var callback = new ChoiceCompletionCallback(completion);
+        choiceView.ShowChoice(texts, selectable, callback.Complete);
 
         try
         {

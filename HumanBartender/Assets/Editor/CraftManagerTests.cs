@@ -22,7 +22,8 @@ public class CraftManagerTests
         {
             new NewCocktailData
             {
-                Id = "test", Glass = "glass", TargetMixMethod = ENewMixMethod.Build,
+                Id = "test", Status = ENewDataStatus.Confirmed,
+                Glass = "glass", TargetMixMethod = ENewMixMethod.Build,
                 Recipe = new[]
                 {
                     new NewCocktailRecipeStep
@@ -164,7 +165,8 @@ public class CraftManagerTests
         // 직접 선택 목록에 들어온 자동 재료는 큐에서 제외되는 기존 규칙을 사용한다.
         cocktails.cocktailData[0] = new NewCocktailData
         {
-            Id = "test", Recipe = new[] { new NewCocktailRecipeStep
+            Id = "test", Status = ENewDataStatus.Confirmed,
+            Recipe = new[] { new NewCocktailRecipeStep
             { Ingredient = "lemon", Action = ENewRecipeAction.Squeeze, AutoApply = true } }
         };
         Prepare("lemon");

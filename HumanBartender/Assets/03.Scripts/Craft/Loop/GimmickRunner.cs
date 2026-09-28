@@ -23,26 +23,29 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     }
 
     [Tooltip("기믹 종류별 프리팹. 필업은 비워 둬도 된다 — 따르기와 같은 화면을 쓰므로 따르기 것을 대신 쓴다.")]
-    [SerializeField] GimmickPrefabEntry[] prefabs;
+    [SerializeField] private GimmickPrefabEntry[] prefabs;
 
     [Tooltip("띄운 기믹을 놓을 자리. 비어 있으면 이 오브젝트 아래에 만든다.")]
-    [SerializeField] Transform gimmickRoot;
+    [SerializeField] private Transform gimmickRoot;
 
     [Tooltip("기믹이 바뀌어도 남아 있는 공통 표시. 실행 전 연결을 검증한다.")]
-    [SerializeField] CraftGimmickHud hud;
+    [SerializeField] private CraftGimmickHud hud;
 
     [Tooltip("기믹만 비추는 카메라. 바에서 멀리 떨어진 자리를 찍으므로 바의 배경과 손님이 함께 담기지 않는다.")]
-    [SerializeField] Camera gimmickCamera;
+    [SerializeField] private Camera gimmickCamera;
 
     [Tooltip("기믹 화면이 자리잡는 그리기 순서의 바닥. 바 UI가 쓰는 값보다 확실히 높아야 한다. " +
              "막은 이 값 바로 아래, 기믹은 이 값 위, 공통 표시는 그보다 더 위에 놓인다.")]
-    [SerializeField] int sortingBase = 1000;
+    [SerializeField] private int sortingBase = 1000;
 
     [Tooltip("공통 표시를 기믹보다 얼마나 위에 둘지. 기믹 안에서 쓰는 순서보다 커야 한다.")]
-    [SerializeField] int hudSortingOffset = 500;
+    [SerializeField] private int hudSortingOffset = 500;
 
     [Tooltip("기믹 중 숨길 Play 바 UI 캔버스만 명시한다. 페이드·오류·저장 화면은 여기에 넣지 않는다.")]
-    [SerializeField] Canvas[] barCanvases;
+    [SerializeField] private Canvas[] barCanvases;
+
+    [Tooltip("Play 씬의 PlayerInput을 소유한 입력 라우터.")]
+    [SerializeField] private CraftGimmickInputRouter inputRouter;
 
     [Inject] IObjectResolver resolver;
 
@@ -70,7 +73,10 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
             throw new InvalidOperationException("기믹 카메라가 없습니다.");
         if (hud == null)
             throw new InvalidOperationException("기믹 HUD가 없습니다.");
+        if (inputRouter == null)
+            throw new InvalidOperationException("기믹 입력 라우터가 없습니다.");
         runningTimer = timer;
+        inputRouter.Begin();
         ShowCraftScreen(true);
         hud.BeginCraft(timer, display.TimeLimitSec, display.HideTime);
     }
@@ -80,7 +86,11 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     {
         runningTimer = null;
         try { hud?.EndCraft(); }
-        finally { ShowCraftScreen(false); }
+        finally
+        {
+            try { inputRouter?.End(); }
+            finally { ShowCraftScreen(false); }
+        }
     }
     /// <summary>기믹 프리팹을 띄우고 끝날 때까지 기다린 뒤 치운다.</summary>
     public async UniTask<GimmickResult> ExecuteAsync(GimmickStep step, CraftContext context,
@@ -98,6 +108,7 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
 
         try
         {
+            inputRouter.Bind(instance);
             LiftAboveBarUi(instance);
             var gimmick = instance.GetComponentInChildren<ICraftGimmick>();
 
@@ -124,8 +135,12 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
             // 이 기믹이 사라진 뒤에도 시계가 돌면, 다음 기믹을 띄우는 사이의 시간이 끼어든다.
             currentGimmick = null;
 
-            try { hud?.UnbindGimmick(); }
-            finally { if (instance != null) Destroy(instance); }
+            try { inputRouter.Unbind(); }
+            finally
+            {
+                try { hud?.UnbindGimmick(); }
+                finally { if (instance != null) Destroy(instance); }
+            }
         }
     }
 
@@ -177,8 +192,10 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
             hiddenBarCanvases.Add(canvas);
         }
 
+        var names = new List<string>(hiddenBarCanvases.Count);
+        foreach (Canvas canvas in hiddenBarCanvases) names.Add(canvas.name);
         Debug.Log($"[GimmickRunner] 바 UI {hiddenBarCanvases.Count}개를 껐습니다: " +
-                  string.Join(", ", hiddenBarCanvases.ConvertAll(c => c.name)));
+                  string.Join(", ", names));
     }
 
     /// <summary>꺼 뒀던 바 UI를 되돌린다. 그 사이 사라진 것은 건너뛴다.</summary>

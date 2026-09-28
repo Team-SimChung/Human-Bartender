@@ -107,7 +107,7 @@ public class OrderRequestTests
         var craftOwner = new GameObject("Independent craft");
         var craft = craftOwner.AddComponent<CraftFlowController>();
         var data = ScriptableObject.CreateInstance<NewCocktailDataSO>();
-        data.cocktailData = new[] { new NewCocktailData { Id = "gin" } };
+        data.cocktailData = new[] { new NewCocktailData { Id = "gin", Status = ENewDataStatus.Confirmed } };
         typeof(CraftFlowController).GetField("cocktailData",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(craft, data);
         try

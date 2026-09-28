@@ -20,43 +20,43 @@ using VContainer;
 public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmick,
                                  ICraftGimmickProgress, ICraftGimmickManualEnd
 {
-    [SerializeField] bool isTest = false;
+    [SerializeField] private bool isTest = false;
 
     [Header("Data")]
-    [SerializeField] CraftStationData data;
-    [SerializeField] CategoryColorData colorData;
-    [SerializeField] NewCocktailDataSO cocktailDataSO;
+    [SerializeField] private CraftStationData data;
+    [SerializeField] private CategoryColorData colorData;
+    [SerializeField] private NewCocktailDataSO cocktailDataSO;
     [Tooltip("shake_target_stacks(목표 스택)를 읽어온다. 기믹 큐가 돌릴 때의 종료 조건이자 점수 분모다.")]
-    [SerializeField] NewBalanceDataSO balanceData;
+    [SerializeField] private NewBalanceDataSO balanceData;
 
     [Tooltip("balanceData가 비었거나 아직 로드되지 않았을 때만 쓰는 값. " +
              "실제 플레이에서는 balance.json의 shake_target_stacks가 이긴다.")]
-    [SerializeField] int fallbackTargetStacks = 20;
+    [SerializeField] private int fallbackTargetStacks = 20;
 
     [Header("Manager")]
-    [SerializeField] ShakeLineCreator shakeLineCreator;
-    [SerializeField] ShakingStrikeNode shakingStrikeNode;
-    [SerializeField] ShakingCatergoryNodeCreator nodeCreator;
-    [SerializeField] AnimSpeedController characterAnim;
-    [SerializeField] AudioSource bgmSource;
-    [SerializeField] GradientRatioController gageBar;
+    [SerializeField] private ShakeLineCreator shakeLineCreator;
+    [SerializeField] private ShakingStrikeNode shakingStrikeNode;
+    [SerializeField] private ShakingCatergoryNodeCreator nodeCreator;
+    [SerializeField] private AnimSpeedController characterAnim;
+    [SerializeField] private AudioSource bgmSource;
+    [SerializeField] private GradientRatioController gageBar;
 
     [Header("UI")]
-    [SerializeField] List<Image> dots;
-    [SerializeField] Camera canvasCamera;
-    [SerializeField] Canvas gameCanvas;
-    [SerializeField] Canvas buttonCanvas;
+    [SerializeField] private List<Image> dots;
+    [SerializeField] private Camera canvasCamera;
+    [SerializeField] private Canvas gameCanvas;
+    [SerializeField] private Canvas buttonCanvas;
 
     [Header("Judge")]
-    [SerializeField] float judgeRange = 1;
-    [SerializeField] int totalJudge;
-    [SerializeField] int successJudge;
-    [SerializeField] int failJudge;
-    [SerializeField] int limitFailJudge;
+    [SerializeField] private float judgeRange = 1;
+    [SerializeField] private int totalJudge;
+    [SerializeField] private int successJudge;
+    [SerializeField] private int failJudge;
+    [SerializeField] private int limitFailJudge;
 
     [Header("Craft Event")]
-    [SerializeField] VoidEvent craftServe;
-    [SerializeField] VoidEvent craftRetry;
+    [SerializeField] private VoidEvent craftServe;
+    [SerializeField] private VoidEvent craftRetry;
 
     [Inject] ISoundManager soundManager;
 
@@ -147,11 +147,18 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         var colors = new Color[tags.Length];
         for (int i = 0; i < colors.Length; i++)
         {
-            int n = colorData.categorys.FindIndex(a => a.Contains(tags[i].Ko));
+            int n = FindCategoryIndex(tags[i].Ko);
             colors[i] = n >= 0 ? colorData.colors[n] : Color.white;
         }
 
         return colors;
+    }
+
+    private int FindCategoryIndex(string tag)
+    {
+        for (int i = 0; i < colorData.categorys.Count; i++)
+            if (colorData.categorys[i].Contains(tag)) return i;
+        return -1;
     }
 
     /// <summary>
@@ -333,7 +340,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         // 돌기 전에 불린다. 그 시점의 스택 수는 전부 0이라 어떤 비교를 해도 끝난 것처럼 읽힌다.
         // 기다림을 푸는 신호는 CompleteMade() 한 곳에서만 나온다.
 
-        using (token.Register(() => runnerCompletion.TrySetCanceled()))
+        using (token.Register(CancelRunnerCompletion))
         {
             await runnerCompletion.Task;
         }
@@ -341,6 +348,11 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         return GimmickResult.Mix(ECraftGimmick.Shake, successJudge, failJudge, totalJudge,
                                  endedManually ? ECraftEndType.ManualNext : ECraftEndType.AutoTarget,
                                  craftTimer != null ? craftTimer.ElapsedSec : 0f);
+    }
+
+    private void CancelRunnerCompletion()
+    {
+        runnerCompletion?.TrySetCanceled();
     }
 
     /// <summary>

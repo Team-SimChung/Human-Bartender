@@ -11,6 +11,8 @@ public class PlayInputHandler : MonoBehaviour
     [SerializeField] private StoryFlow storyFlow;
     [SerializeField] private PlayCamera playCamera;
     [SerializeField] private PlayPhaseController playPhaseController;
+    [SerializeField] private ServicePanelController servicePanelController;
+    [SerializeField] private RecipeBrowserScreen recipeScreen;
 
     /// <summary>
     /// 대사 진행 입력. 2부(Dialogue) 국면에서만 동작한다.
@@ -21,6 +23,8 @@ public class PlayInputHandler : MonoBehaviour
     public void OnAdvance(InputValue value)
     {
         if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
+        if (servicePanelController != null && servicePanelController.IsMenuOpen) return;
+        if (recipeScreen != null && recipeScreen.IsOpen) return;
 
         if (storyFlow != null) storyFlow.TryAdvance();
     }
@@ -39,5 +43,12 @@ public class PlayInputHandler : MonoBehaviour
         if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
         if (playCamera == null) return;
         playCamera.MoveAdjacent(1, 0.5f);
+    }
+
+    public void OnServicePanel(InputValue value)
+    {
+        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
+        if (servicePanelController == null) return;
+        servicePanelController.Toggle();
     }
 }

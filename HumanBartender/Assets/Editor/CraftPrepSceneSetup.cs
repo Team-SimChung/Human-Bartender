@@ -30,6 +30,8 @@ public static class CraftPrepSceneSetup
     const string ShelfDataPath = "Assets/03.Scripts/DataNew/DataNewSO/NewShelfItemDataSO.asset";
     const string CocktailDataPath = "Assets/03.Scripts/DataNew/DataNewSO/NewCocktailDataSO.asset";
     const string BalanceDataPath = "Assets/03.Scripts/DataNew/DataNewSO/NewBalanceDataSO.asset";
+    const string ShelfCellPrefabPath = "Assets/04.Prefabs/UI/CraftShelfCell.prefab";
+    const string TrayChipPrefabPath = "Assets/04.Prefabs/UI/CraftTrayChip.prefab";
 
     // 기믹 프리팹. Play 씬의 GimmickRunner가 물고 있는 것과 같은 것들이다.
     const string CapPrefabPath = "Assets/04.Prefabs/Game/NewCapGame.prefab";
@@ -365,7 +367,10 @@ public static class CraftPrepSceneSetup
         SetField(prep, "nextLabel", nextLabel);
         SetField(prep, "recipeNoteButton", noteButton);
         SetField(prep, "craftFlow", craftFlow);
-        SetField(prep, "font", font);
+        var shelfCell = AssetDatabase.LoadAssetAtPath<GameObject>(ShelfCellPrefabPath);
+        var trayChip = AssetDatabase.LoadAssetAtPath<GameObject>(TrayChipPrefabPath);
+        SetField(prep, "shelfCellPrefab", shelfCell != null ? shelfCell.GetComponent<CraftPrepItemView>() : null);
+        SetField(prep, "trayChipPrefab", trayChip != null ? trayChip.GetComponent<CraftPrepItemView>() : null);
         SetBool(prep, "openOnStartForTest", true);
 
         return canvasGo;
