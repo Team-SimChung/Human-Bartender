@@ -17,7 +17,7 @@
 
 각 폴더의 README에 모든 파일의 역할과 엑셀 시트 이름을 적었습니다.
 대사 한 글자·구간의 색, 크기, 속도, 움직임 태그는 [DialogueFX.md](DialogueFX.md)에 적었습니다.
-편집용 엑셀과 내보내기 도구는 프로젝트의 `outputs/20260915-content-editing`에 있습니다.
+편집용 엑셀과 내보내기 도구는 프로젝트의 `02.ContentAuthoring`에 있습니다.
 엑셀의 **Index**에서 표와 CSV 경로를, **FieldGuide**에서 열 설명을 찾을 수 있습니다.
 
 ## BalanceRoot 뒤에 붙던 해시는?
@@ -40,14 +40,14 @@
 엑셀을 저장한 뒤 프로젝트 루트에서 실행합니다.
 
 ```sh
-python3 outputs/20260915-content-editing/export_content.py --out Assets/StreamingAssets/csv
+python3 02.ContentAuthoring/export_content.py --out Assets/StreamingAssets/csv
 ```
 
 Unity의 **Tools → Data → Validate CSV Content**로 구조와 데이터 타입을 검사합니다.
 CSV를 직접 수정했다면 아래 명령으로도 검사할 수 있습니다.
 
 ```sh
-python3 outputs/20260915-content-editing/export_content.py --source csv --input Assets/StreamingAssets/csv --validate-only
+python3 02.ContentAuthoring/export_content.py --source csv --input Assets/StreamingAssets/csv --validate-only
 ```
 
 Excel과 CSV를 동시에 따로 수정하면 다음 내보내기에서 CSV 변경을 덮어쓸 수 있으므로 팀의 편집 원본을 하나로 정하세요.
