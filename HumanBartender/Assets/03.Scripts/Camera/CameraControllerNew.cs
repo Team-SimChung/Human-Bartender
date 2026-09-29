@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 
@@ -64,8 +65,9 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     CancellationTokenSource resolution;
     CancellationTokenSource offset;
     System.Action restoreResolution;
+    CinemachinePixelPerfect suspendedPixelPerfect;
     void Awake() => SyncLensToPPC();
-    void OnDisable() { CancelResolution(); offset?.Cancel(); }
+    void OnDisable() { CancelResolution(); offset?.Cancel(); ResumePixelPerfectCorrection(); }
 
     public void FollowTarget(Transform target, Vector3 localOffset = default)
     {
@@ -196,8 +198,10 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
         {
             if (pixelPerfectCamera != null)
             {
+                pixelPerfectCamera.enabled = false;
                 pixelPerfectCamera.refResolutionX = previous.x;
                 pixelPerfectCamera.refResolutionY = previous.y;
+                if (enabled) SuspendPixelPerfectCorrectionUntilRendered();
                 pixelPerfectCamera.enabled = enabled;
             }
             if (vcam != null) vcam.Lens = lens;
@@ -222,11 +226,37 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     void SetResolution(Vector2Int value)
     {
         if (value.x <= 0 || value.y <= 0) throw new System.ArgumentOutOfRangeException(nameof(value));
+        pixelPerfectCamera.enabled = false;
         pixelPerfectCamera.refResolutionX = value.x;
         pixelPerfectCamera.refResolutionY = value.y;
+        SuspendPixelPerfectCorrectionUntilRendered();
         pixelPerfectCamera.enabled = true;
         SyncLensToPPC();
         InvalidateConfinerLensCache();
+    }
+    // PPC refreshes its cached zoom/orthoSize only when its camera starts rendering.
+    // Do not let Cinemachine correct the new lens with the previous resolution's cache.
+    // Keep PPC itself active so that this render refreshes the cache normally.
+    void SuspendPixelPerfectCorrectionUntilRendered()
+    {
+        if (suspendedPixelPerfect != null || vcam == null) return;
+        var correction = vcam.GetComponent<CinemachinePixelPerfect>();
+        if (correction == null || !correction.enabled) return;
+        suspendedPixelPerfect = correction;
+        correction.enabled = false;
+        RenderPipelineManager.endCameraRendering += OnPixelPerfectCameraRendered;
+    }
+    void OnPixelPerfectCameraRendered(ScriptableRenderContext context, Camera camera)
+    {
+        if (pixelPerfectCamera != null && pixelPerfectCamera.isActiveAndEnabled &&
+            camera == pixelPerfectCamera.GetComponent<Camera>())
+            ResumePixelPerfectCorrection();
+    }
+    void ResumePixelPerfectCorrection()
+    {
+        RenderPipelineManager.endCameraRendering -= OnPixelPerfectCameraRendered;
+        if (suspendedPixelPerfect != null) suspendedPixelPerfect.enabled = true;
+        suspendedPixelPerfect = null;
     }
     void EnsureCamera()
     {
