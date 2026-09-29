@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="88" result="Failed(Child)" total="88" passed="86" failed="1" inconclusive="0" skipped="1" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:43:00Z" duration="1.7672482">
+  <test-suite type="TestSuite" id="1000" name="ProjectLUNA" fullname="ProjectLUNA" runstate="Runnable" testcasecount="88" result="Failed" site="Child" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:43:00Z" duration="1.767248" total="88" passed="86" failed="1" inconclusive="0" skipped="1" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1103" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/hanrc/OneDrive/Documents/Unity Projects/Human-Bartender/HumanBartender/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="87" result="Failed" site="Child" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:43:00Z" duration="1.760519" total="87" passed="85" failed="1" inconclusive="0" skipped="1" asserts="0">
+      <properties>
+        <property name="_PID" value="37276" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1001" name="CraftManagerTests" fullname="CraftManagerTests" classname="CraftManagerTests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.053510" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1010" name="BlockerRemovalAllowsRequestWithoutReplacingAnExistingSession" fullname="CraftManagerTests.BlockerRemovalAllowsRequestWithoutReplacingAnExistingSession" methodname="BlockerRemovalAllowsRequestWithoutReplacingAnExistingSession" classname="CraftManagerTests" runstate="Runnable" seed="1994986278" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.018050" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1012" name="ButtonEntryPointsUseTheSameRequestAndCancellationState" fullname="CraftManagerTests.ButtonEntryPointsUseTheSameRequestAndCancellationState" methodname="ButtonEntryPointsUseTheSameRequestAndCancellationState" classname="CraftManagerTests" runstate="Runnable" seed="531136140" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.010477" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[CraftFlow] balanceData가 없어 등급을 계산하지 못했습니다.
+]]></output>
+        </test-case>
+        <test-case id="1004" name="CancellationWaitsForExecutorCleanupAndDoesNotRecordLateResult" fullname="CraftManagerTests.CancellationWaitsForExecutorCleanupAndDoesNotRecordLateResult" methodname="CancellationWaitsForExecutorCleanupAndDoesNotRecordLateResult" classname="CraftManagerTests" runstate="Runnable" seed="1486747405" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.004456" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1013" name="DisablingTheComponentCancelsPreparationAndRejectsNewRequests" fullname="CraftManagerTests.DisablingTheComponentCancelsPreparationAndRejectsNewRequests" methodname="DisablingTheComponentCancelsPreparationAndRejectsNewRequests" classname="CraftManagerTests" runstate="Runnable" seed="173944616" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000455" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1009" name="EmptyQueueTerminatesInsteadOfStayingInPreparation" fullname="CraftManagerTests.EmptyQueueTerminatesInsteadOfStayingInPreparation" methodname="EmptyQueueTerminatesInsteadOfStayingInPreparation" classname="CraftManagerTests" runstate="Runnable" seed="1854035249" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.001064" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[CraftFlow] 제조 실패 (68075a841e67474b992c9a03b2b5aea4): 만들어진 기믹이 없습니다.
+]]></output>
+        </test-case>
+        <test-case id="1015" name="PreparationCancellationCompletesTheAcceptedRequestOnce" fullname="CraftManagerTests.PreparationCancellationCompletesTheAcceptedRequestOnce" methodname="PreparationCancellationCompletesTheAcceptedRequestOnce" classname="CraftManagerTests" runstate="Runnable" seed="1654476423" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000686" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1014" name="ReadyAnnouncementRemainsAvailableToThePreparationUi" fullname="CraftManagerTests.ReadyAnnouncementRemainsAvailableToThePreparationUi" methodname="ReadyAnnouncementRemainsAvailableToThePreparationUi" classname="CraftManagerTests" runstate="Runnable" seed="254657579" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000666" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1003" name="RejectsOverlappingRequestsAndStaleCancellation" fullname="CraftManagerTests.RejectsOverlappingRequestsAndStaleCancellation" methodname="RejectsOverlappingRequestsAndStaleCancellation" classname="CraftManagerTests" runstate="Runnable" seed="979256430" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000490" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1007" name="SetupAndExecutionFailuresCleanUpAndAllowRetry" fullname="CraftManagerTests.SetupAndExecutionFailuresCleanUpAndAllowRetry" classname="CraftManagerTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.003390" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1005" name="SetupAndExecutionFailuresCleanUpAndAllowRetry(True)" fullname="CraftManagerTests.SetupAndExecutionFailuresCleanUpAndAllowRetry(True)" methodname="SetupAndExecutionFailuresCleanUpAndAllowRetry" classname="CraftManagerTests" runstate="Runnable" seed="613198664" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.001231" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+            <output><![CDATA[[CraftFlow] 제조 실패 (2b199dceca37468f9592737477c64b9a): setup failed
+]]></output>
+          </test-case>
+          <test-case id="1006" name="SetupAndExecutionFailuresCleanUpAndAllowRetry(False)" fullname="CraftManagerTests.SetupAndExecutionFailuresCleanUpAndAllowRetry(False)" methodname="SetupAndExecutionFailuresCleanUpAndAllowRetry" classname="CraftManagerTests" runstate="Runnable" seed="521694782" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000628" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+            <output><![CDATA[[CraftFlow] 제조 실패 (1ece4d96d21544e893f817f4a8a88f3b): step failed
+]]></output>
+          </test-case>
+        </test-suite>
+        <test-case id="1002" name="SuccessfulRequestRecordsStepsAndCleansBeforeCompletion" fullname="CraftManagerTests.SuccessfulRequestRecordsStepsAndCleansBeforeCompletion" methodname="SuccessfulRequestRecordsStepsAndCleansBeforeCompletion" classname="CraftManagerTests" runstate="Runnable" seed="1998695246" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.002066" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[CraftFlow] balanceData가 없어 등급을 계산하지 못했습니다.
+]]></output>
+        </test-case>
+        <test-case id="1011" name="TerminalSessionCannotBeChangedByLateFailureOrCompletion" fullname="CraftManagerTests.TerminalSessionCannotBeChangedByLateFailureOrCompletion" methodname="TerminalSessionCannotBeChangedByLateFailureOrCompletion" classname="CraftManagerTests" runstate="Runnable" seed="1857253426" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000307" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1008" name="UnresolvedIngredientFailsBeforeCreatingObjects" fullname="CraftManagerTests.UnresolvedIngredientFailsBeforeCreatingObjects" methodname="UnresolvedIngredientFailsBeforeCreatingObjects" classname="CraftManagerTests" runstate="Runnable" seed="1625265224" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000762" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[CraftFlow] 제조 실패 (115cee2ff5a74ef787ff21710fe1702f): 기믹 동작을 찾을 수 없는 재료: unknown
+]]></output>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1016" name="CsvContentTests" fullname="CsvContentTests" classname="CsvContentTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.072107" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1017" name="DirectCsvPreservesZeroFalseNullEmptyAndMultilineText" fullname="CsvContentTests.DirectCsvPreservesZeroFalseNullEmptyAndMultilineText" methodname="DirectCsvPreservesZeroFalseNullEmptyAndMultilineText" classname="CsvContentTests" runstate="Runnable" seed="77351229" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.013499" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1023" name="ParseBomTrailingEmptyCellAndEmbeddedQuotes" fullname="CsvContentTests.ParseBomTrailingEmptyCellAndEmbeddedQuotes" methodname="ParseBomTrailingEmptyCellAndEmbeddedQuotes" classname="CsvContentTests" runstate="Runnable" seed="1475012844" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000187" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1024" name="ProjectCatalogLoadsNestedChoicesRecipesAndEmptyDays" fullname="CsvContentTests.ProjectCatalogLoadsNestedChoicesRecipesAndEmptyDays" methodname="ProjectCatalogLoadsNestedChoicesRecipesAndEmptyDays" classname="CsvContentTests" runstate="Runnable" seed="1737864236" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.050245" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1022" name="RejectDuplicateRowIdsBeforePublishing" fullname="CsvContentTests.RejectDuplicateRowIdsBeforePublishing" methodname="RejectDuplicateRowIdsBeforePublishing" classname="CsvContentTests" runstate="Runnable" seed="91091547" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.002001" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1021" name="RejectMalformedQuotes" fullname="CsvContentTests.RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.005266" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1018" name="RejectMalformedQuotes(&quot;a\n\&quot;unfinished&quot;)" fullname="CsvContentTests.RejectMalformedQuotes(&quot;a\n\&quot;unfinished&quot;)" methodname="RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" seed="1097051933" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000268" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1019" name="RejectMalformedQuotes(&quot;a\na\&quot;b&quot;)" fullname="CsvContentTests.RejectMalformedQuotes(&quot;a\na\&quot;b&quot;)" methodname="RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" seed="1650875006" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000077" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1020" name="RejectMalformedQuotes(&quot;a\n\&quot;a\&quot;x&quot;)" fullname="CsvContentTests.RejectMalformedQuotes(&quot;a\n\&quot;a\&quot;x&quot;)" methodname="RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" seed="303631445" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:58Z" duration="0.000054" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="1025" name="DialogueCameraFeedbackTests" fullname="DialogueCameraFeedbackTests" classname="DialogueCameraFeedbackTests" runstate="Runnable" testcasecount="9" result="Failed" site="Child" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:59Z" duration="0.275281" total="9" passed="8" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1033" name="ExternalCancellationWhileHoldingStopsMotion" fullname="DialogueCameraFeedbackTests.ExternalCancellationWhileHoldingStopsMotion" methodname="ExternalCancellationWhileHoldingStopsMotion" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="58334597" result="Passed" start-time="2026-09-29 13:42:58Z" end-time="2026-09-29 13:42:59Z" duration="0.228456" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1031" name="InstantAndReducedMotionNeverEmitCues" fullname="DialogueCameraFeedbackTests.InstantAndReducedMotionNeverEmitCues" methodname="InstantAndReducedMotionNeverEmitCues" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="1369834071" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.002147" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1035" name="PulseChangesOnlyYAndReturnsToTheLiveCameraState" fullname="DialogueCameraFeedbackTests.PulseChangesOnlyYAndReturnsToTheLiveCameraState" methodname="PulseChangesOnlyYAndReturnsToTheLiveCameraState" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="68304888" result="Failed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.007960" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[Unhandled log message: '[Assert] Assertion failed on expression: 'ShouldRunBehaviour()''. Use UnityEngine.TestTools.LogAssert.Expect]]></message>
+            <stack-trace><![CDATA[UnityEngine.Component:SendMessage (string)
+DialogueCameraFeedbackTests:PulseChangesOnlyYAndReturnsToTheLiveCameraState () (at Assets/01.Game/06.Tests/Editor/DialogueCameraFeedbackTests.cs:210)
+System.Reflection.MethodBase:Invoke (object,object[])
+NUnit.Framework.Internal.Reflect:InvokeMethod (System.Reflection.MethodInfo,object,object[])
+NUnit.Framework.Internal.MethodWrapper:Invoke (object,object[])
+NUnit.Framework.Internal.Commands.TestMethodCommand:RunNonAsyncTestMethod (NUnit.Framework.Internal.ITestExecutionContext)
+NUnit.Framework.Internal.Commands.TestMethodCommand:RunTestMethod (NUnit.Framework.Internal.ITestExecutionContext)
+NUnit.Framework.Internal.Commands.TestMethodCommand:Execute (NUnit.Framework.Internal.ITestExecutionContext)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+]]></stack-trace>
+          </failure>
+          <output><![CDATA[Assertion failed on expression: 'ShouldRunBehaviour()'
+]]></output>
+        </test-case>
+        <test-case id="1032" name="ReplacementDuringCueCannotContinueOldSession" fullname="DialogueCameraFeedbackTests.ReplacementDuringCueCannotContinueOldSession" methodname="ReplacementDuringCueCannotContinueOldSession" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="1576455185" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.002807" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1029" name="ResolvedShakeSpansCueAtFirstVisibleGlyphOnly" fullname="DialogueCameraFeedbackTests.ResolvedShakeSpansCueAtFirstVisibleGlyphOnly" classname="DialogueCameraFeedbackTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.011454" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1026" name="ResolvedShakeSpansCueAtFirstVisibleGlyphOnly(GrowPerCharacter)" fullname="DialogueCameraFeedbackTests.ResolvedShakeSpansCueAtFirstVisibleGlyphOnly(GrowPerCharacter)" methodname="ResolvedShakeSpansCueAtFirstVisibleGlyphOnly" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="1620038637" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.007717" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1027" name="ResolvedShakeSpansCueAtFirstVisibleGlyphOnly(PreExpand)" fullname="DialogueCameraFeedbackTests.ResolvedShakeSpansCueAtFirstVisibleGlyphOnly(PreExpand)" methodname="ResolvedShakeSpansCueAtFirstVisibleGlyphOnly" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="784132228" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.001164" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1028" name="ResolvedShakeSpansCueAtFirstVisibleGlyphOnly(Fixed)" fullname="DialogueCameraFeedbackTests.ResolvedShakeSpansCueAtFirstVisibleGlyphOnly(Fixed)" methodname="ResolvedShakeSpansCueAtFirstVisibleGlyphOnly" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="144928231" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.001749" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1034" name="ScopedRegistrationConnectsViewAndUnsubscribesOnDisposal" fullname="DialogueCameraFeedbackTests.ScopedRegistrationConnectsViewAndUnsubscribesOnDisposal" methodname="ScopedRegistrationConnectsViewAndUnsubscribesOnDisposal" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="900547717" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.019944" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1030" name="SkipFromCueStopsMotionWithoutTriggeringRemainingSpans" fullname="DialogueCameraFeedbackTests.SkipFromCueStopsMotionWithoutTriggeringRemainingSpans" methodname="SkipFromCueStopsMotionWithoutTriggeringRemainingSpans" classname="DialogueCameraFeedbackTests" runstate="Runnable" seed="306525304" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.001373" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1036" name="DialogueFxRuntimeTests" fullname="DialogueFxRuntimeTests" classname="DialogueFxRuntimeTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.002113" total="1" passed="0" failed="0" inconclusive="0" skipped="1" asserts="0">
+        <properties />
+        <test-case id="1037" name="PlayModeOneGlyphAndIndependentBubbleSessions" fullname="DialogueFxRuntimeTests.PlayModeOneGlyphAndIndependentBubbleSessions" methodname="PlayModeOneGlyphAndIndependentBubbleSessions" classname="DialogueFxRuntimeTests" runstate="Explicit" seed="41061256" result="Skipped" label="Explicit" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000808" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="_SKIPREASON" value="Run in isolation: unrelated scene DOTween cancellation can fail during EnterPlayMode in the full EditMode batch." />
+          </properties>
+          <reason>
+            <message><![CDATA[Run in isolation: unrelated scene DOTween cancellation can fail during EnterPlayMode in the full EditMode batch.]]></message>
+          </reason>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1038" name="DialogueFxSceneWiringTests" fullname="DialogueFxSceneWiringTests" classname="DialogueFxSceneWiringTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.250908" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="ParameterizedMethod" id="1042" name="SceneKeepsDialogueViewAndBubbleReferences" fullname="DialogueFxSceneWiringTests.SceneKeepsDialogueViewAndBubbleReferences" classname="DialogueFxSceneWiringTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.250610" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1039" name="SceneKeepsDialogueViewAndBubbleReferences(&quot;Play&quot;,True)" fullname="DialogueFxSceneWiringTests.SceneKeepsDialogueViewAndBubbleReferences(&quot;Play&quot;,True)" methodname="SceneKeepsDialogueViewAndBubbleReferences" classname="DialogueFxSceneWiringTests" runstate="Runnable" seed="296591305" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.129430" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1040" name="SceneKeepsDialogueViewAndBubbleReferences(&quot;Home&quot;,False)" fullname="DialogueFxSceneWiringTests.SceneKeepsDialogueViewAndBubbleReferences(&quot;Home&quot;,False)" methodname="SceneKeepsDialogueViewAndBubbleReferences" classname="DialogueFxSceneWiringTests" runstate="Runnable" seed="344080478" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.034903" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+            <output><![CDATA[Lighting data asset ‘LightingData’ is incompatible with the current Unity version because the scene it was baked for was not serialized. Please use Generate Lighting to rebuild the lighting data, or assign the target scene to the Lighting Data Asset in the inspector.
+]]></output>
+          </test-case>
+          <test-case id="1041" name="SceneKeepsDialogueViewAndBubbleReferences(&quot;OutSide&quot;,False)" fullname="DialogueFxSceneWiringTests.SceneKeepsDialogueViewAndBubbleReferences(&quot;OutSide&quot;,False)" methodname="SceneKeepsDialogueViewAndBubbleReferences" classname="DialogueFxSceneWiringTests" runstate="Runnable" seed="636194749" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.085839" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestFixture" id="1043" name="DialogueFxTests" fullname="DialogueFxTests" classname="DialogueFxTests" runstate="Runnable" testcasecount="20" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.290156" total="20" passed="20" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1060" name="AnimatorRestoresBaseMeshAfterRepeatedFrames" fullname="DialogueFxTests.AnimatorRestoresBaseMeshAfterRepeatedFrames" methodname="AnimatorRestoresBaseMeshAfterRepeatedFrames" classname="DialogueFxTests" runstate="Runnable" seed="898367467" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.021053" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1050" name="BarScriptEffectLinesCompileAndBind" fullname="DialogueFxTests.BarScriptEffectLinesCompileAndBind" classname="DialogueFxTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.097740" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1048" name="BarScriptEffectLinesCompileAndBind(&quot;script/bar/day0&quot;,20)" fullname="DialogueFxTests.BarScriptEffectLinesCompileAndBind(&quot;script/bar/day0&quot;,20)" methodname="BarScriptEffectLinesCompileAndBind" classname="DialogueFxTests" runstate="Runnable" seed="1725549322" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.048099" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1049" name="BarScriptEffectLinesCompileAndBind(&quot;script/bar/day1&quot;,40)" fullname="DialogueFxTests.BarScriptEffectLinesCompileAndBind(&quot;script/bar/day1&quot;,40)" methodname="BarScriptEffectLinesCompileAndBind" classname="DialogueFxTests" runstate="Runnable" seed="1218134763" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.048986" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1045" name="DayOneTouchyUrgeBarkFromCsvEmphasizesItsAccusation" fullname="DialogueFxTests.DayOneTouchyUrgeBarkFromCsvEmphasizesItsAccusation" methodname="DayOneTouchyUrgeBarkFromCsvEmphasizesItsAccusation" classname="DialogueFxTests" runstate="Runnable" seed="582921089" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.043863" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1046" name="DayZeroChrisCsvKeepsWordsAndAppliesEffectsOnlyToEmotionalPhrases" fullname="DialogueFxTests.DayZeroChrisCsvKeepsWordsAndAppliesEffectsOnlyToEmotionalPhrases" methodname="DayZeroChrisCsvKeepsWordsAndAppliesEffectsOnlyToEmotionalPhrases" classname="DialogueFxTests" runstate="Runnable" seed="1998012638" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.043774" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1047" name="DayZeroChrisCsvPacesItsEmotionalBeats" fullname="DialogueFxTests.DayZeroChrisCsvPacesItsEmotionalBeats" methodname="DayZeroChrisCsvPacesItsEmotionalBeats" classname="DialogueFxTests" runstate="Runnable" seed="1739339933" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.040863" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1057" name="MalformedDecorativeTagProducesDiagnostic" fullname="DialogueFxTests.MalformedDecorativeTagProducesDiagnostic" methodname="MalformedDecorativeTagProducesDiagnostic" classname="DialogueFxTests" runstate="Runnable" seed="1336909686" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.001240" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1053" name="NamedPresetAppliesOnlyInsideItsSpanAndRestoresOuterStyle" fullname="DialogueFxTests.NamedPresetAppliesOnlyInsideItsSpanAndRestoresOuterStyle" methodname="NamedPresetAppliesOnlyInsideItsSpanAndRestoresOuterStyle" classname="DialogueFxTests" runstate="Runnable" seed="1648998044" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000741" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1052" name="NestedSpeedRestoresOuterAndDefault" fullname="DialogueFxTests.NestedSpeedRestoresOuterAndDefault" methodname="NestedSpeedRestoresOuterAndDefault" classname="DialogueFxTests" runstate="Runnable" seed="740884714" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000636" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1044" name="OneGlyphCombinesStaticAndAnimatedEffects" fullname="DialogueFxTests.OneGlyphCombinesStaticAndAnimatedEffects" methodname="OneGlyphCombinesStaticAndAnimatedEffects" classname="DialogueFxTests" runstate="Runnable" seed="1192732336" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000641" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1051" name="OneKoreanGlyphMovesWhileNeighborsKeepTheirVertices" fullname="DialogueFxTests.OneKoreanGlyphMovesWhileNeighborsKeepTheirVertices" methodname="OneKoreanGlyphMovesWhileNeighborsKeepTheirVertices" classname="DialogueFxTests" runstate="Runnable" seed="1852948742" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000931" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1061" name="PopScalesFromAndReturnsToItsStaticTMPSize" fullname="DialogueFxTests.PopScalesFromAndReturnsToItsStaticTMPSize" methodname="PopScalesFromAndReturnsToItsStaticTMPSize" classname="DialogueFxTests" runstate="Runnable" seed="1460484402" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000702" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1062" name="ReducedMotionPreservesStaticColorAndSizeWithoutMovingVertices" fullname="DialogueFxTests.ReducedMotionPreservesStaticColorAndSizeWithoutMovingVertices" methodname="ReducedMotionPreservesStaticColorAndSizeWithoutMovingVertices" classname="DialogueFxTests" runstate="Runnable" seed="1050880852" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000674" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1056" name="SeparateEffectsAndPlaceholderLengthBindToCorrectGlyphs" fullname="DialogueFxTests.SeparateEffectsAndPlaceholderLengthBindToCorrectGlyphs" methodname="SeparateEffectsAndPlaceholderLengthBindToCorrectGlyphs" classname="DialogueFxTests" runstate="Runnable" seed="1947911456" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.001096" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1064" name="SkipExternalCancellationAndReplacementKeepTheirOwnSessions" fullname="DialogueFxTests.SkipExternalCancellationAndReplacementKeepTheirOwnSessions" methodname="SkipExternalCancellationAndReplacementKeepTheirOwnSessions" classname="DialogueFxTests" runstate="Runnable" seed="1314666838" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.017336" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="Timeout" value="10000" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1063" name="TwoBubblesOwnIndependentInstantSessionsAndReplacement" fullname="DialogueFxTests.TwoBubblesOwnIndependentInstantSessionsAndReplacement" methodname="TwoBubblesOwnIndependentInstantSessionsAndReplacement" classname="DialogueFxTests" runstate="Runnable" seed="746136573" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.002367" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1059" name="UnicodeAndBrDoNotShiftTheFollowingEffect" fullname="DialogueFxTests.UnicodeAndBrDoNotShiftTheFollowingEffect" methodname="UnicodeAndBrDoNotShiftTheFollowingEffect" classname="DialogueFxTests" runstate="Runnable" seed="638052088" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.009920" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1054" name="UnknownNamedPresetDoesNotBecomeVisibleDialogue" fullname="DialogueFxTests.UnknownNamedPresetDoesNotBecomeVisibleDialogue" methodname="UnknownNamedPresetDoesNotBecomeVisibleDialogue" classname="DialogueFxTests" runstate="Runnable" seed="1273849665" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000800" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1055" name="WaitsBindAcrossRichTextAndAddAtSameBoundary" fullname="DialogueFxTests.WaitsBindAcrossRichTextAndAddAtSameBoundary" methodname="WaitsBindAcrossRichTextAndAddAtSameBoundary" classname="DialogueFxTests" runstate="Runnable" seed="1462794640" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000771" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1058" name="ZeroWaitAndLastBoundaryAreValid" fullname="DialogueFxTests.ZeroWaitAndLastBoundaryAreValid" methodname="ZeroWaitAndLastBoundaryAreValid" classname="DialogueFxTests" runstate="Runnable" seed="941357479" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.000501" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1065" name="DrinkDragTests" fullname="DrinkDragTests" classname="DrinkDragTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.005137" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1066" name="DiscardReturnsOnceAfterDragAndRebindPreservesPreviousRecord" fullname="DrinkDragTests.DiscardReturnsOnceAfterDragAndRebindPreservesPreviousRecord" methodname="DiscardReturnsOnceAfterDragAndRebindPreservesPreviousRecord" classname="DrinkDragTests" runstate="Runnable" seed="931281373" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.003112" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1067" name="RejectedDropReturnsToTrayAndDisableFinishesConsumedDrag" fullname="DrinkDragTests.RejectedDropReturnsToTrayAndDisableFinishesConsumedDrag" methodname="RejectedDropReturnsToTrayAndDisableFinishesConsumedDrag" classname="DrinkDragTests" runstate="Runnable" seed="767997298" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.001093" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1068" name="GameProgressionIntegrationTests" fullname="GameProgressionIntegrationTests" classname="GameProgressionIntegrationTests" runstate="Runnable" testcasecount="24" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:43:00Z" duration="0.778182" total="24" passed="24" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1070" name="BarEntryWaitsForFadeCompletionAndRejectsDuplicate" fullname="GameProgressionIntegrationTests.BarEntryWaitsForFadeCompletionAndRejectsDuplicate" methodname="BarEntryWaitsForFadeCompletionAndRejectsDuplicate" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1632875006" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.153040" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[Progression] OutSide → Play, Day 0, Bar
+[Progression] Play → OutSide, Day 0, CommuteOut
+]]></output>
+        </test-case>
+        <test-case id="1073" name="CanceledEntryDoesNotReleasePlayForLatePhases" fullname="GameProgressionIntegrationTests.CanceledEntryDoesNotReleasePlayForLatePhases" methodname="CanceledEntryDoesNotReleasePlayForLatePhases" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="947763985" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.106376" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Lighting data asset ‘LightingData’ is incompatible with the current Unity version because the scene it was baked for was not serialized. Please use Generate Lighting to rebuild the lighting data, or assign the target scene to the Lighting Data Asset in the inspector.
+]]></output>
+        </test-case>
+        <test-case id="1083" name="CanceledHomeSleepKeepsDayAndRestoresScreen" fullname="GameProgressionIntegrationTests.CanceledHomeSleepKeepsDayAndRestoresScreen" methodname="CanceledHomeSleepKeepsDayAndRestoresScreen" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="581886592" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.034762" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1085" name="CorruptSlotDoesNotHideValidNeighborOrChangePlayer" fullname="GameProgressionIntegrationTests.CorruptSlotDoesNotHideValidNeighborOrChangePlayer" methodname="CorruptSlotDoesNotHideValidNeighborOrChangePlayer" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="78030272" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:42:59Z" duration="0.032193" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1081" name="DayThreeFailureAfterSceneChangeKeepsActualContext" fullname="GameProgressionIntegrationTests.DayThreeFailureAfterSceneChangeKeepsActualContext" methodname="DayThreeFailureAfterSceneChangeKeepsActualContext" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="533367548" result="Passed" start-time="2026-09-29 13:42:59Z" end-time="2026-09-29 13:43:00Z" duration="0.042116" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1080" name="DayThreeTransitionFailureBeforeLoadRestoresDayAndFlow" fullname="GameProgressionIntegrationTests.DayThreeTransitionFailureBeforeLoadRestoresDayAndFlow" methodname="DayThreeTransitionFailureBeforeLoadRestoresDayAndFlow" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1488180613" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.010454" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1077" name="DayTwoSleepUsesCommuteOutDataOnce" fullname="GameProgressionIntegrationTests.DayTwoSleepUsesCommuteOutDataOnce" methodname="DayTwoSleepUsesCommuteOutDataOnce" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1070070079" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.036412" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1076" name="DepartureFailureAfterSceneChangeDoesNotClaimPlayWasRestored" fullname="GameProgressionIntegrationTests.DepartureFailureAfterSceneChangeDoesNotClaimPlayWasRestored" methodname="DepartureFailureAfterSceneChangeDoesNotClaimPlayWasRestored" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1892742740" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.104240" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1075" name="FailedDepartureCanRetryWithoutRunningPhases" fullname="GameProgressionIntegrationTests.FailedDepartureCanRetryWithoutRunningPhases" methodname="FailedDepartureCanRetryWithoutRunningPhases" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="882980796" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.021471" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1072" name="FailedNewGameBeforePlayRestoresPreviousSession" fullname="GameProgressionIntegrationTests.FailedNewGameBeforePlayRestoresPreviousSession" methodname="FailedNewGameBeforePlayRestoresPreviousSession" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1793670949" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.013054" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1082" name="HomeSleepFadeFailureRestoresDayFlowAndVisibleScreen" fullname="GameProgressionIntegrationTests.HomeSleepFadeFailureRestoresDayFlowAndVisibleScreen" methodname="HomeSleepFadeFailureRestoresDayFlowAndVisibleScreen" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1312087769" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.015805" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1092" name="InvalidSlotValuesAreRejectedBeforeLoad" fullname="GameProgressionIntegrationTests.InvalidSlotValuesAreRejectedBeforeLoad" classname="GameProgressionIntegrationTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.045091" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1086" name="InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;money\&quot;:73&quot;,&quot;\&quot;money\&quot;:-1&quot;)" fullname="GameProgressionIntegrationTests.InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;money\&quot;:73&quot;,&quot;\&quot;money\&quot;:-1&quot;)" methodname="InvalidSlotValuesAreRejectedBeforeLoad" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1354582267" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.008257" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1087" name="InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;money\&quot;:73&quot;,&quot;\&quot;money\&quot;:\&quot;73\&quot;&quot;)" fullname="GameProgressionIntegrationTests.InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;money\&quot;:73&quot;,&quot;\&quot;money\&quot;:\&quot;73\&quot;&quot;)" methodname="InvalidSlotValuesAreRejectedBeforeLoad" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1419726437" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.008073" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1088" name="InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;save_version\&quot;:1&quot;,&quot;\&quot;save_version\&quot;:2&quot;)" fullname="GameProgressionIntegrationTests.InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;save_version\&quot;:1&quot;,&quot;\&quot;save_version\&quot;:2&quot;)" methodname="InvalidSlotValuesAreRejectedBeforeLoad" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="618504839" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.006729" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1089" name="InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;current_day\&quot;:2&quot;,&quot;\&quot;current_day\&quot;:9&quot;)" fullname="GameProgressionIntegrationTests.InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;current_day\&quot;:2&quot;,&quot;\&quot;current_day\&quot;:9&quot;)" methodname="InvalidSlotValuesAreRejectedBeforeLoad" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="550696561" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.006933" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1090" name="InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;affinity\&quot;:{}&quot;,&quot;\&quot;affinity\&quot;:[]&quot;)" fullname="GameProgressionIntegrationTests.InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;affinity\&quot;:{}&quot;,&quot;\&quot;affinity\&quot;:[]&quot;)" methodname="InvalidSlotValuesAreRejectedBeforeLoad" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="822384964" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.006627" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1091" name="InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;flags\&quot;:{}&quot;,&quot;\&quot;flags\&quot;:{\&quot;flag.route\&quot;:true}&quot;)" fullname="GameProgressionIntegrationTests.InvalidSlotValuesAreRejectedBeforeLoad(&quot;\&quot;flags\&quot;:{}&quot;,&quot;\&quot;flags\&quot;:{\&quot;flag.route\&quot;:true}&quot;)" methodname="InvalidSlotValuesAreRejectedBeforeLoad" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="2122400473" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.007226" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+        </test-suite>
+        <test-case id="1074" name="LateEntryWaiterSeesCompletedFailureAndNextEntryGetsFreshResult" fullname="GameProgressionIntegrationTests.LateEntryWaiterSeesCompletedFailureAndNextEntryGetsFreshResult" methodname="LateEntryWaiterSeesCompletedFailureAndNextEntryGetsFreshResult" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1882993496" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.038918" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[[Progression] OutSide → Play, Day 0, Bar
+]]></output>
+        </test-case>
+        <test-case id="1093" name="ManualSlotRoundTripsProgressThroughTemporaryDirectory" fullname="GameProgressionIntegrationTests.ManualSlotRoundTripsProgressThroughTemporaryDirectory" methodname="ManualSlotRoundTripsProgressThroughTemporaryDirectory" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1569157108" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.039567" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1079" name="MissingNextDayDoesNotAdvance" fullname="GameProgressionIntegrationTests.MissingNextDayDoesNotAdvance" methodname="MissingNextDayDoesNotAdvance" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1378497938" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.010895" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1071" name="NewGameEntersDayZeroPlayAfterTransitionCompletes" fullname="GameProgressionIntegrationTests.NewGameEntersDayZeroPlayAfterTransitionCompletes" methodname="NewGameEntersDayZeroPlayAfterTransitionCompletes" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="2068173002" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.021725" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1084" name="PlayerProgressReplacementUsesCanonicalFlagsAndRemovesPreviousKeys" fullname="GameProgressionIntegrationTests.PlayerProgressReplacementUsesCanonicalFlagsAndRemovesPreviousKeys" methodname="PlayerProgressReplacementUsesCanonicalFlagsAndRemovesPreviousKeys" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="2032385261" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.000808" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1069" name="ProjectDaysDeclareHomeThenDayThreeCommuteOut" fullname="GameProgressionIntegrationTests.ProjectDaysDeclareHomeThenDayThreeCommuteOut" methodname="ProjectDaysDeclareHomeThenDayThreeCommuteOut" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="1330137250" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.037512" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1078" name="UnknownNextDayLeavesCurrentContextAndScreenVisible" fullname="GameProgressionIntegrationTests.UnknownNextDayLeavesCurrentContextAndScreenVisible" methodname="UnknownNextDayLeavesCurrentContextAndScreenVisible" classname="GameProgressionIntegrationTests" runstate="Runnable" seed="432957308" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.010536" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1094" name="OrderRequestTests" fullname="OrderRequestTests" classname="OrderRequestTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.031370" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1095" name="CallbackAfterSettlementAndCleanup" fullname="OrderRequestTests.CallbackAfterSettlementAndCleanup" methodname="CallbackAfterSettlementAndCleanup" classname="OrderRequestTests" runstate="Runnable" seed="1974768557" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.013841" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1096" name="CancellationDuringReactionStopsSettlement" fullname="OrderRequestTests.CancellationDuringReactionStopsSettlement" methodname="CancellationDuringReactionStopsSettlement" classname="OrderRequestTests" runstate="Runnable" seed="92847415" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.002653" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1102" name="ExistingJudgementAndSettlementRulesPreserved" fullname="OrderRequestTests.ExistingJudgementAndSettlementRulesPreserved" methodname="ExistingJudgementAndSettlementRulesPreserved" classname="OrderRequestTests" runstate="Runnable" seed="98209055" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.002674" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1101" name="LateReceiverCannotServeReplacement" fullname="OrderRequestTests.LateReceiverCannotServeReplacement" methodname="LateReceiverCannotServeReplacement" classname="OrderRequestTests" runstate="Runnable" seed="313232178" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.002312" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1098" name="NoCallbackStillCleansUp" fullname="OrderRequestTests.NoCallbackStillCleansUp" methodname="NoCallbackStillCleansUp" classname="OrderRequestTests" runstate="Runnable" seed="1628049722" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.001974" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1100" name="OpenFailureReportsAfterCleanup" fullname="OrderRequestTests.OpenFailureReportsAfterCleanup" methodname="OpenFailureReportsAfterCleanup" classname="OrderRequestTests" runstate="Runnable" seed="875887971" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.001907" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1097" name="OrdersAndCraftAreIndependent" fullname="OrderRequestTests.OrdersAndCraftAreIndependent" methodname="OrdersAndCraftAreIndependent" classname="OrderRequestTests" runstate="Runnable" seed="35265625" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.002374" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1099" name="RejectedDrinkAndDuplicateRequest" fullname="OrderRequestTests.RejectedDrinkAndDuplicateRequest" methodname="RejectedDrinkAndDuplicateRequest" classname="OrderRequestTests" runstate="Runnable" seed="317948481" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.001961" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1108" name="Unity.Addressables.DocExampleCode.Editor.Tests.dll" fullname="C:/Users/hanrc/OneDrive/Documents/Unity Projects/Human-Bartender/HumanBartender/Library/ScriptAssemblies/Unity.Addressables.DocExampleCode.Editor.Tests.dll" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.000777" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="37276" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1109" name="AddressableAssets" fullname="AddressableAssets" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.000681" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1110" name="DocExampleCode" fullname="AddressableAssets.DocExampleCode" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.000579" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1106" name="TestStub" fullname="AddressableAssets.DocExampleCode.TestStub" classname="AddressableAssets.DocExampleCode.TestStub" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.000495" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1107" name="RequiredTest" fullname="AddressableAssets.DocExampleCode.TestStub.RequiredTest" methodname="RequiredTest" classname="AddressableAssets.DocExampleCode.TestStub" runstate="Runnable" seed="1057560070" result="Passed" start-time="2026-09-29 13:43:00Z" end-time="2026-09-29 13:43:00Z" duration="0.000100" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/hanrc/AppData/LocalLow/TeamSIMCHUNG/ProjectLUNA\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
