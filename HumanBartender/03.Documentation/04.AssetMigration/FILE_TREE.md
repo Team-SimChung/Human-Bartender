@@ -1,9 +1,6 @@
 # 현재 프로젝트 폴더 트리
 
-실제 생성된 폴더를 기준으로 기록했다. 특수 폴더와 외부 패키지는 이름을 유지한다.
-
 ## Assets/01.Game
-
 ```text
 01.Game/
 ├─ 01.Scenes/
@@ -287,7 +284,6 @@
 ```
 
 ## Assets/02.ArtStaging
-
 ```text
 02.ArtStaging/
 └─ 01.GoogleDrive/
@@ -400,7 +396,6 @@
 ```
 
 ## Assets/03.Dev
-
 ```text
 03.Dev/
 ├─ 01.Scenes/
@@ -430,7 +425,6 @@
 ```
 
 ## 01.SourceAssets
-
 ```text
 01.SourceAssets/
 └─ 02.Working/
@@ -455,14 +449,12 @@
 ```
 
 ## 02.ContentAuthoring
-
 ```text
 02.ContentAuthoring/
 └─ system/
 ```
 
 ## 03.Documentation
-
 ```text
 03.Documentation/
 ├─ 01.Design/
