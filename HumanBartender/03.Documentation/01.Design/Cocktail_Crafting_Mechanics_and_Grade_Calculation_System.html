@@ -1,0 +1,810 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>칵테일 제조 기믹·등급 계산 시스템</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="3c016122-98dc-8095-b35a-db795a68e3a7" class="page sans"><header><h1 class="page-title" dir="auto">칵테일 제조 기믹·등급 계산 시스템</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>생성자</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">이</span></span>이준서 </span></td></tr><tr class="property-row property-row-created_time"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/clock_gray.svg" style="width:14px;height:14px;display:block"/></span>생성 일시</th><td><time datetime="2026-08-18T22:12">2026년 8월 18일 오후 10:12</time></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>문서 태그</th><td><span class="selected-value select-value-color-red">시스템</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>PIN</th><td><input type="checkbox" class="checkbox checkbox-off" disabled=""/></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>카테고리</th><td></td></tr><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>상태</th><td><span class="status-value select-value-color-blue"><div class="status-dot status-dot-color-blue"></div>진행 중</span></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>참여자</th><td></td></tr></tbody></table></header><div class="page-body"><blockquote id="3c116122-98dc-80f4-b9be-e1f62b435d2e" class="block-color-red" data-notion-highlight="red" dir="auto"><strong>문서 목적</strong><p id="e7b4a0b2-8fd6-429b-af0a-ad4edfa79a3d" class="" dir="auto"><mark class="highlight-default" data-notion-highlight="default">프로그래머와 테크니컬 기획자를 위한 칵테일 제조 기믹 실행·제조 등급 계산 공통 명세다. 제조 준비 단계가 만든 실제 실행 큐를 순서대로 처리하고, 플레이어가 실제로 수행한 결과를</mark> <mark class="highlight-blue" data-notion-highlight="blue"><code>craft_score</code></mark><mark class="highlight-default" data-notion-highlight="default">와 </mark><mark class="highlight-default" data-notion-highlight="default"><code>craft_grade</code></mark><mark class="highlight-default" data-notion-highlight="default">로 변환한다.</mark></p></blockquote><p id="9610c001-632a-4f5e-acd1-42ae775da9c6" class="" dir="auto"><strong>판정 경계:</strong> 이 문서는 제조 품질까지만 판정한다. 주문 일치와 핵심 재료 누락에 따른 강제 Sewage, <mark class="highlight-blue" data-notion-highlight="blue"><code>final_grade</code></mark>, 손님 반응과 정산은 완성 칵테일을 코스터에 제공할 때 확정한다.</p><h1 id="6edbbc7e-0700-4690-a6a8-05d29a552f07" class="" dir="auto">1. 범위와 문서 책임</h1><table id="0caad4e6-d988-449c-ab60-1f257ffbf3bd" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="bc9f194c-7e8e-403a-a884-70f74965b79b" dir="ltr"><th id="QYVw" class="block-color-blue_background simple-table-header">문서</th><th id="i;hX" class="block-color-blue_background simple-table-header">담당 범위</th><th id="y_ei" class="block-color-blue_background simple-table-header">이 문서와의 관계</th></tr></thead><tbody><tr id="accd9d38-73a5-49d1-9416-7b38ad510a99" dir="ltr"><td id="QYVw" class=""><a href="https://app.notion.com/p/1-3bf1612298dc80a4a67ad1d6af9a5506?pvs=21" data-notion-page-id="3bf16122-98dc-80a4-a67a-d1d6af9a5506" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 칵테일 제조 루프 기획서</a></td><td id="i;hX" class="">주문 확인, 칵테일 선택, 잔·도구·재료 선택, 기믹 큐 생성</td><td id="y_ei" class="">기믹 실행 전 입력값과 큐를 전달하는 상위 제조 문서</td></tr><tr id="9bb7f05b-6a3d-4ead-b0e8-d9b398edf6bc" dir="ltr"><td id="QYVw" class="">현재 문서</td><td id="i;hX" class="">기믹 큐 실행, Actual 결과 수집, 등급 계산, 공통 오류·예외 처리</td><td id="y_ei" class="">제조 실행과 판정의 공통 기준</td></tr><tr id="1052da6f-923f-4330-9dce-280900bf80d7" dir="ltr"><td id="QYVw" class="">기믹별 상세 문서</td><td id="i;hX" class="">조작법, 화면 구성, 성공·실패 판정, 파라미터, 개별 결과 데이터</td><td id="y_ei" class="">현재 문서의 공통 규칙을 따르는 세부 구현 명세</td></tr></tbody></table><ul id="3c116122-98dc-8044-bbad-f85c07876a16" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>포함:</strong> 기믹 큐 실행, 기믹 전환, 결과 확정, 정답 기믹과 Actual 연결, 점수·감점·등급 계산, 결과 데이터, 공통 오류 처리.</li></ul><ul id="3c116122-98dc-8057-913b-c324eddccfaf" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>제외:</strong> 주문 확인, 레시피 선택, 잔·도구·재료 선택, 기믹 큐 생성 조건, 기믹별 화면·조작 세부 구현.</li></ul><ul id="2321497e-b224-4e38-967c-111b0246fcc1" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>중복 작성 금지:</strong> 개별 기믹의 상세 조작과 화면 규칙은 연결된 상세 문서에서만 관리.</li></ul><ul id="b9da3700-3114-488b-84af-66396a9927a8" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>문서 구조:</strong> 토글과 목차 블록 없이 제목 계층·표·상세 문서 링크로 탐색.</li></ul><hr id="3a98f8a6-800a-4034-9f63-01e150008405" dir="auto"/><h1 id="3c116122-98dc-8013-9bf4-c8c7f20d1fe9" class="" dir="auto">2. 전체 실행 흐름과 데이터 경계</h1><blockquote id="3c116122-98dc-8075-b41f-f4c311cf38dc" class="block-color-teal" data-notion-highlight="teal" dir="auto"><strong>처리 흐름</strong><p id="44eb4b72-9717-49d7-bfa8-9a40acc3e392" class="" dir="auto"><mark class="highlight-teal" data-notion-highlight="teal"><code>기믹 큐 수신 → 큐 검증 → 현재 기믹 활성화 → Actual 입력 수집 → 결과 1회 커밋 → 다음 기믹 전환 → Actual Craft 잠금 → craft_score·craft_grade 계산 → 결과 연출</code></mark></p></blockquote><table id="78f7920b-184e-4661-aafd-848836fbebec" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="317ba8fb-bfa8-49fa-ade0-9b30377652a8" dir="ltr"><th id="sMGZ" class="block-color-blue_background simple-table-header">데이터</th><th id="XrOK" class="block-color-blue_background simple-table-header">의미</th><th id="U[Nr" class="block-color-blue_background simple-table-header">현재 문서에서의 역할</th></tr></thead><tbody><tr id="1f5ddd9d-b37f-4578-a46c-ae2b12d095f7" dir="ltr"><td id="sMGZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Order Cocktail</code></mark></td><td id="XrOK" class="">손님이 주문한 칵테일</td><td id="U[Nr" class="">조회하지 않음·코스터 서빙 시 비교</td></tr><tr id="ed74321f-cf0c-4236-818b-ce8732d298b6" dir="ltr"><td id="sMGZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark></td><td id="XrOK" class="">플레이어가 만들기로 확정한 칵테일</td><td id="U[Nr" class="">Target·정답 잔·도구·재료와 완성 내용물 기준</td></tr><tr id="5e06e44a-6348-455d-9593-4ba3b2716a7e" dir="ltr"><td id="sMGZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark></td><td id="XrOK" class="">실제 선택한 잔·도구·재료와 수행 결과</td><td id="U[Nr" class="">실제 실행 큐 생성과 제조 품질 판정</td></tr></tbody></table><p id="8f334593-a48f-47f9-89ce-bf6323a00e2f" class="" dir="auto"><strong>핵심 원칙</strong></p><p id="9ba92035-8693-47cd-9117-e94812f09279" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>은 정답과 채점 기준을 만들고, <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>는 실제 실행 큐의 생성 기준이 된다. 큐 생성은 제조 준비 단계가 담당하며, 현재 문서는 수신한 큐를 재구성하지 않는다. 잘못된 선택을 Selected의 정답값으로 자동 교정하지 않는다.</p><table id="394dd0e3-c9a3-49a9-bcf0-f4a7c912ad4f" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="08115be7-ebd4-4ff0-bf47-59303e337edf" dir="ltr"><th id="kq|:" class="block-color-teal_background simple-table-header">순서</th><th id="K~uc" class="block-color-teal_background simple-table-header">처리</th><th id="@z\m" class="block-color-teal_background simple-table-header">완료 조건</th></tr></thead><tbody><tr id="e2613da7-7eda-4fda-bc5e-cc826ebf1ccd" dir="ltr"><td id="kq|:" class="">1</td><td id="K~uc" class="">제조 준비 단계가 확정한 실제 기믹 큐와 Selected·Actual을 수신</td><td id="@z\m" class="">필수 참조 검증 완료</td></tr><tr id="21b016e2-ebaa-4820-be09-6210c8dd37dc" dir="ltr"><td id="kq|:" class="">2</td><td id="K~uc" class="">현재 기믹 하나만 활성화하고 Actual을 보정 없이 수집</td><td id="@z\m" class="">기믹별 종료 조건 충족</td></tr><tr id="a3af23d3-f1c2-4627-bc18-cc3ff25ed476" dir="ltr"><td id="kq|:" class="">3</td><td id="K~uc" class="">결과를 <mark class="highlight-blue" data-notion-highlight="blue"><code>gimmick_results[]</code></mark>에 한 번만 저장</td><td id="@z\m" class="">중복 방지 토큰 기록</td></tr><tr id="7fca7c36-6ecb-431c-84e7-8871369dd6fc" dir="ltr"><td id="kq|:" class="">4</td><td id="K~uc" class="">다음 큐 항목으로 전환하거나 Actual Craft 잠금</td><td id="@z\m" class="">큐 소진</td></tr><tr id="4e53fe9a-f965-4bb1-9dbd-c4f833ca76cf" dir="ltr"><td id="kq|:" class="">5</td><td id="K~uc" class="">Selected Target과 Actual을 비교해 제조 점수 계산</td><td id="@z\m" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_score·craft_grade</code></mark> 확정</td></tr><tr id="fd73e4c8-31d0-420f-96a2-a4cc4c4ba01d" dir="ltr"><td id="kq|:" class="">6</td><td id="K~uc" class="">제조 결과 화면과 상위 흐름에 결과 전달</td><td id="@z\m" class="">결과 화면 진입</td></tr></tbody></table><h2 id="4953e9fb-daff-438a-8834-c28eefe34c1e" class="" dir="auto">2.1 진입과 종료 조건</h2><table id="3549245f-6282-4831-aede-cf1446966a40" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="0e7794d3-6d33-401e-9782-3bd2248d8429" dir="ltr"><th id="Ym;d" class="block-color-blue_background simple-table-header">구분</th><th id="KjPU" class="block-color-blue_background simple-table-header">조건</th><th id="BR`M" class="block-color-blue_background simple-table-header">처리</th></tr></thead><tbody><tr id="453909a5-c828-4b9c-bcd2-998ab1f2e7ad" dir="ltr"><td id="Ym;d" class="">진입</td><td id="KjPU" class="">실제 기믹 큐, Selected Cocktail, Actual Craft 준비</td><td id="BR`M" class="">큐 첫 항목 활성화</td></tr><tr id="7627c2f9-3156-4a44-8c1c-67dcad6ad4cd" dir="ltr"><td id="Ym;d" class="">빈 큐</td><td id="KjPU" class="">실행할 수동 기믹이 없음</td><td id="BR`M" class="">Actual Craft를 잠그고 제조 점수 계산으로 이동</td></tr><tr id="b3d3e307-1138-4642-a75c-6f6aa9d5a504" dir="ltr"><td id="Ym;d" class="">정상 종료</td><td id="KjPU" class="">모든 결과 커밋과 제조 점수 계산 완료</td><td id="BR`M" class="">craft 결과 전달</td></tr><tr id="1b5fad37-b075-4c0a-b796-c2b5058b4fc3" dir="ltr"><td id="Ym;d" class="">데이터 오류</td><td id="KjPU" class="">필수 Target·단위·Config·참조가 유효하지 않음</td><td id="BR`M" class="">임의 채점 금지·결과 확정 차단</td></tr></tbody></table><hr id="640fb9b9-daca-435b-90cd-8df4f11f49c4" dir="auto"/><h1 id="3c116122-98dc-8069-9732-cf22ffc6697f" class="" dir="auto">3. 기믹 큐 실행 공통 규칙</h1><p id="222db559-0867-48a0-91dd-eab3dbf5bda8" class="" dir="auto">제조 준비 단계가 실제 선택값으로 큐를 만든다. 현재 문서는 수신한 큐를 재구성하지 않고 다음 입력 계약에 따라 검증한 뒤 순서대로 실행한다.</p><table id="92f271c8-1f2e-4fcd-9552-f19dae4f7c3f" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="548ec1f2-b62c-423a-b2ef-6dedaad18199" dir="ltr"><th id="AL:E" class="block-color-purple_background simple-table-header">실제 선택</th><th id="oeCk" class="block-color-purple_background simple-table-header">실행 큐 처리</th><th id="wcEL" class="block-color-purple_background simple-table-header">Target·채점 기준</th></tr></thead><tbody><tr id="31fa7e13-6821-4cc8-934d-5cd41c9e6f24" dir="ltr"><td id="AL:E" class="">선반에서 선택한 재료</td><td id="oeCk" class="">해당 재료의 실제 action으로 Open·Pour·Fill-up 생성</td><td id="wcEL" class="">Selected recipe와 action·재료 ID 연결</td></tr><tr id="a197fb2d-cc07-4e9b-92a5-0efe7f33352b" dir="ltr"><td id="AL:E" class="">정답 레시피 밖 재료</td><td id="oeCk" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json → prep_action·default_action</code></mark>으로 생성</td><td id="wcEL" class="">대표 점수에서 제외·추가 재료 감점 후보</td></tr><tr id="788270ac-a03f-430b-aef7-6d32c649d4e4" dir="ltr"><td id="AL:E" class="">셰이커</td><td id="oeCk" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>actual_mix = shake</code></mark>·Shake 생성</td><td id="wcEL" class="">Selected의 정답 도구·mix와 비교</td></tr><tr id="ca2cce9e-b3e5-4f34-bbf0-9420bdffe1f2" dir="ltr"><td id="AL:E" class="">믹싱글라스</td><td id="oeCk" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>actual_mix = stir</code></mark>·Stir 생성</td><td id="wcEL" class="">Selected의 정답 도구·mix와 비교</td></tr><tr id="7ef16b7f-74a9-46fe-b783-58f184240c70" dir="ltr"><td id="AL:E" class="">도구 미선택</td><td id="oeCk" class="">Shake·Stir 미생성</td><td id="wcEL" class="">도구 오류와 누락 mix 결과로 판정</td></tr><tr id="b0556a1f-d379-472f-8f67-001216ce9766" dir="ltr"><td id="AL:E" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>auto_apply = true</code></mark></td><td id="oeCk" class="">Actual Craft에는 자동 적용·수동 큐에는 미생성</td><td id="wcEL" class="">데모에서 비채점</td></tr></tbody></table><ul id="3c116122-98dc-80fe-bbe9-ecae6fa61dff" class="bulleted-list" dir="auto"><li style="list-style-type:disc">올바른 레시피 재료는 <mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → recipe[].action</code></mark>을 사용한다.</li></ul><ul id="da62ee3e-9905-44db-9215-9cec95d37f69" class="bulleted-list" dir="auto"><li style="list-style-type:disc">정답 레시피 밖 재료는 <mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json</code></mark>의 기본 행동값을 사용한다.</li></ul><ul id="3c116122-98dc-805c-87dc-d165382bda4c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">개봉이 필요한 실제 병은 해당 병의 Pour보다 Open을 먼저 실행한다.</li></ul><ul id="04f14cff-e41d-4a48-ae81-e73bc5fdd44f" class="bulleted-list" dir="auto"><li style="list-style-type:disc">같은 action의 재료는 플레이어의 선택 순서를 유지한다.</li></ul><ul id="e3df7d28-24e4-4bdd-892b-780112d91c8c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">서로 다른 action은 <strong>Open → Pour → Shake 또는 Stir → Fill-up</strong> 순서로 정렬한다.</li></ul><ul id="42d236d3-a4b0-4bb1-9b2e-7cd847644b64" class="bulleted-list" dir="auto"><li style="list-style-type:disc">데모의 Squeeze·Powder·얼음은 <mark class="highlight-purple" data-notion-highlight="purple"><code>auto_apply_unscored</code></mark>이므로 수동 큐와 제조 점수에서 제외한다.</li></ul><h2 id="af604a72-be65-42bf-bc46-5376ad820f1b" class="" dir="auto">3.1 공통 실행 규칙</h2><table id="8f318593-4fa9-484e-87a9-51ab5c22aa5d" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="54b30dab-5ed0-4b9f-9767-d66af6d90231" dir="ltr"><th id="Ps]Y" class="block-color-blue_background simple-table-header">규칙</th><th id="Z_QJ" class="block-color-blue_background simple-table-header">처리</th><th id="DIMI" class="block-color-blue_background simple-table-header">예외</th></tr></thead><tbody><tr id="15679f3d-5e6c-490d-8e57-559aaa85004d" dir="ltr"><td id="Ps]Y" class="">활성 입력</td><td id="Z_QJ" class="">현재 기믹 하나만 조작 가능</td><td id="DIMI" class="">다른 기믹 입력 무시</td></tr><tr id="7073f056-4838-42dc-813d-ecde3a006014" dir="ltr"><td id="Ps]Y" class="">Target</td><td id="Z_QJ" class="">안내·채점 기준이며 Actual 자동 보정 금지</td><td id="DIMI" class="">유효하지 않으면 <mark class="highlight-red" data-notion-highlight="red"><code>DATA_ERROR</code></mark></td></tr><tr id="f2f477ac-00c7-4217-bb4f-a5488c03f859" dir="ltr"><td id="Ps]Y" class="">결과 확정</td><td id="Z_QJ" class="">종료 후 한 번만 커밋</td><td id="DIMI" class="">중복 완료 이벤트 무시</td></tr><tr id="62988169-9666-43c6-ada8-1e61124475cf" dir="ltr"><td id="Ps]Y" class="">종료 기믹 재진입</td><td id="Z_QJ" class="">결과 수정 불가</td><td id="DIMI" class="">디버그 도구에서만 별도 허용</td></tr><tr id="6847aff7-a0bd-41e7-ae6d-cfdbd2c687a8" dir="ltr"><td id="Ps]Y" class="">제조 판정</td><td id="Z_QJ" class="">마지막 기믹 뒤 craft_score·craft_grade 한 번 계산</td><td id="DIMI" class="">개별 기믹은 등급 미확정</td></tr></tbody></table><h2 id="3c116122-98dc-8086-9961-f174f007d1e1" class="" dir="auto">3.2 권장 상태</h2><table id="730e4ac0-0d30-4e1b-9911-27cd8876b6b1" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="010695a2-0276-43ae-97d0-38513c052b5e" dir="ltr"><th id="vffq" class="block-color-teal_background simple-table-header">상태</th><th id="wvO{" class="block-color-teal_background simple-table-header">역할</th><th id="VDW}" class="block-color-teal_background simple-table-header">다음 상태</th></tr></thead><tbody><tr id="195d2661-20d8-44bb-8d7f-82c572615493" dir="ltr"><td id="vffq" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>QUEUE_READY</code></mark></td><td id="wvO{" class="">큐와 참조 검증</td><td id="VDW}" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>GIMMICK_ACTIVE</code></mark> 또는 <mark class="highlight-teal" data-notion-highlight="teal"><code>CRAFT_SCORING</code></mark></td></tr><tr id="84efca98-2b3a-4fea-922e-467c0c688025" dir="ltr"><td id="vffq" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>GIMMICK_ACTIVE</code></mark></td><td id="wvO{" class="">현재 기믹 Actual 수집</td><td id="VDW}" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>GIMMICK_COMMITTING</code></mark></td></tr><tr id="3deea153-f6e3-4253-93d6-1aff4a0bfc15" dir="ltr"><td id="vffq" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>GIMMICK_COMMITTING</code></mark></td><td id="wvO{" class="">결과 1회 저장·입력 차단</td><td id="VDW}" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>TRANSITION</code></mark></td></tr><tr id="69e38f0b-fa38-4983-a11e-9bf9454abd8a" dir="ltr"><td id="vffq" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>TRANSITION</code></mark></td><td id="wvO{" class="">다음 기믹 준비</td><td id="VDW}" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>GIMMICK_ACTIVE</code></mark> 또는 <mark class="highlight-teal" data-notion-highlight="teal"><code>CRAFT_SCORING</code></mark></td></tr><tr id="5c5003ea-89ee-43dc-ba37-ba4d810a6462" dir="ltr"><td id="vffq" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>CRAFT_SCORING</code></mark></td><td id="wvO{" class="">제조 점수·등급 계산</td><td id="VDW}" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>RESULT</code></mark> 또는 <mark class="highlight-red" data-notion-highlight="red"><code>ERROR</code></mark></td></tr><tr id="3410b7c4-98ff-46e6-930c-746a08f27572" dir="ltr"><td id="vffq" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>RESULT</code></mark></td><td id="wvO{" class="">craft 결과 전달</td><td id="VDW}" class="">상위 제조 흐름</td></tr><tr id="e6db9a2f-35ff-4a3c-bdd8-1ec0bd573707" dir="ltr"><td id="vffq" class=""><mark class="highlight-red" data-notion-highlight="red"><code>ERROR</code></mark></td><td id="wvO{" class="">오류 기록·결과 차단</td><td id="VDW}" class="">안전 복귀 또는 재시도</td></tr></tbody></table><h2 id="23def60e-6c90-4e8b-a60e-380f0b9ca66d" class="" dir="auto">3.3 종료 유형과 시간</h2><table id="ceb4bef7-17bc-4a32-9ef9-cbec5916410d" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="9f6840bc-2513-4dbb-ac8d-22354d1984c1" dir="ltr"><th id="?uCP" class="block-color-blue_background simple-table-header"><mark class="highlight-blue" data-notion-highlight="blue"><code>end_type</code></mark></th><th id="UUYA" class="block-color-blue_background simple-table-header">의미</th><th id="&gt;DGk" class="block-color-blue_background simple-table-header">현재 사용</th></tr></thead><tbody><tr id="1f996619-b340-463b-868d-8e7c991b0a78" dir="ltr"><td id="?uCP" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>MANUAL_NEXT</code></mark></td><td id="UUYA" class="">플레이어가 Actual 확정</td><td id="&gt;DGk" class="">Pour·Fill-up</td></tr><tr id="e0ffe458-3027-424d-9449-ed9ed7fdd2dc" dir="ltr"><td id="?uCP" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>AUTO_TARGET</code></mark></td><td id="UUYA" class="">성공+실패 합이 목표에 도달하면 자동 종료</td><td id="&gt;DGk" class="">Shake·Stir</td></tr><tr id="b499f8ab-906f-44f2-a510-513179d26851" dir="ltr"><td id="?uCP" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>AUTO_SUCCESS</code></mark></td><td id="UUYA" class="">성공 직후 자동 종료</td><td id="&gt;DGk" class="">Open</td></tr></tbody></table><p id="de5461d3-6165-4333-a024-9127abd042a4" class="" dir="auto">전체 제조시간은 <mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → config.craft_timer_scope = manual_input_active_only</code></mark>를 따른다. 수동 입력이 활성화된 시간만 합산하며 성공 연출·전환·결과 연출은 포함하지 않는다.</p><hr id="53940f1e-3588-424d-bcad-570b811b99d1" dir="auto"/><h1 id="2a7ace6d-9b67-4c0c-bfe6-d831df2eff86" class="" dir="auto">4. 제조 기믹 색인</h1><table id="ecc2e6ba-5dd9-4885-ada1-384074235fb3" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3db41100-59b8-47ac-9f19-b35f60364705" dir="ltr"><th id="KMia" class="block-color-purple_background simple-table-header">기믹</th><th id="I`jA" class="block-color-purple_background simple-table-header">실제 생성 기준</th><th id="[NUd" class="block-color-purple_background simple-table-header">핵심 Actual</th><th id="wEkY" class="block-color-purple_background simple-table-header">데모</th><th id="[|?Z" class="block-color-purple_background simple-table-header">상세 문서</th></tr></thead><tbody><tr id="8cff78ab-8a73-42ab-b820-52b115ec8092" dir="ltr"><td id="KMia" class="">Open</td><td id="I`jA" class="">실제 선택 병의 <mark class="highlight-purple" data-notion-highlight="purple"><code>prep_action = open</code></mark></td><td id="[NUd" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>completed·attempt_count·failure_count</code></mark></td><td id="wEkY" class="">수동·채점</td><td id="[|?Z" class=""><a href="https://app.notion.com/p/3c11612298dc81578447c2497c27b7a4?pvs=21" data-notion-page-id="3c116122-98dc-8157-8447-c2497c27b7a4" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🍾"></span>[미니게임] 병따기</a></td></tr><tr id="59027393-f9e7-4dc8-b5d2-b358c93dd5c5" dir="ltr"><td id="KMia" class="">Pour</td><td id="I`jA" class="">실제 선택 재료의 action = pour</td><td id="[NUd" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>ingredient_id·actual_value·unit</code></mark></td><td id="wEkY" class="">수동·채점</td><td id="[|?Z" class=""><a href="https://app.notion.com/p/3c01612298dc8069b936defcda711c39?pvs=21" data-notion-page-id="3c016122-98dc-8069-b936-defcda711c39" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🫗"></span>[미니게임] 따르기</a></td></tr><tr id="f532baa4-f48f-44ba-bd50-b264adce3337" dir="ltr"><td id="KMia" class="">Squeeze</td><td id="I`jA" class="">Selected recipe의 auto_apply 행</td><td id="[NUd" class="">자동 적용 기록</td><td id="wEkY" class="">자동·비채점</td><td id="[|?Z" class=""><a href="https://app.notion.com/p/3c11612298dc81838fa8cfd9c7da04d0?pvs=21" data-notion-page-id="3c116122-98dc-8183-8fa8-cfd9c7da04d0" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🍋"></span>[미니게임] 스퀴즈</a></td></tr><tr id="0e2bc2e7-8c75-49ce-89fa-11625176f32b" dir="ltr"><td id="KMia" class="">Powder</td><td id="I`jA" class="">Selected recipe의 auto_apply 행</td><td id="[NUd" class="">자동 적용 기록</td><td id="wEkY" class="">자동·비채점</td><td id="[|?Z" class=""><a href="https://app.notion.com/p/3c11612298dc81348011dc628ab6cb2b?pvs=21" data-notion-page-id="3c116122-98dc-8134-8011-dc628ab6cb2b" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🥄"></span>[미니게임] 파우더</a></td></tr><tr id="1d5416fc-6f99-45e1-8647-806ee93ff8ac" dir="ltr"><td id="KMia" class="">Shake</td><td id="I`jA" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>actual_mix = shake</code></mark></td><td id="[NUd" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>success_count·failure_count·target_count</code></mark></td><td id="wEkY" class="">수동·채점</td><td id="[|?Z" class=""><a href="https://app.notion.com/p/3bb1612298dc805a976dd2a570021419?pvs=21" data-notion-page-id="3bb16122-98dc-805a-976d-d2a570021419" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">[미니게임] 셰이킹</a></td></tr><tr id="e4c9064f-79cd-48c1-b51a-d2adc4f953e7" dir="ltr"><td id="KMia" class="">Stir</td><td id="I`jA" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>actual_mix = stir</code></mark></td><td id="[NUd" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>success_count·failure_count·target_count</code></mark></td><td id="wEkY" class="">수동·채점</td><td id="[|?Z" class=""><a href="https://app.notion.com/p/3b81612298dc809188f0dbd891ecd1e4?pvs=21" data-notion-page-id="3b816122-98dc-8091-88f0-dbd891ecd1e4" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">[미니게임] 스터 </a></td></tr><tr id="ce63a6f3-d9b6-4945-bcca-00b7aeb8905d" dir="ltr"><td id="KMia" class="">Fill-up</td><td id="I`jA" class="">실제 선택 재료의 action = fill_up</td><td id="[NUd" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>ingredient_id·actual_value·unit</code></mark></td><td id="wEkY" class="">수동·채점</td><td id="[|?Z" class=""><a href="https://app.notion.com/p/3c11612298dc8122af47c1aef8532db7?pvs=21" data-notion-page-id="3c116122-98dc-8122-af47-c1aef8532db7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🥤"></span>[미니게임] 필업</a></td></tr></tbody></table><ul id="ad6515af-8543-4c69-b425-acf7fd919b9c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Open은 해당 실제 병의 Pour보다 먼저 실행한다.</li></ul><ul id="5504ed46-e615-493f-add0-3d64971af3f3" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Shake와 Stir는 Actual Tool에 따라 하나만 생성한다.</li></ul><ul id="01b3ff3f-3076-4a1a-b42a-2ada12a3e2ce" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Fill-up은 Mix 이후에 배치한다.</li></ul><ul id="10057f8e-f35e-43cb-874a-11f80d132dc1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">같은 action이 여러 번 필요하면 실제 선택 순서대로 각각 큐에 추가하고 결과도 별도 저장한다.</li></ul><hr id="58ab67fc-d485-468e-b9ca-5e01486a7261" dir="auto"/><h1 id="e76910eb-96dd-429d-8313-0da348be2462" class="" dir="auto">5. 기믹별 상세 문서</h1><p id="ee221b36-d20a-4927-b638-18c59f69fb24" class="" dir="auto"><strong>문서 분리 원칙</strong></p><p id="b7b755b2-64c3-4144-94c2-340de308d051" class="" dir="auto">이 페이지에는 각 기믹의 역할·연결 기준만 유지한다. 조작법, UI, 성공·실패 조건, 세부 파라미터와 개별 결과 구조는 연결된 상세 문서에서 관리한다.</p><h2 id="f07c0cfa-b0ef-4bae-aa2b-93db44359500" class="" dir="auto">5.1 기존 작업물 DB 문서</h2><ul id="5f120943-cf3e-43e5-ba5d-75892523af67" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3c01612298dc8069b936defcda711c39?pvs=21" data-notion-page-id="3c016122-98dc-8069-b936-defcda711c39" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🫗"></span>[미니게임] 따르기</a> — 따르기(Pour) 조작·수량 판정.</li></ul><ul id="512e6ccf-8cef-4300-b138-0d2016d28781" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3bb1612298dc805a976dd2a570021419?pvs=21" data-notion-page-id="3bb16122-98dc-805a-976d-d2a570021419" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">[미니게임] 셰이킹</a> — 셰이킹(Shake) 조작·스택 판정.</li></ul><ul id="50c77d13-8f98-470c-ab03-12be779bdd86" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3b81612298dc809188f0dbd891ecd1e4?pvs=21" data-notion-page-id="3b816122-98dc-8091-88f0-dbd891ecd1e4" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">[미니게임] 스터 </a> — 스터(Stir) 조작·스택 판정.</li></ul><h2 id="5e065ced-9b7c-47fa-97ff-5a40be3b8bf5" class="" dir="auto">5.2 현재 페이지의 하위 문서</h2><figure id="3c116122-98dc-8157-8447-c2497c27b7a4" class="link-to-page"><a href="https://app.notion.com/p/3c11612298dc81578447c2497c27b7a4?pvs=21" data-notion-page-id="3c116122-98dc-8157-8447-c2497c27b7a4" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🍾"></span>[미니게임] 병따기</a></figure><figure id="3c116122-98dc-8183-8fa8-cfd9c7da04d0" class="link-to-page"><a href="https://app.notion.com/p/3c11612298dc81838fa8cfd9c7da04d0?pvs=21" data-notion-page-id="3c116122-98dc-8183-8fa8-cfd9c7da04d0" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🍋"></span>[미니게임] 스퀴즈</a></figure><figure id="3c116122-98dc-8134-8011-dc628ab6cb2b" class="link-to-page"><a href="https://app.notion.com/p/3c11612298dc81348011dc628ab6cb2b?pvs=21" data-notion-page-id="3c116122-98dc-8134-8011-dc628ab6cb2b" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🥄"></span>[미니게임] 파우더</a></figure><figure id="3c116122-98dc-8122-af47-c1aef8532db7" class="link-to-page"><a href="https://app.notion.com/p/3c11612298dc8122af47c1aef8532db7?pvs=21" data-notion-page-id="3c116122-98dc-8122-af47-c1aef8532db7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339"><span class="icon" data-emoji="🥤"></span>[미니게임] 필업</a></figure><hr id="e00770e1-bc2c-443a-95fc-645684e4f8b1" dir="auto"/><h1 id="3c116122-98dc-802a-b113-cfeac108ce1f" class="" dir="auto">6. 제조 점수 계산 흐름</h1><p id="3c116122-98dc-805f-a802-dfbde2c0e457" class="" dir="auto"><strong>계산 대상</strong></p><p id="3c116122-98dc-804e-8bd6-ca12b41e07b0" class="" dir="auto">제조 단계에서는 Order Cocktail을 조회하지 않는다. Selected Cocktail과 Actual Craft만 비교해 <mark class="highlight-blue" data-notion-highlight="blue"><code>craft_score</code></mark>와 <mark class="highlight-blue" data-notion-highlight="blue"><code>craft_grade</code></mark>를 계산한다.</p><ol type="1" id="96b7a1d3-7a9b-4d76-8ef4-9c3df64acd7f" class="numbered-list" start="1" dir="auto"><li>Selected Cocktail의 정답 잔·도구·<mark class="highlight-purple" data-notion-highlight="purple"><code>recipe[].scored = true</code></mark> 행과 정답 mix를 Target으로 만든다.</li></ol><ol type="1" id="694674ac-cdd6-46c5-b211-804a253c7f51" class="numbered-list" start="2" dir="auto"><li>Target action과 Actual 결과를 action·ingredient_id 기준으로 연결한다.</li></ol><ol type="1" id="e32f27c4-b5c6-4749-b2f2-ea18474b4f30" class="numbered-list" start="3" dir="auto"><li>각 기믹의 개별 점수를 계산한다.</li></ol><ol type="1" id="849ff5e4-858f-4b25-94cb-d695519427f5" class="numbered-list" start="4" dir="auto"><li>같은 action 또는 action 계열의 점수를 평균내 대표 점수를 만든다. Fill-up은 Pour 계열에 포함한다.</li></ol><ol type="1" id="84be53b9-d93f-40ca-b43a-542e59b70947" class="numbered-list" start="5" dir="auto"><li>현재 채점 대상 기믹 종류의 가중치만 합이 1이 되도록 정규화한다.</li></ol><ol type="1" id="3c116122-98dc-8007-b584-d581978098d4" class="numbered-list" start="6" dir="auto"><li><mark class="highlight-blue" data-notion-highlight="blue"><code>(100 - 대표 점수) × 정규화 가중치</code></mark>로 종류별 기믹 감점을 계산한다.</li></ol><ol type="1" id="0e1a7d05-b873-4131-9c40-f30952df7c94" class="numbered-list" start="7" dir="auto"><li>잔·도구·일반 재료 누락·추가 재료·시간 초과 감점을 더한다.</li></ol><ol type="1" id="3c116122-98dc-80d6-95e2-d610e4a32da7" class="numbered-list" start="8" dir="auto"><li>100점에서 감점 합을 빼고 0–100으로 제한해 craft_score를 만든다.</li></ol><ol type="1" id="12be8cb4-04fc-47c9-aeb1-381f898acc82" class="numbered-list" start="9" dir="auto"><li><mark class="highlight-purple" data-notion-highlight="purple"><code>grade_cuts</code></mark>의 최소 점수 내림차순 first-match로 craft_grade를 확정한다.</li></ol><h2 id="78e3f8ad-47df-4012-9c03-fd5977570b2f" class="" dir="auto">6.1 Target과 Actual 연결</h2><table id="0514db0d-ccbb-4cc2-b7fc-ba0adf8edf47" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="e519f155-1bae-4fce-9adc-1bca9498347d" dir="ltr"><th id="FjeH" class="block-color-blue_background simple-table-header">상태</th><th id="Ptkl" class="block-color-blue_background simple-table-header">조건</th><th id="aYN@" class="block-color-blue_background simple-table-header">처리</th></tr></thead><tbody><tr id="e43ff405-0596-4b80-9722-975fdef83555" dir="ltr"><td id="FjeH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>MATCHED</code></mark></td><td id="Ptkl" class="">action과 재료 ID 일치</td><td id="aYN@" class="">개별 점수 계산</td></tr><tr id="955393b1-851c-4be1-96bb-db831ec7a016" dir="ltr"><td id="FjeH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>MISSING_INGREDIENT</code></mark></td><td id="Ptkl" class="">정답 재료를 선택하지 않아 기믹도 미생성</td><td id="aYN@" class="">기믹 0점과 중복하지 않고 재료 누락 감점만 적용</td></tr><tr id="1f5d3f45-9412-4d65-bedb-0548d3e80ea9" dir="ltr"><td id="FjeH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>MISSING_GIMMICK</code></mark></td><td id="Ptkl" class="">큐는 생성됐지만 Actual 결과가 없음</td><td id="aYN@" class="">개별 기믹 0점</td></tr><tr id="4600ae0c-550f-403e-84cf-c943a0af4c50" dir="ltr"><td id="FjeH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>UNEXPECTED</code></mark></td><td id="Ptkl" class="">정답에 없는 재료·기믹 결과</td><td id="aYN@" class="">기록 보존·대표 점수 제외·추가 재료 감점 후보</td></tr><tr id="144fc581-8145-4a6c-98a1-b87e7176df2d" dir="ltr"><td id="FjeH" class=""><mark class="highlight-red" data-notion-highlight="red"><code>DATA_ERROR</code></mark></td><td id="Ptkl" class="">Target·단위·Config·참조 오류</td><td id="aYN@" class="">임의 채점 금지·결과 확정 차단</td></tr></tbody></table><p id="3c116122-98dc-80f0-9735-dbeea732f210" class="" dir="auto"><strong>중복 감점 금지</strong></p><p id="4baf4555-a91d-4532-bfa1-3576ad84bf14" class="" dir="auto">정답 재료 자체가 빠져 기믹이 생성되지 않은 경우에는 같은 누락을 기믹 0점과 재료 누락 감점으로 동시에 계산하지 않는다.</p><h2 id="dc61a582-6916-438a-88b0-829a21ca7c8e" class="" dir="auto">6.2 서빙 판정으로 넘길 정보</h2><p id="f4221dcf-3003-4fe8-9cc0-4e364ef36ecb" class="" dir="auto">제조 단계는 핵심 재료 누락 여부를 확인해 <mark class="highlight-blue" data-notion-highlight="blue"><code>missing_core_ingredient_ids[]</code></mark>로 보존하지만 강제 Sewage를 적용하지 않는다. 코스터 드롭 뒤 서빙 시스템이 <mark class="highlight-blue" data-notion-highlight="blue"><code>order_match</code></mark>와 핵심 재료 누락을 함께 확인해 <mark class="highlight-blue" data-notion-highlight="blue"><code>final_grade</code></mark>를 확정한다.</p><hr id="84f18e78-a311-4ffb-8001-a3c4610cba00" dir="auto"/><h1 id="58ee2c57-4df9-46fb-a6be-b35ab4d398ca" class="" dir="auto">7. 기믹별 점수와 대표 점수</h1><h2 id="9b68bfba-ba14-4d9c-8302-dda22216a0b0" class="" dir="auto">7.1 수량형 — Pour·Fill-up</h2><p id="f20e016a-194b-4693-bbb3-e33f67e2a206" class="" dir="auto"><strong>오차율</strong></p><p id="c19eac23-0945-4f60-847a-b1ab96850d3c" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Error Ratio = ABS(Actual - Target) / Target</code></mark></p><table id="81870e1c-459b-40e9-88b2-da7cb5234e70" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7bd228f2-3f2d-4c21-bc76-ae0968f6c4ab" dir="ltr"><th id="io}@" class="block-color-teal_background simple-table-header">오차율</th><th id="PQ]~" class="block-color-teal_background simple-table-header">개별 점수</th></tr></thead><tbody><tr id="01876dad-a5a2-4c07-bd7b-a3f24a26d4ec" dir="ltr"><td id="io}@" class="">0% 이상–5% 미만</td><td id="PQ]~" class="">100</td></tr><tr id="6bc41c96-bb69-41c6-b7b5-fa57687324ac" dir="ltr"><td id="io}@" class="">5% 이상–10% 미만</td><td id="PQ]~" class="">90</td></tr><tr id="60a92ebe-d325-4613-8ba6-ee96488f55f9" dir="ltr"><td id="io}@" class="">10% 이상–20% 미만</td><td id="PQ]~" class="">75</td></tr><tr id="d4a91c86-645c-4f03-80a6-7842b9d581e3" dir="ltr"><td id="io}@" class="">20% 이상–35% 미만</td><td id="PQ]~" class="">50</td></tr><tr id="81545620-7716-48ad-9c98-87d3d0ba6e22" dir="ltr"><td id="io}@" class="">35% 이상</td><td id="PQ]~" class="">0</td></tr></tbody></table><ul id="508d9639-7c2b-49c1-91a7-38133fa2b77b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실제 경계 포함 여부는 <mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → score_bands[band_type = quantity]</code></mark>를 그대로 읽는다.</li></ul><ul id="d21089e8-7b9f-4b8b-bef6-8fff648c8be5" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Target과 Actual은 먼저 같은 단위로 변환한다. <mark class="highlight-purple" data-notion-highlight="purple"><code>unit_oz_to_ml = 30</code></mark>, <mark class="highlight-purple" data-notion-highlight="purple"><code>unit_tsp_to_ml = 5</code></mark>다.</li></ul><ul id="94e41089-e1ce-4f47-9b8d-49191db15ada" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>Target &lt;= 0</code></mark> 또는 단위 변환 불가는 <mark class="highlight-red" data-notion-highlight="red"><code>DATA_ERROR</code></mark>다.</li></ul><h2 id="6ece88f3-4945-43ce-acfe-61f4f0d4178b" class="" dir="auto">7.2 Open</h2><p id="277a1aab-4bc3-417b-b135-cc611dbae3e1" class="" dir="auto"><strong>점수</strong></p><p id="cce8e35b-8169-47de-954b-808ed543b3c7" class="" dir="auto"><mark class="highlight-purple" data-notion-highlight="purple"><code>Open Score = MAX(0, 100 - failure_count × open_penalty_per_failure)</code></mark></p><ul id="dcab87af-bba0-4ad9-a43a-4bee327dd7d6" class="bulleted-list" dir="auto"><li style="list-style-type:disc">첫 시도 성공은 100점이다.</li></ul><ul id="0d1cfa19-4e4e-418d-9e2b-ef57c95d26c7" class="bulleted-list" dir="auto"><li style="list-style-type:disc">완료 결과가 없거나 최종 성공하지 못했으면 0점이다.</li></ul><ul id="a57c0a7f-8ce9-486e-b9b1-92ffec64c00e" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>open_penalty_per_failure = 15</code></mark>를 JSON에서 읽는다.</li></ul><h2 id="fe70dd86-5d3d-49c9-a9e7-028c20dcf67b" class="" dir="auto">7.3 Shake·Stir</h2><p id="58a5537b-c035-4d0f-a92c-fb7118b97aac" class="" dir="auto"><strong>점수</strong></p><p id="2042e2c8-ced9-4ba0-8924-26e729b06312" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Mix Score = MIN(100, success_count / target_count × 100)</code></mark></p><table id="65df9bef-5141-4005-8d1c-ae098b393c42" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="74610d1a-debc-4b27-932a-27fbf066c0a4" dir="ltr"><th id="q~Z}" class="block-color-purple_background simple-table-header">기믹</th><th id="gaC]" class="block-color-purple_background simple-table-header">목표 판정 수</th><th id="StFf" class="block-color-purple_background simple-table-header">종료 조건</th></tr></thead><tbody><tr id="558abaf7-fd65-4f24-981f-b7d33fe9becf" dir="ltr"><td id="q~Z}" class="">Shake</td><td id="gaC]" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>shake_target_stacks = 20</code></mark></td><td id="StFf" class="">성공+실패 합 20에서 자동 종료</td></tr><tr id="53b1e41c-ee66-47fb-b5af-db13eee91a47" dir="ltr"><td id="q~Z}" class="">Stir</td><td id="gaC]" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>stir_target_stacks = 10</code></mark></td><td id="StFf" class="">성공+실패 합 10에서 자동 종료</td></tr></tbody></table><ul id="e5bf373b-3b1e-48c6-bd3a-92f3554ffe50" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실패는 성공하지 못한 목표 스택으로 이미 반영되므로 실패당 별도 감점을 다시 적용하지 않는다.</li></ul><ul id="d498cdbe-8f90-473d-9cb8-43188fcf7b2d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Shake에는 실패 횟수 기반 조기 종료를 사용하지 않는다.</li></ul><h2 id="7253c015-1575-4641-86bb-91e4a28643da" class="" dir="auto">7.4 대표 점수와 가중치</h2><ul id="2fd4a1a7-c79f-4da1-9521-008465bf8adb" class="bulleted-list" dir="auto"><li style="list-style-type:disc">같은 action의 개별 점수를 평균내 대표 점수를 만든다.</li></ul><ul id="342a07a5-d84f-4b63-b66e-182cbf653a48" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Pour와 Fill-up은 하나의 Pour 계열로 합치고 <mark class="highlight-purple" data-notion-highlight="purple"><code>weight_pour</code></mark>를 사용한다.</li></ul><ul id="38efe3d6-2ba1-42ef-87a7-5d90e7c2f716" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현재 제조에서 실제 채점하는 종류만 모아 가중치 합이 1이 되도록 정규화한다.</li></ul><ul id="97727582-176f-472c-a752-02a31774be4c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현행 원본 가중치는 <mark class="highlight-blue" data-notion-highlight="blue"><code>open 10·pour 20·squeeze 10·powder 5·shake 20·stir 20</code></mark>이다.</li></ul><ul id="e373fb45-37bc-4108-9bb2-e0058f0ab1a1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">데모에서 자동·비채점인 Squeeze와 Powder는 정규화 대상에서 제외한다.</li></ul><p id="6f0a36cc-51c5-48d5-993b-bc058fa429df" class="" dir="auto"><strong>기믹 감점</strong></p><p id="eaac69da-f4ad-4289-a00c-166133a625de" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Gimmick Error Penalty = Σ((100 - Representative Score) × Normalized Weight)</code></mark></p><hr id="616f769a-515a-4b54-94d6-bbb5d7ab4a53" dir="auto"/><h1 id="6753d921-e117-488d-93b3-6e6ce683ccf7" class="" dir="auto">8. 고정 감점과 전체 제조시간</h1><table id="99f0e569-4e62-4614-8a12-63067440c6a6" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="24008701-ae2d-4c56-81da-75dab2c87868" dir="ltr"><th id="GSco" class="block-color-red_background simple-table-header">항목</th><th id="ZDiU" class="block-color-red_background simple-table-header">현행 값</th><th id="BRN|" class="block-color-red_background simple-table-header">Config·데이터 키</th><th id="POQD" class="block-color-red_background simple-table-header">처리</th></tr></thead><tbody><tr id="4fae7103-c289-48c8-af68-b11c4c12ba42" dir="ltr"><td id="GSco" class="">잔 불일치</td><td id="ZDiU" class="">10</td><td id="BRN|" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>glass_mismatch_penalty</code></mark></td><td id="POQD" class="">Actual Glass와 Selected의 정답 잔 비교</td></tr><tr id="78b1388b-8128-4970-8120-d06ae4a14d85" dir="ltr"><td id="GSco" class="">도구 불일치·미선택</td><td id="ZDiU" class="">10</td><td id="BRN|" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>tool_mismatch_penalty</code></mark></td><td id="POQD" class="">Actual Tool과 Selected의 정답 도구 비교</td></tr><tr id="771c307c-f914-44b3-8d9c-cda4550c1cb8" dir="ltr"><td id="GSco" class="">일반 재료 누락</td><td id="ZDiU" class="">개당 15</td><td id="BRN|" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>missing_ingredient_penalty</code></mark></td><td id="POQD" class="">같은 누락을 기믹 0점으로 중복 적용하지 않음</td></tr><tr id="3d710bed-7c87-4f96-be22-c70100471fcd" dir="ltr"><td id="GSco" class="">추가 재료</td><td id="ZDiU" class="">개당 10</td><td id="BRN|" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>extra_ingredient_penalty</code></mark></td><td id="POQD" class="">Selected recipe에 없는 실제 재료</td></tr><tr id="a251dce5-41d0-4455-bb3e-8207d6c62870" dir="ltr"><td id="GSco" class="">시간 초과</td><td id="ZDiU" class="">0·5·10·20·30</td><td id="BRN|" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>score_bands[band_type = overtime]</code></mark></td><td id="POQD" class="">초과율이 속한 구간의 penalty 사용</td></tr></tbody></table><p id="c8a24dc0-e32f-46b9-8146-7793b5152d54" class="" dir="auto"><strong>시간 초과율</strong></p><p id="35f3952b-6f33-4af1-87bf-4a3883ea59d5" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Overtime Ratio = MAX(0, elapsed_manual_sec - time_limit_sec) / time_limit_sec</code></mark></p><ul id="a1d48b99-2844-4a0b-887f-97afa52098be" class="bulleted-list" dir="auto"><li style="list-style-type:disc">전체 제조시간은 <mark class="highlight-purple" data-notion-highlight="purple"><code>craft_timer_scope = manual_input_active_only</code></mark>를 따른다.</li></ul><ul id="17b37087-35a0-4021-b9ef-22950bf0a559" class="bulleted-list" dir="auto"><li style="list-style-type:disc">플레이어의 수동 입력이 활성화된 기믹 시간만 <mark class="highlight-blue" data-notion-highlight="blue"><code>elapsed_manual_sec</code></mark>에 합산한다.</li></ul><ul id="d11e7a59-b765-4465-b20d-cabf1869d4c2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">성공 연출, 기믹 전환, 결과 연출, 메뉴·준비 화면 대기시간은 포함하지 않는다.</li></ul><ul id="07b41c98-6a4b-4b01-8aca-5bbb4cbb36e2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Stir의 한 바퀴 2초 같은 기믹 내부 제한시간은 전체 제조시간과 별개다.</li></ul><ul id="68c4f47e-f2b0-4682-a5ae-d9f47d9c3851" class="bulleted-list" dir="auto"><li style="list-style-type:disc">시간 초과만으로 강제 Sewage 처리하지 않는다.</li></ul><hr id="2aba0183-478d-43a2-a8e8-03a745c50a98" dir="auto"/><h1 id="083ae630-6962-4799-8bb6-a3058bdcbd9b" class="" dir="auto">9. craft_score·craft_grade와 final_grade</h1><p id="73ae1d6f-3c6f-4327-a31b-71ee12bff7ba" class="" dir="auto"><strong>제조 점수</strong></p><p id="53560e10-9562-4257-8778-c477b1d176fc" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_score = CLAMP(100 - Gimmick Error Penalty - Fixed Penalties - Overtime Penalty, 0, 100)</code></mark></p><table id="260cbeaa-8c6f-4293-b725-913cb0bdf8e8" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="d226576d-3f00-415d-b002-9a89db1ef33c" dir="ltr"><th id="E|E}" class="block-color-teal_background simple-table-header">craft_score</th><th id="jX`B" class="block-color-teal_background simple-table-header">craft_grade 직렬화 값</th></tr></thead><tbody><tr id="c62f63f0-ff53-482f-b865-bd5ec2cb13fb" dir="ltr"><td id="E|E}" class="">95 이상</td><td id="jX`B" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>excellent</code></mark></td></tr><tr id="cd75c97d-8556-4368-bc98-5186928ea0ed" dir="ltr"><td id="E|E}" class="">80 이상</td><td id="jX`B" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>good</code></mark></td></tr><tr id="4070dff5-db0b-40da-856e-68e4e30ba6f0" dir="ltr"><td id="E|E}" class="">60 이상</td><td id="jX`B" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>decent</code></mark></td></tr><tr id="bfd06278-b328-45e4-a023-17c93e533895" dir="ltr"><td id="E|E}" class="">35 이상</td><td id="jX`B" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>poor</code></mark></td></tr><tr id="23a58234-541f-4fe4-a70e-87e4564f2215" dir="ltr"><td id="E|E}" class="">0 이상</td><td id="jX`B" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>sewage</code></mark></td></tr></tbody></table><ul id="30371d5c-3cd3-4aa7-835a-3817702d55e0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">등급 비교는 반올림 전 내부 정밀도의 craft_score를 사용한다.</li></ul><ul id="67c2c13a-ffa8-4506-bc40-dd4b5e67c025" class="bulleted-list" dir="auto"><li style="list-style-type:disc">내부 enum은 소문자 <mark class="highlight-blue" data-notion-highlight="blue"><code>excellent·good·decent·poor·sewage</code></mark>로 통일한다.</li></ul><ul id="6dac28e8-e550-4ba6-ae6a-72560d682c2d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">화면 표시명은 <mark class="highlight-purple" data-notion-highlight="purple"><code>ui_strings.json</code></mark>의 현재 언어 문자열을 사용한다.</li></ul><ul id="4235deab-ee9b-4d1b-8808-96b05f09796b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 단계에서는 Order와 Selected를 비교하지 않으며 강제 Sewage를 적용하지 않는다.</li></ul><ul id="7bc93bcb-1e94-48ec-944c-8fa5cbaf4e56" class="bulleted-list" dir="auto"><li style="list-style-type:disc">코스터 드롭 시 <mark class="highlight-blue" data-notion-highlight="blue"><code>order_match</code></mark>와 핵심 재료 누락을 검사한다. 강제 조건이면 craft_score·craft_grade는 진단용으로 보존하고 <mark class="highlight-blue" data-notion-highlight="blue"><code>final_grade = sewage</code></mark>로 덮어쓴다.</li></ul><hr id="220aac64-8c43-4540-8336-997821a2632f" dir="auto"/><h1 id="fd1cf6a0-1820-48e5-a825-baf5221124c7" class="" dir="auto">10. 제조 결과 데이터</h1><h2 id="179d1369-b1bb-41e0-aa8e-7827b13cf886" class="" dir="auto">10.1 더미 결과 예시</h2><p id="5f07ae7b-62bb-40af-bef7-a6f02dbb25f8" class="" dir="auto">아래 값은 결과 구조와 필드 연결을 설명하기 위한 더미 예시다. 실제 요청 ID와 점수로 사용하지 않는다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="0e6eacbd-e363-4a76-b93a-bca28cd36098" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">{
+  &quot;request_id&quot;: &quot;craft_001&quot;,
+  &quot;score_status&quot;: &quot;SCORED&quot;,
+  &quot;error_code&quot;: null,
+  &quot;gimmick_results&quot;: [],
+  &quot;craft_score&quot;: 88.4,
+  &quot;craft_grade&quot;: &quot;good&quot;,
+  &quot;penalty_breakdown&quot;: {
+    &quot;gimmick_error&quot;: 6.6,
+    &quot;glass&quot;: 0,
+    &quot;tool&quot;: 0,
+    &quot;missing_ingredient&quot;: 5,
+    &quot;extra_ingredient&quot;: 0,
+    &quot;overtime&quot;: 0
+  },
+  &quot;missing_core_ingredient_ids&quot;: []
+}</code></pre><h2 id="6248bb0e-7e69-4e18-8cc3-9e40524768e8" class="" dir="auto">10.2 결과 필드 규칙</h2><table id="c69b900e-7777-4389-86bf-3f2878dbba37" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="5ce1c459-fe32-4067-87a2-a6134328eea6" dir="ltr"><th id="RpS&lt;" class="block-color-blue_background simple-table-header">필드</th><th id="xfmU" class="block-color-blue_background simple-table-header">타입</th><th id="ZMJH" class="block-color-blue_background simple-table-header">규칙</th></tr></thead><tbody><tr id="a7c77e8b-67be-452e-a5a5-263600cfa566" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark></td><td id="xfmU" class="">string</td><td id="ZMJH" class="">제조 요청과 결과를 연결하는 고유 ID</td></tr><tr id="6db9e109-2c89-4a5e-95f1-789f73d79e5a" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>score_status</code></mark></td><td id="xfmU" class="">enum</td><td id="ZMJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>SCORED</code></mark> 또는 <mark class="highlight-red" data-notion-highlight="red"><code>DATA_ERROR</code></mark></td></tr><tr id="9de77fd1-3ff7-452e-a281-097f19dccbc5" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>error_code</code></mark></td><td id="xfmU" class="">string·null</td><td id="ZMJH" class="">DATA_ERROR 원인 코드. 정상 SCORED면 null</td></tr><tr id="2421c6c7-f01d-43a4-82ba-f8b3278398c4" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>gimmick_results[]</code></mark></td><td id="xfmU" class="">object[]</td><td id="ZMJH" class="">각 기믹의 Target·Actual·종료 결과</td></tr><tr id="3ef6ca45-84dd-424b-9178-0f02de43acc7" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_score</code></mark></td><td id="xfmU" class="">number·null</td><td id="ZMJH" class="">정상 판정 0–100, DATA_ERROR면 null</td></tr><tr id="d2d2adb8-3fb9-410a-8d6d-af7ae8ed2b09" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_grade</code></mark></td><td id="xfmU" class="">enum·null</td><td id="ZMJH" class="">정상 판정 소문자 등급, DATA_ERROR면 null</td></tr><tr id="d2bcb6b2-9371-459e-8418-261105dff1a7" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>penalty_breakdown</code></mark></td><td id="xfmU" class="">object</td><td id="ZMJH" class="">점수 재현과 QA를 위한 항목별 감점</td></tr><tr id="00d56a91-ddb5-4b2a-a3d5-621de7d4dc9d" dir="ltr"><td id="RpS&lt;" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>missing_core_ingredient_ids[]</code></mark></td><td id="xfmU" class="">string[]</td><td id="ZMJH" class="">서빙 단계 강제 Sewage 검사에 사용</td></tr></tbody></table><ul id="ca150afc-0477-4ae9-a7af-9f8d645bd306" class="bulleted-list" dir="auto"><li style="list-style-type:disc">숫자 필드에 <mark class="highlight-teal" data-notion-highlight="teal"><code>NOT_CALCULATED</code></mark> 같은 문자열을 넣지 않는다.</li></ul><ul id="81190829-aa7d-4c65-bf83-651c375dc401" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>final_grade·is_sewage_override·sewage_reason·target_order_id</code></mark>는 이 결과가 아니라 ServeResult가 소유한다.</li></ul><hr id="2f7851f6-168e-491f-b79a-f6bb9c246d20" dir="auto"/><h1 id="128758d1-1c71-4319-8a8c-c191c5c5cd98" class="" dir="auto">11. 오류와 예외 처리</h1><table id="a9624641-414f-4546-b01b-88c0469592f2" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="881630d1-6e26-4213-8388-7f2f7665ad2f" dir="ltr"><th id="LHRj" class="block-color-red_background simple-table-header">오류·예외</th><th id="kzEk" class="block-color-red_background simple-table-header">조건</th><th id="HdH;" class="block-color-red_background simple-table-header">처리</th></tr></thead><tbody><tr id="b2cd3699-49bb-4013-832a-406221379d4e" dir="ltr"><td id="LHRj" class=""><mark class="highlight-red" data-notion-highlight="red"><code>DATA_ERROR</code></mark></td><td id="kzEk" class="">Target·단위·변환·필수 Config·참조 오류</td><td id="HdH;" class="">임의 채점·동일 요청 자동 재시도 금지. craft_score·craft_grade는 null, error_code는 필수. 제조 입력·타이머 정지 후 상위 흐름에 오류 결과 반환</td></tr><tr id="026ebf99-e9b3-4c93-82d1-2fc7edae269e" dir="ltr"><td id="LHRj" class=""><mark class="highlight-red" data-notion-highlight="red"><code>UNSUPPORTED_GIMMICK</code></mark></td><td id="kzEk" class="">지원하지 않는 action</td><td id="HdH;" class="">실행 차단·큐와 참조 문맥 기록</td></tr><tr id="bad4c713-f050-4ac1-b167-8817312fd8a7" dir="ltr"><td id="LHRj" class=""><mark class="highlight-red" data-notion-highlight="red"><code>DUPLICATE_COMMIT</code></mark></td><td id="kzEk" class="">같은 기믹 완료 이벤트 반복</td><td id="HdH;" class="">첫 커밋만 유지·이후 이벤트 무시</td></tr><tr id="bf73f626-a9c7-40ca-86e6-1dffa9ff47ad" dir="ltr"><td id="LHRj" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>MISSING_GIMMICK</code></mark></td><td id="kzEk" class="">정답 큐는 있으나 Actual 결과 없음</td><td id="HdH;" class="">정상 플레이 결과로 개별 점수 0점</td></tr><tr id="a326a7f1-03ab-4111-851e-8863298707d3" dir="ltr"><td id="LHRj" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>UNEXPECTED</code></mark></td><td id="kzEk" class="">정답에 없는 재료·기믹 결과</td><td id="HdH;" class="">기록 보존·대표 점수 제외·추가 재료 감점 후보</td></tr><tr id="883c8232-9f7f-4611-ae0e-9503c2a3c2eb" dir="ltr"><td id="LHRj" class="">잘못된 종료 입력</td><td id="kzEk" class="">자동 종료 기믹의 수동 확정 또는 전환 중 입력</td><td id="HdH;" class="">입력 소비·현재 상태 유지</td></tr></tbody></table><p id="85a382ec-d2d3-4dd4-9522-934f1f431b9c" class="" dir="auto"><strong>폴백 원칙</strong></p><p id="28ff250b-0b12-4bec-bad7-0314a2c40ed7" class="" dir="auto">필수 데이터 오류를 0점이나 기본 Target으로 숨기지 않는다. 정상 플레이 결과인 MISSING_GIMMICK·UNEXPECTED와 구현·데이터 오류인 DATA_ERROR를 분리한다.</p><hr id="902283c0-37d4-478f-93b2-5ff59775534c" dir="auto"/><h1 id="0a186fb2-3a22-4ea0-bd09-5b68fc3a3dfd" class="" dir="auto">12. 확정값과 후속 작업</h1><h2 id="0de48f8e-35e7-49a9-9f31-9224efb82576" class="" dir="auto">12.1 현재 확정</h2><ul id="9f7ec855-67b6-495c-a227-06754db2d2f2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실제 선택값으로 실행 큐를 생성한다.</li></ul><ul id="bebce373-83c4-4336-9b87-f3d6863fdc76" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 단계에서 craft_score·craft_grade를 확정하고, 서빙 단계에서 final_grade를 확정한다.</li></ul><ul id="1ead6992-f81f-4b8e-9741-d0dd617e6f79" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>weighted_representative_v1</code></mark>과 <mark class="highlight-blue" data-notion-highlight="blue"><code>mean_per_action_then_weighted</code></mark>를 사용한다.</li></ul><ul id="98ce9c7a-48cf-41a4-953c-5c073588a67b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실제 채점 종류의 가중치만 정규화한다.</li></ul><ul id="ec28a9bc-64ca-4520-988c-80656968dafd" class="bulleted-list" dir="auto"><li style="list-style-type:disc">수동 입력이 가능한 시간만 전체 제조시간으로 측정한다.</li></ul><ul id="03f71a72-91e3-4d15-98db-ad90219d9083" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Shake 20스택, Stir 10스택을 사용한다.</li></ul><ul id="1ba9e1ee-8e4f-4a36-ac62-204f3646b206" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Shake·Stir 실패당 별도 재감점을 적용하지 않는다.</li></ul><ul id="a5d487b5-76eb-485f-b5df-096217eb065c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Squeeze·Powder·얼음은 데모에서 자동 적용·비채점한다.</li></ul><ul id="9addb7fa-6ebb-4d35-90bc-a1399b0db70f" class="bulleted-list" dir="auto"><li style="list-style-type:disc">잔·도구·누락·추가 재료·시간 초과 값은 <mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json</code></mark>을 정본으로 사용한다.</li></ul><ul id="322c6105-9e3d-4fb3-bedf-45ced3ca2740" class="bulleted-list" dir="auto"><li style="list-style-type:disc">DATA_ERROR는 플레이 실패와 분리한다. 결과·서빙·정산을 생성하지 않으며, 상위 제조 흐름은 한영 오류 팝업에서 <strong>다시 시도</strong>와 <strong>제조 취소</strong>를 제공한다. 다시 시도는 동일한 Actual Craft로 기믹 큐를 재생성하되 새 <code>request_id</code>를 사용하고, 제조 취소는 현재 CraftAttempt를 폐기한 뒤 대기 주문을 유지한 채 칵테일 선택 화면으로 돌아간다. 같은 오류가 연속 2회 반복되면 안전 이탈과 제조 진입 전 마지막 체크포인트 복원을 우선 안내한다.</li></ul><h2 id="bd881230-801b-44fc-b028-49f7095737d9" class="" dir="auto">12.2 후속 작업</h2><table id="e509b754-ec37-4cc7-b98d-4d3471e982c5" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="96c83d97-b429-4d8c-9d7a-8732c1c502ee" dir="ltr"><th id="GMs^" class="block-color-yellow_background simple-table-header">항목</th><th id="Giqg" class="block-color-yellow_background simple-table-header">현재 처리</th><th id="sExU" class="block-color-yellow_background simple-table-header">완료 기준</th></tr></thead><tbody><tr id="cc7a6641-ae1a-42c5-b9cb-06e3362921fa" dir="ltr"><td id="GMs^" class="">가중치·감점 밸런스</td><td id="Giqg" class="">현행 JSON 값으로 구현</td><td id="sExU" class="">플레이테스트 후 값만 조정·산식 유지</td></tr><tr id="715ae7cf-3c48-4ea8-9af4-622a38cb9868" dir="ltr"><td id="GMs^" class="">Squeeze·Powder 수동화</td><td id="Giqg" class="">데모 범위 밖·자동 비채점</td><td id="sExU" class="">본편 사용 전에 조작·Target·점수 계약 별도 확정</td></tr><tr id="ce39aa2e-418e-43ba-9a63-805e3ded50c9" dir="ltr"><td id="GMs^" class="">DATA_ERROR 사용자 화면</td><td id="Giqg" class="">결과·서빙·정산 차단, 오류 상태 자동 저장 금지. 동일 Actual Craft 재시도는 새 <code>request_id</code>로만 허용</td><td id="sExU" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>ui_data_error_title·ui_data_error_body·ui_data_error_retry·ui_data_error_cancel</code></mark>로 재시도·제조 취소 제공. 같은 오류 2회 반복 시 <mark class="highlight-purple" data-notion-highlight="purple"><code>ui_data_error_repeat_body·ui_data_error_safe_exit</code></mark>로 안전 이탈 안내</td></tr><tr id="76400295-a7ea-4657-8df0-af41f79eb82c" dir="ltr"><td id="GMs^" class="">기믹 이펙트·SFX</td><td id="Giqg" class="">기능 판정과 분리</td><td id="sExU" class="">상세 UI·그래픽 문서에서 리소스 키 연결</td></tr></tbody></table><hr id="d8b83d50-d56f-4c6f-a275-6992b91890a5" dir="auto"/><h1 id="53406aa8-f594-4f1c-9fe4-bc39a3eddc4b" class="" dir="auto">13. 구현 완료 기준</h1><table id="298ea284-5d4a-453a-919f-8e743cad5adb" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="84c9f8dd-b9f7-4e77-b1a4-746f9190e0e7" dir="ltr"><th id="]E&lt;L" class="block-color-teal_background simple-table-header">검증 상황</th><th id="MiMj" class="block-color-teal_background simple-table-header">기대 결과</th><th id="aPOe" class="block-color-teal_background simple-table-header">결과</th></tr></thead><tbody><tr id="f035d42c-0c06-472a-a4e9-df24b1629760" dir="ltr"><td id="]E&lt;L" class="">잘못된 재료 선택</td><td id="MiMj" class="">정답이 아니라 실제 선택 재료와 action이 큐에 등장</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="a9bb97d2-63fc-4a12-adca-e606beda45e4" dir="ltr"><td id="]E&lt;L" class="">잘못된 도구 선택</td><td id="MiMj" class="">실제 도구에 맞는 Shake 또는 Stir 실행·도구 불일치 판정</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="f963d0ed-9d33-4a2b-8aee-e4cc10e57ecd" dir="ltr"><td id="]E&lt;L" class="">도구 미선택</td><td id="MiMj" class="">mix 기믹 미생성·도구 오류 기록</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="099b8665-f154-4ea0-a0b4-5e1cb10910aa" dir="ltr"><td id="]E&lt;L" class="">자동 적용 재료</td><td id="MiMj" class="">Actual Craft에는 존재하지만 수동 큐와 데모 점수에서는 제외</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="69ff07b3-df82-405a-8d7e-c14a54de7ca4" dir="ltr"><td id="]E&lt;L" class="">Target 초과·미달</td><td id="MiMj" class="">Actual을 보정하지 않고 실제 값 그대로 저장</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="e929e9e7-a1af-4211-a665-b7f011e7d5c2" dir="ltr"><td id="]E&lt;L" class="">Shake·Stir</td><td id="MiMj" class="">20·10 스택에서 자동 종료하고 실패를 이중 감점하지 않음</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="763d8b81-2c33-4d3a-935b-1dbe28813a19" dir="ltr"><td id="]E&lt;L" class="">반복 action</td><td id="MiMj" class="">개별 점수 평균 뒤 종류별 가중치 1회 적용</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="666d7db5-7048-4b8c-b503-1796aee72b2c" dir="ltr"><td id="]E&lt;L" class="">제조 판정</td><td id="MiMj" class="">Order 없이 craft_score·craft_grade 계산</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="daa24338-f546-4f2b-b3dd-ef52053b3eb9" dir="ltr"><td id="]E&lt;L" class="">서빙 판정</td><td id="MiMj" class="">코스터 드롭 후에만 final_grade와 Sewage override 확정</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr><tr id="f2cba042-b2ab-43da-96a5-982a1b724e9f" dir="ltr"><td id="]E&lt;L" class="">오류 데이터</td><td id="MiMj" class="">DATA_ERROR를 기본값으로 숨기지 않고 결과 확정 차단</td><td id="aPOe" class="">대기 / 실패 / 통과</td></tr></tbody></table><hr id="6affeab9-752b-4b2d-a312-572b7b6f357c" dir="auto"/><h1 id="525bd5da-6660-4af4-94b2-23635958676e" class="" dir="auto">14. 변경 기록</h1><table id="8c2a6ff7-8793-42dc-9bfa-1cfc5e572d3c" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="43adbb0e-6a33-4192-a524-e67e905e5bd1" dir="ltr"><th id="eWYB" class="block-color-blue_background simple-table-header">날짜</th><th id="]T~Z" class="block-color-blue_background simple-table-header">변경 내용</th><th id="dmQB" class="block-color-blue_background simple-table-header">변경 이유</th><th id="aHk{" class="block-color-blue_background simple-table-header">확인자</th></tr></thead><tbody><tr id="9fd069e8-dbe1-4cd4-8346-c267f199c9db" dir="ltr"><td id="eWYB" class="">2026-08-19</td><td id="]T~Z" class="">전체 구조·서식 재정리</td><td id="dmQB" class="">기믹 링크, 공통 실행 규칙, 등급 계산, 오류·검증 기준을 구현 순서로 분리</td><td id="aHk{" class="">이준서 요청</td></tr><tr id="68619180-fcd8-4149-9ed7-2e73ae534ce5" dir="ltr"><td id="eWYB" class="">2026-08-19</td><td id="]T~Z" class="">실제 큐·제조 판정·서빙 판정 경계 통일</td><td id="dmQB" class="">제조 준비·제공 문서와 현행 JSON의 충돌 제거</td><td id="aHk{" class="">첨부 검토 반영</td></tr></tbody></table><hr id="da536d8b-8578-4fd7-93fa-dddbbaa6a579" dir="auto"/><h1 id="da26a57f-2ea9-4791-8552-d503a7c47078" class="" dir="auto">15. 참고 문서</h1><ul id="058a53c6-9dac-480c-a93b-f08c673b67c8" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/1-3bf1612298dc80a4a67ad1d6af9a5506?pvs=21" data-notion-page-id="3bf16122-98dc-80a4-a67a-d1d6af9a5506" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 칵테일 제조 루프 기획서</a> — 1부 전체 제조 흐름.</li></ul><ul id="614d81de-274c-4c9f-8cc2-8f73f1ac0929" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3c11612298dc819fbb56d40aebcfee79?pvs=21" data-notion-page-id="3c116122-98dc-819f-bb56-d40aebcfee79" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제조 준비 시스템</a> — Actual Craft와 실제 큐 생성.</li></ul><ul id="67a95e9c-3a72-42db-8f03-37c0f4cd3ce2" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3c11612298dc817185bfe4a56005f954?pvs=21" data-notion-page-id="3c116122-98dc-8171-85bf-e4a56005f954" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제공·정산·다회 주문</a> — 코스터 드롭, final_grade, 반응·정산.</li></ul><ul id="e0fb4ae5-d0bb-421e-a882-58fa36833887" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/1-3c11612298dc8109acb3d12867d86412?pvs=21" data-notion-page-id="3c116122-98dc-8109-acb3-d12867d86412" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 제조 루프 구현·검증 계약</a> — 외부 요청·응답과 구현 검증.</li></ul><ul id="5e798070-2fb4-457b-ac1a-c1db166f6eb5" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/39f1612298dc80e89029fb739290812d?pvs=21" data-notion-page-id="39f16122-98dc-80e8-9029-fb739290812d" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">데이터 구조</a> — JSON 스키마와 balance 정본.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

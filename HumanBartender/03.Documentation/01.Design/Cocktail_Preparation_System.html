@@ -1,0 +1,849 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>칵테일 제조 준비 시스템</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="3c116122-98dc-819f-bb56-d40aebcfee79" class="page sans"><header><h1 class="page-title" dir="auto">칵테일 제조 준비 시스템</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><blockquote id="cfe06b75-73d3-4cd7-9a8b-bd7d659d578b" class="block-color-red" data-notion-highlight="red" dir="auto"><strong>문서 목적</strong><p id="fcfbee2d-abe8-4050-94dc-523d76ce9255" class="" dir="auto"><mark class="highlight-default" data-notion-highlight="default">공통 메뉴에서 칵테일을 확정한 뒤 실제 제조를 시작하기 전까지의 준비 과정을 정의한다. 잔·도구·재료 선택, 레시피 노트, Actual Craft 구성과 제조 시작 요청을 이 문서의 정본으로 사용한다.</mark></p></blockquote><p id="07e33d10-6827-42af-bd3d-fc83c82c4f0d" class="" dir="auto">상위 문서: <a href="https://app.notion.com/p/1-3bf1612298dc80a4a67ad1d6af9a5506?pvs=21" data-notion-page-id="3bf16122-98dc-80a4-a67a-d1d6af9a5506" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 칵테일 제조 루프 기획서</a></p><h1 id="1403f68c-9da0-41db-ac91-b3c76318260b" class="" dir="auto">3. 제조 준비 단계</h1><p id="5c5ab9cf-6d66-494f-8f54-6c1c39160421" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>을 정답 기준으로 유지하되, 플레이어가 실제로 사용할 잔·도구·재료는 제한하지 않는다. 실제 선택값은 보정 없이 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>에 저장하고 제조 시작 요청으로 전달한다.</p><p id="55545bcb-2ba7-450e-8715-0c53ea05eb81" class="" dir="auto">처리 흐름: <mark class="highlight-teal" data-notion-highlight="teal"><code>잔 선택 → 도구 선택 → 재료 선택 → 레시피 확인 → 진행 조건 검사 → Actual Craft 구성 → 제조 시작 요청</code></mark></p><table id="0e68d13c-7919-4666-a986-0754c0c1822e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7a560998-d695-45f2-bf55-6a608be32e28" dir="ltr"><th id="L@P[" class="block-color-blue_background simple-table-header">세부 단계</th><th id="~]VN" class="block-color-blue_background simple-table-header">플레이어 행동</th><th id="Sx|R" class="block-color-blue_background simple-table-header">시스템 처리</th></tr></thead><tbody><tr id="fe9e956e-4f04-41f5-92b5-6d104510b85c" dir="ltr"><td id="L@P[" class=""><strong>잔 선택</strong></td><td id="~]VN" class="">잔 선반에서 잔 1개 선택</td><td id="Sx|R" class="">실제 선택 잔 저장</td></tr><tr id="e8dddae6-3b3f-466f-82fb-3a02ff4666d1" dir="ltr"><td id="L@P[" class=""><strong>도구 선택</strong></td><td id="~]VN" class="">도구 선반에서 제조 도구 선택</td><td id="Sx|R" class="">실제 선택 도구 저장</td></tr><tr id="52a664f0-9b82-4d69-b212-5ab2f575ab52" dir="ltr"><td id="L@P[" class=""><strong>재료 선택</strong></td><td id="~]VN" class="">술 선반·냉장고 선반에서 재료 선택</td><td id="Sx|R" class="">실제 선택 재료 저장</td></tr><tr id="901c6eaf-35cf-4a16-8b83-e5fc952b8397" dir="ltr"><td id="L@P[" class=""><strong>제조 준비</strong></td><td id="~]VN" class="">준비를 마치고 다음 단계로 진행</td><td id="Sx|R" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>와 제조 요청 구성</td></tr></tbody></table><h2 id="f16310bb-0139-4917-96e6-5386378a9685" class="" dir="auto">3.1 잔 선택</h2><p id="1b081010-08ec-49c8-abe4-f35e7497dbbd" class="" dir="auto">제조 준비 화면에 진입하면 가장 먼저 <strong>잔 선반</strong>이 표시된다.</p><p id="1db61376-1527-4900-b9b6-950f76c39773" class="" dir="auto">플레이어는 제조에 사용할 잔을 직접 선택한다.</p><h3 id="d5b47804-9b65-45ce-acc0-130c5766091b" class="" dir="auto">3.1.1 기본 규칙</h3><ul id="b07b7c65-d381-448a-93d9-4b404a529023" class="bulleted-list" dir="auto"><li style="list-style-type:disc">잔은 1개만 선택한다.</li></ul><ul id="d664adca-fe1a-4cc1-a0fa-262ddab20cfe" class="bulleted-list" dir="auto"><li style="list-style-type:disc">정답 잔이 아니어도 선택 가능하다.</li></ul><ul id="0b884bdc-ddd6-4ada-af58-a2fa05059a62" class="bulleted-list" dir="auto"><li style="list-style-type:disc">선택한 잔을 다시 클릭하면 선택을 해제할 수 있다.</li></ul><ul id="fb1e0e03-82e7-40e3-95d6-dee393204826" class="bulleted-list" dir="auto"><li style="list-style-type:disc">다른 잔을 선택할 경우 기존 선택을 해제하고 새 잔으로 교체한다.</li></ul><ul id="9d8f65f7-1304-4fa6-8e40-a2405ad79a8d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실제 선택한 잔은 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>에 저장한다.</li></ul><ul id="9f2225a4-50da-476c-8e82-aa36bcd2bb62" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>제조 완료 결과물의 용기에는 실제 선택한 잔을 반영한다.</strong></li></ul><h3 id="ecf54dfb-06c2-4501-8a96-b35402fea60a" class="" dir="auto">3.1.2 적용 예시</h3><table id="fb3248f1-f7c5-4852-9f09-f7a3f4901e18" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3ce13983-b439-42e8-8866-6bc473d9bfdf" dir="ltr"><th id="NfqL" class="block-color-blue_background simple-table-header">구분</th><th id="ud[w" class="block-color-blue_background simple-table-header">값</th></tr></thead><tbody><tr id="08c07f58-a312-4d81-9cc8-30bad106dbca" dir="ltr"><td id="NfqL" class="">정답 잔</td><td id="ud[w" class="">A</td></tr><tr id="1cf8f5a8-63e7-4939-846a-ea41e85fb5fb" dir="ltr"><td id="NfqL" class="">실제 선택 잔</td><td id="ud[w" class="">B</td></tr><tr id="8391cda4-c209-48eb-a0d6-185bfeebb033" dir="ltr"><td id="NfqL" class="">저장 결과</td><td id="ud[w" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Glass = B</code></mark></td></tr><tr id="8c16a06d-0a55-4c83-9673-c9d1682ba140" dir="ltr"><td id="NfqL" class="">후속 처리</td><td id="ud[w" class="">B잔으로 제조 진행·잔 불일치는 제조 결과 판정에서 처리</td></tr></tbody></table><p id="db81dbef-7e68-4cfa-90d3-21581bca17d7" class="" dir="auto">시스템은 실제 선택한 B잔을 정답 잔으로 자동 교체하지 않는다.</p><h2 id="89ef5f82-dc1d-458d-a97d-13c888413c09" class="" dir="auto">3.2 도구 선택</h2><p id="57ecc333-877e-4af5-9bc3-31b26e6e72ef" class="" dir="auto">잔 선택 다음에는 <strong>도구 선반</strong>이 표시된다.</p><p id="62ee29b3-fb19-4891-8816-a84d29484cc9" class="" dir="auto">플레이어는 셰이커·믹싱글라스 등 실제 제조에 사용할 도구를 직접 선택한다. 도구 역시 잔과 동일하게 정답을 강제하지 않는다.</p><h3 id="13560657-71e2-4a84-aad4-18edf07d8ddf" class="" dir="auto">3.2.1 기본 규칙</h3><ul id="3c1aa0a2-c9ad-4160-bde2-062ea2411722" class="bulleted-list" dir="auto"><li style="list-style-type:disc">플레이어가 도구를 직접 선택한다.</li></ul><ul id="0cfc4565-00a6-41e6-8b71-f928d8b83b82" class="bulleted-list" dir="auto"><li style="list-style-type:disc">선택한 도구를 다시 클릭하면 선택을 해제한다.</li></ul><ul id="3ade8ef1-37f6-4a71-add1-ce9d5d35819d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">잘못된 도구를 선택해도 제조 진행을 막지 않는다.</li></ul><ul id="a302d59b-bd16-4124-a30c-3a7758520a1b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실제 선택한 도구는 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>에 저장한다.</li></ul><ul id="4274c30e-d040-4175-aa3d-c96e3807c7e4" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>믹스 기믹의 종류는 Selected Cocktail의 정답 제조법이 아니라, 플레이어가 실제로 선택한 도구를 기준으로 결정한다.</strong></li></ul><ul id="8dfc957d-e60c-41b6-bac1-d6ca58d882f6" class="bulleted-list" dir="auto"><li style="list-style-type:disc">정답 도구와 실제 선택 도구의 일치 여부는 최종 제조 결과 판정에 사용한다.</li></ul><h3 id="9aba8e0e-1eef-4ee7-827f-2038b2e9450b" class="" dir="auto">3.2.2 실제 도구에 따른 기믹</h3><table id="dbe646b4-244b-448e-b2e9-35b87fad2f9e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="45c6b7de-6a7a-479d-bac7-1c5ec4078e1f" dir="ltr"><th id="Vbl&lt;" class="block-color-blue_background simple-table-header">실제 선택 도구</th><th id="ZgXz" class="block-color-blue_background simple-table-header">실행 기믹</th></tr></thead><tbody><tr id="a2d2e27b-8734-4d25-831e-dec0acebe498" dir="ltr"><td id="Vbl&lt;" class="">셰이커</td><td id="ZgXz" class=""><strong>셰이킹</strong></td></tr><tr id="2f680cc4-612b-41cc-a788-d87941f7288a" dir="ltr"><td id="Vbl&lt;" class="">믹싱글라스</td><td id="ZgXz" class=""><strong>스터</strong></td></tr></tbody></table><p id="31c548d0-85ad-4255-8d88-d59caabb0949" class="" dir="auto">따라서 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 정답 제조법이 셰이크라고 하더라도 플레이어가 믹싱글라스를 선택했다면 <strong>스터 기믹이 실행된다.</strong></p><h3 id="be4778a8-1e25-45c6-a78e-3665b5bcb7c7" class="" dir="auto">3.2.3 적용 예시</h3><table id="236da466-682c-4145-95c5-702aed7f1c89" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="3757f559-0526-44fd-9cf7-df3742f3d307" dir="ltr"><th id="JE_R" class="block-color-blue_background simple-table-header">구분</th><th id="TY;F" class="block-color-blue_background simple-table-header">값</th></tr></thead><tbody><tr id="c78126a0-c500-4e88-a400-651bd5575f39" dir="ltr"><td id="JE_R" class="">정답 도구·기믹</td><td id="TY;F" class="">셰이커·셰이킹</td></tr><tr id="841f58c1-9a53-456e-904e-321521c5e4ae" dir="ltr"><td id="JE_R" class="">실제 선택 도구</td><td id="TY;F" class="">믹싱글라스</td></tr><tr id="d6e4505d-2b32-4cd5-82a6-17a699279681" dir="ltr"><td id="JE_R" class="">실행 기믹</td><td id="TY;F" class="">스터</td></tr><tr id="3a544d0f-8004-48e2-8c06-2254c1c54ffb" dir="ltr"><td id="JE_R" class="">판정</td><td id="TY;F" class="">도구 불일치 감점</td></tr></tbody></table><p id="ea58aa9c-12e1-40e1-a875-91fd1f0a4945" class="" dir="auto">실제 선택 도구를 기준으로 기믹을 실행하며 정답 기믹으로 자동 교정하지 않는다.</p><h2 id="aa0aa879-e5ce-479d-b94b-6c65daf39096" class="" dir="auto">3.3 재료 선택</h2><p id="6ff81f09-9baa-4002-b9f9-adf80b17d1a0" class="" dir="auto">도구 선택 이후에는 재료 선반으로 이동한다.</p><p id="22ec624a-90b5-4d0d-bb6d-24784769b7b8" class="" dir="auto">재료 선반은 크게 다음 순서로 구성한다.</p><p id="1e201e65-6fe2-4eee-ac7c-6bc9aa8745e3" class="" dir="auto"><strong>술 선반 → 냉장고 선반</strong></p><p id="dab48228-04d7-4bd0-a8bc-313ed6755f43" class="" dir="auto">플레이어는 선반을 이동하면서 실제 제조에 사용할 재료를 선택한다.</p><p id="8f41b133-abd2-4f07-8558-7288d1c64289" class="" dir="auto">재료의 배치 화면은 <mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json → shelf_group</code></mark>을 사용한다. <mark class="highlight-purple" data-notion-highlight="purple"><code>liquor</code></mark>는 술 선반, <mark class="highlight-purple" data-notion-highlight="purple"><code>fridge</code></mark>는 냉장고 선반에 배치한다. <mark class="highlight-purple" data-notion-highlight="purple"><code>category</code></mark>는 기믹·재료 분류이므로 선반 위치를 결정하는 데 사용하지 않는다. 데모에서 자동 투입하는 스퀴즈·파우더 재료와 ingredient 이외 항목은 <mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_group: null</code></mark>이다.</p><h3 id="4b744a12-9638-4cd5-88b5-7155022a0fb3" class="" dir="auto">3.3.1 술 선반</h3><p id="09ba9dfc-5166-4b50-897d-624191e72508" class="" dir="auto">술 선반에는 플레이어가 직접 선택하는 <strong>주류 및 리큐르·시럽 계열 재료</strong>를 배치한다.</p><p id="f3c3b9bd-56c7-4aa8-aa3d-8f7784921554" class="" dir="auto">현재 기준 술 선반에 배치되는 주요 재료는 다음과 같다.</p><table id="c608707d-11d3-4256-9874-7d9d1ec30084" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="c07ea7f7-e578-47d8-8888-7667b3668186" dir="ltr"><th id="l]U~" class="block-color-purple_background simple-table-header"><strong>술 선반 재료</strong></th></tr></thead><tbody><tr id="cb2ee9a2-e111-406c-925a-e81955078c46" dir="ltr"><td id="l]U~" class="">진</td></tr><tr id="99cb1b87-af70-4fd5-9b5b-2152e8c3773c" dir="ltr"><td id="l]U~" class="">보드카</td></tr><tr id="acbb0e10-1938-4e8a-b4d5-4467f5ff12db" dir="ltr"><td id="l]U~" class="">럼</td></tr><tr id="8cf6b303-ca93-497f-b8b3-f0916f191110" dir="ltr"><td id="l]U~" class="">데킬라</td></tr><tr id="f0fe8c10-9111-4789-bf8e-052a324316b0" dir="ltr"><td id="l]U~" class="">위스키</td></tr><tr id="f2a5b2b8-93e3-44a6-bff7-446426b42ca5" dir="ltr"><td id="l]U~" class="">브랜디</td></tr><tr id="18854a6b-27b1-48e3-a885-1f6f9e8b6d25" dir="ltr"><td id="l]U~" class="">레드와인</td></tr><tr id="66577cf5-ef2d-41ee-8023-3fc11d321242" dir="ltr"><td id="l]U~" class="">샴페인</td></tr><tr id="32cf0177-d5f6-42bd-89e9-434c510e56d7" dir="ltr"><td id="l]U~" class="">드라이 버무스</td></tr><tr id="7508dca7-9dc5-450f-90aa-5fa0e00e204b" dir="ltr"><td id="l]U~" class="">그레나딘</td></tr><tr id="fa08e5fa-eb4f-4da9-98f6-324ee155cdc7" dir="ltr"><td id="l]U~" class="">쿠앵트로</td></tr><tr id="83fb059f-8c6d-488d-a0b8-d2fb7ab582e0" dir="ltr"><td id="l]U~" class="">트리플섹</td></tr><tr id="3c932453-f180-49ce-9341-d535698a68ae" dir="ltr"><td id="l]U~" class="">칼루아</td></tr><tr id="47bb10a6-81c0-4799-9beb-d45db4dc56d4" dir="ltr"><td id="l]U~" class="">아마레토</td></tr><tr id="054fe18b-a546-44eb-8a00-0ecc869a9706" dir="ltr"><td id="l]U~" class="">캄파리</td></tr><tr id="52bcaed6-5aa0-456f-a177-978b1ad0b0ae" dir="ltr"><td id="l]U~" class="">블루 큐라소</td></tr><tr id="67b5d1e5-4587-40a4-a9ae-2c08f21f90c0" dir="ltr"><td id="l]U~" class="">말리부</td></tr><tr id="51ac9c42-fda1-42d1-ace7-93ed8195b217" dir="ltr"><td id="l]U~" class="">피치 브랜디</td></tr><tr id="c5e63104-2bee-4d03-99a2-a7c797673722" dir="ltr"><td id="l]U~" class="">멜론 리큐르</td></tr><tr id="d4c49649-e0ba-469a-85b4-b23ea65e35e6" dir="ltr"><td id="l]U~" class="">바나나 리큐르</td></tr><tr id="3bd54cc2-22d5-4689-8f7f-a4777510dafb" dir="ltr"><td id="l]U~" class="">그린 페퍼민트</td></tr><tr id="31538ef8-2936-4d2e-a094-89124ddc9972" dir="ltr"><td id="l]U~" class="">화이트 카카오</td></tr><tr id="334a1bac-846b-4d51-b7dc-08a1c5393c69" dir="ltr"><td id="l]U~" class="">기타 29종 칵테일에 사용되는 주류·리큐르 계열 재료</td></tr></tbody></table><p id="61b48be9-273c-49d6-97c8-d3308680b1aa" class="" dir="auto">같은 주종은 브랜드가 달라도 동일 재료 카테고리로 판정한다. 진이 필요한 경우 Beefeater·Bombay Sapphire·Gordon&#x27;s를 모두 <mark class="highlight-purple" data-notion-highlight="purple"><code>gin</code></mark>으로 처리한다.</p><h3 id="dfef2f1f-0692-4ba2-b4cd-46683aacb833" class="" dir="auto">3.3.2 냉장고 선반</h3><p id="27b796c1-896a-494d-b584-c9d38464f4ee" class="" dir="auto">술 선반의 마지막 다음에는 <strong>냉장고 선반</strong>이 표시된다.</p><p id="a4d788ea-1c85-4535-bfdf-630b303f93f2" class="" dir="auto">냉장고에는 병맥주와 비알코올 믹서·주스·유제품 계열 재료를 배치한다.</p><table id="1e083837-e0ee-435a-b67b-cda76f7b0df4" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7f5ff405-878a-496f-afb8-29e5ea1d2a33" dir="ltr"><th id="LivD" class="block-color-purple_background simple-table-header"><strong>냉장고 재료</strong></th></tr></thead><tbody><tr id="5049fb26-5da9-4238-b90a-0b6a153e9bc0" dir="ltr"><td id="LivD" class="">병맥주</td></tr><tr id="29f16354-49d2-499f-9453-80036ea0059f" dir="ltr"><td id="LivD" class="">탄산수</td></tr><tr id="a594c1a4-d963-4fcc-baff-81224ecc284a" dir="ltr"><td id="LivD" class="">진저에일</td></tr><tr id="3e3a723e-d82a-4b38-b3f8-c499de2ed73a" dir="ltr"><td id="LivD" class="">콜라</td></tr><tr id="f5a4fdcd-dbca-4643-b0ab-df7647a6c78c" dir="ltr"><td id="LivD" class="">오렌지주스</td></tr><tr id="5d9ab13c-8a26-4781-8921-ed6dd16c6f19" dir="ltr"><td id="LivD" class="">크랜베리주스</td></tr><tr id="0200ff7f-6e20-4223-a28a-6a6eb19e7c2f" dir="ltr"><td id="LivD" class="">파인애플주스</td></tr><tr id="99329d51-94c5-464c-80c8-4994021e8a0f" dir="ltr"><td id="LivD" class="">사워믹스</td></tr><tr id="b78bc15e-1702-44ef-a4b5-db6c6bb312bb" dir="ltr"><td id="LivD" class="">우유</td></tr><tr id="9544ea34-d4ad-444f-9a26-2af098dbb813" dir="ltr"><td id="LivD" class="">크림</td></tr><tr id="3b194e75-47fa-4f78-851f-25b76c56e705" dir="ltr"><td id="LivD" class="">커피</td></tr><tr id="b21b7f51-9483-4996-8296-07987e7c326e" dir="ltr"><td id="LivD" class="">코코넛 밀크</td></tr><tr id="fe09a170-4a42-416f-9de7-88930b43988f" dir="ltr"><td id="LivD" class="">기타 29종 칵테일에 사용되는 비알코올 액체 재료</td></tr></tbody></table><p id="6acb4798-de50-4115-bf04-7adc859c9898" class="" dir="auto"><strong>병맥주는 술 선반이 아니라 냉장고 선반에 배치한다.</strong></p><p id="30d40114-cd47-47d2-86d1-d1d9a710bd2a" class="" dir="auto">냉장고 선반의 재료도 다른 선택형 재료와 동일하게 클릭하여 선택하고, 다시 클릭하면 선택 해제한다.</p><h2 id="033af09f-adab-4abb-97b7-f5baa11cfbb6" class="" dir="auto">3.4 선반 상호작용 및 정보 UI</h2><p id="e3716aa7-13a4-4507-a30e-35bd56ea9513" class="" dir="auto">잔·도구·재료 선반은 동일한 기본 상호작용 규칙을 사용한다.</p><h3 id="325af5fd-78a6-4009-a8a1-647352756e45" class="" dir="auto">3.4.1 오브젝트 호버</h3><p id="41ec96be-20d1-4a47-bc30-5fe9c1fc6a13" class="" dir="auto">잔·도구·재료에 마우스를 올리면 해당 오브젝트 주변에 간략 정보 UI를 표시한다.</p><table id="307db7c4-a20d-4898-8ba6-eb417382c44d" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="d3b1b595-7de0-4b0c-b849-ace4446c7d67" dir="ltr"><th id="Ta&lt;m" class="block-color-blue_background simple-table-header">대상</th><th id="{LQA" class="block-color-blue_background simple-table-header">표시 정보</th></tr></thead><tbody><tr id="830a8485-bc16-4777-aaab-046727c960d1" dir="ltr"><td id="Ta&lt;m" class="">잔</td><td id="{LQA" class="">이름 / 분류</td></tr><tr id="4dbd0f07-2841-4ea0-9c0d-55b3e503cae6" dir="ltr"><td id="Ta&lt;m" class="">도구</td><td id="{LQA" class="">이름 / 분류</td></tr><tr id="d8ebf3d2-624c-4bb9-aa01-c2a393acbe0f" dir="ltr"><td id="Ta&lt;m" class="">술·리큐르</td><td id="{LQA" class="">이름 / 분류</td></tr><tr id="4cd1f4a5-d364-4c5d-a4d4-5d250c498fb4" dir="ltr"><td id="Ta&lt;m" class="">냉장고 재료</td><td id="{LQA" class="">이름 / 분류</td></tr></tbody></table><p id="df120d72-8d64-4e8d-a2cd-58965b68b0e8" class="" dir="auto">상세 설명은 표시하지 않는다.</p><h3 id="53300b94-8585-4d59-89ab-eae85fb27209" class="" dir="auto">3.4.2 선택 조작</h3><table id="c812759a-75f9-4439-8b70-e7834138fef3" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7f52d918-6e41-495d-9ca7-8e5aa8494c69" dir="ltr"><th id="DFsz" class="block-color-blue_background simple-table-header">행동</th><th id="cqcM" class="block-color-blue_background simple-table-header">결과</th></tr></thead><tbody><tr id="e7a83d3b-11d4-4df9-8caa-fed5d3b9eb19" dir="ltr"><td id="DFsz" class="">미선택 오브젝트 클릭</td><td id="cqcM" class="">선택</td></tr><tr id="0e4702a1-f4ce-4a3a-8999-bfcd1670856c" dir="ltr"><td id="DFsz" class="">선택된 오브젝트 재클릭</td><td id="cqcM" class="">선택 해제</td></tr><tr id="67bbc1fd-5037-4a42-a94d-0787debfffb5" dir="ltr"><td id="DFsz" class="">하단 트레이의 선택 항목 클릭</td><td id="cqcM" class="">선택 해제</td></tr></tbody></table><p id="04cb14f1-5075-4b9c-8847-5d45e7b54a1c" class="" dir="auto">별도의 <mark class="highlight-blue" data-notion-highlight="blue"><code>+ / -</code></mark> 버튼이나 <mark class="highlight-blue" data-notion-highlight="blue"><code>담기 / 빼기</code></mark> 버튼은 사용하지 않는다.</p><p id="18cdfc2f-c158-47ee-82ca-0b46bd5b1eee" class="" dir="auto">선택된 항목은 하단 트레이에 표시한다.</p><h3 id="3a9e1114-aa0e-4ebf-8a8f-77326663aaac" class="" dir="auto">3.4.3 선반 진열 규칙</h3><p id="b5fa7d2c-dbab-47c7-b6d1-524980441aad" class="" dir="auto">선반 종류에 따라 동일 리소스의 진열 방식이 다르다.</p><table id="90ee81b4-0b28-4251-b7dc-82fca87e78d7" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="b1a9bd22-e9f3-4bd2-aa0c-28ed4855d6fb" dir="ltr"><th id="[`f]" class="block-color-purple_background simple-table-header">선반</th><th id="QiVt" class="block-color-purple_background simple-table-header">진열 방식</th><th id="A=_v" class="block-color-purple_background simple-table-header">인터랙션 단위</th></tr></thead><tbody><tr id="4868ce3a-fefa-4518-b490-1c6b92e41a82" dir="ltr"><td id="[`f]" class=""><strong>잔 선반</strong></td><td id="QiVt" class="">동일 잔을 3개 묶음으로 진열 가능</td><td id="A=_v" class="">묶음 전체</td></tr><tr id="9c807ab6-fae6-4824-80df-a5f7c594da48" dir="ltr"><td id="[`f]" class=""><strong>도구 선반</strong></td><td id="QiVt" class="">동일 도구를 3개 묶음으로 진열 가능</td><td id="A=_v" class="">묶음 전체</td></tr><tr id="24da6dd8-3195-4125-8298-f0cbe6063b9d" dir="ltr"><td id="[`f]" class=""><strong>술 선반</strong></td><td id="QiVt" class="">재료별 병 1개만 진열</td><td id="A=_v" class="">개별 오브젝트</td></tr><tr id="b1ff2c01-14dd-42d4-8664-22889c83e4d7" dir="ltr"><td id="[`f]" class=""><strong>냉장고 선반</strong></td><td id="QiVt" class="">동일 재료를 3개 묶음으로 진열 가능</td><td id="A=_v" class="">묶음 전체</td></tr></tbody></table><h3 id="9be72a74-2a87-44e2-96e9-5f3ef5c61834" class="" dir="auto">3.4.4 잔·도구·냉장고 묶음 진열</h3><p id="f5b7c843-5c44-4b15-85e9-b6f94bdded0c" class="" dir="auto">동일한 잔·도구·냉장고 재료가 2개 또는 3개 묶음으로 진열된 경우, 세 오브젝트는 각각 별도의 재고가 아니라 <strong>동일한 선택 항목 하나를 표현하는 인터랙션 그룹</strong>이다.</p><p id="ad2902b5-d604-4ea9-8fd8-c6b288efe8ee" class="" dir="auto">세 오브젝트 중 어느 하나에 마우스를 올려도 같은 정보 UI가 표시되고, 어느 하나를 클릭해도 동일 항목이 선택된다.</p><p id="0b54d886-d60c-4acb-a3d8-5b1516b8596d" class="" dir="auto"><strong>적용 예시:</strong> 냉장고에 진저에일 3병을 진열한 경우 어느 병을 클릭해도 <mark class="highlight-purple" data-notion-highlight="purple"><code>ginger_ale</code></mark>을 선택한다.</p><p id="35cc1248-f6dc-4d3c-8bdd-ada5a8fa49bd" class="" dir="auto">선택된 이후 하단 트레이에는 <strong>대표 리소스 이미지 1개만 표시</strong>한다.</p><h3 id="7d61975d-269e-48d2-b237-7ee4ffd24122" class="" dir="auto">3.4.5 술 선반 개별 진열</h3><p id="bed63ee1-3cd7-4de0-a182-06eacfd2b525" class="" dir="auto">술 선반은 3개 묶음 방식을 사용하지 않는다.</p><p id="e784e7ad-c578-4b15-9e24-c3ebef0e5975" class="" dir="auto">각 주류·리큐르 병은 <strong>재료별 1개씩만 진열</strong>하며, 해당 병 자체가 호버 및 클릭 대상이다.</p><p id="1ea3054d-c2ab-4d16-a66b-8f924f4348cf" class="" dir="auto"><strong>대표 진열 예시</strong></p><ul id="19b37556-bf25-4d45-b2ec-d392e3d45d01" class="bulleted-list" dir="auto"><li style="list-style-type:disc">보드카 1병</li></ul><ul id="4c7bea9e-e930-4e57-b32e-a115f604d188" class="bulleted-list" dir="auto"><li style="list-style-type:disc">데킬라 1병</li></ul><ul id="d6e9917d-c2f5-4d9d-a6b0-af20932a9d57" class="bulleted-list" dir="auto"><li style="list-style-type:disc">레드와인 1병</li></ul><ul id="0c5f7295-fa96-4777-9f0f-c365f29d449e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">럼 1병</li></ul><ul id="627c61f0-a7df-4571-aa9c-ccd0c80efc32" class="bulleted-list" dir="auto"><li style="list-style-type:disc">위스키 1병</li></ul><ul id="299b3efa-208a-43fc-981f-36174c3f1de3" class="bulleted-list" dir="auto"><li style="list-style-type:disc">드라이 버무스 1병</li></ul><p id="536136be-3755-4a59-bad3-965ed68cedc6" class="" dir="auto">처럼 배치한다.</p><h3 id="9e16bf7f-7fe6-49aa-bb60-6e63b7597695" class="" dir="auto">3.4.6 선택·해제 규칙</h3><table id="b1d731a5-a646-48e6-af2e-7ebf8b024c7d" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="ab538d33-8535-414e-997f-9cc5e7f1dd4f" dir="ltr"><th id="Cx&lt;}" class="block-color-blue_background simple-table-header">행동</th><th id="&lt;[&gt;Q" class="block-color-blue_background simple-table-header">처리</th></tr></thead><tbody><tr id="c1b3e9e4-8ec8-49f1-a0e0-cd7c494328d0" dir="ltr"><td id="Cx&lt;}" class="">잔/도구/냉장고의 3개 묶음 중 아무 오브젝트 클릭</td><td id="&lt;[&gt;Q" class="">해당 항목 선택</td></tr><tr id="95f10bea-c6da-4189-bfe3-5278686185d7" dir="ltr"><td id="Cx&lt;}" class="">선택된 묶음 중 아무 오브젝트 재클릭</td><td id="&lt;[&gt;Q" class="">해당 항목 선택 해제</td></tr><tr id="5e243002-4cf0-497a-b9b0-21b237db22b1" dir="ltr"><td id="Cx&lt;}" class="">술 선반의 병 클릭</td><td id="&lt;[&gt;Q" class="">해당 재료 선택</td></tr><tr id="87eb1214-a49c-48c0-bfff-274afb7de7ce" dir="ltr"><td id="Cx&lt;}" class="">선택된 술 병 재클릭</td><td id="&lt;[&gt;Q" class="">해당 재료 선택 해제</td></tr><tr id="5f0e168f-d832-4306-96f8-b8f0af5b18c5" dir="ltr"><td id="Cx&lt;}" class="">하단 트레이 대표 이미지 클릭</td><td id="&lt;[&gt;Q" class="">해당 항목 선택 해제</td></tr></tbody></table><h2 id="540b86bc-1fa9-461e-b33c-d5184f4998e2" class="" dir="auto">3.5 선택형 재료와 자동 적용형 재료</h2><p id="d6d57acd-48e2-45b7-8865-6103434e3387" class="" dir="auto">모든 재료를 제조 준비 화면에서 직접 선택하는 것은 아니다.</p><p id="35aa5666-1373-4303-9848-06eca6eced2f" class="" dir="auto">재료는 <strong>선택형 재료</strong>와 <strong>자동 적용형 재료</strong>로 구분한다.</p><table id="90ef441b-736b-4add-83d3-69787383d946" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="b07fa607-faf3-43cd-8f15-02c5d6c67aca" dir="ltr"><th id="f]\x" class="block-color-blue_background simple-table-header">구분</th><th id="HaWj" class="block-color-blue_background simple-table-header">선반 노출</th><th id="|jpL" class="block-color-blue_background simple-table-header">직접 선택</th><th id="ZUDg" class="block-color-blue_background simple-table-header">실제 재료 결정 기준</th></tr></thead><tbody><tr id="5f0bfc90-64f2-4395-8634-88ef9f9c4617" dir="ltr"><td id="f]\x" class="">주류·리큐르</td><td id="HaWj" class="">O</td><td id="|jpL" class="">O</td><td id="ZUDg" class="">플레이어 실제 선택</td></tr><tr id="f35f214f-ed75-498e-9b54-ac77b8a5097d" dir="ltr"><td id="f]\x" class="">주스·탄산·기타 액체</td><td id="HaWj" class="">O</td><td id="|jpL" class="">O</td><td id="ZUDg" class="">플레이어 실제 선택</td></tr><tr id="dc62b04b-ced0-410c-acfb-1b0f0b85dc5b" dir="ltr"><td id="f]\x" class="">스퀴즈 재료</td><td id="HaWj" class="">X</td><td id="|jpL" class="">X</td><td id="ZUDg" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark> 레시피</td></tr><tr id="420aff3a-2a83-4655-83e0-20c1ddfaaf3d" dir="ltr"><td id="f]\x" class="">파우더 재료</td><td id="HaWj" class="">X</td><td id="|jpL" class="">X</td><td id="ZUDg" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark> 레시피</td></tr></tbody></table><h3 id="9a044a93-5510-4b8d-9f0a-ad0b3baa46a2" class="" dir="auto">3.5.1 선택형 재료</h3><p id="0eb59cef-382c-4c40-8802-adfb9d5c4022" class="" dir="auto">플레이어가 선반에서 직접 선택한다.</p><p id="44dbb5ec-c6c5-4e3e-8675-dd966c9de7a3" class="" dir="auto">기믹에 등장하는 실제 재료도 레시피 정답이 아니라 <strong>플레이어가 실제로 선택한 재료</strong>를 따른다.</p><p id="f53dcbfb-6734-4ed7-8888-8aafe1dfcb75" class="" dir="auto"><strong>적용 예시:</strong> 진피즈의 정답 재료가 진이더라도 럼을 선택했다면 따르기 기믹에는 럼 병이 등장한다.</p><h3 id="87a21b7b-b519-459d-82f5-d5b809c96bfa" class="" dir="auto">3.5.2 자동 적용형 재료</h3><p id="ca0d6a53-f36d-4d18-8aff-04d57fd852a7" class="" dir="auto"><mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → recipe[].auto_apply = true</code></mark>인 재료는 선반에 노출하지 않는다.</p><p id="91de33a6-dbac-4cbf-922f-888d12243374" class="" dir="auto">플레이어가 직접 선택하거나 조작하지 않으며, <mark class="highlight-blue" data-notion-highlight="blue"><code>auto_applied_ingredients[]</code></mark>에 기록해 제조 시작 요청에 포함한다.</p><p id="034ccb56-1ee5-4479-8a03-550e3decf61b" class="" dir="auto">해당 재료의 기믹 생성 여부와 판정 처리는 기믹·판정 문서를 따른다.</p><h2 id="fd530cee-3882-4e43-ad21-21668a2623c4" class="" dir="auto">3.6 레시피 행동값 전달</h2><p id="c3a79322-a5d9-4d4b-aed6-75587fe19e9f" class="" dir="auto">제조 준비 화면은 <mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → recipe[].action</code></mark>의 <mark class="highlight-purple" data-notion-highlight="purple"><code>pour</code></mark>와 <mark class="highlight-purple" data-notion-highlight="purple"><code>fill_up</code></mark>을 서로 다른 제조 순서로 표시한다.</p><p id="ebafd927-12ec-4521-aedf-08f8cd5fef4a" class="" dir="auto">두 행동의 실제 조작 재사용 방식, 실행 순서와 점수 처리는 기믹·판정 문서를 따른다.</p><p id="948d61f3-52a5-4e9c-b67b-d2a6256b1a4d" class="" dir="auto"><strong>기믹·판정 정본</strong></p><p id="211190d8-0b28-481c-a258-1c415c06e910" class="" dir="auto"><a href="https://app.notion.com/p/3c01612298dc8095b35adb795a68e3a7?pvs=21" data-notion-page-id="3c016122-98dc-8095-b35a-db795a68e3a7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제조 기믹·등급 계산 시스템</a></p><h2 id="7f8caf8b-a65c-4e5a-84ef-be04a01f1002" class="" dir="auto">3.7 레시피 노트 및 가이드 기능</h2><p id="130a3fd2-ecdb-45b6-ac9a-44b486da6b70" class="" dir="auto">제조 준비 화면 좌측 하단에는 <strong>레시피 노트 아이콘</strong>이 배치된다.</p><p id="00a22478-abf0-450f-b693-6c4e763a416b" class="" dir="auto">플레이어는 제조 준비 중 언제든지 레시피 노트를 열어 현재 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 정답 제조 정보를 확인할 수 있다.</p><h3 id="2e4c7c33-cac4-432a-b112-32a309654855" class="" dir="auto">3.7.1 레시피 노트 표시 정보</h3><p id="1d4fb702-da5f-4806-8741-cb7f3501ee76" class="" dir="auto">레시피 노트에는 다음 정보를 표시한다.</p><table id="e3a3b606-7548-458d-852b-1abef0cbdc53" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7e7ef55b-4b10-483a-9105-85e8ba4df101" dir="ltr"><th id="wkFS" class="block-color-blue_background simple-table-header">항목</th><th id="Ef@j" class="block-color-blue_background simple-table-header">표시 내용</th></tr></thead><tbody><tr id="d89bb1c8-d0ba-4f66-9365-e6120f35844d" dir="ltr"><td id="wkFS" class=""><strong>칵테일 최종 이미지</strong></td><td id="Ef@j" class="">해당 칵테일의 목표 완성 이미지</td></tr><tr id="4108a6a0-5625-43ed-aca1-753b1ce759fb" dir="ltr"><td id="wkFS" class=""><strong>칵테일명</strong></td><td id="Ef@j" class="">“현재 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 이름” + “레시피”</td></tr><tr id="33780448-34c7-4688-b287-b39e46f4001b" dir="ltr"><td id="wkFS" class=""><strong>재료</strong></td><td id="Ef@j" class="">선반에서 직접 선택해야 하는 재료만 표시</td></tr><tr id="3ede05be-5b85-43f1-a30c-35f279dacd53" dir="ltr"><td id="wkFS" class=""><strong>제조 방법</strong></td><td id="Ef@j" class="">해당 칵테일을 만드는 전체 제조 방법 설명문</td></tr><tr id="77334da5-6330-45cf-b8ac-098b181e05f1" dir="ltr"><td id="wkFS" class=""><strong>목표 잔 / 도구</strong></td><td id="Ef@j" class="">사용해야 하는 잔과 제조 도구</td></tr></tbody></table><h3 id="abb3e339-7db0-4156-a468-06737557567d" class="" dir="auto">3.7.2 재료 목록 규칙</h3><p id="61b8046f-87d6-4306-a1cf-ff61c47179fc" class="" dir="auto">레시피 노트의 재료 목록에는 <strong>선택형 재료만 표시</strong>한다.</p><p id="c2439fe7-4849-4dea-aadf-179fb2fd251b" class="" dir="auto">포함:</p><ul id="94a8318e-bd05-46bb-a5b3-56d39281d2f4" class="bulleted-list" dir="auto"><li style="list-style-type:disc">주류</li></ul><ul id="98cb9d0d-3189-45b4-a6f4-488398e73404" class="bulleted-list" dir="auto"><li style="list-style-type:disc">리큐르</li></ul><ul id="49289e71-6d38-4bfb-8742-faf1d6f243b9" class="bulleted-list" dir="auto"><li style="list-style-type:disc">주스</li></ul><ul id="4af02393-0a3e-43e6-b640-9ebc6192c7cf" class="bulleted-list" dir="auto"><li style="list-style-type:disc">탄산음료</li></ul><ul id="42b50d6e-601c-425d-a1da-8cb436ba8b63" class="bulleted-list" dir="auto"><li style="list-style-type:disc">필업 계열</li></ul><ul id="b952c995-96ff-4f12-82df-3059d461a2d3" class="bulleted-list" dir="auto"><li style="list-style-type:disc">기타 선반에서 직접 선택하는 액체 재료</li></ul><p id="be237e52-b98b-42b4-96ce-39917bd69996" class="" dir="auto">제외:</p><ul id="6909d3a4-2343-46dc-82d4-950b277d1b5f" class="bulleted-list" dir="auto"><li style="list-style-type:disc">스퀴즈 재료</li></ul><ul id="1c5e7db1-d850-4773-8906-8c779355e284" class="bulleted-list" dir="auto"><li style="list-style-type:disc">파우더 재료</li></ul><p id="9c55adeb-7af5-487c-a5ac-4f0927d55f9f" class="" dir="auto">예를 들어 진피즈라면 레시피 노트의 재료 목록에는:</p><ul id="54014aa6-8637-44ce-a788-0909d2415c63" class="bulleted-list" dir="auto"><li style="list-style-type:disc">진</li></ul><ul id="24dd3d2a-93c2-4621-a229-a51057a34d45" class="bulleted-list" dir="auto"><li style="list-style-type:disc">탄산수</li></ul><p id="50f18e26-c724-492a-8cb3-5a2553c50e53" class="" dir="auto"><strong>얼음 유무는 목표 잔/도구 정보에 포함하지 않는다.</strong></p><h3 id="0b85dc65-1e9c-473d-b350-bba302c11ea0" class="" dir="auto">3.7.3 제조 방법 설명문</h3><p id="6319e3a4-a79a-495d-a746-076b1c07e75b" class="" dir="auto">모든 칵테일은 <strong>개별 제조 방법 설명문</strong>을 가진다.</p><p id="4c2b9f08-af93-434d-b52e-10fd33ad8f07" class="" dir="auto">제조 방법은 단순히 <mark class="highlight-blue" data-notion-highlight="blue"><code>Shake</code></mark>, <mark class="highlight-blue" data-notion-highlight="blue"><code>Stir</code></mark> 같은 키워드만 표시하는 것이 아니라, 플레이어가 레시피 노트만 보고도 대략적인 제조 순서를 이해할 수 있는 문장 형태로 작성한다.</p><p id="e82194eb-6a97-418c-835b-41e3c7e0778a" class="" dir="auto"><strong>설명문 예시</strong></p><ul id="67468f50-678e-4d9b-a00e-2619e4efebd3" class="bulleted-list" dir="auto"><li style="list-style-type:disc">셰이크: 재료를 셰이커에 넣고 잘 흔들어 칵테일 잔에 따른 뒤 제공한다.</li></ul><ul id="28be8525-6d3a-455d-8e04-ba1fa46d853e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">스터: 재료를 믹싱글라스에 넣고 저은 뒤 칵테일 잔에 따른다.</li></ul><p id="2f169747-08c6-4ef7-8079-de1ffddfa75a" class="" dir="auto">스퀴즈·파우더·필업 등이 포함되는 칵테일은 해당 과정도 제조 방법 설명에 포함한다.</p><p id="1ecb247d-455c-48f5-b495-19e8ea1b0f08" class="" dir="auto">즉 제조 방법 텍스트는 <strong>칵테일별 고유 데이터</strong>로 관리한다.</p><p id="ce766c20-282c-4807-8682-e41aa66a4879" class="" dir="auto"><strong>현행 데이터</strong></p><p id="eb7781c7-7abf-4f53-a8b8-7b358221c547" class="" dir="auto">제조 방법 설명문은 <mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → recipe_desc.ko·en</code></mark>을 사용한다. 레시피 선택 화면은 현재 언어에 맞는 값을 표시하며 구현 코드에 별도 문장을 작성하지 않는다.</p><h3 id="478e67eb-e0c7-4be1-86b1-8c49f0ae0d91" class="" dir="auto">3.7.4 재료 표시</h3><p id="c01dfc00-5d97-45cc-aeb6-8b4260331dc7" class="" dir="auto">재료 영역에는 해당 칵테일 제조에 필요한 직접 선택 재료와 목표량을 표시한다.</p><p id="db690c1f-9656-4422-8cb2-4f86bfe01658" class="" dir="auto"><strong>예: 진피즈</strong></p><ul id="2cabb98b-3b82-4f2c-b5d0-6a001854ba4e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">진 1.5oz</li></ul><ul id="51db1616-c198-4a7c-9a30-9b2c85dce56f" class="bulleted-list" dir="auto"><li style="list-style-type:disc">탄산수 Fill-up</li></ul><p id="407f951e-f8e8-4a14-b4c7-040a99c87b40" class="" dir="auto">스퀴즈·파우더는 선반에는 노출되지 않지만 <strong>레시피 노트의 제조 방법 설명문에는 들어갈 수 있다.</strong></p><p id="1abb63ee-6081-4511-8e5c-274e74ec45a3" class="" dir="auto"><strong>예:</strong></p><p id="dbddc520-a69d-464e-89d0-c60bd53cc48b" class="" dir="auto">진을 넣고 레몬을 짜 넣은 뒤 설탕을 더해 셰이킹한다. 이후 탄산수로 채운다.</p><p id="d61fb5f5-7067-4522-abc4-b3198842f7e9" class="" dir="auto">이렇게 하면 플레이어는:</p><ul id="f31d5641-e78e-42d6-a7fb-3590025fc023" class="bulleted-list" dir="auto"><li style="list-style-type:disc">재료 목록 → “내가 선반에서 뭘 골라야 하는지”</li></ul><ul id="bba6360e-250a-4827-8b40-293e291c91b0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 방법 → “실제로 어떤 순서로 만드는지”</li></ul><p id="cb788856-955e-4bac-8e08-cd2881755354" class="" dir="auto">두 정보를 구분해 표시한다.</p><p id="248f58d4-f2e3-4bcf-bfd5-f0aea39133a8" class="" dir="auto"><strong>레시피 노트의 재료 목록에는 플레이어가 직접 선택하는 재료만 표시한다. 스퀴즈·파우더처럼 자동 적용되는 재료는 목록에서 제외하고 필요한 경우 제조 방법 설명문에서만 안내한다.</strong></p><table id="d50aed85-9984-481b-96c7-b722859f2210" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="6fee2887-eba1-45a6-b181-e83abc7d52a2" dir="ltr"><th id="g\O`" class="block-color-blue_background simple-table-header">대상</th><th id="Gu]E" class="block-color-blue_background simple-table-header">레시피 목록 표시</th><th id="hzVT" class="block-color-blue_background simple-table-header">가이드 점등</th></tr></thead><tbody><tr id="3bdb2f59-6e93-4443-910a-a77b7a768404" dir="ltr"><td id="g\O`" class="">정답 잔</td><td id="Gu]E" class="">별도 표기</td><td id="hzVT" class="">O</td></tr><tr id="3787bff2-49b3-4979-a66b-cd7128cb4054" dir="ltr"><td id="g\O`" class="">정답 도구</td><td id="Gu]E" class="">별도 표기</td><td id="hzVT" class="">O</td></tr><tr id="b219c169-f9b5-4a21-bb83-a1c8e75acc8c" dir="ltr"><td id="g\O`" class="">술·리큐르</td><td id="Gu]E" class="">O</td><td id="hzVT" class="">O</td></tr><tr id="40707207-38d5-4dc6-90be-07089ac373ed" dir="ltr"><td id="g\O`" class="">냉장고 선택형 재료</td><td id="Gu]E" class="">O</td><td id="hzVT" class="">O</td></tr><tr id="1f72e4a9-bfbe-427d-b701-e58fb58ff778" dir="ltr"><td id="g\O`" class="">스퀴즈</td><td id="Gu]E" class="">X</td><td id="hzVT" class="">X</td></tr><tr id="a7a5483a-4be7-485e-9a53-d634801d9f9b" dir="ltr"><td id="g\O`" class="">파우더</td><td id="Gu]E" class="">X</td><td id="hzVT" class="">X</td></tr></tbody></table><h3 id="8edaa72b-cf6d-4f44-a144-b977d05fcbbc" class="" dir="auto">3.7.5 레시피 노트 닫기</h3><p id="09a63a27-b6e4-4b7c-8f83-616789c2556e" class="" dir="auto">레시피 노트의 우측 상단 <mark class="highlight-teal" data-notion-highlight="teal"><code>X</code></mark> 버튼을 누르거나 <mark class="highlight-teal" data-notion-highlight="teal"><code>ESC</code></mark> 키를 입력하면 노트를 닫는다.</p><p id="60492457-2570-4c65-bcda-c03909b986e8" class="" dir="auto">노트를 닫으면 기존 제조 준비 화면으로 돌아간다.</p><p id="2db97880-b44c-4c47-ac56-1f96b9c14e2c" class="" dir="auto">그리고 <strong>레시피 노트를 한 번 확인한 뒤 닫은 경우</strong>, 현재 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 올바른 잔·도구·선택형 재료에 <strong>가이드 이펙트</strong>를 활성화한다.</p><h3 id="690c7f92-beb7-4bff-9447-87a2ce4210f5" class="" dir="auto">3.7.6 가이드 이펙트</h3><p id="f551dd2f-83bd-4d0c-8ab0-94a53c2831eb" class="" dir="auto"><strong>이펙트 예시</strong></p><figure id="b3f78818-4ccd-4609-a4f9-82e57666837b" class="image" data-notion-image="merged_(9).gif" dir="ltr"><a href="merged_(9).gif"><img src="merged_(9).gif"/></a></figure><p id="f8546c7e-db3a-4b75-91c9-d24ac4c91062" class="" dir="auto">가이드 이펙트는 정답 오브젝트의 테두리가 일정 간격으로 깜빡이는 방식으로 표시한다.</p><table id="a9931319-63cb-4256-a084-173b37f002f7" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="cb6ebdae-8c06-4e94-94f1-ead2c94eb866" dir="ltr"><th id="Bu;I" class="block-color-blue_background simple-table-header">대상</th><th id="J`a\" class="block-color-blue_background simple-table-header">가이드 이펙트</th></tr></thead><tbody><tr id="ac5a6503-2a33-47c5-9f18-d6cf044d576a" dir="ltr"><td id="Bu;I" class="">정답 잔</td><td id="J`a\" class="">O</td></tr><tr id="aa099677-03da-445a-987e-1e783a386208" dir="ltr"><td id="Bu;I" class="">정답 도구</td><td id="J`a\" class="">O</td></tr><tr id="40dd543f-78fb-4d42-8155-943bbed38cad" dir="ltr"><td id="Bu;I" class="">정답 술·리큐르</td><td id="J`a\" class="">O</td></tr><tr id="9e826879-c793-4d07-a456-ab003b3a5138" dir="ltr"><td id="Bu;I" class="">정답 냉장고 선택형 재료</td><td id="J`a\" class="">O</td></tr><tr id="2013ab51-82e8-412b-be0e-7732c37bdade" dir="ltr"><td id="Bu;I" class="">스퀴즈 재료</td><td id="J`a\" class="">X</td></tr><tr id="d40503bd-5da8-47c1-9224-fb435c426829" dir="ltr"><td id="Bu;I" class="">파우더 재료</td><td id="J`a\" class="">X</td></tr></tbody></table><p id="c6856437-e9c4-4712-9af1-1880f76295fd" class="" dir="auto">스퀴즈와 파우더는 선반에 오브젝트가 존재하지 않기 때문에 가이드 점등 대상에서 제외한다.</p><h3 id="47ce1758-264c-4b63-aac5-ff172b4444ca" class="" dir="auto">3.7.7 가이드 적용 예시</h3><p id="aa402095-e78c-421e-a5cf-2c8f77751662" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail = Gin Fizz</code></mark></p><p id="c940cb6f-6d08-4d32-b47b-9c69e8a364bf" class="" dir="auto">레시피 노트를 확인하고 닫은 뒤:</p><ul id="4d1f6193-a888-4ea9-a48f-de61dea63b93" class="bulleted-list" dir="auto"><li style="list-style-type:disc">정답 잔 → 점멸</li></ul><ul id="f5769286-6a16-4ecc-ab5d-ccfc26e7b5c1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">셰이커 → 점멸</li></ul><ul id="a938be58-2bb2-46aa-9160-fa6e85d548f4" class="bulleted-list" dir="auto"><li style="list-style-type:disc">진 → 점멸</li></ul><ul id="9be8eec9-7cc1-4662-8acf-9bb65c757f11" class="bulleted-list" dir="auto"><li style="list-style-type:disc">탄산수 → 점멸</li></ul><p id="6014a332-925b-43da-831d-248dfe8a7b21" class="" dir="auto">레몬과 설탕은 선반에 존재하지 않으므로 점멸하지 않는다.</p><h3 id="799896dc-5517-4d20-96ac-84bbbeb4bee9" class="" dir="auto">3.7.8 레시피 노트 사용 여부</h3><table id="fa1daed2-d526-4c34-aeaa-6e74c9907a7e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="af1b92e5-8523-4a51-b86c-11b93177f2c0" dir="ltr"><th id="{_p}" class="block-color-blue_background simple-table-header">상태</th><th id="R&gt;vK" class="block-color-blue_background simple-table-header">선반 가이드</th></tr></thead><tbody><tr id="d8e386aa-8bfd-48de-abe7-fbcdd806b531" dir="ltr"><td id="{_p}" class="">레시피 노트를 열지 않음</td><td id="R&gt;vK" class="">가이드 없음</td></tr><tr id="7391e35c-b7b2-415b-b369-186af32b3421" dir="ltr"><td id="{_p}" class="">레시피 노트를 확인 후 닫음</td><td id="R&gt;vK" class="">정답 오브젝트 가이드 활성화</td></tr></tbody></table><p id="fd997392-7833-4615-88b5-e61fbf6319f1" class="" dir="auto">가이드가 표시되더라도 플레이어의 선택을 제한하지 않는다.</p><p id="61610f17-9167-4777-880b-1e51a4c801c3" class="" dir="auto">즉 플레이어는 점등된 정답 오브젝트 대신 다른 잔·도구·재료를 선택할 수 있으며, 실제 선택값은 그대로 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>에 기록한다.</p><h2 id="a44d189e-b91d-4648-9433-5dd2fb7c6fcf" class="" dir="auto">3.8 제조 준비 완료</h2><p id="d26fcae6-344e-46a7-98f9-7fee8559adc4" class="" dir="auto">플레이어는 제조 준비 단계에서 정답 선택을 모두 완료하지 않아도 기믹 플레이로 넘어갈 수 있다.</p><p id="5c37748b-50c8-4f1c-94a1-4c2f2918a9ff" class="" dir="auto">기믹 진입 방식은 다음 두 가지로 구분한다.</p><ul id="9d934571-0ce9-4a22-b82b-d7bf2970ea5c" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>자동 준비 완료 안내</strong></li></ul><ul id="766730c2-6473-45ad-a615-9b25723ac78a" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>수동 진행</strong></li></ul><h3 id="50b3ce1f-983f-4c5a-b767-c4ac1ac42d67" class="" dir="auto">3.8.1 자동 준비 완료 안내</h3><p id="75a98afc-2136-4246-baa7-52614a22c55d" class="" dir="auto">플레이어가 현재 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 올바른 제조 준비 항목을 모두 선택하면 시스템이 이를 자동으로 감지한다.</p><p id="ee07daf0-0984-426f-a357-d21395e2e583" class="" dir="auto">자동 준비 완료 판정 대상은 다음과 같다.</p><table id="e917fc4c-7897-4c7e-a374-4855d23c76ae" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="a41ed1f2-1ed3-4099-ba9b-48f52a8d61aa" dir="ltr"><th id="Gh|P" class="block-color-blue_background simple-table-header">판정 대상</th><th id="f}H{" class="block-color-blue_background simple-table-header">조건</th></tr></thead><tbody><tr id="ef47dcd3-e10c-4986-99b6-d5d2e5930a0f" dir="ltr"><td id="Gh|P" class="">잔</td><td id="f}H{" class="">정답 잔 선택</td></tr><tr id="34791d8d-f4bd-4da6-acd1-94490987baa6" dir="ltr"><td id="Gh|P" class="">도구</td><td id="f}H{" class="">정답 도구 선택</td></tr><tr id="e7757f78-ea4c-4b55-992f-a46a59950ad0" dir="ltr"><td id="Gh|P" class="">선택형 재료</td><td id="f}H{" class="">해당 칵테일에 필요한 선택형 정답 재료를 모두 선택</td></tr><tr id="7249348d-bfdf-407c-8c0d-5150cbe29e2b" dir="ltr"><td id="Gh|P" class="">스퀴즈</td><td id="f}H{" class="">판정 제외</td></tr><tr id="9fddc309-0202-4eae-ae1e-524ed2a71b1b" dir="ltr"><td id="Gh|P" class="">파우더</td><td id="f}H{" class="">판정 제외</td></tr></tbody></table><p id="05699c7a-021a-497d-b938-9fc3889ac4fb" class="" dir="auto">스퀴즈와 파우더는 선반에서 직접 선택하지 않는 자동 적용형 재료이므로 제조 준비 완료 판정에 포함하지 않는다.</p><p id="aca2d7fe-15f0-4297-989d-7623301e3099" class="" dir="auto">조건을 모두 만족하면 별도의 조작 없이 자동으로 준비 완료 안내 팝업을 표시한다.</p><p id="fffca1d1-a08f-4788-b47d-d0ccfd2ce6a6" class="" dir="auto">안내 문구: <strong>모든 재료를 선택하셨습니다. 다음 단계로 진행하십시오.</strong></p><p id="d191a7d4-930b-4a7f-b0ef-34a3bc03cee7" class="" dir="auto">플레이어가 <mark class="highlight-blue" data-notion-highlight="blue"><code>확인</code></mark> 버튼을 누르면 제조 준비를 종료하고 <strong>기믹 플레이 단계로 이동</strong>한다.</p><p id="b4499e06-2455-4747-95c8-e46cbfe2e2a3" class="" dir="auto">자동 준비 완료 안내는 <strong>정석 제조 준비를 마친 플레이어에게 다음 단계로 넘어갈 수 있음을 알려주는 편의 기능</strong>이다.</p><h3 id="6dcfaac3-abae-49b8-8c35-ef5f413b9c09" class="" dir="auto">3.8.2 수동 진행과 다음 버튼</h3><p id="58a6089b-25c5-4571-8d75-7558d25fe1af" class="" dir="auto">정답 준비를 완성하지 않아도 <strong>잔 1개와 선택형 재료 1종 이상</strong>을 선택하면 <mark class="highlight-blue" data-notion-highlight="blue"><code>다음</code></mark> 버튼을 활성화한다. 도구 선택과 잔·재료의 정답 여부는 활성 조건에 포함하지 않는다.</p><p id="97bda0f6-1a2c-4b4a-86db-edf71d8ad967" class="" dir="auto">아래 표는 조합별 버튼 상태다.</p><table id="0a86ae14-733b-4faf-8a44-06a3b701123c" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="6f43804d-dc6c-4e57-916f-c7a39dcd8338" dir="ltr"><th id="MCSE" class="block-color-blue_background simple-table-header">선택 상태</th><th id="}RDE" class="block-color-blue_background simple-table-header">다음 버튼</th></tr></thead><tbody><tr id="e5768422-9270-41b5-96cb-f93e776a46b1" dir="ltr"><td id="MCSE" class="">아무것도 선택하지 않음</td><td id="}RDE" class="">비활성화</td></tr><tr id="54182bdd-fcb9-4c9c-a131-35b19278dfa6" dir="ltr"><td id="MCSE" class="">잔만 선택</td><td id="}RDE" class="">비활성화</td></tr><tr id="ba016177-d190-45c3-bc18-e27f807ba538" dir="ltr"><td id="MCSE" class="">도구만 선택</td><td id="}RDE" class="">비활성화</td></tr><tr id="45d19634-08c8-4297-9834-ca8af1a7bd01" dir="ltr"><td id="MCSE" class="">재료만 선택</td><td id="}RDE" class="">비활성화</td></tr><tr id="44d94276-32bb-4ce1-9e76-60180fe6de57" dir="ltr"><td id="MCSE" class="">잔 + 도구</td><td id="}RDE" class="">비활성화</td></tr><tr id="b5d31d69-aa25-4a81-bec6-d241a3d4bc0a" dir="ltr"><td id="MCSE" class="">도구 + 재료</td><td id="}RDE" class="">비활성화</td></tr><tr id="ed38ae1a-2e9d-4a51-a73e-b369a3b10996" dir="ltr"><td id="MCSE" class=""><strong>잔 + 재료 1종 이상</strong></td><td id="}RDE" class=""><strong>활성화</strong></td></tr><tr id="13981888-7945-40c5-9f31-61cfad83244a" dir="ltr"><td id="MCSE" class="">잔 + 틀린 재료 1종 이상</td><td id="}RDE" class="">활성화</td></tr><tr id="4192b76b-d149-41df-a40b-79afdc5e0f37" dir="ltr"><td id="MCSE" class="">잔 + 일부 재료만 선택</td><td id="}RDE" class="">활성화</td></tr><tr id="ac7adebc-e4f8-40bc-9f60-0cd8b45661f4" dir="ltr"><td id="MCSE" class="">잔 + 여러 재료 선택</td><td id="}RDE" class="">활성화</td></tr><tr id="112a9463-548d-467a-baae-80a8e421e397" dir="ltr"><td id="MCSE" class="">잔 + 재료 + 도구만 미선택</td><td id="}RDE" class="">활성화</td></tr><tr id="742af232-0006-49c3-9c01-9bcbec5ca117" dir="ltr"><td id="MCSE" class="">정답 잔 + 정답 도구 + 정답 재료 전부</td><td id="}RDE" class="">활성화 + 자동 준비 완료 안내</td></tr></tbody></table><p id="ead36208-bf1f-43d9-a5a0-a88fe1bda8d1" class="" dir="auto">즉 <strong>잔이 없는 상태에서는 어떤 조합이더라도 기믹 플레이로 넘어갈 수 없다.</strong></p><h3 id="1d89985c-09b9-46d8-b565-5433bce8a0a4" class="" dir="auto">3.8.3 도구 미선택 상태</h3><p id="53de5735-10e6-4a06-9ac8-eaad6bc233e2" class="" dir="auto">도구는 수동 기믹 진입의 필수 조건이 아니다.</p><p id="b0307ee6-2577-4f96-8935-d65df0e2b594" class="" dir="auto">따라서 잔과 선택형 재료를 선택했다면, 도구를 선택하지 않은 상태에서도 기믹 플레이로 넘어갈 수 있다.</p><table id="37de8586-f17f-4ca6-8a7d-2804c8077d90" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="5b69b6ff-9e0d-4770-b8c3-9d4ffa4a43df" dir="ltr"><th id="}mWH" class="block-color-blue_background simple-table-header">선택 상태</th><th id="a&lt;JL" class="block-color-blue_background simple-table-header">진행 결과</th></tr></thead><tbody><tr id="54d2fa3c-38b7-4b15-97e5-93f15e758508" dir="ltr"><td id="}mWH" class="">잔 O·진 O·탄산수 O·도구 X</td><td id="a&lt;JL" class="">수동 진행 허용</td></tr><tr id="35830eb4-d6bb-4f42-ae26-d5d48cc606a3" dir="ltr"><td id="}mWH" class="">도구와 무관한 Open·Pour·Squeeze·Powder·Fill-up</td><td id="a&lt;JL" class="">실제 선택값에 따라 생성</td></tr><tr id="854237ab-f08b-4858-a2ed-871cb03e00f8" dir="ltr"><td id="}mWH" class="">도구가 필요한 Shake·Stir</td><td id="a&lt;JL" class="">생성하지 않음</td></tr></tbody></table><p id="739448e8-7836-4b92-a219-12b2eb0d1cdc" class="" dir="auto">도구 미선택 여부는 이후 제조 결과 판정에서 실패 요소로 처리한다.</p><h3 id="4288e2fd-27c9-4abf-aaaa-5aaf959b4dd8" class="" dir="auto">3.8.4 재료 선택 수와 실행 순서</h3><p id="68ffcbd6-0c0c-40ef-b2c2-6f10d3f1baac" class="" dir="auto">플레이어가 선택할 수 있는 재료 수를 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 정답 재료 수에 맞춰 제한하지 않는다.</p><p id="67a8ad0f-0d62-4b31-bf34-686cc197fcec" class="" dir="auto">예를 들어 진피즈의 선택형 정답 재료가 <mark class="highlight-blue" data-notion-highlight="blue"><code>진 + 탄산수</code></mark>라고 하더라도 플레이어는 다음과 같이 자유롭게 선택할 수 있다.</p><ul id="774e5e10-58a8-46d7-8cbd-51d29f1ebd3b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">진만 선택</li></ul><ul id="45cbc598-27df-4143-9a32-219d23ae2919" class="bulleted-list" dir="auto"><li style="list-style-type:disc">탄산수만 선택</li></ul><ul id="56831d28-2281-4cb4-a42b-19ef96faa244" class="bulleted-list" dir="auto"><li style="list-style-type:disc">럼만 선택</li></ul><ul id="2ac47a13-b2f5-4c48-b483-e8613fcfef3e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">크랜베리주스만 선택</li></ul><ul id="94142931-e3f4-4871-b1f0-d2827fac8d42" class="bulleted-list" dir="auto"><li style="list-style-type:disc">럼 + 크랜베리주스</li></ul><ul id="77e5898d-97eb-4edd-b144-b3a1ef5f943a" class="bulleted-list" dir="auto"><li style="list-style-type:disc">크랜베리주스 + 파인애플주스</li></ul><ul id="36a8ece3-c4f8-4c48-af13-35d4d65c7ee0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">정답보다 많은 종류의 재료 선택</li></ul><p id="902b0487-9670-48b5-8a65-c8b93d91a51d" class="" dir="auto">단, 모든 경우 <strong>잔은 반드시 선택되어 있어야 한다.</strong></p><p id="865c3d5c-4418-441e-b008-e636604b6063" class="" dir="auto">재료의 누락이나 불필요한 재료 추가는 제조 준비 단계에서 차단하지 않고, 실제 제조 과정과 최종 결과 판정에 반영한다.</p><p id="ee1b476b-b668-4473-835c-6cdf98fca8f0" class="" dir="auto"><strong>동일한 기믹 역할을 가진 재료를 여러 개 선택한 경우</strong>에는 <strong>플레이어가 해당 재료를 선택한 순서대로 기믹에 등장</strong>한다.</p><p id="dccb6766-b4e4-41bb-8aa1-0acb38b16aa5" class="" dir="auto">예를 들어 플레이어가 다음 순서로 선택했다고 가정한다.</p><ol type="1" id="8578b8a6-3075-44ac-92f8-95391c7bca68" class="numbered-list" start="1" dir="auto"><li>크랜베리주스 — Fill-up</li></ol><ol type="1" id="67fcd0de-13be-48b0-bd30-ff1d7a104c35" class="numbered-list" start="2" dir="auto"><li>파인애플주스 — Fill-up</li></ol><p id="6627b86f-7584-4269-be4d-84ebbca8330a" class="" dir="auto">실제 필업 순서는:</p><p id="a85526c5-4f9a-43ad-a822-2d316324bce0" class="" dir="auto"><strong>필업(크랜베리주스) → 필업(파인애플주스)</strong></p><p id="cf524733-6801-42fe-ba39-e4a0858d40e0" class="" dir="auto">가 된다.</p><p id="21da4897-2e1c-4d9c-981d-500fc6e3ab73" class="" dir="auto">반대로 파인애플주스를 먼저 선택했다면 실행 순서도 반대가 된다.</p><p id="663ea89d-3c51-48eb-9e3c-3f0082433269" class="" dir="auto">서로 다른 기믹 종류 사이에서는 재료 선택 순서보다 <strong>기믹 고정 우선순위</strong>가 우선한다.</p><p id="1b48a4e4-fb12-4158-8fdc-6b354563e772" class="" dir="auto"><strong>순서 예시:</strong> 크랜베리주스(Fill-up)를 럼(Pour)보다 먼저 선택해도 실제 제조에서는 <strong>따르기(럼) → … → 필업(크랜베리주스)</strong> 순서로 실행한다.</p><h3 id="819f9f38-9369-47a6-9e23-8a94a7ebb489" class="" dir="auto">3.8.5 핵심 원칙</h3><blockquote id="b44ad881-e7bd-4723-883c-1fd9342c5eda" class="block-color-teal" data-notion-highlight="teal" dir="auto"><strong>핵심 원칙</strong><p id="7c782a60-0805-40ad-ae7c-597caf7d30b5" class="" dir="auto">정답 준비를 모두 마치면 자동 안내를 표시한다. 정답을 완성하지 않아도 잔과 선택형 재료 1종 이상이 있으면 수동 진행을 허용한다. 선택한 재료의 수와 종류는 제한하지 않으며 실제 선택 결과를 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>에 기록한다.</p></blockquote><h2 id="2207afc8-3831-4b84-8f95-b1a60fc515cb" class="" dir="auto">3.9 Actual Craft 구성</h2><p id="aeb8d26f-f57f-4c12-a820-2810ecfa8203" class="" dir="auto">플레이어가 제조 준비 단계를 종료하고 기믹 플레이로 진입하면, 시스템은 플레이어가 실제로 선택한 제조 정보를 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>로 저장한다.</p><p id="ff2a8a2d-b1b5-4614-bd43-4c5a0bf768fa" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>는 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 정답 레시피와 별개로, <strong>플레이어가 실제로 무엇을 선택했는지 기록하는 데이터</strong>다.</p><p id="9f34be11-7342-4686-aa28-5076df366fec" class="" dir="auto">이 정보는 제조 시작 요청의 입력값으로 기믹·판정 시스템에 전달한다.</p><h3 id="6c3d7bc2-730a-4e56-9ac6-3a9f3069d6b7" class="" dir="auto">3.9.1 저장 항목</h3><table id="b2610daf-e868-4045-b322-4fe98b430ef8" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="958f67ae-b163-46af-9e21-1053ee2aee71" dir="ltr"><th id="RaKX" class="block-color-blue_background simple-table-header">데이터</th><th id="ex:&lt;" class="block-color-blue_background simple-table-header">내용</th></tr></thead><tbody><tr id="aeb98091-5dd2-4283-aaed-39929d1199e5" dir="ltr"><td id="RaKX" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Glass</code></mark></td><td id="ex:&lt;" class="">플레이어가 실제로 선택한 잔</td></tr><tr id="414d3a4f-4e8c-45a8-8ad4-e5779ddc70cd" dir="ltr"><td id="RaKX" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Tool</code></mark></td><td id="ex:&lt;" class="">플레이어가 실제로 선택한 도구</td></tr><tr id="bd0ddea2-6bc0-4d73-b364-e8d7985e39af" dir="ltr"><td id="RaKX" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Ingredients</code></mark></td><td id="ex:&lt;" class="">플레이어가 실제로 선택한 재료와 선택 순서</td></tr><tr id="b2896e0b-b1f5-4b64-bf35-0673f5e8dda9" dir="ltr"><td id="RaKX" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Auto Applied Ingredients</code></mark></td><td id="ex:&lt;" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>recipe[].auto_apply = true</code></mark>인 스퀴즈·파우더 재료</td></tr><tr id="1d072254-fa4a-4664-b734-9947c9afc598" dir="ltr"><td id="RaKX" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Mixing Ice·Serving Ice</code></mark></td><td id="ex:&lt;" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → mixing_ice·serving_ice</code></mark>를 기준으로 별도 저장하는 얼음 상태</td></tr><tr id="91957ccd-13b8-4389-8165-4d5ce2182154" dir="ltr"><td id="RaKX" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Mix</code></mark></td><td id="ex:&lt;" class="">실제 선택 도구에 따라 결정되는 믹스 방식</td></tr></tbody></table><h3 id="68f79659-7117-401f-8d51-cd318cfab257" class="" dir="auto">3.9.2 Actual Glass</h3><p id="aa208cb2-1df8-472f-8179-cc153d910919" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Glass</code></mark>에는 플레이어가 제조 준비 단계에서 실제로 선택한 잔을 저장한다.</p><p id="f706b689-cdc6-4781-b694-8b692de7b91d" class="" dir="auto">정답 잔인지 여부와 관계없이 실제 선택값을 그대로 기록한다.</p><p id="387bd9cf-f51b-46db-b086-6c0fba8510e8" class="" dir="auto"><strong>저장 예시:</strong> Target Glass가 올드패션 글라스이고 실제로 칵테일 글라스를 선택했다면 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Glass = 칵테일 글라스</code></mark>로 저장한다.</p><p id="552b158e-87eb-4291-9e31-5b9f2d8de8d6" class="" dir="auto">잔은 수동 기믹 진입의 필수 조건이므로, 기믹 플레이 진입 시 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Glass</code></mark>는 반드시 존재한다.</p><h3 id="16840248-c933-4996-a1a8-d57feedf6246" class="" dir="auto">3.9.3 Actual Tool</h3><p id="24bdb9b7-9152-48e1-a158-0697605ede63" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Tool</code></mark>에는 플레이어가 실제로 선택한 제조 도구를 저장한다.</p><p id="1e31717a-29ab-402b-852b-19ddf45ae362" class="" dir="auto">정답 도구가 아니더라도 선택한 도구를 그대로 기록한다.</p><p id="ee52abd0-8435-4f56-9310-9fb7e43be5f4" class="" dir="auto">도구는 수동 기믹 진입의 필수 조건이 아니므로 선택하지 않은 상태도 허용한다.</p><p id="955a7b14-ab39-461c-b631-c5b973e2698e" class="" dir="auto"><strong>예:</strong></p><table id="34e4d1a8-4e37-4caf-82cf-bbb76b2e3b49" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="fe451e81-0211-4953-babd-4ff9b9f20cda" dir="ltr"><th id="OfsD" class="block-color-blue_background simple-table-header">상태</th><th id="hOnP" class="block-color-blue_background simple-table-header">Actual Tool</th></tr></thead><tbody><tr id="9ebbc514-cae3-4bcb-bc7f-457f5eb32b39" dir="ltr"><td id="OfsD" class="">셰이커 선택</td><td id="hOnP" class="">셰이커</td></tr><tr id="c83e3aac-08ba-4dec-9c26-9cd60627ae8e" dir="ltr"><td id="OfsD" class="">믹싱 글라스 선택</td><td id="hOnP" class="">믹싱 글라스</td></tr><tr id="67e5f433-4293-4e04-8d53-175d96c58ef3" dir="ltr"><td id="OfsD" class="">도구 미선택</td><td id="hOnP" class="">없음</td></tr></tbody></table><p id="1238dd4e-8f1d-4c3b-b658-c2fd8ba7107c" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Tool</code></mark>은 이후 믹스 기믹을 결정하는 기준으로 사용한다.</p><ul id="ca6fb079-783e-4e5b-be7e-bf882f8709b5" class="bulleted-list" dir="auto"><li style="list-style-type:disc">셰이커 → 셰이킹</li></ul><ul id="d24b8960-764c-48ae-8c77-3d0caeb4c1a6" class="bulleted-list" dir="auto"><li style="list-style-type:disc">믹싱 글라스 → 스터</li></ul><ul id="2bae862a-a7fb-4da6-b182-b2d6d154fee2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">도구 미선택 → 믹스 기믹 생성 안 함</li></ul><p id="7a395b58-3870-46b4-9874-2ba55a74c7f5" class="" dir="auto">즉 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 정답 믹스 방식보다 <strong>플레이어가 실제로 선택한 도구를 우선한다.</strong></p><h3 id="e28a033a-5a71-4bc3-a0fb-8a05d3a58db3" class="" dir="auto">3.9.4 Actual Ingredients</h3><p id="0a2dd0ea-7092-4fdb-bea9-11f969ac5c15" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Ingredients</code></mark>에는 플레이어가 선반에서 직접 선택한 선택형 재료를 저장한다.</p><p id="ce2da4fb-1561-4e51-b8ac-60cad40b016d" class="" dir="auto">정답 여부와 관계없이 실제 선택한 재료를 모두 기록한다.</p><p id="9054fd74-1fd5-426d-a8d9-7135137ca176" class="" dir="auto">예를 들어 메뉴 리스트에서 진피즈를 선택한 상태에서 플레이어가</p><ol type="1" id="67a6eb58-06ec-4629-9604-ff23eef011ca" class="numbered-list" start="1" dir="auto"><li>럼</li></ol><ol type="1" id="e00885f4-037b-4717-95ec-d106e34473d9" class="numbered-list" start="2" dir="auto"><li>크랜베리주스</li></ol><ol type="1" id="4dd03a21-d25a-4f9c-aae0-fc43a98d37c5" class="numbered-list" start="3" dir="auto"><li>파인애플주스</li></ol><p id="409e5702-d407-4841-9b2f-541c30ada598" class="" dir="auto">를 선택했다면:</p><p id="d658f529-3be0-4501-847c-4ba7b0773310" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Ingredients = 럼, 크랜베리주스, 파인애플주스</code></mark></p><p id="3e20b86a-ad4d-4ec3-b25d-094781e3caa4" class="" dir="auto">로 저장한다.</p><p id="610f017d-421b-4ff8-a89c-a6bf35b3778b" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 정답 재료와 다른 재료를 선택하거나, 일부 재료를 누락하거나, 정답보다 많은 재료를 선택한 경우에도 실제 선택 상태를 그대로 보존한다.</p><h3 id="7d6949ae-485c-4df1-b29c-95bda52f7dfc" class="" dir="auto">3.9.5 Ingredient Selection Order</h3><p id="60d71e61-53d1-4799-8025-8e2a6e83fe7a" class="" dir="auto">같은 기믹 역할을 가진 재료가 여러 개 선택될 수 있으므로 재료의 <strong>선택 순서도 함께 저장</strong>한다.</p><p id="506a75ac-6ce5-4bd0-9b03-d698f282d4b8" class="" dir="auto"><strong>선택 순서 예시:</strong> 크랜베리주스 다음 파인애플주스를 선택했다면 해당 순서를 유지한다.</p><p id="624fd291-aea8-480b-b885-f58d0f633c07" class="" dir="auto">이 순서는 제조 시작 요청에 포함해 기믹 시스템으로 전달한다.</p><p id="05b9a358-0b6e-4e56-a294-28ec6ed6c5f3" class="" dir="auto">선택 순서를 실제 기믹 순서로 변환하는 규칙은 기믹·판정 문서에서 관리한다.</p><h3 id="ed16c248-2ef6-4a31-82b0-9f74b798f781" class="" dir="auto">3.9.6 자동 적용 재료</h3><p id="8b2db5b5-ac29-405f-bbc5-4f027e2d16d7" class="" dir="auto">스퀴즈·파우더는 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 레시피를 기준으로 자동 적용한다.</p><p id="0ee51221-5ea4-49f4-867f-fabb1b9e3609" class="" dir="auto"><mark class="highlight-purple" data-notion-highlight="purple"><code>recipe[].auto_apply = true</code></mark>인 재료는 <mark class="highlight-blue" data-notion-highlight="blue"><code>Auto Applied Ingredients</code></mark>에 재료 ID·수량·단위·행동을 기록한다.</p><p id="0172e85b-720e-404d-868d-cebae90a25ef" class="" dir="auto">얼음은 재료 배열에 합치지 않고 <mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → mixing_ice·serving_ice</code></mark> 값을 별도 필드로 전달한다. 데모에서는 두 항목 모두 플레이어가 직접 선택하지 않는다.</p><h3 id="623976b4-2cba-4d07-bca0-873d18604522" class="" dir="auto">3.9.7 Actual Mix</h3><p id="f2362c8a-6a51-443f-8184-d5e2dc770ec8" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Mix</code></mark>는 <mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>의 정답 제조법이 아니라 <strong>Actual Tool을 기준으로 결정한다.</strong></p><table id="002e27ca-f4c8-48a8-93f5-e2201e973987" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="f385fae1-17ea-4b98-be94-730bb8446aef" dir="ltr"><th id="yYbg" class="block-color-blue_background simple-table-header">Actual Tool</th><th id="Qvd;" class="block-color-blue_background simple-table-header">Actual Mix</th></tr></thead><tbody><tr id="b3bf1f99-a0d6-4186-af3f-252a390a459b" dir="ltr"><td id="yYbg" class="">셰이커</td><td id="Qvd;" class="">Shake</td></tr><tr id="8afc9e79-9cd9-42b5-acf3-303131647614" dir="ltr"><td id="yYbg" class="">믹싱 글라스</td><td id="Qvd;" class="">Stir</td></tr><tr id="1a83f444-3d6f-4459-a89e-7bee1f86194e" dir="ltr"><td id="yYbg" class="">도구 미선택</td><td id="Qvd;" class="">없음</td></tr></tbody></table><p id="27007e9c-b82a-40fd-aabe-72496eb8b6f4" class="" dir="auto">예를 들어 Selected Cocktail의 정답 제조법이 셰이크라고 하더라도 플레이어가 믹싱 글라스를 선택했다면:</p><p id="501b109d-4f2e-40bf-bcd2-86b8db7ed903" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Tool = 믹싱 글라스</code></mark></p><p id="5a5a35ac-d95e-4f71-b926-54a7827ffe8e" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Mix = Stir</code></mark></p><p id="ae484f2d-1a18-4a67-9923-ab4459225fe9" class="" dir="auto">로 처리한다.</p><p id="1ad41f85-b2f6-41e8-b6f3-8efca55ea1a7" class="" dir="auto">반대로 도구를 선택하지 않았다면 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Mix</code></mark>는 생성하지 않는다.</p><h3 id="1dc135d4-d041-41c1-8dd1-5823368a0869" class="" dir="auto">3.9.8 핵심 원칙</h3><ul id="3f6cbf82-3557-488c-a26e-bdbc49a817e5" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>Selected Cocktail</code></mark>: 플레이어가 만들기로 선택한 칵테일의 정답 기준.</li></ul><ul id="0d6c50e9-bb56-42ad-af75-1b8ce75018a3" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>: 플레이어가 실제로 선택하고 수행한 제조 상태.</li></ul><p id="8cf2e35b-eb54-420b-8c09-6c2680919858" class="" dir="auto">두 데이터는 서로 별도로 유지한다.</p><p id="4a40d1fb-4875-4eaf-8997-f015cadb868b" class="" dir="auto">따라서 루프 시스템은 플레이어의 오선택을 정답값으로 보정하지 않고 실제 선택 상태를 그대로 외부 기믹·판정 시스템에 전달한다.</p><h2 id="09001441-0059-4bc0-8f15-8b03adb76286" class="" dir="auto">3.10 제조 시작 요청</h2><p id="c5a64c50-6209-4fcf-bf58-2368ca6a5db2" class="" dir="auto">제조 준비가 끝나면 루프 시스템은 <strong>Selected Cocktail과 Actual Craft를 하나의 제조 요청으로 묶어 기믹 시스템에 전달</strong>한다.</p><table id="656c9a37-f5b6-4f7e-b59b-2f497c0e52f5" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7f6c7eac-ab2c-4e3a-a6c7-5a1443502ab0" dir="ltr"><th id="iXXZ" class="block-color-blue_background simple-table-header">전달 항목</th><th id="is=Q" class="block-color-blue_background simple-table-header">설명</th></tr></thead><tbody><tr id="e65c5ef4-1df3-44f1-a0a2-82c633bcf065" dir="ltr"><td id="iXXZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>selected_cocktail_id</code></mark></td><td id="is=Q" class="">플레이어가 제조 대상으로 확정한 칵테일 ID</td></tr><tr id="5e2ea2cc-2364-4153-bf58-387f716b467a" dir="ltr"><td id="iXXZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>actual_glass_id</code></mark></td><td id="is=Q" class="">실제로 선택한 잔 ID</td></tr><tr id="315f4aba-228c-4edd-a916-020751195e57" dir="ltr"><td id="iXXZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>actual_tool_id</code></mark></td><td id="is=Q" class="">실제로 선택한 도구 ID</td></tr><tr id="674131f9-f3d1-4d93-a4f3-b406076fe332" dir="ltr"><td id="iXXZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>actual_ingredients[]</code></mark></td><td id="is=Q" class="">플레이어가 선택한 재료와 선택 순서</td></tr><tr id="1a3eabb2-de96-4a36-b344-c8f2b0bb6035" dir="ltr"><td id="iXXZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>auto_applied_ingredients[]</code></mark></td><td id="is=Q" class="">레시피에 따라 자동 적용되는 스퀴즈·파우더 재료</td></tr><tr id="ef72f2da-6d9e-467c-814f-3d63db8d6dc7" dir="ltr"><td id="iXXZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>mixing_ice·serving_ice</code></mark></td><td id="is=Q" class="">레시피에서 읽은 얼음 상태</td></tr><tr id="e33a5771-cbf8-4f65-bc00-8b2119878653" dir="ltr"><td id="iXXZ" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>guest_id·order_id</code></mark></td><td id="is=Q" class="">전달하지 않음·서빙 대상 코스터가 확정될 때 연결</td></tr></tbody></table><p id="174871db-95d2-412d-96fb-e5057c69924d" class="" dir="auto">루프 시스템은 각 요청에 고유한 요청 ID를 부여하고, 같은 요청이 중복 실행되지 않도록 완료 여부를 저장한다.</p><p id="3019d838-aeb6-42de-af1a-000390cc98d2" class="" dir="auto">기믹 큐의 생성 순서, 각 기믹의 조작 규칙, 성공·실패 처리와 종료 조건은 이 문서에서 정의하지 않는다. 다음 문서를 정본으로 사용한다.</p><p id="e3feb2a3-62fb-4dfb-b171-5ac9992afe61" class="" dir="auto"><a href="https://app.notion.com/p/3c01612298dc8095b35adb795a68e3a7?pvs=21" data-notion-page-id="3c016122-98dc-8095-b35a-db795a68e3a7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제조 기믹·등급 계산 시스템</a></p><h2 id="2910c7b7-c069-40d3-910b-3411cc9ade04" class="" dir="auto">3.11 관련 UI·데이터 연결</h2><h3 id="2d1d00ea-dd8b-463f-b382-1fada0e5f490" class="" dir="auto">3.11.1 제조 준비 화면</h3><table id="10feff93-f6c0-43a1-ad8c-df56c76fc046" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="b73f95b3-baf6-4dbb-b57a-3f1c30c76635" dir="ltr"><th id="f@wd" class="block-color-purple_background simple-table-header">UI 요소</th><th id="T;E\" class="block-color-purple_background simple-table-header">데이터 경로</th><th id="oukS" class="block-color-purple_background simple-table-header">표시·동작</th></tr></thead><tbody><tr id="76ed5d3d-d329-4c18-97bc-c4e5eb0c2fc0" dir="ltr"><td id="f@wd" class="">잔 선반</td><td id="T;E\" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json → kind = &quot;glass&quot;·id·name·sprite·desc</code></mark></td><td id="oukS" class="">선택한 잔을 Actual Glass에 기록</td></tr><tr id="87890de5-c6a4-4576-bd46-f167a73d6046" dir="ltr"><td id="f@wd" class="">도구 선반</td><td id="T;E\" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json → kind = &quot;tool&quot;·id·name·sprite·desc</code></mark></td><td id="oukS" class="">선택 도구로 Actual Tool과 Actual Mix 결정</td></tr><tr id="4d1dc4c0-6f49-4339-9e84-e8f8f8b66069" dir="ltr"><td id="f@wd" class="">재료 선반</td><td id="T;E\" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json → kind = &quot;ingredient&quot;·shelf_group·unlock_day·unlock_when·default_action·prep_action·default_target_qty·default_target_unit</code></mark></td><td id="oukS" class="">해금된 수동 재료만 표시하고 오선택 재료의 기본 기믹 생성에도 사용</td></tr><tr id="cf7a1e37-b4a9-4069-b9e3-bfbff4bd7260" dir="ltr"><td id="f@wd" class="">재료 이름·설명</td><td id="T;E\" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json → name.ko·name.en·desc.ko·desc.en</code></mark></td><td id="oukS" class="">호버 또는 선택 정보 UI에 현재 언어로 표시</td></tr><tr id="52282f11-57da-4cd9-912d-fdbcce187cff" dir="ltr"><td id="f@wd" class="">액체 색상</td><td id="T;E\" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json → color</code></mark></td><td id="oukS" class="">Pour·Fill-up 액체와 제조 애니메이션의 내용물 색상에 사용</td></tr><tr id="22120094-51c0-4b2b-b1f8-daf20d144de2" dir="ltr"><td id="f@wd" class="">레시피 가이드</td><td id="T;E\" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → glass·mix·recipe[]</code></mark></td><td id="oukS" class="">정답 항목을 안내하되 플레이어 선택을 자동 보정하지 않음</td></tr><tr id="d29d35fb-c4d6-49bb-8d72-ba4435887287" dir="ltr"><td id="f@wd" class="">자동 적용 표시</td><td id="T;E\" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>recipe[].auto_apply</code></mark>·<mark class="highlight-purple" data-notion-highlight="purple"><code>mixing_ice·serving_ice</code></mark></td><td id="oukS" class="">스퀴즈·파우더·얼음은 선반 선택과 수동 기믹 없이 결과에 자동 반영</td></tr></tbody></table><h2 id="8fa15510-e6a2-44da-a7af-dd2f593b9eb5" class="" dir="auto">3.12 확인된 데이터 예시</h2><h3 id="cc283b5b-05c6-434a-8c7b-0d8ff3abd803" class="" dir="auto">3.12.1 칵테일 데이터 발췌</h3><p id="a29fe0c9-1330-46e6-aec5-22ad95cb7585" class="" dir="auto">아래 예시는 구조 설명용 발췌다. 코드 블록 내부의 문법 색상은 Notion 테마가 결정하며 의미 색상은 본문의 데이터 경로 표기를 따른다.</p><p id="8ceeb7d6-6cdc-4670-9e6e-0750fbb3b645" class="" dir="auto">루프 시스템은 <mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json</code></mark>에서 메뉴 표시, 준비 화면과 외부 시스템 요청에 필요한 필드만 사용한다. 아래는 해당 필드의 발췌 예시다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="ca7bdf1a-4798-42fa-8683-0234c7bf4030" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">{
+  &quot;id&quot;: &quot;gin_fizz&quot;,
+  &quot;name&quot;: {
+    &quot;ko&quot;: &quot;진피즈&quot;,
+    &quot;en&quot;: &quot;Gin Fizz&quot;
+  },
+  &quot;status&quot;: &quot;confirmed&quot;,
+  &quot;glass&quot;: &quot;long_drink&quot;,
+  &quot;mix&quot;: &quot;shake&quot;,
+  &quot;unlock_day&quot;: 0,
+  &quot;time_limit_sec&quot;: 52,
+  &quot;recipe&quot;: [
+    {
+      &quot;action&quot;: &quot;pour&quot;,
+      &quot;ingredient&quot;: &quot;gin&quot;,
+      &quot;qty&quot;: 1.5,
+      &quot;unit&quot;: &quot;oz&quot;,
+      &quot;auto_apply&quot;: false
+    },
+    {
+      &quot;action&quot;: &quot;squeeze&quot;,
+      &quot;ingredient&quot;: &quot;lemon&quot;,
+      &quot;qty&quot;: 0.5,
+      &quot;unit&quot;: &quot;oz&quot;,
+      &quot;auto_apply&quot;: true
+    },
+    {
+      &quot;action&quot;: &quot;powder&quot;,
+      &quot;ingredient&quot;: &quot;sugar&quot;,
+      &quot;qty&quot;: 1,
+      &quot;unit&quot;: &quot;tsp&quot;,
+      &quot;auto_apply&quot;: true
+    },
+    {
+      &quot;action&quot;: &quot;fill_up&quot;,
+      &quot;ingredient&quot;: &quot;soda_water&quot;,
+      &quot;qty&quot;: 3,
+      &quot;unit&quot;: &quot;oz&quot;,
+      &quot;auto_apply&quot;: false
+    }
+  ],
+  &quot;sprite&quot;: &quot;Finished_GinFizz&quot;,
+  &quot;serve_sprite&quot;: &quot;Serve_GinFizz&quot;
+}</code></pre><ul id="c268d19f-fee6-4ab0-8996-2e4d3b0f90e5" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>auto_apply = false</code></mark>인 재료는 제조 준비 화면에서 플레이어가 직접 선택한다.</li></ul><ul id="c726c63f-9a0a-444a-ba1c-8c9eb5bd9211" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>auto_apply = true</code></mark>인 재료는 선반 선택 대상에서 제외하고 제조 요청의 <mark class="highlight-blue" data-notion-highlight="blue"><code>auto_applied_ingredients[]</code></mark>에 포함한다.</li></ul><ul id="09eeb011-630f-42a2-a976-e4bb93506825" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>is_core</code></mark>·<mark class="highlight-purple" data-notion-highlight="purple"><code>scored</code></mark> 등 판정 전용 필드의 해석은 기믹·판정 문서를 따른다.</li></ul><h3 id="ecc512d3-67a9-4482-8af9-89134e563a6b" class="" dir="auto">3.12.2 선반 데이터 발췌</h3><pre id="7c76b07c-1be5-4917-ae5d-082fe58e95ff" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">{
+  &quot;id&quot;: &quot;soda_water&quot;,
+  &quot;kind&quot;: &quot;ingredient&quot;,
+  &quot;name&quot;: {
+    &quot;ko&quot;: &quot;탄산수&quot;,
+    &quot;en&quot;: &quot;Carbonated Water&quot;
+  },
+  &quot;color&quot;: &quot;245,250,255&quot;,
+  &quot;unlock_day&quot;: 0,
+  &quot;default_action&quot;: &quot;fill_up&quot;,
+  &quot;default_target_qty&quot;: 3.0,
+  &quot;default_target_unit&quot;: &quot;oz&quot;
+}</code></pre><p id="097963b7-0fc9-4171-b719-b0ca0e062eb7" class="" dir="auto">루프 시스템은 플레이어가 선택한 선반 항목의 ID와 관련 필드를 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>에 기록해 외부 시스템으로 전달한다. 레시피 외 재료의 행동 결정과 판정 처리는 기믹·판정 문서를 따른다.</p><h2 id="8603d66e-edec-488d-bff0-c59e3dd1a941" class="" dir="auto">3.13 오류·예외 처리와 검증</h2><h3 id="2599a33e-0277-4866-9b77-5afa80ac683e" class="" dir="auto">3.13.1 오류·예외 처리</h3><table id="18bf8466-f598-4133-b94f-f525b702ec23" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="8de8ee7b-3f50-4d25-8981-27c414f30546" dir="ltr"><th id="@ish" class="block-color-red_background simple-table-header">상황</th><th id="Fx~Z" class="block-color-red_background simple-table-header">처리</th></tr></thead><tbody><tr id="185b332e-f530-4ab4-97df-470c13e69861" dir="ltr"><td id="@ish" class="">잔 미선택 또는 선택형 재료 0개</td><td id="Fx~Z" class="">다음 버튼 비활성화·제조 요청 생성 금지</td></tr><tr id="d9e5de6e-4eb7-4516-ac4d-647a4e6abd4f" dir="ltr"><td id="@ish" class="">선택한 선반 ID가 데이터에 없음</td><td id="Fx~Z" class="">해당 선택 제거·오류 기록·임의 대체 금지</td></tr><tr id="30088458-ae1b-4210-ad0a-b81fe3d943ef" dir="ltr"><td id="@ish" class="">도구 미선택</td><td id="Fx~Z" class="">진행 허용·<mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Tool</code></mark>과 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Mix</code></mark>를 없음으로 저장·믹스 기믹 미생성</td></tr><tr id="e0d24311-bd93-41fe-8fae-8fde6a988843" dir="ltr"><td id="@ish" class="">제조 시작 입력 연속 발생</td><td id="Fx~Z" class="">첫 요청만 생성·동일 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark> 재사용 금지</td></tr><tr id="b85d5667-85fa-44d1-b0fa-7568d6aa95d1" dir="ltr"><td id="@ish" class="">레시피 노트 재개방</td><td id="Fx~Z" class="">현재 선택 상태와 가이드 활성 상태 유지</td></tr></tbody></table><h3 id="e44a4633-82e8-4048-90ce-52bbfe176c20" class="" dir="auto">3.13.2 구현 완료 기준</h3><ul id="5f652d9a-6b92-4d1f-ac3d-c2efb1d4cb1d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">잔과 선택형 재료 1종 이상을 선택해야 다음 버튼이 활성화된다.</li></ul><ul id="010c3a53-ba1b-4375-95b7-618bb2ef1566" class="bulleted-list" dir="auto"><li style="list-style-type:disc">오선택과 선택 순서가 자동 보정 없이 <mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Craft</code></mark>에 그대로 저장된다.</li></ul><ul id="bcdee937-e7c3-4325-92df-bc8c1aa73441" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>Actual Tool</code></mark>이 없으면 믹스 기믹을 생성하지 않는다.</li></ul><ul id="8ec5e141-c2cb-46b9-a8b0-67d136330d36" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>auto_apply</code></mark> 재료와 얼음 필드가 분리되어 제조 요청에 포함된다.</li></ul><ul id="836fd31d-b136-4213-bc7a-02e85c4fe387" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 요청에는 <mark class="highlight-blue" data-notion-highlight="blue"><code>guest_id</code></mark>와 <mark class="highlight-blue" data-notion-highlight="blue"><code>order_id</code></mark>가 포함되지 않는다.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

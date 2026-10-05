@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="7" result="Passed" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.2630662">
+  <test-suite type="TestSuite" id="1000" name="ProjectLUNA" fullname="ProjectLUNA" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.263066" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1010" name="Assembly-CSharp-Editor.dll" fullname="/private/tmp/hb-c-work/unity-validation/HumanBartender/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.250919" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="16876" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1001" name="CsvContentTests" fullname="CsvContentTests" classname="CsvContentTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.249414" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1002" name="DirectCsvPreservesZeroFalseNullEmptyAndMultilineText" fullname="CsvContentTests.DirectCsvPreservesZeroFalseNullEmptyAndMultilineText" methodname="DirectCsvPreservesZeroFalseNullEmptyAndMultilineText" classname="CsvContentTests" runstate="Runnable" seed="474543523" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.061299" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1008" name="ParseBomTrailingEmptyCellAndEmbeddedQuotes" fullname="CsvContentTests.ParseBomTrailingEmptyCellAndEmbeddedQuotes" methodname="ParseBomTrailingEmptyCellAndEmbeddedQuotes" classname="CsvContentTests" runstate="Runnable" seed="1978812092" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.000349" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1009" name="ProjectCatalogLoadsNestedChoicesRecipesAndEmptyDays" fullname="CsvContentTests.ProjectCatalogLoadsNestedChoicesRecipesAndEmptyDays" methodname="ProjectCatalogLoadsNestedChoicesRecipesAndEmptyDays" classname="CsvContentTests" runstate="Runnable" seed="751458642" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.156115" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1007" name="RejectDuplicateRowIdsBeforePublishing" fullname="CsvContentTests.RejectDuplicateRowIdsBeforePublishing" methodname="RejectDuplicateRowIdsBeforePublishing" classname="CsvContentTests" runstate="Runnable" seed="1673019317" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.005042" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1006" name="RejectMalformedQuotes" fullname="CsvContentTests.RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.004654" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1003" name="RejectMalformedQuotes(&quot;a\n\&quot;unfinished&quot;)" fullname="CsvContentTests.RejectMalformedQuotes(&quot;a\n\&quot;unfinished&quot;)" methodname="RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" seed="1820435601" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.000544" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1004" name="RejectMalformedQuotes(&quot;a\na\&quot;b&quot;)" fullname="CsvContentTests.RejectMalformedQuotes(&quot;a\na\&quot;b&quot;)" methodname="RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" seed="1513621899" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.000146" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+          </test-case>
+          <test-case id="1005" name="RejectMalformedQuotes(&quot;a\n\&quot;a\&quot;x&quot;)" fullname="CsvContentTests.RejectMalformedQuotes(&quot;a\n\&quot;a\&quot;x&quot;)" methodname="RejectMalformedQuotes" classname="CsvContentTests" runstate="Runnable" seed="1650550433" result="Passed" start-time="2026-09-15 06:15:10Z" end-time="2026-09-15 06:15:10Z" duration="0.000128" asserts="0">
+            <properties>
+              <property name="retryIteration" value="0" />
+              <property name="repeatIteration" value="0" />
+            </properties>
+            <output><![CDATA[Saving results to: /Users/yongseokpark/Library/Application Support/TeamSIMCHUNG/ProjectLUNA/TestResults.xml
+]]></output>
+          </test-case>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

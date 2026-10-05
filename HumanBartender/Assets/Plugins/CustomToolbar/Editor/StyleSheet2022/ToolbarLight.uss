@@ -1,0 +1,22 @@
+.unity-toolbar-frame {
+    left: -1px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.5px;
+    margin-right: 1.5px;
+    padding: 0 3px;
+    color: rgb(9, 9, 9);
+    background-color: rgb(203, 203, 203);
+    border-width: 0.5px;
+    border-color: rgb(107, 107, 107);
+}
+
+.unity-toolbar-frame:hover:enabled {
+    color: rgb(9, 9, 9);
+    background-color: rgb(193, 193, 193);
+}
+
+.unity-toolbar-frame:active:enabled {
+    color: rgb(9, 9, 9);
+    background-color: rgb(105, 105, 105);
+}

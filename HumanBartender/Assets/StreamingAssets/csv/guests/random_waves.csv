@@ -1,0 +1,10 @@
+﻿day,seq,order,personality,delay_sec,max_rounds,branch_choice,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+1,1,\N,gentle,0,1,false,random_waves,random_waves_1,@random_waves,\N,0,random_waves_format_01
+1,2,\N,chatty,35,1,false,random_waves,random_waves_2,@random_waves,\N,1,random_waves_format_01
+1,3,gin_fizz,quiet,50,1,false,random_waves,random_waves_3,@random_waves,\N,2,random_waves_format_02
+1,4,\N,touchy,40,1,false,random_waves,random_waves_4,@random_waves,\N,3,random_waves_format_01
+2,1,\N,chatty,0,1,false,random_waves,random_waves_5,@random_waves,\N,4,random_waves_format_01
+2,2,long_island,rough,45,1,false,random_waves,random_waves_6,@random_waves,\N,5,random_waves_format_02
+2,3,\N,touchy,50,2,false,random_waves,random_waves_7,@random_waves,\N,6,random_waves_format_01
+99,1,gin_tonic,gentle,0,1,false,random_waves,random_waves_8,@random_waves,\N,7,random_waves_format_02
+99,2,\N,chatty,20,2,false,random_waves,random_waves_9,@random_waves,\N,8,random_waves_format_01

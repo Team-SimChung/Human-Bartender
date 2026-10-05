@@ -1,0 +1,345 @@
+Assets/03.Scripts 폴더 구성
+작성일: 2026-07-02 (최초) / 갱신: 2026-07-02 (인터페이스 파일 분리 반영)
+
+(root)
+  - EndingCredits.cs
+  - GameStateManager.cs
+  - LogoFade.cs
+  - MainManager.cs
+
+Camera
+  - CameraController.cs
+  - CameraControllerNew.cs
+  - ICameraControl.cs
+  - ICameraControlNew.cs
+  - ResolutionZoomTest.cs
+
+Command
+  - AddStatCommand.cs
+  - CustomerEnterCommand.cs
+  - CustomerExitCommand.cs
+  - DayEndCommand.cs
+  - DialogueCommandFactory.cs
+  - EffectCommand.cs
+  - IDialogueCommand.cs
+  - MoneyChangeCommand.cs
+  - SetFlagCommand.cs
+  - SetStatCommand.cs
+  - StartCraftCommand.cs
+  - StartCutSceneCommand.cs
+
+Craft
+  - BuildManager.cs
+  - CocktailCraftManager.cs
+  - CraftStationData.cs
+  - ICocktailCraft.cs
+  - IMiniGameController.cs
+
+Craft/UI
+  - UICocktailDetailPanel.cs
+  - UICocktailPanel.cs
+  - UICocktailSlot.cs
+  - UIContentsSpacer.cs
+  - UIContentsText.cs
+  - UIIngredientPanel.cs
+  - UIIngredientSlot.cs
+
+Craft/UI/Money
+  - CurrencyGainText.cs
+  - SettlementRow.cs
+  - SettlementSection.cs
+  - SettlementUI.cs
+  - UICashPanel.cs
+  - UITest.cs
+
+Cutscene
+  - CutsceneManager.cs
+  - ICutScenePlayer.cs
+  - IEffectPlayer.cs
+  - ITimeLinePlayer.cs
+  - SpineAnimationManager.cs
+  - SpriteAnimationManager.cs
+  - TestCutScene.cs
+
+Cutscene/Outside Timeline
+  - CutsceneDialogueHandler.cs
+  - SpriteRevealBehaviour.cs
+  - SpriteRevealClip.cs
+  - SpriteRevealMixerBehaviour.cs
+  - SpriteRevealTrack.cs
+
+Cutscene/Outside Timeline/Outside
+  - SpriteRevealBinder.cs
+
+Cutscene/UI Timeline
+  - CutSceneBGBehaviour.cs
+  - CutSceneBGClip.cs
+  - CutSceneBGMixerBehaviour.cs
+  - CutSceneBGTrack.cs
+  - CutSceneDialogueBehaviour.cs
+  - CutSceneDialogueClip.cs
+  - CutSceneDialogueMixerBehaviour.cs
+  - CutSceneDialogueTrack.cs
+  - CutSceneEffectBehaviour.cs
+  - CutSceneEffectClip.cs
+  - CutSceneEffectMixerBehaviour.cs
+  - CutSceneEffectTrack.cs
+  - CutSceneImageBehaviour.cs
+  - CutSceneImageClip.cs
+  - CutSceneImageMixerBehaviour.cs
+  - CutSceneImageTrack.cs
+  - CutSceneMoveBehaviour.cs
+  - CutSceneMoveClip.cs
+  - CutSceneMoveMixerBehaviour.cs
+  - CutSceneMoveTrack.cs
+  - CutSceneResolutionBehaviour.cs
+  - CutSceneResolutionClip.cs
+  - CutSceneResolutionMixerBehaviour.cs
+  - CutSceneResolutionTrack.cs
+  - CutSceneRootMoveBehaviour.cs
+  - CutSceneRootMoveClip.cs
+  - CutSceneRootMoveMixerBehaviour.cs
+  - CutSceneRootMoveTrack.cs
+  - CutSceneRotateYBehaviour.cs
+  - CutSceneRotateYClip.cs
+  - CutSceneRotateYMixerBehaviour.cs
+  - CutSceneRotateYTrack.cs
+  - CutSceneShakeBehaviour.cs
+  - CutSceneShakeClip.cs
+  - CutSceneShakeMixerBehaviour.cs
+  - CutSceneShakeTrack.cs
+  - CutSceneSpriteAnimBehaviour.cs
+  - CutSceneSpriteAnimClip.cs
+  - CutSceneSpriteAnimMixerBehaviour.cs
+  - CutSceneSpriteAnimTrack.cs
+  - CutSceneTimelineManager.cs
+  - CutSceneZoomBehaviour.cs
+  - CutSceneZoomClip.cs
+  - CutSceneZoomMixerBehaviour.cs
+  - CutSceneZoomTrack.cs
+
+Data
+  - CharacterAnimSO.cs
+  - CharacterDataSO.cs
+  - CharacterResourceData.cs
+  - CharacterTierDataSO.cs
+  - CocktailDataSO.cs
+  - CraftDataSO.cs
+  - CutSceneDataSO.cs
+  - DataLoadManager.cs
+  - DayDataSO.cs
+  - IDataSwitcher.cs
+  - IngredientDataSO.cs
+  - ResourceLoader.cs
+  - SettlementDataSO.cs
+  - SkillTierDataSO.cs
+  - TextTagDataSO.cs
+
+Data/Outside
+  - NPCCharacterDayDataSO.cs
+  - OutsideObjectDataSO.cs
+  - OutsideRadioDataSO.cs
+  - OutsideTriggerCutSceneSO.cs
+
+Dialogue
+  - CharacterLoader.cs
+  - CharacterPart.cs
+  - ChoicePanel.cs
+  - DialogueBackgroundManager.cs
+  - DialogueCharacterManager.cs
+  - DialogueManager.cs
+  - DialogueRunner.cs
+  - DialogueSceneDirector.cs
+  - DialogueTriggerManager.cs
+  - DynamicBubbleEffect.cs
+  - ICharacterSetter.cs
+  - IDialogueFader.cs
+  - IDialoguePresenter.cs
+  - IFade.cs
+  - IPlaybackPolicy.cs
+  - UIDialogueChoiceView.cs
+  - UIDialogueTextView.cs
+  - VisualNovelFlow.cs
+
+Event
+  - BoolEvent.cs
+  - BoolEventListener.cs
+  - ChoiceSelectDataEvent.cs
+  - ChoiceSelectDataEventListener.cs
+  - CocktailDataEvent.cs
+  - CocktailDataEventListener.cs
+  - Color32Event.cs
+  - Color32EventListener.cs
+  - FloatEvent.cs
+  - FloatEventListener.cs
+  - GameEvent.cs
+  - GameEventListener.cs
+  - GameObjectEvent.cs
+  - GameObjectEventListener.cs
+  - IntDoubleDataEvent.cs
+  - IntDoubleDataEventListener.cs
+  - IntEvent.cs
+  - IntEventListener.cs
+  - IntIntDataEvent.cs
+  - IntIntDataEventListener.cs
+  - IntIntIntDataEvent.cs
+  - IntIntIntDataEventListener.cs
+  - ListIntIntDataEvent.cs
+  - ListIntIntDataEventListener.cs
+  - ListIntIntIntDataEvent.cs
+  - ListIntIntIntDataEventListener.cs
+  - StringEvent.cs
+  - StringEventListener.cs
+  - TypingDataEvent.cs
+  - TypingDataEventListener.cs
+  - Vector2Event.cs
+  - Vector2EventListener.cs
+  - Vector3Event.cs
+  - Vector3EventListener.cs
+  - VoidEvent.cs
+  - VoidEventListener.cs
+
+History
+  - DialogueHistory.cs
+  - DialogueHistoryView.cs
+  - HistoryChoiceItem.cs
+  - HistoryEntryItem.cs
+  - HistorySeparatorItem.cs
+
+Home
+  - HomeManager.cs
+
+MiniGame/Shaker
+  - AnimSpeedController.cs
+  - CategoryColorData.cs
+  - CategoryNode.cs
+  - GradientRatioController.cs
+  - MinigameInputHandler.cs
+  - NodeEffect.cs
+  - NodePatternData.cs
+  - ShakeLineCreator.cs
+  - ShakingCatergoryNodeCreator.cs
+  - ShakingManagerNew.cs
+  - ShakingStrikeNode.cs
+
+MiniGame/Stur
+  - CircleLineCreator.cs
+  - CircleNodeCreator.cs
+  - CircleNote.cs
+  - SturManagerNew.cs
+  - SturStrikeNode.cs
+
+Option
+  - DisplaySettings.cs
+  - IDisplaySettings.cs
+  - UIDisplayOptions.cs
+
+Outside
+  - IEntity.cs
+  - IInteractable.cs
+  - IInteractor.cs
+  - IOutsideTimeliner.cs
+  - ITrackedble.cs
+  - ITrackedbleEvent.cs
+  - InteractableEvent.cs
+  - InteractionDetector.cs
+  - InteractorEvent.cs
+  - NpcInteractable.cs
+  - OustideTimelineManager.cs
+  - OutSideEventSO.cs
+  - OutsideDataManager.cs
+  - OutsideDialoguePresenter.cs
+  - UIInteractableButton.cs
+  - UIOutsideTextview.cs
+  - UIOutsideTracker.cs (내부 인터페이스 UITracker - I 접두사 미준수, 현재는 그대로 둠)
+
+Outside/Camera
+  - OutsideCamera.cs
+
+Outside/Entity
+  - Bubi.cs
+  - InteractEntrance.cs
+  - InteractionAction.cs
+  - InteractiveActionEntity.cs
+  - InteractiveEntity.cs
+  - InteractiveEntityManager.cs
+  - InteractiveNPCEntity.cs
+  - InteractiveObjectEntity.cs
+  - NPC_Samho.cs
+  - OutsideElevator.cs
+  - OutsideElevatorRadio.cs
+  - OutsideEntity.cs
+
+Outside/Entity/Action
+  - InteractiveTriggerEntity.cs
+
+Player
+  - IPlayerData.cs (IPlayerDataReader + IPlayerDataWriter 통합 파일)
+  - PixelSnapVisual.cs
+  - Player.cs
+  - PlayerAnimator2D.cs
+  - PlayerDataSO.cs
+  - PlayerInteractHandler.cs
+  - PlayerMovement2D.cs
+  - PlayerSettlement.cs
+
+Pool
+  - PoolManager.cs
+  - PooledObject.cs
+
+Shader
+  - OutlineHighlight.cs
+
+Sound
+  - ISoundManager.cs
+  - SoundManager.cs
+
+Tool
+  - DynamicSpeechbubble.cs
+  - FixedHandleSize.cs
+  - HandleDragHandler.cs
+  - InGameLifetimeScope.cs
+  - JsonManager.cs
+  - Logger.cs
+  - ObjectPool.cs
+  - OutsideGameLifetimeScope.cs
+  - PositionBasedHandle.cs
+  - PresentBinder.cs
+  - ProjectLifetimeScope.cs
+  - SceneTransitionManager.cs
+  - ScrollRectAutoSizer.cs
+  - SerializableDictionary.cs
+  - TMPTypingEffect.cs
+
+---
+[변경 이력]
+
+2026-07-02 (1차) - 위치가 안 맞는 파일 이동
+- ChoicePanel.cs            : (root) -> Dialogue/
+- DialogueManager.cs        : (root) -> Dialogue/
+- OustideTimelineManager.cs : (root) -> Outside/  (파일명 오타 "Oustide"는 유지)
+- UITest.cs                 : (root) -> Craft/UI/Money/
+- ResolutionZoomTest.cs     : (root) -> Camera/
+- UIContentsSpacer.cs       : Craft/ -> Craft/UI/
+- UIContentsText.cs         : Craft/ -> Craft/UI/
+
+2026-07-02 (2차) - 인터페이스를 전용 IXxx.cs 파일로 분리
+- Cutscene/FunctionInterfaces.cs(9개 인터페이스 그랩백)를 도메인별 폴더로 분리 후 파일 삭제
+  -> Camera/ICameraControl.cs, Camera/ICameraControlNew.cs
+  -> Craft/ICocktailCraft.cs
+  -> Dialogue/ICharacterSetter.cs, Dialogue/IDialogueFader.cs, Dialogue/IFade.cs
+  -> Cutscene/ITimeLinePlayer.cs, Cutscene/ICutScenePlayer.cs, Cutscene/IEffectPlayer.cs
+- 구현 클래스 파일에 인라인으로 있던 인터페이스를 각각 전용 파일로 추출
+  -> Craft/IMiniGameController.cs (Craft/CocktailCraftManager.cs 에서 분리)
+  -> Command/IDialogueCommand.cs (Command/DialogueCommandFactory.cs 에서 분리)
+  -> Data/IDataSwitcher.cs (Data/DataLoadManager.cs 에서 분리)
+  -> Dialogue/IPlaybackPolicy.cs (Dialogue/CharacterPart.cs 에서 분리)
+  -> Option/IDisplaySettings.cs (Option/DisplaySettings.cs 에서 분리)
+  -> Outside/IEntity.cs (Outside/Entity/OutsideEntity.cs 에서 분리, Outside/ 루트로 이동)
+  -> Outside/IOutsideTimeliner.cs (Outside/OustideTimelineManager.cs 에서 분리)
+- Outside/IInteractable.cs 안에 같이 있던 ITrackedble을 Outside/ITrackedble.cs로 분리
+- Player/PlayerDataSO.cs의 IPlayerDataReader + IPlayerDataWriter는 (사용자 요청에 따라) 분리하지 않고
+  Player/IPlayerData.cs 한 파일로 묶어서 이동
+- Outside/UIOutsideTracker.cs의 UITracker(네이밍 컨벤션 미준수)는 사용자 요청으로 이번엔 그대로 둠
+- 새로 생성된 인터페이스 파일들은 .meta가 없으므로 Unity 에디터를 열면 자동으로 새 GUID가 생성됨
+  (인터페이스는 씬/프리팹에 직접 컴포넌트로 붙는 대상이 아니라 GUID 연속성 문제 없음)
