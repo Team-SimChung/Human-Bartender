@@ -436,7 +436,7 @@ GameObject:
   - component: {fileID: 77859800}
   - component: {fileID: 77859801}
   m_Layer: 11
-  m_Name: Sprite Light 2D (21)
+  m_Name: Light_Sprite_X-12.3_Y6.1_21
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -612,7 +612,7 @@ GameObject:
   - component: {fileID: 91833977}
   - component: {fileID: 91833978}
   m_Layer: 9
-  m_Name: spot
+  m_Name: Spot_alley_in
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -660,7 +660,7 @@ GameObject:
   - component: {fileID: 94831487}
   - component: {fileID: 94831492}
   m_Layer: 5
-  m_Name: Logo Canvas
+  m_Name: Canvas_Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -743,7 +743,7 @@ RectTransform:
   m_Children:
   - {fileID: 604507532}
   - {fileID: 1116372822}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 662220684}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -783,7 +783,7 @@ GameObject:
   - component: {fileID: 110281613}
   - component: {fileID: 110281614}
   m_Layer: 11
-  m_Name: Sprite Light 2D (20)
+  m_Name: Light_Sprite_X-12.3_Y4.9_20
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1157,7 +1157,7 @@ GameObject:
   - component: {fileID: 157669551}
   - component: {fileID: 157669552}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X-11.6_Y-0.2_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1241,7 +1241,7 @@ GameObject:
   - component: {fileID: 160223562}
   - component: {fileID: 160223563}
   m_Layer: 11
-  m_Name: Sprite Light 2D (27)
+  m_Name: Light_Sprite_X-12.3_Y9.3_25
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1554,7 +1554,7 @@ GameObject:
   - component: {fileID: 172115166}
   - component: {fileID: 172115167}
   m_Layer: 11
-  m_Name: Sprite Light 2D (41)
+  m_Name: Light_Sprite_X1.4_Y-0.7_08
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1832,7 +1832,7 @@ GameObject:
   - component: {fileID: 201198762}
   - component: {fileID: 201198763}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y7.8_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1916,7 +1916,7 @@ GameObject:
   - component: {fileID: 202779597}
   - component: {fileID: 202779598}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y0.1_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2038,7 +2038,7 @@ GameObject:
   - component: {fileID: 222938301}
   - component: {fileID: 222938302}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X-18.0_Y10.2_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2122,7 +2122,7 @@ GameObject:
   - component: {fileID: 233162669}
   - component: {fileID: 233162670}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X-0.4_Y0.0_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2284,7 +2284,7 @@ GameObject:
   - component: {fileID: 254180329}
   - component: {fileID: 254180330}
   m_Layer: 11
-  m_Name: Freeform Light 2D (7)
+  m_Name: Light_Freeform_X-4.4_Y0.5_09
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2369,7 +2369,7 @@ GameObject:
   - component: {fileID: 261458431}
   - component: {fileID: 261458430}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Label_Interact_Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2566,12 +2566,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 266533460}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 746941019}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &283891638
 GameObject:
@@ -2584,7 +2584,7 @@ GameObject:
   - component: {fileID: 283891639}
   - component: {fileID: 283891640}
   m_Layer: 11
-  m_Name: Freeform Light 2D (4)
+  m_Name: Light_Freeform_X-3.7_Y0.0_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2668,7 +2668,7 @@ GameObject:
   - component: {fileID: 331223372}
   - component: {fileID: 331223373}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y9.8_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2970,7 +2970,7 @@ GameObject:
   - component: {fileID: 387715669}
   - component: {fileID: 387715670}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X2.2_Y-0.1_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3214,14 +3214,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 398070673}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -15.069, y: 9.62, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1872714670}
   - {fileID: 49123263}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1157106933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &398070677
 Animator:
@@ -3516,7 +3516,7 @@ GameObject:
   - component: {fileID: 400630331}
   - component: {fileID: 400630332}
   m_Layer: 0
-  m_Name: InputHandler
+  m_Name: SceneInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3530,12 +3530,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 400630329}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.20675, y: -0.52913, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 746941019}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &400630331
 MonoBehaviour:
@@ -3595,7 +3595,7 @@ GameObject:
   - component: {fileID: 403588716}
   - component: {fileID: 403588717}
   m_Layer: 11
-  m_Name: Freeform Light 2D (4)
+  m_Name: Light_Freeform_X-1.3_Y-0.4_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3679,7 +3679,7 @@ GameObject:
   - component: {fileID: 403734310}
   - component: {fileID: 403734311}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X4.0_Y-0.3_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3763,7 +3763,7 @@ GameObject:
   - component: {fileID: 404557864}
   - component: {fileID: 404557865}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-5.5_Y0.1_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3893,7 +3893,7 @@ GameObject:
   - component: {fileID: 405839073}
   - component: {fileID: 405839072}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image_LogoBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3985,7 +3985,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1157106933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &416125197
 GameObject:
@@ -4417,7 +4417,7 @@ GameObject:
   - component: {fileID: 471082157}
   - component: {fileID: 471082158}
   m_Layer: 6
-  m_Name: spot
+  m_Name: Spot_elevator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4462,7 +4462,7 @@ GameObject:
   - component: {fileID: 479924402}
   - component: {fileID: 479924403}
   m_Layer: 11
-  m_Name: Sprite Light 2D (16)
+  m_Name: Light_Sprite_X-12.3_Y0.5_16
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4584,10 +4584,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.7964764, y: -0, z: -0, w: 0.60466963}
   m_LocalPosition: {x: -7.79, y: -1.147, z: 0.588}
-  m_LocalScale: {x: 28.69, y: 2.3493888, z: 0.015229}
+  m_LocalScale: {x: 28.69, y: 2.349389, z: 0.015229}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: -105.59, y: 0, z: 0}
 --- !u!1 &486169983
 GameObject:
@@ -4600,7 +4600,7 @@ GameObject:
   - component: {fileID: 486169984}
   - component: {fileID: 486169985}
   m_Layer: 11
-  m_Name: Sprite Light 2D (9)
+  m_Name: Light_Sprite_X4.6_Y1.5_32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4684,7 +4684,7 @@ GameObject:
   - component: {fileID: 526652687}
   - component: {fileID: 526652688}
   m_Layer: 11
-  m_Name: Freeform Light 2D (11)
+  m_Name: Light_Freeform_X-2.5_Y1.0_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4892,7 +4892,7 @@ GameObject:
   - component: {fileID: 554808357}
   - component: {fileID: 554808358}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X3.1_Y0.9_08
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4976,7 +4976,7 @@ GameObject:
   - component: {fileID: 563325982}
   - component: {fileID: 563325983}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-7.1_Y0.4_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5060,7 +5060,7 @@ GameObject:
   - component: {fileID: 567917247}
   - component: {fileID: 567917248}
   m_Layer: 11
-  m_Name: Sprite Light 2D (37)
+  m_Name: Light_Sprite_X0.6_Y-0.5_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5145,7 +5145,7 @@ GameObject:
   - component: {fileID: 569687536}
   - component: {fileID: 569687537}
   m_Layer: 11
-  m_Name: Sprite Light 2D (39)
+  m_Name: Light_Sprite_X0.9_Y-0.8_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5308,7 +5308,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1385634613}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 3.203, z: 0}
 --- !u!1 &592470731
 GameObject:
@@ -5445,7 +5445,7 @@ GameObject:
   - component: {fileID: 618668255}
   - component: {fileID: 618668254}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-0.1_Y-0.2_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5529,7 +5529,7 @@ GameObject:
   - component: {fileID: 620811057}
   - component: {fileID: 620811058}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-3.1_Y0.2_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5612,7 +5612,7 @@ GameObject:
   m_Component:
   - component: {fileID: 637079066}
   m_Layer: 0
-  m_Name: ==================
+  m_Name: 03.World
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5626,11 +5626,22 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 637079065}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.13569, y: 1.51056, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 944276663}
+  - {fileID: 981666737}
+  - {fileID: 1876638612}
+  - {fileID: 585198040}
+  - {fileID: 1417969745}
+  - {fileID: 2106893808}
+  - {fileID: 485471737}
+  - {fileID: 298646074214270205}
+  - {fileID: 6507097417013407638}
+  - {fileID: 9135345202383492204}
+  - {fileID: 933110852}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &643165757
@@ -5892,6 +5903,39 @@ Transform:
   - {fileID: 1319968554}
   m_Father: {fileID: 552836710}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &662220683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 662220684}
+  m_Layer: 0
+  m_Name: 05.UI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &662220684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662220683}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 94831490}
+  - {fileID: 1978158279}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &669354625
 GameObject:
   m_ObjectHideFlags: 0
@@ -5953,7 +5997,7 @@ GameObject:
   - component: {fileID: 677257348}
   - component: {fileID: 677257347}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image_butten
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6118,7 +6162,7 @@ GameObject:
   - component: {fileID: 698998115}
   - component: {fileID: 698998116}
   m_Layer: 11
-  m_Name: Sprite Light 2D (25)
+  m_Name: Light_Sprite_X-12.5_Y9.4_24
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6514,7 +6558,7 @@ GameObject:
   - component: {fileID: 732391257}
   - component: {fileID: 732391258}
   m_Layer: 11
-  m_Name: Sprite Light 2D (18)
+  m_Name: Light_Sprite_X-12.3_Y2.7_18
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6598,7 +6642,7 @@ GameObject:
   m_Component:
   - component: {fileID: 746941019}
   m_Layer: 0
-  m_Name: ==================
+  m_Name: 01.Systems
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6612,11 +6656,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 746941018}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.1356902, y: 1.51056, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 266533463}
+  - {fileID: 400630330}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &754981090
@@ -6777,7 +6823,7 @@ GameObject:
   - component: {fileID: 772631681}
   - component: {fileID: 772631682}
   m_Layer: 11
-  m_Name: Freeform Light 2D (8)
+  m_Name: Light_Freeform_X-4.5_Y0.7_10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7062,7 +7108,7 @@ GameObject:
   - component: {fileID: 793530594}
   - component: {fileID: 793530595}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y4.5_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7577,7 +7623,7 @@ GameObject:
   - component: {fileID: 841146858}
   - component: {fileID: 841146859}
   m_Layer: 11
-  m_Name: Sprite Light 2D (42)
+  m_Name: Light_Sprite_X1.0_Y-0.4_09
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7662,7 +7708,7 @@ GameObject:
   - component: {fileID: 851895854}
   - component: {fileID: 851895855}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X0.7_Y0.1_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8021,7 +8067,7 @@ GameObject:
   - component: {fileID: 881909180}
   - component: {fileID: 881909181}
   m_Layer: 11
-  m_Name: Sprite Light 2D (30)
+  m_Name: Light_Sprite_X-1.7_Y0.9_13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8143,7 +8189,7 @@ GameObject:
   - component: {fileID: 886841200}
   - component: {fileID: 886841201}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y5.6_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8318,7 +8364,7 @@ GameObject:
   - component: {fileID: 896252731}
   - component: {fileID: 896252732}
   m_Layer: 11
-  m_Name: Sprite Light 2D (31)
+  m_Name: Light_Sprite_X4.6_Y0.6_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8403,7 +8449,7 @@ GameObject:
   - component: {fileID: 899888471}
   - component: {fileID: 899888472}
   m_Layer: 0
-  m_Name: LifeTimeScope
+  m_Name: OutsideScope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8733,7 +8779,7 @@ GameObject:
   - component: {fileID: 905811776}
   - component: {fileID: 905811777}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X2.2_Y-0.1_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8817,7 +8863,7 @@ GameObject:
   - component: {fileID: 908940250}
   - component: {fileID: 908940251}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-16.8_Y10.8_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9085,7 +9131,7 @@ GameObject:
   - component: {fileID: 927650299}
   - component: {fileID: 927650300}
   m_Layer: 9
-  m_Name: GameObject
+  m_Name: Spot_bar_door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9203,12 +9249,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 933110850}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -15.059, y: 9.717, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &944276661
 GameObject:
@@ -9221,7 +9267,7 @@ GameObject:
   - component: {fileID: 944276663}
   - component: {fileID: 944276662}
   m_Layer: 6
-  m_Name: BG
+  m_Name: StreetEnvironment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9294,7 +9340,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 944276661}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -7.85, y: -1.5, z: 1.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9305,7 +9351,7 @@ Transform:
   - {fileID: 552836710}
   - {fileID: 758515637}
   - {fileID: 405712926}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &955902021
 GameObject:
@@ -9318,7 +9364,7 @@ GameObject:
   - component: {fileID: 955902022}
   - component: {fileID: 955902023}
   m_Layer: 11
-  m_Name: Freeform Light 2D (4)
+  m_Name: Light_Freeform_X1.8_Y-0.1_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9402,7 +9448,7 @@ GameObject:
   - component: {fileID: 964839483}
   - component: {fileID: 964839484}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y6.7_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9718,7 +9764,7 @@ GameObject:
   m_Component:
   - component: {fileID: 981666737}
   m_Layer: 0
-  m_Name: Light
+  m_Name: Lighting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9732,7 +9778,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 981666736}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -4.67742, y: 6.38462, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9742,7 +9788,7 @@ Transform:
   - {fileID: 754981091}
   - {fileID: 767810179}
   - {fileID: 1302879792}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &993611024
 GameObject:
@@ -9755,7 +9801,7 @@ GameObject:
   - component: {fileID: 993611025}
   - component: {fileID: 993611026}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y2.3_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9930,7 +9976,7 @@ GameObject:
   - component: {fileID: 1012078441}
   - component: {fileID: 1012078442}
   m_Layer: 11
-  m_Name: Sprite Light 2D (13)
+  m_Name: Light_Sprite_X-7.6_Y0.9_12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10140,7 +10186,7 @@ GameObject:
   - component: {fileID: 1022969378}
   - component: {fileID: 1022969379}
   m_Layer: 11
-  m_Name: Sprite Light 2D (24)
+  m_Name: Light_Sprite_X-12.3_Y10.2_27
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10225,7 +10271,7 @@ GameObject:
   - component: {fileID: 1027745436}
   - component: {fileID: 1027745437}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X6.0_Y-0.3_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10669,7 +10715,7 @@ GameObject:
   - component: {fileID: 1047685603}
   - component: {fileID: 1047685604}
   m_Layer: 11
-  m_Name: Sprite Light 2D (12)
+  m_Name: Light_Sprite_X-3.3_Y0.2_30
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10763,7 +10809,7 @@ GameObject:
   - component: {fileID: 1054065827}
   - component: {fileID: 1054065828}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-10.1_Y0.4_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11149,7 +11195,7 @@ GameObject:
   - component: {fileID: 1081217489}
   - component: {fileID: 1081217488}
   m_Layer: 0
-  m_Name: SpotManager
+  m_Name: SpotRegistry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11176,7 +11222,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1081217487}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -11186,7 +11232,7 @@ Transform:
   - {fileID: 471082157}
   - {fileID: 91833977}
   - {fileID: 1175785864}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1157106933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1089424763
 GameObject:
@@ -11290,7 +11336,7 @@ GameObject:
   - component: {fileID: 1092545686}
   - component: {fileID: 1092545687}
   m_Layer: 11
-  m_Name: Freeform Light 2D (6)
+  m_Name: Light_Freeform_X0.2_Y-0.4_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11436,7 +11482,7 @@ GameObject:
   - component: {fileID: 1101108920}
   - component: {fileID: 1101108921}
   m_Layer: 11
-  m_Name: Freeform Light 2D (5)
+  m_Name: Light_Freeform_X3.7_Y-0.8_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11520,7 +11566,7 @@ GameObject:
   - component: {fileID: 1115988874}
   - component: {fileID: 1115988875}
   m_Layer: 11
-  m_Name: Freeform Light 2D (5)
+  m_Name: Light_Freeform_X3.2_Y-0.1_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11606,7 +11652,7 @@ GameObject:
   - component: {fileID: 1116372823}
   - component: {fileID: 1116372825}
   m_Layer: 5
-  m_Name: Image (1)
+  m_Name: Image_Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11692,7 +11738,7 @@ GameObject:
   - component: {fileID: 1118960134}
   - component: {fileID: 1118960135}
   m_Layer: 11
-  m_Name: Sprite Light 2D (5)
+  m_Name: Light_Sprite_X2.5_Y0.5_11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11889,7 +11935,7 @@ GameObject:
   - component: {fileID: 1124256990}
   - component: {fileID: 1124256991}
   m_Layer: 11
-  m_Name: Freeform Light 2D (10)
+  m_Name: Light_Freeform_X1.1_Y-0.3_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12143,7 +12189,7 @@ GameObject:
   - component: {fileID: 1151497825}
   - component: {fileID: 1151497826}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X4.1_Y0.6_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12327,7 +12373,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1157106933}
   m_Layer: 0
-  m_Name: ================== (1)
+  m_Name: 04.Gameplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12341,11 +12387,18 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157106932}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.13569, y: 1.51056, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1824786864}
+  - {fileID: 406932928}
+  - {fileID: 398070675}
+  - {fileID: 1081217489}
+  - {fileID: 1478680162}
+  - {fileID: 1595375992}
+  - {fileID: 2126279182}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1160114491
@@ -12359,7 +12412,7 @@ GameObject:
   - component: {fileID: 1160114492}
   - component: {fileID: 1160114493}
   m_Layer: 11
-  m_Name: Sprite Light 2D (11)
+  m_Name: Light_Sprite_X5.9_Y-0.5_31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12447,7 +12500,7 @@ GameObject:
   - component: {fileID: 1175785864}
   - component: {fileID: 1175785865}
   m_Layer: 9
-  m_Name: spot
+  m_Name: Spot_street_wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12492,7 +12545,7 @@ GameObject:
   - component: {fileID: 1177155280}
   - component: {fileID: 1177155281}
   m_Layer: 11
-  m_Name: Freeform Light 2D (7)
+  m_Name: Light_Freeform_X-16.8_Y10.3_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12636,12 +12689,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1178157929}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -15.069, y: 10.32, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1433854779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1178157938
 MonoBehaviour:
@@ -12856,7 +12909,7 @@ GameObject:
   - component: {fileID: 1190182175}
   - component: {fileID: 1190182176}
   m_Layer: 11
-  m_Name: Freeform Light 2D (9)
+  m_Name: Light_Freeform_X1.0_Y-0.6_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13990,7 +14043,7 @@ GameObject:
   - component: {fileID: 1304383404}
   - component: {fileID: 1304383405}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.7_Y-0.6_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14143,12 +14196,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305537442}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -15.069, y: 10.32, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1433854779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1305537446
 MonoBehaviour:
@@ -14308,7 +14361,7 @@ GameObject:
   - component: {fileID: 1315503962}
   - component: {fileID: 1315503963}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-6.2_Y-1.2_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14392,7 +14445,7 @@ GameObject:
   - component: {fileID: 1317052560}
   - component: {fileID: 1317052561}
   m_Layer: 11
-  m_Name: Sprite Light 2D (28)
+  m_Name: Light_Sprite_X-12.5_Y0.0_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14478,7 +14531,7 @@ GameObject:
   - component: {fileID: 1317102462}
   - component: {fileID: 1317102463}
   m_Layer: 11
-  m_Name: Freeform Light 2D (5)
+  m_Name: Light_Freeform_X-15.8_Y10.2_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14732,7 +14785,7 @@ GameObject:
   - component: {fileID: 1329383782}
   - component: {fileID: 1329383783}
   m_Layer: 11
-  m_Name: Sprite Light 2D (22)
+  m_Name: Light_Sprite_X-12.3_Y7.1_22
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15393,7 +15446,7 @@ GameObject:
   - component: {fileID: 1382126423}
   - component: {fileID: 1382126424}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y3.4_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15701,7 +15754,7 @@ GameObject:
   - component: {fileID: 1393611668}
   - component: {fileID: 1393611669}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y9.8_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15963,7 +16016,7 @@ Transform:
   m_LocalScale: {x: 0.12496, y: 0.12496, z: 0.12496}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1430865598
 GameObject:
@@ -15976,7 +16029,7 @@ GameObject:
   - component: {fileID: 1430865599}
   - component: {fileID: 1430865600}
   m_Layer: 11
-  m_Name: Sprite Light 2D (10)
+  m_Name: Light_Sprite_X4.5_Y-0.4_28
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16063,7 +16116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1433854779}
   m_Layer: 0
-  m_Name: ==================
+  m_Name: 02.Cameras
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16078,10 +16131,15 @@ Transform:
   m_GameObject: {fileID: 1433854778}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.13569, y: 1.51056, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1305537445}
+  - {fileID: 1178157933}
+  - {fileID: 1646853125}
+  - {fileID: 1803767797}
+  - {fileID: 2058149163}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1439160546
@@ -16095,7 +16153,7 @@ GameObject:
   - component: {fileID: 1439160547}
   - component: {fileID: 1439160548}
   m_Layer: 11
-  m_Name: Freeform Light 2D (5)
+  m_Name: Light_Freeform_X-4.1_Y0.1_07
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16271,7 +16329,7 @@ GameObject:
   - component: {fileID: 1478680163}
   - component: {fileID: 1478680164}
   m_Layer: 0
-  m_Name: ObjectManager
+  m_Name: InteractionManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16291,7 +16349,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1577278769}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1157106933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1478680163
 MonoBehaviour:
@@ -16358,7 +16416,7 @@ GameObject:
   - component: {fileID: 1496403302}
   - component: {fileID: 1496403303}
   m_Layer: 11
-  m_Name: Sprite Light 2D (40)
+  m_Name: Light_Sprite_X0.9_Y-0.8_07
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16535,7 +16593,7 @@ GameObject:
   - component: {fileID: 1520862519}
   - component: {fileID: 1520862520}
   m_Layer: 11
-  m_Name: Freeform Light 2D (6)
+  m_Name: Light_Freeform_X3.2_Y-0.3_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16619,7 +16677,7 @@ GameObject:
   - component: {fileID: 1530774309}
   - component: {fileID: 1530774310}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X1.3_Y0.1_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16703,7 +16761,7 @@ GameObject:
   - component: {fileID: 1531018296}
   - component: {fileID: 1531018297}
   m_Layer: 11
-  m_Name: Sprite Light 2D (34)
+  m_Name: Light_Sprite_X-6.4_Y-0.8_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17133,7 +17191,7 @@ GameObject:
   - component: {fileID: 1583803103}
   - component: {fileID: 1583803102}
   m_Layer: 11
-  m_Name: Sprite Light 2D (3)
+  m_Name: Light_Sprite_X-0.5_Y-0.3_10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17223,7 +17281,7 @@ GameObject:
   - component: {fileID: 1592945110}
   - component: {fileID: 1592945111}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X-12.1_Y0.0_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17306,7 +17364,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1595375992}
   m_Layer: 0
-  m_Name: OldObject
+  m_Name: LegacyInteractions_Review
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17320,7 +17378,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1595375991}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -9.74092, y: -1.2973, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -17331,7 +17389,7 @@ Transform:
   - {fileID: 1209062153}
   - {fileID: 792483999}
   - {fileID: 1689266851}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1157106933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1617999571
 GameObject:
@@ -17528,7 +17586,7 @@ GameObject:
   - component: {fileID: 1622157016}
   - component: {fileID: 1622157017}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X-3.1_Y-0.3_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17752,7 +17810,7 @@ GameObject:
   - component: {fileID: 1644358615}
   - component: {fileID: 1644358616}
   m_Layer: 11
-  m_Name: Sprite Light 2D (38)
+  m_Name: Light_Sprite_X0.1_Y-0.1_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17835,7 +17893,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1646853125}
   m_Layer: 0
-  m_Name: Timeline
+  m_Name: CutsceneCameraRig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17849,7 +17907,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1646853124}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -17857,7 +17915,7 @@ Transform:
   - {fileID: 1859902315}
   - {fileID: 121025268}
   - {fileID: 1896614174}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1433854779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1655909912
 GameObject:
@@ -17907,7 +17965,7 @@ GameObject:
   - component: {fileID: 1656754108}
   - component: {fileID: 1656754109}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X1.7_Y0.9_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17993,7 +18051,7 @@ GameObject:
   - component: {fileID: 1665952307}
   - component: {fileID: 1665952308}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X2.8_Y0.9_07
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18097,7 +18155,7 @@ GameObject:
   - component: {fileID: 1675342470}
   - component: {fileID: 1675342471}
   m_Layer: 11
-  m_Name: Sprite Light 2D (35)
+  m_Name: Light_Sprite_X4.6_Y1.5_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18182,7 +18240,7 @@ GameObject:
   - component: {fileID: 1679587493}
   - component: {fileID: 1679587494}
   m_Layer: 11
-  m_Name: Sprite Light 2D (36)
+  m_Name: Light_Sprite_X-5.0_Y0.0_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18765,7 +18823,7 @@ GameObject:
   - component: {fileID: 1736681485}
   - component: {fileID: 1736681486}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y8.9_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19003,7 +19061,7 @@ GameObject:
   - component: {fileID: 1778424866}
   - component: {fileID: 1778424867}
   m_Layer: 11
-  m_Name: Freeform Light 2D (6)
+  m_Name: Light_Freeform_X-14.5_Y10.2_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19087,7 +19145,7 @@ GameObject:
   - component: {fileID: 1792785787}
   - component: {fileID: 1792785788}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-12.0_Y8.9_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19186,13 +19244,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1803767796}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -7.85, y: 6.63, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1131409604}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1433854779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1807900519
 GameObject:
@@ -19205,7 +19263,7 @@ GameObject:
   - component: {fileID: 1807900520}
   - component: {fileID: 1807900521}
   m_Layer: 11
-  m_Name: Freeform Light 2D (5)
+  m_Name: Light_Freeform_X0.4_Y-0.5_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19289,7 +19347,7 @@ GameObject:
   - component: {fileID: 1808933069}
   - component: {fileID: 1808933070}
   m_Layer: 9
-  m_Name: GameObject
+  m_Name: Spot_home_door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19334,7 +19392,7 @@ GameObject:
   - component: {fileID: 1815944429}
   - component: {fileID: 1815944430}
   m_Layer: 11
-  m_Name: Sprite Light 2D (29)
+  m_Name: Light_Sprite_X-12.0_Y-0.3_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19438,7 +19496,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1157106933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1826329209
 GameObject:
@@ -19451,7 +19509,7 @@ GameObject:
   - component: {fileID: 1826329210}
   - component: {fileID: 1826329211}
   m_Layer: 11
-  m_Name: Sprite Light 2D (23)
+  m_Name: Light_Sprite_X-12.3_Y8.3_23
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19536,7 +19594,7 @@ GameObject:
   - component: {fileID: 1836384182}
   - component: {fileID: 1836384183}
   m_Layer: 11
-  m_Name: Freeform Light 2D (6)
+  m_Name: Light_Freeform_X-3.7_Y0.5_08
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19620,7 +19678,7 @@ GameObject:
   - component: {fileID: 1845171943}
   - component: {fileID: 1845171944}
   m_Layer: 11
-  m_Name: Freeform Light 2D (4)
+  m_Name: Light_Freeform_X3.7_Y-0.5_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19704,7 +19762,7 @@ GameObject:
   - component: {fileID: 1846916240}
   - component: {fileID: 1846916241}
   m_Layer: 11
-  m_Name: Sprite Light 2D (26)
+  m_Name: Light_Sprite_X-12.3_Y10.2_26
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19789,7 +19847,7 @@ GameObject:
   - component: {fileID: 1858158790}
   - component: {fileID: 1858158791}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X0.5_Y-0.5_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20099,7 +20157,7 @@ GameObject:
   - component: {fileID: 1872177545}
   - component: {fileID: 1872177546}
   m_Layer: 11
-  m_Name: Freeform Light 2D (10)
+  m_Name: Light_Freeform_X-4.4_Y-0.5_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20276,7 +20334,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1876638612}
   m_Layer: 8
-  m_Name: Wall
+  m_Name: Collision
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20290,7 +20348,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1876638611}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -20301,7 +20359,7 @@ Transform:
   - {fileID: 1737397162}
   - {fileID: 1408428807}
   - {fileID: 1317283583}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1888612648
 GameObject:
@@ -20314,7 +20372,7 @@ GameObject:
   - component: {fileID: 1888612649}
   - component: {fileID: 1888612650}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X-6.0_Y-0.7_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20398,7 +20456,7 @@ GameObject:
   - component: {fileID: 1894309078}
   - component: {fileID: 1894309079}
   m_Layer: 11
-  m_Name: Freeform Light 2D (4)
+  m_Name: Light_Freeform_X5.2_Y-0.7_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20975,7 +21033,7 @@ GameObject:
   - component: {fileID: 1916721096}
   - component: {fileID: 1916721097}
   m_Layer: 11
-  m_Name: Freeform Light 2D (5)
+  m_Name: Light_Freeform_X6.0_Y-0.7_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21059,7 +21117,7 @@ GameObject:
   - component: {fileID: 1926689902}
   - component: {fileID: 1926689903}
   m_Layer: 11
-  m_Name: Freeform Light 2D (3)
+  m_Name: Light_Freeform_X4.7_Y-0.4_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21143,7 +21201,7 @@ GameObject:
   - component: {fileID: 1935766024}
   - component: {fileID: 1935766025}
   m_Layer: 11
-  m_Name: Freeform Light 2D (8)
+  m_Name: Light_Freeform_X1.5_Y-0.6_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21227,7 +21285,7 @@ GameObject:
   - component: {fileID: 1939707370}
   - component: {fileID: 1939707371}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X5.3_Y-0.4_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21393,7 +21451,7 @@ GameObject:
   - component: {fileID: 1961424091}
   - component: {fileID: 1961424092}
   m_Layer: 11
-  m_Name: Freeform Light 2D (7)
+  m_Name: Light_Freeform_X0.7_Y-0.2_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21477,7 +21535,7 @@ GameObject:
   - component: {fileID: 1963113050}
   - component: {fileID: 1963113051}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-11.8_Y1.2_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21561,7 +21619,7 @@ GameObject:
   - component: {fileID: 1974456226}
   - component: {fileID: 1974456227}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X4.1_Y1.5_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21648,7 +21706,7 @@ GameObject:
   - component: {fileID: 1978158277}
   - component: {fileID: 1978158276}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Canvas_Dialogue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21724,7 +21782,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1978158275}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
@@ -21733,7 +21791,7 @@ RectTransform:
   - {fileID: 883580417}
   - {fileID: 643165758}
   - {fileID: 1655909913}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 662220684}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -21751,7 +21809,7 @@ GameObject:
   - component: {fileID: 1992282239}
   - component: {fileID: 1992282240}
   m_Layer: 11
-  m_Name: Sprite Light 2D (19)
+  m_Name: Light_Sprite_X-12.3_Y3.9_19
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22102,7 +22160,7 @@ GameObject:
   - component: {fileID: 2029429595}
   - component: {fileID: 2029429596}
   m_Layer: 11
-  m_Name: Freeform Light 2D (4)
+  m_Name: Light_Freeform_X-16.9_Y10.2_06
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22439,7 +22497,7 @@ GameObject:
   - component: {fileID: 2046130702}
   - component: {fileID: 2046130703}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-12.2_Y-0.5_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22523,7 +22581,7 @@ GameObject:
   - component: {fileID: 2055188008}
   - component: {fileID: 2055188009}
   m_Layer: 11
-  m_Name: Sprite Light 2D (32)
+  m_Name: Light_Sprite_X0.8_Y0.6_14
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22728,12 +22786,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2058149159}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -7.85, y: 6.6, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1433854779}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2064439861
 GameObject:
@@ -22746,7 +22804,7 @@ GameObject:
   - component: {fileID: 2064439862}
   - component: {fileID: 2064439863}
   m_Layer: 11
-  m_Name: Sprite Light 2D (15)
+  m_Name: Light_Sprite_X-16.1_Y10.7_33
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23043,7 +23101,7 @@ GameObject:
   - component: {fileID: 2083238154}
   - component: {fileID: 2083238155}
   m_Layer: 11
-  m_Name: Freeform Light 2D (2)
+  m_Name: Light_Freeform_X-1.2_Y0.4_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23200,7 +23258,7 @@ Transform:
   m_LocalScale: {x: 10.92, y: 2.3493888, z: 0.015229}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: -100.601, y: 0, z: 0}
 --- !u!1 &2109122727
 GameObject:
@@ -23213,7 +23271,7 @@ GameObject:
   - component: {fileID: 2109122728}
   - component: {fileID: 2109122729}
   m_Layer: 11
-  m_Name: Sprite Light 2D (17)
+  m_Name: Light_Sprite_X-12.3_Y1.7_17
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23298,7 +23356,7 @@ GameObject:
   - component: {fileID: 2113702881}
   - component: {fileID: 2113702882}
   m_Layer: 11
-  m_Name: Sprite Light 2D (14)
+  m_Name: Light_Sprite_X-10.7_Y0.9_15
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23382,7 +23440,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2126279182}
   m_Layer: 0
-  m_Name: Script
+  m_Name: OutsideControllers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23396,7 +23454,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2126279181}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -12.93923, y: 6.22635, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -23407,7 +23465,7 @@ Transform:
   - {fileID: 1199482601}
   - {fileID: 720587698}
   - {fileID: 899888471}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1157106933}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2131282332
 GameObject:
@@ -23420,7 +23478,7 @@ GameObject:
   - component: {fileID: 2131282333}
   - component: {fileID: 2131282334}
   m_Layer: 11
-  m_Name: Sprite Light 2D (28)
+  m_Name: Light_Sprite_X-2.7_Y0.0_29
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23548,7 +23606,7 @@ GameObject:
   - component: {fileID: 2146678058}
   - component: {fileID: 2146678059}
   m_Layer: 11
-  m_Name: Freeform Light 2D (9)
+  m_Name: Light_Freeform_X-4.4_Y-0.2_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23665,7 +23723,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 637079066}
     m_Modifications:
     - target: {fileID: 6536441815837411389, guid: 7ce3caa1cb8c5ce4eb83042d6095308c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -23685,15 +23743,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6536441815837411389, guid: 7ce3caa1cb8c5ce4eb83042d6095308c, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 6536441815837411389, guid: 7ce3caa1cb8c5ce4eb83042d6095308c, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 6536441815837411389, guid: 7ce3caa1cb8c5ce4eb83042d6095308c, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 6536441815837411389, guid: 7ce3caa1cb8c5ce4eb83042d6095308c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -23716,6 +23774,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ce3caa1cb8c5ce4eb83042d6095308c, type: 3}
+--- !u!4 &298646074214270205 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6536441815837411389, guid: 7ce3caa1cb8c5ce4eb83042d6095308c, type: 3}
+  m_PrefabInstance: {fileID: 298646074214270204}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1048656613486296512
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24552,7 +24615,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 637079066}
     m_Modifications:
     - target: {fileID: 890640708667980184, guid: e3508f6b90c172e4f8c102602e8cb1fc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -24572,15 +24635,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 890640708667980184, guid: e3508f6b90c172e4f8c102602e8cb1fc, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 890640708667980184, guid: e3508f6b90c172e4f8c102602e8cb1fc, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 890640708667980184, guid: e3508f6b90c172e4f8c102602e8cb1fc, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 890640708667980184, guid: e3508f6b90c172e4f8c102602e8cb1fc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -24603,6 +24666,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e3508f6b90c172e4f8c102602e8cb1fc, type: 3}
+--- !u!4 &6507097417013407638 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 890640708667980184, guid: e3508f6b90c172e4f8c102602e8cb1fc, type: 3}
+  m_PrefabInstance: {fileID: 6507097417013407637}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &7410575817074385032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24645,7 +24713,7 @@ GameObject:
   - component: {fileID: 3529577551604341633}
   - component: {fileID: 8629091126388417510}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image_textbox_arrow_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24957,7 +25025,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 637079066}
     m_Modifications:
     - target: {fileID: 1726305436805520246, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
       propertyPath: simulationSpeed
@@ -25001,15 +25069,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9085894523723680871, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 9085894523723680871, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 9085894523723680871, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 9085894523723680871, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -25028,6 +25096,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+--- !u!4 &9135345202383492204 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9085894523723680871, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+  m_PrefabInstance: {fileID: 9135345202383492203}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &9217285156684510219
 GameObject:
   m_ObjectHideFlags: 0
@@ -25050,34 +25123,8 @@ GameObject:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1305537445}
-  - {fileID: 1178157933}
-  - {fileID: 1646853125}
-  - {fileID: 1803767797}
-  - {fileID: 2058149163}
   - {fileID: 746941019}
-  - {fileID: 94831490}
-  - {fileID: 944276663}
-  - {fileID: 981666737}
-  - {fileID: 1876638612}
   - {fileID: 1433854779}
-  - {fileID: 1824786864}
-  - {fileID: 406932928}
-  - {fileID: 398070675}
-  - {fileID: 1081217489}
-  - {fileID: 1478680162}
-  - {fileID: 1595375992}
-  - {fileID: 1978158279}
-  - {fileID: 266533463}
-  - {fileID: 2126279182}
-  - {fileID: 400630330}
   - {fileID: 637079066}
-  - {fileID: 585198040}
   - {fileID: 1157106933}
-  - {fileID: 1417969745}
-  - {fileID: 2106893808}
-  - {fileID: 485471737}
-  - {fileID: 298646074214270204}
-  - {fileID: 6507097417013407637}
-  - {fileID: 9135345202383492203}
-  - {fileID: 933110852}
+  - {fileID: 662220684}

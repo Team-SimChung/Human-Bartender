@@ -119,6 +119,70 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &350463474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 350463475}
+  m_Layer: 0
+  m_Name: 05.UI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &350463475
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350463474}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 17353362940195325}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &384182234
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 384182235}
+  m_Layer: 0
+  m_Name: 02.Cameras
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &384182235
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 384182234}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 947444024}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &947444021
 GameObject:
   m_ObjectHideFlags: 0
@@ -204,12 +268,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947444021}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 384182235}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1621850713
 GameObject:
@@ -283,11 +347,43 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1621850713}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
+  m_Father: {fileID: 1926081254}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1926081253
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1926081254}
+  m_Layer: 0
+  m_Name: 01.Systems
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1926081254
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1926081253}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1621850716}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &17353362940195324
@@ -296,8 +392,76 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 350463475}
     m_Modifications:
+    - target: {fileID: 106675220032221415, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_8
+      objectReference: {fileID: 0}
+    - target: {fileID: 853265694918942302, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1185072284937824915, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1202382441071929683, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1248094755664786702, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1445558310577466713, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: PhoneDialPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 2523981409050030603, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_
+      objectReference: {fileID: 0}
+    - target: {fileID: 2667791973559716254, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: Image_Using_the_provided_reference_image_for_mood_and_de_1786031928054_Photoroom_5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2806141461411853937, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030077777552845556, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: Image_Using_the_provided_reference_image_for_mood_and_de_1786031928054_Photoroom_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3224587420759846315, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: Label_PhoneDialPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 3339425980471407690, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: Image_Using_the_provided_reference_image_for_mood_and_de_1786031928054_Photoroom_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3688058896642385535, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4290706605068737655, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: Image_Using_the_provided_reference_image_for_mood_and_de_1786031928054_Photoroom_6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4630600449173190341, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_9
+      objectReference: {fileID: 0}
+    - target: {fileID: 4888512339628757552, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6181220175464609422, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: DialButton_0
+      objectReference: {fileID: 0}
     - target: {fileID: 6456333907630563621, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -380,17 +544,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8477970744012143320, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
       propertyPath: m_Name
-      value: OutsideGimmickCanvas
+      value: Canvas_PhonePreview
+      objectReference: {fileID: 0}
+    - target: {fileID: 8616173176919142908, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+      propertyPath: m_Name
+      value: Image_Using_the_provided_reference_image_for_mood_and_de_1786031928054_Photoroom_3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+--- !u!224 &17353362940195325 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6456333907630563621, guid: 729ed28a009ef5e40809cabdd04fc8f3, type: 3}
+  m_PrefabInstance: {fileID: 17353362940195324}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 947444024}
-  - {fileID: 17353362940195324}
-  - {fileID: 1621850716}
+  - {fileID: 1926081254}
+  - {fileID: 384182235}
+  - {fileID: 350463475}
