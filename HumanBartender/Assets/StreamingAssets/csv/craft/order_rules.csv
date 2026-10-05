@@ -1,0 +1,5 @@
+﻿seq,order_id,when,verdict,effects,react,note,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+1,d4_samho_dilemma,cocktail.abv >= 20,fulfill,flag.samho_drunk = true,\N,[후속 일차 가안] 독한 술 → 취함 → 사망 루트,order_rules,order_rules_1,@order_rules,\N,0,order_rules_format_01
+2,d4_samho_dilemma,cocktail.abv <= 5 && grade >= good,care,flag.samho_calmed = true; affinity.samho += 2,\N,[후속 일차 가안] 배려 정답,order_rules,order_rules_2,@order_rules,\N,1,order_rules_format_01
+3,d4_samho_dilemma,cocktail.abv <= 5,partial,\N,\N,[후속 일차 가안],order_rules,order_rules_3,@order_rules,\N,2,order_rules_format_02
+4,d4_samho_dilemma,\N,miss,\N,\N,[후속 일차 가안] default,order_rules,order_rules_4,@order_rules,\N,3,order_rules_format_03

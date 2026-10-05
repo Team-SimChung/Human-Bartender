@@ -1,0 +1,11 @@
+﻿band_type,min_ratio,max_ratio,min_inclusive,max_inclusive,score_or_penalty,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+quantity,0,0.05,true,false,100,balance,score_bands_1,balance_root,score_bands,0,score_bands_format_01
+quantity,0.05,0.1,true,false,90,balance,score_bands_2,balance_root,score_bands,1,score_bands_format_01
+quantity,0.1,0.2,true,false,75,balance,score_bands_3,balance_root,score_bands,2,score_bands_format_01
+quantity,0.2,0.35,true,false,50,balance,score_bands_4,balance_root,score_bands,3,score_bands_format_01
+quantity,0.35,\N,true,false,0,balance,score_bands_5,balance_root,score_bands,4,score_bands_format_02
+overtime,0,0,true,true,0,balance,score_bands_6,balance_root,score_bands,5,score_bands_format_01
+overtime,0,0.1,false,true,5,balance,score_bands_7,balance_root,score_bands,6,score_bands_format_01
+overtime,0.1,0.25,false,true,10,balance,score_bands_8,balance_root,score_bands,7,score_bands_format_01
+overtime,0.25,0.5,false,true,20,balance,score_bands_9,balance_root,score_bands,8,score_bands_format_01
+overtime,0.5,\N,false,false,30,balance,score_bands_10,balance_root,score_bands,9,score_bands_format_02

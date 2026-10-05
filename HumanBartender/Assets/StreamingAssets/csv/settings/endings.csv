@@ -1,0 +1,6 @@
+﻿id,priority,when,scene_id,note,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+bad_1,1,flag.rios_accepted,ed_bad1,[예약] 최종일 리오스 제안 수락 선택지에서 flag.rios_accepted = true 설정 후 사용 — 현재 데모 미도달,endings,endings_bad_1,@endings,\N,0,endings_format_01
+happy_1,2,affinity.aili >= 100 && affinity.tom >= 100 && affinity.port >= 100 && affinity.sunha >= 100,ed_happy1,"벡터 고발, 전체 생존",endings,endings_happy_1,@endings,\N,1,endings_format_01
+happy_2,3,affinity.aili >= 100 && affinity.tom >= 100 && affinity.port >= 100,ed_happy2,"언노운 이사, 전체 생존",endings,endings_happy_2,@endings,\N,2,endings_format_01
+normal_1,4,alive.haru && affinity.haru >= 100,ed_normal1,"하루 루트, 크리스 사망",endings,endings_normal_1,@endings,\N,3,endings_format_01
+bad_2,5,\N,ed_bad2,폴백 — 납치,endings,endings_bad_2,@endings,\N,4,endings_format_02

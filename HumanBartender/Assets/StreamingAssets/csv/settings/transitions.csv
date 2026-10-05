@@ -1,0 +1,4 @@
+﻿id,target_location,target_phase,target_spot,effect,note,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+enter_bar,bar,bar,\N,fade,바 정문에서 E → 바 입장. bar_open·1부·2부 분기는 BarController가 현재 일차 데이터로 결정,transitions,transitions_enter_bar,@transitions,\N,0,transitions_format_01
+enter_home,home,home,home_spawn_entry,fade,집 현관에서 E → 집 내부 입장,transitions,transitions_enter_home,@transitions,\N,1,transitions_format_02
+exit_home,street,commute_in,home_door,fade,집 현관에서 상호작용 → 출근길 거리의 home_door에서 생성,transitions,transitions_exit_home,@transitions,\N,2,transitions_format_02

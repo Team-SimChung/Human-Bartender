@@ -1,0 +1,22 @@
+{
+    "name": "CodeStage.Maintainer.Editor",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.visualeffectgraph",
+            "expression": "",
+            "define": "MAINTAINER_VFX_GRAPH"
+        }
+    ],
+    "noEngineReferences": false
+}

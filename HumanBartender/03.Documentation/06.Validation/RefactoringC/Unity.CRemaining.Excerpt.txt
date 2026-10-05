@@ -1,0 +1,29 @@
+Final run: 11 passed / 0 failed. Unity 6000.3.14f1 GUI Editor, isolated project copy.
+Source log: /tmp/hb-c-remaining/Unity.CRemaining.log
+
+Test results:
+Passed | ActualDayZeroStoryStartsAndStopsOnPlayExit
+Passed | ActualOutsideBindingsElevatorCancellationAndReplay
+Passed | ActualSceneTimelineUsesCsvSignalDialogueAndCancelsCleanly
+Passed | CameraCancellationAndReplacementPreserveTheNewOwner
+Passed | ContentValidatorIsReadOnlyAndUnderstandsSceneBindings
+Passed | CsvEntranceUsesExistingTransitionToHome
+Passed | PrioritySelectionIgnoresRowOrderAndReadsOneDefinition(False)
+Passed | PrioritySelectionIgnoresRowOrderAndReadsOneDefinition(True)
+Passed | SoundDuplicatesAreRejectedAndZeroPoolStillHasASource
+Passed | SpineLoopCancellationClearsTrackAndAllowsReplay
+Passed | UiTimelineTransitionsStopWithoutLateWritesAndCanFinishNaturally
+
+Selected runtime log lines (not the complete Console):
+679: Loaded scene 'Assets/00.Scenes/Play.unity'
+875: [Story] Day 0 2부 시작
+919: [Story] 씬 시작 — d1_tutorial_chris (seq 1)
+1514: Loaded scene 'Assets/00.Scenes/OutSide.unity'
+1902: [OutsideSpotManager] 총 5개 / 5개의 SpotPoint 등록 완료.
+2078: Loaded scene 'Assets/00.Scenes/OutSide.unity'
+2353: [OutsideSpotManager] 총 5개 / 5개의 SpotPoint 등록 완료.
+2740: Loaded scene 'Assets/00.Scenes/OutSide.unity'
+3128: [OutsideSpotManager] 총 5개 / 5개의 SpotPoint 등록 완료.
+3220: [OutsideSpotManager] 총 2개 / 2개의 SpotPoint 등록 완료.
+3235: Loaded scene 'Assets/00.Scenes/Home.unity'
+3685: Test run completed. Exiting with code 0 (Ok). Run completed.

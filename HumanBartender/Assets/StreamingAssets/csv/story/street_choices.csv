@@ -1,0 +1,6 @@
+﻿context,id,seq,text.ko,text.en,when,lock_reason.ko,lock_reason.en,dataset_id,row_id,parent_id,parent_field,source_order,template_id
+qa_choice,ch_qa_street_choice_1,1,지금은 줄 간식이 없다고 말한다.,Say that you do not have a treat right now.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_1,step_qa_choice_choice_3,options,0,street_choices_format_01
+qa_choice,ch_qa_street_choice_2,2,가지고 있는 간식을 건넨다.,Give the treat you are carrying.,flag.qa_has_snack,먼저 테스트용 간식 보관함에서 간식을 챙겨야 합니다.,Pick up a treat from the test container first.,script/qa/street_day99,street_choices_qa_choice_2,step_qa_choice_choice_3,options,1,street_choices_format_02
+qa_choice,ch_qa_street_choice_3,3,그냥 지나간다.,Walk away without giving anything.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_3,step_qa_choice_choice_3,options,2,street_choices_format_01
+np_shiba_3,ch_st_shiba_1,1,"아뇨, 그냥 지나갈게요.","No, I'll just be on my way.",\N,\N,\N,script/street,street_choices_np_shiba_3_1,step_np_shiba_3_choice_4,options,0,street_choices_format_01
+np_shiba_3,ch_st_shiba_2,2,간식 좀 드릴까요?,Want a little treat?,flag.has_snack,줄 수 있는 간식이 없습니다.,You don't have a treat to give.,script/street,street_choices_np_shiba_3_2,step_np_shiba_3_choice_4,options,1,street_choices_format_02

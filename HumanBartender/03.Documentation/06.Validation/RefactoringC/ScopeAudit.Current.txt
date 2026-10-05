@@ -1,0 +1,46 @@
+Current-turn scope audit against /tmp/hb-c-remaining/before (pre-existing C changes preserved).
+Changed implementation/data/workbook files: 40
+A/B code or shared scene/config differences: 0
+Game settings workbook unchanged: True
+Root C test harness absent: True
+
+Assets/03.Scripts/Camera/CameraControllerNew.cs
+Assets/03.Scripts/Camera/ICameraControlNew.cs
+Assets/03.Scripts/Camera/PlayCamera.cs
+Assets/03.Scripts/Cutscene/CutsceneManager.cs
+Assets/03.Scripts/Cutscene/Outside Timeline/CutsceneDialogueHandler.cs
+Assets/03.Scripts/Cutscene/SpineAnimationManager.cs
+Assets/03.Scripts/Cutscene/TimelinePlayback.cs
+Assets/03.Scripts/Cutscene/TimelineTransitionScope.cs
+Assets/03.Scripts/Cutscene/TimelineTransitionScope.cs.meta
+Assets/03.Scripts/Cutscene/UI Timeline/CutSceneBGMixerBehaviour.cs
+Assets/03.Scripts/Cutscene/UI Timeline/CutSceneDialogueMixerBehaviour.cs
+Assets/03.Scripts/Cutscene/UI Timeline/CutSceneImageMixerBehaviour.cs
+Assets/03.Scripts/Cutscene/UI Timeline/CutSceneResolutionMixerBehaviour.cs
+Assets/03.Scripts/Cutscene/UI Timeline/CutSceneTimelineManager.cs
+Assets/03.Scripts/DataNew/NewCutSceneDataSO.cs
+Assets/03.Scripts/DataNew/NewInteractPointDataSO.cs
+Assets/03.Scripts/LogoFade.cs
+Assets/03.Scripts/Outside/Camera/OutsideCamera.cs
+Assets/03.Scripts/Outside/Entity/Action/InteractiveTriggerEntity.cs
+Assets/03.Scripts/Outside/Entity/InteractEntrance.cs
+Assets/03.Scripts/Outside/Entity/InteractiveEntity.cs
+Assets/03.Scripts/Outside/Entity/InteractiveEntityManager.cs
+Assets/03.Scripts/Outside/Entity/InteractiveNPCEntity.cs
+Assets/03.Scripts/Outside/Entity/NPC_Samho.cs
+Assets/03.Scripts/Outside/Entity/OutsideElevator.cs
+Assets/03.Scripts/Outside/Entity/OutsideElevatorRadio.cs
+Assets/03.Scripts/Outside/IOutsideTimeliner.cs
+Assets/03.Scripts/Outside/InteractionStateLease.cs
+Assets/03.Scripts/Outside/OustideTimelineManager.cs
+Assets/03.Scripts/Outside/OutsideActions.cs
+Assets/03.Scripts/Outside/OutsideActions.cs.meta
+Assets/03.Scripts/Outside/OutsideSpotManager.cs
+Assets/03.Scripts/Sound/SoundManager.cs
+Assets/Editor/RefactoringCContentValidator.cs
+Assets/00.Scenes/Home.unity
+Assets/00.Scenes/OutSide.unity
+Assets/StreamingAssets/csv/story/cutscenes.csv
+Assets/StreamingAssets/csv/story/scenes.csv
+Assets/StreamingAssets/csv/story/steps.csv
+outputs/20260915-content-editing/HumanBartender_C_Content.xlsx
