@@ -2,7 +2,6 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Spine.Unity;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -53,7 +52,6 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     [SerializeField] NewCutSceneDataSO data;
 
     [SerializeField] SpriteAnimationManager spriteAnimationManager;
-    [SerializeField] SpineAnimationManager spineAnimationManager;
     [SerializeField] CutSceneTimelineManager timelineManager;
 
     private CancellationTokenSource effectRun;
@@ -97,7 +95,6 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
 
 
         // Sprite animator is initialized lazily when its first clip is played.
-        if (spineAnimationManager != null) spineAnimationManager.Initialize();
     }
 
     public void OnContinueTimeline()
@@ -115,11 +112,6 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         ResetImages();
         spriteAnimationManager?.SetInactive();
         spriteAnimationManager?.ActiveSelf(false);
-        if (spineAnimationManager != null)
-        {
-            spineAnimationManager.SetInactive();
-            spineAnimationManager.ActiveSelf(false);
-        }
     }
 
     void OnDisable() => ClearCutScene();

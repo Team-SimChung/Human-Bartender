@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using Spine;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
