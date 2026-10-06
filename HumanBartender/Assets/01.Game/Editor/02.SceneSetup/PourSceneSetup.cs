@@ -26,7 +26,7 @@ using UnityEngine.UI;
 public static class PourSceneSetup
 {
     const string ScenePath = "Assets/03.Dev/01.Scenes/01.Minigames/Pour.unity";
-    const string FontAssetPath = "Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset";
+    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset";
     const string GradientMaterialPath = "Assets/01.Game/03.Content/05.UI/04.Crafting/04.Minigames/02.Shake/03.Materials/New Material.mat";
     const string CraftStationDataPath = "Assets/01.Game/04.Data/01.Definitions/Crafting/CraftLiquidData.asset";
     const string CategoryColorDataPath = "Assets/01.Game/04.Data/01.Definitions/Crafting/CategoryColorData.asset";
@@ -102,7 +102,7 @@ public static class PourSceneSetup
     /// </summary>
     static Sprite CreateOrLoadPlaceholderSprite()
     {
-        const string path = "Assets/01.Game/03.Content/03.Crafting/04.Minigames/04.Pour/01.Sprites/PourPlaceholder.png";
+        const string path = "Assets/01.Game/03.Content/01.ArtResources/07.Legacy/03.Crafting/03.Minigames/04.Pour/01.Sprites/PourPlaceholder.png";
 
         Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(path);
         if (existing != null) return existing;

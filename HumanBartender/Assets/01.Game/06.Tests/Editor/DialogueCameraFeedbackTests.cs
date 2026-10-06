@@ -43,7 +43,7 @@ public sealed class DialogueCameraFeedbackTests
         bubble.bubble = (RectTransform)actor.transform;
         bubble.bubble.sizeDelta = new Vector2(400, 100);
         bubble.textLabel = text.GetComponent<TextMeshProUGUI>();
-        bubble.textLabel.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset");
+        bubble.textLabel.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
         bubble.nameLabel = title.GetComponent<TextMeshProUGUI>();
         actor.SetActive(true);
     }

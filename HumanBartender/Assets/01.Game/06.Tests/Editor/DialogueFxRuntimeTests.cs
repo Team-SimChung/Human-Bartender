@@ -89,7 +89,7 @@ public sealed class DialogueFxRuntimeTests
         var content = new GameObject("text", typeof(RectTransform), typeof(TextMeshProUGUI));
         content.transform.SetParent(root.transform, false);
         var label = content.GetComponent<TextMeshProUGUI>();
-        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset");
+        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
         var title = new GameObject("name", typeof(RectTransform), typeof(TextMeshProUGUI));
         title.transform.SetParent(root.transform, false);
         var bubble = root.AddComponent<DynamicSpeechBubble>();
