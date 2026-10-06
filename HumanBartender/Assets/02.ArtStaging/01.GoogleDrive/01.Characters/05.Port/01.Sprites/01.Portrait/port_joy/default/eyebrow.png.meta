@@ -117,6 +117,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -124,12 +137,12 @@ TextureImporter:
       name: eyebrow_0
       rect:
         serializedVersion: 2
-        x: 228
-        y: 333
-        width: 33
-        height: 12
+        x: 0
+        y: 0
+        width: 551
+        height: 530
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -146,12 +159,12 @@ TextureImporter:
       name: eyebrow_1
       rect:
         serializedVersion: 2
-        x: 266
-        y: 332
-        width: 34
-        height: 17
+        x: 551
+        y: 0
+        width: 551
+        height: 530
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -168,12 +181,12 @@ TextureImporter:
       name: eyebrow_2
       rect:
         serializedVersion: 2
-        x: 779
-        y: 332
-        width: 33
-        height: 12
+        x: 1102
+        y: 0
+        width: 551
+        height: 530
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -190,12 +203,12 @@ TextureImporter:
       name: eyebrow_3
       rect:
         serializedVersion: 2
-        x: 817
-        y: 331
-        width: 34
-        height: 17
+        x: 1653
+        y: 0
+        width: 551
+        height: 530
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -208,99 +221,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: eyebrow_4
-      rect:
-        serializedVersion: 2
-        x: 1330
-        y: 334
-        width: 33
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4eac84cae2399c540800000000000000
-      internalID: 5028712287604099812
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: eyebrow_5
-      rect:
-        serializedVersion: 2
-        x: 1368
-        y: 333
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 650bb803453d62830800000000000000
-      internalID: 4046153673784143958
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: eyebrow_6
-      rect:
-        serializedVersion: 2
-        x: 1881
-        y: 334
-        width: 33
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 07b429de9149e2b20800000000000000
-      internalID: 3111587231640472432
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: eyebrow_7
-      rect:
-        serializedVersion: 2
-        x: 1919
-        y: 333
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 94acadd6525225080800000000000000
-      internalID: -9200250246077429175
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: c0c081e6a5dc5b549a2aba694dd56912
     internalID: 0
     vertices: []
     indices: 
@@ -308,16 +233,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":551.0,"y":530.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       eyebrow_0: 3078226200369244658
       eyebrow_1: 792538450687254331
       eyebrow_2: 1560319577188664042
       eyebrow_3: -1792986976208679661
-      eyebrow_4: 5028712287604099812
-      eyebrow_5: 4046153673784143958
-      eyebrow_6: 3111587231640472432
-      eyebrow_7: -9200250246077429175
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

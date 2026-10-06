@@ -2435,9 +2435,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: 0.1004415
     y: 0
-    width: 1
+    width: 0.7986264
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -2589,6 +2589,7 @@ MonoBehaviour:
   textTagData: {fileID: 11400000, guid: a4036fdbe34f51f32d1cb38225f1d890, type: 2}
   lunaSpeechBubble: {fileID: 96362529}
   customerSpeechBubble: {fileID: 96362529}
+  narrationSpeechBubble: {fileID: 0}
   canvasRect: {fileID: 562793721}
   baseOffset: {x: 0, y: 0}
   subOffset: {x: 0, y: 0}
