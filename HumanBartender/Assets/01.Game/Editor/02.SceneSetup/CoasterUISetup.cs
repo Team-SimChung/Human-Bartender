@@ -17,7 +17,7 @@ public static class CoasterUISetup
 {
     const string TrayCanvasName = "Coaster Tray Canvas";
     const string DropZoneName = "Coaster Drop Zone";
-    const string SupplyTrayPrefabPath = "Assets/01.Game/03.Content/03.Crafting/05.Serving/04.Prefabs/CoasterSupplyTray.prefab";
+    const string SupplyTrayPrefabPath = "Assets/01.Game/03.Content/05.UI/04.Crafting/05.Serving/04.Prefabs/CoasterSupplyTray.prefab";
 
     [MenuItem("Tools/Tycoon/Setup Coaster UI")]
     public static void Run()
