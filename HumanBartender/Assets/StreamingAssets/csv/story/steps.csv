@@ -230,14 +230,14 @@ outside_day2_commute_reopening,13,say,reopening-pair-right,default,아하…,\N,
 ,7,say,chris,default,…좋아. 다시 한번 해 보자.,…All right. Let us try again.,dlg_day0_notion_bar_8,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_6,script_bar_day0_scenes_0,steps,6,migration_steps_4200790829,,\N
 ,8,say,chris,default,"자, 먼저 손님을 맞이하는 것부터 시작해 보자.","First, let’s practice welcoming a guest.",dlg_day0_notion_bar_9,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_7,script_bar_day0_scenes_0,steps,7,migration_steps_4200790829,,\N
 ,9,say,chris,default,일단 주변을 둘러봐. 바 테이블에 앉을 수 있는 자리가 총 몇 개지?,Take a look around. How many seats are there at the bar?,dlg_day0_seats_look,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_8,script_bar_day0_scenes_0,steps,8,migration_steps_4200790829,,\N
-,10,effect,chris,\N,,,\N,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_9,script_bar_day0_scenes_0,steps,9,migration_steps_4d05a624c0,\N,\N
+,10,tutorial,chris,seatExplore,,,\N,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_9,script_bar_day0_scenes_0,steps,9,migration_steps_4d05a624c0,\N,\N
 ,11,say,luna,default,총 3개로 보입니다.,I can see three.,dlg_day0_seats_count,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_10,script_bar_day0_scenes_0,steps,10,migration_steps_4200790829,,\N
 ,12,say,chris,default,그래. 손님이 앉을 수 있는 자리는 세 곳이야.,Right. There are three places where guests can sit.,dlg_day0_seats_three,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_11,script_bar_day0_scenes_0,steps,11,migration_steps_4200790829,,\N
 ,13,say,luna,default,그렇게 많진 않네요.,That is not very many.,dlg_day0_seats_few,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_12,script_bar_day0_scenes_0,steps,12,migration_steps_4200790829,,\N
 ,14,say,chris,default,"그렇지. 네가 다른 손님과 이야기하고 있어도, 아래 있는 장치가
 새로 들어온 손님이 있다는 걸 알려 줄 거야.","Right. Even while you are talking to another guest, the indicator below
 will let you know when someone new arrives.",dlg_day0_seats_device,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_13,script_bar_day0_scenes_0,steps,13,migration_steps_4200790829,,\N
-,15,effect,chris,\N,,,\N,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_14,script_bar_day0_scenes_0,steps,14,migration_steps_4d05a624c0,\N,\N
+,15,tutorial,chris,seatIndicator,,,\N,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_14,script_bar_day0_scenes_0,steps,14,migration_steps_4d05a624c0,\N,\N
 ,16,say,chris,default,좋아. 이제 다음으로 넘어가자.,Good. Let’s move on.,dlg_day0_seats_next,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_15,script_bar_day0_scenes_0,steps,15,migration_steps_4200790829,,\N
 ,17,say,chris,default,"내가 손님이고, 방금 자리에 앉았다고 생각해 봐.
 무엇부터 해야 하지?","Imagine I am a customer who has just taken a seat.
@@ -246,7 +246,7 @@ What should you do first?",dlg_day0_tutorial_guest_role,!flag.day0_skip_tutorial
 ,19,say,chris,default,"주문을 묻기 전에 먼저 코스터를
 내어 드려. 그게 우리 가게 방식이야.","You do ask the customer for their order, but give them a coaster first.
 That is how we do things here.",dlg_day0_notion_bar_11,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_18,script_bar_day0_scenes_0,steps,18,migration_steps_4200790829,,\N
-,20,effect,chris,\N,,,\N,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_19,script_bar_day0_scenes_0,steps,19,migration_steps_4d05a624c0,\N,\N
+,20,coaster,chris,tutorial,,,\N,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_19,script_bar_day0_scenes_0,steps,19,migration_steps_4d05a624c0,\N,\N
 ,21,say,luna,default,이렇게요?,Like this?,dlg_day0_tutorial_coaster_done,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_20,script_bar_day0_scenes_0,steps,20,migration_steps_4200790829,,\N
 ,22,say,chris,default,맞아. 이제 손님에게 무엇을 주문할지 물어보면 돼.,Right. Now ask the customer if they would like to order.,dlg_day0_tutorial_ask_order,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_21,script_bar_day0_scenes_0,steps,21,migration_steps_4200790829,,\N
 ,23,say,luna,default,“어떤 걸 주문하시겠어요?” 이렇게 말하면 되는 건가요?,“What would you like to order?” Is that how I should say it?,dlg_day0_notion_bar_13,!flag.day0_skip_tutorial,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_22,script_bar_day0_scenes_0,steps,22,migration_steps_4200790829,,\N
@@ -319,7 +319,7 @@ Right now, it is just Gin & Tonic and Gin Fizz.",dlg_day0_notion_bar_68,\N,\N,wa
 ,78,say,port,default,"…이 상태로 어떻게 영업하겠다는 건지는 모르겠지만,
 그러면 진 피즈로 한 잔 부탁할게, 아가씨.","…Not sure how you expect to run a bar like that,
 but I will have a Gin Fizz, young lady.",dlg_day0_notion_bar_69,\N,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_77,script_bar_day0_scenes_0,steps,77,migration_steps_c086580ba4,,\N
-,79,effect,port,\N,,,\N,\N,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_78,script_bar_day0_scenes_0,steps,78,migration_steps_f8e3b89266,\N,\N
+,79,coaster,port,\N,,,\N,\N,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_78,script_bar_day0_scenes_0,steps,78,migration_steps_f8e3b89266,\N,\N
 ,80,order,port,exact:gin_fizz,,,\N,\N,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_79,script_bar_day0_scenes_0,steps,79,migration_steps_3b98d21457,\N,\N
 ,81,say,luna,default,주문받았습니다.,Order received.,dlg_day0_notion_bar_71,\N,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_80,script_bar_day0_scenes_0,steps,80,migration_steps_c086580ba4,,\N
 ,82,craft,port,order,,,\N,\N,\N,wait,,script/bar/day0,script_bar_day0_scenes_0_steps_81,script_bar_day0_scenes_0,steps,81,migration_steps_3b98d21457,\N,\N

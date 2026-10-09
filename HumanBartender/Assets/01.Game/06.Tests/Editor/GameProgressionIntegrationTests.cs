@@ -133,12 +133,12 @@ public class GameProgressionIntegrationTests
     }
 
     [Test]
-    public void ProjectDaysDeclareHomeForAllFourStoryDays()
+    public void ProjectDaysStartWithBarTutorialThenHome()
     {
         var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
         var days = catalog.Read<NewDayInfoData[]>("days");
-        Assert.IsTrue(days.Where(day => day.Day <= 2).All(day => day.StartPhase == "home"));
-        Assert.AreEqual("home", days.Single(day => day.Day == 3).StartPhase);
+        Assert.AreEqual("bar", days.Single(day => day.Day == 0).StartPhase);
+        Assert.IsTrue(days.Where(day => day.Day >= 1 && day.Day <= 3).All(day => day.StartPhase == "home"));
     }
 
     [Test]
@@ -173,10 +173,10 @@ public class GameProgressionIntegrationTests
     }
 
     [Test]
-    public async Task NewGameEntersDayZeroHomeAndWaitsForAnActualBarArrival()
+    public async Task NewGameEntersDayZeroBarAndWaitsForArrival()
     {
         Activate("Main");
-        LoadDays(new NewDayInfoData { Day = 0, StartPhase = "home" });
+        LoadDays(new NewDayInfoData { Day = 0, StartPhase = "bar" });
         GameStateManager.Instance.CurrentDay = 2;
         GameStateManager.Instance.GameFlow = EGameFlow.CommuteOut;
         var transitions = new Transitions();
@@ -185,31 +185,35 @@ public class GameProgressionIntegrationTests
         var start = service.StartNewGameAsync(() => initialized++, () => initialized--);
         Assert.AreEqual(1, initialized);
         Assert.AreEqual(0, GameStateManager.Instance.CurrentDay);
-        Assert.AreEqual(EGameFlow.CommuteIn, GameStateManager.Instance.GameFlow);
-        Assert.AreEqual(GameProgressionOutcome.Rejected, (await service.WaitForBarEntryAsync()).Outcome);
-        Activate("Home");
-        transitions.completion.TrySetResult(Result(SceneTransitionOutcome.Succeeded, "Home"));
+        Assert.AreEqual(EGameFlow.Bar, GameStateManager.Instance.GameFlow);
+        var ready = service.WaitForBarEntryAsync();
+        Assert.AreEqual(UniTaskStatus.Pending, ready.Status);
+        Activate("Play");
+        transitions.completion.TrySetResult(Result(SceneTransitionOutcome.Succeeded, "Play"));
         Assert.IsTrue((await start).Succeeded);
+        Assert.IsTrue((await ready).Succeeded);
         Assert.AreEqual(1, transitions.Loads);
     }
 
     [Test]
-    public async Task FailedNewGameBeforeHomeRestoresPreviousSession()
+    public async Task FailedNewGameBeforeBarRestoresPreviousSession()
     {
         Activate("Main");
-        LoadDays(new NewDayInfoData { Day = 0, StartPhase = "home" });
+        LoadDays(new NewDayInfoData { Day = 0, StartPhase = "bar" });
         GameStateManager.Instance.CurrentDay = 2;
         GameStateManager.Instance.GameFlow = EGameFlow.CommuteOut;
         var transitions = new Transitions();
         var service = new GameProgressionService(GameStateManager.Instance, transitions, new Fades());
         int changed = 0;
         UniTask<GameProgressionResult> start = service.StartNewGameAsync(() => changed++, () => changed--);
-        transitions.completion.TrySetResult(Result(SceneTransitionOutcome.Failed, "Home"));
+        var ready = service.WaitForBarEntryAsync();
+        transitions.completion.TrySetResult(Result(SceneTransitionOutcome.Failed, "Play"));
         Assert.AreEqual(GameProgressionOutcome.Failed, (await start).Outcome);
+        Assert.AreEqual(GameProgressionOutcome.Failed, (await ready).Outcome);
         Assert.AreEqual(0, changed);
         Assert.AreEqual(2, GameStateManager.Instance.CurrentDay);
         Assert.AreEqual(EGameFlow.CommuteOut, GameStateManager.Instance.GameFlow);
-        Assert.AreEqual(GameProgressionOutcome.Rejected, (await service.WaitForBarEntryAsync()).Outcome);
+        Assert.AreEqual(GameProgressionOutcome.Failed, (await service.WaitForBarEntryAsync()).Outcome);
     }
 
     [Test]

@@ -78,6 +78,13 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
         if (craftFlow == null) throw new InvalidOperationException("[Story] Craft Flow 참조가 필요합니다.");
 
+        var tutorial = GetComponent<StoryTutorialController>();
+        if (tutorial == null) tutorial = gameObject.AddComponent<StoryTutorialController>();
+        tutorial.ConnectSceneResources();
+        runner.SetTutorialController(tutorial);
+        if (day == 0 && phase == ENewScenePhase.Bar)
+            await tutorial.RunIntroAsync(cutScenePlayer, linked.Token);
+
         soundManager?.PlayBGM("BGM_bar_01", 1f, true);
 
         Debug.Log($"[Story] Day {day} 2부 시작");
@@ -126,5 +133,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         runner.OnAdvanceInput();
         return true;
+    }
+
+    public bool TryMoveTutorialSeat(int step)
+    {
+        if (runner == null || !runner.IsRunning) return false;
+        var tutorial = GetComponent<StoryTutorialController>();
+        return tutorial != null && tutorial.TryMoveSeat(step);
     }
 }

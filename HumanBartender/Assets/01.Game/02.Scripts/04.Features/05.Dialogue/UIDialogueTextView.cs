@@ -93,6 +93,9 @@ public class UIDialogueTextView : MonoBehaviour
         token.ThrowIfCancellationRequested();
         if (data == null) throw new ArgumentNullException(nameof(data));
 
+        // Only the current line is visible, including when its speaker changes.
+        ClearText();
+
         var type = data.bubbleType;
 
         if (type == DialogueBubbleType.Auto)

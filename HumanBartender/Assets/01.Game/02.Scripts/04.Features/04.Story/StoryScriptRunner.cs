@@ -20,9 +20,13 @@ using UnityEngine;
 public class StoryScriptRunner : MonoBehaviour
 {
     [SerializeField] private RecipeBrowserScreen recipeScreen;
+    [SerializeField] private StoryTutorialController tutorial;
 
     public bool CanStartCraft { get; private set; }
+    string craftMenuTutorialCocktailId;
     public event Action CraftAuthorizationChanged;
+
+    public void SetTutorialController(StoryTutorialController controller) => tutorial = controller;
 
     /// <summary>
     /// 플레이어. 바에서는 1인칭이라 초상을 세우지 않는데, 그 판단은 화면이 하고 여기서는 누구인지만 안다.
@@ -124,12 +128,21 @@ public class StoryScriptRunner : MonoBehaviour
                 }
             }
             token.ThrowIfCancellationRequested();
+            // 대본이 끝날 때도 화면에 남은 인물을 갑자기 지우지 않는다.
+            if (presenter is IStoryCharacterTransitions transition && seatActors.Count > 0)
+            {
+                (presenter as IStoryDialogueVisibility)?.HideDialogue();
+                var exits = new List<UniTask>(seatActors.Count);
+                foreach (var slot in seatActors.Keys) exits.Add(transition.ExitAsync(slot, token));
+                await UniTask.WhenAll(exits);
+            }
             LastResult = new StoryExecutionResult(StoryExecutionStatus.Completed);
         }
         catch (OperationCanceledException) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
         catch (Exception e) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, e.Message); }
         finally
         {
+            if (tutorial != null) tutorial.EndLessons();
             SetCraftAuthorization(false);
             if (recipeScreen != null) recipeScreen.ForceClose();
             advanceSignal = null;
@@ -322,6 +335,14 @@ public class StoryScriptRunner : MonoBehaviour
                 await TimelineAsync(scene, step, token);
                 return;
 
+            case ENewStepType.Tutorial:
+                await RunTutorialAsync(step.Arg, step.Actor, token);
+                return;
+
+            case ENewStepType.Coaster:
+                if (step.Arg == "tutorial") await RunTutorialAsync("coaster", step.Actor, token);
+                return;
+
             default:
                 // 아직 붙이지 않은 스텝. 조용히 지나가면 대본이 어디까지 왔는지 알 수 없어 남긴다.
                 throw new NotSupportedException($"Unsupported required step: {step.Type} ({scene.Id}#{step.Seq})");
@@ -329,6 +350,13 @@ public class StoryScriptRunner : MonoBehaviour
     }
 
     // ── 대사 ────────────────────────────────────────────────────────────
+
+    async UniTask RunTutorialAsync(string kind, string actor, CancellationToken token)
+    {
+        if (tutorial == null) throw new InvalidOperationException("스토리 튜토리얼 UI가 연결되지 않았습니다.");
+        if (!TryFindSeatOf(actor, out var seat)) throw new InvalidOperationException("튜토리얼 대상의 좌석이 없습니다: " + actor);
+        await tutorial.RunBarLessonAsync(kind, actor, seat, token);
+    }
 
     // ── 선택지 ──────────────────────────────────────────────────────────
 
@@ -505,6 +533,9 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         string tutorialCocktailId = ParseTutorialCocktail(step.Arg);
+        bool guided = tutorialCocktailId != null && tutorial != null &&
+            (scene.Day == 0 && !conditions.CheckRequired("flag.day0_skip_tutorial") ||
+             scene.Day == 1 && tutorialCocktailId == "bottle_beer");
 
         // 튜토리얼은 무엇을 만들지가 대본에 적혀 있어 주문 없이도 열 수 있다.
         if (currentOrder == null && tutorialCocktailId == null)
@@ -513,10 +544,12 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         token.ThrowIfCancellationRequested();
+        craftMenuTutorialCocktailId = guided ? tutorialCocktailId : null;
         SetCraftAuthorization(true);
         if (recipeScreen == null)
             throw new InvalidOperationException("[Story] Recipe Browser Screen 참조가 필요합니다.");
-        recipeScreen.OpenForStoryOrder();
+        if (guided) tutorial.BeginCraftLesson(tutorialCocktailId);
+        TryOpenCraftMenu();
         await UniTask.CompletedTask;
     }
 
@@ -552,11 +585,21 @@ public class StoryScriptRunner : MonoBehaviour
             serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
         currentOrder = null;
         orderResultSignal = null;
+        if (tutorial != null) tutorial.EndLessons();
         SetCraftAuthorization(false);
+    }
+
+    /// <summary>닫거나 취소한 제조창을 현재 주문과 레시피 제한을 유지해 다시 연다.</summary>
+    public bool TryOpenCraftMenu()
+    {
+        if (!CanStartCraft || recipeScreen == null) return false;
+        recipeScreen.OpenForStoryOrder(craftMenuTutorialCocktailId);
+        return recipeScreen.IsOpen;
     }
 
     private void SetCraftAuthorization(bool allowed)
     {
+        if (!allowed) craftMenuTutorialCocktailId = null;
         if (CanStartCraft == allowed) return;
         CanStartCraft = allowed;
         CraftAuthorizationChanged?.Invoke();
@@ -609,6 +652,7 @@ public class StoryScriptRunner : MonoBehaviour
         if (NextExecutableStepIsEnter(scene, step)) return;
 
         await ApplyFramingAsync(token);
+        if (presenter is IStoryCharacterTransitions transition) await transition.FadeInAsync(token);
     }
 
     async UniTask ExitAsync(NewDialogueStepData step, CancellationToken token)
@@ -621,7 +665,9 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         seatActors.Remove(slot);
-        presenter.Exit(slot);
+        if (presenter is IStoryCharacterTransitions transition)
+            await transition.ExitAsync(slot, token);
+        else presenter.Exit(slot);
 
         await ApplyFramingAsync(token);
     }
@@ -750,6 +796,7 @@ public class StoryScriptRunner : MonoBehaviour
             return;
         }
 
+        if (presenter is IStoryDialogueVisibility visibility) visibility.HideDialogue();
         advanceSignal.TrySetResult();
     }
 }

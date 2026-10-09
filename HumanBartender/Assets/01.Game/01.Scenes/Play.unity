@@ -6775,6 +6775,8 @@ MonoBehaviour:
   serveCanvas: {fileID: 2013979236}
   serveZonePrefab: {fileID: 790915596187547174, guid: 43125cc438d7cb440a57408cad850fc0, type: 3}
   serveZoneWorldOffset: {x: 0, y: -0.6, z: 0}
+  tabletopAnchor: {fileID: 918300001}
+  tabletopWorldY: -1.5
   showServeZoneGuide: 1
   craftFlow: {fileID: 1024022784}
 --- !u!4 &749266212
@@ -7842,6 +7844,7 @@ GameObject:
   m_Component:
   - component: {fileID: 910050655}
   - component: {fileID: 910050654}
+  - component: {fileID: 910050656}
   m_Layer: 0
   m_Name: StoryFlow
   m_TagString: Untagged
@@ -7880,6 +7883,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1514528186}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &910050656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910050653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87583b6597454e6fbc4a91425e9566e1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialController
+  viewPrefab: {fileID: 5872889954386708028, guid: 166b3dd3ed35f406c9d7bf8926c7dde4, type: 3}
+  slotCamera: {fileID: 1519905931}
+  characters: {fileID: 1147809952}
+  dialogue: {fileID: 1390939187}
+  serving: {fileID: 749266211}
+  craft: {fileID: 1024022784}
+  preparationHost: {fileID: 1330551589}
+  recipes: {fileID: 3887766552}
 --- !u!1 &915871962
 GameObject:
   m_ObjectHideFlags: 0
@@ -19284,6 +19307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StoryScriptRunner
   recipeScreen: {fileID: 3887766552}
+  tutorial: {fileID: 910050656}
 --- !u!4 &2031132092
 Transform:
   m_ObjectHideFlags: 0
@@ -20321,6 +20345,7 @@ MonoBehaviour:
   recipeScreen: {fileID: 3887766552}
   playPhaseController: {fileID: 957151669}
   craftFlow: {fileID: 1024022784}
+  storyRunner: {fileID: 2031132091}
 --- !u!1 &2138685369
 GameObject:
   m_ObjectHideFlags: 0
@@ -20573,10 +20598,39 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
+--- !u!1 &918300000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 918300001}
+  m_Layer: 0
+  m_Name: Tabletop Serve Anchor
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &918300001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918300000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 918300001}
   - {fileID: 1664150202}
   - {fileID: 951098330}
   - {fileID: 290966013}

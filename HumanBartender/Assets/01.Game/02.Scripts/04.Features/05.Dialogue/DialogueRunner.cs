@@ -102,7 +102,11 @@ public class DialogueRunner : MonoBehaviour
         if (run == null || run.Cancellation.IsCancellationRequested || !Alive(run.Presenter)) return;
         if (run.Presenter.GetPlayMode() == EActivationMode.Proximity) return;
         if (run.State == DialogueState.Typing) run.Presenter.SkipTyping();
-        else if (run.State == DialogueState.WaitingForInput) run.Input?.TrySetResult();
+        else if (run.State == DialogueState.WaitingForInput)
+        {
+            run.Presenter.HideDialogue();
+            run.Input?.TrySetResult();
+        }
     }
 
     async UniTask ExecuteAsync(Step[] steps, Execution run, HashSet<string> gotoPath, int depth)

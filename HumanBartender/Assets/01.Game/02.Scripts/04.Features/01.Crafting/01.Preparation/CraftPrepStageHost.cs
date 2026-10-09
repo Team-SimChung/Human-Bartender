@@ -19,6 +19,7 @@ public sealed class CraftPrepStageHost : MonoBehaviour
     private string returnActionMap;
 
     public bool IsOpen { get { return activeStage != null && activeStage.IsOpen; } }
+    public CraftPrepStageScreen ActiveStage => activeStage;
 
     private void OnEnable()
     {

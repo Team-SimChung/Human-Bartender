@@ -22,6 +22,8 @@ public enum ENewStepType
     // street.json이 쓰는 값들. 없으면 그 파일 역직렬화가 통째로 끊긴다.
     [EnumMember(Value = "set_state")] SetState,
     [EnumMember(Value = "goto")] Goto,
+    [EnumMember(Value = "tutorial")] Tutorial,
+    [EnumMember(Value = "coaster")] Coaster,
 }
 
 /// <summary>씬이 진행되는 하루 중 구간을 나타내는 열거형.</summary>

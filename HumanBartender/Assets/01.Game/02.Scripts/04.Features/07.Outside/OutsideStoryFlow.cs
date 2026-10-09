@@ -10,7 +10,6 @@ public sealed class OutsideStoryFlow : MonoBehaviour
 {
     [Inject] InteractiveEntityManager entities;
     [Inject] IConditionUtil conditions;
-    [Inject] ICutScenePlayer cutscenes;
     DialogueRunner runner;
     OutsideDialoguePresenter presenter;
     Player player;
@@ -35,14 +34,6 @@ public sealed class OutsideStoryFlow : MonoBehaviour
             if (runner == null || presenter == null || player == null)
                 throw new InvalidOperationException("스토리 대화 UI 또는 플레이어가 연결되지 않았습니다.");
             ready = true;
-            if (gameObject.scene.name == "Home" && GameStateManager.Instance.CurrentDay == 0 &&
-                GameStateManager.Instance.GameFlow == EGameFlow.CommuteIn && !conditions.CheckRequired("flag.day0_intro_attempted"))
-            {
-                busy = true;
-                using var lease = InteractionStateLease.Acquire(player, EInteractorState.Lock);
-                await OptionalStoryCutscene.PlayAsync(cutscenes, "luna-dream", token);
-                conditions.ApplyRequired("flag.day0_intro_attempted = true");
-            }
         }
         catch (OperationCanceledException) { }
         catch (Exception failure) { error = failure.Message; Debug.LogException(failure); }

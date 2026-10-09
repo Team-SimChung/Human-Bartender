@@ -92,7 +92,7 @@ public class PlayPhaseController : MonoBehaviour
             return new PlayPhaseRunRequest(rejectedResult);
         }
 
-        if (!SkipTycoonForTest && tycoonFlow == null)
+        if (GameStateManager.Instance.CurrentDay != 0 && !SkipTycoonForTest && tycoonFlow == null)
         {
             PlayPhaseRunResult rejectedResult = new(
                 PlayPhaseRunOutcome.Rejected,
@@ -239,7 +239,11 @@ public class PlayPhaseController : MonoBehaviour
             await storyFlow.RunOpeningAsync(cancellationToken);
             EndCurrentPhase();
 
-            if (SkipTycoonForTest)
+            if (GameStateManager.Instance.CurrentDay == 0)
+            {
+                Debug.Log("[PlayPhase] 0일차는 인트로 안내 후 바 튜토리얼로 바로 진행합니다.");
+            }
+            else if (SkipTycoonForTest)
             {
                 Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
                                  "PlayPhaseController의 Skip Tycoon For Test를 끄면 원래대로 돌아옵니다.");

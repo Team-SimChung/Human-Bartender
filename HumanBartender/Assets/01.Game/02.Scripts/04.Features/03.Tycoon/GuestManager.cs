@@ -84,6 +84,17 @@ public class GuestManager : MonoBehaviour
     readonly Queue<Guest> guestQueue = new();
     readonly HashSet<Guest> releasedGuests = new();
     readonly Dictionary<GuestSlot, CancellationTokenSource> patienceCtsBySlot = new();
+    readonly Dictionary<GuestSlot, (Guest guest, float start, float duration)> seatWaitTimes = new();
+
+    public bool TryGetSeatWaitTime(GuestSlot slot, out float remaining, out float total)
+    {
+        remaining = total = 0;
+        if (!seatWaitTimes.TryGetValue(slot, out var wait) || wait.guest != slot.CurrentGuest ||
+            slot.CurrentState == EGuestState.Empty || slot.CurrentState == EGuestState.Leaving) return false;
+        total = wait.duration;
+        remaining = Mathf.Max(0, total - (barClock.ElapsedSec - wait.start));
+        return true;
+    }
 
     /// <summary>자리별 다음 잡담(idle) 시각. BarOperationClock 기준이라 제조 중에는 차례가 오지 않는다.</summary>
     readonly Dictionary<GuestSlot, float> nextIdleChatterSecBySlot = new();
@@ -609,6 +620,7 @@ public class GuestManager : MonoBehaviour
     /// </summary>
     public void StopPatienceTimer(GuestSlot slot)
     {
+        seatWaitTimes.Remove(slot);
         if (!patienceCtsBySlot.Remove(slot, out var cts)) return;
 
         cts.Cancel();
@@ -638,6 +650,7 @@ public class GuestManager : MonoBehaviour
     async UniTask WatchLeaveTimerAsync(GuestSlot slot, Guest guest, float totalSec, string urgeBark, string finalBark,
                                       string leaveBark, int reputationDelta, CancellationToken token)
     {
+        seatWaitTimes[slot] = (guest, barClock.ElapsedSec, totalSec);
         float yellowSec = totalSec * Config.WarnYellowRatio;
         float redSec = totalSec * Config.WarnRedRatio;
 
@@ -659,7 +672,9 @@ public class GuestManager : MonoBehaviour
         // 손님이 바로 사라지지 않고, leave 말풍선이 떠있는 동안(leaveBarkDurationSec)은 자리에 남아있다가 그 뒤에 퇴장한다.
         await UniTask.Delay(TimeSpan.FromSeconds(leaveBarkDurationSec), cancellationToken: this.GetCancellationTokenOnDestroy());
 
-        ReleaseGuest(slot);
+        if (slot.CurrentGuest != guest) return;
+        await slot.FadeOutAsync(this.GetCancellationTokenOnDestroy());
+        if (slot.CurrentGuest == guest) ReleaseGuest(slot);
     }
 
     /// <summary>
@@ -990,7 +1005,11 @@ public class GuestManager : MonoBehaviour
         }
         ShowBark(slot, result.OrderMatch && ServeJudge.IsSatisfied(result.FinalGrade) ? "bye_good" : "bye_bad",
             serveBarkGapSec);
-        if (await WaitWhileSeatedAsync(slot, guest, serveBarkGapSec, token)) ReleaseGuest(slot);
+        if (await WaitWhileSeatedAsync(slot, guest, serveBarkGapSec, token))
+        {
+            await slot.FadeOutAsync(token);
+            if (slot.CurrentGuest == guest) ReleaseGuest(slot);
+        }
     }
 
     /// <summary>

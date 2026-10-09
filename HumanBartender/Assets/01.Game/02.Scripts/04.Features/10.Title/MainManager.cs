@@ -14,7 +14,7 @@ public class MainManager : MonoBehaviour
     bool continueOpen;
     string startError;
 
-    /// <summary>Day 0의 Home에서 새 게임을 시작한다.</summary>
+    /// <summary>게임 씬에 입장한다. 인트로와 튜토리얼은 Play 씬이 진행한다.</summary>
     public void TempStart()
     {
         // 타이틀의 새 게임 버튼은 전체 화면을 덮는다. IMGUI 이어하기 영역의 클릭은 새 게임으로 보내지 않는다.
@@ -74,6 +74,7 @@ public class MainManager : MonoBehaviour
 
     void OnGUI()
     {
+        if (starting) return;
         if (GUI.Button(ContinueButton, continueOpen ? "이어하기 닫기" : "이어하기"))
             continueOpen = !continueOpen;
         if (continueOpen)

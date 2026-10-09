@@ -124,6 +124,7 @@ public sealed class GameProgressionService : IGameProgressionService
         EGameFlow previousFlow = gameState.GameFlow;
         bool previousReturned = homeReturned;
         bool initialized = false;
+        UniTaskCompletionSource<GameProgressionResult> entry = null;
         GameProgressionResult outcome = default;
         try
         {
@@ -133,15 +134,15 @@ public sealed class GameProgressionService : IGameProgressionService
                     "Day 0 데이터가 없습니다.");
 
             gameState.CurrentDay = 0;
-            gameState.GameFlow = EGameFlow.CommuteIn;
+            gameState.GameFlow = EGameFlow.Bar;
             initialized = true;
             initializeRuntime();
             homeReturned = false;
-            hasBarEntry = false;
-            barEntryCompletion = null;
+            hasBarEntry = true;
+            barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
 
-            // Day 0 starts at home; the optional dream is attempted by OutsideStoryFlow.
-            SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Home",
+            // The title owns the intro; its completion enters the Day 0 bar directly.
+            SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Play",
                 cancellationToken: cancellationToken);
             if (!request.Accepted)
             {
@@ -156,7 +157,7 @@ public sealed class GameProgressionService : IGameProgressionService
 
             SceneTransitionResult result = await request.Completion;
             if (!result.Succeeded && !result.SceneActivated &&
-                SceneManager.GetActiveScene().name != "Home")
+                SceneManager.GetActiveScene().name != "Play")
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -167,7 +168,7 @@ public sealed class GameProgressionService : IGameProgressionService
         }
         catch (OperationCanceledException error)
         {
-            if (initialized && SceneManager.GetActiveScene().name != "Home")
+            if (initialized && SceneManager.GetActiveScene().name != "Play")
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -178,7 +179,7 @@ public sealed class GameProgressionService : IGameProgressionService
         }
         catch (Exception error)
         {
-            if (initialized && SceneManager.GetActiveScene().name != "Home")
+            if (initialized && SceneManager.GetActiveScene().name != "Play")
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -190,6 +191,7 @@ public sealed class GameProgressionService : IGameProgressionService
         finally
         {
             isRunning = false;
+            entry?.TrySetResult(outcome);
         }
     }
 

@@ -44,6 +44,7 @@ public class SlotCharacterPart
     [System.NonSerialized] public CancellationTokenSource cts;
     [System.NonSerialized] public UniTaskCompletionSource loadFinished;
     [System.NonSerialized] public int requestVersion;
+    [System.NonSerialized] public CharacterFade fade;
 }
 
 
@@ -83,6 +84,7 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
             if (!_slotMap.TryAdd(slot.type, slot)) throw new InvalidOperationException("Duplicate character slot: " + slot.type);
             foreach (var part in slot.parts)
                 part.Initialize();
+            slot.fade = CharacterFade.ForRig(slot);
         }
     }
 
@@ -361,6 +363,7 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
 
         slotData.requestVersion++;
         slotData.cts?.Cancel();
+        slotData.fade?.SetOpacity(1);
         slotData.slotCharacterName = "";
         slotData.expression = "";
 
@@ -400,41 +403,28 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
         return false;
     }
 
-    /// <summary>지정 슬롯의 모든 파츠를 동시에 페이드 인 시킨다.</summary>
-    public async UniTask FadeInAsync(ESlotType slot, CancellationToken token)
+    public string GetSlotCharacterId(ESlotType slot) =>
+        _slotMap != null && _slotMap.TryGetValue(slot, out var data) ? data.slotCharacterName : null;
+
+    public void SetCharacterOpacity(ESlotType slot, float opacity)
     {
-        if (!_slotMap.TryGetValue(slot, out var slotData)) //Slot 존재 여부
-        {
-            Logger.LogWarning($"[DialogueCharacterManager] Slot '{slot}' not found");
-            return;
-        }
-
-        var tasks = new UniTask[slotData.parts.Length];
-        
-        for (int i = 0; i < slotData.parts.Length; i++)
-            tasks[i] = slotData.parts[i].FadeIn(token);
-
-        await UniTask.WhenAll(tasks);
-    }
-    /// <summary>지정 슬롯의 모든 파츠를 동시에 페이드 아웃 시킨다.</summary>
-    public async UniTask FadeOutAsync(ESlotType slot, CancellationToken token)
-    {
-        if (!_slotMap.TryGetValue(slot, out var slotData)) //Slot 존재 여부
-        {
-            Logger.LogWarning($"[DialogueCharacterManager] Slot '{slot}' not found");
-            return;
-        }
-
-        var tasks = new UniTask[slotData.parts.Length];
-
-        for (int i = 0; i < slotData.parts.Length; i++)
-            tasks[i] = slotData.parts[i].FadeOut(token);
-
-        await UniTask.WhenAll(tasks);
+        if (_slotMap.TryGetValue(slot, out var data))
+            (data.fade ??= CharacterFade.ForRig(data)).SetOpacity(opacity);
     }
 
+    public UniTask FadeInAsync(ESlotType slot, CancellationToken token)
+    {
+        if (!_slotMap.TryGetValue(slot, out var data)) return UniTask.CompletedTask;
+        var fade = data.fade ??= CharacterFade.ForRig(data);
+        fade.SetOpacity(0);
+        return fade.ToAsync(1, token);
+    }
 
-
+    public UniTask FadeOutAsync(ESlotType slot, CancellationToken token)
+    {
+        if (!_slotMap.TryGetValue(slot, out var data)) return UniTask.CompletedTask;
+        return (data.fade ??= CharacterFade.ForRig(data)).ToAsync(0, token);
+    }
 
     /// <summary>현재 사용 중인 핸들 스택을 remove 스택으로 옮긴다. 새 리소스 로드 중 이전 리소스를 유지하기 위함.</summary>
     private void MoveCurrentHandlesToRemove(SlotCharacterPart slot)
