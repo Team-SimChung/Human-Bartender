@@ -40,7 +40,13 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     [Inject] IConditionUtil conditions;
 
-    public async UniTask RunAsync(CancellationToken cancellationToken = default)
+    public UniTask RunAsync(CancellationToken cancellationToken = default) => RunPhaseAsync(ENewScenePhase.Bar, cancellationToken);
+
+    public UniTask RunOpeningAsync(CancellationToken cancellationToken = default) =>
+        GameStateManager.Instance.CurrentDay >= 1 && GameStateManager.Instance.CurrentDay <= 3
+            ? RunPhaseAsync(ENewScenePhase.BarOpen, cancellationToken) : UniTask.CompletedTask;
+
+    async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken)
     {
         int day = GameStateManager.Instance.CurrentDay;
 
@@ -81,7 +87,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         StoryExecutionResult result;
         try
         {
-            result = await runner.RunAsync(script, linked.Token);
+            result = await runner.RunAsync(script, linked.Token, phase);
         }
         finally
         {

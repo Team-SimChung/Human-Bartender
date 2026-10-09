@@ -23,23 +23,23 @@ public class StorySceneCursor
     /// <summary>남은 묶음이 없으면 true.</summary>
     public bool IsDone => nextGroup >= groups.Count;
 
-    /// <summary>자동 실행 대상 씬이 하나도 없는 날인지. 그런 날은 2부를 열지 않는다(Day 3).</summary>
+    /// <summary>선택한 실행 단계에 자동 실행 대상 씬이 있는지 확인한다.</summary>
     public bool IsEmpty => groups.Count == 0;
 
-    public StorySceneCursor(NewDayScriptBase script, IConditionUtil conditions)
+    public StorySceneCursor(NewDayScriptBase script, IConditionUtil conditions, ENewScenePhase phase = ENewScenePhase.Bar)
     {
         this.conditions = conditions;
 
-        BuildGroups(script);
+        BuildGroups(script, phase);
     }
 
     /// <summary>
-    /// phase가 bar이고 자동으로 시작하는 씬만 모아 seq로 묶는다.
+    /// 지정한 phase에서 자동으로 시작하는 씬만 모아 seq로 묶는다.
     ///
     /// 같은 파일에 있어도 카메오·수동·상호작용 씬은 넣지 않는다 — 그것들은 전용 이벤트나 goto로 불린다.
-    /// bar_open(개점 대화)도 2부 본편이 아니다.
+    /// 개점 전에는 bar_open을, 본편에서는 bar를 지정한다.
     /// </summary>
-    void BuildGroups(NewDayScriptBase script)
+    void BuildGroups(NewDayScriptBase script, ENewScenePhase phase)
     {
         if (script?.Scenes == null) return;
 
@@ -47,7 +47,7 @@ public class StorySceneCursor
 
         foreach (var scene in script.Scenes)
         {
-            if (scene.Phase != ENewScenePhase.Bar) continue;
+            if (scene.Phase != phase) continue;
             if (scene.Trigger != ENewSceneTrigger.Auto) continue;
 
             if (!bySeq.TryGetValue(scene.Seq, out var list))

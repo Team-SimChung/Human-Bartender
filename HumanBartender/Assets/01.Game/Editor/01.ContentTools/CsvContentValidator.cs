@@ -35,11 +35,13 @@ public static class CsvContentValidator
         catalog.Read<Dictionary<string, NewTextTagData>>("text_tags");
         catalog.Read<Dictionary<string, LocalizedText>>("ui_strings");
         catalog.Read<NewStreetData>("script/street");
+        catalog.Read<NewStreetData>("script/home");
+        catalog.Read<NewDayScriptBase>("script/cutscene");
         catalog.Read<NewDayScriptBase>("script/bar/day0");
         catalog.Read<NewDayScriptBase>("script/bar/day1");
         catalog.Read<NewDayScriptBase>("script/bar/day2");
         catalog.Read<NewDayScriptBase>("script/bar/day3");
         catalog.Read<NewDayScriptBase>("script/bar/day99");
-        Debug.Log($"[CSV] {catalog.SourceIds.Count()}개 데이터 묶음 구조와 로더 타입 30개를 검증했습니다.");
+        Debug.Log($"[CSV] {catalog.SourceIds.Count()}개 데이터 묶음 구조와 로더 타입 32개를 검증했습니다.");
     }
 }

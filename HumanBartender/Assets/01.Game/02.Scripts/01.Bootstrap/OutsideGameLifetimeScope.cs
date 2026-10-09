@@ -13,6 +13,8 @@ public class OutsideGameLifetimeScope : LifetimeScope
         .As<ICameraControlNew>();
 
         builder.RegisterComponentInHierarchy<InteractiveEntityManager>();
+        builder.RegisterComponentInHierarchy<DialogueRunner>();
+        builder.RegisterComponent(gameObject.AddComponent<OutsideStoryFlow>());
         builder.RegisterComponentInHierarchy<UIDialogueTextView>();
         builder.RegisterComponentInHierarchy<OustideTimelineManager>()
             .As<IOutsideTimeliner>();

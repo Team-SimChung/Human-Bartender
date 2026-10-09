@@ -124,7 +124,6 @@ public sealed class GameProgressionService : IGameProgressionService
         EGameFlow previousFlow = gameState.GameFlow;
         bool previousReturned = homeReturned;
         bool initialized = false;
-        UniTaskCompletionSource<GameProgressionResult> entry = null;
         GameProgressionResult outcome = default;
         try
         {
@@ -134,16 +133,15 @@ public sealed class GameProgressionService : IGameProgressionService
                     "Day 0 데이터가 없습니다.");
 
             gameState.CurrentDay = 0;
-            gameState.GameFlow = EGameFlow.Bar;
+            gameState.GameFlow = EGameFlow.CommuteIn;
             initialized = true;
             initializeRuntime();
             homeReturned = false;
-            hasBarEntry = true;
-            barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
+            hasBarEntry = false;
+            barEntryCompletion = null;
 
-            // 첫 새 게임은 Day 0의 2부 Play로 직접 들어간다. Play.Start는 이 작업의
-            // 최종 결과를 기다리므로 페이드 도중 국면을 시작하지 않는다.
-            SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Play",
+            // Day 0 starts at home; the optional dream is attempted by OutsideStoryFlow.
+            SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Home",
                 cancellationToken: cancellationToken);
             if (!request.Accepted)
             {
@@ -158,7 +156,7 @@ public sealed class GameProgressionService : IGameProgressionService
 
             SceneTransitionResult result = await request.Completion;
             if (!result.Succeeded && !result.SceneActivated &&
-                SceneManager.GetActiveScene().name != "Play")
+                SceneManager.GetActiveScene().name != "Home")
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -169,7 +167,7 @@ public sealed class GameProgressionService : IGameProgressionService
         }
         catch (OperationCanceledException error)
         {
-            if (initialized && SceneManager.GetActiveScene().name != "Play")
+            if (initialized && SceneManager.GetActiveScene().name != "Home")
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -180,7 +178,7 @@ public sealed class GameProgressionService : IGameProgressionService
         }
         catch (Exception error)
         {
-            if (initialized && SceneManager.GetActiveScene().name != "Play")
+            if (initialized && SceneManager.GetActiveScene().name != "Home")
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -192,7 +190,6 @@ public sealed class GameProgressionService : IGameProgressionService
         finally
         {
             isRunning = false;
-            entry?.TrySetResult(outcome);
         }
     }
 
@@ -283,6 +280,9 @@ public sealed class GameProgressionService : IGameProgressionService
         switch (destination)
         {
             case GameProgressionDestination.Bar:
+                if (gameState.CurrentDay == 3 && !NewDataLoadManager.HasJohnnyIngredients)
+                    return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
+                        "올드 패션드 재료가 필요합니다. 시BAR에서 와일드 독과 비터스를 구매하고, 귀가 후 이야기를 확인하세요."));
                 return MoveAsync("OutSide", "Play", EGameFlow.CommuteIn, EGameFlow.Bar, cancellationToken);
             case GameProgressionDestination.Home:
                 return MoveAsync("OutSide", "Home", EGameFlow.CommuteOut, EGameFlow.CommuteOut,
@@ -386,6 +386,11 @@ public sealed class GameProgressionService : IGameProgressionService
         try
         {
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
+            if (previousDay == 3)
+            {
+                var ending = sceneTransitions.RequestLoadScene("TempEnding", cancellationToken: cancellationToken);
+                return ConvertSceneResult(await ending.Completion);
+            }
             int nextDay = previousDay + 1;
             if (!NewDataLoadManager.TryGetDayInfo(nextDay, out NewDayInfoData next))
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,

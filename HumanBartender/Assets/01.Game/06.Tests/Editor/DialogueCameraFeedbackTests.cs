@@ -207,7 +207,7 @@ public sealed class DialogueCameraFeedbackTests
         Assert.That(Sample(10.17f, Vector3.one * 4).Lens.OrthographicSize, Is.EqualTo(3.6f));
         impulse.PlayVerticalPulse();
         impulse.enabled = false;
-        impulse.SendMessage("OnDisable"); // EditMode does not dispatch runtime-only MonoBehaviour callbacks.
+        typeof(VerticalCameraImpulse).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(impulse, null); // Invoke directly in EditMode, where disabled behaviours reject SendMessage.
         impulse.enabled = true;
         Assert.That(Sample(10.22f, Vector3.one * 5).Lens.OrthographicSize, Is.EqualTo(3.6f));
     }

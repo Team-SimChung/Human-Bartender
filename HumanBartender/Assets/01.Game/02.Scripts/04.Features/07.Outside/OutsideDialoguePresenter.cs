@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 실외(길거리 등) 씬에서 사용하는 IDialoguePresenter 구현체.
@@ -27,7 +28,15 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter
     /// <summary>아웃사이드 전용 선택지 UI 표시</summary>
     public void ShowOutsideChoices(NewStreetOptionData[] options, Action<NewStreetOptionData> onSelected)
     {
-        choiceManager.ShowOutsideChoice(options, onSelected);
+        var texts = new List<string>();
+        var selectable = new List<bool>();
+        foreach (var option in options)
+        {
+            bool allowed = option.Selectable ?? true;
+            texts.Add(allowed ? option.Text?.Ko : option.LockReason?.Ko ?? option.Text?.Ko);
+            selectable.Add(allowed);
+        }
+        choiceManager.ShowChoice(texts, selectable, index => onSelected(options[index]));
     }
 
     /// <summary>Step 하나의 대사를 타이핑 효과로 표시한다.</summary>
@@ -38,10 +47,17 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter
 
         await typer.StartType(new TypingData(
             text,
-            actor,
+            ResolveName(actor),
             Vector2.zero,
             Color.white,
             actor == PLAYER_ID), token: token);
+    }
+
+    static string ResolveName(string id)
+    {
+        foreach (var actor in NewDataLoadManager.StoryCharacters ?? Array.Empty<NewCharacterData>())
+            if (actor.Id == id) return actor.Name.Ko;
+        return id;
     }
 
     public void SkipTyping()

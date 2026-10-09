@@ -6,6 +6,7 @@ CSV schema files describe structure and types; content values come from the tabl
 """
 import argparse
 import csv
+import json
 import math
 from pathlib import Path
 import re
@@ -80,7 +81,7 @@ def same_json(a, b):
     return a == b
 
 
-def read_xlsx(path, sheets, header_row):
+def read_xlsx(path, sheets, header_row, appended_columns=None):
     result = {}
     with zipfile.ZipFile(path) as z:
         strings = []
@@ -137,7 +138,12 @@ def read_xlsx(path, sheets, header_row):
                 if rn == header_row:
                     header = [cells.get(i) for i in range(len(columns))]
                     if header != columns:
-                        raise ValueError(f'{name}: {header_row}행 헤더가 바뀌었습니다. 원래 열 이름과 순서를 유지하세요.')
+                        present = len(header)
+                        while present and header[present - 1] is None:
+                            present -= 1
+                        allowed = set((appended_columns or {}).get(name, []))
+                        if header[:present] != columns[:present] or not set(columns[present:]) <= allowed:
+                            raise ValueError(f'{name}: {header_row}행 헤더가 바뀌었습니다. 원래 열 이름과 순서를 유지하세요.')
                     continue
                 row = {c: cells.get(i) for i, c in enumerate(columns)}
                 if any(v not in (None, '') for v in row.values()):
@@ -331,12 +337,29 @@ def main():
     parser.add_argument('--validate-only', action='store_true')
     args = parser.parse_args()
     schema_folder = (args.input if args.source == 'csv' else HERE) / 'system'
+    owned = None
+    ownership_file = HERE / 'csv_owned_datasets.json'
+    if args.source == 'xlsx' and ownership_file.exists():
+        owned = json.loads(ownership_file.read_text(encoding='utf-8'))
+        csv_folder = (HERE / owned['csv_folder']).resolve()
+        schema_folder = csv_folder / 'system'
     manifest = load_manifest(schema_folder)
     if args.source == 'xlsx':
         tables = {}
         for book, filename in manifest['books'].items():
             specs = {n: s['columns'] for n, s in manifest['tables'].items() if s['book'] == book}
-            tables.update(read_xlsx(args.input / filename, specs, manifest['header_row']))
+            tables.update(read_xlsx(args.input / filename, specs, manifest['header_row'],
+                                    owned.get('appended_columns') if owned else None))
+        if owned:
+            current = read_csv_tables(csv_folder, manifest)
+            protected = set(owned['datasets'])
+            unknown = protected - manifest['documents'].keys()
+            if unknown:
+                raise ValueError('CSV 정본으로 지정한 데이터가 없습니다: ' + ', '.join(sorted(unknown)))
+            for name, rows in tables.items():
+                tables[name] = [r for r in rows if r.get('dataset_id') not in protected]
+                tables[name].extend(r for r in current[name] if r.get('dataset_id') in protected)
+            print('CSV 정본 유지(엑셀 값으로 덮어쓰지 않음): ' + ', '.join(owned['datasets']))
     else:
         tables = read_csv_tables(args.input, manifest)
     documents = assemble(manifest, tables)

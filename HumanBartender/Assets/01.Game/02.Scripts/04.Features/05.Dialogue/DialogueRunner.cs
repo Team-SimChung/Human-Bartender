@@ -12,6 +12,7 @@ public enum DialogueState { Idle, Typing, WaitingForInput, WaitingForChoice }
 public class DialogueRunner : MonoBehaviour
 {
     [Inject] IConditionUtil conditionUtil;
+    [Inject] ICutScenePlayer cutscenes;
     [SerializeField] NewStreetDataSO StreetDataSO;
     IDialoguePresenter presenter;
     Execution active;
@@ -121,14 +122,20 @@ public class DialogueRunner : MonoBehaviour
             switch (step.Type?.ToLowerInvariant())
             {
                 case "say":
-                case "timeline": // Existing street Timeline dialogue markers use the dialogue presenter.
                     await SayAsync(step.Actor, Text(step.Text), step.Arg, step.Sync, run);
+                    break;
+                case "timeline":
+                    if (!string.IsNullOrEmpty(Text(step.Text)))
+                        await SayAsync(step.Actor, Text(step.Text), step.Arg, step.Sync, run);
+                    else await OptionalStoryCutscene.PlayAsync(cutscenes, step.Arg, token);
                     break;
                 case "effect":
                 case "set_state": break;
                 case "choice":
                     if (step.Options == null || step.Options.Length == 0) throw new InvalidOperationException("Street choice has no options.");
                     var choices = step.Options.OrderBy(o=>o.Seq).ToArray();
+                    for (int i=0; i<choices.Length; i++) choices[i].Selectable = run.Conditions.CheckRequired(choices[i].When);
+                    if (!choices.Any(o => o.Selectable == true)) throw new InvalidOperationException("Street choice has no selectable options.");
                     run.State = DialogueState.WaitingForChoice;
                     var picked = new UniTaskCompletionSource<NewStreetOptionData>();
                     run.Presenter.ShowOutsideChoices(choices, option =>
@@ -149,7 +156,8 @@ public class DialogueRunner : MonoBehaviour
                 case "goto":
                     if (string.IsNullOrEmpty(step.SceneId) || StreetDataSO == null || !StreetDataSO.TryGetSteps(step.SceneId, out var next))
                         throw new InvalidOperationException("Missing street goto scene: " + step.SceneId);
-                    if (!gotoPath.Add(step.SceneId)) throw new InvalidOperationException("Street goto cycle: " + step.SceneId);
+                    // Player-driven quiz retries may revisit a scene. Depth and visited-step limits remain bounded.
+                    gotoPath.Add(step.SceneId);
                     await ExecuteAsync(next,run,gotoPath,depth+1);
                     gotoPath.Remove(step.SceneId);
                     branch = true;

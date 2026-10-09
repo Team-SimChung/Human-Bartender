@@ -341,6 +341,19 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
         }
     }
 
+    /// <summary>Keep speaker/serving coordinates when this actor's portrait has not been supplied.</summary>
+    public void SetTextOnlyCharacter(string actor, ESlotType slot)
+    {
+        if (_slotMap == null) return;
+        if (slot == ESlotType.None)
+            foreach (var candidate in slotParts)
+                if (candidate.slotCharacterName == actor) { slot = candidate.type; break; }
+        if (!_slotMap.TryGetValue(slot, out var data)) return;
+        ResetCharacter(slot);
+        data.slotCharacterName = actor;
+        data.expression = "text_only";
+    }
+
     /// <summary>슬롯을 비우고(캐릭터명/표정 초기화, 파츠 비활성화) 해당 슬롯의 리소스 핸들을 모두 해제한다.</summary>
     public void ResetCharacter(ESlotType slot)
     {

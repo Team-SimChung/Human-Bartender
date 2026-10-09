@@ -1,6 +1,39 @@
-﻿context,id,seq,text.ko,text.en,when,lock_reason.ko,lock_reason.en,dataset_id,row_id,parent_id,parent_field,source_order,template_id
-qa_choice,ch_qa_street_choice_1,1,지금은 줄 간식이 없다고 말한다.,Say that you do not have a treat right now.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_1,step_qa_choice_choice_3,options,0,street_choices_format_01
-qa_choice,ch_qa_street_choice_2,2,가지고 있는 간식을 건넨다.,Give the treat you are carrying.,flag.qa_has_snack,먼저 테스트용 간식 보관함에서 간식을 챙겨야 합니다.,Pick up a treat from the test container first.,script/qa/street_day99,street_choices_qa_choice_2,step_qa_choice_choice_3,options,1,street_choices_format_02
-qa_choice,ch_qa_street_choice_3,3,그냥 지나간다.,Walk away without giving anything.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_3,step_qa_choice_choice_3,options,2,street_choices_format_01
-np_shiba_3,ch_st_shiba_1,1,"아뇨, 그냥 지나갈게요.","No, I'll just be on my way.",\N,\N,\N,script/street,street_choices_np_shiba_3_1,step_np_shiba_3_choice_4,options,0,street_choices_format_01
-np_shiba_3,ch_st_shiba_2,2,간식 좀 드릴까요?,Want a little treat?,flag.has_snack,줄 수 있는 간식이 없습니다.,You don't have a treat to give.,script/street,street_choices_np_shiba_3_2,step_np_shiba_3_choice_4,options,1,street_choices_format_02
+﻿context,id,seq,text.ko,text.en,when,lock_reason.ko,lock_reason.en,dataset_id,row_id,parent_id,parent_field,source_order,template_id,lock_reason
+qa_choice,ch_qa_street_choice_1,1,지금은 줄 간식이 없다고 말한다.,Say that you do not have a treat right now.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_1,step_qa_choice_choice_3,options,0,street_choices_format_01,\N
+qa_choice,ch_qa_street_choice_2,2,가지고 있는 간식을 건넨다.,Give the treat you are carrying.,flag.qa_has_snack,먼저 테스트용 간식 보관함에서 간식을 챙겨야 합니다.,Pick up a treat from the test container first.,script/qa/street_day99,street_choices_qa_choice_2,step_qa_choice_choice_3,options,1,street_choices_format_02,\N
+qa_choice,ch_qa_street_choice_3,3,그냥 지나간다.,Walk away without giving anything.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_3,step_qa_choice_choice_3,options,2,street_choices_format_01,\N
+,thug-pay,1,500원을 준다.,\N,money >= 500,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_0_steps_11_options_0,script_street_scenes_0_steps_11,options,0,migration_streetchoices_3ff208da7b,
+,thug-refuse,2,주지 않는다.,\N,\N,,,script/street,script_street_scenes_0_steps_11_options_1,script_street_scenes_0_steps_11,options,1,migration_streetchoices_e6f0544966,\N
+,pay-gang,1,네. (50원),\N,money >= 50,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_2_steps_1_options_0_result_steps_1_options_0,script_street_scenes_2_steps_1_options_0_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
+,cancel-gang,2,아니요.,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_0_result_steps_1_options_1,script_street_scenes_2_steps_1_options_0_result_steps_1,options,1,migration_streetchoices_e6f0544966,\N
+,info-gang,1,갱에 대해서,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_0,script_street_scenes_2_steps_1,options,0,migration_streetchoices_e6f0544966,\N
+,pay-coratech,1,네. (50원),\N,money >= 50,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_2_steps_1_options_1_result_steps_1_options_0,script_street_scenes_2_steps_1_options_1_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
+,cancel-coratech,2,아니요.,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_1_result_steps_1_options_1,script_street_scenes_2_steps_1_options_1_result_steps_1,options,1,migration_streetchoices_e6f0544966,\N
+,info-coratech,2,코라테크에 대해서,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_1,script_street_scenes_2_steps_1,options,1,migration_streetchoices_e6f0544966,\N
+,pay-chris,1,네. (50원),\N,money >= 50,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_2_steps_1_options_2_result_steps_1_options_0,script_street_scenes_2_steps_1_options_2_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
+,cancel-chris,2,아니요.,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_2_result_steps_1_options_1,script_street_scenes_2_steps_1_options_2_result_steps_1,options,1,migration_streetchoices_e6f0544966,\N
+,info-chris,3,크리스에 대해서,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_2,script_street_scenes_2_steps_1,options,2,migration_streetchoices_e6f0544966,\N
+,info-cancel,4,대화 그만하기,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_3,script_street_scenes_2_steps_1,options,3,migration_streetchoices_e6f0544966,\N
+,answer-wild_dog,1,옛날 방식의 칵테일,\N,money >= 600 && !flag.shiba_bought_wild_dog,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_9_steps_27_options_0,script_street_scenes_9_steps_27,options,0,migration_streetchoices_3ff208da7b,
+,wrong2-wild_dog,2,옛날 옛적 이야기,\N,\N,,,script/street,script_street_scenes_9_steps_27_options_1,script_street_scenes_9_steps_27,options,1,migration_streetchoices_e6f0544966,\N
+,wrong3-wild_dog,3,"뭘 봐, 시바.",\N,\N,,,script/street,script_street_scenes_9_steps_27_options_2,script_street_scenes_9_steps_27,options,2,migration_streetchoices_e6f0544966,\N
+,answer-wild_dog,1,옛날 방식의 칵테일,\N,money >= 600 && !flag.shiba_bought_wild_dog,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_10_steps_12_options_0,script_street_scenes_10_steps_12,options,0,migration_streetchoices_3ff208da7b,
+,wrong2-wild_dog,2,옛날 옛적 이야기,\N,\N,,,script/street,script_street_scenes_10_steps_12_options_1,script_street_scenes_10_steps_12,options,1,migration_streetchoices_e6f0544966,\N
+,wrong3-wild_dog,3,"뭘 봐, 시바.",\N,\N,,,script/street,script_street_scenes_10_steps_12_options_2,script_street_scenes_10_steps_12,options,2,migration_streetchoices_e6f0544966,\N
+,answer-bitters,1,옛날 방식의 칵테일,\N,money >= 300 && !flag.shiba_bought_bitters,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_12_steps_27_options_0,script_street_scenes_12_steps_27,options,0,migration_streetchoices_3ff208da7b,
+,wrong2-bitters,2,옛날 옛적 이야기,\N,\N,,,script/street,script_street_scenes_12_steps_27_options_1,script_street_scenes_12_steps_27,options,1,migration_streetchoices_e6f0544966,\N
+,wrong3-bitters,3,"뭘 봐, 시바.",\N,\N,,,script/street,script_street_scenes_12_steps_27_options_2,script_street_scenes_12_steps_27,options,2,migration_streetchoices_e6f0544966,\N
+,answer-bitters,1,옛날 방식의 칵테일,\N,money >= 300 && !flag.shiba_bought_bitters,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_13_steps_12_options_0,script_street_scenes_13_steps_12,options,0,migration_streetchoices_3ff208da7b,
+,wrong2-bitters,2,옛날 옛적 이야기,\N,\N,,,script/street,script_street_scenes_13_steps_12_options_1,script_street_scenes_13_steps_12,options,1,migration_streetchoices_e6f0544966,\N
+,wrong3-bitters,3,"뭘 봐, 시바.",\N,\N,,,script/street,script_street_scenes_13_steps_12_options_2,script_street_scenes_13_steps_12,options,2,migration_streetchoices_e6f0544966,\N
+,buy-wild_dog,1,와일드 독 · 600원,\N,money >= 600 && !flag.shiba_bought_wild_dog,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_14_steps_1_options_0,script_street_scenes_14_steps_1,options,0,migration_streetchoices_3ff208da7b,
+,buy-bitters,2,비터스 · 300원,\N,money >= 300 && !flag.shiba_bought_bitters,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_14_steps_1_options_1,script_street_scenes_14_steps_1,options,1,migration_streetchoices_3ff208da7b,
+,shop-no,3,구매하지 않는다.,\N,\N,,,script/street,script_street_scenes_14_steps_1_options_2,script_street_scenes_14_steps_1,options,2,migration_streetchoices_e6f0544966,\N
+,allow-yes,1,한다,\N,\N,,,script/street,script_street_scenes_15_steps_7_options_0,script_street_scenes_15_steps_7,options,0,migration_streetchoices_e6f0544966,\N
+,allow-no,2,안 한다,\N,\N,,,script/street,script_street_scenes_15_steps_7_options_1,script_street_scenes_15_steps_7,options,1,migration_streetchoices_e6f0544966,\N
+,shop-yes,1,한번 볼게요.,\N,\N,,,script/street,script_street_scenes_17_steps_1_options_0,script_street_scenes_17_steps_1,options,0,migration_streetchoices_e6f0544966,\N
+,shop-no-revisit,2,아니요.,\N,\N,,,script/street,script_street_scenes_17_steps_1_options_1,script_street_scenes_17_steps_1,options,1,migration_streetchoices_e6f0544966,\N
+,buy-bd,1,구매한다. · 300원,\N,money >= 300,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_18_steps_6_options_0,script_street_scenes_18_steps_6,options,0,migration_streetchoices_3ff208da7b,
+,leave-bd,2,구매하지 않는다.,\N,\N,,,script/street,script_street_scenes_18_steps_6_options_1,script_street_scenes_18_steps_6,options,1,migration_streetchoices_e6f0544966,\N
+,ch_st_shiba_1,1,"아뇨, 그냥 지나갈게요.","No, I'll just be on my way.",\N,,,script/street,script_street_scenes_23_steps_3_options_0,script_street_scenes_23_steps_3,options,0,migration_streetchoices_67d68004f8,\N
+,ch_st_shiba_2,2,간식 좀 드릴까요?,Want a little treat?,flag.has_snack,줄 수 있는 간식이 없습니다.,You don't have a treat to give.,script/street,script_street_scenes_23_steps_3_options_1,script_street_scenes_23_steps_3,options,1,migration_streetchoices_a3ec2a7476,

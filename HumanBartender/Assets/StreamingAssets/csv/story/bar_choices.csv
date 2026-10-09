@@ -1,6 +1,4 @@
 ﻿context,seq,text.ko,text.en,when,effects,goto,lock_reason.ko,lock_reason.en,dataset_id,row_id,parent_id,parent_field,source_order,template_id
-ch_d2_aili_lady,1,섹시한 레이디가 뭔가요?,What is a 'sexy lady'?,\N,\N,d2_aili_lady_q,\N,\N,script/bar/day1,bar_choices_ch_d2_aili_lady_1,choice_group_ch_d2_aili_lady,value,0,bar_choices_format_01
-ch_d2_aili_lady,2,주문받았습니다.,Order received.,\N,\N,\N,\N,\N,script/bar/day1,bar_choices_ch_d2_aili_lady_2,choice_group_ch_d2_aili_lady,value,1,bar_choices_format_02
 ch_t99_back,1,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_back_1,choice_group_ch_t99_back,value,0,bar_choices_format_01
 ch_t99_back,2,다시 보기 (읽음 스킵 확인),Replay (check read-skip),\N,\N,t99_dialogue,\N,\N,script/bar/day99,bar_choices_ch_t99_back_2,choice_group_ch_t99_back,value,1,bar_choices_format_01
 ch_t99_back2,1,분기 메뉴로,Back to branch menu,\N,\N,t99_branch_menu,\N,\N,script/bar/day99,bar_choices_ch_t99_back2_1,choice_group_ch_t99_back2,value,0,bar_choices_format_01
@@ -32,7 +30,5 @@ ch_t99_main,4,[테스트] 1부 시작 — 랜덤 손님 2팀 (개점 종료),[Te
 ch_t99_stage,1,좌석 등장·퇴장 (1↔2인 카메라 전환),Seat enter/exit (1↔2 guest camera),\N,\N,t99_seats,\N,\N,script/bar/day99,bar_choices_ch_t99_stage_1,choice_group_ch_t99_stage,value,0,bar_choices_format_01
 ch_t99_stage,2,fx · sfx,fx · sfx,\N,\N,t99_fxsfx,\N,\N,script/bar/day99,bar_choices_ch_t99_stage_2,choice_group_ch_t99_stage,value,1,bar_choices_format_01
 ch_t99_stage,3,메인 허브로,Back to main hub,\N,\N,t99_hub,\N,\N,script/bar/day99,bar_choices_ch_t99_stage_3,choice_group_ch_t99_stage,value,2,bar_choices_format_01
-ch_d1_home,1,지낼 만해요.,It's livable.,\N,affinity.chris += 2,\N,\N,\N,script/home,bar_choices_ch_d1_home_1,choice_group_ch_d1_home,value,0,bar_choices_format_05
-ch_d1_home,2,…아직 모르겠어요.,...I don't know yet.,\N,affinity.chris += 1,\N,\N,\N,script/home,bar_choices_ch_d1_home_2,choice_group_ch_d1_home,value,1,bar_choices_format_05
-ch_d3_home,1,만드는 건 재밌어요.,Making drinks is fun.,\N,affinity.chris += 2,\N,\N,\N,script/home,bar_choices_ch_d3_home_1,choice_group_ch_d3_home,value,0,bar_choices_format_05
-ch_d3_home,2,사람이… 어렵네요.,People are... difficult.,\N,affinity.chris += 2,\N,\N,\N,script/home,bar_choices_ch_d3_home_2,choice_group_ch_d3_home,value,1,bar_choices_format_05
+,1,다시 한 번 알려주실 수 있나요?,Could you explain it once more?,\N,flag.day0_skip_tutorial = false,\N,\N,\N,script/bar/day0,script_bar_day0_choices_0_0,script_bar_day0_choices_0,\N,0,migration_barchoices_3766af38a2
+,2,네. (튜토리얼 대사 스킵),Yes. (Skip tutorial dialogue),\N,flag.day0_skip_tutorial = true,\N,\N,\N,script/bar/day0,script_bar_day0_choices_0_1,script_bar_day0_choices_0,\N,1,migration_barchoices_3766af38a2

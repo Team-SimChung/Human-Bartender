@@ -72,7 +72,7 @@ CSV는 UTF-8 BOM과 표준 따옴표 규칙을 사용합니다.
 프로젝트 루트에서 편집한 엑셀을 게임에 반영하려면 다음 명령을 실행합니다.
 
 ```sh
-python3 02.ContentAuthoring/export_content.py --out Assets/StreamingAssets/csv
+python3 ContentAuthoring/export_content.py --out Assets/StreamingAssets/csv
 ```
 
 Unity 메뉴 **Tools → Data → Validate CSV Content**에서 데이터 구조와 로더 타입을 검사합니다.

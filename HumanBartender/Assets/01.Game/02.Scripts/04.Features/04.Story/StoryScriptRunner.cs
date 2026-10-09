@@ -59,6 +59,8 @@ public class StoryScriptRunner : MonoBehaviour
 
     /// <summary>대사를 넘기라는 입력을 기다리는 곳. 기다리는 중이 아니면 null이다.</summary>
     UniTaskCompletionSource advanceSignal;
+    public bool IsWaitingForAdvance => advanceSignal != null;
+    public string CurrentDialogueId { get; private set; }
 
     /// <summary>
     /// 지금 어느 자리에 누가 앉아 있는지. 명세가 2부 세션의 관리 대상으로 두는 값이라 여기서 든다
@@ -93,7 +95,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// </summary>
     public StoryExecutionResult LastResult { get; private set; }
 
-    public async UniTask<StoryExecutionResult> RunAsync(NewDayScriptBase dayScript, CancellationToken token)
+    public async UniTask<StoryExecutionResult> RunAsync(NewDayScriptBase dayScript, CancellationToken token, ENewScenePhase phase = ENewScenePhase.Bar)
     {
         if (IsRunning) return new StoryExecutionResult(StoryExecutionStatus.Failed, "Story is already running.");
         if (presenter == null || conditions == null)
@@ -104,7 +106,7 @@ public class StoryScriptRunner : MonoBehaviour
         try
         {
             token.ThrowIfCancellationRequested();
-            var cursor = new StorySceneCursor(script, conditions);
+            var cursor = new StorySceneCursor(script, conditions, phase);
             if (!cursor.IsEmpty)
             {
                 bool initialFramingDone = false;
@@ -131,6 +133,7 @@ public class StoryScriptRunner : MonoBehaviour
             SetCraftAuthorization(false);
             if (recipeScreen != null) recipeScreen.ForceClose();
             advanceSignal = null;
+            CurrentDialogueId = null;
             seatActors.Clear();
             var cleanupErrors = new List<string>();
             void Cleanup(Action action)
@@ -393,6 +396,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// <summary>대사 하나를 띄우고 플레이어가 넘길 때까지 기다린다. 그리는 일은 화면이 한다.</summary>
     async UniTask SayAsync(NewDialogueStepData step, CancellationToken token)
     {
+        CurrentDialogueId = step.DialogueId;
         string body = step.Text?.Ko;
 
         if (string.IsNullOrEmpty(body))
@@ -418,36 +422,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// </summary>
     async UniTask TimelineAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(step.Arg))
-        {
-            throw new InvalidOperationException($"[Story] timeline 스텝에 컷씬 id(arg)가 없습니다: {scene.Id}#{step.Seq}");
-        }
-
-        if (cutScenePlayer == null)
-        {
-            throw new InvalidOperationException($"[Story] 컷씬 재생기가 없어 '{step.Arg}'를 건너뜁니다: {scene.Id}#{step.Seq}");
-        }
-
-        Debug.Log($"[Story] 컷씬 — {step.Arg} ({scene.Id}#{step.Seq})");
-
-        token.ThrowIfCancellationRequested();
-
-        try
-        {
-            await cutScenePlayer.PlayCutScene(step.Arg, token: token);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"[Story] 컷씬 '{step.Arg}' 재생에 실패했습니다: {scene.Id}#{step.Seq}\n{e}");
-        }
-        finally
-        {
-            if (IsAlive(cutScenePlayer)) cutScenePlayer.ClearCutScene();
-        }
+        await OptionalStoryCutscene.PlayAsync(cutScenePlayer, step.Arg, token);
     }
 
     // ── 주문·제조·서빙 ──────────────────────────────────────────────────
@@ -465,7 +440,8 @@ public class StoryScriptRunner : MonoBehaviour
     async UniTask OrderAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
         SetCraftAuthorization(false);
-        if (!TryParseOrderedCocktail(step.Arg, out string cocktailId))
+        string cocktailId = null;
+        if (step.Arg != "free" && !TryParseOrderedCocktail(step.Arg, out cocktailId))
         {
             throw new InvalidOperationException($"[Story] 주문 칵테일을 읽지 못했습니다(arg=\"{step.Arg}\"): {scene.Id}#{step.Seq}");
         }
@@ -486,6 +462,19 @@ public class StoryScriptRunner : MonoBehaviour
             await WaitForAdvanceAsync(token);
         }
 
+        if (step.Arg == "free")
+        {
+            var recipes = new List<NewCocktailData>();
+            var options = new List<StoryChoiceOption>();
+            foreach (var drink in NewDataLoadManager.StoryCocktails ?? Array.Empty<NewCocktailData>())
+                if (drink.Status == ENewDataStatus.Confirmed && drink.UnlockDay <= scene.Day && conditions.CheckRequired(drink.UnlockWhen))
+                { recipes.Add(drink); options.Add(new StoryChoiceOption(drink.Name.Ko, true, null)); }
+            if (recipes.Count == 0) throw new InvalidOperationException("자유 주문에 사용할 수 있는 레시피가 없습니다.");
+            int picked = await presenter.ShowChoicesAsync(options, token);
+            if (picked < 0 || picked >= recipes.Count) throw new InvalidOperationException("자유 주문 레시피 선택이 유효하지 않습니다.");
+            cocktailId = recipes[picked].Id;
+        }
+
         if (!TryFindSeatOf(step.Actor, out ESlotType seat))
         {
             // 앉지 않은 인물은 잔을 받을 자리가 없다. 가운데 자리로 대신하지 않는다 —
@@ -499,7 +488,7 @@ public class StoryScriptRunner : MonoBehaviour
 
         if (currentOrder != null) throw new InvalidOperationException("Previous story order has not been served.");
         if (orderController == null) throw new InvalidOperationException("OrderRequestController 연결이 필요합니다.");
-        var details = new OrderDetails($"{scene.Id}#{step.Seq}", step.Actor, cocktailId);
+        var details = new OrderDetails($"{scene.Id}#{step.Seq}", step.Actor, cocktailId, paid: step.Payment != "none");
         var signal = new UniTaskCompletionSource<OrderResult>();
         orderResultSignal = signal;
         // 지역 신호를 캡처해 이전 주문의 늦은 콜백이 새 주문에 적용되지 않게 한다.
@@ -613,6 +602,7 @@ public class StoryScriptRunner : MonoBehaviour
         WarnIfSeatingInvalid();
 
         await presenter.EnterAsync(step.Actor, slot, token);
+        conditions.ApplyRequired($"flag.{step.Actor}_met = true");
 
         // 다음도 enter면 지금 화면을 잡지 않는다. 두 명으로 시작하는 씬이 1인 프레임을 한 번 거치면
         // 사람이 늘지도 않은 채 화면만 다가갔다 물러난다(§10.1.1 초기 진입).

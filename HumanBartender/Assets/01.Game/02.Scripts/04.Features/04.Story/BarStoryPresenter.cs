@@ -16,6 +16,7 @@ using VContainer;
 /// </summary>
 public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
 {
+    readonly HashSet<string> textOnlyActors = new();
     private sealed class ChoiceCompletionCallback
     {
         private readonly UniTaskCompletionSource<int> completion;
@@ -72,7 +73,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
         }
 
         if (!request.IsPlayer && !string.IsNullOrEmpty(request.Expression) && characterManager != null)
-            await characterManager.SetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
+            await TrySetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
 
         ResolveSpeaker(request.ActorId, out string displayName, out Color32 nameColor);
 
@@ -96,7 +97,21 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     {
         if (characterManager == null) return;
 
-        await characterManager.SetCharacterAsync(actorId, DefaultExpression, slot, token);
+        await TrySetCharacterAsync(actorId, DefaultExpression, slot, token);
+    }
+
+    async UniTask TrySetCharacterAsync(string actor, string expression, ESlotType slot, CancellationToken token)
+    {
+        if (textOnlyActors.Contains(actor))
+        { characterManager.SetTextOnlyCharacter(actor, slot); return; }
+        try { await characterManager.SetCharacterAsync(actor, expression, slot, token); }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+        catch (Exception error)
+        {
+            textOnlyActors.Add(actor);
+            characterManager.SetTextOnlyCharacter(actor, slot);
+            Debug.LogWarning($"[BarStory] {actor} 외형을 표시하지 못해 텍스트로 진행합니다: {error.Message}");
+        }
     }
 
     public void Exit(ESlotType slot)

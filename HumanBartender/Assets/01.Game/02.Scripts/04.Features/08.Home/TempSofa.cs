@@ -105,6 +105,9 @@ public class TempSofa : InteractiveEntity
     {
         try
         {
+            var story = FindFirstObjectByType<OutsideStoryFlow>();
+            if (story == null) throw new System.InvalidOperationException("집 스토리 실행기가 연결되지 않았습니다.");
+            await story.PlayNightAsync(this.GetCancellationTokenOnDestroy());
             GameProgressionResult result = await progression.SleepAsync(RefreshConditions,
                 this.GetCancellationTokenOnDestroy());
             if (result.Succeeded)
@@ -122,6 +125,12 @@ public class TempSofa : InteractiveEntity
                 Debug.LogWarning($"[Sleep] 취침 요청 거절: {result.Message}");
             else if (result.Outcome == GameProgressionOutcome.Failed)
                 Debug.LogError($"[Sleep] 취침 실패: {result.Message}");
+        }
+        catch (System.OperationCanceledException) { ClosePanel(false); }
+        catch (System.Exception error)
+        {
+            message = error.Message; panelOpen = true; isInteract = true;
+            Debug.LogException(error);
         }
         finally
         {

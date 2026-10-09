@@ -102,6 +102,12 @@ public class UIDialogueChoiceView : MonoBehaviour
             return;
         }
 
+        if (texts.Count > choicePanels.Count && choicePanels.Count > 1)
+        {
+            ShowChoicePage(texts, selectable, onSelected, 0);
+            return;
+        }
+
         // ResetPanel은 문구와 리스너만 지운다. interactable은 그대로 남아서, 여기서 회색으로 둔 칸이
         // 다음에 다른 경로(ShowChoice/ShowOutsideChoice)로 열릴 때까지 눌리지 않는 채로 남는다.
         for (int i = 0; i < choicePanels.Count; i++)
@@ -136,6 +142,24 @@ public class UIDialogueChoiceView : MonoBehaviour
         }
 
         choicesPanel.SetActive(true);
+    }
+
+    void ShowChoicePage(IReadOnlyList<string> texts, IReadOnlyList<bool> selectable, Action<int> onSelected, int page)
+    {
+        int size = choicePanels.Count - 1;
+        int pageCount = (texts.Count + size - 1) / size;
+        int start = page * size;
+        int count = Mathf.Min(size, texts.Count - start);
+        var labels = new List<string>();
+        var enabled = new List<bool>();
+        for (int i=0; i<count; i++) { labels.Add(texts[start+i]); enabled.Add(selectable[start+i]); }
+        labels.Add($"다음 선택지 ▶ ({(page + 1) % pageCount + 1}/{pageCount})");
+        enabled.Add(true);
+        ShowChoice(labels, enabled, picked =>
+        {
+            if (picked == count) ShowChoicePage(texts, selectable, onSelected, (page + 1) % pageCount);
+            else onSelected?.Invoke(start + picked);
+        });
     }
 
     /// <summary>선택지를 닫고 칸을 비운다.</summary>

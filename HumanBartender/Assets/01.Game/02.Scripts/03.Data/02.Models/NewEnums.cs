@@ -87,6 +87,7 @@ public enum ENewRecipeAction
     [EnumMember(Value = "squeeze")] Squeeze,
     [EnumMember(Value = "powder")] Powder,
     [EnumMember(Value = "fill_up")] FillUp,
+    [EnumMember(Value = "add")] Add,
 }
 
 /// <summary>
@@ -162,6 +163,7 @@ public enum ENewUnit
     [EnumMember(Value = "oz")] Oz,
     [EnumMember(Value = "tsp")] Tsp,
     [EnumMember(Value = "ml")] Ml,
+    [EnumMember(Value = "count")] Count,
 }
 
 /// <summary>선반 아이템의 종류(재료/잔/도구/가니시)를 나타내는 열거형.</summary>
@@ -186,6 +188,7 @@ public enum ENewIngredientCategory
     [EnumMember(Value = "mixer")] Mixer,
     [EnumMember(Value = "fruit")] Fruit,
     [EnumMember(Value = "powder")] Powder,
+    [EnumMember(Value = "sugar")] Sugar,
     [EnumMember(Value = "juice")] Juice,
     [EnumMember(Value = "liqueur")] Liqueur,
     [EnumMember(Value = "syrup")] Syrup,

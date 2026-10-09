@@ -14,7 +14,7 @@ public class MainManager : MonoBehaviour
     bool continueOpen;
     string startError;
 
-    /// <summary>Day 0의 2부 Play에서 새 게임을 시작한다.</summary>
+    /// <summary>Day 0의 Home에서 새 게임을 시작한다.</summary>
     public void TempStart()
     {
         // 타이틀의 새 게임 버튼은 전체 화면을 덮는다. IMGUI 이어하기 영역의 클릭은 새 게임으로 보내지 않는다.

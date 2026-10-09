@@ -235,6 +235,10 @@ public class PlayPhaseController : MonoBehaviour
             cancellationToken.ThrowIfCancellationRequested();
             settlement?.Init();
 
+            BeginPhase(EPlayPhase.Dialogue);
+            await storyFlow.RunOpeningAsync(cancellationToken);
+            EndCurrentPhase();
+
             if (SkipTycoonForTest)
             {
                 Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
@@ -251,6 +255,7 @@ public class PlayPhaseController : MonoBehaviour
             await RunPhaseAsync(storyFlow, cancellationToken);
             EndCurrentPhase();
 
+            NewDataLoadManager.MarkBarCompleted(GameStateManager.Instance.CurrentDay);
             departurePending = true;
             GameProgressionResult departure = await progression.CompleteBarAsync(cancellationToken);
             if (departure.Outcome == GameProgressionOutcome.Canceled)

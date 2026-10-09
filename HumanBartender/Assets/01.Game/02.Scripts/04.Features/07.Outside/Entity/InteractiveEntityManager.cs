@@ -26,6 +26,9 @@ public class InteractiveEntityManager : MonoBehaviour
     readonly Dictionary<string, SpotPoint> sceneSpots = new(StringComparer.Ordinal);
     readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
     readonly UniTaskCompletionSource<bool> readiness = new();
+    public DialogueRunner DialogueRunner => runner;
+    public OutsideDialoguePresenter DialoguePresenter => presenter;
+    public Player StoryPlayer => player != null ? player.GetComponent<Player>() : null;
     public bool IsReady { get; private set; }
     public string InitializationError { get; private set; }
     public bool IsSafeForSave => IsReady && (runner == null || !runner.IsRunning) &&
