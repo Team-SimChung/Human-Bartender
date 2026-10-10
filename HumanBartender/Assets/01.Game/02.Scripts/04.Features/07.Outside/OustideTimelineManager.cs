@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -8,17 +7,18 @@ using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using VContainer;
+using HumanBartender.CutsceneStudio;
 
-/// <summary>CSV 컷신 ID를 씬에 바인딩된 Timeline 또는 Addressables로 재생한다.</summary>
+/// <summary>CSV 컷씬 ID를 씬에 바인딩된 Timeline 또는 Addressables로 재생함.</summary>
 public class OustideTimelineManager : MonoBehaviour, IOutsideTimeliner
 {
-    [SerializeField] PlayableDirector director;
-    [SerializeField] CutsceneDialogueHandler handler;
-    [SerializeField] NewCutSceneDataSO cutsceneData;
-    [SerializeField] List<TimelineAsset> sceneTimelines = new();
-    [Inject] IConditionUtil conditions;
-    readonly TimelinePlayback playback = new();
-    CancellationTokenSource request;
+    [SerializeField] private PlayableDirector director;
+    [SerializeField] private CutsceneDialogueHandler handler;
+    [SerializeField] private NewCutSceneDataSO cutsceneData;
+    [SerializeField] private List<TimelineAsset> sceneTimelines = new();
+    [Inject] private IConditionUtil conditions;
+    private readonly TimelinePlayback playback = new();
+    private CancellationTokenSource request;
 
     public bool TryGetSceneTimeline(string resourceKey, out TimelineAsset asset)
     {
@@ -32,7 +32,7 @@ public class OustideTimelineManager : MonoBehaviour, IOutsideTimeliner
         return asset != null;
     }
 
-    void OnDisable() { request?.Cancel(); playback.Stop(); }
+    private void OnDisable() { request?.Cancel(); playback.Stop(); }
     public void PlayTimelineCutScene(string id) => PlayTimelineCutSceneAsync(id).Forget(Report);
     public void PlayTimelineCutScene(TimelineAsset asset)
     {
@@ -43,7 +43,7 @@ public class OustideTimelineManager : MonoBehaviour, IOutsideTimeliner
     public UniTask PlayTimelineCutSceneAsync(string id, CancellationToken token = default) =>
         PlayRequestAsync(id, null, token);
 
-    async UniTask PlayRequestAsync(string id, TimelineAsset boundAsset, CancellationToken token)
+    private async UniTask PlayRequestAsync(string id, TimelineAsset boundAsset, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if (request != null) throw new InvalidOperationException("An Outside cutscene is already running.");
@@ -52,15 +52,10 @@ public class OustideTimelineManager : MonoBehaviour, IOutsideTimeliner
         AsyncOperationHandle<TimelineAsset>? handle = null;
         try
         {
+            if (boundAsset == null && await StudioPlaybackService.TryPlayAsync(this, id, source.Token)) return;
             await NewDataLoadManager.WaitUntilLoadedAsync(source.Token);
             if (boundAsset != null)
-            {
-                var matches = (cutsceneData != null ? cutsceneData.cutSceneData : null)?
-                    .Where(c => c.Kind == ENewCutSceneKind.Timeline && c.ResourceKey == boundAsset.name).ToArray();
-                if (matches == null || matches.Length != 1)
-                    throw new InvalidOperationException("A directly bound Timeline must have one CSV ID: " + boundAsset.name);
-                id = matches[0].Id;
-            }
+                id = FindBoundTimelineId(boundAsset);
             if (cutsceneData == null || !cutsceneData.TryGet(id, out var data) || data.Kind != ENewCutSceneKind.Timeline)
                 throw new InvalidOperationException("Missing CSV Timeline: " + id);
             var asset = boundAsset;
@@ -79,18 +74,32 @@ public class OustideTimelineManager : MonoBehaviour, IOutsideTimeliner
         }
     }
 
-    async UniTask PlayAssetAsync(TimelineAsset asset, string dialogueId, CancellationToken token)
+    private string FindBoundTimelineId(TimelineAsset asset)
+    {
+        string id = null;
+        int count = 0;
+        if (cutsceneData != null && cutsceneData.cutSceneData != null)
+            foreach (var candidate in cutsceneData.cutSceneData)
+                if (candidate.Kind == ENewCutSceneKind.Timeline && candidate.ResourceKey == asset.name)
+                {
+                    id = candidate.Id;
+                    count++;
+                }
+        if (count != 1)
+            throw new InvalidOperationException("A directly bound Timeline must have one CSV ID: " + asset.name);
+        return id;
+    }
+
+    private async UniTask PlayAssetAsync(TimelineAsset asset, string dialogueId, CancellationToken token)
     {
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         if (handler != null) await handler.BeginTimelineAsync(dialogueId, conditions);
         try { await playback.PlayAsync(director, asset, source.Token); }
         finally { if (handler != null) await handler.StopAsync(); }
-        if (handler != null)
-        {
-            if (handler.LastError != null) throw new InvalidOperationException("Timeline dialogue failed.", handler.LastError);
-        }
+        if (handler != null && handler.LastError != null)
+            throw new InvalidOperationException("Timeline dialogue failed.", handler.LastError);
     }
 
     public void OnTriggerEnding() => SceneTransitionManager.Instance.LoadScene("TempEnding");
-    static void Report(Exception e) { if (e is not OperationCanceledException) Debug.LogException(e); }
+    private static void Report(Exception e) { if (e is not OperationCanceledException) Debug.LogException(e); }
 }
