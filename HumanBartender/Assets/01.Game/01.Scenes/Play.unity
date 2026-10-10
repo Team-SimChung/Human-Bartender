@@ -7308,8 +7308,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.9996989
-    height: 1
+    width: 1
+    height: 0.9991072
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -8143,7 +8143,7 @@ MonoBehaviour:
   storyOnlyObjects:
   - {fileID: 664356993}
   skipTycoonForTest: 0
-  testDay: -1
+  testDay: 99
 --- !u!1 &958751542
 GameObject:
   m_ObjectHideFlags: 0
@@ -15008,6 +15008,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1708350274}
   - component: {fileID: 1708350273}
+  - component: {fileID: 1708350275}
   m_Layer: 0
   m_Name: Background_01
   m_TagString: Untagged
@@ -15089,6 +15090,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 290966013}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1708350275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708350272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e26fca1398d4f9ea7a5b071fd858b37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelPerfectParallax
+  targetCamera: {fileID: 882009342}
+  pixelPerfectCamera: {fileID: 0}
+  fallbackPixelsPerUnit: 100
+  moveY: 0
+  layers:
+  - target: {fileID: 1708350274}
+    followRatio: 0.75
+  - target: {fileID: 2003524368}
+    followRatio: 0.5
+  - target: {fileID: 1151084065}
+    followRatio: 0
 --- !u!1 &1715343631
 GameObject:
   m_ObjectHideFlags: 0
