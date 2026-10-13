@@ -51,7 +51,7 @@ public sealed class CraftPrepStageHost : MonoBehaviour
 
     private void Show(CraftPreparation preparation)
     {
-        if (preparation == null) return;
+        if (preparation == null || !craftFlow.ShouldShowPreparation) return;
         if (stagePrefab == null || stageRoot == null || playerInput == null)
             throw new InvalidOperationException("[CraftPrep] Stage Prefab, Stage Root, Player Input을 연결해 주세요.");
         Hide();
