@@ -529,11 +529,11 @@ Transform:
   m_GameObject: {fileID: 86088166}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.03, y: 3.6, z: -1.79}
+  m_LocalPosition: {x: 0.03000021, y: 3.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 647756518}
+  m_Father: {fileID: 692369227}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &86088168
 SpriteRenderer:
@@ -3207,7 +3207,7 @@ Transform:
   m_GameObject: {fileID: 398070673}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15.069, y: 9.62, z: 0}
+  m_LocalPosition: {x: 0.97, y: -0.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5795,8 +5795,6 @@ Transform:
   m_Children:
   - {fileID: 11317596}
   - {fileID: 692369227}
-  - {fileID: 1135728411}
-  - {fileID: 86088167}
   - {fileID: 1319968554}
   m_Father: {fileID: 552836710}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5953,7 +5951,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -1.79}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1135728411}
+  - {fileID: 86088167}
   m_Father: {fileID: 647756518}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &692369228
@@ -7400,6 +7400,7 @@ GameObject:
   m_Component:
   - component: {fileID: 828715985}
   - component: {fileID: 828715986}
+  - component: {fileID: 828715987}
   m_Layer: 6
   m_Name: Sky
   m_TagString: Untagged
@@ -7481,6 +7482,33 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &828715987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828715984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e26fca1398d4f9ea7a5b071fd858b37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixelPerfectParallax
+  targetCamera: {fileID: 1305537444}
+  movementTarget: {fileID: 398070675}
+  pixelPerfectCamera: {fileID: 0}
+  fallbackPixelsPerUnit: 100
+  moveY: 0
+  teleportDistance: 1
+  layers:
+  - target: {fileID: 1268247935}
+    followRatio: 0.9
+  - target: {fileID: 1319968554}
+    followRatio: 0.2
+  - target: {fileID: 11317596}
+    followRatio: 0.5
+  - target: {fileID: 692369227}
+    followRatio: 0.05
 --- !u!1 &841146857
 GameObject:
   m_ObjectHideFlags: 0
@@ -11811,11 +11839,11 @@ Transform:
   m_GameObject: {fileID: 1135728410}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.795, y: 3.4, z: -1.79}
+  m_LocalPosition: {x: 1.7950001, y: 3.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 647756518}
+  m_Father: {fileID: 692369227}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1135728412
 SpriteRenderer:
@@ -12350,7 +12378,7 @@ Transform:
   m_GameObject: {fileID: 1178157929}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15.069, y: 10.32, z: -10}
+  m_LocalPosition: {x: 0.97, y: -0.09000003, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13816,7 +13844,7 @@ Camera:
     x: 0
     y: 0
     width: 1
-    height: 1
+    height: 0.9991072
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -13846,7 +13874,7 @@ Transform:
   m_GameObject: {fileID: 1305537442}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15.069, y: 10.32, z: -10}
+  m_LocalPosition: {x: 0.9700039, y: -0.084626205, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22863,6 +22891,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2126279182}
+  - component: {fileID: 2126279183}
   m_Layer: 0
   m_Name: OutsideControllers
   m_TagString: Untagged
@@ -22891,6 +22920,21 @@ Transform:
   - {fileID: 899888471}
   m_Father: {fileID: 1382784338}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2126279183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126279181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27c6e16cdbb84b4093452b7785c4bf10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideSceneTestBootstrap
+  enableTest: 1
+  testDay: 0
+  testPhase: 1
 --- !u!1 &2128901431
 GameObject:
   m_ObjectHideFlags: 0
