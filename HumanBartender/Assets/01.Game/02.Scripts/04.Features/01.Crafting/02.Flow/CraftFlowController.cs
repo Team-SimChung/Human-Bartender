@@ -13,6 +13,8 @@ public class CraftFlowController : MonoBehaviour
 {
     [Header("Scene")]
     [SerializeField] private GimmickRunner runner;
+    [Tooltip("제조 결과를 보여주고 버리기/제공하기를 선택하는 화면. 비우면 완성 잔을 바로 트레이에 알린다.")]
+    [SerializeField] private ServeScreen serveScreen;
 
     [Header("Data")]
     [SerializeField] private NewCocktailDataSO cocktailData;
@@ -53,6 +55,7 @@ public class CraftFlowController : MonoBehaviour
     public event Action<string> PreparationBlocked;
     public bool IsCraftFlowActive { get; private set; }
     public CraftedDrink PendingDrink { get; private set; }
+    public bool IsAwaitingServeDecision { get; private set; }
     public event Action<CraftedDrink> DrinkReady;
     /// <summary>재시도를 수락해 기존 잔을 폐기했을 때 표시 쪽에 알린다.</summary>
     public event Action<CraftedDrink> DrinkDiscarded;
@@ -78,6 +81,11 @@ public class CraftFlowController : MonoBehaviour
     void OnDisable()
     {
         CancelCurrentCraft();
+        if (IsAwaitingServeDecision)
+        {
+            TryDiscardPendingDrink(PendingDrink);
+            serveScreen?.Reset();
+        }
         SetCraftFlowActive(false);
     }
 
@@ -253,6 +261,8 @@ public class CraftFlowController : MonoBehaviour
             // 새 세션으로 제조 진입을 예약한 뒤 알린다. 표시 콜백이 새 제조를 중복 시작할 수 없다.
             retryDrink.Session.Discard();
             PendingDrink = null;
+            IsAwaitingServeDecision = false;
+            serveScreen?.Reset();
             Notify(DrinkDiscarded, retryDrink);
         }
         Notify(OnCraftAccepted);
@@ -426,7 +436,12 @@ public class CraftFlowController : MonoBehaviour
         {
             Notify<CraftSession, CraftJudgement>(OnCraftJudged, session, Judgement);
             PendingDrink = new CraftedDrink(session, Judgement, selected);
-            Notify(DrinkReady, PendingDrink);
+            IsAwaitingServeDecision = serveScreen != null;
+            if (!IsAwaitingServeDecision || !serveScreen.TryPlay(PendingDrink))
+            {
+                IsAwaitingServeDecision = false;
+                Notify(DrinkReady, PendingDrink);
+            }
             Notify(CraftCompleted, session, Judgement);
         }
         SetCraftFlowActive(false);
@@ -440,8 +455,40 @@ public class CraftFlowController : MonoBehaviour
 
     public bool ConsumeDrink(CraftedDrink drink)
     {
-        if (drink == null || !ReferenceEquals(PendingDrink, drink)) return false;
+        if (drink == null || IsAwaitingServeDecision || !ReferenceEquals(PendingDrink, drink)) return false;
         PendingDrink = null;
+        RefreshCraftAvailability();
+        return true;
+    }
+
+    /// <summary>결과 화면에서 제공하기를 선택한 현재 잔만 기존 트레이에 알린다.</summary>
+    public bool TryAcceptPendingDrink(CraftedDrink drink)
+    {
+        if (!IsAwaitingServeDecision || drink == null || !ReferenceEquals(PendingDrink, drink) ||
+            drink.Session.Phase != ECraftPhase.Completed || !drink.CraftGrade.HasValue)
+            return false;
+        IsAwaitingServeDecision = false;
+        Notify(DrinkReady, drink);
+        RefreshCraftAvailability();
+        return true;
+    }
+
+    /// <summary>현재 잔을 폐기한다. 재시도가 켜져 있으면 이전 선택을 복원해 첫 기믹부터 다시 실행한다.</summary>
+    public bool TryDiscardPendingDrink(CraftedDrink drink, bool retryGimmicks = false)
+    {
+        if (!IsAwaitingServeDecision || drink == null || !ReferenceEquals(PendingDrink, drink) ||
+            drink.Session.Phase != ECraftPhase.Completed)
+            return false;
+        if (retryGimmicks)
+        {
+            if (TryRetryGimmicks(drink, out string reason)) return true;
+            Debug.LogWarning($"[CraftFlow] {reason}");
+            return false;
+        }
+        IsAwaitingServeDecision = false;
+        drink.Session.Discard();
+        PendingDrink = null;
+        Notify(DrinkDiscarded, drink);
         RefreshCraftAvailability();
         return true;
     }

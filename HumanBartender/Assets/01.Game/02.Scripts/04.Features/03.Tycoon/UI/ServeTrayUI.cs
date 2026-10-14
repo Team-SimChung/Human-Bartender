@@ -47,7 +47,7 @@ public class ServeTrayUI : MonoBehaviour
         craftFlow.DrinkReady += AddDrink;
         craftFlow.DrinkDiscarded += RemoveDiscardedDrink;
         CraftedDrink pending = craftFlow.PendingDrink;
-        if (pending != null && !ContainsDrink(pending)) AddDrink(pending);
+        if (pending != null && !craftFlow.IsAwaitingServeDecision && !ContainsDrink(pending)) AddDrink(pending);
     }
 
     private void OnDisable()

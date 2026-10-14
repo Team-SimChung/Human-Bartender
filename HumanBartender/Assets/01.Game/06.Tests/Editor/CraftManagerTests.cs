@@ -348,6 +348,51 @@ public class CraftManagerTests
         Assert.AreEqual(0, discarded);
     }
 
+    [TestCase(false)]
+    [TestCase(true)]
+    public void ServeScreenDiscardUsesItsRetrySetting(bool retryOnDiscard)
+    {
+        var first = Prepare();
+        manager.StartGimmicksAsync().GetAwaiter().GetResult();
+        var drink = manager.PendingDrink;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        typeof(CraftFlowController).GetField("<IsAwaitingServeDecision>k__BackingField", flags)
+            .SetValue(manager, true);
+        var screen = owner.AddComponent<ServeScreen>();
+        typeof(ServeScreen).GetField("craftFlow", flags).SetValue(screen, manager);
+        typeof(ServeScreen).GetField("currentDrink", flags).SetValue(screen, drink);
+        typeof(ServeScreen).GetField("retryOnDiscard", flags).SetValue(screen, retryOnDiscard);
+        SetField("serveScreen", screen);
+        int discarded = 0;
+        manager.DrinkDiscarded += _ => discarded++;
+        if (retryOnDiscard) executor.Pending = new UniTaskCompletionSource<GimmickResult>();
+
+        screen.Discard();
+        screen.Discard();
+
+        Assert.AreEqual(ECraftPhase.Discarded, first.Phase);
+        Assert.AreEqual(1, discarded);
+        Assert.IsFalse(screen.IsShowing);
+        Assert.IsFalse(manager.IsAwaitingServeDecision);
+        Assert.IsNull(manager.PendingDrink);
+        Assert.AreEqual(retryOnDiscard ? 2 : 1, executor.BeginCount);
+        if (retryOnDiscard)
+        {
+            Assert.AreNotSame(first, manager.Current);
+            Assert.AreEqual(ECraftPhase.Playing, manager.Current.Phase);
+            Assert.AreEqual(first.Actual.GlassId, manager.Current.Actual.GlassId);
+            CollectionAssert.AreEqual(first.Actual.IngredientIds, manager.Current.Actual.IngredientIds);
+            Assert.IsFalse(manager.ShouldShowPreparation);
+            manager.CancelCurrentCraft();
+            executor.Pending.TrySetCanceled();
+        }
+        else
+        {
+            Assert.AreSame(first, manager.Current);
+            Assert.IsFalse(manager.IsBusy);
+        }
+    }
+
     [Test]
     public void GimmickRetryDuringFinishIsRejectedWithoutDiscardingTheDrink()
     {
