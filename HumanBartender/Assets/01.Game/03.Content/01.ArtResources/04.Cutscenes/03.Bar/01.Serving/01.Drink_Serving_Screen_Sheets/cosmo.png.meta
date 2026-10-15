@@ -127,7 +127,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -165,7 +165,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -186,6 +186,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -193,12 +206,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_0
       rect:
         serializedVersion: 2
-        x: 119
-        y: 2951
-        width: 155
-        height: 235
+        x: 0
+        y: 2655
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -215,12 +228,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_1
       rect:
         serializedVersion: 2
-        x: 490
-        y: 2896
-        width: 183
-        height: 283
+        x: 376
+        y: 2655
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -237,12 +250,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_2
       rect:
         serializedVersion: 2
-        x: 861
-        y: 2867
-        width: 253
-        height: 318
+        x: 752
+        y: 2655
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -259,12 +272,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_3
       rect:
         serializedVersion: 2
-        x: 1179
-        y: 2842
-        width: 314
-        height: 344
+        x: 1128
+        y: 2655
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -281,12 +294,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_4
       rect:
         serializedVersion: 2
-        x: 1550
-        y: 2822
-        width: 318
-        height: 364
+        x: 1504
+        y: 2655
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -303,12 +316,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_5
       rect:
         serializedVersion: 2
-        x: 1847
-        y: 3146
-        width: 23
-        height: 40
+        x: 0
+        y: 2124
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -325,12 +338,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_6
       rect:
         serializedVersion: 2
-        x: 41
-        y: 2272
-        width: 375
-        height: 383
+        x: 376
+        y: 2124
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -347,12 +360,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_7
       rect:
         serializedVersion: 2
-        x: 468
-        y: 2256
-        width: 320
-        height: 399
+        x: 752
+        y: 2124
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -369,12 +382,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_8
       rect:
         serializedVersion: 2
-        x: 841
-        y: 2242
-        width: 319
-        height: 413
+        x: 1128
+        y: 2124
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -391,12 +404,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_9
       rect:
         serializedVersion: 2
-        x: 1214
-        y: 2228
-        width: 319
-        height: 427
+        x: 1504
+        y: 2124
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -413,12 +426,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_10
       rect:
         serializedVersion: 2
-        x: 1588
-        y: 2216
-        width: 286
-        height: 438
+        x: 0
+        y: 1593
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -435,12 +448,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_11
       rect:
         serializedVersion: 2
-        x: 23
-        y: 1675
+        x: 376
+        y: 1593
         width: 376
-        height: 442
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -457,12 +470,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_12
       rect:
         serializedVersion: 2
-        x: 455
-        y: 1664
-        width: 293
-        height: 447
+        x: 752
+        y: 1593
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -479,12 +492,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_13
       rect:
         serializedVersion: 2
-        x: 829
-        y: 1656
-        width: 317
-        height: 451
+        x: 1128
+        y: 1593
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -501,12 +514,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_14
       rect:
         serializedVersion: 2
-        x: 1203
-        y: 1648
-        width: 317
-        height: 454
+        x: 1504
+        y: 1593
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -523,12 +536,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_15
       rect:
         serializedVersion: 2
-        x: 1577
-        y: 1640
-        width: 300
-        height: 458
+        x: 0
+        y: 1062
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -545,12 +558,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_16
       rect:
         serializedVersion: 2
-        x: 11
-        y: 1103
-        width: 377
-        height: 461
+        x: 376
+        y: 1062
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -567,12 +580,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_17
       rect:
         serializedVersion: 2
-        x: 446
-        y: 1097
-        width: 317
-        height: 463
+        x: 752
+        y: 1062
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -589,12 +602,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_18
       rect:
         serializedVersion: 2
-        x: 821
-        y: 1091
-        width: 316
-        height: 466
+        x: 1128
+        y: 1062
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -611,12 +624,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_19
       rect:
         serializedVersion: 2
-        x: 1196
-        y: 1086
-        width: 316
-        height: 469
+        x: 1504
+        y: 1062
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -633,12 +646,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_20
       rect:
         serializedVersion: 2
-        x: 1571
-        y: 1083
-        width: 308
-        height: 469
+        x: 0
+        y: 531
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -655,12 +668,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_21
       rect:
         serializedVersion: 2
-        x: 4
-        y: 548
-        width: 378
-        height: 471
+        x: 376
+        y: 531
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -677,12 +690,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_22
       rect:
         serializedVersion: 2
-        x: 441
-        y: 544
-        width: 316
-        height: 473
+        x: 752
+        y: 531
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -699,12 +712,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_23
       rect:
         serializedVersion: 2
-        x: 817
-        y: 541
-        width: 316
-        height: 475
+        x: 1128
+        y: 531
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -721,12 +734,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_24
       rect:
         serializedVersion: 2
-        x: 1192
-        y: 539
-        width: 316
-        height: 475
+        x: 1504
+        y: 531
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -743,12 +756,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_25
       rect:
         serializedVersion: 2
-        x: 1568
-        y: 536
-        width: 312
-        height: 477
+        x: 0
+        y: 0
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -765,12 +778,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_26
       rect:
         serializedVersion: 2
-        x: 1
-        y: 4
-        width: 378
-        height: 477
+        x: 376
+        y: 0
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -787,12 +800,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_27
       rect:
         serializedVersion: 2
-        x: 439
-        y: 2
-        width: 316
-        height: 478
+        x: 752
+        y: 0
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -809,12 +822,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_28
       rect:
         serializedVersion: 2
-        x: 815
-        y: 1
-        width: 316
-        height: 478
+        x: 1128
+        y: 0
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -831,12 +844,12 @@ TextureImporter:
       name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_29
       rect:
         serializedVersion: 2
-        x: 1191
+        x: 1504
         y: 0
-        width: 316
-        height: 478
+        width: 376
+        height: 531
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -849,33 +862,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_30
-      rect:
-        serializedVersion: 2
-        x: 1567
-        y: 0
-        width: 313
-        height: 478
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 14ba03b2d2c6aab30800000000000000
-      internalID: 4299367735532497729
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 9d6b27ff226a33c4da5e922c7c6e5cd0
     internalID: 0
     vertices: []
     indices: 
@@ -883,7 +874,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceOnImport
+        value: False
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":5.0,"y":6.0},"gridSpriteSize":{"x":376.0,"y":531.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_0: -5019620502636870582
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_1: -2442663772393865504
@@ -909,7 +904,6 @@ TextureImporter:
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_28: 291216074954382337
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_29: 6702852587571762962
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_3: -6682765466064703301
-      give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_30: 4299367735532497729
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_4: 1216756002260299782
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_5: 3411610279145964604
       give_drink_cosmo_hand_ezgif_com_gif_to_sprite_converter_6: 3439213810421342938
