@@ -208,6 +208,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         if (!hasBottleSprite && bottleSilhouette != null)
             bottleSilhouette.Build(bottleInteriorHalfExtents, neckHalfWidth, ShoulderLocalY(), ChannelLocalY());
 
+        // 잔 안쪽 왼편에서 따르게 하여 입구와 줄기가 잔 위에 머물게 한다.
+        Vector3 cupRimPosition = glassCenter.TransformPoint(
+            new Vector3(-glassInteriorHalfExtents.x * 0.8f, glassInteriorHalfExtents.y, 0f));
+        bottle.ConfigurePourGeometry(new Vector3(0f, bottleInteriorHalfExtents.y, 0f), cupRimPosition);
+
         simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax());
 
         CreatePool();

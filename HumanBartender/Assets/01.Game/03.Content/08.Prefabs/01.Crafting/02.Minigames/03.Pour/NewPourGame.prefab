@@ -578,9 +578,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BottleTiltController
   bottleVisual: {fileID: 5025864419249430830}
   maxTiltAngle: 110
-  tiltSpeed: 55
-  returnSpeed: 80
+  tiltSpeed: 420
+  returnSpeed: 420
+  pickupSpeed: 4
+  putDownSpeed: 3
+  tiltReadyProgress: 0.6
   liftHeight: 2.5
+  pourPivotHeight: 0.9
 --- !u!114 &8225658279967235492
 MonoBehaviour:
   m_ObjectHideFlags: 0
