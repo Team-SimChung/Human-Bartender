@@ -187,8 +187,17 @@ public class DialogueRunner : MonoBehaviour
         {
             var input = new UniTaskCompletionSource();
             run.Input = input;
-            try { await input.Task.AttachExternalCancellation(token); }
-            finally { if (run.Input == input) run.Input=null; }
+            var prompt = run.Presenter as IDialogueInputPrompt;
+            try
+            {
+                prompt?.SetWaitingForInput(run.Presenter.GetPlayMode() != EActivationMode.Proximity);
+                await input.Task.AttachExternalCancellation(token);
+            }
+            finally
+            {
+                if (run.Input == input) run.Input=null;
+                prompt?.SetWaitingForInput(false);
+            }
         }
     }
 

@@ -172,6 +172,19 @@ public class UIDialogueTextView : MonoBehaviour
 
     void OnDisable() => StopTyping();
 
+    public void SetWaitingForInput(bool waiting)
+    {
+        SetBubbleWaiting(lunaSpeechBubble, waiting && targetBubble == lunaSpeechBubble);
+        SetBubbleWaiting(customerSpeechBubble, waiting && targetBubble == customerSpeechBubble);
+        SetBubbleWaiting(narrationSpeechBubble, waiting && targetBubble == narrationSpeechBubble);
+    }
+
+    private static void SetBubbleWaiting(DynamicSpeechBubble bubble, bool waiting)
+    {
+        if (bubble != null && bubble.TryGetComponent<DialogueInputPrompt>(out var prompt))
+            prompt.SetWaiting(waiting && bubble.gameObject.activeInHierarchy);
+    }
+
     /// <summary>타이핑 완료 후 현재 타이핑 데이터 참조를 정리한다.</summary>
     public void CompleteTyping()
     {
@@ -181,6 +194,7 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>진행 중인 타이핑 코루틴을 취소한다.</summary>
     public void StopTyping()
     {
+        SetWaitingForInput(false);
         var player = currentPlayer;
         currentPlayer = null;
         if (player == null) return;
