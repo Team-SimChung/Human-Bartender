@@ -775,14 +775,17 @@ public class StoryScriptRunner : MonoBehaviour
     async UniTask WaitForAdvanceAsync(CancellationToken token)
     {
         advanceSignal = new UniTaskCompletionSource();
+        var prompt = presenter as IDialogueInputPrompt;
 
         try
         {
+            prompt?.SetWaitingForInput(true);
             await advanceSignal.Task.AttachExternalCancellation(token);
         }
         finally
         {
             advanceSignal = null;
+            prompt?.SetWaitingForInput(false);
         }
     }
 
