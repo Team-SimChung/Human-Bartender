@@ -370,10 +370,7 @@ MonoBehaviour:
   glassInteriorHalfExtents: {x: 0.45, y: 0.45}
   showTargetHeight: 1
   targetHeightScale: 1
-  targetHeightOffsetDown: 0
-  useTargetQuantityHeightCorrection: 1
-  targetHeightCorrectionAmountsOz: {x: 1.5, y: 4}
-  targetHeightCorrectionOffsets: {x: 0.06, y: 0.12}
+  targetHeightOffset: 0.03
   targetMarkerSize: 0.08
   targetMarkerGap: 0.1
   showTargetHeightDashedLine: 1
@@ -578,9 +575,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BottleTiltController
   bottleVisual: {fileID: 5025864419249430830}
   maxTiltAngle: 110
-  tiltSpeed: 55
-  returnSpeed: 80
+  tiltSpeed: 420
+  returnSpeed: 420
+  pickupSpeed: 4
+  putDownSpeed: 3
+  tiltReadyProgress: 0.6
   liftHeight: 2.5
+  pourPivotHeight: 0.9
 --- !u!114 &8225658279967235492
 MonoBehaviour:
   m_ObjectHideFlags: 0
