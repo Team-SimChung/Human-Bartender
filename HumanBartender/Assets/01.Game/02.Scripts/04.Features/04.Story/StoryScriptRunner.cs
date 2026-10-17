@@ -799,6 +799,7 @@ public class StoryScriptRunner : MonoBehaviour
             return;
         }
 
+        (presenter as IDialogueInputFeedback)?.PlayAdvanceFeedback();
         if (presenter is IStoryDialogueVisibility visibility) visibility.HideDialogue();
         advanceSignal.TrySetResult();
     }

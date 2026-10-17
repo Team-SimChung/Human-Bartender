@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
 
 [System.Serializable]
 public class Sound
 {
     public string name;
     public AudioClip clip;
+    [Tooltip("SE 전용. 기본 clip과 순서대로 번갈아 재생하며 게임의 난수 상태를 사용하지 않습니다.")]
+    public AudioClip[] alternatives;
     [Range(0f, 1f)] public float volume = 1f;
     [Range(0.1f, 3f)] public float pitch = 1f;
 }
@@ -15,12 +16,12 @@ public class Sound
 /// <summary>
 /// BG / SE 2채널 사운드 매니저.
 /// static Instance 없음 — VContainer 가 Lifetime.Singleton 으로 단일 인스턴스를 보장하고
-/// ISoundManager 로 주입한다.
+/// 소비자는 효과음/BGM/반복음 계약 중 필요한 기능만 주입받는다.
 /// </summary>
-public class SoundManager : MonoBehaviour, ISoundManager
+public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoopingSoundManager
 {
-    [Header("Audio Mixer (그룹: Master/BGM/SE)")]
-    [SerializeField] private AudioMixer mixer;
+    [Header("Shared Output")]
+    [SerializeField] private AudioOutputSettings output;
 
     [Header("Audio Sources")]
     [SerializeField] private AudioSource bgmSource; // BG 전용 (Loop)
@@ -36,14 +37,8 @@ public class SoundManager : MonoBehaviour, ISoundManager
 
     private Dictionary<string, Sound> _bgm;
     private Dictionary<string, Sound> _se;
-
-    private const string MIXER_BGM = "BGMVolume";
-    private const string MIXER_SE = "SEVolume";
-
-
-    private const string PREF_BGM = "vol_bgm";
-    private const string PREF_SE = "vol_se";
-    private const float DEFAULT_VOLUME = 0.5f;
+    readonly Dictionary<Sound, int> variationIndices = new();
+    readonly HashSet<Loop> loops = new();
 
     private Coroutine _bgmFadeRoutine;
 
@@ -52,12 +47,7 @@ public class SoundManager : MonoBehaviour, ISoundManager
     {
         BuildDictionaries();
         BuildSePool();
-    }
-
-    // AudioMixer.SetFloat 은 Awake 프레임에 무시될 수 있어 Start 에서 로드한다.
-    private void Start()
-    {
-        LoadVolumes();
+        if (bgmSource != null) output.Route(bgmSource, AudioBus.Music);
     }
 
     private void BuildDictionaries()
@@ -91,18 +81,18 @@ public class SoundManager : MonoBehaviour, ISoundManager
         _bgmFadeRoutine = null;
         if (bgmSource != null) bgmSource.Stop();
         foreach (var source in sePool) if (source != null) source.Stop();
+        foreach (var loop in new List<Loop>(loops)) loop.Dispose();
     }
 
     private void BuildSePool()
     {
-        var seGroup = mixer != null ? mixer.FindMatchingGroups("SE") : null;
         for (int i = 0; i < Mathf.Max(1, sePoolSize); i++)
         {
             var go = new GameObject($"SE_Source_{i}");
             go.transform.SetParent(transform);
             var src = go.AddComponent<AudioSource>();
             src.playOnAwake = false;
-            if (seGroup != null && seGroup.Length > 0) src.outputAudioMixerGroup = seGroup[0];
+            output.Route(src, AudioBus.SoundEffects);
             sePool.Add(src);
         }
     }
@@ -195,15 +185,79 @@ public class SoundManager : MonoBehaviour, ISoundManager
     public void PlaySE(string name)
     {
         if (!isActiveAndEnabled) return;
-        if (string.IsNullOrEmpty(name) || !_se.TryGetValue(name, out var sound) || sound.clip == null)
+        if (string.IsNullOrEmpty(name) || !_se.TryGetValue(name, out var sound))
         {
             Debug.LogWarning($"[SoundManager] SE '{name}' 없음");
             return;
         }
 
+        AudioClip clip = NextSeClip(sound);
+        if (clip == null) return;
+
         AudioSource src = GetFreeSeSource();
         src.pitch = sound.pitch;
-        src.PlayOneShot(sound.clip, sound.volume);
+        src.PlayOneShot(clip, sound.volume);
+    }
+
+    AudioClip NextSeClip(Sound sound)
+    {
+        int count = 1 + (sound.alternatives?.Length ?? 0);
+        variationIndices.TryGetValue(sound, out int next);
+        for (int i = 0; i < count; i++)
+        {
+            int index = (next + i) % count;
+            AudioClip clip = index == 0 ? sound.clip : sound.alternatives[index - 1];
+            if (clip == null) continue;
+            variationIndices[sound] = (index + 1) % count;
+            return clip;
+        }
+        Debug.LogWarning($"[SoundManager] SE '{sound.name}'에 재생 가능한 클립이 없습니다.");
+        return null;
+    }
+
+    public System.IDisposable PlayLoop(string name)
+    {
+        if (!isActiveAndEnabled || string.IsNullOrEmpty(name)) return null;
+        if (!_se.TryGetValue(name, out var sound))
+        {
+            Debug.LogWarning($"[SoundManager] SE '{name}' 없음");
+            return null;
+        }
+        AudioClip clip = NextSeClip(sound);
+        if (clip == null) return null;
+        var go = new GameObject($"SE_Loop_{name}");
+        go.transform.SetParent(transform, false);
+        var source = go.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.clip = clip;
+        source.loop = true;
+        source.volume = sound.volume;
+        source.pitch = sound.pitch;
+        output.Route(source, AudioBus.SoundEffects);
+        var handle = new Loop(this, source);
+        loops.Add(handle);
+        source.Play();
+        return handle;
+    }
+
+    sealed class Loop : System.IDisposable
+    {
+        readonly SoundManager owner;
+        AudioSource source;
+        bool disposed;
+        public Loop(SoundManager owner, AudioSource source) { this.owner = owner; this.source = source; }
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            owner.loops.Remove(this);
+            if (source == null) return;
+            source.Stop();
+            var go = source.gameObject;
+            source = null;
+            if (Application.isPlaying) Object.Destroy(go);
+            else Object.DestroyImmediate(go);
+        }
     }
 
     private AudioSource GetFreeSeSource()
@@ -216,31 +270,4 @@ public class SoundManager : MonoBehaviour, ISoundManager
         return reuse;
     }
 
-    // ─── Volume ─────────────────────────────────────
-    public void SetBGMVolume(float v) => ApplyAndSave(MIXER_BGM, PREF_BGM, v);
-    public void SetSEVolume(float v) => ApplyAndSave(MIXER_SE, PREF_SE, v);
-
-    private void ApplyAndSave(string mixerParam, string prefKey, float linear01)
-    {
-        linear01 = Mathf.Clamp01(linear01);
-        SetMixerVolume(mixerParam, linear01);
-        PlayerPrefs.SetFloat(prefKey, linear01);
-        PlayerPrefs.Save();
-    }
-
-    private void SetMixerVolume(string param, float linear01)
-    {
-        if (mixer == null) return;
-        float dB = linear01 <= 0.0001f ? -80f : Mathf.Log10(linear01) * 20f;
-        mixer.SetFloat(param, dB);
-    }
-
-    private void LoadVolumes()
-    {
-        SetMixerVolume(MIXER_BGM, PlayerPrefs.GetFloat(PREF_BGM, DEFAULT_VOLUME));
-        SetMixerVolume(MIXER_SE, PlayerPrefs.GetFloat(PREF_SE, DEFAULT_VOLUME));
-    }
-
-    public float GetBGMVolume() => PlayerPrefs.GetFloat(PREF_BGM, DEFAULT_VOLUME);
-    public float GetSEVolume() => PlayerPrefs.GetFloat(PREF_SE, DEFAULT_VOLUME);
 }

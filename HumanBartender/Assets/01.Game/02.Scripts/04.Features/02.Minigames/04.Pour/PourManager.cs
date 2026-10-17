@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// 따르기(Pour) 미니게임의 메인 매니저. IMiniGameController를 구현한다.
@@ -25,6 +26,11 @@ using UnityEngine;
 public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd
 {
+    [Inject] ILoopingSoundManager loopSound;
+    System.IDisposable pourSound;
+    bool audioFocused = true;
+    bool audioPaused;
+    bool audioCancelled;
     [SerializeField] private bool isTest = false;
 
     [Header("Data")]
@@ -419,6 +425,12 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         StepSimulation();
         liquidRenderer.UpdateBlobs(simulation.ActiveParticles);
 
+        bool flowing = isPlay && !isFinished && !audioCancelled && audioFocused && !audioPaused &&
+            Time.deltaTime > 0f && bottle != null && FlowRate01() > 0f &&
+            (unlimitedLiquid || remainingInBottle > 0);
+        if (flowing) pourSound ??= loopSound?.PlayLoop("SFX_pour");
+        else StopPourSound();
+
         if (!isPlay) return;
 
         glassParticleCount = CountParticlesInGlass();
@@ -525,6 +537,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         isFinished = true;
         isPlay = false;
+        StopPourSound();
 
         CompleteMade();
 
@@ -674,8 +687,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     private void CancelRunnerCompletion()
     {
+        audioCancelled = true;
+        StopPourSound();
         runnerCompletion?.TrySetCanceled();
     }
+
+    void StopPourSound() { pourSound?.Dispose(); pourSound = null; }
+    void OnDisable() => StopPourSound();
+    void OnApplicationFocus(bool focus) { audioFocused = focus; if (!focus) StopPourSound(); }
+    void OnApplicationPause(bool pause) { audioPaused = pause; if (pause) StopPourSound(); }
 
     bool ApplyIngredientBottle()
     {
@@ -791,6 +811,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void OnDestroy()
     {
+        StopPourSound();
         if (targetHeightMesh != null) Destroy(targetHeightMesh);
         if (targetHeightMaterial != null) Destroy(targetHeightMaterial);
     }

@@ -104,6 +104,7 @@ public class DialogueRunner : MonoBehaviour
         if (run.State == DialogueState.Typing) run.Presenter.SkipTyping();
         else if (run.State == DialogueState.WaitingForInput)
         {
+            if (run.Input != null) (run.Presenter as IDialogueInputFeedback)?.PlayAdvanceFeedback();
             run.Presenter.HideDialogue();
             run.Input?.TrySetResult();
         }

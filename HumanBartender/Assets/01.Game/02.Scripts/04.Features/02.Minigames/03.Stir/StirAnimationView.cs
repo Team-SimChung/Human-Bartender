@@ -13,6 +13,8 @@ public class StirAnimationView : MonoBehaviour
     double framePosition;
     double stopPosition;
 
+    public bool IsPlaying => isActiveAndEnabled && framePosition < stopPosition;
+
     public void ResetPlayback()
     {
         // 기존 클립과 동시에 스프라이트를 갱신하지 않도록 한다.

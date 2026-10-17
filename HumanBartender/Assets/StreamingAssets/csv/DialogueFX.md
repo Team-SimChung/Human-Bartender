@@ -11,9 +11,13 @@
 …생각보다 <fx=admire>재능이 있군</fx>.
 ```
 
-Unity Project 창의 `Assets/Resources/DialoguePresentationSettings.asset`을 선택하면 `Presets` 목록에서 이름별 색, 크기, 떨림/웨이브, 타이핑 간격, 앞뒤 쉼을 조절할 수 있습니다. 여러 대사가 같은 이름을 쓰면 에셋 수정 한 번으로 함께 바뀝니다. `PauseBeforeMs`는 감싼 구절의 첫 글자 앞, `PauseAfterMs`는 다음 글자 앞에 적용됩니다. `OverrideSpeed`를 끄면 말풍선의 기본 타이핑 속도를 따릅니다. 프리셋 ID는 소문자 영문으로 시작하고 소문자·숫자·밑줄만 사용합니다. 없는 이름과 중복 이름은 오류로 보고합니다.
+Unity Project 창의 `Assets/01.Game/04.Data/Resources/DialoguePresentationSettings.asset`을 선택하면 `Presets` 목록에서 이름별 색, 크기, 떨림/웨이브, 타이핑 간격, 앞뒤 쉼을 조절할 수 있습니다. 런타임이 `Resources.Load`로 읽으므로 이 에셋은 `Resources` 폴더 안에 유지합니다. 여러 대사가 같은 이름을 쓰면 에셋 수정 한 번으로 함께 바뀝니다. `PauseBeforeMs`는 감싼 구절의 첫 글자 앞, `PauseAfterMs`는 다음 글자 앞에 적용됩니다. `OverrideSpeed`를 끄면 말풍선의 기본 타이핑 속도를 따릅니다. 프리셋 ID는 소문자 영문으로 시작하고 소문자·숫자·밑줄만 사용합니다. 없는 이름과 중복 이름은 오류로 보고합니다.
 
-현재 이름: `reproach`(따짐), `mutter`(투덜거림), `burst`(빠른 말), `admire`(감탄), `approve`(긍정), `disappoint`(아쉬움), `command`(명령), `encourage`(격려), `angry`(화난 손님). 문맥에 맞는 기존 이름을 재사용하고, 다른 연출이 필요할 때만 에셋에 새 이름을 추가하세요. 게임 CSV를 직접 수정했다면 원본 워크북에도 같은 문구를 반영해야 다음 내보내기에서 유지됩니다.
+현재 이름: `reproach`(따짐), `mutter`(투덜거림), `burst`(빠른 말), `admire`(감탄), `approve`(긍정), `disappoint`(아쉬움), `command`(명령), `encourage`(격려), `angry`(분노), `gentle`(부드러운 말), `emphasis`(핵심 구절 강조), `tremble`(불안·떨리는 말). 문맥에 맞는 기존 이름을 재사용하고, 다른 연출이 필요할 때만 에셋에 새 이름을 추가하세요. `emphasis`는 `<fx=emphasis><pop>핵심 구절</pop></fx>`처럼 순간 확대와 함께 사용할 수 있습니다.
+
+`ContentAuthoring/csv_owned_datasets.json`에 등록된 스토리 대본은 **CSV가 정본**입니다. `steps.csv`를 수정하면 기존 Excel 내보내기에서도 보존되므로 워크북에 이중으로 편집하지 않습니다. 목록에 없는 데이터(예: 손님 Bark)는 워크북에도 반영해야 다음 내보내기에서 유지됩니다.
+
+감정은 실행 중 키워드로 추측하지 않고 **대사를 앞뒤 문맥과 함께 검토해 해당 구절에 명시**합니다. 다른 사람의 분노를 설명하는 문장과 화자가 실제로 화내는 문장을 구별하고, 문장 전체보다 감정이나 의미가 실린 짧은 부분에만 적용합니다. 일반 안내·선택지·독백 전체에 일괄 효과를 넣지 않습니다. 효과 태그를 지웠을 때 대사 원문과 ID·조건·분기가 그대로 남아야 합니다.
 
 ## 고급 직접 태그
 
@@ -30,17 +34,33 @@ Unity Project 창의 `Assets/Resources/DialoguePresentationSettings.asset`을 �
 - `<wave amp=2 hz=2 phase=0.65>`는 각 글자를 위아래로 움직입니다. `phase`는 글자 사이 라디안 간격입니다.
 - `<pop peak=1.2 duration=0.12>`은 각 글자가 공개될 때 TMP가 계산한 정적 크기를 잠깐 확대합니다. 첫 35% 동안 1.0→peak, 나머지 동안 peak→1.0입니다.
 - 같은 종류를 중첩하면 가장 안쪽 정의가 우선합니다. 서로 다른 종류는 Pop 확대 후 위치 이동 순서로 합성합니다.
-- 효과 속성 생략값과 동작 감소 옵션은 `Assets/Resources/DialoguePresentationSettings.asset` 한 곳에서 편집합니다. `big/slow` 등 CSV 별칭 값은 이 에셋에 복사하지 않습니다.
+- 효과 속성 생략값과 동작 감소 옵션은 `Assets/01.Game/04.Data/Resources/DialoguePresentationSettings.asset` 한 곳에서 편집합니다. `big/slow` 등 CSV 별칭 값은 이 에셋에 복사하지 않습니다.
 - 스킵은 남은 글자를 즉시 보이며 남은 대기와 새 Pop을 생략합니다. 이미 보인 글자의 Shake/Wave는 다음 대사까지 유지됩니다. 손님 Bark는 기존처럼 즉시 표시합니다.
-- 현재 타이핑음 키가 비어 있어 무음입니다. 적절한 SE 클립이 실제로 등록된 후에만 키를 지정하세요.
+- 타이핑음은 `SFX_typing`이며 32ms 길이의 `typing_01`~`typing_06`을 순서대로 번갈아 재생합니다. 공백·문장부호·스프라이트와 스킵으로 한 번에 공개한 글자에는 소리를 내지 않습니다. 모든 말풍선이 한 프레임당 1회, 기본 60ms 간격의 재생 한도를 공유합니다. `TypingSoundInterval`로 간격을 조절하고 `TypingSoundKey`를 비우면 끌 수 있습니다.
 
-## Play 씬 카메라 반응
+## 효과음
 
-Play의 대사 타이핑 중 Shake가 적용된 연속 구간의 첫 보이는 글자에서 Y축 카메라 펄스를 한 번 재생합니다. `<shake>`와 Shake 프리셋 모두 컴파일된 글자 스타일을 기준으로 하므로 별도 카메라 태그나 대사 ID 목록이 필요하지 않습니다. 붙어 있는 Shake 구간은 하나로 취급하고, 일반 글자를 사이에 두면 다음 구간에서 다시 요청합니다. 공백·줄바꿈·스프라이트만 있는 구간, 진폭/주파수가 0인 구간은 요청하지 않습니다.
+`DialoguePresentationSettings`의 `AdvanceSoundKey`, `ChoiceHoverSoundKey`, `ChoiceConfirmSoundKey`는 대사 스킵·수동 진행과 선택지 포커스·확정에 사용합니다. 선택지를 짧게 누르거나 유지 입력을 취소할 때는 확정음을 내지 않습니다. 재진입 때 선택지 버튼 리스너를 초기화해도 호버 연결은 유지됩니다.
 
-`Play` 씬의 `CM_GamePlay → Vertical Camera Impulse`에서 이동 강도(`Amplitude`, 월드 단위)와 시간(`Duration`, 초)을 조절합니다. 초기값은 0.04 / 0.11초입니다. 처음 30% 동안 약 4 소스 픽셀만큼 위로 즉시 움직여 잠깐 멈추고, 다음 35% 동안 반대 방향으로 1픽셀 되받은 뒤 원위치로 돌아옵니다(Play 씬 100 PPU 기준). 재생 중 들어온 추가 요청은 겹치지 않습니다. Cinemachine의 Noise 단계에서 Y 위치에만 보정을 더하므로 추적 타깃과 기존 이동·줌 설정은 변경하지 않습니다. 화면 경계 제한 뒤에 적용되므로 배경 가장자리에서는 최대 진폭만큼 여유가 필요합니다.
+실제 클립과 개별 음량은 `Assets/01.Game/03.Content/08.Prefabs/04.Shared/01.Bootstrap/ProjectLifeScope.prefab` 안 `SoundManager → SE List`에서 관리합니다. 타이핑 6종, UI 호버·클릭·손님 알림·재화 변동·제조 완료, 개봉·탄산·따르기·젓기·쉐이킹 클립을 등록했습니다. 짧은 효과음은 기존 SE 풀, 따르기·젓기는 요청한 작업이 해제하는 별도 루프 소스를 사용하며 모두 기존 SE 믹서와 옵션 음량을 따릅니다. BGM을 중지하거나 게임의 난수 상태를 사용하지 않습니다.
 
-스킵·취소·대사 교체·뷰 비활성화는 진행 중인 펄스를 중지합니다. 즉시 표시(Bark 포함)와 `ReducedMotion`에서는 새 펄스를 만들지 않습니다. 이 연결은 Play 씬의 대사 뷰에만 등록되어 있습니다.
+따르기 소리는 병에서 액체가 나오는 동안, 젓기 소리는 입력으로 스푼 애니메이션이 움직이는 동안만 재생합니다. 각 소리는 제조 완료·취소·비활성화·창 포커스 이탈·일시정지에 해제합니다. 개봉 성공과 쉐이킹 성공 판정에 단발음을 재생하고, 제조 전체가 완료되면 완료음을 한 번 재생합니다.
+
+### 출력과 음량의 담당 위치
+
+- 클립·변형·개별 음량의 원본은 공용 프리팹의 `SoundManager → SE List`입니다. 실행 중 딕셔너리는 이 목록에서 만드는 조회 캐시입니다.
+- 출력 그룹은 `Assets/01.Game/04.Data/Resources/AudioOutputSettings.asset`에서 관리합니다. 단발 효과음·반복음·Studio 컷신·미니게임 BGM이 같은 설정을 사용합니다. 그룹 누락은 오류로 처리해 옵션 음량을 우회하는 출력을 만들지 않습니다.
+- 소비자는 `ISoundEffectPlayer`(단발음), `IBgmPlayer`(배경음), `ILoopingSoundManager`(소유자가 종료하는 반복음), `IAudioVolumeSettings`(옵션 음량) 중 필요한 계약만 받습니다.
+- `AudioVolumeSettings`는 사용자 음량을 공용 믹서에 적용하고, `PlayerPrefsAudioVolumeStore`만 기존 `vol_bgm`·`vol_se` 저장 키를 읽고 씁니다. 기본값은 기존처럼 0.5이며 저장된 사용자 설정을 이어 사용합니다.
+- Studio 오디오 클립의 **출력 채널**에서 `SoundEffects` 또는 `Music`을 선택합니다. 기존 클립은 `SoundEffects`로 읽습니다. 클립 볼륨·페이드는 AudioSource에서, 사용자 볼륨은 해당 믹서 그룹에서 적용합니다. 원본 시작 시간·반복·입력 대기 중 일시정지는 컷신 재생기가 계속 관리합니다.
+
+## 대사 카메라 반응
+
+Play·Home·OutSide의 대사 타이핑 중 Shake가 적용된 연속 구간의 첫 보이는 글자에서 Y축 카메라 펄스를 한 번 재생합니다. `<shake>`와 Shake 프리셋 모두 컴파일된 글자 스타일을 기준으로 하므로 별도 카메라 태그나 대사 ID 목록이 필요하지 않습니다. 붙어 있는 Shake 구간은 하나로 취급하고, 일반 글자를 사이에 두면 다음 구간에서 다시 요청합니다. 공백·줄바꿈·스프라이트만 있는 구간, 진폭/주파수가 0인 구간은 요청하지 않습니다. Wave와 Pop은 카메라 반응을 만들지 않습니다.
+
+각 씬의 `CM_GamePlay → Vertical Camera Impulse`에서 이동 강도(`Amplitude`, 월드 단위)와 시간(`Duration`, 초)을 조절합니다. 초기값은 0.04 / 0.11초입니다. 처음 30% 동안 약 4 소스 픽셀만큼 위로 즉시 움직여 잠깐 멈추고, 다음 35% 동안 반대 방향으로 1픽셀 되받은 뒤 원위치로 돌아옵니다(100 PPU 기준). 재생 중 들어온 추가 요청은 겹치지 않습니다. Cinemachine의 Noise 단계에서 Y 위치에만 보정을 더하므로 추적 타깃과 기존 이동·줌 설정은 변경하지 않습니다. 화면 경계 제한 뒤에 적용되므로 배경 가장자리에서는 최대 진폭만큼 여유가 필요합니다.
+
+스킵·취소·대사 교체·뷰 비활성화는 진행 중인 펄스를 중지합니다. 즉시 표시(Bark 포함)와 `ReducedMotion`에서는 새 펄스를 만들지 않습니다. 각 씬의 수명이 끝나면 이벤트 구독을 해제하고 진행 중인 펄스도 중지합니다.
 
 ## 프리뷰
 

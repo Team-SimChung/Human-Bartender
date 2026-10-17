@@ -14,7 +14,7 @@ using VContainer;
 /// 길거리처럼 좌석이 없는 화면이 신형 대본을 재생하게 되면 이 인터페이스의 다른 구현을 만들면 된다.
 /// 실행기는 그대로 쓴다.
 /// </summary>
-public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueVisibility, IStoryCharacterTransitions, IDialogueInputPrompt
+public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueVisibility, IStoryCharacterTransitions, IDialogueInputPrompt, IDialogueInputFeedback
 {
     readonly HashSet<string> textOnlyActors = new();
     readonly HashSet<ESlotType> enteringSlots = new();
@@ -56,6 +56,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
 
     public void HideDialogue() => textView?.ClearText();
     public void SetWaitingForInput(bool waiting) => textView?.SetWaitingForInput(waiting);
+    public void PlayAdvanceFeedback() => textView?.PlayAdvanceFeedback();
 
     /// <summary>화면을 잡는 두 가지 장치. 자리로 옮기는 것과 범위를 넓히고 좁히는 것이 따로 있다.</summary>
     [Inject] ISlotCamera slotCamera;

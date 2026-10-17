@@ -17,6 +17,7 @@ using VContainer;
 public class GuestManager : MonoBehaviour
 {
     [Inject] IPlayerDataWriter playerDataWriter;
+    [Inject] ISoundEffectPlayer sound;
     [SerializeField] NewBalanceDataSO configData;
     [SerializeField] NewRandomWaveDataSO randomWaveData;
     [SerializeField] NewRegularSlotDataSO regularSlotData;
@@ -587,6 +588,7 @@ public class GuestManager : MonoBehaviour
         slot.Seat(guest);
         SetSlotCharacter(slot, guest);
         ShowBark(slot, "call");
+        sound?.PlaySE("SFX_notification");
 
         StartPatienceTimer(slot, guest);
 

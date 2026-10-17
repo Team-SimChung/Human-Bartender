@@ -131,6 +131,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     break;
                 case StudioKind.Audio:
                     Add("Sound", "오디오");
+                    Add("Bus", "출력 채널 (효과음 / BGM)");
                     Add("Volume", "볼륨");
                     Add("AudioOffset", "원본 시작 시간");
                     Add("FadeIn", "페이드 인");
