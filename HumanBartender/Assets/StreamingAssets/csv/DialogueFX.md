@@ -40,7 +40,7 @@ Unity Project 창의 `Assets/01.Game/04.Data/Resources/DialoguePresentationSetti
 
 ## 효과음
 
-`DialoguePresentationSettings`의 `AdvanceSoundKey`, `ChoiceHoverSoundKey`, `ChoiceConfirmSoundKey`는 대사 스킵·수동 진행과 선택지 포커스·확정에 사용합니다. 선택지를 짧게 누르거나 유지 입력을 취소할 때는 확정음을 내지 않습니다. 재진입 때 선택지 버튼 리스너를 초기화해도 호버 연결은 유지됩니다.
+`DialoguePresentationSettings`의 `AdvanceSoundKey`, `ChoiceHoverSoundKey`, `ChoiceConfirmSoundKey`는 대사 스킵·수동 진행과 선택지 포커스·확정에 사용합니다. 대사 넘기기·스킵은 클릭음 없이 진행하도록 `AdvanceSoundKey`를 비워 둡니다. 각 키를 비우면 해당 소리만 꺼집니다. 선택지를 짧게 누르거나 유지 입력을 취소할 때는 확정음을 내지 않습니다. 재진입 때 선택지 버튼 리스너를 초기화해도 호버 연결은 유지됩니다.
 
 실제 클립과 개별 음량은 `Assets/01.Game/03.Content/08.Prefabs/04.Shared/01.Bootstrap/ProjectLifeScope.prefab` 안 `SoundManager → SE List`에서 관리합니다. 타이핑 6종, UI 호버·클릭·손님 알림·재화 변동·제조 완료, 개봉·탄산·따르기·젓기·쉐이킹 클립을 등록했습니다. 짧은 효과음은 기존 SE 풀, 따르기·젓기는 요청한 작업이 해제하는 별도 루프 소스를 사용하며 모두 기존 SE 믹서와 옵션 음량을 따릅니다. BGM을 중지하거나 게임의 난수 상태를 사용하지 않습니다.
 

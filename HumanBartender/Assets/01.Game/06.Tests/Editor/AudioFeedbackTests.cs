@@ -37,9 +37,8 @@ public sealed class AudioFeedbackTests
         var keys = new[] { settings.TypingSoundKey, settings.AdvanceSoundKey, settings.ChoiceHoverSoundKey,
             settings.ChoiceConfirmSoundKey, "SFX_pour", "SFX_stir", "SFX_shaker_hit", "SFX_bottle_open",
             "SFX_fizz", "SFX_money_change", "SFX_goal_completed", "SFX_notification" };
-        foreach (string key in keys)
+        foreach (string key in keys.Where(key => !string.IsNullOrWhiteSpace(key)))
         {
-            Assert.That(key, Is.Not.Null.And.Not.Empty);
             var sound = sounds.Single(item => item.name == key);
             Assert.That(sound.clip, Is.Not.Null, key);
             Assert.That(sound.clip.length, Is.GreaterThan(0f), key);
