@@ -17,6 +17,23 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "LiquidProfile", menuName = "Data/Liquid Profile")]
 public class LiquidProfile : ScriptableObject
 {
+    [Header("픽셀과 재료별 표현")]
+    [Tooltip("1080 높이 기준 픽셀 크기. 물리 좌표에는 적용하지 않는다.")]
+    [Range(1, 12)] public int pixelSize = 3;
+    [Range(3, 16)] public int colorSteps = 7;
+    [Range(0f, 0.12f)] public float surfaceDepth = 0.045f;
+    [Tooltip("ID가 일치하면 내장 프리셋 대신 사용한다. 기본색/alpha는 기존 재료 데이터가 정한다.")]
+    public LiquidAppearanceOverride[] appearanceOverrides = new LiquidAppearanceOverride[0];
+
+    public LiquidAppearance ResolveAppearance(string ingredientId)
+    {
+        if (appearanceOverrides != null)
+            foreach (var entry in appearanceOverrides)
+                if (entry != null && !string.IsNullOrEmpty(entry.ingredientId) && entry.ingredientId == ingredientId)
+                    return entry.appearance;
+        return LiquidAppearance.ForIngredient(ingredientId);
+    }
+
     [Header("물성")]
     public SphConfig physics = new SphConfig();
 
@@ -30,7 +47,7 @@ public class LiquidProfile : ScriptableObject
              "높이면 표면이 조여들어 가볍고 산뜻해 보인다.")]
     public float threshold = 0.5f;
 
-    [Tooltip("가장자리 부드러움. 0에 가까우면 또렷한 실루엣, 크면 흐릿하게 번진다.")]
+    [Tooltip("가장자리 조명의 전이 폭. 픽셀 실루엣은 또렷하게 유지한다.")]
     public float edgeSmoothness = 0.08f;
 
     [Header("흐를 때")]

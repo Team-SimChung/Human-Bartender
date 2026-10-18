@@ -118,7 +118,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private int bottleParticleCount = 400;
     [Tooltip("동시에 살아있을 수 있는 파티클 수(줄기 + 잔에 담긴 것). 재사용 풀 크기라 총량과 별개이고, " +
              "'한 번에 얼마나 많은 액체가 보이는가'는 총량이 아니라 이 값이 정한다.\n" +
-             "렌더러가 2패스로 바뀐 뒤로는 여기에 렌더 한계가 없다 — 이제 걸리는 건 SPH 계산 쪽이다. " +
+             "입자는 GPU가 그리지만 SPH 계산량과 화면상 겹침에 따른 GPU 비용은 남는다. " +
              "프레임이 떨어지면 이 값을 내리거나 프로파일의 spacing을 키울 것.")]
     [SerializeField] private int maxLiveParticles = 2000;
     [Tooltip("이 깊이 아래로 떨어진 파티클은 흘린 것으로 보고 치운다(풀로 돌아간다). " +
@@ -165,7 +165,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     float neckHalfWidth;
 
     /// <summary>프로파일의 물성값을 짧게 쓰기 위한 별칭.</summary>
-    SphConfig Physics => liquidProfile.physics;
+    SphConfig runtimePhysics;
+    SphConfig Physics => runtimePhysics ?? liquidProfile.physics;
     float Spacing => liquidProfile.physics.spacing;
 
     UniTaskCompletionSource tcs;
@@ -196,12 +197,23 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         glassParticleCount = 0;
         remainingInBottle = bottleParticleCount;
 
+        string visualIngredientId = drivenByRunner ? pourIngredientId : null;
+        LiquidAppearance appearance = liquidProfile.ResolveAppearance(visualIngredientId);
+        float? liquidAlpha = null;
         Color liquidColor = GetLiquidColor();
+        if (!liquidProfile.overrideColor && shelfData != null && shelfData.TryGet(visualIngredientId, out var visualItem))
+        {
+            liquidAlpha = visualItem.LiquidAlpha;
+            if (visualItem.TryGetLiquidColor(out Color32 ingredientColor)) liquidColor = ingredientColor;
+        }
+        liquidColor = appearance.ResolveColor(liquidColor, liquidAlpha, liquidProfile.overrideColor);
+        runtimePhysics = liquidProfile.physics.WithViscosity(appearance.viscosityScale);
 
         // 액체는 화면을 덮는 쿼드에 합성해 그린다. 어느 화면인지 알려 주지 않으면 메인 카메라에
         // 그려지는데, 기믹 무대는 바에서 멀리 떨어져 있어 그러면 아무것도 안 보인다.
         liquidRenderer.SetTargetCamera(CraftGimmickStage.Find(this));
-        liquidRenderer.Init(liquidProfile, liquidColor);
+        liquidRenderer.SetContainer(glassCenter, glassInteriorHalfExtents);
+        liquidRenderer.Init(liquidProfile, liquidColor, appearance);
 
         // 통로 폭은 파티클 간격이 정한다. 병 모양보다 먼저 잡아야 실루엣이 같은 폭으로 그려진다.
         float scaleX = Mathf.Max(Mathf.Abs(bottle.BottleVisual.lossyScale.x), 0.0001f);
@@ -217,6 +229,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         bottle.ConfigurePourGeometry(new Vector3(0f, bottleInteriorHalfExtents.y, 0f), cupRimPosition);
 
         simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax(), ConstrainToGlass);
+        simulation.SynchronizeTransforms = false;
 
         CreatePool();
         CalibrateRestDensity();

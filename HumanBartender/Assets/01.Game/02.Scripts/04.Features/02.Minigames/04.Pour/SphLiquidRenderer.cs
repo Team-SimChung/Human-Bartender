@@ -1,300 +1,319 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// SPH 파티클을 메타볼 액체로 그린다. 두 패스로 나눠 그린다.
-///
-///  1패스: 파티클마다 자기 크기만 한 사각형을 RenderTexture에 가산 합성 (LiquidBlobSplat)
-///  2패스: 누적된 필드에 threshold를 적용해 액체 색으로 출력 (LiquidComposite)
-///
-/// 이전에는 화면 전체를 덮는 쿼드 하나에서 픽셀마다 모든 블롭을 검사했는데, 비용이
-/// (화면 픽셀 수 x 파티클 수)라 파티클을 조금만 늘려도 급격히 무거워졌다(384개가 한계였다).
-/// 지금은 각 블롭이 자기 주변만 칠하므로 비용이 (파티클 수 x 블롭 픽셀)이 되어, 파티클을
-/// 몇 배로 늘려도 거의 그대로다 — 알갱이 크기를 성능 걱정 없이 정할 수 있다.
-///
-/// URP에서도 별도 렌더러 기능 없이 동작하도록 RenderPipelineManager 콜백에서 CommandBuffer로
-/// 1패스를 실행한다(레이어나 프로젝트 설정을 건드리지 않는다).
+/// CPU에서는 위치/속도/충격만 전달한다. GPU가 입자 사각형, 액체 필드, 기포의 이동과
+/// 수면 거품을 만든다. 판정은 이 텍스처들을 읽지 않는다.
 /// </summary>
 public class SphLiquidRenderer : MonoBehaviour
 {
     [SerializeField] int sortingOrder = 25;
-
-    [Tooltip("필드 텍스처 해상도 배율. 1이면 화면과 같은 해상도, 0.5면 절반(가볍지만 가장자리가 거칠어진다).")]
-    [Range(0.25f, 1f)]
-    [SerializeField] float fieldResolutionScale = 0.5f;
-
-    [Tooltip("액체를 그릴 카메라. 비워두면 Camera.main을 쓴다.")]
+    [Range(0.25f, 1f)] [SerializeField] float fieldResolutionScale = 0.5f;
     [SerializeField] Camera targetCamera;
+    [Range(64, 256)] [SerializeField] int effectResolution = 128;
+    [Tooltip("2D Camera Sorting Layer Texture에 액체 뒤 배경만 담긴 경우 사용.")]
+    [Range(0f, 0.02f)] [SerializeField] float refractionStrength;
 
-    Material splatMaterial;
-    Material compositeMaterial;
-
-    MeshRenderer compositeRenderer;
-    Mesh compositeMesh;
-
-    Mesh blobMesh;
-    RenderTexture fieldTexture;
-    CommandBuffer commandBuffer;
-
-    // 블롭 하나당 사각형 하나(정점 4 + 삼각형 2).
-    Vector3[] vertices;
-    Vector2[] uvs;
-    int[] triangles;
-    int meshCapacity;
-
-    float blobRadiusScale = 1.8f;
-    float stretchPerSpeed = 0.45f;
-    float maxStretch = 4f;
-    float streamThinning = 0.35f;
-    float threshold = 0.5f;
-    float edgeSmoothness = 0.08f;
-    float blobRadius;
-
-    static readonly int MainTexId = Shader.PropertyToID("_MainTex");
-    static readonly int ColorId = Shader.PropertyToID("_Color");
-    static readonly int ThresholdId = Shader.PropertyToID("_Threshold");
-    static readonly int SmoothnessId = Shader.PropertyToID("_Smoothness");
-
-    void Awake()
+    [StructLayout(LayoutKind.Sequential)]
+    struct GpuParticle
     {
-        splatMaterial = new Material(Shader.Find("Pour/LiquidBlobSplat"));
-        compositeMaterial = new Material(Shader.Find("Pour/LiquidComposite"));
-
-        blobMesh = new Mesh { name = "LiquidBlobs" };
-        blobMesh.MarkDynamic();
-        blobMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // 파티클이 많아지면 65535 정점을 넘는다
-
-        commandBuffer = new CommandBuffer { name = "Liquid Blob Field" };
-
-        CreateCompositeQuad();
-        EnsureMeshCapacity(256);
+        public Vector4 positionVelocity;
+        public Vector4 impact;
     }
 
-    void OnEnable() => RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
-    void OnDisable() => RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
+    Material splatMaterial, compositeMaterial;
+    MeshRenderer compositeRenderer;
+    Mesh compositeMesh;
+    GraphicsBuffer particleBuffer;
+    GpuParticle[] upload;
+    int capacity, particleCount;
+    RenderTexture fieldTexture, effectRead, effectWrite, surfaceRaw, surfaceRead, surfaceWrite;
+    CommandBuffer commands;
+    Transform container;
+    Vector2 halfExtents;
+    LiquidProfile profile;
+    LiquidAppearance appearance;
+    Color liquidColor;
+    bool initialized, clearHistory = true;
+    int renderedFrame = -1;
+    Vector3 previousContainerPosition;
+    float effectTime;
 
-    /// <summary>합성 결과를 보여줄 화면 크기 쿼드. 카메라 앞에 붙여 항상 화면을 덮게 한다.</summary>
-    void CreateCompositeQuad()
+    static readonly int ParticlesId = Shader.PropertyToID("_Particles");
+    static readonly int FieldId = Shader.PropertyToID("_FieldTex");
+    static readonly int EffectsId = Shader.PropertyToID("_EffectsTex");
+    static readonly int SurfaceId = Shader.PropertyToID("_SurfaceTex");
+
+    void Awake() => CreateResources();
+
+    void OnEnable()
     {
+        RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
+        clearHistory = true;
+        renderedFrame = -1;
+        if (compositeRenderer != null) compositeRenderer.enabled = initialized;
+    }
+
+    void OnDisable()
+    {
+        RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
+        if (compositeRenderer != null) compositeRenderer.enabled = false;
+        ReleaseTargets();
+        particleBuffer?.Dispose();
+        particleBuffer = null;
+        capacity = particleCount = 0;
+        upload = null;
+        effectTime = 0f;
+        clearHistory = true;
+    }
+
+    void CreateResources()
+    {
+        if (splatMaterial != null) return;
+        Shader splat = Shader.Find("Pour/LiquidBlobSplat");
+        Shader composite = Shader.Find("Pour/LiquidComposite");
+        if (splat == null || composite == null || !splat.isSupported || !composite.isSupported)
+        {
+            Debug.LogError("[Pour] GPU 액체 셰이더를 사용할 수 없습니다. Shader Model 4.5 지원을 확인하세요.", this);
+            enabled = false;
+            return;
+        }
+        splatMaterial = new Material(splat) { hideFlags = HideFlags.DontSave };
+        compositeMaterial = new Material(composite) { hideFlags = HideFlags.DontSave };
+        commands = new CommandBuffer { name = "Pour GPU Liquid" };
         var go = new GameObject("Liquid Composite");
         go.transform.SetParent(transform, false);
-
-        var meshFilter = go.AddComponent<MeshFilter>();
+        go.layer = gameObject.layer;
         compositeRenderer = go.AddComponent<MeshRenderer>();
         compositeRenderer.sortingOrder = sortingOrder;
         compositeRenderer.sharedMaterial = compositeMaterial;
-
+        compositeRenderer.shadowCastingMode = ShadowCastingMode.Off;
+        compositeRenderer.receiveShadows = false;
+        compositeRenderer.enabled = false;
         compositeMesh = new Mesh { name = "LiquidCompositeQuad" };
-        compositeMesh.vertices = new[]
-        {
-            new Vector3(-0.5f, -0.5f, 0f), new Vector3(0.5f, -0.5f, 0f),
-            new Vector3(0.5f, 0.5f, 0f), new Vector3(-0.5f, 0.5f, 0f),
+        compositeMesh.vertices = new[] {
+            new Vector3(-0.5f, -0.5f), new Vector3(0.5f, -0.5f),
+            new Vector3(0.5f, 0.5f), new Vector3(-0.5f, 0.5f)
         };
         compositeMesh.uv = new[] { Vector2.zero, Vector2.right, Vector2.one, Vector2.up };
         compositeMesh.triangles = new[] { 0, 1, 2, 0, 2, 3 };
         compositeMesh.RecalculateBounds();
-
-        meshFilter.mesh = compositeMesh;
+        go.AddComponent<MeshFilter>().sharedMesh = compositeMesh;
     }
 
-    public void Init(LiquidProfile profile, Color liquidColor)
+    public void Init(LiquidProfile liquidProfile, Color color)
+        => Init(liquidProfile, color, liquidProfile.ResolveAppearance(null));
+
+    public void Init(LiquidProfile liquidProfile, Color color, LiquidAppearance materialAppearance)
     {
-        blobRadiusScale = profile.blobRadiusScale;
-        stretchPerSpeed = profile.stretchPerSpeed;
-        maxStretch = profile.maxStretch;
-        streamThinning = profile.streamThinning;
-        threshold = profile.threshold;
-        edgeSmoothness = profile.edgeSmoothness;
-
-        blobRadius = profile.physics.spacing * blobRadiusScale;
-
-        compositeMaterial.SetColor(ColorId, liquidColor);
-        compositeMaterial.SetFloat(ThresholdId, threshold);
-        compositeMaterial.SetFloat(SmoothnessId, edgeSmoothness);
+        CreateResources();
+        if (compositeMaterial == null) return;
+        profile = liquidProfile;
+        appearance = materialAppearance;
+        liquidColor = color;
+        initialized = true;
+        clearHistory = true;
+        effectTime = 0f;
+        renderedFrame = -1;
+        compositeRenderer.enabled = isActiveAndEnabled;
     }
 
-    /// <summary>파티클 위치/속도로 블롭 사각형 메시를 다시 만든다. 파티클 수에 상한이 없다.</summary>
+    public void SetContainer(Transform glass, Vector2 interiorHalfExtents)
+    {
+        container = glass;
+        halfExtents = new Vector2(Mathf.Max(0.001f, Mathf.Abs(interiorHalfExtents.x)),
+                                  Mathf.Max(0.001f, Mathf.Abs(interiorHalfExtents.y)));
+        previousContainerPosition = glass != null ? glass.position : Vector3.zero;
+        clearHistory = true;
+    }
+
+    public void SetTargetCamera(Camera camera)
+    {
+        targetCamera = camera;
+        clearHistory = true;
+        renderedFrame = -1;
+    }
+
     public void UpdateBlobs(IReadOnlyList<SphParticle> particles)
     {
-        int count = particles.Count;
-        EnsureMeshCapacity(count);
-
-        for (int i = 0; i < count; i++)
+        particleCount = particles.Count;
+        if (!initialized || !isActiveAndEnabled || splatMaterial == null || particleCount == 0) return;
+        if (particleBuffer == null || particleCount > capacity)
         {
-            Vector2 velocity = particles[i].velocity;
-            float speed = velocity.magnitude;
-
-            Vector2 dir = speed > 0.01f ? velocity / speed : Vector2.right;
-
-            // 늘임은 속도에 직접 비례시킨다. maxVelocity로 정규화하지 않는 이유는 SphParticle.Integrate가
-            // CFL 조건(한 스텝에 spacing의 40%)으로 속도를 그보다 낮게 잘라서다 — spacing을 줄이면
-            // 그 상한이 같이 내려가 speed01이 1에 영영 못 닿고, 줄기가 덜 늘어나 알갱이로 보인다.
-            float stretch = Mathf.Clamp(1f + speed * stretchPerSpeed, 1f, maxStretch);
-
-            // 가늘어짐은 늘임과 같은 속도 곡선을 탄다. stretch에서 되뽑으면 정규화 기준을 새로 두지
-            // 않아도 되고, 두 값이 늘 같은 지점에서 최대가 된다(고인 액체는 둘 다 1배 = 원래 굵기).
-            float speed01 = maxStretch > 1f ? (stretch - 1f) / (maxStretch - 1f) : 0f;
-            float thinFactor = Mathf.Lerp(1f, 1f - streamThinning, speed01);
-
-            // 사각형의 두 축을 진행 방향과 그 수직으로 잡는다. uv 공간의 원이 곧 월드의 타원이 되므로
-            // 셰이더는 uv 길이만 보면 되고, 두 축의 크기를 따로 줄 수 있다.
-            //
-            // 길이(진행 방향)는 늘임만, 두께(수직)는 가늘어짐만 적용한다. 예전처럼 두 축에 모두
-            // 가늘어짐을 걸면 줄기를 가늘게 만들수록 길이도 같이 줄어 파티클 사이가 끊어졌다 —
-            // 그래서 "흐르게 하려면 두껍게" 둘 수밖에 없었다.
-            Vector2 along = dir * (blobRadius * stretch);
-            Vector2 perp = new Vector2(-dir.y, dir.x) * (blobRadius * thinFactor);
-            Vector2 center = particles[i].pos;
-
-            int v = i * 4;
-            vertices[v + 0] = center - along - perp;
-            vertices[v + 1] = center + along - perp;
-            vertices[v + 2] = center + along + perp;
-            vertices[v + 3] = center - along + perp;
-
-            uvs[v + 0] = new Vector2(-1f, -1f);
-            uvs[v + 1] = new Vector2(1f, -1f);
-            uvs[v + 2] = new Vector2(1f, 1f);
-            uvs[v + 3] = new Vector2(-1f, 1f);
+            particleBuffer?.Dispose();
+            capacity = Mathf.Max(256, Mathf.NextPowerOfTwo(particleCount));
+            upload = new GpuParticle[capacity];
+            particleBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, 32);
+            splatMaterial.SetBuffer(ParticlesId, particleBuffer);
         }
-
-        // 남는 자리는 한 점으로 접어 그려지지 않게 한다.
-        for (int v = count * 4; v < vertices.Length; v++)
+        for (int i = 0; i < particleCount; i++)
         {
-            vertices[v] = Vector3.zero;
-            uvs[v] = Vector2.zero;
+            var p = particles[i];
+            upload[i].positionVelocity = new Vector4(p.pos.x, p.pos.y, p.velocity.x, p.velocity.y);
+            upload[i].impact = p.renderImpact;
+            upload[i].impact.w = p.insideContainer ? 1f : 0f;
+            p.renderImpact = Vector4.zero;
         }
-
-        // 정점/uv만 올린다. 삼각형은 용량이 바뀔 때만 바뀌므로 매 프레임 다시 올리면 그만큼 순수한 낭비다.
-        blobMesh.SetVertices(vertices);
-        blobMesh.SetUVs(0, uvs);
-    }
-
-    void EnsureMeshCapacity(int particleCount)
-    {
-        if (particleCount <= meshCapacity && vertices != null) return;
-
-        meshCapacity = Mathf.Max(256, Mathf.NextPowerOfTwo(particleCount));
-
-        vertices = new Vector3[meshCapacity * 4];
-        uvs = new Vector2[meshCapacity * 4];
-        triangles = new int[meshCapacity * 6];
-
-        for (int i = 0; i < meshCapacity; i++)
-        {
-            int v = i * 4;
-            int t = i * 6;
-
-            triangles[t + 0] = v + 0;
-            triangles[t + 1] = v + 1;
-            triangles[t + 2] = v + 2;
-            triangles[t + 3] = v + 0;
-            triangles[t + 4] = v + 2;
-            triangles[t + 5] = v + 3;
-        }
-
-        // 정점을 먼저 올려야 삼각형 인덱스가 범위를 벗어나지 않는다.
-        blobMesh.Clear();
-        blobMesh.SetVertices(vertices);
-        blobMesh.SetUVs(0, uvs);
-        blobMesh.SetTriangles(triangles, 0);
-
-        // CommandBuffer.DrawMesh는 컬링을 하지 않으므로 경계를 한 번 크게 잡아두면 된다.
-        // 이러면 매 프레임 RecalculateBounds로 전 정점을 훑는 비용이 사라진다.
-        blobMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1e5f);
+        particleBuffer.SetData(upload, 0, 0, particleCount);
     }
 
     Camera ResolveCamera() => targetCamera != null ? targetCamera : Camera.main;
 
-    /// <summary>
-    /// 액체를 그릴 카메라를 정한다.
-    ///
-    /// 이 렌더러는 화면을 덮는 쿼드에 합성 결과를 얹는 방식이라 어느 카메라의 화면인지가 중요하다.
-    /// 기믹 큐가 돌릴 때는 바에서 멀리 떨어진 무대를 전용 카메라가 비추므로, 메인 카메라에 그리면
-    /// 액체가 바 쪽 화면에 그려져 무대에서는 아무것도 안 보인다.
-    ///
-    /// 프리팹에 남은 카메라 참조는 씬 밖 오브젝트라 어차피 끊겨 있어서, 실행 중에 다시 이어 준다.
-    /// </summary>
-    public void SetTargetCamera(Camera camera)
-    {
-        targetCamera = camera;
-    }
-
-    /// <summary>
-    /// 합성 쿼드 맞추기는 렌더링 콜백이 아니라 여기서 한다 — 렌더 도중에 Transform을 바꾸면
-    /// 그 프레임의 컬링 결과와 어긋나 아무것도 안 보일 수 있다.
-    /// </summary>
     void LateUpdate()
     {
-        Camera camera = ResolveCamera();
-        if (camera == null) return;
-
-        EnsureFieldTexture(camera);
-        FitCompositeQuad(camera);
+        var camera = ResolveCamera();
+        if (!initialized || camera == null || compositeRenderer == null) return;
+        // 입자 데이터도 이 프로젝트의 물리도 XY 평면에 있다.
+        float distance = Vector3.Dot(Vector3.zero - camera.transform.position, camera.transform.forward);
+        var quad = compositeRenderer.transform;
+        quad.position = camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, distance));
+        quad.rotation = camera.transform.rotation;
+        float height = camera.orthographicSize * 2f;
+        // 월드 크기를 부모 스케일과 독립적으로 유지한다.
+        quad.localScale = Vector3.one;
+        Vector3 parentScale = quad.lossyScale;
+        quad.localScale = new Vector3(height * camera.aspect / Mathf.Max(0.0001f, Mathf.Abs(parentScale.x)),
+                                     height / Mathf.Max(0.0001f, Mathf.Abs(parentScale.y)), 1f);
     }
 
-    /// <summary>1패스: 블롭 메시를 필드 텍스처에 가산 합성한다.</summary>
     void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
-        if (camera != ResolveCamera() || blobMesh == null || fieldTexture == null) return;
-
-        commandBuffer.Clear();
-
-        commandBuffer.SetRenderTarget(fieldTexture);
-        commandBuffer.ClearRenderTarget(true, true, Color.clear);
-
-        // CommandBuffer로 직접 그릴 때는 카메라의 뷰/투영 행렬이 자동으로 잡히지 않는다.
-        // 넣어주지 않으면 블롭이 엉뚱한 좌표에 그려져 화면에 아무것도 안 나온다.
-        // (플랫폼별 Y 뒤집힘 변환은 Unity가 알아서 하므로 카메라 원본 행렬을 그대로 넘긴다.)
-        commandBuffer.SetViewProjectionMatrices(camera.worldToCameraMatrix, camera.projectionMatrix);
-
-        commandBuffer.DrawMesh(blobMesh, Matrix4x4.identity, splatMaterial);
-
-        context.ExecuteCommandBuffer(commandBuffer);
+        if (camera != ResolveCamera() || !initialized || !isActiveAndEnabled || !camera.orthographic) return;
+        // 같은 카메라가 같은 프레임에 다시 렌더되어도 충격/거품을 중복 적분하지 않는다.
+        if (renderedFrame == Time.frameCount) return;
+        var buffer = BuildCommands(camera, Mathf.Min(Time.deltaTime, 1f / 15f));
+        context.ExecuteCommandBuffer(buffer);
+        renderedFrame = Time.frameCount;
     }
 
-    void EnsureFieldTexture(Camera camera)
+    CommandBuffer BuildCommands(Camera camera, float dt)
+    {
+        EnsureTargets(camera);
+        commands.Clear();
+        if (clearHistory)
+        {
+            foreach (var rt in new[] { effectRead, effectWrite, surfaceRead, surfaceWrite })
+            {
+                commands.SetRenderTarget(rt);
+                commands.ClearRenderTarget(false, true, Color.clear);
+            }
+            clearHistory = false;
+        }
+
+        float pixel = Mathf.Max(1f, Mathf.Round(Mathf.Max(1, profile.pixelSize) * camera.pixelHeight / 1080f));
+        float distance = Vector3.Dot(Vector3.zero - camera.transform.position, camera.transform.forward);
+        Vector3 origin = camera.ViewportToWorldPoint(new Vector3(0, 0, distance));
+        Vector3 axisX = camera.ViewportToWorldPoint(new Vector3(1, 0, distance)) - origin;
+        Vector3 axisY = camera.ViewportToWorldPoint(new Vector3(0, 1, distance)) - origin;
+        Matrix4x4 screenToWorld = Matrix4x4.identity;
+        screenToWorld.SetColumn(0, new Vector4(axisX.x, axisX.y, axisX.z, 0));
+        screenToWorld.SetColumn(1, new Vector4(axisY.x, axisY.y, axisY.z, 0));
+        screenToWorld.SetColumn(2, new Vector4(camera.transform.forward.x, camera.transform.forward.y, camera.transform.forward.z, 0));
+        screenToWorld.SetColumn(3, new Vector4(origin.x, origin.y, origin.z, 1));
+        Matrix4x4 worldToScreen = screenToWorld.inverse;
+        var glassToWorld = container != null ? container.localToWorldMatrix : Matrix4x4.identity;
+        Vector3 containerVelocity = container != null && dt > 0 ? (container.position - previousContainerPosition) / dt : Vector3.zero;
+        if (container != null) previousContainerPosition = container.position;
+        effectTime += dt;
+
+        compositeMaterial.SetMatrix("_ScreenToWorld", screenToWorld);
+        compositeMaterial.SetMatrix("_WorldToScreen", worldToScreen);
+        compositeMaterial.SetMatrix("_GlassToWorld", glassToWorld);
+        compositeMaterial.SetMatrix("_WorldToGlass", glassToWorld.inverse);
+        compositeMaterial.SetVector("_GlassSize", new Vector4(halfExtents.x, halfExtents.y, container != null ? 1f : 0f, 0f));
+        compositeMaterial.SetVector("_ContainerVelocity", containerVelocity);
+        compositeMaterial.SetVector("_PixelGrid", new Vector4(camera.pixelWidth / pixel, camera.pixelHeight / pixel, Mathf.Max(3, profile.colorSteps), profile.surfaceDepth));
+        compositeMaterial.SetVector("_Optics", new Vector4(appearance.absorption, appearance.turbidity, appearance.gloss, refractionStrength));
+        compositeMaterial.SetVector("_Cloud", new Vector4(appearance.impactCloud, Mathf.Max(0.05f, appearance.cloudLifetime), appearance.bubbleRise, appearance.carbonation));
+        compositeMaterial.SetVector("_Foam", new Vector4(appearance.foamGain, Mathf.Max(0.05f, appearance.foamLifetime), appearance.foamHeight, appearance.pulp));
+        compositeMaterial.SetVector("_Step", new Vector4(Mathf.Max(0f, dt), effectTime, profile.physics.spacing, 0f));
+        compositeMaterial.SetFloat("_Threshold", profile.threshold);
+        compositeMaterial.SetFloat("_EdgeSmoothness", Mathf.Max(0.001f, profile.edgeSmoothness));
+        compositeMaterial.SetColor("_Color", liquidColor);
+        compositeMaterial.SetColor("_FoamColor", appearance.foamColor);
+        compositeMaterial.SetTexture(FieldId, fieldTexture);
+        compositeMaterial.SetTexture("_PreviousEffects", effectRead);
+        compositeMaterial.SetTexture("_PreviousSurface", surfaceRead);
+        compositeMaterial.SetTexture("_RawSurface", surfaceRaw);
+        compositeMaterial.SetTexture(EffectsId, effectWrite);
+        compositeMaterial.SetTexture(SurfaceId, surfaceWrite);
+
+        splatMaterial.SetMatrix("_WorldToScreen", worldToScreen);
+        splatMaterial.SetVector("_BlobShape", new Vector4(profile.physics.spacing * profile.blobRadiusScale,
+            profile.stretchPerSpeed, profile.maxStretch, profile.streamThinning));
+        commands.SetRenderTarget(fieldTexture);
+        commands.ClearRenderTarget(false, true, Color.clear);
+        if (particleCount > 0 && particleBuffer != null)
+            commands.DrawProcedural(Matrix4x4.identity, splatMaterial, 0, MeshTopology.Triangles, 6, particleCount);
+
+        commands.Blit(Texture2D.blackTexture, surfaceRaw, compositeMaterial, 2);
+        commands.Blit(Texture2D.blackTexture, effectWrite, compositeMaterial, 1);
+        commands.Blit(Texture2D.blackTexture, surfaceWrite, compositeMaterial, 3);
+        Swap(ref effectRead, ref effectWrite);
+        Swap(ref surfaceRead, ref surfaceWrite);
+        return commands;
+    }
+
+    void EnsureTargets(Camera camera)
     {
         int width = Mathf.Max(64, Mathf.RoundToInt(camera.pixelWidth * fieldResolutionScale));
         int height = Mathf.Max(64, Mathf.RoundToInt(camera.pixelHeight * fieldResolutionScale));
-
-        if (fieldTexture != null && fieldTexture.width == width && fieldTexture.height == height) return;
-
-        if (fieldTexture != null) fieldTexture.Release();
-
-        // 필드값은 여러 블롭이 더해져 1을 넘으므로 8비트로는 잘린다 — 부동소수점 포맷을 쓴다.
-        fieldTexture = new RenderTexture(width, height, 0, RenderTextureFormat.RHalf)
-        {
-            name = "LiquidField",
-            filterMode = FilterMode.Bilinear,
-        };
-        fieldTexture.Create();
-
-        compositeMaterial.SetTexture(MainTexId, fieldTexture);
+        if (fieldTexture != null && fieldTexture.width == width && fieldTexture.height == height &&
+            effectRead != null && effectRead.width == Mathf.Clamp(effectResolution, 64, 256)) return;
+        ReleaseTargets();
+        fieldTexture = Target("Liquid Field (density, velocity, impact)", width, height, RenderTextureFormat.ARGBHalf);
+        int size = Mathf.Clamp(effectResolution, 64, 256);
+        effectRead = Target("Liquid Cloud A", size, size * 2, RenderTextureFormat.RHalf);
+        effectWrite = Target("Liquid Cloud B", size, size * 2, RenderTextureFormat.RHalf);
+        surfaceRaw = Target("Liquid Surface Raw", size, 1, RenderTextureFormat.ARGBHalf);
+        surfaceRead = Target("Liquid Surface A", size, 1, RenderTextureFormat.ARGBHalf);
+        surfaceWrite = Target("Liquid Surface B", size, 1, RenderTextureFormat.ARGBHalf);
+        clearHistory = true;
     }
 
-    /// <summary>합성 쿼드를 카메라 화면에 정확히 맞춘다(필드 텍스처와 화면 좌표가 1:1로 대응해야 한다).</summary>
-    void FitCompositeQuad(Camera camera)
+    static RenderTexture Target(string name, int width, int height, RenderTextureFormat format)
     {
-        Transform quad = compositeRenderer.transform;
+        var rt = new RenderTexture(width, height, 0, format, RenderTextureReadWrite.Linear) {
+            name = name, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp,
+            useMipMap = false, autoGenerateMips = false, hideFlags = HideFlags.DontSave
+        };
+        rt.Create();
+        return rt;
+    }
 
-        float height = camera.orthographicSize * 2f;
-        float width = height * camera.aspect;
+    static void Swap(ref RenderTexture a, ref RenderTexture b) { var swap = a; a = b; b = swap; }
 
-        quad.position = new Vector3(camera.transform.position.x, camera.transform.position.y, 0f);
-        quad.rotation = camera.transform.rotation;
-        quad.localScale = new Vector3(width, height, 1f);
+    void ReleaseTargets()
+    {
+        Release(ref fieldTexture); Release(ref effectRead); Release(ref effectWrite);
+        Release(ref surfaceRaw); Release(ref surfaceRead); Release(ref surfaceWrite);
+    }
+
+    static void Release(ref RenderTexture rt)
+    {
+        if (rt == null) return;
+        if (RenderTexture.active == rt) RenderTexture.active = null;
+        rt.Release();
+        if (Application.isPlaying) Destroy(rt); else DestroyImmediate(rt);
+        rt = null;
     }
 
     void OnDestroy()
     {
-        if (splatMaterial != null) Destroy(splatMaterial);
-        if (compositeMaterial != null) Destroy(compositeMaterial);
-        if (blobMesh != null) Destroy(blobMesh);
-        if (compositeMesh != null) Destroy(compositeMesh);
+        ReleaseTargets();
+        particleBuffer?.Dispose();
+        particleBuffer = null;
+        commands?.Release();
+        DestroyResource(splatMaterial);
+        DestroyResource(compositeMaterial);
+        DestroyResource(compositeMesh);
+    }
 
-        if (fieldTexture != null) fieldTexture.Release();
-        commandBuffer?.Release();
+    static void DestroyResource(Object resource)
+    {
+        if (resource == null) return;
+        if (Application.isPlaying) Destroy(resource); else DestroyImmediate(resource);
     }
 }
