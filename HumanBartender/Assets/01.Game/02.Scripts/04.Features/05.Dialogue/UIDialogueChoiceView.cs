@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// 선택지 UI 패널들을 관리한다. 조건 판정은 부르는 쪽이 끝내고 넘긴다 —
@@ -10,6 +11,21 @@ public class UIDialogueChoiceView : MonoBehaviour
 {
     [SerializeField] private GameObject choicesPanel;
     [SerializeField] private List<ChoicePanel> choicePanels = new();
+    [Inject] ISoundEffectPlayer sound;
+
+    void ConfigureHover(ChoicePanel panel)
+    {
+        var button = panel.GetButton();
+        if (!button.TryGetComponent<UISelectionAudio>(out var feedback))
+            feedback = button.gameObject.AddComponent<UISelectionAudio>();
+        feedback.Configure(sound, DialoguePresentationSettings.Shared?.ChoiceHoverSoundKey);
+    }
+
+    void PlayConfirm()
+    {
+        string key = DialoguePresentationSettings.Shared?.ChoiceConfirmSoundKey;
+        if (!string.IsNullOrWhiteSpace(key)) sound?.PlaySE(key);
+    }
 
 
     // 실행 중 선택 콜백만 쓰는 임시 상태다. 도메인 리로드 때 Unity가 이 재귀적인
@@ -68,10 +84,12 @@ public class UIDialogueChoiceView : MonoBehaviour
             choicePanels[visibleIndex].SetPanelText(optionText);
 
             var button = choicePanels[visibleIndex].GetButton();
+            ConfigureHover(choicePanels[visibleIndex]);
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() =>
             {
                 var selected = option;
+                PlayConfirm();
                 CloseChoices();
                 onSelected?.Invoke(selected);
             });
@@ -126,6 +144,7 @@ public class UIDialogueChoiceView : MonoBehaviour
             ChoicePanel panel = choicePanels[i];
 
             panel.SetPanelText(texts[i]);
+            ConfigureHover(panel);
             panel.SetActive(true);
 
             // 비활성 칸은 보이되 눌리지 않는다. 회색 처리는 Button이 하는 색 전이에 맡긴다.
@@ -136,6 +155,7 @@ public class UIDialogueChoiceView : MonoBehaviour
             int index = i;
             panel.GetButton().onClick.AddListener(() =>
             {
+                PlayConfirm();
                 CloseChoices();
                 onSelected?.Invoke(index);
             });

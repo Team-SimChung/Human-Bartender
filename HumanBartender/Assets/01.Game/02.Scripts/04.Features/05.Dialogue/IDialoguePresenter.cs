@@ -28,3 +28,9 @@ public interface IDialogueInputPrompt
 {
     void SetWaitingForInput(bool waiting);
 }
+
+/// <summary>실제로 대사를 넘긴 입력에 대한 표현. 취소·자동 진행과 구분한다.</summary>
+public interface IDialogueInputFeedback
+{
+    void PlayAdvanceFeedback();
+}

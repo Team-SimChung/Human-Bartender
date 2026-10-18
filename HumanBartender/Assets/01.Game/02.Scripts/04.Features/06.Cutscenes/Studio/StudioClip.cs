@@ -315,6 +315,13 @@ namespace HumanBartender.CutsceneStudio
             internal set { sound = value; }
         }
 
+        [SerializeField] private AudioBus bus = AudioBus.SoundEffects;
+        public AudioBus Bus
+        {
+            get { return bus; }
+            internal set { bus = value; }
+        }
+
         [Range(0, 1)]
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Volume")]
         private float volume = .7f;

@@ -19,7 +19,7 @@ public class InteractiveEntityManager : MonoBehaviour
     [SerializeField] protected InteractableEvent OnInteracted;
     [SerializeField] protected VoidEvent OnRefreshCondition;
 
-    [Inject] ISoundManager soundManager;
+    [Inject] IBgmPlayer soundManager;
     [Inject] IConditionUtil conditionUtil;
     [Inject] IObjectResolver resolver;
     readonly Dictionary<string, InteractiveEntity> entities = new(StringComparer.Ordinal);

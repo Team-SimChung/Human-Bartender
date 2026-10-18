@@ -20,7 +20,11 @@ MonoBehaviour:
   PopPeak: 1.2
   PopDuration: 0.12
   ReducedMotion: 0
-  TypingSoundKey:
+  TypingSoundKey: SFX_typing
+  TypingSoundInterval: 0.06
+  AdvanceSoundKey:
+  ChoiceHoverSoundKey: SFX_ui_hover
+  ChoiceConfirmSoundKey: SFX_ui_click
   Presets:
   - Id: reproach
     Motion: 1
@@ -112,3 +116,33 @@ MonoBehaviour:
     PauseAfterMs: 0
     Amplitude: 0.65
     Frequency: 18
+  - Id: gentle
+    Motion: 2
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 65
+    PauseBeforeMs: 80
+    PauseAfterMs: 0
+    Amplitude: 0.65
+    Frequency: 1.5
+  - Id: emphasis
+    Motion: 0
+    SizePercent: 115
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 55
+    PauseBeforeMs: 100
+    PauseAfterMs: 0
+    Amplitude: 0
+    Frequency: 0
+  - Id: tremble
+    Motion: 1
+    SizePercent: 100
+    ColorHex:
+    OverrideSpeed: 1
+    TypingIntervalMs: 75
+    PauseBeforeMs: 100
+    PauseAfterMs: 0
+    Amplitude: 0.35
+    Frequency: 12

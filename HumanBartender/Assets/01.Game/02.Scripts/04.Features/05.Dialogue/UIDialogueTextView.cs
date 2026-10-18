@@ -52,7 +52,7 @@ public class UIDialogueTextView : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] NewTextTagDataSO textTagData;
-    [Inject] ISoundManager soundManager;
+    [Inject] ISoundEffectPlayer soundManager;
 
     [Header("UI Components")]
     public DynamicSpeechBubble lunaSpeechBubble;
@@ -167,7 +167,15 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>화면 클릭 시 타이핑을 중단(스킵)한다.</summary>
     public void OnScreenClick()
     {
-        currentPlayer?.Skip();
+        if (currentPlayer == null || currentPlayer.CurrentSessionId == 0 || currentPlayer.IsHolding) return;
+        PlayAdvanceFeedback();
+        currentPlayer.Skip();
+    }
+
+    public void PlayAdvanceFeedback()
+    {
+        string key = DialoguePresentationSettings.Shared?.AdvanceSoundKey;
+        if (!string.IsNullOrWhiteSpace(key)) soundManager?.PlaySE(key);
     }
 
     void OnDisable() => StopTyping();

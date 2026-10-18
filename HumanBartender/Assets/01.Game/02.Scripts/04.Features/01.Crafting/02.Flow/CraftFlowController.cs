@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// UI 버튼과 외부 코드가 함께 사용하는 제조 관리자.
@@ -11,6 +12,7 @@ using UnityEngine;
 /// </summary>
 public class CraftFlowController : MonoBehaviour
 {
+    [Inject] ISoundEffectPlayer sound;
     [Header("Scene")]
     [SerializeField] private GimmickRunner runner;
     [Tooltip("제조 결과를 보여주고 버리기/제공하기를 선택하는 화면. 비우면 완성 잔을 바로 트레이에 알린다.")]
@@ -436,6 +438,7 @@ public class CraftFlowController : MonoBehaviour
         {
             Notify<CraftSession, CraftJudgement>(OnCraftJudged, session, Judgement);
             PendingDrink = new CraftedDrink(session, Judgement, selected);
+            sound?.PlaySE("SFX_goal_completed");
             IsAwaitingServeDecision = serveScreen != null;
             if (!IsAwaitingServeDecision || !serveScreen.TryPlay(PendingDrink))
             {

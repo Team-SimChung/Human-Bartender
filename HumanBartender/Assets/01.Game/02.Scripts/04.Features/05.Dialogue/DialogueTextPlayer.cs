@@ -27,8 +27,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     Session current;
     int nextId;
     static int warnings;
-    ISoundManager sound;
-    public void ConfigureAudio(ISoundManager manager) => sound = manager;
+    ISoundEffectPlayer sound;
+    public void ConfigureAudio(ISoundEffectPlayer manager) => sound = manager;
 
     void Awake()
     {
@@ -219,15 +219,15 @@ static class DialogueTypingAudio
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Reset() { lastFrame = -1; lastTime = -1f; }
 
-    public static void TryPlay(ISoundManager sound, DialoguePresentationSettings settings,
+    public static void TryPlay(ISoundEffectPlayer sound, DialoguePresentationSettings settings,
         string text, TMP_CharacterInfo ch)
     {
         if (sound == null || settings == null || string.IsNullOrWhiteSpace(settings.TypingSoundKey) ||
             ch.elementType == TMP_TextElementType.Sprite || ch.index < 0 || ch.index >= text.Length ||
             !char.IsLetterOrDigit(text, ch.index) || Time.frameCount == lastFrame ||
-            (lastTime >= 0f && Time.time - lastTime < 0.06f)) return;
+            (lastTime >= 0f && Time.unscaledTime - lastTime < settings.TypingSoundInterval)) return;
         lastFrame = Time.frameCount;
-        lastTime = Time.time;
+        lastTime = Time.unscaledTime;
         sound.PlaySE(settings.TypingSoundKey);
     }
 }

@@ -24,7 +24,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     [SerializeField] private OrderRequestController orderController;
     [SerializeField] private CraftFlowController craftFlow;
 
-    [Inject] ISoundManager soundManager;
+    [Inject] IBgmPlayer soundManager;
 
     /// <summary>
     /// 컷씬 재생기(CutSceneManager). 루트 스코프에 있어 인스펙터로 꽂을 수 없으므로 주입받는다.
