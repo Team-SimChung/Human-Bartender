@@ -17,7 +17,7 @@ Shader "Pour/LiquidComposite"
         float4 _FieldTex_TexelSize, _RawSurface_TexelSize;
         float4 _Color, _FoamColor, _GlassSize, _PixelGrid, _Optics, _Cloud, _Foam, _Step, _ContainerVelocity;
         float4x4 _ScreenToWorld, _WorldToScreen, _GlassToWorld, _WorldToGlass;
-        float _Threshold, _EdgeSmoothness;
+        float _Threshold, _EdgeSmoothness, _BubbleSize;
 
         float hash21(float2 p) { return frac(sin(dot(p,float2(127.1,311.7))) * 43758.5453); }
         float inside(float2 uv) { return step(0,uv.x)*step(uv.x,1)*step(0,uv.y)*step(uv.y,1); }
@@ -75,22 +75,26 @@ Shader "Pour/LiquidComposite"
             float highlight = smoothstep(0.91,0.99,light) * _Optics.z;
             color += highlight * 0.26;
             color = lerp(color,lerp(_Color.rgb,_FoamColor.rgb,0.45),cap * 0.4);
-            float cloud = saturate(effects.r);
+            float cloud = _Cloud.w > 0 ? saturate(effects.r) : 0;
             color = lerp(color,_FoamColor.rgb,cloud * (1 - _Optics.y * 0.6));
 
             // 고정 seed와 시간으로 기포를 움직인다. CPU 입자는 추가하지 않는다.
             float bubbles = 0;
             if (_Cloud.w > 0 && connected > 0)
             {
-                float2 p = local * float2(15,12);
-                p.y -= _Step.y * _Cloud.z * 12;
+                float worldWidth = length(mul((float3x3)_GlassToWorld,float3(_GlassSize.x*2,0,0)));
+                float worldHeight = length(mul((float3x3)_GlassToWorld,float3(0,_GlassSize.y*2,0)));
+                float cellSize = max(0.001,worldWidth/12);
+                float2 p = local * float2(12,worldHeight/cellSize);
+                p.y -= _Step.y * _Cloud.z/cellSize;
                 float2 cell = floor(p);
                 float random = hash21(cell);
                 float2 centre = float2(0.25 + hash21(cell+3)*0.5,0.3 + hash21(cell+7)*0.4);
-                float radius = lerp(0.06,0.16,random);
-                float d = length((frac(p)-centre)*float2(1,0.75));
+                float pixelWorldSize = length(mul((float3x3)_ScreenToWorld,float3(1/_PixelGrid.x,0,0)));
+                float radius = min(0.38,max(lerp(0.08,0.16,random)*_BubbleSize,pixelWorldSize*0.85/cellSize));
+                float d = length(frac(p)-centre);
                 bubbles = step(d,radius) * step(random, _Cloud.w * 0.65);
-                color = lerp(color,_FoamColor.rgb,bubbles * 0.65);
+                color = lerp(color,_FoamColor.rgb,bubbles * 0.9);
             }
             if (_Foam.w > 0 && connected > 0)
             {
@@ -116,7 +120,7 @@ Shader "Pour/LiquidComposite"
         // 1: 잔 로컬 좌표의 기포 농도. 카메라 이동에도 구름이 화면에 붙지 않는다.
         float4 evolveCloud(v2f_img i) : SV_Target
         {
-            if (_GlassSize.z < 0.5) return 0;
+            if (_GlassSize.z < 0.5 || _Cloud.w <= 0) return 0;
             float4 field = fieldAt(i.uv);
             float occupied = smoothstep(_Threshold*0.7,_Threshold,field.r);
             float2 velocity = localVelocity(field);

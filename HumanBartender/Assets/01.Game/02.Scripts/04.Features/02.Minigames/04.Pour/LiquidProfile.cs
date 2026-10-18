@@ -19,7 +19,9 @@ public class LiquidProfile : ScriptableObject
 {
     [Header("픽셀과 재료별 표현")]
     [Tooltip("1080 높이 기준 픽셀 크기. 물리 좌표에는 적용하지 않는다.")]
-    [Range(1, 12)] public int pixelSize = 3;
+    [Range(1, 12)] public int pixelSize = 6;
+    [Tooltip("탄산 방울 크기 배율. 잔의 가로세로 비율에 상관없이 둥글게 그린다.")]
+    [Range(0.5f, 4f)] public float bubbleSize = 2.2f;
     [Range(3, 16)] public int colorSteps = 7;
     [Range(0f, 0.12f)] public float surfaceDepth = 0.045f;
     [Tooltip("ID가 일치하면 내장 프리셋 대신 사용한다. 기본색/alpha는 기존 재료 데이터가 정한다.")]

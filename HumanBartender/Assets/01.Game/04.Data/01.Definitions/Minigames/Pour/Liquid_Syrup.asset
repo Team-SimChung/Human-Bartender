@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85776558d1c78dd409defa7fa4629d81, type: 3}
   m_Name: Liquid_Syrup
   m_EditorClassIdentifier: Assembly-CSharp::LiquidProfile
+  pixelSize: 6
+  bubbleSize: 2.2
   physics:
     gravity: 9
     spacing: 0.16

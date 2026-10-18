@@ -25,7 +25,7 @@ public struct LiquidAppearance
         var result = new LiquidAppearance
         {
             defaultAlpha = 0.35f, absorption = 0.16f, turbidity = 0.02f,
-            gloss = 0.48f, impactCloud = 0.10f, cloudLifetime = 0.25f,
+            gloss = 0.48f, impactCloud = 0f, cloudLifetime = 0.25f,
             bubbleRise = 0.24f, foamLifetime = 0.4f, viscosityScale = 1f,
             foamColor = new Color(1f, 0.97f, 0.89f)
         };
@@ -57,7 +57,7 @@ public struct LiquidAppearance
             case "sour_mix":
                 result.defaultAlpha = 0.75f; result.turbidity = 0.85f;
                 result.absorption = 0.35f; result.gloss = 0.18f;
-                result.impactCloud = 0.30f; result.cloudLifetime = 0.55f;
+                result.impactCloud = 0f; result.cloudLifetime = 0.55f;
                 result.foamGain = id == "pineapple_juice" ? 0.6f : 0.2f;
                 result.foamLifetime = 1.1f; result.foamHeight = 0.025f;
                 result.pulp = id == "sour_mix" ? 0f : 0.3f;
@@ -69,13 +69,13 @@ public struct LiquidAppearance
             case "coconut_milk":
                 result.defaultAlpha = 1f; result.turbidity = 1f;
                 result.absorption = 0.1f; result.gloss = 0.18f;
-                result.impactCloud = 0.12f; result.foamGain = 0.3f;
+                result.impactCloud = 0f; result.foamGain = 0.3f;
                 result.foamLifetime = 2f; result.foamHeight = 0.03f;
                 result.viscosityScale = id == "cream" ? 3f : 1.3f;
                 break;
             case "grenadine":
                 result.defaultAlpha = 0.75f; result.absorption = 0.9f;
-                result.viscosityScale = 5f; result.impactCloud = 0.05f;
+                result.viscosityScale = 5f; result.impactCloud = 0f;
                 result.gloss = 0.4f;
                 break;
             case "rum": case "whiskey": case "brandy": case "wild_dog":

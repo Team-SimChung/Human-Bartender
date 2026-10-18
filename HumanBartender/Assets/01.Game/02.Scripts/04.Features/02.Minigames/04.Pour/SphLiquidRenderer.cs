@@ -230,6 +230,7 @@ public class SphLiquidRenderer : MonoBehaviour
         compositeMaterial.SetVector("_Foam", new Vector4(appearance.foamGain, Mathf.Max(0.05f, appearance.foamLifetime), appearance.foamHeight, appearance.pulp));
         compositeMaterial.SetVector("_Step", new Vector4(Mathf.Max(0f, dt), effectTime, profile.physics.spacing, 0f));
         compositeMaterial.SetFloat("_Threshold", profile.threshold);
+        compositeMaterial.SetFloat("_BubbleSize", profile.bubbleSize);
         compositeMaterial.SetFloat("_EdgeSmoothness", Mathf.Max(0.001f, profile.edgeSmoothness));
         compositeMaterial.SetColor("_Color", liquidColor);
         compositeMaterial.SetColor("_FoamColor", appearance.foamColor);

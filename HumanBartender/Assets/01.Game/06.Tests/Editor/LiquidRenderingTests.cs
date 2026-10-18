@@ -24,11 +24,20 @@ public sealed class LiquidRenderingTests
     {
         RequireGpu();
         yield return new EnterPlayMode();
-        yield return ExerciseRealPrefab();
+        yield return ExerciseRealPrefab(false);
         yield return new ExitPlayMode();
     }
 
-    static IEnumerator ExerciseRealPrefab()
+    [UnityTest]
+    public IEnumerator BeerTwelveOuncesFitsBelowTheRimAndRealOverpourStillOverflows()
+    {
+        RequireGpu();
+        yield return new EnterPlayMode();
+        yield return ExerciseRealPrefab(true);
+        yield return new ExitPlayMode();
+    }
+
+    static IEnumerator ExerciseRealPrefab(bool fillTarget)
     {
         var stageRoot = new GameObject("liquid runtime stage");
         stageRoot.SetActive(false);
@@ -52,7 +61,14 @@ public sealed class LiquidRenderingTests
         var manager = instance.GetComponentInChildren<PourManager>(true);
         Set(manager,"drivenByRunner",true);
         Set(manager,"pourIngredientId","beer");
-        Set(manager,"showTargetHeight",false);
+        Set(manager,"pourStep",new GimmickStep(ECraftGimmick.Pour,"beer",12f,ENewUnit.Oz,true));
+        Set(manager,"showTargetHeight",fillTarget);
+        var session = new CraftSession("beer");
+        session.Actual.SetGlass("mug");
+        Set(manager,"craftContext",CraftContext.From(session));
+        var balance = ScriptableObject.CreateInstance<NewBalanceDataSO>();
+        balance.balanceData = new NewBalanceDataBase { Config = new NewBalanceConfig { PourEmitRateMlPerSec=70,UnitOzToMl=30 } };
+        Set(manager,"balanceData",balance);
         var glass = Get<Transform>(manager,"glassCenter");
         cam.transform.position = glass.position + new Vector3(0,0.25f,-10);
         var gpu = Get<SphLiquidRenderer>(manager,"liquidRenderer");
@@ -62,6 +78,7 @@ public sealed class LiquidRenderingTests
         var mutedListeners = new List<AudioListener>();
         foreach (var listener in Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None))
             if (listener.enabled) { listener.enabled = false; mutedListeners.Add(listener); }
+        cameraObject.AddComponent<AudioListener>();
         try
         {
             stageRoot.SetActive(true);
@@ -70,12 +87,22 @@ public sealed class LiquidRenderingTests
             Assert.That(Get<Color>(gpu,"liquidColor").a, Is.EqualTo(0.75f).Within(0.001f));
             Assert.That(Get<SphSimulation>(manager,"simulation").SynchronizeTransforms, Is.False);
             bottle.BeginDrag(bottle.PourPivotWorldPosition + Quaternion.Euler(0,0,-110) * Vector3.down * 2);
-            for (int i=0;i<160;i++) yield return null;
+            if (fillTarget)
+            {
+                for (int i=0;i<1900 && manager.PouredInTargetUnit < 12f;i++)
+                {
+                    yield return null;
+                    Assert.That(HasSpilled(manager,glass),Is.False,"Beer must not overflow before reaching 12oz.");
+                }
+                Assert.That(manager.PouredInTargetUnit,Is.InRange(12f,12.1f));
+                Save(target,"runtime-beer-12oz");
+            }
+            else for (int i=0;i<160;i++) yield return null;
             Assert.That(Get<SphSimulation>(manager,"simulation").ActiveParticles.Count, Is.GreaterThan(30));
             Assert.That(Get<RenderTexture>(gpu,"fieldTexture"), Is.Not.Null);
             Assert.That(MeanRed(Get<RenderTexture>(gpu,"fieldTexture")), Is.GreaterThan(0.001f));
             Assert.That(Get<int>(gpu,"renderedFrame"), Is.GreaterThan(0), "Must render through the actual URP camera callback.");
-            Save(target,"runtime-beer-pouring");
+            if (!fillTarget) Save(target,"runtime-beer-pouring");
             bottle.EndDrag();
             for (int i=0;i<480;i++) yield return null;
             var simulation = Get<SphSimulation>(manager,"simulation");
@@ -87,7 +114,38 @@ public sealed class LiquidRenderingTests
                 energy += particle.velocity.sqrMagnitude;
             }
             TestContext.WriteLine($"After pour: particles={simulation.ActiveParticles.Count}, y={minimum}..{maximum}, energy={energy}, restDensity={Get<float>(simulation, "restDensity")}, dt={Time.deltaTime}, angle={bottle.CurrentAngle}, viscosity={simulation.config.viscosity}, iterations={simulation.config.densityIterations}");
-            Save(target,"runtime-beer-settled");
+            Save(target,fillTarget ? "runtime-beer-12oz-settled" : "runtime-beer-settled");
+            var left = new List<float>(); var right = new List<float>();
+            foreach (var particle in simulation.ActiveParticles)
+            {
+                if (particle.pos.x < glass.position.x-0.15f) left.Add(particle.pos.y);
+                if (particle.pos.x > glass.position.x+0.15f) right.Add(particle.pos.y);
+            }
+            left.Sort(); right.Sort();
+            float gap = Mathf.Abs(left[(int)((left.Count-1)*0.95f)]-right[(int)((right.Count-1)*0.95f)]);
+            TestContext.WriteLine($"actual slope={gap}, left={left.Count}, right={right.Count}, glass={glass.position}, scale={glass.lossyScale}, inside={Get<bool>(simulation.ActiveParticles[0],"insideContainer")}");
+            Assert.That(gap, Is.LessThan(simulation.config.spacing*1.5f), "Actual prefab must settle to a level surface.");
+            if (fillTarget)
+            {
+                Assert.That(HasSpilled(manager,glass),Is.False);
+                float level = (left[(int)((left.Count-1)*0.95f)]+right[(int)((right.Count-1)*0.95f)])*0.5f;
+                float marker = glass.Find("Target Liquid Height").position.y;
+                TestContext.WriteLine($"12oz level={level}, marker={marker}, difference={Mathf.Abs(level-marker)}, particleMl={Get<float>(manager,"particleVolumeMl")}, quantity={manager.PouredInTargetUnit}");
+                Assert.That(Mathf.Abs(level-marker),Is.LessThan(simulation.config.spacing*2.5f));
+                Assert.That(Get<RenderTexture>(gpu,"surfaceRead"),Is.Not.Null);
+                float center = Read(Get<RenderTexture>(gpu,"surfaceRead"),0.5f,0.5f).r;
+                Assert.That(center,Is.LessThan(0.9f),"Keep room above the liquid for beer foam.");
+                bottle.BeginDrag(bottle.PourPivotWorldPosition + Quaternion.Euler(0,0,-110)*Vector3.down*2);
+                bool spilled = false;
+                for (int i=0;i<1200 && manager.PouredInTargetUnit<18f;i++)
+                {
+                    yield return null;
+                    spilled |= HasSpilled(manager,glass);
+                }
+                Assert.That(manager.PouredInTargetUnit,Is.GreaterThan(17.9f));
+                Assert.That(spilled,Is.True,"Real overpour must remain possible; do not clamp to the recipe amount.");
+                Save(target,"runtime-beer-overpour");
+            }
             gpu.enabled = false;
             Assert.That(Get<RenderTexture>(gpu,"fieldTexture"), Is.Null);
             Assert.That(Get<GraphicsBuffer>(gpu,"particleBuffer"), Is.Null);
@@ -102,9 +160,21 @@ public sealed class LiquidRenderingTests
             foreach (var listener in mutedListeners) if (listener != null) listener.enabled = true;
             cam.targetTexture = null;
             Object.DestroyImmediate(stageRoot);
+            Object.DestroyImmediate(balance);
             if (RenderTexture.active == target) RenderTexture.active = null;
             target.Release(); Object.DestroyImmediate(target);
         }
+    }
+
+    static bool HasSpilled(PourManager manager,Transform glass)
+    {
+        var extents = Get<Vector2>(manager,"glassInteriorHalfExtents");
+        foreach (var particle in Get<SphSimulation>(manager,"simulation").ActiveParticles)
+        {
+            Vector3 local = glass.InverseTransformPoint(particle.pos);
+            if (local.y < -extents.y-0.02f || (Mathf.Abs(local.x)>extents.x+0.04f && local.y<extents.y-0.1f)) return true;
+        }
+        return false;
     }
 
     [UnityTearDown]
@@ -235,6 +305,25 @@ public sealed class LiquidRenderingTests
         Assert.That(settled, Is.LessThan(initial * 0.75f));
         Assert.That(Read(Get<RenderTexture>(renderer,"surfaceRead"),0.5f,0.5f).g, Is.GreaterThan(0.01f));
         Capture("beer-settled");
+    }
+
+    [TestCase("gin")]
+    [TestCase("orange_juice")]
+    [TestCase("milk")]
+    public void NonCarbonatedLiquidDoesNotCreateRisingCloudEvenWithStrongImpacts(string ingredient)
+    {
+        Setup(ingredient);
+        Fill();
+        var appearance = profile.ResolveAppearance(ingredient);
+        appearance.impactCloud = 2f; // 오래된 인스펙터 override가 남아 있어도 비탄산이면 차단한다.
+        renderer.Init(profile,Get<Color>(renderer,"liquidColor"),appearance);
+        for (int frame=0;frame<10;frame++)
+        {
+            foreach (var p in particles) Set(p,"renderImpact",new Vector4(p.pos.x,p.pos.y,1f,0));
+            Render(1f/60);
+        }
+        Assert.That(MeanRed(Get<RenderTexture>(renderer,"effectRead")),Is.Zero);
+        Capture(ingredient+"-impact");
     }
 
     [TestCase("gin")]

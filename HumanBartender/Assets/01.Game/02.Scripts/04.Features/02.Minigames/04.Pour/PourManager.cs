@@ -91,6 +91,13 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private Transform glassCenter;
     [Tooltip("잔에 담긴 것으로 칠 판정 영역(스케일 적용 전 잔 로컬 좌표).")]
     [SerializeField] private Vector2 glassInteriorHalfExtents = new Vector2(0.45f, 0.45f);
+    [Header("Glass Volume")]
+    [Tooltip("기믹 화면의 잔 전체에 해당하는 ml. 목표량과 무관한 고정 표시 용량.")]
+    [SerializeField, Min(1f)] private float glassCapacityMl = 300f;
+    [Tooltip("선택한 잔 ID가 mug일 때 사용할 표시 용량. 맥주 12oz와 거품 여유를 포함한다.")]
+    [SerializeField, Min(1f)] private float mugCapacityMl = 450f;
+    [Tooltip("SPH 입자 한 개의 안정된 면적 / spacing². 수량과 입자 방출이 같은 환산을 사용한다.")]
+    [SerializeField, Range(0.5f, 2f)] private float particleAreaScale = 0.98f;
     [Header("Target Height")]
     [SerializeField] private bool showTargetHeight = true;
     [Tooltip("SPH 간격으로 추정한 액체 높이의 보정 배율.")]
@@ -160,6 +167,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>병에 남은 액체(파티클 수). 0이 되면 더 나오지 않는다.</summary>
     int remainingInBottle;
     float emitAccumulator;
+    float visualCapacityMl;
+    float particleVolumeMl;
 
     /// <summary>병목 통로의 반너비(병 로컬). spacing에서 유도되므로 Start에서 한 번만 잡는다.</summary>
     float neckHalfWidth;
@@ -233,6 +242,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         CreatePool();
         CalibrateRestDensity();
+        ConfigureVolume();
         CreateTargetHeightMarker();
 
         // 이 게이지는 파티클 개수를 기준으로 그린다. 큐가 돌릴 때는 투입량을 방출량으로 재기 때문에
@@ -328,10 +338,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── 방출 ────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// 지금 기울기의 유량(0=안 나옴, 1=최대). 이 값이 곧 "몇 도부터 나오는가"를 정한다 —
-    /// 병 안 수면을 시뮬레이션하지 않으므로 기하학이 끼어들지 않는다.
-    /// </summary>
+    void ConfigureVolume()
+    {
+        visualCapacityMl = Mathf.Max(1f,craftContext.GlassId == "mug" ? mugCapacityMl : glassCapacityMl);
+        Vector3 scale = glassCenter.lossyScale;
+        float area = 4f * Mathf.Abs(glassInteriorHalfExtents.x * scale.x * glassInteriorHalfExtents.y * scale.y);
+        particleVolumeMl = visualCapacityMl * Spacing * Spacing * particleAreaScale / Mathf.Max(0.0001f,area);
+    }
+
+    /// <summary>지금 기울기의 유량(0=안 나옴, 1=최대).</summary>
     float FlowRate01()
     {
         float fullOpen = Mathf.Max(pourFullOpenAngle, pourStartAngle + 0.01f);
@@ -339,20 +354,20 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
 
     /// <summary>
-    /// 입구에서 액체를 뿜는다. 방출 간격을 속도에서 유도하는 게 핵심이다 — 간격을 고정값으로 두면
-    /// 유량이 늘 때 파티클이 겹쳐 뭉치거나, 반대로 벌어져 알갱이로 끊어진다.
-    /// "파티클이 spacing만큼 이동할 때마다 한 줄"이라야 줄기가 굵기를 유지한 채 이어진다.
+    /// 입구에서 액체를 뿜는다. 실제 기믹은 표시 용량에 맞춘 ml/입자로 방출량을 정한다.
+    /// 독립 실행에서는 기존의 spacing/속도 간격을 유지한다.
     /// </summary>
     void EmitFromNeck(float dt)
     {
         float flow01 = FlowRate01();
+        float volumeRate = mlPerSecondAtFullFlow * flow01 * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
 
         // 투입량은 파티클 개수가 아니라 "얼마나 오래, 얼마나 세게 기울였는가"로 쌓는다.
         // 파티클은 눈에 보이는 줄기일 뿐이라 프레임이나 물리 설정에 따라 개수가 흔들리는데,
         // 방출률 × 시간은 그런 것에 흔들리지 않고 레시피의 oz 단위로 바로 환산된다.
         // 이 함수가 물리와 같은 고정 시간축(fixedStep)에서 돌기 때문에 프레임이 튀어도 값이 안 변한다.
         if (flow01 > 0f && (unlimitedLiquid || remainingInBottle > 0))
-            pouredMl += mlPerSecondAtFullFlow * flow01 * dt * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
+            pouredMl += volumeRate * dt;
 
         if (flow01 <= 0f || (!unlimitedLiquid && remainingInBottle <= 0))
         {
@@ -363,7 +378,12 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         float speed = exitSpeed * flow01;
         if (speed <= 0.001f) return;
 
-        float interval = Spacing / speed;
+        int lanes = Mathf.Max(1,Mathf.FloorToInt(neckWidthInParticles));
+        // 잔 용량에 맞는 ml/입자를 사용한다. 속도는 물줄기의 궤적만 정하고,
+        // 같은 수량이 들어오면 기울기나 재료에 관계없이 같은 부피가 쌓인다.
+        float interval = drivenByRunner && volumeRate > 0f && particleVolumeMl > 0f
+            ? lanes * particleVolumeMl / volumeRate
+            : Spacing / speed;
 
         emitAccumulator += dt;
 
@@ -379,7 +399,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             // 한 프레임에 여러 줄이 나갈 때는 그 줄들이 원래 프레임 '중간중간'에 나갔어야 한다.
             // 전부 입구에 그대로 놓으면 같은 자리에 겹쳐 쌓여 밀도가 폭발하고, 압력이 사방으로
             // 튕겨낸다(입구에서 가끔 튀는 원인). 밀린 시간만큼 진행 방향으로 미리 보내주면
-            // 줄 간격이 정확히 spacing이 되어 그냥 이어진 줄기가 된다.
+            // 각 줄이 자신의 방출 시점에 맞는 간격을 유지한다.
             EmitRow(speed, emitAccumulator);
             emitted++;
         }
@@ -754,17 +774,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         {
             float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
             float targetMl = pourStep.TargetValue.Value / Mathf.Max(0.0001f, mlPerUnit);
-            float particlesPerSecond = exitSpeed / Mathf.Max(0.0001f, Spacing) *
-                Mathf.Max(1, Mathf.FloorToInt(neckWidthInParticles));
-            float quantityPerSecond = mlPerSecondAtFullFlow * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
-            if (quantityPerSecond <= 0f) return;
-            targetParticles = targetMl * particlesPerSecond / quantityPerSecond;
+            if (particleVolumeMl <= 0f) return;
+            targetParticles = targetMl / particleVolumeMl;
         }
 
         // 2D 액체에서 파티클 한 개의 면적을 spacing²로 추정한다.
         Vector3 glassScale = glassCenter.lossyScale;
         float width = 2f * glassInteriorHalfExtents.x * Mathf.Abs(glassScale.x);
-        float worldHeight = targetParticles * Spacing * Spacing * targetHeightScale / Mathf.Max(0.0001f, width);
+        float areaScale = drivenByRunner ? particleAreaScale : 1f;
+        float worldHeight = targetParticles * Spacing * Spacing * areaScale * targetHeightScale / Mathf.Max(0.0001f, width);
         float localHeight = worldHeight / Mathf.Max(0.0001f, Mathf.Abs(glassScale.y));
         float y = -glassInteriorHalfExtents.y + localHeight + targetHeightOffset;
         if (y > glassInteriorHalfExtents.y)
