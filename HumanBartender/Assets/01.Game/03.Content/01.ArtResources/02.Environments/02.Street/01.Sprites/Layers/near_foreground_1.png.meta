@@ -1,25 +1,28 @@
 fileFormatVersion: 2
-guid: 63535cdc5d79cd843a1e9439404f556c
+guid: dd6dadd2a3becce4d9fb9b2b41e9112e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7049840017285555301
-    second: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_0"
+      213: 6958956923371075462
+    second: near_foreground_1_0
   - first:
-      213: 6631364814835171302
-    second: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_1"
+      213: 6414489427768457845
+    second: near_foreground_1_1
   - first:
-      213: -9121657096808500750
-    second: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_2"
+      213: 8172114015150784691
+    second: near_foreground_1_2
   - first:
-      213: 3469362682920899231
-    second: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_3"
+      213: -792284617454022675
+    second: near_foreground_1_3
   - first:
-      213: -8375017239591477187
-    second: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_4"
+      213: 1339788491535458525
+    second: near_foreground_1_4
   - first:
-      213: 449286195936187403
-    second: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_5"
+      213: -1225788194409767018
+    second: near_foreground_1_5
+  - first:
+      213: 5481771507941741161
+    second: near_foreground_1_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +55,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -61,10 +64,10 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 0
+  alignment: 7
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
@@ -87,10 +90,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -111,96 +114,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_0"
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 0
-        width: 5
-        height: 42
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b9b5c5e1bdfe92e90800000000000000
-      internalID: -7049840017285555301
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_1"
-      rect:
-        serializedVersion: 2
-        x: 24
-        y: 17
-        width: 47
-        height: 1
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6ef36442a27570c50800000000000000
-      internalID: 6631364814835171302
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_2"
-      rect:
-        serializedVersion: 2
-        x: 14
-        y: 107
-        width: 54
-        height: 1
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2f1fec5f23d596180800000000000000
-      internalID: -9121657096808500750
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_3"
+      name: near_foreground_1_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 48
-        width: 20
-        height: 51
+        y: 0
+        width: 553
+        height: 324
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -209,20 +133,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f921f788af6a52030800000000000000
-      internalID: 3469362682920899231
+      spriteID: 68737c0a37e239060800000000000000
+      internalID: 6958956923371075462
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_4"
+      name: near_foreground_1_1
       rect:
         serializedVersion: 2
-        x: 27
-        y: 31
-        width: 59
-        height: 41
+        x: 528
+        y: 0
+        width: 91
+        height: 248
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -231,8 +155,118 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d30a06e7136f5cb80800000000000000
-      internalID: -8375017239591477187
+      spriteID: 57a33ad2628d40950800000000000000
+      internalID: 6414489427768457845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: near_foreground_1_2
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 0
+        width: 141
+        height: 104
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b0cd09266e296170800000000000000
+      internalID: 8172114015150784691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: near_foreground_1_3
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 0
+        width: 55
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: def85af865d3105f0800000000000000
+      internalID: -792284617454022675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: near_foreground_1_4
+      rect:
+        serializedVersion: 2
+        x: 1708
+        y: 0
+        width: 100
+        height: 248
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd0a028d882e79210800000000000000
+      internalID: 1339788491535458525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: near_foreground_1_5
+      rect:
+        serializedVersion: 2
+        x: 2068
+        y: 0
+        width: 81
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69f9656b1202dfee0800000000000000
+      internalID: -1225788194409767018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: near_foreground_1_6
+      rect:
+        serializedVersion: 2
+        x: 2448
+        y: 0
+        width: 432
+        height: 248
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96299be842a231c40800000000000000
+      internalID: 5481771507941741161
       vertices: []
       indices: 
       edges: []
@@ -241,7 +275,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: d1b9864672e4ca848b5fa2ae977d3083
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -251,12 +285,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_0": -7049840017285555301
-      "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_1": 6631364814835171302
-      "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_2": -9121657096808500750
-      "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_3": 3469362682920899231
-      "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_4": -8375017239591477187
-      "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uB77C\uC774\uD2B8_5": 449286195936187403
+      near_foreground_1_0: 6958956923371075462
+      near_foreground_1_1: 6414489427768457845
+      near_foreground_1_2: 8172114015150784691
+      near_foreground_1_3: -792284617454022675
+      near_foreground_1_4: 1339788491535458525
+      near_foreground_1_5: -1225788194409767018
+      near_foreground_1_6: 5481771507941741161
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
