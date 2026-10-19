@@ -681,7 +681,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>지금까지 병에서 나온 양(ml). 기울인 세기 × 시간으로 쌓인다.</summary>
     float pouredMl;
 
-    /// <summary>지금까지 따른 양을 이 기믹의 목표 단위로 환산한 값. 화면에 보여줄 수치다.</summary>
+    /// <summary>결과 기록과 목표 도달 판정에 사용할, 목표 단위로 환산한 투입량.</summary>
     public float PouredInTargetUnit => ConvertMlTo(pouredMl, pourStep.TargetUnit ?? ENewUnit.Ml);
 
     /// <summary>
@@ -859,7 +859,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     // ── ICraftGimmickProgress ───────────────────────────────────────────
 
     /// <summary>
-    /// 지금까지 따른 양과 목표.
+    /// 지금까지 따른 양과 목표를 ml로 표시한다.
     ///
     /// 정답에 없는 재료를 골랐다면 알려 줄 정답이 없으므로 양쪽을 다 가린다. 가리는 건 화면뿐이고
     /// 실제 투입량은 그대로 쌓여 결과에 남는다 — 나중에 추가 재료로 판정할 때 그 값이 필요하다.
@@ -872,8 +872,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
             if (!pourStep.IsTargetVisible) return "??? / ???";
 
-            string unit = (pourStep.TargetUnit ?? ENewUnit.Ml).ToString().ToLowerInvariant();
-            return $"{PouredInTargetUnit:0.00} / {pourStep.TargetValue.Value:0.00} {unit}";
+            float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
+            float targetMl = pourStep.TargetValue.Value / mlPerUnit;
+            return $"{pouredMl:0.00} / {targetMl:0.00} ml";
         }
     }
 

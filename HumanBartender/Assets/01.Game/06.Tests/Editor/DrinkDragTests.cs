@@ -1,9 +1,72 @@
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class DrinkDragTests
 {
+    [TestCase("rejected")]
+    [TestCase("served")]
+    [TestCase("discarded")]
+    [TestCase("disabled")]
+    public void OnlyCocktailImageFollowsPointerAndEveryDragExitCleansItUp(string outcome)
+    {
+        var canvasObject = new GameObject("Serving test canvas", typeof(RectTransform), typeof(Canvas));
+        var canvas = canvasObject.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        var tray = new GameObject("Tray", typeof(RectTransform));
+        tray.transform.SetParent(canvas.transform, false);
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/03.Serving/ServedDrink.prefab");
+        Assert.That(prefab, Is.Not.Null);
+        var card = Object.Instantiate(prefab, tray.transform);
+        var item = card.GetComponent<DrinkDragItem>();
+        var session = new CraftSession("gin_tonic");
+        session.BeginGimmicks();
+        session.Complete();
+        int returned = 0;
+        try
+        {
+            item.Initialize(new CraftedDrink(session, null,
+                new NewCocktailData { Id = "gin_tonic", Name = new() { Ko = "진토닉" } }),
+                canvas, _ => returned++);
+            Vector3 cardPosition = card.transform.localPosition;
+            var pointer = new PointerEventData(null) { position = new Vector2(240f, 160f) };
+            item.OnBeginDrag(pointer);
+            Transform held = canvas.transform.Find("Held Cocktail");
+            Assert.That(held, Is.Not.Null);
+            Assert.That(held.GetComponent<Image>().sprite, Is.Not.Null, "Use the table cocktail artwork.");
+            Assert.That(held.GetComponentsInChildren<TMPro.TMP_Text>(), Is.Empty, "No card labels follow the pointer.");
+            Assert.That(held.GetComponent<Image>().raycastTarget, Is.False);
+            Assert.That(card.transform.parent, Is.SameAs(tray.transform));
+            Assert.That(card.transform.localPosition, Is.EqualTo(cardPosition), "The card keeps its layout slot.");
+            Assert.That(card.GetComponent<CanvasGroup>().alpha, Is.Zero);
+
+            pointer.position = new Vector2(320f, 280f);
+            item.OnDrag(pointer);
+            Assert.That(Vector2.Distance(RectTransformUtility.WorldToScreenPoint(null, held.position),
+                pointer.position), Is.LessThan(0.01f), "The cocktail image is centered on the pointer.");
+
+            if (outcome == "served") item.MarkServed();
+            else if (outcome == "discarded") item.MarkDiscarded();
+            else if (outcome == "disabled")
+            {
+                card.SetActive(false);
+                typeof(DrinkDragItem).GetMethod("OnDisable",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(item, null);
+            }
+            item.OnEndDrag(pointer);
+            item.OnEndDrag(pointer);
+            Assert.That(canvas.transform.Find("Held Cocktail"), Is.Null, "No detached image survives the drag.");
+            Assert.That(card.GetComponent<CanvasGroup>().alpha, Is.EqualTo(1f));
+            Assert.That(card.transform.parent, Is.SameAs(tray.transform));
+            Assert.That(card.transform.localPosition, Is.EqualTo(cardPosition));
+            Assert.That(returned, Is.EqualTo(outcome == "served" || outcome == "discarded" ? 1 : 0));
+        }
+        finally { Object.DestroyImmediate(canvasObject); }
+    }
+
     [Test]
     public void DiscardReturnsOnceAfterDragAndRebindPreservesPreviousRecord()
     {
