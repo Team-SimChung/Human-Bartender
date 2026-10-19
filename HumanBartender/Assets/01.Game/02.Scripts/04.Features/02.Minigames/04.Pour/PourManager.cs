@@ -87,7 +87,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private float exitSpeed = 1.6f;
 
     [Header("Glass")]
-    [Tooltip("잔 스프라이트 자신의 Transform. InverseTransformPoint로 로컬 판정 영역을 계산한다.")]
+    [Tooltip("잔 내부 중앙의 Transform. 스프라이트 중심과 내부 중심이 다르면 잔 아래의 자식 Transform을 연결한다.")]
     [SerializeField] private Transform glassCenter;
     [Tooltip("잔에 담긴 것으로 칠 판정 영역(스케일 적용 전 잔 로컬 좌표).")]
     [SerializeField] private Vector2 glassInteriorHalfExtents = new Vector2(0.45f, 0.45f);
@@ -839,7 +839,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         var renderer = marker.GetComponent<MeshRenderer>();
         targetHeightMaterial = new Material(Shader.Find("Sprites/Default"));
         renderer.sharedMaterial = targetHeightMaterial;
-        SpriteRenderer glassRenderer = glassCenter.GetComponent<SpriteRenderer>();
+        SpriteRenderer glassRenderer = glassCenter.GetComponentInParent<SpriteRenderer>();
         if (glassRenderer != null) renderer.sortingLayerID = glassRenderer.sortingLayerID;
         renderer.sortingOrder = glassRenderer != null ? glassRenderer.sortingOrder + 1 : 20;
     }
