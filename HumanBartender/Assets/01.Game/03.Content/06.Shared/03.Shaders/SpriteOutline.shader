@@ -57,7 +57,7 @@ Shader "Custom/SpriteOutline_Lit"
                 float4 positionHCS : SV_POSITION;
                 float2 uv          : TEXCOORD0;
                 float4 color       : COLOR;
-                // 수정됨: 2D 라이팅은 월드 좌표가 아닌 Screen-space UV를 사용합니다.
+                // 2D 조명을 샘플링할 화면 공간 UV에 쓰임.
                 float2 lightingUV  : TEXCOORD1; 
             };
 
@@ -103,10 +103,12 @@ Shader "Custom/SpriteOutline_Lit"
                 neighborAlpha += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + float2(-texel.x, -texel.y)).a;
 
                 float outlineMask = saturate(neighborAlpha) * (1.0 - c.a);
+                float outlineAlpha = outlineMask * saturate(_OutlineIntensity) * _OutlineColor.a;
 
                 half4 result;
-                result.rgb = lerp(_OutlineColor.rgb, c.rgb, c.a);
-                result.a   = max(c.a, outlineMask * _OutlineIntensity * _OutlineColor.a);
+                // 강도가 0이면 보간된 가장자리를 포함해 원본 스프라이트를 그대로 유지함.
+                result.rgb = lerp(c.rgb, _OutlineColor.rgb, outlineAlpha);
+                result.a   = max(c.a, outlineAlpha);
 
                 // --- 2. URP 2D 라이팅 연산 ---
                 SurfaceData2D surfaceData;
@@ -114,7 +116,7 @@ Shader "Custom/SpriteOutline_Lit"
                 surfaceData.alpha = result.a;
                 surfaceData.mask = 1.0; 
                 
-                // 수정됨: positionWS 대신 스크린 공간의 lightingUV를 매핑해야 합니다.
+                // 화면 공간의 lightingUV를 조명 텍스처에 매핑함.
                 InputData2D inputData;
                 inputData.uv = IN.uv;
                 inputData.lightingUV = IN.lightingUV; 

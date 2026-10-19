@@ -5,23 +5,24 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
-/// <summary>Latest clickable street/home story. Ambient CSV is deliberately not read here.</summary>
+/// <summary>외부·홈의 기존 자동·수동 스토리 실행 경로. 주변 대사는 별도 시스템에서 처리함.</summary>
 public sealed class OutsideStoryFlow : MonoBehaviour
 {
-    [Inject] InteractiveEntityManager entities;
-    [Inject] IConditionUtil conditions;
-    DialogueRunner runner;
-    OutsideDialoguePresenter presenter;
-    Player player;
-    bool ready;
-    bool busy;
-    string error;
+    [Inject] private InteractiveEntityManager entities;
+    [Inject] private IConditionUtil conditions;
+    private DialogueRunner runner;
+    private OutsideDialoguePresenter presenter;
+    private Player player;
+    private WorldInteractionController worldInteractions;
+    private bool ready;
+    private bool busy;
+    private string error;
     NewSceneData? retryScene;
 
     public bool IsRunning => busy;
     public bool IsReady => ready;
 
-    async void Start()
+    private async void Start()
     {
         try
         {
@@ -31,6 +32,7 @@ public sealed class OutsideStoryFlow : MonoBehaviour
             runner = entities.DialogueRunner;
             presenter = entities.DialoguePresenter;
             player = entities.StoryPlayer;
+            worldInteractions = WorldInteractionController.ForScene(gameObject.scene);
             if (runner == null || presenter == null || player == null)
                 throw new InvalidOperationException("스토리 대화 UI 또는 플레이어가 연결되지 않았습니다.");
             ready = true;
@@ -40,22 +42,19 @@ public sealed class OutsideStoryFlow : MonoBehaviour
         finally { busy = false; }
     }
 
-    NewSceneData[] Scenes => gameObject.scene.name == "Home"
+    private NewSceneData[] Scenes => gameObject.scene.name == "Home"
         ? NewDataLoadManager.HomeStory.Scenes : NewDataLoadManager.StreetStory.Scenes;
 
-    bool Eligible(NewSceneData scene)
+    private bool Eligible(NewSceneData scene)
     {
         var state = GameStateManager.Instance;
-        if (state.CurrentDay < 0 || state.CurrentDay > 3) return false;
-        string route = state.GameFlow == EGameFlow.CommuteIn ? "in" : "out";
-        return scene.RuntimeScene == gameObject.scene.name && (!scene.Day.HasValue || scene.Day == state.CurrentDay) &&
-            (scene.Route == "both" || scene.Route == route) && conditions.CheckRequired(scene.When) &&
-            (string.IsNullOrEmpty(scene.CompletionFlag) || !conditions.CheckRequired("flag." + scene.CompletionFlag));
+        return WorldInteractionSceneRules.IsEligible(scene, gameObject.scene.name,
+            state.CurrentDay, state.GameFlow, conditions);
     }
 
-    bool Near(NewSceneData scene) => Vector2.Distance(player.transform.position, new Vector2(scene.X, scene.Y)) <= scene.Radius;
+    private bool Near(NewSceneData scene) => Vector2.Distance(player.transform.position, new Vector2(scene.X, scene.Y)) <= scene.Radius;
 
-    void Update()
+    private void Update()
     {
         if (!ready || busy || error != null || runner.IsRunning || player.State != EInteractorState.None) return;
         foreach (var scene in Scenes ?? Array.Empty<NewSceneData>())
@@ -72,7 +71,7 @@ public sealed class OutsideStoryFlow : MonoBehaviour
             if (scene.StartMode == ENewSceneTrigger.Manual && Eligible(scene)) await PlayAsync(scene, token);
     }
 
-    async UniTask PlayAsync(NewSceneData scene, CancellationToken token)
+    private async UniTask PlayAsync(NewSceneData scene, CancellationToken token)
     {
         if (busy || runner.IsRunning) throw new InvalidOperationException("다른 대화가 진행 중입니다.");
         busy = true;
@@ -91,16 +90,17 @@ public sealed class OutsideStoryFlow : MonoBehaviour
         finally { busy = false; }
     }
 
-    void ReportFailure(Exception failure)
+    private void ReportFailure(Exception failure)
     {
         if (failure is OperationCanceledException) return;
         error = failure.Message;
         Debug.LogException(failure);
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
         if (!ready) return;
+        if (worldInteractions != null && worldInteractions.IsRunning) return;
         if (runner.IsRunning && runner.CurrentState != DialogueState.WaitingForChoice)
         {
             if (GUI.Button(new Rect(Screen.width - 145, Screen.height - 65, 130, 45), "다음 ▶")) runner.AdvanceInputOutside();
@@ -117,6 +117,7 @@ public sealed class OutsideStoryFlow : MonoBehaviour
         if (busy || runner.IsRunning || player.State != EInteractorState.None || Camera.main == null) return;
         foreach (var scene in Scenes ?? Array.Empty<NewSceneData>())
         {
+            if (worldInteractions != null && worldInteractions.OwnsStory(scene.Id)) continue;
             if (scene.StartMode != ENewSceneTrigger.Interact || !Eligible(scene) || !Near(scene)) continue;
             Vector3 p = Camera.main.WorldToScreenPoint(new Vector3(scene.X, scene.Y + .8f));
             if (p.z < 0) continue;

@@ -45,7 +45,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public event Action MotionStopped;
 
     public async UniTask PlayAsync(TypingData data, NewTextTagDataSO tags, float defaultDelay,
-        CancellationToken external = default, string cocktailName = null)
+        CancellationToken external = default, string cocktailName = null,
+        Func<float, CancellationToken, UniTask> wait = null)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
         external.ThrowIfCancellationRequested();
@@ -63,12 +64,14 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bool completed = false;
         try
         {
+            // 별도 시계가 없는 기존 대화는 원래 대기 방식을 유지함.
+            var delay = wait ?? Wait;
             var line = session.Line;
             int count = line.Characters.Length;
             for (int i = 0; i < count;)
             {
-                await Wait(line.WaitBefore[i], source.Token);
-                await Wait(line.Characters[i].SpeedSeconds, source.Token);
+                await delay(line.WaitBefore[i], source.Token);
+                await delay(line.Characters[i].SpeedSeconds, source.Token);
                 source.Token.ThrowIfCancellationRequested();
                 if (!ReferenceEquals(current, session)) throw new OperationCanceledException();
                 int visible = i + 1;
@@ -83,7 +86,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
                 if (!ReferenceEquals(current, session)) throw new OperationCanceledException();
                 i = visible;
             }
-            await Wait(line.WaitBefore[count], source.Token);
+            await delay(line.WaitBefore[count], source.Token);
             completed = true;
         }
         catch (OperationCanceledException) when (session.Skipped && ReferenceEquals(current, session) &&

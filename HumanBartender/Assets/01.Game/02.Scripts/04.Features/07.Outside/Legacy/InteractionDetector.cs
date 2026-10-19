@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// 플레이어 주변의 상호작용 가능 대상(IInteractable)을 원형 범위로 감지하고, 거리·우선순위 기반으로
-/// 가장 적절한 대상을 현재 타겟으로 유지하며 포커스 진입/이탈 및 타겟 변경 이벤트를 발생시킨다.
+/// 가장 적절한 대상을 현재 타겟으로 유지하며 포커스 진입/이탈 및 타겟 변경 이벤트를 발생시킴.
 /// </summary>
 public class InteractionDetector : MonoBehaviour
 {
@@ -56,7 +56,7 @@ public class InteractionDetector : MonoBehaviour
         RebuildContactFilter();
     }
 
-    /// <summary>인스펙터 값(레이어/트리거 감지 여부) 변경에 맞춰 ContactFilter2D를 다시 구성한다.</summary>
+    /// <summary>인스펙터 값(레이어/트리거 감지 여부) 변경에 맞춰 ContactFilter2D를 다시 구성함.</summary>
     private void RebuildContactFilter()
     {
         contactFilter = new ContactFilter2D
@@ -94,7 +94,7 @@ public class InteractionDetector : MonoBehaviour
         currentFrameCandidates.Clear();
     }
 
-    /// <summary>매 프레임 외부(Player 컨트롤러 등)에서 호출: 후보 스캔 -> 최적 타겟 갱신 순으로 처리한다.</summary>
+    /// <summary>매 프레임 외부(Player 컨트롤러 등)에서 호출: 후보 스캔 -> 최적 타겟 갱신 순으로 처리함.</summary>
     public void Handle()
     {
         ScanCandidates();
@@ -102,7 +102,7 @@ public class InteractionDetector : MonoBehaviour
 
     }
 
-    /// <summary>감지 범위 내 콜라이더를 원형으로 검사해 사용 가능한 IInteractable 후보 목록을 갱신한다.</summary>
+    /// <summary>감지 범위 내 콜라이더를 원형으로 검사해 사용 가능한 IInteractable 후보 목록을 갱신함.</summary>
     private void ScanCandidates()
     {
         currentFrameCandidates.Clear();
@@ -121,6 +121,7 @@ public class InteractionDetector : MonoBehaviour
             }
             
             if (interactable == null) continue;
+            if (interactable is InteractiveEntity owned && WorldInteractionLegacyBridge.OwnsAction(owned)) continue;
             if (!interactable.IsAvaliable) continue;
             if (!interactable.isInteract) continue;
             if (col.GetComponentInParent<InteractiveEntity>().ActivationMode == EActivationMode.Proximity)
@@ -132,8 +133,8 @@ public class InteractionDetector : MonoBehaviour
         }
     }
     /// <summary>
-    /// 후보 중 (거리 - 우선순위*0.01)이 가장 작은 대상을 최적 타겟으로 선택한다.
-    /// 타겟이 바뀌면 이전 타겟의 OnFocusExit, 새 타겟의 OnFocusEnter를 호출하고 변경 이벤트를 발생시킨다.
+    /// 후보 중 (거리 - 우선순위*0.01)이 가장 작은 대상을 최적 타겟으로 선택함.
+    /// 타겟이 바뀌면 이전 타겟의 OnFocusExit, 새 타겟의 OnFocusEnter를 호출하고 변경 이벤트를 발생시킴.
     /// </summary>
     private void UpdateCurrentTarget()
     {
@@ -180,10 +181,11 @@ public class InteractionDetector : MonoBehaviour
         OnTargetChanged?.Raise(currentTarget);
     }
 
-    /// <summary>상호작용 입력 이벤트 콜백. 현재 타겟이 유효하면 플레이어를 멈추고 상호작용을 실행한다.</summary>
+    /// <summary>상호작용 입력 이벤트 콜백. 현재 타겟이 유효하면 플레이어를 멈추고 상호작용을 실행함.</summary>
     private void HandleInteractInput(IInteractor interactor)
     {
         if (currentTarget == null || !currentTarget.IsAvaliable) return;
+        if (currentTarget is InteractiveEntity owned && WorldInteractionLegacyBridge.OwnsAction(owned)) return;
         PlayerStopEvent?.Raise(new Void());
         currentTarget.Interact(interactor);
     }
