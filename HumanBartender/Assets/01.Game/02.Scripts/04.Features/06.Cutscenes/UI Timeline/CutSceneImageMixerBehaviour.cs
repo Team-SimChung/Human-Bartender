@@ -226,6 +226,7 @@ public class CutSceneImageMixerBehaviour : PlayableBehaviour
 
     Sprite LoadSprite(CutSceneImageBehaviour b)
     {
+        if (b.sourceSprite != null) return b.sourceSprite;
         if (!string.IsNullOrEmpty(b.sheetPath))
         {
             Sprite[] allSprites = Resources.LoadAll<Sprite>($"Cutscenes/{b.sheetPath}");

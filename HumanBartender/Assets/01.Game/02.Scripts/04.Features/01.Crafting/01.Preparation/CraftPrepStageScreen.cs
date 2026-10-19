@@ -164,8 +164,8 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
                 slot.Configure(this, item, preparation.IsSelected(item.Id), preparation.IsGuideTarget(item.Id));
             }
         }
-        if (itemTooltip != null) itemTooltip.Hide();
-        hoveredSlot = null;
+        if (hoveredSlot != null && (!hoveredSlot.isActiveAndEnabled || !CanInteract(hoveredSlot.ItemStage)))
+            HideItemInfo(hoveredSlot);
         RefreshTray();
         if (stageIndicators != null)
         {
@@ -235,12 +235,12 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         return preparation != null && !cameraMoving && stageIndex == (int)stage;
     }
 
-    public void ShowItemInfo(CraftPrepShelfSlot slot, NewShelfItemData item)
+    public void ShowItemInfo(CraftPrepShelfSlot slot, NewShelfItemData item, Vector2 pointerPosition)
     {
         if (hoveredSlot != slot && item.Kind == ENewShelfKind.Ingredient)
             sound.PlayCue("SFX_ui_hover", exclusive: true);
         hoveredSlot = slot;
-        if (itemTooltip != null) itemTooltip.Show(item, slot.InfoAnchor, slot.InfoDirection);
+        if (itemTooltip != null) itemTooltip.Show(item, stageCamera, pointerPosition);
     }
 
     public void HideItemInfo(CraftPrepShelfSlot slot)

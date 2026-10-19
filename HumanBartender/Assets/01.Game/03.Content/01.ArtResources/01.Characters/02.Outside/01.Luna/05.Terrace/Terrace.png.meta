@@ -82,7 +82,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -120,7 +120,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -141,6 +141,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -148,12 +161,12 @@ TextureImporter:
       name: Terrace_0
       rect:
         serializedVersion: 2
-        x: 41
-        y: 36
-        width: 22
-        height: 47
+        x: 0
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -170,12 +183,12 @@ TextureImporter:
       name: Terrace_1
       rect:
         serializedVersion: 2
-        x: 65
-        y: 33
-        width: 25
-        height: 52
+        x: 129
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -192,12 +205,12 @@ TextureImporter:
       name: Terrace_2
       rect:
         serializedVersion: 2
-        x: 170
-        y: 36
-        width: 22
-        height: 47
+        x: 258
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -214,12 +227,12 @@ TextureImporter:
       name: Terrace_3
       rect:
         serializedVersion: 2
-        x: 194
-        y: 33
-        width: 25
-        height: 52
+        x: 387
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -236,12 +249,12 @@ TextureImporter:
       name: Terrace_4
       rect:
         serializedVersion: 2
-        x: 299
-        y: 36
-        width: 22
-        height: 47
+        x: 516
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -258,12 +271,12 @@ TextureImporter:
       name: Terrace_5
       rect:
         serializedVersion: 2
-        x: 323
-        y: 33
-        width: 25
-        height: 52
+        x: 645
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -280,12 +293,12 @@ TextureImporter:
       name: Terrace_6
       rect:
         serializedVersion: 2
-        x: 428
-        y: 36
-        width: 22
-        height: 47
+        x: 774
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -302,12 +315,12 @@ TextureImporter:
       name: Terrace_7
       rect:
         serializedVersion: 2
-        x: 452
-        y: 33
-        width: 25
-        height: 52
+        x: 903
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -320,187 +333,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: Terrace_8
-      rect:
-        serializedVersion: 2
-        x: 557
-        y: 36
-        width: 22
-        height: 47
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9608c497e90a313e0800000000000000
-      internalID: -2084145600042074007
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Terrace_9
-      rect:
-        serializedVersion: 2
-        x: 581
-        y: 33
-        width: 25
-        height: 52
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 467408c5a34f551e0800000000000000
-      internalID: -2209591510658168988
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Terrace_10
-      rect:
-        serializedVersion: 2
-        x: 686
-        y: 36
-        width: 22
-        height: 47
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 00d4995c56ef21890800000000000000
-      internalID: -7488643517303403264
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Terrace_11
-      rect:
-        serializedVersion: 2
-        x: 710
-        y: 33
-        width: 25
-        height: 52
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b8e6e0e746a71c050800000000000000
-      internalID: 5819066765569584779
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Terrace_12
-      rect:
-        serializedVersion: 2
-        x: 815
-        y: 36
-        width: 22
-        height: 47
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cbea4536d01e0b3a0800000000000000
-      internalID: -6651569202008904004
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Terrace_13
-      rect:
-        serializedVersion: 2
-        x: 839
-        y: 33
-        width: 25
-        height: 52
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4d528f727bfc4b6a0800000000000000
-      internalID: -6434289582049057324
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Terrace_14
-      rect:
-        serializedVersion: 2
-        x: 944
-        y: 36
-        width: 22
-        height: 47
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 435510d03d2834340800000000000000
-      internalID: 4846861466948687156
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Terrace_15
-      rect:
-        serializedVersion: 2
-        x: 968
-        y: 33
-        width: 25
-        height: 52
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 68df5c5ce47db5040800000000000000
-      internalID: 4637536974633565574
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 6d5fe25893f408a4f9b37d31f7ff98d8
     internalID: 0
     vertices: []
     indices: 
@@ -508,24 +345,18 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":1.0},"gridSpriteSize":{"x":129.0,"y":138.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Terrace_0: -3186996342589748197
       Terrace_1: 4400985076188542834
-      Terrace_10: -7488643517303403264
-      Terrace_11: 5819066765569584779
-      Terrace_12: -6651569202008904004
-      Terrace_13: -6434289582049057324
-      Terrace_14: 4846861466948687156
-      Terrace_15: 4637536974633565574
       Terrace_2: 980354967662022854
       Terrace_3: -5372406830423561268
       Terrace_4: -1960473302602417364
       Terrace_5: 3960109810183616154
       Terrace_6: 2285357126901979263
       Terrace_7: 3504659930939061843
-      Terrace_8: -2084145600042074007
-      Terrace_9: -2209591510658168988
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

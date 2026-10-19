@@ -30,20 +30,20 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private CraftStationData data;
     [SerializeField] private NewCocktailDataSO cocktailDataSO;
     [Tooltip("stir_target_stacks(판정 횟수)와 stir_circle_limit_sec(한 바퀴 제한시간)을 읽어온다. " +
-             "스터 수치는 코드에 고정하지 않고 balance.json을 정본으로 쓴다.")]
+             "스터 수치는 코드에 고정하지 않고 balance_config.csv을 정본으로 쓴다.")]
     [SerializeField] private NewBalanceDataSO balanceData;
 
     [Header("Fallback")]
     [Tooltip("balanceData가 비었거나 아직 로드되지 않았을 때만 쓰는 값. " +
-             "실제 플레이에서는 balance.json의 stir_target_stacks가 이긴다.")]
-    [SerializeField] private int fallbackStackCount = 6;
-    [Tooltip("같은 이유의 폴백. 실제 플레이에서는 balance.json의 stir_circle_limit_sec가 이긴다.")]
+             "실제 플레이에서는 balance_config.csv의 stir_target_stacks가 이긴다.")]
+    [SerializeField] private int fallbackStackCount = 10;
+    [Tooltip("같은 이유의 폴백. 실제 플레이에서는 balance_config.csv의 stir_circle_limit_sec가 이긴다.")]
     [SerializeField] private float fallbackStackSeconds = 2f;
 
     [Header("View")]
     [Tooltip("탑다운 잔(아레나) — 스푼 시침, 키 노드, 제한시간 링. 비워둬도 판정은 그대로 돌아간다.")]
     [SerializeField] private StirGlassView glass;
-    [Tooltip("아레나 바깥 표시 — 상단 스탯, 라운드 타이머 카드, 사선 게이지, 시작 오버레이.")]
+    [Tooltip("아레나 바깥 표시 — 경과 시간, 하단 결과 게이지, 시작 안내.")]
     [SerializeField] private StirHudView hud;
     [Tooltip("잔 속 얼음. 정답마다 휘돌림을 한 번 밀어준다. 비워둬도 판정은 그대로 돌아간다.")]
     [SerializeField] private StirIceSwirl ice;
@@ -114,6 +114,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         if (hud != null)
         {
+            hud.ConfigureGauge(stackCount);
             hud.SetRoundLimit(stackSeconds);
             hud.ResetGauge();
             hud.SetStartOverlay(true);
@@ -149,7 +150,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
     }
 
-    /// <summary>스터 수치를 balance.json에서 읽는다. 값이 비어 있으면 폴백으로 떨어진다.</summary>
+    /// <summary>스터 수치를 balance_config.csv에서 읽는다. 값이 비어 있으면 폴백으로 떨어진다.</summary>
     void LoadBalance()
     {
         NewBalanceConfig config = balanceData != null && balanceData.balanceData != null
@@ -195,7 +196,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         // 마지막 판정 이후에도 예약된 중단점까지 연출을 마무리한다.
         stirAnimation?.Tick(Time.deltaTime);
         bool moving = isStarted && !isCompleted && Time.deltaTime > 0f && stirAnimation != null && stirAnimation.IsPlaying;
-        if (moving) stirSound ??= loopSound.StartLoop("SFX_stir");
+        if (moving) stirSound ??= loopSound?.StartLoop("SFX_stir");
         else StopStirSound();
 
         if (isCompleted) return;
@@ -461,6 +462,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                   $"도구 {craftContext.ToolId ?? "없음"} / 재료 {string.Join(", ", craftContext.IngredientIds)}");
 
         drivenByRunner = true;
+        hud?.HideStatsSharedWithCommonHud();
         craftTimer = timer;
         runnerCompletion = new UniTaskCompletionSource();
 

@@ -65,11 +65,13 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
         }
         Vector2 bend = new Vector2(Mathf.Min(from.x, to.x) - 65, Mathf.Max(from.y, to.y) + 70);
         Vector2 previous = from;
+        int phase = (int)(Time.unscaledTime * 12) % 7;
         for (int i = 1; i <= 64; i++)
         {
             float t = i / 64f;
             Vector2 point = (1 - t) * (1 - t) * from + 2 * (1 - t) * t * bend + t * t * to;
-            if ((i + (int)(Time.unscaledTime * 12)) % 7 < 4) StoryUiMesh.Line(mesh, previous, point, 3, mint);
+            // Move the dash pattern toward the destination and keep the remainder positive.
+            if ((i - phase + 7) % 7 < 4) StoryUiMesh.Line(mesh, previous, point, 3, mint);
             previous = point;
         }
         ArrowHead(mesh, to, to - bend, mint);

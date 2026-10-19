@@ -5,6 +5,15 @@ TextureImporter:
   - first:
       213: -1956855967675607953
     second: BG_stir_0
+  - first:
+      213: 6700020001
+    second: BG_stir_left_frame
+  - first:
+      213: 6700020002
+    second: BG_stir_right_frame
+  - first:
+      213: 6700020003
+    second: BG_stir_grid_tile
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -34,7 +43,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
     filterMode: 1
@@ -72,10 +81,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -85,10 +94,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -121,6 +130,72 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: BG_stir_left_frame
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 64
+        width: 1216
+        height: 2032
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 40, y: 40, z: 40, w: 40}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41a353e0ef4448579095fd1ed5241bfe
+      internalID: 6700020001
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_stir_right_frame
+      rect:
+        serializedVersion: 2
+        x: 1320
+        y: 64
+        width: 2456
+        height: 2032
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 40, y: 40, z: 40, w: 40}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8536659c9c8f47d6ab99fba9e6b506d9
+      internalID: 6700020002
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BG_stir_grid_tile
+      rect:
+        serializedVersion: 2
+        x: 1473
+        y: 1344
+        width: 68
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e71fcba3b5ce4dbebb36104e8fa0d9fb
+      internalID: 6700020003
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +210,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      BG_stir_grid_tile: 6700020003
+      BG_stir_right_frame: 6700020002
+      BG_stir_left_frame: 6700020001
       BG_stir_0: -1956855967675607953
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
