@@ -11,7 +11,6 @@ public interface IAudioVolumeStore
 /// <summary>기존 저장 키와 기본값을 유지하는 사용자 음량 저장소.</summary>
 public sealed class PlayerPrefsAudioVolumeStore : IAudioVolumeStore
 {
-    const float DefaultVolume = 0.5f;
 
     static string Key(AudioBus bus) => bus switch
     {
@@ -20,7 +19,7 @@ public sealed class PlayerPrefsAudioVolumeStore : IAudioVolumeStore
         _ => throw new ArgumentOutOfRangeException(nameof(bus))
     };
 
-    public float Load(AudioBus bus) => PlayerPrefs.GetFloat(Key(bus), DefaultVolume);
+    public float Load(AudioBus bus) => PlayerPrefs.GetFloat(Key(bus), bus == AudioBus.Music ? .30f : .80f);
 
     public void Save(AudioBus bus, float value)
     {

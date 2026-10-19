@@ -8,6 +8,8 @@ using TMPro;
 /// <summary>제조 준비 프리팹의 표시와 입력만 담당한다. 선택 상태는 CraftPreparation이 소유한다.</summary>
 public sealed class CraftPrepStageScreen : MonoBehaviour
 {
+    ISoundEffectPlayer sound;
+    public void ConfigureAudio(ISoundEffectPlayer player) => sound = player;
     public enum Stage { Glass, Tool, Liquor, Fridge }
 
     [Header("Data")]
@@ -235,6 +237,8 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     public void ShowItemInfo(CraftPrepShelfSlot slot, NewShelfItemData item)
     {
+        if (hoveredSlot != slot && item.Kind == ENewShelfKind.Ingredient)
+            sound.PlayCue("SFX_ui_hover", exclusive: true);
         hoveredSlot = slot;
         if (itemTooltip != null) itemTooltip.Show(item, slot.InfoAnchor, slot.InfoDirection);
     }

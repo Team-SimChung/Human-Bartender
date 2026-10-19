@@ -27,7 +27,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd
 {
     [Inject] ILoopingSoundManager loopSound;
-    System.IDisposable pourSound;
+    IAudioLoop pourSound;
     bool audioFocused = true;
     bool audioPaused;
     bool audioCancelled;
@@ -428,7 +428,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         bool flowing = isPlay && !isFinished && !audioCancelled && audioFocused && !audioPaused &&
             Time.deltaTime > 0f && bottle != null && FlowRate01() > 0f &&
             (unlimitedLiquid || remainingInBottle > 0);
-        if (flowing) pourSound ??= loopSound?.PlayLoop("SFX_pour");
+        if (flowing)
+        {
+            pourSound ??= loopSound.StartLoop("SFX_pour");
+            pourSound?.SetGain(GameAudioRules.PourGain(FlowRate01()));
+        }
         else StopPourSound();
 
         if (!isPlay) return;

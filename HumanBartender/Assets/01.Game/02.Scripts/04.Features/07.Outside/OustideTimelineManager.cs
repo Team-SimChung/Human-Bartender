@@ -92,6 +92,7 @@ public class OustideTimelineManager : MonoBehaviour, IOutsideTimeliner
 
     private async UniTask PlayAssetAsync(TimelineAsset asset, string dialogueId, CancellationToken token)
     {
+        using var audioScope = GameAudioContext.Cutscene(GameAudioRules.SuppressesMusic(dialogueId));
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         if (handler != null) await handler.BeginTimelineAsync(dialogueId, conditions);
         try { await playback.PlayAsync(director, asset, source.Token); }

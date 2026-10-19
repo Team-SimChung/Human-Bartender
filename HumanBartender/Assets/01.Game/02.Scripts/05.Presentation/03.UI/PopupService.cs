@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 
 public enum PopupType
@@ -56,11 +57,34 @@ public sealed class PopupBindings
 public sealed class PopupService : MonoBehaviour, IPopupService
 {
     [SerializeField] PopupBindings bindings = new PopupBindings();
+    [Inject] ISoundEffectPlayer sound;
+    readonly System.Collections.Generic.Dictionary<UIPopupView, Action> audioHandlers = new();
+
+    void Awake()
+    {
+        foreach (PopupType type in Enum.GetValues(typeof(PopupType)))
+        {
+            var view = bindings.Get(type);
+            if (view == null || audioHandlers.ContainsKey(view)) continue;
+            string key = type == PopupType.ObjectiveCompleted ? "SFX_goal_completed" : "SFX_notification";
+            Action handler = () => sound?.PlaySE(key);
+            audioHandlers.Add(view, handler);
+            view.Shown += handler;
+        }
+    }
+
+    void OnDestroy()
+    {
+        foreach (var pair in audioHandlers) if (pair.Key != null) pair.Key.Shown -= pair.Value;
+        audioHandlers.Clear();
+    }
 
     public UniTask<bool> Popup(PopupType type, string data)
     {
         try
         {
+            if (type == PopupType.CharacterRegistered && (data == "chris" || data == "크리스"))
+                return UniTask.FromResult(true);
             var popup = bindings.Get(type);
             if (popup == null)
             {

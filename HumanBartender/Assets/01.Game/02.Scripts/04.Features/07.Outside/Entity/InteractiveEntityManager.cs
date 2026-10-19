@@ -70,7 +70,6 @@ public class InteractiveEntityManager : MonoBehaviour
             RefreshEntityCore();
             if (player == null || !player.TryGetComponent<Player>(out var actor) || !actor.TrySetPosition())
                 throw new InvalidOperationException("Player 또는 현재 씬의 안전 시작 위치가 연결되지 않았습니다.");
-            soundManager?.PlayBGM("BGM_outside");
             IsReady = true;
             readiness.TrySetResult(true);
         }
