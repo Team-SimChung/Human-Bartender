@@ -32,3 +32,43 @@ public interface ILoopingSoundManager
 {
     System.IDisposable PlayLoop(string name);
 }
+
+public interface IAudioLoop : System.IDisposable
+{
+    void SetGain(float gain);
+    void StopImmediately();
+}
+
+/// <summary>큐별 음량·피치·페이드. 사용자 음량은 공용 믹서에서 한 번만 적용한다.</summary>
+public interface IAudioCuePlayer
+{
+    void PlayCue(string name, float gain = 1f, float pitch = 1f,
+        float fadeIn = 0f, float fadeOut = 0f, bool exclusive = false);
+    IAudioLoop StartLoop(string name, float fadeSeconds = 0.12f);
+}
+
+public static class AudioCueExtensions
+{
+    public static void PlayCue(this ISoundEffectPlayer player, string name, float gain = 1f,
+        float pitch = 1f, float fadeIn = 0f, float fadeOut = 0f, bool exclusive = false)
+    {
+        if (player is IAudioCuePlayer cues) cues.PlayCue(name, gain, pitch, fadeIn, fadeOut, exclusive);
+        else player?.PlaySE(name);
+    }
+
+    public static IAudioLoop StartLoop(this ILoopingSoundManager player, string name, float fadeSeconds = 0.12f)
+    {
+        if (player is IAudioCuePlayer cues) return cues.StartLoop(name, fadeSeconds);
+        var loop = player?.PlayLoop(name);
+        return loop == null ? null : new BasicLoop(loop);
+    }
+
+    sealed class BasicLoop : IAudioLoop
+    {
+        readonly System.IDisposable loop;
+        public BasicLoop(System.IDisposable loop) => this.loop = loop;
+        public void SetGain(float gain) { }
+        public void StopImmediately() => loop.Dispose();
+        public void Dispose() => loop.Dispose();
+    }
+}

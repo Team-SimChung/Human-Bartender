@@ -64,6 +64,7 @@ public class UIDisplayOptions : MonoBehaviour
     {
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
         if (ServicePanelController.TryCloseForEscape()) return;
+        if (WorldInteractionController.TryCancelForEscape()) return;
         if (optionUI != null) optionUI.SetActive(!optionUI.activeSelf);
     }
 

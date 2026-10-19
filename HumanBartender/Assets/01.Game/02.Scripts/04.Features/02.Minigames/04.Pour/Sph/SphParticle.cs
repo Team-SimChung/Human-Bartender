@@ -17,6 +17,21 @@ public class SphParticle : MonoBehaviour
     public float pressureNear;
     public Vector2 velocity;
     public Vector2 force;
+    // 렌더 프레임 사이 여러 물리 스텝의 최대 충격 하나만 보관한다.
+    internal Vector4 renderImpact;
+    Vector2 incomingVelocity;
+    float impactCooldown;
+
+    internal void CaptureRenderImpact(float dt)
+    {
+        impactCooldown = Mathf.Max(0f, impactCooldown - dt);
+        float speed = incomingVelocity.magnitude;
+        float lostSpeed = speed > 0.001f ? Vector2.Dot(incomingVelocity - velocity, incomingVelocity / speed) : 0f;
+        if (!insideContainer || impactCooldown > 0f || speed < 0.7f || lostSpeed < 0.35f) return;
+        float strength = Mathf.Clamp01(lostSpeed / 2f);
+        if (strength > renderImpact.z) renderImpact = new Vector4(pos.x, pos.y, strength, 0f);
+        impactCooldown = 0.12f;
+    }
 
     internal readonly List<SphNeighbour> neighbours = new List<SphNeighbour>(8);
 
@@ -53,6 +68,9 @@ public class SphParticle : MonoBehaviour
         force = Vector2.zero;
         exitedBottle = false;
         insideContainer = false;
+        renderImpact = Vector4.zero;
+        incomingVelocity = Vector2.zero;
+        impactCooldown = 0f;
         transform.position = spawnPos;
 
         gameObject.SetActive(true);
@@ -76,6 +94,7 @@ public class SphParticle : MonoBehaviour
         previousPos = pos;
         velocity += force * dt;
         LimitVelocity(dt);
+        incomingVelocity = velocity;
         pos += velocity * dt;
     }
 

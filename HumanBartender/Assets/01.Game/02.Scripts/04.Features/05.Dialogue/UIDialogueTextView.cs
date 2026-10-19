@@ -83,6 +83,8 @@ public class UIDialogueTextView : MonoBehaviour
     }
 
     DynamicSpeechBubble targetBubble;
+    public bool BackgroundAudio { get; set; }
+    public Func<bool> BackgroundAudible { get; set; }
 
 
     /// <summary>
@@ -222,7 +224,7 @@ public class UIDialogueTextView : MonoBehaviour
         StopTyping();
         var bubble = targetBubble;
         var player = bubble.TextPlayer;
-        player.ConfigureAudio(soundManager);
+        player.ConfigureAudio(soundManager, BackgroundAudio, BackgroundAudible);
         currentPlayer = player;
         player.ShakeSpanRevealed += ForwardShakeSpan;
         player.MotionStopped += ForwardMotionStopped;

@@ -9,6 +9,12 @@ using UnityEngine;
 [Serializable]
 public class SphConfig
 {
+    public SphConfig WithViscosity(float scale)
+    {
+        var copy = (SphConfig)MemberwiseClone();
+        copy.viscosity *= Mathf.Clamp(scale, 0.5f, 8f);
+        return copy;
+    }
     [Tooltip("중력 가속도.")]
     public float gravity = 9f;
 

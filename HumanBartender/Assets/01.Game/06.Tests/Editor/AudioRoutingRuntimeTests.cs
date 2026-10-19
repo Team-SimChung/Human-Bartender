@@ -36,8 +36,8 @@ public sealed class AudioRoutingRuntimeTests
     public void LegacyPreferencesAndSharedPrefabKeepTheirSingleSource()
     {
         var store = new PlayerPrefsAudioVolumeStore();
-        Assert.That(store.Load(AudioBus.Music), Is.EqualTo(PlayerPrefs.GetFloat("vol_bgm", .5f)));
-        Assert.That(store.Load(AudioBus.SoundEffects), Is.EqualTo(PlayerPrefs.GetFloat("vol_se", .5f)));
+        Assert.That(store.Load(AudioBus.Music), Is.EqualTo(PlayerPrefs.GetFloat("vol_bgm", .30f)));
+        Assert.That(store.Load(AudioBus.SoundEffects), Is.EqualTo(PlayerPrefs.GetFloat("vol_se", .80f)));
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/01.Game/03.Content/08.Prefabs/04.Shared/01.Bootstrap/ProjectLifeScope.prefab");
         Assert.That(Get<AudioOutputSettings>(prefab.GetComponentInChildren<SoundManager>(true), "output"),
@@ -135,13 +135,13 @@ public sealed class AudioRoutingRuntimeTests
             Assert.That(bgm.outputAudioMixerGroup, Is.SameAs(output.GetGroup(AudioBus.Music)));
             Assert.That(se.isPlaying && bgm.isPlaying, Is.True);
             Assert.That(se.time, Is.EqualTo(.75f).Within(.08f), "Keep timeline position plus the authored offset.");
-            Assert.That(se.volume, Is.EqualTo(.35f).Within(.001f), "Clip fade is separate from user mixer gain.");
+            Assert.That(se.volume, Is.EqualTo(.35f * .55f).Within(.001f), "Clip fade and the cutscene output multiplier are separate from user mixer gain.");
 
             settings.SetSEVolume(0);
             AssertVolume(output, AudioBus.SoundEffects, -80);
             AssertVolume(output, AudioBus.Music, Mathf.Log10(.8f) * 20);
             Assert.That(store.Effects, Is.Zero);
-            Assert.That(se.volume, Is.EqualTo(.35f).Within(.001f));
+            Assert.That(se.volume, Is.EqualTo(.35f * .55f).Within(.001f));
             Evaluate(.5, true);
             Assert.That(voices.All(voice => !voice.isPlaying), Is.True, "Input wait pauses both Studio channels.");
             Evaluate(.5, false);
