@@ -8,7 +8,7 @@ using VContainer.Unity;
 /// 이어진다. 그래서 이 둘만 스코프에 올린다 — InGameLifetimeScope를 그대로 쓰면 테스트 씬에 없는
 /// 컴포넌트까지 등록하게 된다.
 ///
-/// ISoundEffectPlayer 같은 공용 의존은 부모인 ProjectLifetimeScope에서 내려온다.
+/// ISoundManager 같은 공용 의존은 부모인 ProjectLifetimeScope에서 내려온다.
 /// </summary>
 public class CraftPrepLifetimeScope : LifetimeScope
 {

@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Spine;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -55,8 +56,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     [SerializeField] private VoidEvent craftServe;
     [SerializeField] private VoidEvent craftRetry;
 
-    [Inject] ISoundEffectPlayer soundManager;
-    [Inject] AudioOutputSettings audioOutput;
+    [Inject] ISoundManager soundManager;
 
     Vector3[] dotPositions;
 
@@ -232,11 +232,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
         hasStarted = true;
         attemptGauge?.SetNextSegment(successJudge + failJudge);
-        if (bgmSource != null && bgmSource.clip != null)
-        {
-            audioOutput.Route(bgmSource, AudioBus.Music);
-            bgmSource.PlayScheduled(AudioSettings.dspTime + 0.1f);
-        }
+        bgmSource?.PlayScheduled(AudioSettings.dspTime + 0.1f);
         shakingStrikeNode?.InitToStart(dotPositions, 60);
         characterAnim?.Init();
     }

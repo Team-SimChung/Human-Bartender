@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="11" result="Passed" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-15 08:35:28Z" end-time="2026-09-15 08:35:32Z" duration="3.7433609">
+  <test-suite type="TestSuite" id="1000" name="ProjectLUNA" fullname="ProjectLUNA" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-09-15 08:35:28Z" end-time="2026-09-15 08:35:32Z" duration="3.743361" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1023" name="Assembly-CSharp-Editor.dll" fullname="/private/tmp/hb-c-work/unity-validation/HumanBartender/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="18" result="Passed" start-time="2026-09-15 08:35:29Z" end-time="2026-09-15 08:35:32Z" duration="2.570660" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="33509" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1010" name="RefactoringCRemainingTests" fullname="RefactoringCRemainingTests" classname="RefactoringCRemainingTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 08:35:29Z" end-time="2026-09-15 08:35:32Z" duration="2.494436" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1022" name="ActualDayZeroStoryStartsAndStopsOnPlayExit" fullname="RefactoringCRemainingTests.ActualDayZeroStoryStartsAndStopsOnPlayExit" methodname="ActualDayZeroStoryStartsAndStopsOnPlayExit" classname="RefactoringCRemainingTests" runstate="Runnable" seed="1265849541" result="Passed" start-time="2026-09-15 08:33:13Z" end-time="2026-09-15 08:33:36Z" duration="23.430132" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[[Story] 씬 시작 — d1_tutorial_chris (seq 1)
+[CharacterManager] PartAnimData null, Default Data
+Extra Null
+Extra Null
+[CharacterManager] PartAnimData null, Default Data
+Etc Null
+Etc Null
+Addressable key not found: chris_eyes_default_Intro
+Addressable key not found: chris_eyebrows_default_Intro
+Addressable key not found: chris_upper_face_default_Intro
+Addressable key not found: chris_lower_face_default_Intro
+Addressable key not found: chris_body_default_Intro
+]]></output>
+        </test-case>
+        <test-case id="1018" name="ActualOutsideBindingsElevatorCancellationAndReplay" fullname="RefactoringCRemainingTests.ActualOutsideBindingsElevatorCancellationAndReplay" methodname="ActualOutsideBindingsElevatorCancellationAndReplay" classname="RefactoringCRemainingTests" runstate="Runnable" seed="1188992660" result="Passed" start-time="2026-09-15 08:33:36Z" end-time="2026-09-15 08:33:57Z" duration="20.897786" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[Lighting data asset ‘LightingData’ is incompatible with the current Unity version because the scene it was baked for was not serialized. Please use Generate Lighting to rebuild the lighting data, or assign the target scene to the Lighting Data Asset in the inspector.
+Material ‘SpriteEmission’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘New Material’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘SpriteEmission’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘New Material’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+]]></output>
+        </test-case>
+        <test-case id="1019" name="ActualSceneTimelineUsesCsvSignalDialogueAndCancelsCleanly" fullname="RefactoringCRemainingTests.ActualSceneTimelineUsesCsvSignalDialogueAndCancelsCleanly" methodname="ActualSceneTimelineUsesCsvSignalDialogueAndCancelsCleanly" classname="RefactoringCRemainingTests" runstate="Runnable" seed="1379631961" result="Passed" start-time="2026-09-15 08:33:57Z" end-time="2026-09-15 08:34:17Z" duration="19.472029" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[Material ‘SpriteEmission’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘New Material’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘SpriteEmission’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘New Material’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+]]></output>
+        </test-case>
+        <test-case id="1016" name="CameraCancellationAndReplacementPreserveTheNewOwner" fullname="RefactoringCRemainingTests.CameraCancellationAndReplacementPreserveTheNewOwner" methodname="CameraCancellationAndReplacementPreserveTheNewOwner" classname="RefactoringCRemainingTests" runstate="Runnable" seed="1023395683" result="Passed" start-time="2026-09-15 08:34:17Z" end-time="2026-09-15 08:34:33Z" duration="16.258094" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+        </test-case>
+        <test-case id="1014" name="ContentValidatorIsReadOnlyAndUnderstandsSceneBindings" fullname="RefactoringCRemainingTests.ContentValidatorIsReadOnlyAndUnderstandsSceneBindings" methodname="ContentValidatorIsReadOnlyAndUnderstandsSceneBindings" classname="RefactoringCRemainingTests" runstate="Runnable" seed="1013601022" result="Passed" start-time="2026-09-15 08:34:33Z" end-time="2026-09-15 08:34:35Z" duration="2.269324" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1020" name="CsvEntranceUsesExistingTransitionToHome" fullname="RefactoringCRemainingTests.CsvEntranceUsesExistingTransitionToHome" methodname="CsvEntranceUsesExistingTransitionToHome" classname="RefactoringCRemainingTests" runstate="Runnable" seed="680196493" result="Passed" start-time="2026-09-15 08:34:35Z" end-time="2026-09-15 08:34:58Z" duration="22.493318" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+          <output><![CDATA[Lighting data asset ‘LightingData’ is incompatible with the current Unity version because the scene it was baked for was not serialized. Please use Generate Lighting to rebuild the lighting data, or assign the target scene to the Lighting Data Asset in the inspector.
+Material ‘SpriteEmission’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘New Material’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+[OutsideSpotManager] 총 2개 / 2개의 SpotPoint 등록 완료.
+Material ‘SpriteEmission’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+Material ‘New Material’ has _TexelSize / _ST texture properties which are not supported by 2D SRP Batcher. SRP batching will be disabled for 2D Renderers using this Material.”
+]]></output>
+        </test-case>
+        <test-suite type="ParameterizedMethod" id="1013" name="PrioritySelectionIgnoresRowOrderAndReadsOneDefinition" fullname="RefactoringCRemainingTests.PrioritySelectionIgnoresRowOrderAndReadsOneDefinition" classname="RefactoringCRemainingTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-15 08:34:58Z" end-time="2026-09-15 08:34:58Z" duration="0.036201" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-case id="1011" name="PrioritySelectionIgnoresRowOrderAndReadsOneDefinition(False)" fullname="RefactoringCRemainingTests.PrioritySelectionIgnoresRowOrderAndReadsOneDefinition(False)" methodname="PrioritySelectionIgnoresRowOrderAndReadsOneDefinition" classname="RefactoringCRemainingTests" runstate="Runnable" seed="610265790" result="Passed" start-time="2026-09-15 08:34:58Z" end-time="2026-09-15 08:34:58Z" duration="0.005609" asserts="0">
+            <properties />
+          </test-case>
+          <test-case id="1012" name="PrioritySelectionIgnoresRowOrderAndReadsOneDefinition(True)" fullname="RefactoringCRemainingTests.PrioritySelectionIgnoresRowOrderAndReadsOneDefinition(True)" methodname="PrioritySelectionIgnoresRowOrderAndReadsOneDefinition" classname="RefactoringCRemainingTests" runstate="Runnable" seed="1617992514" result="Passed" start-time="2026-09-15 08:34:58Z" end-time="2026-09-15 08:34:58Z" duration="0.000780" asserts="0">
+            <properties />
+          </test-case>
+        </test-suite>
+        <test-case id="1015" name="SoundDuplicatesAreRejectedAndZeroPoolStillHasASource" fullname="RefactoringCRemainingTests.SoundDuplicatesAreRejectedAndZeroPoolStillHasASource" methodname="SoundDuplicatesAreRejectedAndZeroPoolStillHasASource" classname="RefactoringCRemainingTests" runstate="Runnable" seed="1167507626" result="Passed" start-time="2026-09-15 08:34:58Z" end-time="2026-09-15 08:34:58Z" duration="0.010010" asserts="0">
+          <properties />
+          <output><![CDATA[[SoundManager] 중복된 사운드 이름은 재생하지 않습니다: duplicated
+]]></output>
+        </test-case>
+        <test-case id="1017" name="SpineLoopCancellationClearsTrackAndAllowsReplay" fullname="RefactoringCRemainingTests.SpineLoopCancellationClearsTrackAndAllowsReplay" methodname="SpineLoopCancellationClearsTrackAndAllowsReplay" classname="RefactoringCRemainingTests" runstate="Runnable" seed="2020527510" result="Passed" start-time="2026-09-15 08:34:58Z" end-time="2026-09-15 08:35:14Z" duration="16.412425" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+          </properties>
+        </test-case>
+        <test-case id="1021" name="UiTimelineTransitionsStopWithoutLateWritesAndCanFinishNaturally" fullname="RefactoringCRemainingTests.UiTimelineTransitionsStopWithoutLateWritesAndCanFinishNaturally" methodname="UiTimelineTransitionsStopWithoutLateWritesAndCanFinishNaturally" classname="RefactoringCRemainingTests" runstate="Runnable" seed="536133163" result="Passed" start-time="2026-09-15 08:35:14Z" end-time="2026-09-15 08:35:32Z" duration="17.405765" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <output><![CDATA[Saving results to: /Users/yongseokpark/Library/Application Support/TeamSIMCHUNG/ProjectLUNA/TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

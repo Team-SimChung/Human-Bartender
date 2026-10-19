@@ -18,9 +18,7 @@ MonoBehaviour:
     pressureStiffness: 200
     nearPressureStiffness: 40
     restDensity: 3
-    densityIterations: 3
-    densityTolerance: 0.02
-    neighborRadiusScale: 2
+    neighborRadiusScale: 1.25
     viscosity: 0.5
     velocitySmoothing: 0.45
     maxVelocity: 4.5

@@ -19,14 +19,12 @@ public class ServicePanelController : MonoBehaviour
     [Header("Availability")]
     [SerializeField] private PlayPhaseController playPhaseController;
     [SerializeField] private CraftFlowController craftFlow;
-    [SerializeField] private StoryScriptRunner storyRunner;
 
     private static ServicePanelController activePanel;
     private bool menuOpen;
     public event Action OpenChanged;
 
     public bool IsMenuOpen { get { return menuOpen; } }
-    public Transform ToggleControl => toggleButton != null ? toggleButton.transform : null;
 
     public bool IsBlockingTycoonClock
     {
@@ -36,7 +34,7 @@ public class ServicePanelController : MonoBehaviour
 
     public static bool TryCloseForEscape()
     {
-        if (activePanel == null || !activePanel.menuOpen && !(activePanel.recipeScreen != null && activePanel.recipeScreen.IsOpen)) return false;
+        if (activePanel == null || !activePanel.IsBlockingTycoonClock) return false;
         if (activePanel.recipeScreen != null && activePanel.recipeScreen.IsOpen)
             activePanel.recipeScreen.Close();
         else
@@ -46,12 +44,6 @@ public class ServicePanelController : MonoBehaviour
 
     void Awake()
     {
-        if (storyRunner == null)
-            foreach (var root in gameObject.scene.GetRootGameObjects())
-            {
-                storyRunner = root.GetComponentInChildren<StoryScriptRunner>(true);
-                if (storyRunner != null) break;
-            }
         if (overlay != null) overlay.SetActive(false);
         if (serviceMenuPanel != null) serviceMenuPanel.SetActive(false);
         if (toggleButton != null) toggleButton.gameObject.SetActive(false);
@@ -91,29 +83,21 @@ public class ServicePanelController : MonoBehaviour
     bool CanOpen()
     {
         if (recipeScreen != null && recipeScreen.IsOpen) return false;
-        if (playPhaseController == null) return false;
-        bool storyCraft = playPhaseController.CanReceiveInput(EPlayPhase.Dialogue) && storyRunner != null && storyRunner.CanStartCraft;
-        if (!storyCraft && !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return false;
+        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return false;
         if (craftFlow != null && (craftFlow.IsBusy || craftFlow.IsCraftFlowActive)) return false;
         return !UIDisplayOptions.IsOptionOpen;
     }
 
     public void Toggle()
     {
-        if (recipeScreen != null && recipeScreen.IsOpen) { recipeScreen.Close(); return; }
         if (menuOpen) Close();
         else Open();
     }
 
     public void Open()
     {
-        if (!CanOpen()) return;
-        if (playPhaseController.CanReceiveInput(EPlayPhase.Dialogue))
-        {
-            storyRunner.TryOpenCraftMenu();
-            return;
-        }
-        if (overlay != null) SetMenuOpen(true);
+        if (!CanOpen() || overlay == null) return;
+        SetMenuOpen(true);
     }
 
     public void OpenRecipes()

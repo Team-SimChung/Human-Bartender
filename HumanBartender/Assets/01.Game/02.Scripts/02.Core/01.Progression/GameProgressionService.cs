@@ -141,7 +141,8 @@ public sealed class GameProgressionService : IGameProgressionService
             hasBarEntry = true;
             barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
 
-            // The title owns the intro; its completion enters the Day 0 bar directly.
+            // 첫 새 게임은 Day 0의 2부 Play로 직접 들어간다. Play.Start는 이 작업의
+            // 최종 결과를 기다리므로 페이드 도중 국면을 시작하지 않는다.
             SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Play",
                 cancellationToken: cancellationToken);
             if (!request.Accepted)
@@ -282,9 +283,6 @@ public sealed class GameProgressionService : IGameProgressionService
         switch (destination)
         {
             case GameProgressionDestination.Bar:
-                if (gameState.CurrentDay == 3 && !NewDataLoadManager.HasJohnnyIngredients)
-                    return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
-                        "올드 패션드 재료가 필요합니다. 시BAR에서 와일드 독과 비터스를 구매하고, 귀가 후 이야기를 확인하세요."));
                 return MoveAsync("OutSide", "Play", EGameFlow.CommuteIn, EGameFlow.Bar, cancellationToken);
             case GameProgressionDestination.Home:
                 return MoveAsync("OutSide", "Home", EGameFlow.CommuteOut, EGameFlow.CommuteOut,
@@ -388,11 +386,6 @@ public sealed class GameProgressionService : IGameProgressionService
         try
         {
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
-            if (previousDay == 3)
-            {
-                var ending = sceneTransitions.RequestLoadScene("TempEnding", cancellationToken: cancellationToken);
-                return ConvertSceneResult(await ending.Completion);
-            }
             int nextDay = previousDay + 1;
             if (!NewDataLoadManager.TryGetDayInfo(nextDay, out NewDayInfoData next))
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,

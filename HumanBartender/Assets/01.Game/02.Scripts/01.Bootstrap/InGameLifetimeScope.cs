@@ -21,7 +21,6 @@ public class InGameLifetimeScope : LifetimeScope
             .As<ICharacterSetter>()
             .As<IDialogueFader>();
         builder.RegisterComponentInHierarchy<UIDialogueTextView>();
-        builder.RegisterComponentInHierarchy<UIDialogueChoiceView>();
         builder.RegisterComponentInHierarchy<VerticalCameraImpulse>().As<ICameraImpulse>();
         builder.RegisterEntryPoint<DialogueCameraFeedback>(Lifetime.Scoped);
 

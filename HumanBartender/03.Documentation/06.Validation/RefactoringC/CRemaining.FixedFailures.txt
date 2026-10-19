@@ -1,0 +1,43 @@
+Initial failures reproduced and fixed before the final 11/11 run.
+
+CRemaining.Initial.xml | ActualOutsideBindingsElevatorCancellationAndReplay
+Unhandled log message: '[Exception] InvalidOperationException: Already continuation registered, can not await twice or get Status after await.'. Use UnityEngine.TestTools.LogAssert.Expect
+Cysharp.Threading.Tasks.CompilerServices.AsyncUniTask`1[TStateMachine].OnCompleted (System.Action`1[T] continuation, System.Object state, System.Int16 token) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/CompilerServices/StateMachineRunner.cs:247)
+Cysharp.Threading.Tasks.UniTask+MemoizeSource.OnCompleted (System.Action`1[T] continuation, System.Object state, System.Int16 token) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTask.cs:275)
+OutsideElevatorRadio.EndInteractAsync () (at Assets/03.Scripts/Outside/Entity/OutsideElevatorRadio.cs:91)
+Cysharp.Threading.Tasks.CompilerServices.AsyncUniTask`1[TStateMachine].GetResult (System.Int16 token) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/CompilerServices/StateMachineRunner.cs:218)
+OutsideElevator.MoveAsync (IInteractor player) (at Assets/03.Scripts/Outside/Entity/OutsideElevator.cs:124)
+Cysharp.Threading.Tasks.CompilerServices.AsyncUniTask`1[TStateMachine].GetResult (System.Int16 token) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/CompilerServices/StateMachineRunner.cs:218)
+Cysharp.Threading.Tasks.UniTask+MemoizeSource.GetResult (System.Int16 token) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTask.cs:248)
+Cysharp.Threading.Tasks.UniTaskExtensions.ForgetCoreWithCatch (Cysharp.Threading.Tasks.UniTask task, System.Action`1[T] exceptionHandler, System.Boolean handleExceptionOnMainThread) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTaskExtensions.cs:601)
+<>c:<Interact>b__21_0(Exception) (at Assets/03.Scripts/Outside/Entity/OutsideElevator.cs:59)
+Cysharp.Threading.Tasks.<ForgetCoreWithCatch>d__50:MoveNext() (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTaskExtensions.cs:613)
+Cysharp.Threading.Tasks.CompilerServices.AsyncUniTaskVoid`1:Run() (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/CompilerServices/StateMachineRunner.cs:104)
+Cysharp.Threading.Tasks.AwaiterActions:Continuation(Object) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTask.cs:25)
+
+CRemaining.Second.xml | ActualOutsideBindingsElevatorCancellationAndReplay
+Unhandled log message: '[Error] Cannot set the parent of the GameObject 'Luna' while activating or deactivating the parent GameObject 'Elevator'.'. Use UnityEngine.TestTools.LogAssert.Expect
+UnityEngine.Transform:SetParent (UnityEngine.Transform,bool)
+OutsideElevator/<>c__DisplayClass23_0:<MoveAsync>b__0 () (at Assets/03.Scripts/Outside/Entity/OutsideElevator.cs:92)
+OutsideElevator/<MoveAsync>d__23:MoveNext () (at Assets/03.Scripts/Outside/Entity/OutsideElevator.cs:129)
+Cysharp.Threading.Tasks.CompilerServices.AsyncUniTask`1<OutsideElevator/<MoveAsync>d__23>:Run () (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/CompilerServices/StateMachineRunner.cs:189)
+Cysharp.Threading.Tasks.AwaiterActions:Continuation (object) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTask.cs:25)
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1<Cysharp.Threading.Tasks.AsyncUnit>:TrySetCanceled (System.Threading.CancellationToken) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTaskCompletionSource.cs:186)
+Cysharp.Threading.Tasks.DOTweenAsyncExtensions/TweenConfiguredSource:OnCompleteCallbackDelegate () (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/External/DOTween/DOTweenAsyncExtensions.cs:282)
+DG.Tweening.Tween:OnTweenCallback (DG.Tweening.TweenCallback,DG.Tweening.Tween)
+DG.Tweening.Core.TweenManager:Despawn (DG.Tweening.Tween,bool)
+DG.Tweening.TweenExtensions:Kill (DG.Tweening.Tween,bool)
+Cysharp.Threading.Tasks.DOTweenAsyncExtensions/TweenConfiguredSource/<>c:<Create>b__15_0 (object) (at ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/External/DOTween/DOTweenAsyncExtensions.cs:230)
+System.Threading.CancellationTokenSource:Cancel ()
+
+CRemaining.Second.xml | UiTimelineTransitionsStopWithoutLateWritesAndCanFinishNaturally
+  Natural end must restore the scaler and succeed.
+  Expected: (1280.00, 720.00)
+  But was:  (334.47, 188.14)
+
+at RefactoringCRemainingTests.UiTimelineExercise () [0x00698] in /private/tmp/hb-c-work/unity-validation/HumanBartender/Assets/Editor/RefactoringCRemainingTests.cs:308
+at Cysharp.Threading.Tasks.CompilerServices.AsyncUniTask`1[TStateMachine].GetResult (System.Int16 token) [0x00000] in ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/CompilerServices/StateMachineRunner.cs:218
+at Cysharp.Threading.Tasks.UniTaskExtensions+ToCoroutineEnumerator.RunTask (Cysharp.Threading.Tasks.UniTask task) [0x00020] in ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTaskExtensions.cs:807
+at Cysharp.Threading.Tasks.UniTaskExtensions+ToCoroutineEnumerator.MoveNext () [0x0002b] in ./Library/PackageCache/com.cysharp.unitask@ad5ed25e82a3/Runtime/UniTaskExtensions.cs:838
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in ./Library/PackageCache/com.unity.test-framework@aebcb98460c6/UnityEngine.TestRunner/NUnitExtensions/Attributes/TestEnumerator.cs:44
+

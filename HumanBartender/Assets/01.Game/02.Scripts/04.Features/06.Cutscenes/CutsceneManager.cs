@@ -1,5 +1,8 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Spine.Unity;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -9,12 +12,12 @@ using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using UnityEngine.UI;
 using VContainer;
-using HumanBartender.CutsceneStudio;
 
 
 
 
-/// <summary>IEffectPlayer.PlayEffectAsync()에서 사용하는 화면 이펙트 유형을 정의함.</summary>
+/// <summary>화면 이펙트 유형을 나타내는 열거형. IEffectPlayer.PlayEffectAsync()에서 사용된다.</summary>
+[JsonConverter(typeof(StringEnumConverter))]
 public enum EEffectType
 {
     None,
@@ -41,16 +44,17 @@ public enum EEffectType
 
 
 /// <summary>
-/// 컷씬 재생과 화면 이펙트를 담당하며 IEffectPlayer와 ICutScenePlayer를 구현함.
-/// 등록된 Studio 컷씬을 우선 재생하고 기존 CSV 컷씬도 유형에 맞추어 재생함.
-/// 화면 이펙트는 effectOverlay와 DOTween으로 처리함.
+/// 컷씬 재생과 화면 이펙트를 담당하는 메인 매니저. IEffectPlayer와 ICutScenePlayer를 구현한다.
+/// json/cutscenes.json이 말하는 kind(timeline·sprite)에 맞춰 재생하고, FadeIn/FadeOut/FlashWhite/ScreenShake 등
+/// 다양한 화면 이펙트를 effectOverlay Image와 DOTween으로 수행한다.
 /// </summary>
 public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
 {
-    [SerializeField] private NewCutSceneDataSO data;
+    [SerializeField] NewCutSceneDataSO data;
 
-    [SerializeField] private SpriteAnimationManager spriteAnimationManager;
-    [SerializeField] private CutSceneTimelineManager timelineManager;
+    [SerializeField] SpriteAnimationManager spriteAnimationManager;
+    [SerializeField] SpineAnimationManager spineAnimationManager;
+    [SerializeField] CutSceneTimelineManager timelineManager;
 
     private CancellationTokenSource effectRun;
 
@@ -58,16 +62,20 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     private const string ANIM_SLOT = "SpriteAnim";
 
 
-    [SerializeField] private Canvas cutSceneCanvas;
-    [SerializeField] private RectTransform canvasRect;
-    [SerializeField] private Image effectOverlay;           // 화면 전체 페이드와 플래시에 쓰임.
-    [SerializeField] private List<Image> images = new();
+    [SerializeField] Canvas cutSceneCanvas;
+    [SerializeField] RectTransform canvasRect;
+    [SerializeField] Image effectOverlay;           // 화면 전체 페이드/플래시용 단일 오버레이
+    [SerializeField] List<Image> images = new();
+
+    [SerializeField] float padding_X = 0;
+    [SerializeField] float padding_Y = 0;
+
 
     private CancellationTokenSource _cts;
 
 
-    // 앵커 유형별 기준 좌표를 보관함.
-    private readonly Dictionary<AnchorType, Vector2> anchorPreset = new()
+    // ── Anchor 프리셋 ─────────────────────────────────────────────────
+    readonly Dictionary<AnchorType, Vector2> anchorPreset = new()
     {
         { AnchorType.Center,       new Vector2(0.5f, 0.5f) },
         { AnchorType.Left,         new Vector2(0.0f, 0.5f) },
@@ -78,23 +86,22 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         { AnchorType.BottomRight, new Vector2(1.0f, 0.0f) },
     };
 
-    private Queue<Image> imagePool = new();
-    private Dictionary<string, Image> activeImages = new();   // 이미지 ID로 사용 중인 이미지를 조회함.
+    Queue<Image> imagePool = new();
+    Dictionary<string, Image> activeImages = new();   // imageId → Image
 
 
-    private void Awake()
+    void Awake()
     {
         imagePool = new Queue<Image>(images);
         ResetImages();
 
 
-        // 스프라이트 애니메이터는 첫 클립을 재생할 때 초기화함.
+        // Sprite animator is initialized lazily when its first clip is played.
+        if (spineAnimationManager != null) spineAnimationManager.Initialize();
     }
 
     public void OnContinueTimeline()
     {
-        var studioPlayer = GetComponent<StudioPlayer>();
-        if (studioPlayer != null && studioPlayer.IsPlaying) { studioPlayer.Continue(); return; }
         timelineManager.OnContinueCutScene();
     }
 
@@ -103,16 +110,20 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     public void ClearCutScene()
     {
         _cts?.Cancel();
-        GetComponent<StudioPlayer>()?.Stop();
         effectRun?.Cancel();
         if (timelineManager != null) timelineManager.StopTimeline();
         ResetImages();
         spriteAnimationManager?.SetInactive();
         spriteAnimationManager?.ActiveSelf(false);
+        if (spineAnimationManager != null)
+        {
+            spineAnimationManager.SetInactive();
+            spineAnimationManager.ActiveSelf(false);
+        }
     }
 
-    private void OnDisable() => ClearCutScene();
-    private void OnDestroy() => spriteAnimationManager?.Release();
+    void OnDisable() => ClearCutScene();
+    void OnDestroy() => spriteAnimationManager?.Release();
 
     public async UniTask PlayCutScene(string id, UniTaskCompletionSource tcs = null, CancellationToken token = default)
     {
@@ -122,12 +133,6 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         try
         {
             source.Token.ThrowIfCancellationRequested();
-            if (await StudioPlaybackService.TryPlayAsync(this, id, source.Token))
-            {
-                source.Token.ThrowIfCancellationRequested();
-                tcs?.TrySetResult();
-                return;
-            }
             if (data == null || !data.TryGet(id, out var cutScene)) throw new InvalidOperationException("Missing cutscene: " + id);
             if (cutSceneCanvas != null) cutSceneCanvas.worldCamera = Camera.main;
             switch (cutScene.Kind)
@@ -148,7 +153,7 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         finally { if (ReferenceEquals(_cts, source)) _cts = null; }
     }
 
-    /// <summary>디렉터 정지와 바인딩 해제가 끝날 때까지 로드한 에셋을 유지함.</summary>
+    /// <summary>Retains the loaded asset until the director has stopped and cleared its bindings.</summary>
     public async UniTask PlayTimelineCutScene(NewCutSceneRefData data, CancellationToken token, UniTaskCompletionSource tcs = null)
     {
         var outside = FindFirstObjectByType<OustideTimelineManager>();
@@ -173,7 +178,7 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         finally { ResourceLoader.ReleaseHandle<TimelineAsset>(ref handle); }
     }
 
-    private async UniTask PlaySpriteAnimationCutScene(NewCutSceneRefData data, CancellationToken token)
+    async UniTask PlaySpriteAnimationCutScene(NewCutSceneRefData data, CancellationToken token)
     {
         var handle = await ResourceLoader.TryLoadAsync<AnimationClip>(data.ResourceKey, token);
         try
@@ -214,7 +219,7 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         }
     }
 
-    private async UniTask ExecuteEffect(EEffectType type, float duration, float intensity, CancellationToken token)
+    async UniTask ExecuteEffect(EEffectType type, float duration, float intensity, CancellationToken token)
     {
         switch (type)
         {
@@ -294,9 +299,9 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     }
 
 
-    // 이미지 풀에서 사용한 이미지를 반환하고 다시 꺼내 쓰는 데 쓰임.
+    // ── Image 풀 관리 ─────────────────────────────────────────────────
 
-    private Image GetPooledImage()
+    Image GetPooledImage()
     {
         if (imagePool.Count == 0)
         {
@@ -305,7 +310,7 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         }
         return imagePool.Dequeue();
     }
-    private void ReturnToPool(string imageId, Image img)
+    void ReturnToPool(string imageId, Image img)
     {
         img.gameObject.SetActive(false);
         img.color = Color.white;

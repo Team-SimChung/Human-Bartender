@@ -43,7 +43,7 @@ public sealed class DialogueCameraFeedbackTests
         bubble.bubble = (RectTransform)actor.transform;
         bubble.bubble.sizeDelta = new Vector2(400, 100);
         bubble.textLabel = text.GetComponent<TextMeshProUGUI>();
-        bubble.textLabel.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
+        bubble.textLabel.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset");
         bubble.nameLabel = title.GetComponent<TextMeshProUGUI>();
         actor.SetActive(true);
     }
@@ -207,7 +207,7 @@ public sealed class DialogueCameraFeedbackTests
         Assert.That(Sample(10.17f, Vector3.one * 4).Lens.OrthographicSize, Is.EqualTo(3.6f));
         impulse.PlayVerticalPulse();
         impulse.enabled = false;
-        typeof(VerticalCameraImpulse).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(impulse, null); // Invoke directly in EditMode, where disabled behaviours reject SendMessage.
+        impulse.SendMessage("OnDisable"); // EditMode does not dispatch runtime-only MonoBehaviour callbacks.
         impulse.enabled = true;
         Assert.That(Sample(10.22f, Vector3.one * 5).Lens.OrthographicSize, Is.EqualTo(3.6f));
     }

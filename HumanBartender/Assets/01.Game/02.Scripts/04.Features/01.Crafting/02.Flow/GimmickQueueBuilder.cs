@@ -122,8 +122,7 @@ public static class GimmickQueueBuilder
             {
                 // 플레이어가 선반에서 고르는 재료는 실제 선택을 보고 따로 처리한다.
                 if (recipeStep.Action != ENewRecipeAction.Squeeze &&
-                    recipeStep.Action != ENewRecipeAction.Powder &&
-                    recipeStep.Action != ENewRecipeAction.Add) continue;
+                    recipeStep.Action != ENewRecipeAction.Powder) continue;
 
                 bool isSqueeze = recipeStep.Action == ENewRecipeAction.Squeeze;
 

@@ -1,0 +1,48 @@
+C scope audit — 2026-09-15
+Baseline: c861bc6eb2041bd1a434c46d88620b1191c2d359
+Changed/new C# files: 33
+All nonblank, non-comment C# lines match the final Unity validation copy.
+A/B production source and shared scenes/prefabs/Addressables/packages/settings changed: none.
+C-owned exceptions outside the C feature folders: ConditionUtil.cs, NewStreetDataSO.cs, the listed C editor tools.
+Short comment changes were made after testing; no executable C# lines changed.
+
+Changed/new Assets paths:
+Assets/03.Scripts/Cutscene/CutsceneManager.cs
+Assets/03.Scripts/Cutscene/ICutScenePlayer.cs
+Assets/03.Scripts/Cutscene/IEffectPlayer.cs
+Assets/03.Scripts/Cutscene/Outside Timeline/CutsceneDialogueHandler.cs
+Assets/03.Scripts/Cutscene/SpriteAnimationManager.cs
+Assets/03.Scripts/Cutscene/TimelinePlayback.cs
+Assets/03.Scripts/Cutscene/TimelinePlayback.cs.meta
+Assets/03.Scripts/Cutscene/UI Timeline/CutSceneTimelineManager.cs
+Assets/03.Scripts/DataNew/NewStreetDataSO.cs
+Assets/03.Scripts/Dialogue/CharacterLoader.cs
+Assets/03.Scripts/Dialogue/CharacterPart.cs
+Assets/03.Scripts/Dialogue/ChoicePanel.cs
+Assets/03.Scripts/Dialogue/DialogueCharacterManager.cs
+Assets/03.Scripts/Dialogue/DialogueRunner.cs
+Assets/03.Scripts/Dialogue/DialogueTypingService.cs
+Assets/03.Scripts/Dialogue/UIDialogueChoiceView.cs
+Assets/03.Scripts/Dialogue/UIDialogueTextView.cs
+Assets/03.Scripts/Outside/Entity/InteractiveEntity.cs
+Assets/03.Scripts/Outside/Entity/InteractiveEntityManager.cs
+Assets/03.Scripts/Outside/Entity/InteractiveNPCEntity.cs
+Assets/03.Scripts/Outside/Entity/OutsideElevatorRadio.cs
+Assets/03.Scripts/Outside/InteractionStateLease.cs
+Assets/03.Scripts/Outside/InteractionStateLease.cs.meta
+Assets/03.Scripts/Outside/OustideTimelineManager.cs
+Assets/03.Scripts/Outside/OutsideDialoguePresenter.cs
+Assets/03.Scripts/Outside/OutsideSpotManager.cs
+Assets/03.Scripts/Story/BarStoryPresenter.cs
+Assets/03.Scripts/Story/StoryCraftGate.cs
+Assets/03.Scripts/Story/StoryScriptRunner.cs
+Assets/03.Scripts/Tool/ConditionUtil.cs
+Assets/Editor/CContentInspectors.cs
+Assets/Editor/CContentInspectors.cs.meta
+Assets/Editor/CutSceneLayoutTool.cs
+Assets/Editor/DialogueAnimationTestWindow.cs
+Assets/Editor/RefactoringCContentValidator.cs
+Assets/Editor/RefactoringCContentValidator.cs.meta
+Assets/Editor/RefactoringCExecutionTests.cs
+Assets/Editor/RefactoringCExecutionTests.cs.meta
+Assets/StreamingAssets/csv/story/README.md

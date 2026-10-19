@@ -33,11 +33,6 @@ public sealed class DialoguePresentationSettings : ScriptableObject
     public bool ReducedMotion;
     [Tooltip("Optional registered SoundManager SE key. Empty means silent typing.")]
     public string TypingSoundKey;
-    [Min(0f)] public float TypingSoundInterval = 0.06f;
-    [Tooltip("SE keys for accepted dialogue input and choice interactions. Empty disables that cue.")]
-    public string AdvanceSoundKey;
-    public string ChoiceHoverSoundKey;
-    public string ChoiceConfirmSoundKey;
     [Tooltip("Reusable effects referenced by <fx=id>...</fx> in dialogue CSV.")]
     public DialogueFxPreset[] Presets;
 

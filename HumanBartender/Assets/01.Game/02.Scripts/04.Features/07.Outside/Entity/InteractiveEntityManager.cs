@@ -19,16 +19,13 @@ public class InteractiveEntityManager : MonoBehaviour
     [SerializeField] protected InteractableEvent OnInteracted;
     [SerializeField] protected VoidEvent OnRefreshCondition;
 
-    [Inject] IBgmPlayer soundManager;
+    [Inject] ISoundManager soundManager;
     [Inject] IConditionUtil conditionUtil;
     [Inject] IObjectResolver resolver;
     readonly Dictionary<string, InteractiveEntity> entities = new(StringComparer.Ordinal);
     readonly Dictionary<string, SpotPoint> sceneSpots = new(StringComparer.Ordinal);
     readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
     readonly UniTaskCompletionSource<bool> readiness = new();
-    public DialogueRunner DialogueRunner => runner;
-    public OutsideDialoguePresenter DialoguePresenter => presenter;
-    public Player StoryPlayer => player != null ? player.GetComponent<Player>() : null;
     public bool IsReady { get; private set; }
     public string InitializationError { get; private set; }
     public bool IsSafeForSave => IsReady && (runner == null || !runner.IsRunning) &&

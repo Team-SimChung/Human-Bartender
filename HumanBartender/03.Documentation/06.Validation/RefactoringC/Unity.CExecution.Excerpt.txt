@@ -1,0 +1,46 @@
+# Selected C observations and compiler warnings from final-c-unity-2.log; original line numbers.
+321: Assets/03.Scripts/Dialogue/CharacterPart.cs(104,44): warning CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+322: Assets/03.Scripts/Tool/JsonManager.cs(73,46): warning CS0693: Type parameter 'T' has the same name as the type parameter from outer type 'JsonManager<T>'
+323: Assets/03.Scripts/Tool/JsonManager.cs(102,50): warning CS0693: Type parameter 'T' has the same name as the type parameter from outer type 'JsonManager<T>'
+324: Assets/03.Scripts/Cutscene/UI Timeline/CutSceneEffectMixerBehaviour.cs(12,14): warning CS0219: The variable 'anyActive' is assigned but its value is never used
+325: Assets/03.Scripts/LogoFade.cs(60,9): warning CS4014: Because this call is not awaited, execution of the current method continues before the call is completed. Consider applying the 'await' operator to the result of the call.
+326: Assets/03.Scripts/MiniGame/Stur/CircleNodeCreator.cs(63,9): warning CS0162: Unreachable code detected
+327: Assets/03.Scripts/Outside/Entity/NPC_Samho.cs(11,26): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
+328: Assets/03.Scripts/Player/PlayerMovement2D.cs(127,9): warning CS0162: Unreachable code detected
+329: Assets/03.Scripts/Story/StorySceneCursor.cs(111,9): warning CS0162: Unreachable code detected
+330: Assets/03.Scripts/Story/StoryScriptRunner.cs(147,17): warning CS0162: Unreachable code detected
+331: Assets/03.Scripts/Story/StoryScriptRunner.cs(163,17): warning CS0162: Unreachable code detected
+332: Assets/03.Scripts/Story/StoryScriptRunner.cs(190,21): warning CS0162: Unreachable code detected
+333: Assets/03.Scripts/Story/StoryScriptRunner.cs(274,17): warning CS0162: Unreachable code detected
+334: Assets/03.Scripts/Story/StoryScriptRunner.cs(294,13): warning CS0162: Unreachable code detected
+335: Assets/03.Scripts/Story/StoryScriptRunner.cs(313,13): warning CS0162: Unreachable code detected
+336: Assets/03.Scripts/Story/StoryScriptRunner.cs(353,13): warning CS0162: Unreachable code detected
+337: Assets/03.Scripts/Story/StoryScriptRunner.cs(377,13): warning CS0162: Unreachable code detected
+338: Assets/03.Scripts/Story/StoryScriptRunner.cs(383,13): warning CS0162: Unreachable code detected
+339: Assets/03.Scripts/Story/StoryScriptRunner.cs(425,13): warning CS0162: Unreachable code detected
+340: Assets/03.Scripts/Story/StoryScriptRunner.cs(432,13): warning CS0162: Unreachable code detected
+341: Assets/03.Scripts/Story/StoryScriptRunner.cs(450,13): warning CS0162: Unreachable code detected
+342: Assets/03.Scripts/Story/StoryScriptRunner.cs(469,13): warning CS0162: Unreachable code detected
+343: Assets/03.Scripts/Story/StoryScriptRunner.cs(478,13): warning CS0162: Unreachable code detected
+344: Assets/03.Scripts/Story/StoryScriptRunner.cs(496,13): warning CS0162: Unreachable code detected
+345: Assets/03.Scripts/Story/StoryScriptRunner.cs(513,13): warning CS0162: Unreachable code detected
+346: Assets/03.Scripts/Story/StoryScriptRunner.cs(558,13): warning CS0162: Unreachable code detected
+347: Assets/03.Scripts/Story/StoryScriptRunner.cs(673,13): warning CS0162: Unreachable code detected
+348: Assets/03.Scripts/MiniGame/Stur/SturStrikeNode.cs(13,27): warning CS0414: The field 'SturStrikeNode.ease' is assigned but its value is never used
+349: Assets/03.Scripts/Cutscene/CutsceneManager.cs(71,28): warning CS0414: The field 'CutSceneManager.padding_Y' is assigned but its value is never used
+350: Assets/03.Scripts/Craft/UI/Money/SettlementSection.cs(34,36): warning CS0414: The field 'SettlementSection.padding' is assigned but its value is never used
+351: Assets/03.Scripts/Cutscene/CutsceneManager.cs(70,28): warning CS0414: The field 'CutSceneManager.padding_X' is assigned but its value is never used
+352: Assets/03.Scripts/GameStateManager.cs(71,10): warning CS0414: The field 'GameStateManager.isOutsideLoad' is assigned but its value is never used
+353: Assets/03.Scripts/Camera/CameraControllerNew.cs(56,36): warning CS0414: The field 'CameraControllerNew.defaultTransitionDuration' is assigned but its value is never used
+354: Assets/03.Scripts/Outside/InteractionDetector.cs(36,35): warning CS0414: The field 'InteractionDetector.drawGizmos' is assigned but its value is never used
+355: Assets/03.Scripts/Craft/UI/Money/SettlementSection.cs(32,36): warning CS0414: The field 'SettlementSection.headerHeight' is assigned but its value is never used
+645: [Story] 씬 시작 — test (seq 1)
+656: RefactoringCExecutionTests:CleanupCannotOverwritePrimaryFailureOrCancellation (bool) (at Assets/Editor/RefactoringCExecutionTests.cs:40)
+704: RefactoringCExecutionTests/<OutsideColdStartPublishesSceneSpotsAfterCsvLoading>d__20:MoveNext () (at Assets/Editor/RefactoringCExecutionTests.cs:321)
+906: [OutsideSpotManager] 총 5개 / 5개의 SpotPoint 등록 완료.
+1615: [Story] Day 0 2부 시작
+1659: [Story] 씬 시작 — d1_tutorial_chris (seq 1)
+1684: [CharacterManager] PartAnimData null, Default Data
+1802: [CharacterManager] PartAnimData null, Default Data
+2146: [StoryCraft] Story wait cancelled, but the B craft is still active. CraftFlowController needs a session-specific CancelAsync API.
+2171: RefactoringCExecutionTests:StoryCraftIgnoresOtherSessionsAndUnsubscribesAfterCancellation () (at Assets/Editor/RefactoringCExecutionTests.cs:198)

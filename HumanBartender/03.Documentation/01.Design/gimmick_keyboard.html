@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제조 기믹 키보드 입력 시뮬레이터 — 따르기 · 셰이킹 · 스터</title>
+<style>
+  :root{
+    --bg:#08090d; --panel:#111319; --panel-2:#171a22; --line:#262b38;
+    --blue:#0a4bf5; --blue-soft:#3d6bff; --gold:#f2c14e;
+    --text:#e9ebf2; --text-dim:#8890a4;
+    --good:#38d47a; --bad:#ff5c6c; --cyan:#7ff0ea;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    min-height:100vh; display:flex; justify-content:center;
+    padding:24px 16px 60px;
+  }
+  .app{width:100%;max-width:780px;}
+  h1{font-size:19px;font-weight:700;margin:0 0 4px;letter-spacing:-0.01em;}
+  .sub{color:var(--text-dim);font-size:13px;margin:0 0 18px;line-height:1.7;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .tab{
+    flex:1;background:var(--panel);border:1px solid var(--line);
+    color:var(--text-dim);border-radius:10px;padding:11px 8px;
+    font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:.15s;
+  }
+  .tab:hover{color:var(--text);}
+  .tab.active{background:var(--panel-2);border-color:var(--blue-soft);color:var(--gold);}
+  .view{display:none;} .view.active{display:block;}
+
+  .panel{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:18px 20px;margin-bottom:16px;
+  }
+  .panel-title{
+    font-size:12px;color:var(--text-dim);text-transform:uppercase;
+    letter-spacing:0.06em;margin:0 0 12px;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row + .row{margin-top:10px;}
+  select, input[type=number]{
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;
+  }
+  select{min-width:180px;}
+  .slider-label{font-size:13px;color:var(--text-dim);min-width:124px;}
+  input[type=range]{flex:1;accent-color:var(--blue);min-width:120px;}
+  .slider-value{font-size:13px;color:var(--gold);min-width:70px;text-align:right;font-variant-numeric:tabular-nums;}
+
+  .stage{
+    position:relative;background:#000;border:1px solid var(--line);
+    border-radius:14px;height:460px;overflow:hidden;user-select:none;
+  }
+  /* 격자 배경 — 이미지의 그 판 느낌 */
+  .stage.grid{
+    background-image:
+      linear-gradient(rgba(125,240,234,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(125,240,234,.055) 1px, transparent 1px);
+    background-size:34px 34px;
+  }
+  .hud{
+    position:absolute;top:14px;left:16px;right:16px;
+    display:flex;justify-content:space-between;
+    font-size:13px;color:var(--text-dim);font-variant-numeric:tabular-nums;
+    pointer-events:none;z-index:6;
+  }
+  .hud b{color:var(--gold);font-weight:700;}
+  .ing-label{
+    position:absolute;top:44px;left:0;right:0;text-align:center;
+    font-weight:700;font-size:15px;pointer-events:none;z-index:6;
+  }
+
+  /* ── 따르기 ── */
+  .tilt-gauge{
+    position:absolute;left:16px;bottom:16px;width:150px;height:9px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:5px;z-index:6;
+  }
+  .tilt-fill{height:100%;width:0%;background:var(--blue-soft);border-radius:4px;transition:background .12s;}
+  .tilt-fill.pouring{background:var(--gold);}
+  .tilt-mark{position:absolute;top:-5px;width:2px;height:19px;background:var(--bad);border-radius:1px;}
+  .tilt-caption{position:absolute;left:0;top:-19px;font-size:11px;color:var(--text-dim);white-space:nowrap;}
+  .stream-svg{position:absolute;inset:0;z-index:2;pointer-events:none;}
+  .ripple{animation:rippleAnim 480ms ease-out forwards;transform-box:fill-box;transform-origin:center;}
+  @keyframes rippleAnim{0%{opacity:.75;transform:scale(0.3);}100%{opacity:0;transform:scale(1.8);}}
+  .bottle{
+    position:absolute;width:45px;height:170px;top:50%;
+    transform:translateY(-50%) rotate(0deg);transform-origin:50% 50%;
+    z-index:3;filter:drop-shadow(0 6px 16px rgba(0,0,0,.55));
+  }
+  .bottle img{width:100%;height:100%;display:block;image-rendering:pixelated;pointer-events:none;}
+  .end-marker{
+    position:absolute;bottom:70px;left:50%;width:10px;height:10px;border-radius:50%;
+    background:var(--blue-soft);transform:translateX(-50%);opacity:.5;z-index:2;
+  }
+
+  /* ── 셰이킹: 리듬 라인 ── */
+  .rhythm-svg{position:absolute;inset:0;z-index:3;pointer-events:none;}
+  .shaker-slot{
+    position:absolute;left:112px;top:50%;transform:translate(-50%,-50%);
+    z-index:4;pointer-events:none;
+  }
+  /* 눕힌 셰이커 — 왼쪽이 바닥, 오른쪽이 캡 */
+  .shaker{
+    width:132px;height:62px;border-radius:16px 9px 9px 16px;
+    background:linear-gradient(200deg,#cfd6e2 0%,#8e97a8 34%,#e6ecf5 52%,#79808f 74%,#b9c2d0 100%);
+    border:2px solid #6d7482;
+    box-shadow:0 10px 26px rgba(0,0,0,.6), inset 0 0 18px rgba(255,255,255,.18);
+    position:relative;
+  }
+  .shaker::before{
+    content:"";position:absolute;top:9px;bottom:9px;right:-15px;width:16px;
+    border-radius:3px 8px 8px 3px;
+    background:linear-gradient(200deg,#d8dfeb,#7f8797);border:2px solid #6d7482;
+  }
+  .shaker-liquid{position:absolute;left:5px;right:5px;bottom:5px;height:44%;border-radius:0 0 7px 13px;opacity:.55;}
+  .shaker-shine{
+    position:absolute;left:15px;right:26px;top:10px;height:9px;
+    background:linear-gradient(90deg,rgba(255,255,255,.55),rgba(255,255,255,.05));border-radius:5px;
+  }
+  .shaker-label{
+    position:absolute;left:0;right:0;top:100%;margin-top:34px;text-align:center;
+    font-size:12px;color:var(--text-dim);
+  }
+  /* 흔드는 궤적 — 왼쪽이 꼭짓점인 '<' 모양을 왕복한다 */
+  @keyframes shakeHit{
+    0%,100%{transform:translate(0,0) rotate(0deg);}
+    14%{transform:translate(25px,-30px) rotate(-15deg);}
+    40%{transform:translate(-23px,0) rotate(0deg);}
+    66%{transform:translate(25px,30px) rotate(15deg);}
+    88%{transform:translate(-23px,0) rotate(0deg);}
+  }
+  .shaker-body.hit{animation:shakeHit 420ms cubic-bezier(.35,.65,.4,1);}
+  @keyframes shakeWrong{
+    0%,100%{transform:translate(0,0) rotate(0deg);}
+    25%{transform:translate(-10px,0) rotate(-4deg);}
+    75%{transform:translate(10px,0) rotate(4deg);}
+  }
+  .shaker-body.wrong{animation:shakeWrong 240ms ease-in-out;}
+
+  .judge{
+    position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    font-size:40px;font-weight:800;letter-spacing:.04em;
+    opacity:0;pointer-events:none;z-index:8;text-shadow:0 0 22px currentColor;
+  }
+  @keyframes judgePop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.6);}
+    18%{opacity:1;transform:translate(-50%,-50%) scale(1.12);}
+    70%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1) translateY(-22px);}
+  }
+  .judge.show{animation:judgePop 620ms ease-out;}
+
+  .edge-flash{
+    position:absolute;inset:0;z-index:7;pointer-events:none;opacity:0;
+    box-shadow:inset 0 0 60px 10px currentColor;
+  }
+  @keyframes edgePulse{0%{opacity:.85;}100%{opacity:0;}}
+  .edge-flash.on{animation:edgePulse 320ms ease-out;}
+
+  /* ── 스터: 커맨드 ── */
+  .stir-wrap{
+    position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    width:168px;height:168px;z-index:3;
+  }
+  .stir-glass{
+    position:absolute;inset:0;border-radius:50%;border:3px solid #7c8598;
+    background:radial-gradient(circle at 38% 32%, rgba(255,255,255,.14), rgba(0,0,0,.5) 72%);
+    box-shadow:0 12px 30px rgba(0,0,0,.55), inset 0 0 26px rgba(255,255,255,.08);
+    overflow:hidden;
+  }
+  .stir-liquid{position:absolute;inset:9px;border-radius:50%;opacity:.42;}
+  .stir-shade{
+    position:absolute;inset:9px;border-radius:50%;
+    background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.15) 40%, rgba(0,0,0,.62) 100%);
+  }
+  .swirl{
+    position:absolute;inset:9px;border-radius:50%;
+    background:conic-gradient(from 0deg,
+      rgba(255,255,255,0) 0deg, rgba(255,255,255,.42) 34deg,
+      rgba(255,255,255,0) 84deg, rgba(255,255,255,.26) 148deg,
+      rgba(255,255,255,0) 206deg, rgba(255,255,255,.42) 274deg,
+      rgba(255,255,255,0) 336deg);
+    mix-blend-mode:screen;
+  }
+  .stir-spoon{
+    position:absolute;left:50%;top:50%;width:6px;height:90px;
+    margin-left:-3px;margin-top:-90px;transform-origin:50% 100%;
+    background:linear-gradient(180deg,#e8eef7,#98a2b4);border-radius:3px;
+    box-shadow:0 0 10px rgba(0,0,0,.6);
+  }
+  .stir-spoon::after{
+    content:"";position:absolute;left:-5px;top:-9px;width:16px;height:16px;
+    border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#9aa4b6);
+  }
+  @keyframes glassShake{
+    0%,100%{transform:translate(-50%,-50%) rotate(0deg);}
+    20%{transform:translate(-50%,-50%) translateX(-12px) rotate(-3deg);}
+    50%{transform:translate(-50%,-50%) translateX(11px) rotate(3deg);}
+    80%{transform:translate(-50%,-50%) translateX(-6px) rotate(-1.5deg);}
+  }
+  .stir-wrap.wrong{animation:glassShake 300ms ease-in-out;}
+  @keyframes glassPop{
+    0%,100%{transform:translate(-50%,-50%) scale(1);}
+    40%{transform:translate(-50%,-50%) scale(1.07);}
+  }
+  .stir-wrap.good{animation:glassPop 340ms ease-out;}
+
+  .combo-row{
+    position:absolute;left:0;right:0;bottom:92px;
+    display:flex;justify-content:center;gap:12px;z-index:6;
+  }
+  .combo-key{
+    width:56px;height:56px;border-radius:12px;
+    background:var(--panel-2);border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;font-weight:800;color:var(--text-dim);
+    transition:transform .1s, background .12s, border-color .12s, color .12s;
+  }
+  .combo-key.cur{border-color:var(--gold);color:var(--gold);box-shadow:0 0 18px rgba(242,193,78,.35);}
+  .combo-key.ok{background:rgba(56,212,122,.18);border-color:var(--good);color:var(--good);transform:scale(.9);}
+  .combo-key.ng{background:rgba(255,92,108,.18);border-color:var(--bad);color:var(--bad);}
+  .combo-caption{
+    position:absolute;left:0;right:0;top:44px;text-align:center;
+    font-size:13px;font-weight:700;color:var(--text-dim);z-index:6;
+  }
+
+  .round-timer{
+    position:absolute;left:60px;right:60px;bottom:66px;height:8px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:5px;z-index:6;overflow:hidden;
+  }
+  .round-timer-fill{height:100%;width:100%;background:var(--gold);transition:background .15s;}
+  .round-timer-fill.danger{background:var(--bad);}
+
+  .count-gauge{
+    position:absolute;left:16px;right:16px;bottom:44px;height:12px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:7px;z-index:6;
+  }
+  .count-fill{height:100%;width:0%;background:var(--blue-soft);border-radius:6px;}
+  .count-fill.ok{background:var(--good);}
+  .count-caption{
+    position:absolute;left:0;right:0;top:-19px;font-size:11px;color:var(--text-dim);
+    display:flex;justify-content:space-between;
+  }
+
+  .keyhint{
+    position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
+    display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-dim);
+    z-index:6;pointer-events:none;white-space:nowrap;
+  }
+  .kbd{
+    display:inline-block;min-width:26px;text-align:center;
+    background:var(--panel-2);border:1px solid var(--line);border-bottom-width:3px;
+    border-radius:6px;padding:3px 7px;font-size:12px;font-weight:700;color:var(--text);transition:.06s;
+  }
+  .kbd.down{background:var(--blue);border-color:var(--blue-soft);color:#fff;transform:translateY(2px);border-bottom-width:1px;}
+
+  .ok-flash{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:56px;font-weight:800;color:var(--gold);
+    text-shadow:0 0 24px rgba(242,193,78,.6);opacity:0;pointer-events:none;z-index:8;
+  }
+  .ok-flash.show{animation:okBlink 900ms ease-in-out infinite;}
+  @keyframes okBlink{0%,100%{opacity:0;}50%{opacity:1;}}
+
+  .next-btn{
+    position:absolute;right:16px;bottom:16px;
+    background:var(--panel-2);border:1px solid var(--blue-soft);color:var(--text);
+    padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;
+    cursor:pointer;z-index:9;transition:background .15s;font-family:inherit;
+  }
+  .next-btn:hover{background:var(--blue);border-color:var(--blue);}
+
+  .result-overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:6px;background:rgba(8,9,13,.96);z-index:10;
+  }
+  .result-score{font-size:44px;font-weight:800;margin:6px 0 2px;}
+  .result-score.good{color:var(--good);}
+  .result-score.bad{color:var(--bad);}
+  .result-detail{font-size:13px;color:var(--text-dim);margin-bottom:16px;text-align:center;line-height:1.7;}
+  .result-detail b{color:var(--text);}
+  .retry-btn{
+    background:var(--blue);border:none;color:#fff;padding:10px 22px;border-radius:10px;
+    font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;
+  }
+
+  .debug{
+    margin-top:14px;font-size:12px;color:var(--text-dim);
+    display:flex;gap:18px;flex-wrap:wrap;font-variant-numeric:tabular-nums;
+  }
+  .debug b{color:var(--text);}
+  .footnote{font-size:12px;color:var(--text-dim);margin-top:16px;line-height:1.8;}
+  .footnote b{color:var(--text);}
+
+  /* ── 스퀴즈 ── */
+  .fruit{
+    position:absolute;left:50%;top:34%;
+    transform-origin:50% 82%;      /* 아래 꼭지를 축으로 쪼그라든다 */
+    z-index:3;pointer-events:none;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.55));
+  }
+  .fruit svg{display:block;}
+  .juice-bar{
+    position:absolute;left:16px;bottom:16px;width:150px;height:9px;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:5px;z-index:6;
+  }
+  .juice-fill{height:100%;width:100%;background:var(--good);border-radius:4px;}
+  .juice-fill.dry{background:var(--bad);}
+  .juice-caption{position:absolute;left:0;top:-19px;font-size:11px;color:var(--text-dim);white-space:nowrap;}
+
+  /* ── 병따기 ── */
+  .cap-bottle{
+    position:absolute;left:50%;width:54px;height:200px;
+    transform:translateX(-50%);z-index:3;
+    filter:drop-shadow(0 8px 20px rgba(0,0,0,.6));
+  }
+  .cap-bottle img{width:100%;height:100%;display:block;image-rendering:pixelated;}
+  .cap-piece{
+    position:absolute;left:50%;width:48px;height:19px;
+    transform:translate(-50%,-58%);
+    border-radius:5px 5px 7px 7px;
+    background:
+      repeating-linear-gradient(90deg,#c9d1de 0 3px,#8b94a4 3px 6px),
+      linear-gradient(180deg,#e4eaf3,#79808f);
+    border:2px solid #5f6673;
+    box-shadow:0 3px 10px rgba(0,0,0,.6);
+    z-index:5;
+  }
+  @keyframes capPop{
+    0%{transform:translate(-50%,-58%) rotate(0deg);opacity:1;}
+    30%{transform:translate(-50%,-260%) rotate(140deg);opacity:1;}
+    100%{transform:translate(-10%,-520%) rotate(520deg);opacity:0;}
+  }
+  .cap-piece.pop{animation:capPop 620ms cubic-bezier(.2,.7,.4,1) forwards;}
+  @keyframes capBend{
+    0%,100%{transform:translate(-50%,-58%) rotate(0deg);}
+    35%{transform:translate(-50%,-62%) rotate(-13deg);}
+    70%{transform:translate(-50%,-56%) rotate(6deg);}
+  }
+  .cap-piece.bend{animation:capBend 320ms ease-in-out;}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>제조 기믹 키보드 입력 시뮬레이터</h1>
+  <p class="sub">
+    따르기 · 스퀴즈 · 셰이킹 · 스터 · 병따기를 마우스 대신 키보드로 조작하는 안이다. 슬라이더로 속도와 목표치를 바꿔가며 조작감을 잡는 용도다.
+  </p>
+
+  <div class="tabs">
+    <button class="tab active" data-view="pour">따르기</button>
+    <button class="tab" data-view="squeeze">스퀴즈</button>
+    <button class="tab" data-view="shake">셰이킹</button>
+    <button class="tab" data-view="stir">스터</button>
+    <button class="tab" data-view="cap">병따기</button>
+  </div>
+
+  <!-- ═══════════ 따르기 ═══════════ -->
+  <section class="view active" id="view-pour">
+    <div class="panel">
+      <p class="panel-title">재료 / 목표량</p>
+      <div class="row">
+        <select id="ingredientSelect"></select>
+        <span class="slider-label" style="min-width:auto;">목표량</span>
+        <input type="number" id="targetOz" value="1.5" min="0.25" step="0.25" style="width:80px;">
+        <span class="slider-label" style="min-width:auto;">oz</span>
+      </div>
+      <p class="panel-title" style="margin-top:16px;">조작감 튜닝</p>
+      <div class="row">
+        <span class="slider-label">완전히 눕히는 시간</span>
+        <input type="range" id="nSlider" min="3" max="40" value="12" step="1">
+        <span class="slider-value" id="nValue">1.2s</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">쏟아지는 기울기</span>
+        <input type="range" id="thSlider" min="20" max="95" value="55" step="1">
+        <span class="slider-value" id="thValue">55%</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">초당 유량</span>
+        <input type="range" id="rateSlider" min="2" max="30" value="10" step="1">
+        <span class="slider-value" id="rateValue">1.0oz/s</span>
+      </div>
+    </div>
+
+    <div class="stage" id="pourStage">
+      <div class="hud">
+        <span id="hudOz">0.00 / 1.50 oz</span>
+        <span id="hudProgress">기울기 0%</span>
+      </div>
+      <div class="ing-label" id="ingLabel">진</div>
+      <svg class="stream-svg" id="streamSvg" width="100%" height="100%">
+        <path id="streamPath" d="" fill="none" stroke-width="8" stroke-linecap="round" opacity="0"/>
+        <path id="streamHighlight" d="" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0"/>
+        <g id="ripples"></g>
+      </svg>
+      <div class="end-marker"></div>
+      <div class="bottle" id="bottle">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAACmCAYAAAChr22/AAAACXBIWXMAAC4jAAAuIwF4pT92AAAGG0lEQVR4nO2cXWgcRQDHZ8cJfpTGJIoxpFTqaYqNGJI0qBh8KZTYgLEaoSXtS0J80KeCL5ZGkagPIuZRUAw+GO1Dag2Seoh5UCKCF3OkGIut10BpiNaaK5Fo4Qonu7ez2Z3bj/naj9nL/2V353Zm/vvb/87s7SWrlctlwKupN57mqjz05vcab58warOidWHUHYq2wU04LkGgmCBQTEikcu6361z1evbeG71h3SxvxzmBujDqDnXpdXnPDpdhEbNYkRKOUxAoJggUEwSKCQLFhEQqb08cFNqeOGjVsz1xJFQQKCYIasHwkMDXdNE2NJHnEl3PjhiVb7vJ1kbum0ktlpnugcwjgftcXf4VyFRtZDhOabwZPnzivfKlf24a6w/vvIM5GjnOHCtHGPHSZa2zq32flAsxNsI9B4fLkWTYnl0smgx/NLBgrT/zzl3cWYZhR0E2aaGJg4Xs6Mx+q+zrkwtVpKVHgjcKbpHA5nGZbpw2GjCuKPBGAybBLEtfiKYBlhnNS6O2DJO5xpkenREgHCVZln5dLzryAju1+S4Q1ZGRe6z10x//XVWm6zp63CJ/duJVjYoweYQyzMok7SBsJxuF0SMEYcvH7CvWOknaNcNxUcVqmx/zJI3ID/qX3gZ5AEDnQ3UgbLKnPbJsN32xd1y9++HDNsqIzG6bT8X87yUpBvKv/WEsx8caAknbTet5dhDW45A0tdny7MgwNuuWXUxWdq6/+HzTWD5/dIeDtL0fvW/d9MHXPzC2YVwzGo/mvvqkjGhy6kW2rqmeq+PS+obraIFJj43f8KyrxChBdbfmRpWGaGZ/j2O7sJDzbOfM2ZIraTcd2PtTygi7EcHZI0mTVN0+K7iQxiJJ43HaodtLKSHcaWbXLa9BpFlVItrBpMlxWNfc+adSQphGJFm/fNKQpTljO++uTwnhOoZc+o0OfiqYZ8SLrHPbOTarT5hFrNkVOZvnLt9pLFFHR7ux8t+8986yhjEZqq1IRKnnyh8aS7S0tBz4XS6OKGTMEShjPpLre6suWYQzxBCJDZKiuujiNEgKJd1gZIZlGQzNcFgGpRmOyiC14UBDWcCk7KmSlIOzDB99uS8WYqxCeAZJqkFSWvODLzI/qsKn1+0g/T6TEZ/auPnp86FHQzYrcBZqgzCPspKGtfQQzroQkTECuIml3SrDPKZYDy4b0Idf38pFAgLFpJEzHU0kaE43Vp/kvKd7lKBR2DdRECgmjeduTbayDLnfJuylbK3eS2gyCJMZDHO0gCAthLM+1MK6a6NRYp5eBglDSsQ4THOGj/3QnSzCWcLg9GffGUs0NGWW/FzZBgkxWLD9IpW/+G+yvoSK/GSGkm5wyfwNRthwkKHC1p+8SxWKmhir8G8wl+YDLrq4DAYJJd0gKYSNfqm9ZCxvTQ0Zy8429n8KiUIIzyCDvQKttOwO3mftSuAufuOvsndrKDSiNHXW3KkvP3rSWu9IHWFk3mzkzYvP9wLEhHiIU4y9uqbN8Tc9hJfMuXvrGG0iSbKQXbtSXQ8viSzb7x8Ge7sdpNUlPG0eAT6iW79I6mGNPefpzPCgSRbnZ1/jfVt7tTTx99Cym3qf8l/rDg9pz/A12270hDOtzY7twuqf1HW1YqXPjkNpzLDIlU9StStjfsZC2k/pIVy2jxKkJN87UPWZOsIssudTZJSgUW0SDpOo8oS194e7E/l8ODWEUWOTGn9gpyxhCBQTBIoJAsUEgWKCQDFBoJggUEwQKCYIFBMEigkV1+W8lSMqQaCY0MS1JxwFwy/0G8vSuRNWWddjAs/WGLR4vvJsre7QhFU2eWZWccL1zfc7CvARHa/8k2ssmrRRJf2pRxgQ2srwt3H4cXhI59PLafOIBlyuXnK0wOWs6hJoRznCWvvIeOBziYGNT13LZ+qPcXU6INBeOgknSRAoJggUEwSKCRZXLgBVVFy5UCGsgumi6dF472XrgSFjpGjc4/0i+quLP4L61j2hmNlYXQG7up4MNLs6N1V5Z6C+Yv8gSrO69Lb1PoLMVr1ZVCe9Wax+m1yYZoFNOmlSOxobLLO6ql4229DV7yiIyiwWafrG4qzjpbP/A9fMrPLAmtT0AAAAAElFTkSuQmCC" alt="bottle" draggable="false">
+      </div>
+      <div class="tilt-gauge">
+        <span class="tilt-caption">기울기</span>
+        <div class="tilt-fill" id="tiltFill"></div>
+        <div class="tilt-mark" id="tiltMark" style="left:55%"></div>
+      </div>
+      <div class="keyhint">
+        <span class="kbd" id="keyA">A</span><span>눕히기</span>
+        <span class="kbd" id="keyD">D</span><span>세우기</span>
+      </div>
+      <div class="ok-flash" id="okFlash">O.K</div>
+      <button class="next-btn" id="pourNext">다음으로 →</button>
+      <div class="result-overlay" id="pourResult" style="display:none;">
+        <div style="font-size:15px;color:var(--text-dim);">따르기 결과</div>
+        <div class="result-score" id="pourScore">0.00</div>
+        <div class="result-detail" id="pourDetail"></div>
+        <button class="retry-btn" data-retry="pour">처음부터 다시</button>
+      </div>
+    </div>
+
+    <div class="debug">
+      <span>기울기: <b id="dbgProgress">0%</b></span>
+      <span>각도: <b id="dbgAngle">0°</b></span>
+      <span>상태: <b id="dbgState">대기</b></span>
+    </div>
+
+    <p class="footnote">
+      <b>A</b>를 누르고 있으면 병이 눕고, <b>쏟아지는 기울기</b>를 넘어서는 순간부터 A에서 손을 떼도 술이 계속 흐른다.
+      멈추려면 <b>D</b>를 눌러 기울기를 그 선 아래로 되돌려야 한다. 붉은 눈금이 그 선이다.
+    </p>
+  </section>
+
+  <!-- ═══════════ 셰이킹 ═══════════ -->
+  <section class="view" id="view-shake">
+    <div class="panel">
+      <p class="panel-title">조작감 튜닝</p>
+      <div class="row">
+        <span class="slider-label">노트 수</span>
+        <input type="range" id="shNotes" min="3" max="16" value="8" step="1">
+        <span class="slider-value" id="shNotesV">8개</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">라인 왕복 시간</span>
+        <input type="range" id="shSpeed" min="8" max="45" value="20" step="1">
+        <span class="slider-value" id="shSpeedV">2.0s</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">판정 폭</span>
+        <input type="range" id="shWindow" min="12" max="70" value="34" step="1">
+        <span class="slider-value" id="shWindowV">34px</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">제한시간</span>
+        <input type="range" id="shTime" min="40" max="200" value="100" step="5">
+        <span class="slider-value" id="shTimeV">10.0s</span>
+      </div>
+    </div>
+
+    <div class="stage grid" id="shakeStage">
+      <div class="hud">
+        <span id="shHud">0 / 8 노트</span>
+        <span id="shTimeHud">10.0s</span>
+      </div>
+
+      <div class="shaker-slot" id="shakerSlot">
+        <div class="shaker-body" id="shakerBody">
+          <div class="shaker">
+            <div class="shaker-liquid" id="shLiquid" style="background:#E6EBF0"></div>
+            <div class="shaker-shine"></div>
+          </div>
+        </div>
+        <div class="shaker-label">셰이커</div>
+      </div>
+
+      <svg class="rhythm-svg" id="rhythmSvg" width="100%" height="100%">
+        <path id="railPath" d="" fill="none" stroke="#7ff0ea" stroke-width="2" opacity=".85"/>
+        <g id="vertexDots"></g>
+        <g id="noteLayer"></g>
+        <g id="burstLayer"></g>
+        <g id="cursorLayer">
+          <circle id="cursorOuter" r="15" fill="none" stroke="#ff3b30" stroke-width="3" opacity=".9"/>
+          <circle id="cursorMid"   r="9"  fill="none" stroke="#ff3b30" stroke-width="3" opacity=".9"/>
+          <circle id="cursorCore"  r="3.5" fill="#ffffff"/>
+        </g>
+      </svg>
+
+      <div class="edge-flash" id="shEdge"></div>
+      <div class="judge" id="shJudge">PERFECT</div>
+
+      <div class="count-gauge">
+        <div class="count-caption"><span>맞힌 노트</span><span id="shCountLabel">0 / 8</span></div>
+        <div class="count-fill" id="shFill"></div>
+      </div>
+
+      <div class="keyhint">
+        <span class="kbd" id="keySpace">SPACE</span><span>커서가 노트에 겹칠 때 누른다</span>
+      </div>
+
+      <div class="ok-flash" id="shOk">O.K</div>
+      <button class="next-btn" id="shakeNext">다음으로 →</button>
+
+      <div class="result-overlay" id="shakeResult" style="display:none;">
+        <div style="font-size:15px;color:var(--text-dim);">셰이킹 결과</div>
+        <div class="result-score" id="shakeScore">0.00</div>
+        <div class="result-detail" id="shakeDetail"></div>
+        <button class="retry-btn" data-retry="shake">처음부터 다시</button>
+      </div>
+    </div>
+
+    <div class="debug">
+      <span>퍼펙트: <b id="dbgPerfect">0</b></span>
+      <span>굿: <b id="dbgGoodCnt">0</b></span>
+      <span>헛침: <b id="dbgMiss">0</b></span>
+      <span>상태: <b id="dbgShState">대기</b></span>
+    </div>
+
+    <p class="footnote">
+      붉은 커서가 라인을 <b>왕복</b>하고, 라인 위에 노트가 흩어져 있다. 커서가 노트에 겹칠 때 <b>SPACE</b>를 누르면 노트가 터지고
+      왼쪽 셰이커가 크게 흔들린다. 정확히 겹쳤으면 PERFECT, 판정 폭 안이면 GOOD이다.
+      노트가 없는 곳에서 누르면 헛침으로 감점되고 셰이커가 어긋나게 흔들린다.
+      첫 입력에 제한시간이 시작되며, 시간이 끝나면 남은 노트는 놓친 것으로 처리한다.
+    </p>
+  </section>
+
+  <!-- ═══════════ 스터 ═══════════ -->
+  <section class="view" id="view-stir">
+    <div class="panel">
+      <p class="panel-title">조작감 튜닝</p>
+      <div class="row">
+        <span class="slider-label">목표 바퀴</span>
+        <input type="range" id="stRounds" min="1" max="8" value="3" step="1">
+        <span class="slider-value" id="stRoundsV">3바퀴</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">조합 길이</span>
+        <input type="range" id="stLen" min="2" max="8" value="4" step="1">
+        <span class="slider-value" id="stLenV">4개</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">라운드 제한시간</span>
+        <input type="range" id="stTime" min="15" max="80" value="35" step="1">
+        <span class="slider-value" id="stTimeV">3.5s</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">스푼 회전 속도</span>
+        <input type="range" id="stSpin" min="90" max="900" value="300" step="10">
+        <span class="slider-value" id="stSpinV">300°/s</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">틀렸을 때</span>
+        <select id="stFailMode">
+          <option value="round">그 바퀴를 실패 처리하고 다음 바퀴로</option>
+          <option value="restart">같은 조합을 처음부터 다시 입력</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="stage grid" id="stirStage">
+      <div class="hud">
+        <span id="stHud">1 / 3 바퀴</span>
+        <span id="stTimeHud">3.5s</span>
+      </div>
+
+      <div class="stir-wrap" id="stirWrap">
+        <div class="stir-glass">
+          <div class="stir-liquid" id="stLiquid" style="background:#E6EBF0"></div>
+          <div class="stir-shade"></div>
+          <div class="swirl" id="stSwirl"></div>
+        </div>
+        <div class="stir-spoon" id="stSpoon"></div>
+      </div>
+
+      <div class="edge-flash" id="stEdge"></div>
+      <div class="judge" id="stJudge">GOOD</div>
+
+      <div class="combo-caption" id="stCaption">아무 방향키나 눌러 시작</div>
+      <div class="combo-row" id="comboRow"></div>
+      <div class="round-timer"><div class="round-timer-fill" id="stTimerFill"></div></div>
+
+      <div class="keyhint">
+        <span class="kbd">W A S D</span><span>또는</span><span class="kbd">← ↑ → ↓</span>
+      </div>
+
+      <div class="ok-flash" id="stOk">O.K</div>
+      <button class="next-btn" id="stirNext">다음으로 →</button>
+
+      <div class="result-overlay" id="stirResult" style="display:none;">
+        <div style="font-size:15px;color:var(--text-dim);">스터 결과</div>
+        <div class="result-score" id="stirScore">0.00</div>
+        <div class="result-detail" id="stirDetail"></div>
+        <button class="retry-btn" data-retry="stir">처음부터 다시</button>
+      </div>
+    </div>
+
+    <div class="debug">
+      <span>성공 바퀴: <b id="dbgStOk">0</b></span>
+      <span>실패 바퀴: <b id="dbgStNg">0</b></span>
+      <span>스푼 각도: <b id="dbgStAngle">0°</b></span>
+      <span>목표 각도: <b id="dbgStTarget">0°</b></span>
+      <span>상태: <b id="dbgStState">대기</b></span>
+    </div>
+
+    <p class="footnote">
+      바퀴마다 <b>방향키 조합</b>이 새로 나오고, 제한시간 안에 순서대로 눌러야 한 바퀴가 돌아간다.
+      한 키를 맞히면 스푼의 <b>목표 지점</b>이 그만큼 앞으로 밀리고, 스푼은 거기까지 굴러가서 멈춘다.
+      순간이동이 아니라서 세 개를 연달아 빨리 맞히면 스푼은 세 칸 몫을 계속 돌다가 그 지점에서 선다.
+      조합을 다 맞히면 초록 GOOD, 틀리거나 시간이 지나면 붉은 FAIL과 함께 잔이 흔들린다. WASD와 방향키 둘 다 받는다.
+    </p>
+  </section>
+
+  <!-- ═══════════ 스퀴즈 ═══════════ -->
+  <section class="view" id="view-squeeze">
+    <div class="panel">
+      <p class="panel-title">과일 / 목표량</p>
+      <div class="row">
+        <select id="fruitSelect">
+          <option value="lemon">레몬</option>
+          <option value="lime">라임</option>
+          <option value="orange">오렌지</option>
+        </select>
+        <span class="slider-label" style="min-width:auto;">목표량</span>
+        <input type="number" id="sqTargetOz" value="0.5" min="0.1" step="0.1" style="width:80px;">
+        <span class="slider-label" style="min-width:auto;">oz</span>
+      </div>
+      <p class="panel-title" style="margin-top:16px;">조작감 튜닝</p>
+      <div class="row">
+        <span class="slider-label">초당 과즙량</span>
+        <input type="range" id="sqRate" min="2" max="20" value="6" step="1">
+        <span class="slider-value" id="sqRateV">0.6oz/s</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">과일 한 개 최대량</span>
+        <input type="range" id="sqCapacity" min="3" max="25" value="9" step="1">
+        <span class="slider-value" id="sqCapacityV">0.9oz</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">즙이 나오기까지</span>
+        <input type="range" id="sqDelay" min="0" max="12" value="3" step="1">
+        <span class="slider-value" id="sqDelayV">0.3s</span>
+      </div>
+    </div>
+
+    <div class="stage" id="squeezeStage">
+      <div class="hud">
+        <span id="sqHud">0.00 / 0.50 oz</span>
+        <span id="sqStateHud">대기</span>
+      </div>
+      <div class="ing-label" id="sqLabel">레몬</div>
+
+      <svg class="stream-svg" id="sqSvg" width="100%" height="100%">
+        <path id="sqStream" d="" fill="none" stroke-width="7" stroke-linecap="round" opacity="0"/>
+        <path id="sqStreamHi" d="" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0"/>
+        <g id="sqRipples"></g>
+      </svg>
+
+      <div class="end-marker"></div>
+
+      <div class="fruit" id="fruit">
+        <svg width="164" height="146" viewBox="0 0 164 146">
+          <ellipse id="fruitBody" cx="82" cy="64" rx="68" ry="52" fill="#F2D14E" stroke="#C9A52F" stroke-width="3"/>
+          <path id="fruitTip" d="M 82 114 L 73 134 Q 82 142 91 134 Z" fill="#E0BD3C"/>
+          <ellipse id="fruitShine" cx="55" cy="45" rx="20" ry="12" fill="rgba(255,255,255,.45)"/>
+        </svg>
+      </div>
+
+      <div class="juice-bar">
+        <span class="juice-caption">남은 과즙</span>
+        <div class="juice-fill" id="sqJuiceFill"></div>
+      </div>
+
+      <div class="keyhint">
+        <span class="kbd" id="keySqSpace">SPACE</span><span>또는</span>
+        <span class="kbd" id="keySqA">A</span><span class="kbd" id="keySqD">D</span><span>동시에</span>
+      </div>
+
+      <div class="ok-flash" id="sqOk">O.K</div>
+      <button class="next-btn" id="squeezeNext">다음으로 →</button>
+
+      <div class="result-overlay" id="squeezeResult" style="display:none;">
+        <div style="font-size:15px;color:var(--text-dim);">스퀴즈 결과</div>
+        <div class="result-score" id="squeezeScore">0.00</div>
+        <div class="result-detail" id="squeezeDetail"></div>
+        <button class="retry-btn" data-retry="squeeze">처음부터 다시</button>
+      </div>
+    </div>
+
+    <div class="debug">
+      <span>짠 시간: <b id="dbgSqTime">0.0s</b></span>
+      <span>과일 크기: <b id="dbgSqScale">100%</b></span>
+      <span>남은 과즙: <b id="dbgSqLeft">0.90oz</b></span>
+    </div>
+
+    <p class="footnote">
+      <b>SPACE</b>를 꾹 누르거나 <b>A</b>와 <b>D</b>를 동시에 누르고 있으면 과일에서 즙이 아래로 떨어진다.
+      떨어지는 동안 계속 양이 쌓이므로, 목표량에 닿았을 때 손을 떼야 한다.
+      짜는 시간에 비례해 과일이 아래 꼭지를 축으로 쪼그라들고, 과즙을 다 짜내면 더 나오지 않는다.
+    </p>
+  </section>
+
+  <!-- ═══════════ 병따기 ═══════════ -->
+  <section class="view" id="view-cap">
+    <div class="panel">
+      <p class="panel-title">조작감 튜닝</p>
+      <div class="row">
+        <span class="slider-label">고리 조여드는 시간</span>
+        <input type="range" id="capApproach" min="6" max="40" value="16" step="1">
+        <span class="slider-value" id="capApproachV">1.6s</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">판정 폭</span>
+        <input type="range" id="capWindow" min="3" max="30" value="10" step="1">
+        <span class="slider-value" id="capWindowV">10px</span>
+      </div>
+      <div class="row">
+        <span class="slider-label">시작 고리 크기</span>
+        <input type="range" id="capStart" min="90" max="220" value="165" step="5">
+        <span class="slider-value" id="capStartV">165px</span>
+      </div>
+    </div>
+
+    <div class="stage grid" id="capStage">
+      <div class="hud">
+        <span id="capHud">시도 1회째</span>
+        <span id="capStateHud">대기</span>
+      </div>
+      <div class="ing-label">병뚜껑</div>
+
+      <div class="cap-bottle" id="capBottle">
+        <img src="data:image/png;base64,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" alt="bottle" draggable="false">
+      </div>
+      <div class="cap-piece" id="capPiece"></div>
+
+      <svg class="rhythm-svg" id="capSvg" width="100%" height="100%">
+        <circle id="capTargetRing" fill="none" stroke="#7ff0ea" stroke-width="3" opacity=".9"/>
+        <circle id="capIncoming" fill="none" stroke="#f2c14e" stroke-width="2" opacity=".95"/>
+        <g id="capBurst"></g>
+      </svg>
+
+      <div class="edge-flash" id="capEdge"></div>
+      <div class="judge" id="capJudge">PERFECT</div>
+
+      <div class="keyhint">
+        <span class="kbd" id="keyCapSpace">SPACE</span><span>고리가 겹치는 순간 누른다</span>
+      </div>
+
+      <div class="ok-flash" id="capOk">O.K</div>
+      <button class="next-btn" id="capNext">다음으로 →</button>
+
+      <div class="result-overlay" id="capResult" style="display:none;">
+        <div style="font-size:15px;color:var(--text-dim);">병따기 결과</div>
+        <div class="result-score" id="capScore">0.00</div>
+        <div class="result-detail" id="capDetail"></div>
+        <button class="retry-btn" data-retry="cap">처음부터 다시</button>
+      </div>
+    </div>
+
+    <div class="debug">
+      <span>고리 반지름: <b id="dbgCapR">165</b></span>
+      <span>목표 반지름: <b id="dbgCapT">44</b></span>
+      <span>빗나간 정도: <b id="dbgCapGap">-</b></span>
+      <span>시도: <b id="dbgCapTry">1</b></span>
+    </div>
+
+    <p class="footnote">
+      병뚜껑 둘레에 <b>청록색 목표 고리</b>가 고정되어 있고, 바깥에서 <b>금색 실선 고리</b>가 점점 조여든다.
+      두 고리의 크기가 겹치는 순간 <b>SPACE</b>를 누르면 성공이다. 성공하면 뚜껑이 그 자리에서 튕겨 날아가고,
+      빗나가면 뚜껑이 살짝 꺾이면서 고리가 다시 바깥에서 조여든다 — 성공할 때까지 반복된다.
+      시도 횟수가 늘수록 점수가 깎인다.
+    </p>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+  const held = Object.create(null);
+  let activeView = 'pour';
+
+  /* ── 탭 ── */
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      $('view-' + btn.dataset.view).classList.add('active');
+      activeView = btn.dataset.view;
+      for (const k in held) held[k] = false;
+      if (activeView === 'shake') shakeLayout();
+      if (activeView === 'cap')   capLayout();
+    });
+  });
+
+  /* ── 입력 ── */
+  const DIR_OF = {
+    a:'left', arrowleft:'left', w:'up', arrowup:'up',
+    d:'right', arrowright:'right', s:'down', arrowdown:'down'
+  };
+  const TRACKED = new Set(['a','d','w','s','space','arrowleft','arrowright','arrowup','arrowdown']);
+
+  function keyName(e){ return e.key === ' ' ? 'space' : e.key.toLowerCase(); }
+
+  window.addEventListener('keydown', e => {
+    const k = keyName(e);
+    if (!TRACKED.has(k)) return;
+    e.preventDefault();
+    if (e.repeat) return;              // 눌린 채 반복되는 입력은 한 번으로 친다
+    held[k] = true;
+    if (activeView === 'shake' && k === 'space') shakePress();
+    if (activeView === 'stir'  && DIR_OF[k])     stirPress(DIR_OF[k]);
+    if (activeView === 'cap'   && k === 'space') capPress();
+  });
+  window.addEventListener('keyup', e => {
+    const k = keyName(e);
+    if (!TRACKED.has(k)) return;
+    e.preventDefault();
+    held[k] = false;
+  });
+  window.addEventListener('blur', () => { for (const k in held) held[k] = false; });
+
+  function paintKeys(){
+    $('keyA').classList.toggle('down', !!held.a);
+    $('keyD').classList.toggle('down', !!held.d);
+    $('keySpace').classList.toggle('down', !!held.space);
+    $('keySqSpace').classList.toggle('down', !!held.space);
+    $('keySqA').classList.toggle('down', !!held.a);
+    $('keySqD').classList.toggle('down', !!held.d);
+    $('keyCapSpace').classList.toggle('down', !!held.space);
+  }
+
+  const scoreOf = (actual, target) => Math.max(0, 1 - Math.abs(target - actual) / target);
+  function paintScore(el, s){
+    el.textContent = s.toFixed(2);
+    el.className = 'result-score ' + (s >= 0.8 ? 'good' : s < 0.5 ? 'bad' : '');
+  }
+  function judgePop(el, text, color){
+    el.textContent = text;
+    el.style.color = color;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+  }
+  function edgePulse(el, color){
+    el.style.color = color;
+    el.classList.remove('on');
+    void el.offsetWidth;
+    el.classList.add('on');
+  }
+
+  /* ══════════ 1. 따르기 ══════════ */
+  const INGREDIENTS = [
+    ['진','#E6EBF0'],['보드카','#F0F5FA'],['데킬라','#F0EBDC'],['럼','#B4783C'],['위스키','#BE7828'],
+    ['드라이 베르무트','#DCDCBE'],['쿠앵트로','#EBC88C'],['트리플섹','#EBE1C8'],['깔루아','#3C2319'],
+    ['그레나딘','#B41E32'],['레드와인','#620F0B'],['샴페인','#FFF5E1'],['오렌지주스','#FDB43C'],
+    ['크랜베리주스','#AA1E3C'],['우유','#F5F5F0'],['아마레토','#CD8232'],['브랜디','#B05F28'],
+    ['캄파리','#C8192D'],['멜론리큐르','#96D246'],['말리부','#F5F8FA'],['바나나리큐르','#F0CD3C'],
+    ['파인애플주스','#FAE164'],['크림','#FAF8EE'],['블루큐라소','#288CD7'],['코코넛우유','#F8F6E8'],
+    ['그린페퍼민트','#37AF69'],['화이트카카오','#F5F5EE'],['피치브랜디','#E69150'],['에스프레소','#372016']
+  ];
+  const ingredientSelect = $('ingredientSelect');
+  INGREDIENTS.forEach(([name,color]) => {
+    const opt = document.createElement('option');
+    opt.value = color; opt.textContent = name;
+    ingredientSelect.appendChild(opt);
+  });
+
+  const pourStage = $('pourStage'), bottle = $('bottle');
+  const streamPath = $('streamPath'), streamHighlight = $('streamHighlight'), ripplesGroup = $('ripples');
+  const MAX_ANGLE = -75, MOUTH_LOCAL_Y = -78;
+
+  const P = { n:1.2, rate:1.0, target:1.5, threshold:0.55,
+              progress:0, oz:0, finished:false, okShown:false,
+              color:'#E6EBF0', pourStart:null, lastRipple:0 };
+
+  function pourUpdateColor(){
+    P.color = ingredientSelect.value;
+    $('ingLabel').textContent = ingredientSelect.options[ingredientSelect.selectedIndex].textContent;
+    streamPath.setAttribute('stroke', P.color);
+    $('shLiquid').style.background = P.color;
+    $('stLiquid').style.background = P.color;
+  }
+  ingredientSelect.addEventListener('change', pourUpdateColor);
+
+  $('targetOz').addEventListener('input', e => {
+    const v = parseFloat(e.target.value); if (v > 0){ P.target = v; pourHud(); }
+  });
+  $('nSlider').addEventListener('input', e => { P.n = e.target.value/10; $('nValue').textContent = P.n.toFixed(1)+'s'; });
+  $('rateSlider').addEventListener('input', e => { P.rate = e.target.value/10; $('rateValue').textContent = P.rate.toFixed(1)+'oz/s'; });
+  $('thSlider').addEventListener('input', e => {
+    P.threshold = e.target.value/100;
+    $('thValue').textContent = e.target.value + '%';
+    $('tiltMark').style.left = e.target.value + '%';
+  });
+
+  function pourHud(){
+    $('hudOz').textContent = `${P.oz.toFixed(2)} / ${P.target.toFixed(2)} oz`;
+    $('hudProgress').textContent = `기울기 ${Math.round(P.progress*100)}%`;
+  }
+  function positionBottle(){
+    const w = pourStage.getBoundingClientRect().width;
+    const rad = MAX_ANGLE * Math.PI/180;
+    const rxFull = (0*Math.cos(rad) - MOUTH_LOCAL_Y*Math.sin(rad));
+    bottle.style.left = ((w/2 - rxFull) - 22.5) + 'px';
+  }
+  window.addEventListener('resize', () => { positionBottle(); shakeLayout(); capLayout(); });
+
+  function mouthWorld(angleDeg){
+    const rect = pourStage.getBoundingClientRect();
+    const cx = parseFloat(bottle.style.left || '0') + 22.5;
+    const cy = rect.height * 0.5;
+    const rad = angleDeg * Math.PI/180;
+    return { x: cx + (0*Math.cos(rad) - MOUTH_LOCAL_Y*Math.sin(rad)),
+             y: cy + (0*Math.sin(rad) + MOUTH_LOCAL_Y*Math.cos(rad)) };
+  }
+  function wavyPoints(mouth, end, timeSec, grow){
+    const N = 14;
+    const ctrlX = (mouth.x + end.x)/2;
+    const ctrlY = Math.min(mouth.y, end.y) + Math.max(20, (end.y - mouth.y)*0.35);
+    const visible = Math.max(1, Math.round(N * grow));
+    const pts = [];
+    for (let i=0; i<=visible; i++){
+      const s = i/N;
+      const x = (1-s)*(1-s)*mouth.x + 2*(1-s)*s*ctrlX + s*s*end.x;
+      const y = (1-s)*(1-s)*mouth.y + 2*(1-s)*s*ctrlY + s*s*end.y;
+      const dx = 2*(1-s)*(ctrlX-mouth.x) + 2*s*(end.x-ctrlX);
+      const dy = 2*(1-s)*(ctrlY-mouth.y) + 2*s*(end.y-ctrlY);
+      const len = Math.hypot(dx,dy) || 1;
+      const wob = 3.2 * Math.sin(Math.min(1,s)*Math.PI) * Math.sin(s*11 - timeSec*7.5);
+      pts.push({ x: x + (-dy/len)*wob, y: y + (dx/len)*wob });
+    }
+    return pts;
+  }
+  function toPath(pts){
+    if (pts.length < 2) return '';
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for (let i=1; i<pts.length; i++){
+      const mx = (pts[i-1].x + pts[i].x)/2, my = (pts[i-1].y + pts[i].y)/2;
+      d += ` Q ${pts[i-1].x.toFixed(1)} ${pts[i-1].y.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)}`;
+    }
+    const last = pts[pts.length-1];
+    return d + ` L ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
+  }
+  function spawnRipple(x, y){
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 9);
+    c.setAttribute('fill', P.color); c.setAttribute('class', 'ripple');
+    ripplesGroup.appendChild(c);
+    setTimeout(() => c.remove(), 500);
+  }
+
+  function pourTick(dt, t){
+    if (!P.finished){
+      if (held.a)      P.progress = Math.min(1, P.progress + dt / P.n);
+      else if (held.d) P.progress = Math.max(0, P.progress - dt / P.n);
+      if (P.progress >= P.threshold){
+        P.oz += P.rate * dt;
+        if (!P.okShown && P.oz >= P.target){ P.okShown = true; $('okFlash').classList.add('show'); }
+      }
+      pourHud();
+    }
+    const pouring = !P.finished && P.progress >= P.threshold;
+    const angle = MAX_ANGLE * P.progress;
+    bottle.style.transform = `translateY(-50%) rotate(${angle}deg)`;
+    const rect = pourStage.getBoundingClientRect();
+    const mouth = mouthWorld(angle);
+    const end = { x: rect.width/2, y: rect.height - 70 };
+    if (pouring){
+      if (P.pourStart === null) P.pourStart = t;
+      const grow = Math.min(1, (t - P.pourStart)/180);
+      const d = toPath(wavyPoints(mouth, end, t/1000, grow));
+      streamPath.setAttribute('d', d); streamPath.style.opacity = '0.92';
+      streamHighlight.setAttribute('d', d); streamHighlight.style.opacity = '0.35';
+      if (grow >= 1 && t - P.lastRipple > 140){ P.lastRipple = t; spawnRipple(end.x + (Math.random()*10-5), end.y); }
+    } else {
+      P.pourStart = null;
+      streamPath.style.opacity = '0'; streamHighlight.style.opacity = '0';
+    }
+    const fill = $('tiltFill');
+    fill.style.width = (P.progress*100) + '%';
+    fill.classList.toggle('pouring', pouring);
+    $('dbgProgress').textContent = Math.round(P.progress*100) + '%';
+    $('dbgAngle').textContent = angle.toFixed(1) + '°';
+    $('dbgState').textContent = P.finished ? '종료'
+      : pouring ? '쏟아지는 중 — D로 세우기'
+      : held.a ? '눕히는 중' : held.d ? '세우는 중'
+      : P.progress > 0 ? '멈춤' : '대기';
+  }
+
+  $('pourNext').addEventListener('click', () => {
+    if (P.finished) return;
+    P.finished = true;
+    const s = scoreOf(P.oz, P.target);
+    paintScore($('pourScore'), s);
+    $('pourDetail').innerHTML =
+      `목표 <b>${P.target.toFixed(2)}oz</b> · 실제 <b>${P.oz.toFixed(2)}oz</b><br>` +
+      `score = max(0, 1 - |${P.target.toFixed(2)} - ${P.oz.toFixed(2)}| / ${P.target.toFixed(2)})`;
+    $('pourResult').style.display = 'flex';
+  });
+  function pourReset(){
+    P.progress=0; P.oz=0; P.finished=false; P.okShown=false;
+    P.pourStart=null; P.lastRipple=0;
+    ripplesGroup.innerHTML = '';
+    $('okFlash').classList.remove('show');
+    $('pourResult').style.display = 'none';
+    pourHud();
+  }
+
+  /* ══════════ 2. 셰이킹 — 리듬 라인 ══════════ */
+  const NOTE_COLORS = ['#4d7dff','#ff45a8','#4d7dff','#f2c14e','#45e0d0','#ff45a8'];
+  const SH = {
+    noteCount:8, traverse:2.0, window:34, limit:10.0,
+    segs:[], total:0, cursorD:0, dir:1,
+    notes:[], hits:0, perfect:0, good:0, miss:0,
+    started:false, timeLeft:10.0, finished:false, okShown:false
+  };
+  const shakeStage = $('shakeStage');
+
+  $('shNotes').addEventListener('input', e => {
+    SH.noteCount = +e.target.value; $('shNotesV').textContent = SH.noteCount + '개'; shakeReset();
+  });
+  $('shSpeed').addEventListener('input', e => {
+    SH.traverse = e.target.value/10; $('shSpeedV').textContent = SH.traverse.toFixed(1) + 's';
+  });
+  $('shWindow').addEventListener('input', e => {
+    SH.window = +e.target.value; $('shWindowV').textContent = SH.window + 'px'; shakePaintNotes();
+  });
+  $('shTime').addEventListener('input', e => {
+    SH.limit = e.target.value/10; $('shTimeV').textContent = SH.limit.toFixed(1) + 's';
+    if (!SH.started) SH.timeLeft = SH.limit;
+  });
+
+  // 지그재그 라인 — 이미지의 그 모양
+  function shakeLayout(){
+    const r = shakeStage.getBoundingClientRect();
+    if (!r.width) return;
+    const L = 216, R = r.width - 46;        // 왼쪽은 셰이커 자리
+    const T = 84,  B = r.height - 96;
+    const pts = [
+      { x:L + (R-L)*0.06, y:T },
+      { x:R,              y:T + (B-T)*0.32 },
+      { x:L,              y:T + (B-T)*0.68 },
+      { x:R,              y:B }
+    ];
+    SH.segs = []; SH.total = 0;
+    for (let i=1; i<pts.length; i++){
+      const a = pts[i-1], b = pts[i];
+      const len = Math.hypot(b.x-a.x, b.y-a.y);
+      SH.segs.push({ a, b, len, start: SH.total });
+      SH.total += len;
+    }
+    $('railPath').setAttribute('d', pts.map((p,i) => (i?'L':'M') + ` ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' '));
+    const vg = $('vertexDots'); vg.innerHTML = '';
+    pts.forEach(p => {
+      const o = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      o.setAttribute('cx',p.x); o.setAttribute('cy',p.y); o.setAttribute('r',9);
+      o.setAttribute('fill','#1b0b0b'); o.setAttribute('stroke','#ff3b30'); o.setAttribute('stroke-width','3');
+      vg.appendChild(o);
+    });
+    shakePaintNotes();
+  }
+
+  function shakeMakeNotes(){
+    SH.notes = [];
+    SH.builtFor = SH.total;
+    const usable = SH.total * 0.88, base = SH.total * 0.06;
+    const bucket = usable / SH.noteCount;
+    for (let i=0; i<SH.noteCount; i++){
+      const jitter = bucket * (0.22 + Math.random()*0.56);
+      SH.notes.push({ d: base + bucket*i + jitter, hit:false, color: NOTE_COLORS[i % NOTE_COLORS.length] });
+    }
+  }
+  function pointAt(d){
+    d = clamp(d, 0, SH.total);
+    for (const s of SH.segs){
+      if (d <= s.start + s.len || s === SH.segs[SH.segs.length-1]){
+        const t = s.len ? (d - s.start)/s.len : 0;
+        return { x: s.a.x + (s.b.x - s.a.x)*t, y: s.a.y + (s.b.y - s.a.y)*t };
+      }
+    }
+    return { x:0, y:0 };
+  }
+  function shakePaintNotes(){
+    const g = $('noteLayer'); if (!g) return;
+    g.innerHTML = '';
+    SH.notes.forEach(n => {
+      if (n.hit) return;
+      const p = pointAt(n.d);
+      const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx',p.x); ring.setAttribute('cy',p.y); ring.setAttribute('r',13);
+      ring.setAttribute('fill','rgba(0,0,0,.45)');
+      ring.setAttribute('stroke', n.color); ring.setAttribute('stroke-width','4');
+      g.appendChild(ring);
+      const core = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      core.setAttribute('cx',p.x); core.setAttribute('cy',p.y); core.setAttribute('r',5);
+      core.setAttribute('fill', n.color); core.setAttribute('opacity','.55');
+      g.appendChild(core);
+    });
+  }
+  function burst(p, color){
+    const g = $('burstLayer');
+    const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    ring.setAttribute('cx',p.x); ring.setAttribute('cy',p.y); ring.setAttribute('r',13);
+    ring.setAttribute('fill','none'); ring.setAttribute('stroke',color); ring.setAttribute('stroke-width','4');
+    g.appendChild(ring);
+    let r = 13, op = 1;
+    const grow = setInterval(() => {
+      r += 4; op -= 0.11;
+      ring.setAttribute('r', r); ring.setAttribute('opacity', Math.max(0,op));
+      if (op <= 0){ clearInterval(grow); ring.remove(); }
+    }, 22);
+    for (let i=0; i<7; i++){
+      const ang = Math.random()*Math.PI*2, dist = 26 + Math.random()*26;
+      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx',p.x); dot.setAttribute('cy',p.y);
+      dot.setAttribute('r', 2 + Math.random()*2.4); dot.setAttribute('fill', color);
+      g.appendChild(dot);
+      let k = 0;
+      const fly = setInterval(() => {
+        k += 0.12;
+        dot.setAttribute('cx', p.x + Math.cos(ang)*dist*k);
+        dot.setAttribute('cy', p.y + Math.sin(ang)*dist*k);
+        dot.setAttribute('opacity', Math.max(0, 1-k));
+        if (k >= 1){ clearInterval(fly); dot.remove(); }
+      }, 22);
+    }
+  }
+
+  function shakePress(){
+    if (SH.finished) return;
+    if (!SH.started){ SH.started = true; SH.timeLeft = SH.limit; }
+    let best = null, bestGap = Infinity;
+    SH.notes.forEach(n => {
+      if (n.hit) return;
+      const gap = Math.abs(n.d - SH.cursorD);
+      if (gap < bestGap){ bestGap = gap; best = n; }
+    });
+    if (best && bestGap <= SH.window){
+      best.hit = true; SH.hits++;
+      const perfect = bestGap <= SH.window * 0.4;
+      if (perfect) SH.perfect++; else SH.good++;
+      burst(pointAt(best.d), best.color);
+      shakePaintNotes();
+      judgePop($('shJudge'), perfect ? 'PERFECT' : 'GOOD', perfect ? '#f2c14e' : '#38d47a');
+      edgePulse($('shEdge'), perfect ? '#f2c14e' : '#38d47a');
+      const slot = $('shakerBody');
+      slot.classList.remove('hit','wrong'); void slot.offsetWidth; slot.classList.add('hit');
+      if (SH.hits >= SH.noteCount && !SH.okShown){ SH.okShown = true; $('shOk').classList.add('show'); }
+    } else {
+      SH.miss++;
+      judgePop($('shJudge'), 'MISS', '#ff5c6c');
+      edgePulse($('shEdge'), '#ff5c6c');
+      const slot = $('shakerBody');
+      slot.classList.remove('hit','wrong'); void slot.offsetWidth; slot.classList.add('wrong');
+    }
+  }
+
+  function shakeTick(dt){
+    if (!SH.total) shakeLayout();
+    // 무대가 숨어 있을 때는 폭을 못 재서 라인이 안 잡힌다. 잡히는 순간 노트를 다시 배치한다.
+    if (SH.total && (SH.builtFor !== SH.total || SH.notes.length !== SH.noteCount)){
+      shakeMakeNotes(); shakePaintNotes();
+    }
+    if (!SH.finished && SH.started){
+      SH.timeLeft = Math.max(0, SH.timeLeft - dt);
+      if (SH.timeLeft === 0) shakeFinish();
+    }
+    if (!SH.finished){
+      const speed = SH.total / Math.max(0.1, SH.traverse);
+      SH.cursorD += SH.dir * speed * dt;
+      if (SH.cursorD >= SH.total){ SH.cursorD = SH.total; SH.dir = -1; }
+      if (SH.cursorD <= 0){ SH.cursorD = 0; SH.dir = 1; }
+    }
+    const p = pointAt(SH.cursorD);
+    ['cursorOuter','cursorMid','cursorCore'].forEach(id => {
+      $(id).setAttribute('cx', p.x); $(id).setAttribute('cy', p.y);
+    });
+    $('shHud').textContent = `${SH.hits} / ${SH.noteCount} 노트`;
+    $('shTimeHud').textContent = SH.started ? SH.timeLeft.toFixed(1) + 's' : SH.limit.toFixed(1) + 's';
+    $('shCountLabel').textContent = `${SH.hits} / ${SH.noteCount}`;
+    const fill = $('shFill');
+    fill.style.width = (SH.hits / SH.noteCount * 100) + '%';
+    fill.classList.toggle('ok', SH.hits >= SH.noteCount);
+    $('dbgPerfect').textContent = SH.perfect;
+    $('dbgGoodCnt').textContent = SH.good;
+    $('dbgMiss').textContent = SH.miss;
+    $('dbgShState').textContent = SH.finished ? '종료' : (SH.started ? '진행 중' : '대기 — SPACE로 시작');
+  }
+
+  function shakeFinish(){
+    if (SH.finished) return;
+    SH.finished = true;
+    const raw = SH.hits / SH.noteCount;
+    const s = Math.max(0, raw - SH.miss * 0.05);
+    paintScore($('shakeScore'), s);
+    $('shakeDetail').innerHTML =
+      `맞힌 노트 <b>${SH.hits} / ${SH.noteCount}</b> (퍼펙트 ${SH.perfect} · 굿 ${SH.good})<br>` +
+      `헛침 <b>${SH.miss}회</b> — 회당 0.05 감점`;
+    $('shakeResult').style.display = 'flex';
+  }
+  $('shakeNext').addEventListener('click', shakeFinish);
+
+  function shakeReset(){
+    SH.cursorD = 0; SH.dir = 1;
+    SH.hits = 0; SH.perfect = 0; SH.good = 0; SH.miss = 0;
+    SH.started = false; SH.finished = false; SH.okShown = false;
+    SH.timeLeft = SH.limit;
+    $('burstLayer').innerHTML = '';
+    $('shOk').classList.remove('show');
+    $('shakeResult').style.display = 'none';
+    shakeLayout();
+    shakeMakeNotes();
+    shakePaintNotes();
+  }
+
+  /* ══════════ 3. 스터 — 제한시간 커맨드 ══════════ */
+  const ARROW = { left:'←', up:'↑', right:'→', down:'↓' };
+  const DIRS = ['left','up','right','down'];
+  const ST = {
+    rounds:3, len:4, limit:3.5, failMode:'round', spin:300,
+    round:0, seq:[], idx:0, timeLeft:3.5,
+    okRounds:0, ngRounds:0,
+    angle:0,        // 화면에 그려지는 스푼 각도 — 목표를 따라 굴러간다
+    target:0,       // 맞힌 입력이 쌓아 올린 목표 각도
+    started:false, roundActive:false, finished:false, okShown:false, cooldown:0
+  };
+
+  $('stRounds').addEventListener('input', e => {
+    ST.rounds = +e.target.value; $('stRoundsV').textContent = ST.rounds + '바퀴'; stirReset();
+  });
+  $('stLen').addEventListener('input', e => {
+    ST.len = +e.target.value; $('stLenV').textContent = ST.len + '개'; stirReset();
+  });
+  $('stTime').addEventListener('input', e => {
+    ST.limit = e.target.value/10; $('stTimeV').textContent = ST.limit.toFixed(1) + 's';
+    if (!ST.started) ST.timeLeft = ST.limit;
+  });
+  $('stFailMode').addEventListener('change', e => { ST.failMode = e.target.value; });
+  $('stSpin').addEventListener('input', e => {
+    ST.spin = +e.target.value; $('stSpinV').textContent = ST.spin + '°/s';
+  });
+
+  function stirNewSeq(){
+    ST.seq = Array.from({length: ST.len}, () => DIRS[Math.floor(Math.random()*4)]);
+    ST.idx = 0;
+    ST.timeLeft = ST.limit;
+    ST.roundActive = true;
+    stirPaintCombo();
+  }
+  function stirPaintCombo(){
+    const row = $('comboRow');
+    row.innerHTML = '';
+    ST.seq.forEach((d, i) => {
+      const el = document.createElement('div');
+      el.className = 'combo-key' + (i < ST.idx ? ' ok' : i === ST.idx && ST.roundActive ? ' cur' : '');
+      el.textContent = ARROW[d];
+      row.appendChild(el);
+    });
+  }
+  function stirPress(dir){
+    if (ST.finished || ST.cooldown > 0) return;
+    if (!ST.started){ ST.started = true; ST.round = 1; stirNewSeq(); return; }
+    if (!ST.roundActive) return;
+
+    if (dir === ST.seq[ST.idx]){
+      ST.idx++;
+      ST.target += 360 / ST.len;   // 목표만 올려두고, 스푼은 알아서 굴러가 따라잡는다
+      stirPaintCombo();
+      if (ST.idx >= ST.seq.length) stirRoundEnd(true);
+    } else {
+      $('comboRow').children[ST.idx].classList.add('ng');
+      if (ST.failMode === 'restart'){
+        judgePop($('stJudge'), 'WRONG', '#ff5c6c');
+        edgePulse($('stEdge'), '#ff5c6c');
+        const w = $('stirWrap');
+        w.classList.remove('wrong','good'); void w.offsetWidth; w.classList.add('wrong');
+        ST.target -= (360 / ST.len) * ST.idx;      // 저은 만큼 되감긴다
+        ST.idx = 0;
+        setTimeout(stirPaintCombo, 180);
+      } else {
+        stirRoundEnd(false);
+      }
+    }
+  }
+  function stirRoundEnd(success){
+    ST.roundActive = false;
+    ST.cooldown = 0.55;
+    const w = $('stirWrap');
+    w.classList.remove('wrong','good'); void w.offsetWidth;
+    if (success){
+      ST.okRounds++;
+      judgePop($('stJudge'), 'GOOD', '#38d47a');
+      edgePulse($('stEdge'), '#38d47a');
+      w.classList.add('good');
+    } else {
+      ST.ngRounds++;
+      judgePop($('stJudge'), 'FAIL', '#ff5c6c');
+      edgePulse($('stEdge'), '#ff5c6c');
+      w.classList.add('wrong');
+    }
+    if (ST.okRounds >= ST.rounds && !ST.okShown){ ST.okShown = true; $('stOk').classList.add('show'); }
+  }
+  function stirTick(dt){
+    if (!ST.finished){
+      if (ST.cooldown > 0){
+        ST.cooldown -= dt;
+        if (ST.cooldown <= 0){
+          ST.cooldown = 0;
+          if (ST.round >= ST.rounds) stirFinish();
+          else { ST.round++; stirNewSeq(); }
+        }
+      } else if (ST.roundActive){
+        ST.timeLeft = Math.max(0, ST.timeLeft - dt);
+        if (ST.timeLeft === 0) stirRoundEnd(false);
+      }
+    }
+    // 스푼은 입력을 따라 순간이동하지 않는다. 쌓인 목표 각도까지 굴러가서 거기서 멈춘다.
+    // 입력이 몰려 목표가 멀어질수록 조금 빨리 따라붙어, 빠르게 연타해도 밀리지 않는다.
+    const remain = ST.target - ST.angle;
+    const moving = Math.abs(remain) > 0.5;
+    if (moving){
+      const step = ST.spin * dt * (1 + Math.abs(remain)/240);
+      ST.angle += Math.sign(remain) * Math.min(Math.abs(remain), step);
+    } else {
+      ST.angle = ST.target;
+    }
+
+    $('stSpoon').style.transform = `rotate(${ST.angle.toFixed(1)}deg)`;
+    $('stSwirl').style.transform = `rotate(${(ST.angle*0.8).toFixed(1)}deg)`;
+    $('stSwirl').style.opacity = moving ? 1 : 0.45;
+
+    const ratio = ST.roundActive ? ST.timeLeft / ST.limit : (ST.started ? 0 : 1);
+    const tf = $('stTimerFill');
+    tf.style.width = (ratio*100) + '%';
+    tf.classList.toggle('danger', ratio < 0.34);
+
+    $('stHud').textContent = `${Math.min(ST.round || 1, ST.rounds)} / ${ST.rounds} 바퀴`;
+    $('stTimeHud').textContent = ST.roundActive ? ST.timeLeft.toFixed(1) + 's' : ST.limit.toFixed(1) + 's';
+    $('stCaption').textContent = ST.finished ? '종료'
+      : !ST.started ? '아무 방향키나 눌러 시작'
+      : ST.roundActive ? `${ST.round}바퀴째 — 순서대로 입력` : '다음 바퀴 준비 중';
+    $('dbgStOk').textContent = ST.okRounds;
+    $('dbgStNg').textContent = ST.ngRounds;
+    $('dbgStAngle').textContent = ST.angle.toFixed(0) + '°';
+    $('dbgStTarget').textContent = ST.target.toFixed(0) + '°';
+    $('dbgStState').textContent = ST.finished ? '종료'
+      : moving ? '스푼 따라잡는 중'
+      : ST.roundActive ? '입력 중' : (ST.started ? '대기' : '시작 전');
+  }
+  function stirFinish(){
+    if (ST.finished) return;
+    ST.finished = true;
+    ST.roundActive = false;
+    const s = ST.okRounds / ST.rounds;
+    paintScore($('stirScore'), s);
+    $('stirDetail').innerHTML =
+      `성공 <b>${ST.okRounds}바퀴</b> · 실패 <b>${ST.ngRounds}바퀴</b> / 목표 <b>${ST.rounds}바퀴</b><br>` +
+      `조합 ${ST.len}개 · 라운드 제한 ${ST.limit.toFixed(1)}초`;
+    $('stirResult').style.display = 'flex';
+  }
+  $('stirNext').addEventListener('click', stirFinish);
+
+  function stirReset(){
+    ST.round = 0; ST.seq = []; ST.idx = 0; ST.timeLeft = ST.limit;
+    ST.okRounds = 0; ST.ngRounds = 0; ST.angle = 0; ST.target = 0;
+    ST.started = false; ST.roundActive = false; ST.finished = false;
+    ST.okShown = false; ST.cooldown = 0;
+    $('stOk').classList.remove('show');
+    $('stirResult').style.display = 'none';
+    $('comboRow').innerHTML = '';
+  }
+
+  document.querySelectorAll('.retry-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      ({ pour: pourReset, squeeze: squeezeReset, shake: shakeReset,
+         stir: stirReset, cap: capReset })[btn.dataset.retry]();
+    });
+  });
+
+  /* ══════════ 4. 스퀴즈 ══════════ */
+  const FRUITS = {
+    lemon:  { name:'레몬',   body:'#F2D14E', line:'#C9A52F', tip:'#E0BD3C', juice:'#F7E27A' },
+    lime:   { name:'라임',   body:'#9BD24A', line:'#6E9C2E', tip:'#86BC3C', juice:'#C8E88A' },
+    orange: { name:'오렌지', body:'#FDB43C', line:'#D28A18', tip:'#EDA22C', juice:'#FFD07A' }
+  };
+  const SQ = {
+    target:0.5, rate:0.6, capacity:0.9, delay:0.3,
+    oz:0, squeezeTime:0, holdTime:0,
+    finished:false, okShown:false, streamStart:null, lastRipple:0,
+    fruit: FRUITS.lemon
+  };
+  const squeezeStage = $('squeezeStage');
+
+  function sqPaintFruit(){
+    $('fruitBody').setAttribute('fill', SQ.fruit.body);
+    $('fruitBody').setAttribute('stroke', SQ.fruit.line);
+    $('fruitTip').setAttribute('fill', SQ.fruit.tip);
+    $('sqLabel').textContent = SQ.fruit.name;
+    $('sqStream').setAttribute('stroke', SQ.fruit.juice);
+  }
+  $('fruitSelect').addEventListener('change', e => { SQ.fruit = FRUITS[e.target.value]; sqPaintFruit(); });
+  $('sqTargetOz').addEventListener('input', e => {
+    const v = parseFloat(e.target.value); if (v > 0){ SQ.target = v; sqHud(); }
+  });
+  $('sqRate').addEventListener('input', e => { SQ.rate = e.target.value/10; $('sqRateV').textContent = SQ.rate.toFixed(1)+'oz/s'; });
+  $('sqCapacity').addEventListener('input', e => {
+    SQ.capacity = e.target.value/10; $('sqCapacityV').textContent = SQ.capacity.toFixed(1)+'oz';
+  });
+  $('sqDelay').addEventListener('input', e => { SQ.delay = e.target.value/10; $('sqDelayV').textContent = SQ.delay.toFixed(1)+'s'; });
+
+  function sqHud(){ $('sqHud').textContent = `${SQ.oz.toFixed(2)} / ${SQ.target.toFixed(2)} oz`; }
+
+  function sqRipple(x, y){
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 7);
+    c.setAttribute('fill', SQ.fruit.juice); c.setAttribute('class', 'ripple');
+    $('sqRipples').appendChild(c);
+    setTimeout(() => c.remove(), 500);
+  }
+
+  function squeezeTick(dt, t){
+    // SPACE 한 손가락, 또는 A와 D를 양손으로 — 둘 중 아무거나
+    const pressing = !SQ.finished && (held.space || (held.a && held.d));
+    const dry = SQ.oz >= SQ.capacity - 1e-6;
+
+    if (pressing) SQ.holdTime += dt; else SQ.holdTime = 0;
+    const flowing = pressing && SQ.holdTime >= SQ.delay && !dry;
+
+    if (flowing){
+      SQ.squeezeTime += dt;
+      SQ.oz = Math.min(SQ.capacity, SQ.oz + SQ.rate * dt);
+      if (!SQ.okShown && SQ.oz >= SQ.target){ SQ.okShown = true; $('sqOk').classList.add('show'); }
+    }
+    sqHud();
+
+    // 짜낸 만큼 아래 꼭지를 축으로 쪼그라든다
+    const drain = SQ.capacity ? clamp(SQ.oz / SQ.capacity, 0, 1) : 0;
+    const base = 1 - drain * 0.45;
+    const squish = flowing ? 0.035 * Math.sin(t/55) : 0;
+    $('fruit').style.transform =
+      `translate(-50%,-50%) scale(${(base*(1+squish)).toFixed(3)}, ${(base*(1-squish)).toFixed(3)})`;
+
+    const rect = squeezeStage.getBoundingClientRect();
+    const tipRect = $('fruitTip').getBoundingClientRect();
+    const mouth = { x: tipRect.left + tipRect.width/2 - rect.left, y: tipRect.bottom - rect.top };
+    const end = { x: rect.width/2, y: rect.height - 70 };
+
+    if (flowing){
+      if (SQ.streamStart === null) SQ.streamStart = t;
+      const grow = Math.min(1, (t - SQ.streamStart)/150);
+      const d = toPath(wavyPoints(mouth, end, t/1000, grow));
+      $('sqStream').setAttribute('d', d);   $('sqStream').style.opacity = '0.92';
+      $('sqStreamHi').setAttribute('d', d); $('sqStreamHi').style.opacity = '0.3';
+      if (grow >= 1 && t - SQ.lastRipple > 150){ SQ.lastRipple = t; sqRipple(end.x + (Math.random()*8-4), end.y); }
+    } else {
+      SQ.streamStart = null;
+      $('sqStream').style.opacity = '0'; $('sqStreamHi').style.opacity = '0';
+    }
+
+    const left = Math.max(0, SQ.capacity - SQ.oz);
+    const jf = $('sqJuiceFill');
+    jf.style.width = (SQ.capacity ? left/SQ.capacity*100 : 0) + '%';
+    jf.classList.toggle('dry', dry);
+
+    $('sqStateHud').textContent = SQ.finished ? '종료'
+      : dry ? '과즙 없음'
+      : flowing ? '짜는 중'
+      : pressing ? '힘주는 중' : '대기';
+    $('dbgSqTime').textContent = SQ.squeezeTime.toFixed(1) + 's';
+    $('dbgSqScale').textContent = Math.round(base*100) + '%';
+    $('dbgSqLeft').textContent = left.toFixed(2) + 'oz';
+  }
+
+  function squeezeFinish(){
+    if (SQ.finished) return;
+    SQ.finished = true;
+    const s = scoreOf(SQ.oz, SQ.target);
+    paintScore($('squeezeScore'), s);
+    $('squeezeDetail').innerHTML =
+      `목표 <b>${SQ.target.toFixed(2)}oz</b> · 실제 <b>${SQ.oz.toFixed(2)}oz</b><br>` +
+      `짠 시간 ${SQ.squeezeTime.toFixed(1)}초 · 과일 크기 ${Math.round((1 - clamp(SQ.oz/SQ.capacity,0,1)*0.45)*100)}%`;
+    $('squeezeResult').style.display = 'flex';
+  }
+  $('squeezeNext').addEventListener('click', squeezeFinish);
+
+  function squeezeReset(){
+    SQ.oz = 0; SQ.squeezeTime = 0; SQ.holdTime = 0;
+    SQ.finished = false; SQ.okShown = false; SQ.streamStart = null; SQ.lastRipple = 0;
+    $('sqRipples').innerHTML = '';
+    $('sqOk').classList.remove('show');
+    $('squeezeResult').style.display = 'none';
+    sqHud();
+  }
+
+  /* ══════════ 5. 병따기 ══════════ */
+  const CAP = {
+    approach:1.6, window:10, start:165, targetR:44,
+    r:165, gap:null, attempts:1, cool:0,
+    opened:false, finished:false, cx:0, cy:0
+  };
+  const capStage = $('capStage');
+
+  $('capApproach').addEventListener('input', e => {
+    CAP.approach = e.target.value/10; $('capApproachV').textContent = CAP.approach.toFixed(1)+'s';
+  });
+  $('capWindow').addEventListener('input', e => {
+    CAP.window = +e.target.value; $('capWindowV').textContent = CAP.window+'px';
+  });
+  $('capStart').addEventListener('input', e => {
+    CAP.start = +e.target.value; $('capStartV').textContent = CAP.start+'px'; CAP.r = CAP.start;
+  });
+
+  function capLayout(){
+    const r = capStage.getBoundingClientRect();
+    if (!r.width) return;
+    CAP.cx = r.width/2;
+    CAP.cy = r.height * 0.30;
+    $('capBottle').style.top = CAP.cy + 'px';
+    $('capPiece').style.top  = CAP.cy + 'px';
+    const tr = $('capTargetRing');
+    tr.setAttribute('cx', CAP.cx); tr.setAttribute('cy', CAP.cy); tr.setAttribute('r', CAP.targetR);
+    const inc = $('capIncoming');
+    inc.setAttribute('cx', CAP.cx); inc.setAttribute('cy', CAP.cy);
+  }
+
+  function capBurst(){
+    const g = $('capBurst');
+    for (let i=0;i<10;i++){
+      const ang = Math.random()*Math.PI*2, dist = 40 + Math.random()*44;
+      const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx', CAP.cx); dot.setAttribute('cy', CAP.cy);
+      dot.setAttribute('r', 2 + Math.random()*2.6); dot.setAttribute('fill', '#f2c14e');
+      g.appendChild(dot);
+      let k = 0;
+      const fly = setInterval(() => {
+        k += 0.1;
+        dot.setAttribute('cx', CAP.cx + Math.cos(ang)*dist*k);
+        dot.setAttribute('cy', CAP.cy + Math.sin(ang)*dist*k);
+        dot.setAttribute('opacity', Math.max(0, 1-k));
+        if (k >= 1){ clearInterval(fly); dot.remove(); }
+      }, 22);
+    }
+  }
+
+  function capPress(){
+    if (CAP.finished || CAP.opened || CAP.cool > 0) return;
+    CAP.gap = Math.abs(CAP.r - CAP.targetR);
+    if (CAP.gap <= CAP.window){
+      CAP.opened = true;
+      judgePop($('capJudge'), 'PERFECT', '#f2c14e');
+      edgePulse($('capEdge'), '#f2c14e');
+      const piece = $('capPiece');
+      piece.classList.remove('bend','pop'); void piece.offsetWidth; piece.classList.add('pop');
+      capBurst();
+      $('capIncoming').style.opacity = '0';
+      $('capOk').classList.add('show');
+      CAP.cool = 0.9;                      // 연출을 보여준 뒤 결과로 넘어간다
+    } else {
+      capFailOnce();
+    }
+  }
+  function capFailOnce(){
+    CAP.attempts++;
+    judgePop($('capJudge'), 'FAIL', '#ff5c6c');
+    edgePulse($('capEdge'), '#ff5c6c');
+    const piece = $('capPiece');
+    piece.classList.remove('bend','pop'); void piece.offsetWidth; piece.classList.add('bend');
+    CAP.cool = 0.45;                       // 잠깐 쉬었다 고리가 다시 바깥에서 조여든다
+  }
+
+  function capTick(dt){
+    if (!CAP.cx) capLayout();
+
+    if (!CAP.finished){
+      if (CAP.cool > 0){
+        CAP.cool -= dt;
+        if (CAP.cool <= 0){
+          CAP.cool = 0;
+          if (CAP.opened) capFinish();
+          else { CAP.r = CAP.start; $('capIncoming').style.opacity = '.95'; }
+        }
+      } else if (!CAP.opened){
+        const speed = (CAP.start - CAP.targetR) / Math.max(0.1, CAP.approach);
+        CAP.r -= speed * dt;
+        if (CAP.r < CAP.targetR - CAP.window) capFailOnce();   // 지나쳐 버리면 실패
+      }
+    }
+
+    $('capIncoming').setAttribute('r', Math.max(0, CAP.r).toFixed(1));
+    const near = Math.abs(CAP.r - CAP.targetR) <= CAP.window;
+    $('capIncoming').setAttribute('stroke', near ? '#38d47a' : '#f2c14e');
+
+    $('capHud').textContent = `시도 ${CAP.attempts}회째`;
+    $('capStateHud').textContent = CAP.finished ? '종료'
+      : CAP.opened ? '뚜껑 열림'
+      : CAP.cool > 0 ? '다시 준비 중' : '조여드는 중';
+    $('dbgCapR').textContent = Math.max(0, CAP.r).toFixed(0);
+    $('dbgCapT').textContent = CAP.targetR;
+    $('dbgCapGap').textContent = CAP.gap === null ? '-' : CAP.gap.toFixed(0) + 'px';
+    $('dbgCapTry').textContent = CAP.attempts;
+  }
+
+  function capFinish(){
+    if (CAP.finished) return;
+    CAP.finished = true;
+    const s = Math.max(0, 1 - (CAP.attempts - 1) * 0.2);
+    paintScore($('capScore'), s);
+    $('capDetail').innerHTML =
+      `시도 <b>${CAP.attempts}회</b> 만에 개봉<br>` +
+      `score = max(0, 1 - (시도 − 1) × 0.2)`;
+    $('capResult').style.display = 'flex';
+  }
+  $('capNext').addEventListener('click', capFinish);
+
+  function capReset(){
+    CAP.r = CAP.start; CAP.gap = null; CAP.attempts = 1; CAP.cool = 0;
+    CAP.opened = false; CAP.finished = false;
+    const piece = $('capPiece');
+    piece.classList.remove('bend','pop'); piece.style.opacity = '';
+    $('capIncoming').style.opacity = '.95';
+    $('capBurst').innerHTML = '';
+    $('capOk').classList.remove('show');
+    $('capResult').style.display = 'none';
+    capLayout();
+  }
+
+  /* ══════════ 루프 ══════════ */
+  let lastT = null;
+  function loop(t){
+    if (lastT === null) lastT = t;
+    const dt = Math.min(0.05, (t - lastT)/1000);
+    lastT = t;
+    paintKeys();
+    if (activeView === 'pour')    pourTick(dt, t);
+    if (activeView === 'squeeze') squeezeTick(dt, t);
+    if (activeView === 'shake')   shakeTick(dt);
+    if (activeView === 'stir')    stirTick(dt);
+    if (activeView === 'cap')     capTick(dt);
+    requestAnimationFrame(loop);
+  }
+
+  /* ══════════ 초기화 ══════════ */
+  pourUpdateColor();
+  P.n = $('nSlider').value/10;        $('nValue').textContent = P.n.toFixed(1)+'s';
+  P.rate = $('rateSlider').value/10;  $('rateValue').textContent = P.rate.toFixed(1)+'oz/s';
+  P.threshold = $('thSlider').value/100;
+  $('thValue').textContent = $('thSlider').value + '%';
+  $('tiltMark').style.left = $('thSlider').value + '%';
+  P.target = parseFloat($('targetOz').value);
+  pourHud(); positionBottle();
+
+  SH.noteCount = +$('shNotes').value; SH.traverse = $('shSpeed').value/10;
+  SH.window = +$('shWindow').value;   SH.limit = $('shTime').value/10;
+  shakeReset();
+
+  ST.rounds = +$('stRounds').value; ST.len = +$('stLen').value;
+  ST.limit = $('stTime').value/10;  ST.failMode = $('stFailMode').value;
+  ST.spin = +$('stSpin').value;     $('stSpinV').textContent = ST.spin + '°/s';
+  stirReset();
+
+  SQ.target = parseFloat($('sqTargetOz').value);
+  SQ.rate = $('sqRate').value/10;         $('sqRateV').textContent = SQ.rate.toFixed(1)+'oz/s';
+  SQ.capacity = $('sqCapacity').value/10; $('sqCapacityV').textContent = SQ.capacity.toFixed(1)+'oz';
+  SQ.delay = $('sqDelay').value/10;       $('sqDelayV').textContent = SQ.delay.toFixed(1)+'s';
+  SQ.fruit = FRUITS[$('fruitSelect').value];
+  sqPaintFruit(); squeezeReset();
+
+  CAP.approach = $('capApproach').value/10; $('capApproachV').textContent = CAP.approach.toFixed(1)+'s';
+  CAP.window = +$('capWindow').value;       $('capWindowV').textContent = CAP.window+'px';
+  CAP.start = +$('capStart').value;         $('capStartV').textContent = CAP.start+'px';
+  capReset();
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

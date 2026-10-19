@@ -13,9 +13,6 @@ public sealed class CraftPrepTrayItem : MonoBehaviour
     private string itemId;
     private CraftPrepStageScreen.Stage stage;
 
-    public string ItemId => itemId;
-    public Transform SelectionControl => removeButton != null ? removeButton.transform : transform;
-
     private void OnEnable()
     {
         if (removeButton != null) removeButton.onClick.AddListener(Remove);
