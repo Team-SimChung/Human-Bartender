@@ -58,11 +58,12 @@ public sealed class DialogueInputPromptTests
     }
 
     [TestCase("Dialogue TextBox.prefab")]
-    [TestCase("OutsideDialogue TextBox.prefab")]
+    [TestCase("OutsideDialogueTextBox.prefab")]
     public void DialoguePrefabsUseTheActualNonBlockingNextSpriteAtBottomRight(string name)
     {
+        string folder = name == "OutsideDialogueTextBox.prefab" ? "03.Outside/" : "02.Dialogue/";
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-            "Assets/01.Game/03.Content/08.Prefabs/03.UI/02.Dialogue/" + name);
+            "Assets/01.Game/03.Content/08.Prefabs/03.UI/" + folder + name);
         var prompt = prefab.GetComponent<DialogueInputPrompt>();
         Assert.That(prompt, Is.Not.Null);
         var data = new SerializedObject(prompt);

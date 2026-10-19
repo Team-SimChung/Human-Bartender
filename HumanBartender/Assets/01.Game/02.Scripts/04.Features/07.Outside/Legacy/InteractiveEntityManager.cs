@@ -5,27 +5,27 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
-/// <summary>CSV 조건에 맞는 행과 대화를 선택하여 씬 엔티티에 연결한다.</summary>
+/// <summary>CSV 조건에 맞는 행과 대화를 선택하여 씬 엔티티에 연결함.</summary>
 public class InteractiveEntityManager : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] protected NewInteractPointDataSO InteractPointData;
     [SerializeField] protected NewStreetDataSO streetData;
     [SerializeField] protected NewSpotDataSO SpotData;
-    [SerializeField] GameObject player;
+    [SerializeField] private GameObject player;
     [SerializeField] protected ITrackedbleEvent OnTrackedText;
     [SerializeField] protected DialogueRunner runner;
     [SerializeField] protected OutsideDialoguePresenter presenter;
     [SerializeField] protected InteractableEvent OnInteracted;
     [SerializeField] protected VoidEvent OnRefreshCondition;
 
-    [Inject] IBgmPlayer soundManager;
-    [Inject] IConditionUtil conditionUtil;
-    [Inject] IObjectResolver resolver;
-    readonly Dictionary<string, InteractiveEntity> entities = new(StringComparer.Ordinal);
-    readonly Dictionary<string, SpotPoint> sceneSpots = new(StringComparer.Ordinal);
-    readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
-    readonly UniTaskCompletionSource<bool> readiness = new();
+    [Inject] private IBgmPlayer soundManager;
+    [Inject] private IConditionUtil conditionUtil;
+    [Inject] private IObjectResolver resolver;
+    private readonly Dictionary<string, InteractiveEntity> entities = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, SpotPoint> sceneSpots = new(StringComparer.Ordinal);
+    private readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
+    private readonly UniTaskCompletionSource<bool> readiness = new();
     public DialogueRunner DialogueRunner => runner;
     public OutsideDialoguePresenter DialoguePresenter => presenter;
     public Player StoryPlayer => player != null ? player.GetComponent<Player>() : null;
@@ -40,7 +40,7 @@ public class InteractiveEntityManager : MonoBehaviour
         InitializationError = string.IsNullOrWhiteSpace(reason) ? "도착 후 화면 전환에 실패했습니다." : reason;
     }
 
-    async void Start()
+    private async void Start()
     {
         try
         {
@@ -84,9 +84,9 @@ public class InteractiveEntityManager : MonoBehaviour
         }
     }
 
-    void OnDestroy() => readiness.TrySetResult(false);
+    private void OnDestroy() => readiness.TrySetResult(false);
 
-    // 같은 source_id는 높은 priority, 동률이면 고정 ID 순으로 선택한다.
+    // 같은 source_id는 높은 priority, 동률이면 고정 ID 순으로 선택함.
     public static NewInteractPointData? SelectDefinition(IEnumerable<NewInteractPointData> rows,
         string sourceId, EGameFlow phase, Func<string, bool> check)
     {
@@ -108,7 +108,7 @@ public class InteractiveEntityManager : MonoBehaviour
         }
     }
 
-    void RefreshEntityCore()
+    private void RefreshEntityCore()
     {
         var rows = InteractPointData.interactPointData ?? Array.Empty<NewInteractPointData>();
         string requiredSource = gameObject.scene.name == "Home"
@@ -178,7 +178,7 @@ public class InteractiveEntityManager : MonoBehaviour
             throw new InvalidOperationException(requiredError ?? $"필수 Home 엔티티가 없습니다: {requiredSource}");
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
         if (string.IsNullOrEmpty(InitializationError)) return;
         var area = new Rect((Screen.width - 450f) / 2f, 20f, 450f, 110f);

@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
@@ -8,16 +7,16 @@ using VContainer;
 
 public enum DialogueState { Idle, Typing, WaitingForInput, WaitingForChoice }
 
-/// <summary>대화 한 번의 표현기·조건·입력·취소를 함께 관리한다.</summary>
+/// <summary>대화 한 번의 표현기·조건·입력·취소를 함께 관리함.</summary>
 public class DialogueRunner : MonoBehaviour
 {
-    [Inject] IConditionUtil conditionUtil;
-    [Inject] ICutScenePlayer cutscenes;
-    [SerializeField] NewStreetDataSO StreetDataSO;
-    IDialoguePresenter presenter;
-    Execution active;
+    [Inject] private IConditionUtil conditionUtil;
+    [Inject] private ICutScenePlayer cutscenes;
+    [SerializeField] private NewStreetDataSO StreetDataSO;
+    private IDialoguePresenter presenter;
+    private Execution active;
 
-    sealed class Execution
+    private sealed class Execution
     {
         public IDialoguePresenter Presenter;
         public IConditionUtil Conditions;
@@ -26,6 +25,8 @@ public class DialogueRunner : MonoBehaviour
         public readonly UniTaskCompletionSource Finished = new();
         public DialogueState State;
         public int VisitedSteps;
+        public Func<string, CancellationToken, UniTask> PlayTimeline;
+        public bool AutoAdvance;
     }
 
     public DialogueState CurrentState => active?.State ?? DialogueState.Idle;
@@ -46,24 +47,26 @@ public class DialogueRunner : MonoBehaviour
         var previous = active;
         if (previous == null) return;
         previous.Cancellation.Cancel();
-        // 이전 UI 정리가 끝나야 다음 대화를 시작할 수 있다.
+        // 이전 UI 정리가 끝나야 다음 대화를 시작할 수 있음.
         await previous.Finished.Task;
     }
 
-    void OnDisable() => Stop();
+    private void OnDisable() => Stop();
 
-    public async UniTask<StoryExecutionResult> PlayOutsideAsync(Step[] steps, CancellationToken token = default)
+    public async UniTask<StoryExecutionResult> PlayOutsideAsync(Step[] steps, CancellationToken token = default,
+        Func<string, CancellationToken, UniTask> playTimeline = null, bool autoAdvance = false)
     {
         if (active != null) return Failed("A dialogue is already running.");
         if (!Alive(presenter) || conditionUtil == null) return Failed("Dialogue presenter or conditions are missing.");
         if (steps == null || steps.Length == 0) return Failed("Dialogue has no steps.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
-        var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source };
+        var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source,
+            PlayTimeline=playTimeline, AutoAdvance=autoAdvance };
         active = run;
         var result = new StoryExecutionResult(StoryExecutionStatus.Completed);
         try
         {
-            await ExecuteAsync(steps, run, new HashSet<string>(), 0);
+            await ExecuteAsync(steps, run, 0);
             source.Token.ThrowIfCancellationRequested();
         }
         catch (OperationCanceledException) { result = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
@@ -110,12 +113,12 @@ public class DialogueRunner : MonoBehaviour
         }
     }
 
-    async UniTask ExecuteAsync(Step[] steps, Execution run, HashSet<string> gotoPath, int depth)
+    private async UniTask ExecuteAsync(Step[] steps, Execution run, int depth)
     {
         var token = run.Cancellation.Token;
         if (depth > 64) throw new InvalidOperationException("Street result_steps nesting exceeds 64.");
         if (steps == null) return;
-        // seq가 없는 기존 결과 스텝은 CSV source_order 순서를 유지한다.
+        // seq가 없는 기존 결과 스텝은 CSV source_order 순서를 유지함.
         var ordered = steps.All(s => s.Seq == 0) ? steps : steps.OrderBy(s => s.Seq).ToArray();
         if (ordered.Where(s=>s.Seq != 0).GroupBy(s=>s.Seq).Any(g=>g.Count()>1)) throw new InvalidOperationException("Duplicate street step seq.");
         foreach (var step in ordered)
@@ -132,39 +135,20 @@ public class DialogueRunner : MonoBehaviour
                 case "timeline":
                     if (!string.IsNullOrEmpty(Text(step.Text)))
                         await SayAsync(step.Actor, Text(step.Text), step.Arg, step.Sync, run);
+                    // 현재 세션의 재생기만 교체함. 바와 기존 호출자는 기본 재생 경로를 유지함.
+                    else if (run.PlayTimeline != null) await run.PlayTimeline(step.Arg, token);
                     else await OptionalStoryCutscene.PlayAsync(cutscenes, step.Arg, token);
                     break;
                 case "effect":
                 case "set_state": break;
                 case "choice":
-                    if (step.Options == null || step.Options.Length == 0) throw new InvalidOperationException("Street choice has no options.");
-                    var choices = step.Options.OrderBy(o=>o.Seq).ToArray();
-                    for (int i=0; i<choices.Length; i++) choices[i].Selectable = run.Conditions.CheckRequired(choices[i].When);
-                    if (!choices.Any(o => o.Selectable == true)) throw new InvalidOperationException("Street choice has no selectable options.");
-                    run.State = DialogueState.WaitingForChoice;
-                    var picked = new UniTaskCompletionSource<NewStreetOptionData>();
-                    run.Presenter.ShowOutsideChoices(choices, option =>
-                    {
-                        if (ReferenceEquals(active,run) && !token.IsCancellationRequested) picked.TrySetResult(option);
-                    });
-                    var choice = await picked.Task.AttachExternalCancellation(token);
-                    token.ThrowIfCancellationRequested();
-                    if (!choices.Contains(choice)) throw new InvalidOperationException("Unknown street choice result.");
-                    if (!run.Conditions.CheckRequired(choice.When))
-                        await SayAsync(null, Text(choice.LockReason), null, null, run);
-                    else if (choice.ResultSteps != null && choice.ResultSteps.Length > 0)
-                    {
-                        await ExecuteAsync(choice.ResultSteps, run, gotoPath, depth+1);
-                        branch = true;
-                    }
+                    branch = await PlayChoiceAsync(step, run, depth);
                     break;
                 case "goto":
                     if (string.IsNullOrEmpty(step.SceneId) || StreetDataSO == null || !StreetDataSO.TryGetSteps(step.SceneId, out var next))
                         throw new InvalidOperationException("Missing street goto scene: " + step.SceneId);
-                    // Player-driven quiz retries may revisit a scene. Depth and visited-step limits remain bounded.
-                    gotoPath.Add(step.SceneId);
-                    await ExecuteAsync(next,run,gotoPath,depth+1);
-                    gotoPath.Remove(step.SceneId);
+                    // 퀴즈 재시도를 위해 재방문을 허용하되 깊이와 실행 단계 수를 제한함.
+                    await ExecuteAsync(next, run, depth + 1);
                     branch = true;
                     break;
                 default: throw new NotSupportedException("Unsupported street step: " + step.Type);
@@ -175,7 +159,36 @@ public class DialogueRunner : MonoBehaviour
         }
     }
 
-    async UniTask SayAsync(string actor, string text, string arg, string sync, Execution run)
+    private async UniTask<bool> PlayChoiceAsync(Step step, Execution run, int depth)
+    {
+        var token = run.Cancellation.Token;
+        if (step.Options == null || step.Options.Length == 0) throw new InvalidOperationException("Street choice has no options.");
+        var choices = step.Options.OrderBy(o=>o.Seq).ToArray();
+        for (int i=0; i<choices.Length; i++) choices[i].Selectable = run.Conditions.CheckRequired(choices[i].When);
+        if (!choices.Any(o => o.Selectable == true)) throw new InvalidOperationException("Street choice has no selectable options.");
+        run.State = DialogueState.WaitingForChoice;
+        var picked = new UniTaskCompletionSource<NewStreetOptionData>();
+        run.Presenter.ShowOutsideChoices(choices, option => CompleteChoice(run, picked, option));
+        var choice = await picked.Task.AttachExternalCancellation(token);
+        token.ThrowIfCancellationRequested();
+        if (!choices.Contains(choice)) throw new InvalidOperationException("Unknown street choice result.");
+        if (!run.Conditions.CheckRequired(choice.When))
+            await SayAsync(null, Text(choice.LockReason), null, null, run);
+        else if (choice.ResultSteps != null && choice.ResultSteps.Length > 0)
+        {
+            await ExecuteAsync(choice.ResultSteps, run, depth + 1);
+            return true;
+        }
+        return false;
+    }
+
+    private void CompleteChoice(Execution run, UniTaskCompletionSource<NewStreetOptionData> completion, NewStreetOptionData option)
+    {
+        if (ReferenceEquals(active, run) && !run.Cancellation.IsCancellationRequested)
+            completion.TrySetResult(option);
+    }
+
+    private async UniTask SayAsync(string actor, string text, string arg, string sync, Execution run)
     {
         if (string.IsNullOrEmpty(text)) throw new InvalidOperationException("Street dialogue text is empty.");
         var token = run.Cancellation.Token;
@@ -183,7 +196,7 @@ public class DialogueRunner : MonoBehaviour
         await run.Presenter.ShowDialogueAsync(actor, text, arg, token);
         token.ThrowIfCancellationRequested();
         run.State = DialogueState.WaitingForInput;
-        if (sync == "auto") await UniTask.Delay(TimeSpan.FromSeconds(2), cancellationToken:token);
+        if (sync == "auto" || run.AutoAdvance) await UniTask.Delay(TimeSpan.FromSeconds(2), cancellationToken:token);
         else
         {
             var input = new UniTaskCompletionSource();
@@ -202,7 +215,7 @@ public class DialogueRunner : MonoBehaviour
         }
     }
 
-    string Text(Texts text) => CurrentLanguage == ELanguage.En && !string.IsNullOrEmpty(text?.En) ? text.En : text?.Ko;
-    static StoryExecutionResult Failed(string error) => new(StoryExecutionStatus.Failed,error);
-    static bool Alive(object value) => value != null && (value is not UnityEngine.Object obj || obj != null);
+    private string Text(Texts text) => CurrentLanguage == ELanguage.En && !string.IsNullOrEmpty(text?.En) ? text.En : text?.Ko;
+    private static StoryExecutionResult Failed(string error) => new(StoryExecutionStatus.Failed,error);
+    private static bool Alive(object value) => value != null && (value is not UnityEngine.Object obj || obj != null);
 }

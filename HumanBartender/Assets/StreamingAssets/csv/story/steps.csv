@@ -1424,3 +1424,45 @@ who designed this insane game, shiba.",dlg_np_shiba_2_005,\N,,player_input,,scri
 ,3,say,yuna,default,<fx=gentle>그냥 내가 그러고 싶어서 그러는 거야.</fx>,\N,terraceMemory3_3,\N,\N,wait,,script/cutscene,script_cutscene_scenes_3_steps_2,script_cutscene_scenes_3,steps,2,migration_steps_6c236b6ce0,,\N
 ,4,say,luna,default,이해가 되지 않네요.,\N,terraceMemory3_4,\N,\N,wait,,script/cutscene,script_cutscene_scenes_3_steps_3,script_cutscene_scenes_3,steps,3,migration_steps_6c236b6ce0,,\N
 ,5,say,yuna,default,나중에 알게 될 거야. 그럼 먼저 가 루나. <fx=gentle>꼭 행복하고.</fx>,\N,terraceMemory3_5,\N,\N,wait,,script/cutscene,script_cutscene_scenes_3_steps_4,script_cutscene_scenes_3,steps,4,migration_steps_6c236b6ce0,,\N
+\N,1,say,sign,default,안내문을 더 읽어 볼까?,Should I read the rest of this notice?,\N,\N,\N,wait,\N,script/street,world_choice_example_intro,world_choice_example_scene,steps,0,migration_steps_6432533c82,\N,\N
+\N,2,choice,sign,\N,\N,\N,\N,\N,\N,wait,\N,script/street,world_choice_example_choice,world_choice_example_scene,steps,1,migration_steps_d330178be3,\N,\N
+\N,1,say,luna,default,조금 더 자세히 읽어 보자.,Let me take a closer look.,\N,\N,\N,wait,\N,script/street,world_choice_example_read_1,world_choice_example_read,result_steps,0,migration_steps_6432533c82,\N,\N
+\N,2,say,sign,default,안내문을 끝까지 읽었습니다.,You have finished reading the notice.,\N,\N,\N,wait,\N,script/street,world_choice_example_read_2,world_choice_example_read,result_steps,1,migration_steps_6432533c82,\N,\N
+\N,1,effect,\N,\N,\N,\N,\N,\N,\N,\N,\N,script/street,world_choice_example_leave_end,world_choice_example_leave,result_steps,0,migration_steps_e10e04f2d1,\N,\N
+\N,1,say,npc_w1,default,테스트로 500원을 지불할까?,Pay 500 for this test?,\N,\N,\N,wait,\N,script/street,world_money_example_intro,world_money_example_scene,steps,0,migration_steps_6432533c82,\N,\N
+\N,2,choice,npc_w1,\N,\N,\N,\N,\N,\N,wait,\N,script/street,world_money_example_choice,world_money_example_scene,steps,1,migration_steps_d330178be3,\N,\N
+,1,effect,\N,\N,,,\N,\N,money -= 500,wait,,script/street,world_money_example_pay_effect,world_money_example_pay,result_steps,0,migration_steps_6a10b44f75,\N,
+\N,2,say,luna,default,500원을 지불했습니다.,Paid 500.,\N,\N,\N,wait,\N,script/street,world_money_example_paid,world_money_example_pay,result_steps,1,migration_steps_6432533c82,\N,\N
+\N,1,effect,\N,\N,\N,\N,\N,\N,\N,\N,\N,script/street,world_money_example_leave_end,world_money_example_leave,result_steps,0,migration_steps_e10e04f2d1,\N,\N
+\N,1,say,luna,default,오늘의 방송을 확인해 보자. (Day 0),Let's watch today's broadcast. (Day 0),\N,day == 0 && !flag.tv_news_d0_seen,\N,wait,\N,script/home,home_tv_day0_intro,home_tv_cutscene_scene,steps,0,migration_steps_6432533c82,\N,\N
+\N,2,say,luna,default,이미 본 방송이다. 다시 볼까?,I have seen this broadcast. Watch again?,\N,day == 0 && flag.tv_news_d0_seen,\N,wait,\N,script/home,home_tv_day0_repeat,home_tv_cutscene_scene,steps,1,migration_steps_6432533c82,\N,\N
+\N,3,choice,luna,\N,\N,\N,\N,day == 0 && flag.tv_news_d0_seen,\N,wait,\N,script/home,home_tv_day0_choice,home_tv_cutscene_scene,steps,2,migration_steps_d330178be3,\N,\N
+\N,4,timeline,\N,tv_news_d0,\N,\N,\N,day == 0 && !flag.tv_news_d0_seen,flag.tv_news_d0_seen = true,wait,\N,script/home,home_tv_day0_first,home_tv_cutscene_scene,steps,3,migration_steps_8e3124a9d7,\N,\N
+\N,5,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,day == 0,\N,wait,\N,script/home,home_tv_day0_end,home_tv_cutscene_scene,steps,4,migration_steps_6432533c82,\N,\N
+\N,1,timeline,\N,tv_news_d0,\N,\N,\N,\N,flag.tv_news_d0_seen = true,wait,\N,script/home,home_tv_day0_replay,home_tv_day0_watch,result_steps,0,migration_steps_8e3124a9d7,\N,\N
+\N,2,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,\N,\N,wait,\N,script/home,home_tv_day0_replay_end,home_tv_day0_watch,result_steps,1,migration_steps_6432533c82,\N,\N
+\N,1,effect,\N,\N,\N,\N,\N,\N,\N,\N,\N,script/home,home_tv_day0_leave_end,home_tv_day0_leave,result_steps,0,migration_steps_e10e04f2d1,\N,\N
+\N,6,say,luna,default,오늘의 방송을 확인해 보자. (Day 1),Let's watch today's broadcast. (Day 1),\N,day == 1 && !flag.tv_news_d1_seen,\N,wait,\N,script/home,home_tv_day1_intro,home_tv_cutscene_scene,steps,5,migration_steps_6432533c82,\N,\N
+\N,7,say,luna,default,이미 본 방송이다. 다시 볼까?,I have seen this broadcast. Watch again?,\N,day == 1 && flag.tv_news_d1_seen,\N,wait,\N,script/home,home_tv_day1_repeat,home_tv_cutscene_scene,steps,6,migration_steps_6432533c82,\N,\N
+\N,8,choice,luna,\N,\N,\N,\N,day == 1 && flag.tv_news_d1_seen,\N,wait,\N,script/home,home_tv_day1_choice,home_tv_cutscene_scene,steps,7,migration_steps_d330178be3,\N,\N
+\N,9,timeline,\N,tv_news_d1,\N,\N,\N,day == 1 && !flag.tv_news_d1_seen,flag.tv_news_d1_seen = true,wait,\N,script/home,home_tv_day1_first,home_tv_cutscene_scene,steps,8,migration_steps_8e3124a9d7,\N,\N
+\N,10,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,day == 1,\N,wait,\N,script/home,home_tv_day1_end,home_tv_cutscene_scene,steps,9,migration_steps_6432533c82,\N,\N
+\N,1,timeline,\N,tv_news_d1,\N,\N,\N,\N,flag.tv_news_d1_seen = true,wait,\N,script/home,home_tv_day1_replay,home_tv_day1_watch,result_steps,0,migration_steps_8e3124a9d7,\N,\N
+\N,2,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,\N,\N,wait,\N,script/home,home_tv_day1_replay_end,home_tv_day1_watch,result_steps,1,migration_steps_6432533c82,\N,\N
+\N,1,effect,\N,\N,\N,\N,\N,\N,\N,\N,\N,script/home,home_tv_day1_leave_end,home_tv_day1_leave,result_steps,0,migration_steps_e10e04f2d1,\N,\N
+\N,11,say,luna,default,오늘의 방송을 확인해 보자. (Day 2),Let's watch today's broadcast. (Day 2),\N,day == 2 && !flag.tv_news_d2_seen,\N,wait,\N,script/home,home_tv_day2_intro,home_tv_cutscene_scene,steps,10,migration_steps_6432533c82,\N,\N
+\N,12,say,luna,default,이미 본 방송이다. 다시 볼까?,I have seen this broadcast. Watch again?,\N,day == 2 && flag.tv_news_d2_seen,\N,wait,\N,script/home,home_tv_day2_repeat,home_tv_cutscene_scene,steps,11,migration_steps_6432533c82,\N,\N
+\N,13,choice,luna,\N,\N,\N,\N,day == 2 && flag.tv_news_d2_seen,\N,wait,\N,script/home,home_tv_day2_choice,home_tv_cutscene_scene,steps,12,migration_steps_d330178be3,\N,\N
+\N,14,timeline,\N,tv_news_d2,\N,\N,\N,day == 2 && !flag.tv_news_d2_seen,flag.tv_news_d2_seen = true,wait,\N,script/home,home_tv_day2_first,home_tv_cutscene_scene,steps,13,migration_steps_8e3124a9d7,\N,\N
+\N,15,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,day == 2,\N,wait,\N,script/home,home_tv_day2_end,home_tv_cutscene_scene,steps,14,migration_steps_6432533c82,\N,\N
+\N,1,timeline,\N,tv_news_d2,\N,\N,\N,\N,flag.tv_news_d2_seen = true,wait,\N,script/home,home_tv_day2_replay,home_tv_day2_watch,result_steps,0,migration_steps_8e3124a9d7,\N,\N
+\N,2,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,\N,\N,wait,\N,script/home,home_tv_day2_replay_end,home_tv_day2_watch,result_steps,1,migration_steps_6432533c82,\N,\N
+\N,1,effect,\N,\N,\N,\N,\N,\N,\N,\N,\N,script/home,home_tv_day2_leave_end,home_tv_day2_leave,result_steps,0,migration_steps_e10e04f2d1,\N,\N
+\N,16,say,luna,default,오늘의 방송을 확인해 보자. (Day 3),Let's watch today's broadcast. (Day 3),\N,day == 3 && !flag.tv_news_d3_seen,\N,wait,\N,script/home,home_tv_day3_intro,home_tv_cutscene_scene,steps,15,migration_steps_6432533c82,\N,\N
+\N,17,say,luna,default,이미 본 방송이다. 다시 볼까?,I have seen this broadcast. Watch again?,\N,day == 3 && flag.tv_news_d3_seen,\N,wait,\N,script/home,home_tv_day3_repeat,home_tv_cutscene_scene,steps,16,migration_steps_6432533c82,\N,\N
+\N,18,choice,luna,\N,\N,\N,\N,day == 3 && flag.tv_news_d3_seen,\N,wait,\N,script/home,home_tv_day3_choice,home_tv_cutscene_scene,steps,17,migration_steps_d330178be3,\N,\N
+\N,19,timeline,\N,tv_news_d3,\N,\N,\N,day == 3 && !flag.tv_news_d3_seen,flag.tv_news_d3_seen = true,wait,\N,script/home,home_tv_day3_first,home_tv_cutscene_scene,steps,18,migration_steps_8e3124a9d7,\N,\N
+\N,20,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,day == 3,\N,wait,\N,script/home,home_tv_day3_end,home_tv_cutscene_scene,steps,19,migration_steps_6432533c82,\N,\N
+\N,1,timeline,\N,tv_news_d3,\N,\N,\N,\N,flag.tv_news_d3_seen = true,wait,\N,script/home,home_tv_day3_replay,home_tv_day3_watch,result_steps,0,migration_steps_8e3124a9d7,\N,\N
+\N,2,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,\N,\N,wait,\N,script/home,home_tv_day3_replay_end,home_tv_day3_watch,result_steps,1,migration_steps_6432533c82,\N,\N
+\N,1,effect,\N,\N,\N,\N,\N,\N,\N,\N,\N,script/home,home_tv_day3_leave_end,home_tv_day3_leave,result_steps,0,migration_steps_e10e04f2d1,\N,\N
