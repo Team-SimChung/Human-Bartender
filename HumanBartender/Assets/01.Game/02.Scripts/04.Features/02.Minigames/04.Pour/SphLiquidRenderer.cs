@@ -227,12 +227,15 @@ public class SphLiquidRenderer : MonoBehaviour
         compositeMaterial.SetVector("_PixelGrid", new Vector4(camera.pixelWidth / pixel, camera.pixelHeight / pixel, Mathf.Max(3, profile.colorSteps), profile.surfaceDepth));
         compositeMaterial.SetVector("_Optics", new Vector4(appearance.absorption, appearance.turbidity, appearance.gloss, refractionStrength));
         compositeMaterial.SetVector("_Cloud", new Vector4(appearance.impactCloud, Mathf.Max(0.05f, appearance.cloudLifetime), appearance.bubbleRise, appearance.carbonation));
+        compositeMaterial.SetVector("_CloudMotion", new Vector4(appearance.cloudRise, appearance.cloudDispersion, appearance.cloudOpacity, 0f));
         compositeMaterial.SetVector("_Foam", new Vector4(appearance.foamGain, Mathf.Max(0.05f, appearance.foamLifetime), appearance.foamHeight, appearance.pulp));
+        compositeMaterial.SetVector("_FoamShape", new Vector4(appearance.foamHold, appearance.foamLumps, 0f, 0f));
         compositeMaterial.SetVector("_Step", new Vector4(Mathf.Max(0f, dt), effectTime, profile.physics.spacing, 0f));
         compositeMaterial.SetFloat("_Threshold", profile.threshold);
         compositeMaterial.SetFloat("_BubbleSize", profile.bubbleSize);
         compositeMaterial.SetFloat("_EdgeSmoothness", Mathf.Max(0.001f, profile.edgeSmoothness));
-        compositeMaterial.SetColor("_Color", liquidColor);
+        // 재료 데이터 색은 그대로 두고 화면에 쓸 색에만 재료별 채도 보정을 적용한다.
+        compositeMaterial.SetColor("_Color", LiquidAppearance.Saturate(liquidColor, appearance.saturation));
         compositeMaterial.SetColor("_FoamColor", appearance.foamColor);
         compositeMaterial.SetTexture(FieldId, fieldTexture);
         compositeMaterial.SetTexture("_PreviousEffects", effectRead);
@@ -244,6 +247,7 @@ public class SphLiquidRenderer : MonoBehaviour
         splatMaterial.SetMatrix("_WorldToScreen", worldToScreen);
         splatMaterial.SetVector("_BlobShape", new Vector4(profile.physics.spacing * profile.blobRadiusScale,
             profile.stretchPerSpeed, profile.maxStretch, profile.streamThinning));
+        splatMaterial.SetVector("_ImpactShape", new Vector4(appearance.cloudSpread, profile.airborneWidth, 0f, 0f));
         commands.SetRenderTarget(fieldTexture);
         commands.ClearRenderTarget(false, true, Color.clear);
         if (particleCount > 0 && particleBuffer != null)

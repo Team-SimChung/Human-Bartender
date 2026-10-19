@@ -6,10 +6,11 @@ Unity 6000.3 / URP 2D의 기존 `NewPourGame` 프리팹에서 사용한다. `Pou
 
 1. 기존 CPU SPH가 위치, 속도, 잔 경계와 충돌을 계산한다. 각 물리 스텝의 마지막에 감속량을 보고 시각적 충격 하나를 기록한다. 바닥에 가만히 있는 입자는 계속 거품을 만들지 않는다.
 2. `SphLiquidRenderer.UpdateBlobs`가 활성 입자의 위치·속도·충격을 32바이트 구조체로 GPU에 보낸다. 정점과 UV는 CPU에서 다시 만들지 않는다. 물리용 GameObject 풀은 유지하고 매 스텝의 불필요한 Transform 갱신을 끈다.
-3. `LiquidBlobSplat`이 절차적 인스턴싱으로 늘어나는 물줄기를 만들고 ARGBHalf 필드에 밀도, 가중 속도와 충격을 누적한다.
+3. `LiquidBlobSplat`이 절차적 인스턴싱으로 늘어나는 물줄기를 만들고 ARGBHalf 필드에 밀도, 가중 속도와 충격을 누적한다. 빠르게 흐르는 입자에만 `airborneWidth`를 적용해 물줄기와 떨어지는 방울을 두껍게 그린다. 물리 간격과 정지 수위는 유지한다.
 4. GPU가 잔 바닥에서 이어진 액체의 수면을 추출한다. 공간 중앙값으로 가는 유입 줄기가 거품층을 위로 끌어올리는 현상을 억제한다.
-5. 탄산 재료는 잔 로컬 좌표의 작은 RHalf 텍스처에서 충돌 탁도를 속도와 부력으로 이동시키고 감쇠시킨다. 비탄산은 이 상승 효과를 생성·합성하지 않는다. 수면 거품은 별도 텍스처와 수명을 사용한다.
-6. 최종 셰이더가 픽셀 격자, 단계별 명암, 가상 두께, 수면 하이라이트, 탄산 기포, 과즙 입자와 거품을 합성한다. 기포는 GPU의 절차적 패턴이며 추가 SPH 입자가 아니다.
+5. 탄산 재료는 잔 로컬 좌표의 작은 RHalf 텍스처에서 충돌과 빠른 하강 유입이 만드는 탁도를 속도와 부력으로 이동시키고, 소용돌이·분산·감쇠를 적용한다. 비탄산은 이 상승 효과를 생성·합성하지 않는다.
+6. 수면 거품은 내부 구름 농도 대신 수면 위의 하강 흐름과 수면 아래 충돌에서 생성한다. 옆으로 퍼지고, 유입 세기에 따른 높이까지 빠르게 자란 뒤 유지 시간과 붕괴 시간을 거친다. 수면 텍스처 RGBA에는 높이·거품량·남은 유지 시간·유효 여부를 저장한다.
+7. 최종 셰이더가 픽셀 격자, 단계별 명암, 가상 두께, 수면 하이라이트, 탄산 기포, 과즙 입자와 거품을 합성한다. 재료색은 채널별 클리핑 없이 채도를 보정하고 두께별 흡수를 적용한다. 구름은 액체색 기반의 탁도와 미세기포 점으로 표현해 넓은 흰 막을 억제한다. 기포는 GPU의 절차적 패턴이며 추가 SPH 입자가 아니다.
 
 렌더링 결과를 CPU로 읽지 않는다. `ReadPixels`는 에디터 검증 테스트의 수치 검사와 캡처에만 사용한다. Shader Model 4.5를 지원하는 그래픽 장치가 필요하며 D3D11에서 검증했다.
 
@@ -17,7 +18,7 @@ Unity 6000.3 / URP 2D의 기존 `NewPourGame` 프리팹에서 사용한다. `Pou
 
 | 재료 | 표현 |
 | --- | --- |
-| 맥주 | 충돌 지점의 밝은 미세기포 구름, 상승하는 기포, 내부 탁도보다 오래 유지되는 거품 |
+| 맥주 | 금빛·호박색 몸통, 국소적인 상승 기포 구름, 강하게 따를수록 빠르고 두껍게 솟아 오래 남는 거품 |
 | 탄산수·샴페인 | 맑은 바탕, 상승 기포, 짧은 충돌 탁도와 얇은 거품 |
 | 콜라·진저에일 | 기존 재료 색, 진한 흡수색, 탄산과 따뜻한 색의 거품 |
 | 진·보드카·데킬라·맑은 리큐르 | 비탄산, 낮은 불투명도, 가장자리와 수면 반사 |
@@ -41,14 +42,18 @@ Unity 6000.3 / URP 2D의 기존 `NewPourGame` 프리팹에서 사용한다. `Pou
 
 실제 프리팹은 `Liquid_Light.asset`을 사용한다.
 
-- `LiquidProfile.pixelSize`: 1080 높이 기준 픽셀 크기. 기본 6으로 기존 3보다 한 변이 두 배 크다. Light·Default·Syrup 에셋 모두 명시한다. 물리 좌표는 양자화하지 않는다.
+- `LiquidProfile.pixelSize`: 1080 높이 기준 픽셀 크기. 기본 4. 6픽셀에서 거품·기포 디테일이 크게 뭉치는 영상 피드백을 반영해 Light·Default·Syrup 에셋 모두 4로 낮췄다. 물리 좌표는 양자화하지 않는다.
+- `airborneWidth`: 기본 1.7. 빠르게 흐르는 액체의 렌더링 반경 배수. SPH `spacing`, 병목 폭, ml/입자 환산을 바꾸지 않고 물줄기 크기감을 조절한다.
+
+낙하 속도 1.5–4.5에서 렌더 줄기의 가로 폭을 추가로 최대 18% 줄인다. 축 방향의 입자 겹침은 유지해 물줄기가 낱알로 끊기는 것을 피한다.
 - `bubbleSize`: 기본 2.2. 탄산 방울의 크기를 키우고 큰 픽셀 격자에서도 사라지지 않도록 최소 반지름을 보장한다. 잔의 월드 가로세로 비율을 보정하고 밝기 대비도 높였다.
 - `colorSteps`: 명암 단계 수.
 - `surfaceDepth`: 수면의 입체감을 만드는 캡 깊이. 잔 높이 기준의 시각적 근사다.
 - `appearanceOverrides`: 특정 `ingredientId`에 대한 외형을 덮어쓴다. 지정한 항목의 모든 외형 값이 적용된다.
 - `carbonation`, `bubbleRise`: 탄산 기포 양과 상승 속도.
-- `impactCloud`, `cloudLifetime`: 충돌 탁도의 강도와 감쇠 시간.
-- `foamGain`, `foamLifetime`, `foamHeight`: 수면 거품의 생성량·감쇠 시간·최대 높이. 적은 양에서는 액체 깊이의 35% 이내로 제한한다.
+- `saturation`: 재료별 채도 보정. 휘도를 유지하면서 RGB 범위 안에서 가능한 만큼 보정하며 원본 RGB/alpha는 수정하지 않는다.
+- `impactCloud`, `cloudSpread`, `cloudRise`, `cloudDispersion`, `cloudLifetime`, `cloudOpacity`: 구름 생성량·발생 반경·부력·분산·수명·색 혼합 강도. 구름을 약하게 해도 거품의 유입 반응은 유지된다.
+- `foamGain`, `foamHold`, `foamLifetime`, `foamHeight`, `foamLumps`: 거품의 성장 속도·유지 시간·붕괴 시간·최대 두께·윗면 덩어리. 맥주 기본값은 각각 1.6, 3.5초, 8초, 잔 높이의 17%, 1이다. 두께는 남은 잔 높이와 소량 액체의 깊이에 따라 제한하며 최종 표시는 잔 내부로 마스킹한다. 거품은 oz와 넘침 판정에 합산하지 않는다.
 - `absorption`, `turbidity`, `gloss`, `pulp`: 깊이 색, 탁도, 반사와 과육.
 - `viscosityScale`: 물리 설정을 런타임에 복제하여 점도를 조절한다. 공유 프로파일 에셋을 수정하지 않는다.
 - 렌더러의 `fieldResolutionScale`: 화면 공간 필드 해상도. 낮추면 GPU 채움 비용과 메모리가 줄고 작은 물방울 표현이 거칠어진다.
@@ -65,13 +70,13 @@ Unity 6000.3 / URP 2D의 기존 `NewPourGame` 프리팹에서 사용한다. `Pou
 
 ## 검증
 
-`LiquidRenderingTests`, `SphPhysicsTests`, `PourMouseControlTests`, `PourMouseRuntimeTests`를 그래픽 장치가 있는 Unity EditMode 배치에서 실행한다. `-nographics`는 GPU 검증을 건너뛰므로 사용하지 않는다.
+`LiquidRenderingTests`, `SphPhysicsTests`, `PourMouseControlTests`, `PourMouseRuntimeTests`, `PourLiquidVisualReviewTests`를 그래픽 장치가 있는 Unity EditMode 배치에서 실행한다. `-nographics`는 GPU 검증을 건너뛰므로 사용하지 않는다.
 
 ```powershell
 & 'C:\Program Files\Unity\Hub\Editor\6000.3.14f1\Editor\Unity.exe' `
   -batchmode -force-d3d11 -projectPath '<HumanBartender 프로젝트 절대 경로>' `
   -runTests -testPlatform EditMode `
-  -testFilter 'LiquidRenderingTests|SphPhysicsTests|PourMouseControlTests|PourMouseRuntimeTests' `
+  -testFilter 'LiquidRenderingTests|SphPhysicsTests|PourMouseControlTests|PourMouseRuntimeTests|PourLiquidVisualReviewTests' `
   -testResults '<결과 XML 절대 경로>' -logFile '<로그 절대 경로>'
 ```
 
@@ -82,3 +87,9 @@ Unity 6000.3 / URP 2D의 기존 `NewPourGame` 프리팹에서 사용한다. `Pou
 2026-10-19 최종 D3D11 실행에서 관련 57개 테스트가 모두 통과했다. 실제 프리팹의 12.01485oz에서 안정된 좌우 높이 차이는 약 0.00105 월드 단위, 입자 높이 95백분위와 목표선 차이는 약 0.084였다. 이 검증은 프리팹의 플레이 모드 실행이며 전체 주문 UI의 수동 플레이나 FPS 프로파일링을 대신하지 않는다.
 
 테스트 캡처는 `%TEMP%/PourLiquidValidation`에 저장된다. `beer-impact`는 효과를 명확히 검사하기 위해 입자에 인위적인 충격을 준 화면이고, `runtime-beer-pouring`, `runtime-beer-settled`, `runtime-beer-12oz-settled`, `runtime-beer-overpour`는 실제 프리팹·방출·충돌에서 나온 화면이다.
+
+2026-10-20의 최종 실제 프리팹 구도 검증(`ortho=5`, 1920×1080)에서는 같은 약 2.92oz에서 강한 유입의 평균 거품량이 0.899, 약한 유입은 0.489였다. 약 12oz를 따른 뒤에는 정지 0.5초/3초/10초에서 각각 0.663/0.588/0.364로 유지 후 감소했다. 이 값은 수면 텍스처의 정규화된 거품량이며 ml 단위 거품 부피가 아니다. 해당 캡처와 수치는 `ingame/` 아래에 저장한다. 빗물 검사를 포함한 관련 80개 검사가 모두 통과했으며 건너뛴 항목은 없다. 전체 주문 화면의 수동 플레이와 기기별 FPS 측정은 이 테스트에 포함되지 않는다.
+
+이후 `2026-10-20 01-00-20.mp4` 피드백으로 거품 경계와 픽셀 밀도를 수정했다. 거품 표시는 주변 7개 열을 가중 평균하고, 한 열의 수면이 누락되면 양옆 수면이 모두 존재할 때만 잇는다. 거품의 기준 높이는 약 0.08초 시간 상수로 따라가며 물리 입자나 용량 판정은 지연하지 않는다. 반복되는 3픽셀 폭 돔을 연속적인 저주파 덩어리로 교체하고 아랫면에는 1–2픽셀의 젖은 전이를 둔다. 기공 패턴의 주기적인 갑작스러운 교체도 제거했다.
+
+동일한 원본 렌더러·셰이더를 별도 Unity D3D11 프로젝트에서 실행한 후속 검사 20개가 통과했다. 인공적으로 좁은 높이 오차를 넣은 거품 경계의 최대 인접 열 높이 차이는 수정 전 28픽셀에서 수정 후 6픽셀로 줄었다(512×512 검증 타깃). 수면 한 열 누락 복구와 일시정지 시 높이 유지, 기존 강한 유입/약한 유입의 거품 차이·유지·붕괴도 통과했다. `%TEMP%/PourNaturalValidation`에 비교 캡처와 결과를 저장한다. 이 결과는 재현용 GPU 검사이며 수정 후 전체 게임·실제 프리팹 영상이나 성능 검증을 대신하지 않는다. 앞선 80개 결과와 실제 프리팹 수치는 이 후속 변경 이전 값이다.

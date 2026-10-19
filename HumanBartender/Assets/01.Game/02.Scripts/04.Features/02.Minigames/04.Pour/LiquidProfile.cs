@@ -19,7 +19,7 @@ public class LiquidProfile : ScriptableObject
 {
     [Header("픽셀과 재료별 표현")]
     [Tooltip("1080 높이 기준 픽셀 크기. 물리 좌표에는 적용하지 않는다.")]
-    [Range(1, 12)] public int pixelSize = 6;
+    [Range(1, 12)] public int pixelSize = 4;
     [Tooltip("탄산 방울 크기 배율. 잔의 가로세로 비율에 상관없이 둥글게 그린다.")]
     [Range(0.5f, 4f)] public float bubbleSize = 2.2f;
     [Range(3, 16)] public int colorSteps = 7;
@@ -68,6 +68,12 @@ public class LiquidProfile : ScriptableObject
              "spacing을 줄이지 않고 물줄기만 가늘게 만들 수 있는 값이라, 파티클 수를 늘리기 " +
              "곤란할 때 여기부터 만지면 된다.")]
     public float streamThinning = 0.35f;
+
+    [Range(1f, 3f)]
+    [Tooltip("흐르는 줄기와 떨어지는 방울만 이 배수로 두껍게 그린다(렌더 전용).\n" +
+             "spacing은 병목 폭·방출 간격·입자당 ml·목표선과 묶여 있어 바꾸지 않고, 작은 잔에 맞는 " +
+             "줄기 굵기와 방울 크기는 여기서 맞춘다. 느리게 고인 액체에는 적용하지 않아 수면 높이가 그대로다.")]
+    public float airborneWidth = 1.7f;
 
     [Header("색")]
     [Tooltip("켜면 아래 색을 쓰고, 끄면 칵테일 키워드에서 뽑은 색(CategoryColorData)을 쓴다.")]

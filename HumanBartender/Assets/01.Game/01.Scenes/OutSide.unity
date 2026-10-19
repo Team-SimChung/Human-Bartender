@@ -11407,6 +11407,7 @@ GameObject:
   - component: {fileID: 1305537446}
   - component: {fileID: 1305537448}
   - component: {fileID: 1305537449}
+  - component: {fileID: 1305537450}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -11627,6 +11628,55 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 1
           m_CallState: 2
+--- !u!114 &1305537450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305537442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58a8b6838c24a2342bb37ad711bf4ac8, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WindowRainLayer
+  rainSource: {fileID: 9135345202383492205}
+  movementSource: {fileID: 398070675}
+  settings:
+    virtualRows: 270
+    spawnPerSecond: 55
+    maxDrops: 650
+    spawnRadius: {x: 0.55, y: 1.9}
+    largeDropChance: 0.03
+    slideRadius: 3.2
+    pinVariation: 0.3
+    gravity: 330
+    drag: 4
+    maxSpeed: 150
+    meander: 0.35
+    trailSpacing: 4
+    trailChance: 0.7
+    evaporation: 0.12
+    intensityResponse: {x: 1.2, y: 2.5}
+    formationTime: 0.4
+    mergeTime: 0.38
+    stickSlip: 0.65
+  windFromMotion: 1.1
+  inertia: 0.3
+  ambientWind: {x: -14, y: 0}
+  gustStrength: 22
+  strength: 0.45
+  shadingPixelSize: 1
+  refraction: 0.045
+  dispersion: 0.65
+  highlight: 0.45
+  rimShadow: 0.3
+  trailStrength: 0.7
+  trailLifetime: 4.5
+  prewarm: 1
+  seed: 20261019
+  dropShader: {fileID: 4800000, guid: e884878c6c96bd74cb2d566668a598ac, type: 3}
+  compositeShader: {fileID: 4800000, guid: 0a6ee2ddc88315d40ae6a7f3550ab939, type: 3}
 --- !u!1 &1317052559
 GameObject:
   m_ObjectHideFlags: 0
@@ -20229,6 +20279,11 @@ PrefabInstance:
 --- !u!4 &9135345202383492204 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9085894523723680871, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+  m_PrefabInstance: {fileID: 9135345202383492203}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9135345202383492205 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3703395972948673099, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
   m_PrefabInstance: {fileID: 9135345202383492203}
   m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
