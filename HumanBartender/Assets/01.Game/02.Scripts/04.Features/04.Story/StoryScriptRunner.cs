@@ -35,6 +35,7 @@ public class StoryScriptRunner : MonoBehaviour
 
     IStoryPresenter presenter;
     IConditionUtil conditions;
+    IPopupService popupService;
     OrderRequestController orderController;
     UniTaskCompletionSource<OrderResult> orderResultSignal;
 
@@ -86,12 +87,14 @@ public class StoryScriptRunner : MonoBehaviour
 
     /// <summary>화면과 평가기를 연결한다. RunAsync 전에 반드시 불러야 한다.</summary>
     public void Bind(IStoryPresenter storyPresenter, IConditionUtil conditionEvaluator,
-                     OrderRequestController requests, ICutScenePlayer cutScenePlayerImpl)
+                     OrderRequestController requests, ICutScenePlayer cutScenePlayerImpl,
+                     IPopupService popupServiceImpl = null)
     {
         presenter = storyPresenter;
         conditions = conditionEvaluator;
         orderController = requests;
         cutScenePlayer = cutScenePlayerImpl;
+        popupService = popupServiceImpl;
     }
 
     /// <summary>
@@ -303,6 +306,12 @@ public class StoryScriptRunner : MonoBehaviour
     {
         switch (step.Type)
         {
+            case ENewStepType.Popup:
+                bool english = GameStateManager.Instance.Language == ELanguage.En;
+                string data = english && !string.IsNullOrEmpty(step.Text?.En) ? step.Text?.En : step.Text?.Ko;
+                await PopupCsvStep.ExecuteAsync(popupService, step.Arg, data, step.Sync, token);
+                return;
+
             case ENewStepType.Say:
                 await SayAsync(step, token);
                 return;
@@ -799,6 +808,7 @@ public class StoryScriptRunner : MonoBehaviour
             return;
         }
 
+        (presenter as IDialogueInputFeedback)?.PlayAdvanceFeedback();
         if (presenter is IStoryDialogueVisibility visibility) visibility.HideDialogue();
         advanceSignal.TrySetResult();
     }

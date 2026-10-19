@@ -2,6 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// 병따기(Cap) 미니게임의 메인 매니저. IMiniGameController를 구현한다.
@@ -19,6 +20,7 @@ using UnityEngine;
 /// </summary>
 public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICraftGimmickProgress
 {
+    [Inject] ISoundEffectPlayer sound;
     [SerializeField] private bool isTest = false;
 
     [Header("Data")]
@@ -195,6 +197,8 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
     void Succeed()
     {
+        sound?.PlaySE("SFX_bottle_open");
+        sound?.PlaySE("SFX_fizz");
         opened = true;
         phase = Phase.Cooldown;
         cooldown = successCooldown;

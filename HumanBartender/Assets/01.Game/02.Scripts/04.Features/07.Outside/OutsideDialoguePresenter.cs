@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// <summary>
 /// 실외(길거리 등) 씬에서 사용하는 IDialoguePresenter 구현체.
 /// </summary>
-public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter, IDialogueInputPrompt
+public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter, IDialogueInputPrompt, IDialogueInputFeedback
 {
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private UIDialogueTextView typer;
@@ -27,6 +27,7 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter, IDial
     }
 
     public void SetWaitingForInput(bool waiting) => typer?.SetWaitingForInput(waiting);
+    public void PlayAdvanceFeedback() => typer?.PlayAdvanceFeedback();
 
     /// <summary>아웃사이드 전용 선택지 UI 표시</summary>
     public void ShowOutsideChoices(NewStreetOptionData[] options, Action<NewStreetOptionData> onSelected)

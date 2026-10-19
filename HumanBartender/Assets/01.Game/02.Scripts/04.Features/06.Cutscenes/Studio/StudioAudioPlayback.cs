@@ -8,13 +8,15 @@ namespace HumanBartender.CutsceneStudio
     internal sealed class StudioAudioPlayback : IDisposable
     {
         private readonly GameObject owner;
+        private readonly AudioOutputSettings output;
         private readonly Dictionary<StudioClip, AudioSource> voices = new();
         private readonly HashSet<StudioClip> active = new();
         private readonly List<StudioClip> stale = new();
         private readonly List<StudioEntry> entries = new();
-        internal StudioAudioPlayback(GameObject owner)
+        internal StudioAudioPlayback(GameObject owner, AudioOutputSettings output)
         {
             this.owner = owner;
+            this.output = output != null ? output : throw new ArgumentNullException(nameof(output));
         }
 
         internal void Evaluate(StudioSequence sequence, double time, bool waiting)
@@ -58,6 +60,7 @@ namespace HumanBartender.CutsceneStudio
             var clip = entry.Asset;
             var voice = owner.AddComponent<AudioSource>();
             voice.playOnAwake = false;
+            output.Route(voice, clip.Bus);
             voice.spatialBlend = 0;
             voice.ignoreListenerPause = true;
             voice.clip = clip.Sound;

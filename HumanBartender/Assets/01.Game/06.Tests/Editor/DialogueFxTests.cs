@@ -178,6 +178,11 @@ public sealed class DialogueFxTests
 
     [TestCase("script/bar/day0", 100)]
     [TestCase("script/bar/day1", 200)]
+    [TestCase("script/bar/day2", 100)]
+    [TestCase("script/bar/day3", 120)]
+    [TestCase("script/cutscene", 70)]
+    [TestCase("script/ambient", 50)]
+    [TestCase("script/common", 30)]
     public void LatestBarScriptLinesCompileAndBind(string source, int minimumLines)
     {
         string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
@@ -199,6 +204,46 @@ public sealed class DialogueFxTests
             checkedLines++;
         }
         Assert.That(checkedLines, Is.GreaterThanOrEqualTo(minimumLines), source);
+    }
+
+    [Test]
+    public void PresentationPresetsLoadFromTheSingleRuntimeResource()
+    {
+        var settings = Resources.Load<DialoguePresentationSettings>("DialoguePresentationSettings");
+        Assert.That(settings, Is.Not.Null, "Dialogue FX presets must be included in player builds.");
+        Assert.That(AssetDatabase.FindAssets("t:DialoguePresentationSettings", new[] { "Assets/01.Game" }),
+            Has.Length.EqualTo(1), "Keep one shared owner of presentation defaults.");
+        Assert.That(DialoguePresentationSettings.Shared, Is.SameAs(settings));
+        foreach (string id in new[] { "angry", "reproach", "gentle", "emphasis", "tremble" })
+            Assert.That(settings.GetPreset(id), Is.Not.Null, id);
+    }
+
+    [TestCase("script/street", 250)]
+    [TestCase("script/home", 80)]
+    public void OutsideScriptLinesAndChoiceResultsCompile(string source, int minimumLines)
+    {
+        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
+        var script = CsvDataReader.LoadDirectory(directory).Read<NewStreetData>(source);
+        int checkedLines = 0;
+        foreach (var scene in script.Scenes)
+            CheckSteps(scene.Steps);
+        Assert.That(checkedLines, Is.GreaterThanOrEqualTo(minimumLines), source);
+
+        void CheckSteps(Step[] steps)
+        {
+            if (steps == null) return;
+            foreach (var step in steps)
+            {
+                if (step.Text != null && !string.IsNullOrEmpty(step.Text.Ko))
+                {
+                    Bind(step.Text.Ko, settings: DialoguePresentationSettings.Shared);
+                    checkedLines++;
+                }
+                if (step.Options != null)
+                    foreach (var option in step.Options)
+                        CheckSteps(option.ResultSteps);
+            }
+        }
     }
 
     [Test]

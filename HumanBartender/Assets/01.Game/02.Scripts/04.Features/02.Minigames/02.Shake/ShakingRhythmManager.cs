@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using VContainer;
 
 /// <summary>
 /// 위에서 내려오는 노트를 A(왼쪽) / D(오른쪽)로 처리하는 쉐이킹 리듬게임.
@@ -17,6 +18,8 @@ using UnityEngine.UI;
 public class ShakingRhythmManager : MonoBehaviour, ICraftGimmick,
     ICraftGimmickProgress, ICraftGimmickManualEnd, ICraftGimmickOwnHud
 {
+    [Inject] ISoundEffectPlayer sound;
+    [Inject] AudioOutputSettings audioOutput;
     // 독립 테스트 씬에서만 종료 후 R키 재시작을 허용한다. 제조 실행용 프리팹은 false.
     [SerializeField] private bool isTest;
     // 기존 캐릭터 클립의 ClipSpeed를 초기화하는 보조 컴포넌트.
@@ -259,7 +262,11 @@ public class ShakingRhythmManager : MonoBehaviour, ICraftGimmick,
         SetMotion(true);
         // 배경음은 선택 사항이다. 옛 메트로놈 연결을 제거했으므로 새 음악을 지정한 경우에만 재생한다.
         // 재생 시점/위치로 노트 시계를 보정하지 않는다.
-        if (bgmSource != null && bgmSource.clip != null) bgmSource.Play();
+        if (bgmSource != null && bgmSource.clip != null)
+        {
+            audioOutput.Route(bgmSource, AudioBus.Music);
+            bgmSource.Play();
+        }
     }
 
     /// <summary>왼쪽 UI 버튼/외부 입력용. 대기 중이면 시작, 플레이 중이면 A 레인 판정.</summary>
@@ -336,7 +343,7 @@ public class ShakingRhythmManager : MonoBehaviour, ICraftGimmick,
         }
         else extraPresses++;
         // 실패 종류에 관계없이 콤보는 즉시 끊긴다. Multiplier도 콤보에서 읽으므로 배속이 복귀한다.
-        if (success) { successes++; combo++; bestCombo = Mathf.Max(bestCombo, combo); }
+        if (success) { successes++; combo++; bestCombo = Mathf.Max(bestCombo, combo); sound?.PlaySE("SFX_shaker_hit"); }
         else { failures++; combo = 0; }
         hitAges[lane] = 0;
         hitColors[lane] = success ? (judgement == "PERFECT" ? Color.white : Cyan) : MissColor;
