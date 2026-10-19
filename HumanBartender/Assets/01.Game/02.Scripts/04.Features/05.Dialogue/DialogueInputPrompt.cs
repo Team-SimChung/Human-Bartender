@@ -1,6 +1,6 @@
 using UnityEngine;
 
-/// <summary>다음 대사 입력을 기다릴 때만 프리팹의 표시를 천천히 위아래로 띄운다.</summary>
+/// <summary>다음 대사 입력을 기다릴 때만 프리팹의 표시를 천천히 위아래로 띄움.</summary>
 [DisallowMultipleComponent]
 public sealed class DialogueInputPrompt : MonoBehaviour
 {

@@ -18,6 +18,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         public bool ReducedMotion;
         public bool ShakeSpanNotified;
         public bool[] VisibleGlyphs;
+        public IDisposable AudioScope;
         public CancellationTokenRegistration ExternalRegistration;
         public CancellationTokenRegistration DestroyRegistration;
     }
@@ -28,7 +29,10 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     int nextId;
     static int warnings;
     ISoundEffectPlayer sound;
-    public void ConfigureAudio(ISoundEffectPlayer manager) => sound = manager;
+    bool backgroundAudio;
+    Func<bool> audible;
+    public void ConfigureAudio(ISoundEffectPlayer manager, bool background = false, Func<bool> canHear = null)
+    { sound = manager; backgroundAudio = background; audible = canHear; }
 
     void Awake()
     {
@@ -45,7 +49,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public event Action MotionStopped;
 
     public async UniTask PlayAsync(TypingData data, NewTextTagDataSO tags, float defaultDelay,
-        CancellationToken external = default, string cocktailName = null)
+        CancellationToken external = default, string cocktailName = null,
+        Func<float, CancellationToken, UniTask> wait = null)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
         external.ThrowIfCancellationRequested();
@@ -63,12 +68,14 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bool completed = false;
         try
         {
+            // 별도 시계가 없는 기존 대화는 원래 대기 방식을 유지함.
+            var delay = wait ?? Wait;
             var line = session.Line;
             int count = line.Characters.Length;
             for (int i = 0; i < count;)
             {
-                await Wait(line.WaitBefore[i], source.Token);
-                await Wait(line.Characters[i].SpeedSeconds, source.Token);
+                await delay(line.WaitBefore[i], source.Token);
+                await delay(line.Characters[i].SpeedSeconds, source.Token);
                 source.Token.ThrowIfCancellationRequested();
                 if (!ReferenceEquals(current, session)) throw new OperationCanceledException();
                 int visible = i + 1;
@@ -76,14 +83,15 @@ public sealed class DialogueTextPlayer : MonoBehaviour
                 bubble.textLabel.maxVisibleCharacters = visible;
                 bubble.UpdateForVisible(visible);
                 animator.SetVisible(visible, Time.time, false);
-                if (visible == i + 1) DialogueTypingAudio.TryPlay(sound,
-                    DialoguePresentationSettings.Shared, line.Text, bubble.textLabel.textInfo.characterInfo[i]);
+                if (visible == i + 1 && (!backgroundAudio || (!GameAudioContext.DirectDialogue && (audible == null || audible()))))
+                    DialogueTypingAudio.TryPlayWithGain(sound, DialoguePresentationSettings.Shared, line.Text,
+                        bubble.textLabel.textInfo.characterInfo[i], backgroundAudio ? .5f : 1f);
                 NotifyShakeSpan(session, i, visible);
                 source.Token.ThrowIfCancellationRequested();
                 if (!ReferenceEquals(current, session)) throw new OperationCanceledException();
                 i = visible;
             }
-            await Wait(line.WaitBefore[count], source.Token);
+            await delay(line.WaitBefore[count], source.Token);
             completed = true;
         }
         catch (OperationCanceledException) when (session.Skipped && ReferenceEquals(current, session) &&
@@ -137,6 +145,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
             session.VisibleGlyphs[i] = ch.isVisible && ch.elementType == TMP_TextElementType.Character;
         }
         current = session;
+        if (!instant) session.AudioScope = GameAudioContext.Dialogue(backgroundAudio);
         try
         {
             bubble.textLabel.maxVisibleCharacters = instant ? line.Characters.Length : 0;
@@ -194,6 +203,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         if (old == null) return;
         current = null;
         old.Reveal?.Cancel();
+        old.AudioScope?.Dispose();
         old.ExternalRegistration.Dispose();
         old.DestroyRegistration.Dispose();
         animator?.Clear();
@@ -220,7 +230,10 @@ static class DialogueTypingAudio
     static void Reset() { lastFrame = -1; lastTime = -1f; }
 
     public static void TryPlay(ISoundEffectPlayer sound, DialoguePresentationSettings settings,
-        string text, TMP_CharacterInfo ch)
+        string text, TMP_CharacterInfo ch) => TryPlayWithGain(sound, settings, text, ch, 1f);
+
+    public static void TryPlayWithGain(ISoundEffectPlayer sound, DialoguePresentationSettings settings,
+        string text, TMP_CharacterInfo ch, float gain)
     {
         if (sound == null || settings == null || string.IsNullOrWhiteSpace(settings.TypingSoundKey) ||
             ch.elementType == TMP_TextElementType.Sprite || ch.index < 0 || ch.index >= text.Length ||
@@ -228,7 +241,7 @@ static class DialogueTypingAudio
             (lastTime >= 0f && Time.unscaledTime - lastTime < settings.TypingSoundInterval)) return;
         lastFrame = Time.frameCount;
         lastTime = Time.unscaledTime;
-        sound.PlaySE(settings.TypingSoundKey);
+        sound.PlayCue(settings.TypingSoundKey, gain);
     }
 }
 

@@ -19,6 +19,9 @@ namespace HumanBartender.CutsceneStudio
         public bool IsPlaying { get; private set; }
         public bool IsWaiting => clock.Waiting.HasValue;
         public double CurrentTime => clock.Time;
+        // Interaction sessions own E/Esc so cancellation and completion cannot race.
+        // Existing standalone and bar playback keep their original keyboard handling.
+        public bool HandleKeyboardInput { get; set; } = true;
 
         private readonly StudioClock clock = new();
         private CancellationTokenSource run;
@@ -69,7 +72,7 @@ namespace HumanBartender.CutsceneStudio
             try
             {
                 source.Token.ThrowIfCancellationRequested();
-                using var gameplay = new StudioGameplayScope(PauseGameplay);
+                using var gameplay = new StudioGameplayScope(PauseGameplay, GameAudioRules.SuppressesMusic(sequence.Id));
                 using var audio = new StudioAudioPlayback(gameObject, AudioOutputSettings.Shared);
                 var director = CreatePresentation(sequence, out var canvas);
                 double last = Time.realtimeSinceStartupAsDouble;
@@ -78,14 +81,14 @@ namespace HumanBartender.CutsceneStudio
                     source.Token.ThrowIfCancellationRequested();
                     double now = Time.realtimeSinceStartupAsDouble;
                     bool waiting = clock.Waiting.HasValue;
-                    if (advance || Keyboard.current?.eKey.wasPressedThisFrame == true || Keyboard.current?.enterKey.wasPressedThisFrame == true)
+                    if (advance || HandleKeyboardInput && (Keyboard.current?.eKey.wasPressedThisFrame == true || Keyboard.current?.enterKey.wasPressedThisFrame == true))
                     {
                         if (waiting)
                             clock.Advance();
                         advance = false;
                     }
 
-                    if (sequence.AllowSkip && Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+                    if (HandleKeyboardInput && sequence.AllowSkip && Keyboard.current?.escapeKey.wasPressedThisFrame == true)
                         break;
                     clock.Tick(sequence, waiting ? 0 : now - last, true);
                     if (clock.Finished)

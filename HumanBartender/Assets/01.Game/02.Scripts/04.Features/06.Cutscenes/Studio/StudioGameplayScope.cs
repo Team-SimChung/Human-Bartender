@@ -11,8 +11,10 @@ namespace HumanBartender.CutsceneStudio
         private readonly float previousScale;
         private readonly bool pause;
         private bool disposed;
-        internal StudioGameplayScope(bool pause)
+        private readonly IDisposable audioScope;
+        internal StudioGameplayScope(bool pause, bool suppressMusic = false)
         {
+            audioScope = GameAudioContext.Cutscene(suppressMusic);
             manager = GameStateManager.Instance;
             previousState = manager.CurrentGameState;
             previousScale = Time.timeScale;
@@ -27,6 +29,7 @@ namespace HumanBartender.CutsceneStudio
             if (disposed)
                 return;
             disposed = true;
+            audioScope.Dispose();
             if (pause)
                 Time.timeScale = previousScale;
             if (manager.CurrentGameState == GameState.Effect)

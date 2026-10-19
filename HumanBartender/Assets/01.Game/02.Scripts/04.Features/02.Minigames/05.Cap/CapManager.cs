@@ -197,8 +197,9 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
     void Succeed()
     {
-        sound?.PlaySE("SFX_bottle_open");
-        sound?.PlaySE("SFX_fizz");
+        bool perfect = FailCount <= limitFailCount * .2f;
+        sound.PlayCue("SFX_bottle_open", pitch: perfect ? 1.16f : 1.08f);
+        sound.PlayCue("SFX_fizz", fadeIn: .08f, fadeOut: .5f);
         opened = true;
         phase = Phase.Cooldown;
         cooldown = successCooldown;

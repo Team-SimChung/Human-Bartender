@@ -1,58 +1,74 @@
-﻿// 블롭 하나를 자기 크기만 한 사각형으로 그려 필드값을 가산 합성한다(메타볼 1패스).
-//
-// 이전 방식은 화면의 모든 픽셀마다 모든 블롭을 검사해서 비용이 (픽셀 수 x 파티클 수)였다.
-// 여기서는 각 블롭이 자기 주변 픽셀만 칠하므로 (파티클 수 x 블롭 픽셀)이 되어, 파티클을 몇 배로
-// 늘려도 비용이 거의 늘지 않는다.
-//
-// 사각형 정점이 이미 "진행 방향으로 늘어난 타원"의 축을 따라 배치되므로, 셰이더는 사각형 안에서의
-// 위치(uv, -1~1)의 길이만 보면 된다 — uv 공간의 원이 곧 월드의 타원이다.
 Shader "Pour/LiquidBlobSplat"
 {
     SubShader
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" }
-        Blend One One          // 가산 합성 — 겹칠수록 필드값이 쌓인다
-        ZWrite Off
-        ZTest Always
-        Cull Off
-
         Pass
         {
-            CGPROGRAM
+            Blend One One
+            ZWrite Off ZTest Always Cull Off
+            HLSLPROGRAM
+            #pragma target 4.5
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
+            struct Particle { float4 positionVelocity; float4 impact; };
+            StructuredBuffer<Particle> _Particles;
+            float4 _BlobShape;
+            // x: 충돌 탁도 발생 반경(블롭 반지름 배수), y: 흐르는 액체의 렌더 두께 배수
+            float4 _ImpactShape;
+            float4x4 _WorldToScreen;
+            struct Varyings {
+                float4 position : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float2 velocity : TEXCOORD1;
+                float3 impact : TEXCOORD2;
+                float2 world : TEXCOORD3;
             };
-
-            struct v2f
+            Varyings vert(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
             {
-                float4 pos : SV_POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
+                static const float2 corners[6] = {
+                    float2(-1,-1),float2(1,-1),float2(1,1),
+                    float2(-1,-1),float2(1,1),float2(-1,1)
+                };
+                Particle p = _Particles[instanceId];
+                float2 velocity = p.positionVelocity.zw;
+                float speed = length(velocity);
+                float2 direction = speed > 0.01 ? velocity / speed : float2(1,0);
+                float stretch = clamp(1 + speed * _BlobShape.y, 1, max(1,_BlobShape.z));
+                float normalizedStretch = (stretch - 1) / max(0.001, _BlobShape.z - 1);
+                float thin = lerp(1, 1 - _BlobShape.w, normalizedStretch);
+                // 잔에 고인 느린 입자는 물리 간격 그대로 그려 수면 높이를 유지한다.
+                // 흐르는 줄기와 떨어지는 방울만 두껍게 그려 작은 잔에 맞는 굵기와 방울 크기를 만든다.
+                float moving = smoothstep(0.5, 1.5, speed);
+                float radius = _BlobShape.x * lerp(1, max(1,_ImpactShape.y), moving);
+                // 낙하 속도가 커질수록 가로 단면만 조금 조인다. 축 방향 겹침은 유지해
+                // 큰 입자 간격에서도 줄기가 낱알로 끊기지 않는다.
+                thin *= lerp(1, 0.82, smoothstep(1.5, 4.5, speed));
+                float2 corner = corners[vertexId];
+                float2 world = p.positionVelocity.xy + radius *
+                    (direction * corner.x * stretch + float2(-direction.y,direction.x) * corner.y * thin);
+                float2 uv = mul(_WorldToScreen, float4(world,0,1)).xy;
+                Varyings o;
+                o.position = float4(uv * 2 - 1, 0, 1);
+                // 아래에서 위로 증가하는 필드 UV에 맞춰 D3D 렌더 타깃 방향을 보정한다.
+                #if UNITY_UV_STARTS_AT_TOP
+                o.position.y = -o.position.y;
+                #endif
+                o.uv = corner;
+                o.velocity = velocity;
+                o.impact = p.impact.xyz;
+                o.world = world;
                 return o;
             }
-
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag(Varyings i) : SV_Target
             {
-                float d = length(i.uv);
-
-                float t = saturate(1 - d);
-                float field = t * t * t;
-
-                return fixed4(field, 0, 0, 0);
+                float t = saturate(1 - length(i.uv));
+                float weight = t * t * t;
+                float hit = saturate(1 - length(i.world - i.impact.xy) / max(0.001,_BlobShape.x * max(0.1,_ImpactShape.x)));
+                return float4(weight, i.velocity * weight, hit * hit * i.impact.z);
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

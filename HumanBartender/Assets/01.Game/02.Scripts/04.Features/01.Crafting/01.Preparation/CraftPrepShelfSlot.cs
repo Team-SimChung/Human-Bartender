@@ -46,7 +46,7 @@ public sealed class CraftPrepShelfSlot : MonoBehaviour, IPointerEnterHandler, IP
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!available || owner == null || !owner.CanInteract(stage)) return;
+        if (hovered || !available || owner == null || !owner.CanInteract(stage)) return;
         hovered = true;
         RefreshColor();
         owner.ShowItemInfo(this, item);
