@@ -72,7 +72,7 @@ namespace HumanBartender.CutsceneStudio
             try
             {
                 source.Token.ThrowIfCancellationRequested();
-                using var gameplay = new StudioGameplayScope(PauseGameplay);
+                using var gameplay = new StudioGameplayScope(PauseGameplay, GameAudioRules.SuppressesMusic(sequence.Id));
                 using var audio = new StudioAudioPlayback(gameObject, AudioOutputSettings.Shared);
                 var director = CreatePresentation(sequence, out var canvas);
                 double last = Time.realtimeSinceStartupAsDouble;

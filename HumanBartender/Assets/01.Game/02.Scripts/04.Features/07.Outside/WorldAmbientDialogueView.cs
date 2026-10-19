@@ -22,13 +22,16 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
     private float charactersPerSecond;
     private Vector2 authoredMaximumSize;
     private bool showing;
+    [SerializeField, Min(0f)] private float backgroundAudioRange = 5f;
     internal Transform Speaker => speaker;
     internal DynamicSpeechBubble Bubble => bubble;
     internal bool IsVisible => visibility != null && visibility.alpha > 0;
 
-    internal void Initialize(DynamicSpeechBubble value, RectTransform parent, NewTextTagDataSO textTags, float delay)
+    internal void Initialize(DynamicSpeechBubble value, RectTransform parent, NewTextTagDataSO textTags, float delay,
+        ISoundEffectPlayer sound = null)
     {
         bubble = value;
+        bubble.TextPlayer.ConfigureAudio(sound, true, CanHear);
         layer = parent;
         tags = textTags;
         typingDelay = delay;
@@ -71,6 +74,9 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
 
     public UniTask WaitUntilReadyAsync(CancellationToken token) => WaitAsync(0, token);
     public UniTask WaitAfterLineAsync(CancellationToken token) => WaitAsync(readTime, token);
+
+    private bool CanHear() => showing && isPaused?.Invoke() != true && speaker != null && player != null &&
+        Vector2.Distance(speaker.position, player.position) <= backgroundAudioRange;
 
     private async UniTask WaitAsync(float seconds, CancellationToken token)
     {

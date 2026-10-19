@@ -11,6 +11,7 @@ public enum DialogueState { Idle, Typing, WaitingForInput, WaitingForChoice }
 public class DialogueRunner : MonoBehaviour
 {
     [Inject] private IConditionUtil conditionUtil;
+    [Inject] private IPopupService popupService;
     [Inject] private ICutScenePlayer cutscenes;
     [SerializeField] private NewStreetDataSO StreetDataSO;
     private IDialoguePresenter presenter;
@@ -63,6 +64,7 @@ public class DialogueRunner : MonoBehaviour
         var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source,
             PlayTimeline=playTimeline, AutoAdvance=autoAdvance };
         active = run;
+        using var dialogueAudio = GameAudioContext.Dialogue(run.Presenter.GetPlayMode() == EActivationMode.Proximity);
         var result = new StoryExecutionResult(StoryExecutionStatus.Completed);
         try
         {
@@ -131,6 +133,9 @@ public class DialogueRunner : MonoBehaviour
             bool branch = false;
             switch (step.Type?.ToLowerInvariant())
             {
+                case "popup":
+                    await PopupCsvStep.ExecuteAsync(popupService, step.Arg, Text(step.Text), step.Sync, token);
+                    break;
                 case "say":
                     await SayAsync(step.Actor, Text(step.Text), step.Arg, step.Sync, run);
                     break;

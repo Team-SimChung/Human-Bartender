@@ -8350,8 +8350,8 @@ MonoBehaviour:
   - {fileID: 673860021}
   storyOnlyObjects:
   - {fileID: 664356993}
-  skipTycoonForTest: 1
-  testDay: 99
+  skipTycoonForTest: 0
+  testDay: -1
 --- !u!1 &958751542
 GameObject:
   m_ObjectHideFlags: 0
@@ -9024,7 +9024,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &979939746
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9068,7 +9068,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4691934928716263048, guid: 9a23175ce88ed1d49918f7192a44f4de, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d3f7bd379bf236b4d88d384b0622ab44, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -15296,7 +15296,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2819105286022439935, guid: e544cce6d26c348b699f56a6ea4d0b36, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 62ab5d27b11834e3db538036c1e7c98f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

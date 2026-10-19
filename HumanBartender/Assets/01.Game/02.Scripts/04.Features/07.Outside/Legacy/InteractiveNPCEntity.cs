@@ -60,6 +60,7 @@ public class InteractiveNPCEntity : InteractiveEntity
             OnTrackedText?.Raise(this);
             player?.InteractorEvent();
             presenter.playMode = ActivationMode;
+            presenter.SetAudioSource(transform, (player as Component)?.transform);
             runner.Bind(presenter);
             var result = await runner.PlayOutsideAsync(selectedSteps, token);
             if (entityManager != null) entityManager.CompleteDialogue(sceneId, result);

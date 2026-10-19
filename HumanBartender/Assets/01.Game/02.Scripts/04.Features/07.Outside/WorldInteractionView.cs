@@ -6,7 +6,7 @@ using VContainer;
 
 /// <summary>Canvas_Dialogue/InteractionLayer 전용 UI. 공용 대사창의 위치/타이핑 상태를 건드리지 않음.</summary>
 [DefaultExecutionOrder(10000)]
-public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, IDialogueInputPrompt
+public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, IDialogueInputPrompt, IDialogueInputFeedback
 {
     [SerializeField] private DynamicSpeechBubble bubblePrefab;
     [SerializeField] private WorldInteractionImageView imageViewerPrefab;
@@ -19,6 +19,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     [SerializeField] private NewTextTagDataSO textTags;
     [SerializeField, Min(0)] private float typingDelay = .035f;
     [Inject] private ICameraImpulse cameraImpulse;
+    [Inject] private ISoundEffectPlayer sound;
     private Vector2 authoredMaximumSize;
     private Vector3 authoredChoiceScale;
     private CanvasGroup bubbleVisibility;
@@ -54,7 +55,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         {
             instance.name = "AmbientSpeechBubble";
             var presenter = instance.gameObject.AddComponent<WorldAmbientDialogueView>();
-            presenter.Initialize(instance, ambientLayer, textTags, typingDelay);
+            presenter.Initialize(instance, ambientLayer, textTags, typingDelay, sound);
             return presenter;
         }
         catch { Destroy(instance.gameObject); throw; }
@@ -125,6 +126,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         player = playerTransform;
         speakerOverride = anchor;
         automatic = autoAdvance;
+        bubble.TextPlayer.ConfigureAudio(sound, automatic);
         imageMode = value.Output == WorldInteractionOutput.Image;
         if (imageMode && value.InspectionImage == null) throw new InvalidOperationException("확대할 이미지가 없습니다.");
         bubbleVisibility.alpha = 1;
@@ -149,7 +151,18 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         Follow();
     }
 
-    public void SkipTyping() => bubble?.TextPlayer.Skip();
+    public void SkipTyping()
+    {
+        if (bubble == null || bubble.TextPlayer.CurrentSessionId == 0 || bubble.TextPlayer.IsHolding) return;
+        PlayAdvanceFeedback();
+        bubble.TextPlayer.Skip();
+    }
+    public void PlayAdvanceFeedback()
+    {
+        if (automatic) return;
+        string key = DialoguePresentationSettings.Shared?.AdvanceSoundKey;
+        if (!string.IsNullOrWhiteSpace(key)) sound?.PlaySE(key);
+    }
     public void SetWaitingForInput(bool waiting)
     {
         if (prompt != null) prompt.SetWaiting(waiting);
@@ -199,7 +212,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
             {
                 // 저장 결과와 확인 문구는 타이핑 대기 없이 표시함.
                 var typing = ShowDialogueAsync("luna", message, null, token);
-                SkipTyping();
+                bubble.TextPlayer.Skip();
                 await typing;
             }
             var completion = new UniTaskCompletionSource<NewStreetOptionData>();

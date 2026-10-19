@@ -14,6 +14,8 @@ public sealed class WorldInteractionController : MonoBehaviour
     [Inject] private WorldInteractionSceneContext sceneContext;
     [Inject] private IConditionUtil conditions;
     [Inject] private IPlayerDataReader playerData;
+    [Inject] private IPopupService popups;
+    private readonly HashSet<string> notifiedEvents = new(StringComparer.Ordinal);
     private readonly Dictionary<string, NewSceneData> stories = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> targetCounts = new(StringComparer.Ordinal);
     private int registryRevision = -1;
@@ -245,6 +247,9 @@ public sealed class WorldInteractionController : MonoBehaviour
         {
             player.PrepareWorldInteraction();
             SetFocus(null);
+            if (story.StartMode == ENewSceneTrigger.Auto && notifiedEvents.Add(story.Id))
+                await popups.Popup(PopupType.EventOccurred, "");
+            source.Token.ThrowIfCancellationRequested();
             LastResult = await ExecuteOutputAsync(target, story, source.Token);
             if (target.Content != null) sceneContext.CompleteDialogue(story.Id, LastResult);
             if (LastResult.Completed && !string.IsNullOrEmpty(story.CompletionFlag))

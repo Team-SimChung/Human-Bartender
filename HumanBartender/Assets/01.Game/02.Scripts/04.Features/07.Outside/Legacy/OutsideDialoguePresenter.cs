@@ -13,6 +13,12 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter, IDial
     [SerializeField] private UIDialogueTextView typer;
     [SerializeField] private UIDialogueChoiceView choiceManager;
     public EActivationMode playMode = EActivationMode.Interact;
+    [SerializeField, Min(0f)] float backgroundAudioRange = 5f;
+    public void SetAudioSource(Transform source, Transform listener)
+    {
+        typer.BackgroundAudible = () => source != null && listener != null &&
+            Vector2.Distance(source.position, listener.position) <= backgroundAudioRange;
+    }
     private const string PLAYER_ID = "luna";
     
     public EActivationMode GetPlayMode()
@@ -48,6 +54,7 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter, IDial
     {
         dialoguePanel.SetActive(true);
         typer.ClearText();
+        typer.BackgroundAudio = playMode == EActivationMode.Proximity;
 
         await typer.StartType(new TypingData(
             text,

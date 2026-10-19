@@ -10,6 +10,8 @@ public sealed class OutsideStoryFlow : MonoBehaviour
 {
     [Inject] private InteractiveEntityManager entities;
     [Inject] private IConditionUtil conditions;
+    [Inject] private IPopupService popups;
+    private readonly System.Collections.Generic.HashSet<string> notifiedEvents = new();
     private DialogueRunner runner;
     private OutsideDialoguePresenter presenter;
     private Player player;
@@ -79,6 +81,8 @@ public sealed class OutsideStoryFlow : MonoBehaviour
         using var lease = InteractionStateLease.Acquire(player, EInteractorState.Interct);
         try
         {
+            if (scene.StartMode == ENewSceneTrigger.Auto && notifiedEvents.Add(scene.Id))
+                await popups.Popup(PopupType.EventOccurred, "");
             presenter.playMode = EActivationMode.Interact;
             runner.Bind(presenter);
             StoryExecutionResult result = await runner.PlayOutsideAsync(scene.Steps, token);
