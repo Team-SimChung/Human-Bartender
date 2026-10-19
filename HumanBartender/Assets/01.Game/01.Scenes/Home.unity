@@ -3121,7 +3121,7 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.999903
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -3443,6 +3443,7 @@ GameObject:
   - component: {fileID: 1479166666}
   - component: {fileID: 1479166668}
   - component: {fileID: 1479166667}
+  - component: {fileID: 1479166669}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -3489,7 +3490,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 12:31
+  m_text: 01:52
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
   m_sharedMaterial: {fileID: 5518620734502561977, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
@@ -3569,6 +3570,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1479166665}
   m_CullTransparentMesh: 1
+--- !u!114 &1479166669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1479166665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9a2af84745442e6bf047f619fba3e75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomeClock
+  timeText: {fileID: 1479166667}
 --- !u!1 &1646853124
 GameObject:
   m_ObjectHideFlags: 0
