@@ -1,0 +1,888 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>1부 제조 루프 구현·검증 계약</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="3c116122-98dc-8109-acb3-d12867d86412" class="page sans"><header><h1 class="page-title" dir="auto">1부 제조 루프 구현·검증 계약</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><blockquote id="6c7620b2-530a-45f6-92ce-93de08d1feeb" class="block-color-red" data-notion-highlight="red" dir="auto"><strong>문서 목적</strong><p id="dd796ab5-5015-4cca-8e1a-e219c50adfc6" class="" dir="auto"><mark class="highlight-default" data-notion-highlight="default">1부 제조 루프를 엔진·JSON·검증 체계에 연결하는 구현 계약이다. 제조 시도와 손님 주문을 분리하고, 서빙 드롭 시 두 데이터를 연결하는 경계를 포함한다. 기믹·판정 내부 공식은 외부 정본에서만 관리한다.</mark></p></blockquote><p id="24930975-c004-4e70-808a-ecdf35270e92" class="" dir="auto">상위 문서: <a href="https://app.notion.com/p/1-3bf1612298dc80a4a67ad1d6af9a5506?pvs=21" data-notion-page-id="3bf16122-98dc-80a4-a67a-d1d6af9a5506" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 칵테일 제조 루프 기획서</a></p><h1 id="1f3627f2-71a0-48d7-9840-80cc61d4e4df" class="" dir="auto">4. 제조 기믹 시스템 호출</h1><p id="237fde6c-c81f-4f63-99da-90e967f4585f" class="" dir="auto"><strong>역할:</strong> 제조 준비 단계에서 확정한 선택값을 외부 기믹 시스템에 전달하고, 해당 요청의 완료 결과를 한 번만 수신한다.</p><table id="d79445ac-bb9b-487b-ab4e-2bca48e0b60a" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="a21e4285-e38e-4f5e-b53b-03bd3a83ae8d" dir="ltr"><th id="Y@;~" class="block-color-blue_background simple-table-header" style="width:71.234375px">구분</th><th id="KPMD" class="block-color-blue_background simple-table-header" style="width:279px">전달·수신 항목</th><th id="W~BB" class="block-color-blue_background simple-table-header" style="width:343px">이 문서의 책임</th></tr></thead><tbody><tr id="cded6ee3-f72a-4f87-af16-aec7a91ccf9c" dir="ltr"><td id="Y@;~" class="" style="width:71.234375px">입력</td><td id="KPMD" class="" style="width:279px"><mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>·<mark class="highlight-blue" data-notion-highlight="blue"><code>selected_cocktail_id</code></mark>·<mark class="highlight-blue" data-notion-highlight="blue"><code>actual_craft</code></mark></td><td id="W~BB" class="" style="width:343px">같은 제조 시도를 식별하고 실제 선택값을 누락 없이 전달</td></tr><tr id="d0ea9dfc-6b3b-4a6e-bff9-326d7b458393" dir="ltr"><td id="Y@;~" class="" style="width:71.234375px">출력</td><td id="KPMD" class="" style="width:279px"><mark class="highlight-blue" data-notion-highlight="blue"><code>gimmick_results[]</code></mark>·<mark class="highlight-blue" data-notion-highlight="blue"><code>elapsed_manual_sec</code></mark></td><td id="W~BB" class="" style="width:343px">완료 응답을 해당 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>에 한 번만 연결</td></tr><tr id="803f80e8-563f-4463-8518-29d5b7760ac3" dir="ltr"><td id="Y@;~" class="" style="width:71.234375px">다음 상태</td><td id="KPMD" class="" style="width:279px">기믹 완료 또는 오류</td><td id="W~BB" class="" style="width:343px">완료 시 판정 시스템을 호출하고, 오류 시 결과 확정을 차단</td></tr></tbody></table><p id="2bdc4ba1-dc91-4b6d-a2fe-e7ee51bf5c4d" class="" dir="auto">기믹 큐 생성 순서, 개별 조작, UI, 성공·실패 판정, 종료 조건과 내부 오류는 다음 문서를 정본으로 사용한다.</p><p id="8922fe09-9f95-4c6f-8f7f-b33f0f645ea7" class="" dir="auto"><a href="https://app.notion.com/p/3c01612298dc8095b35adb795a68e3a7?pvs=21" data-notion-page-id="3c016122-98dc-8095-b35a-db795a68e3a7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제조 기믹·등급 계산 시스템</a></p><hr id="9b711a4c-a926-49e4-ac9e-e03b53335a3b" dir="auto"/><h1 id="7364364e-e6b8-4a80-ace5-4c678bcb262c" class="" dir="auto">5. 제조 판정 결과 수신</h1><p id="a189b46a-31c2-4985-b8b5-d6ff67eb8ba9" class="" dir="auto"><strong>역할:</strong> 기믹 실행 결과를 판정 시스템에 전달하고, 결과 화면과 이후 서빙에 필요한 제조 품질값을 수신한다.</p><table id="501ee0c7-796f-47b0-abc4-3f94fab11c61" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="e3399aec-b641-4277-a38e-839796f452a3" dir="ltr"><th id="AfCg" class="block-color-blue_background simple-table-header">반환 항목</th><th id="&lt;E|L" class="block-color-blue_background simple-table-header">사용 위치</th><th id="IaIz" class="block-color-blue_background simple-table-header">설명</th></tr></thead><tbody><tr id="1ac70d55-9f1e-4636-a368-4e05fb61e394" dir="ltr"><td id="AfCg" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_score</code></mark></td><td id="&lt;E|L" class="">결과 화면·런타임 기록·QA</td><td id="IaIz" class="">Selected와 Actual만 비교한 0–100 제조 점수</td></tr><tr id="c4fd5779-e2cb-465b-87b6-ad7e78600a12" dir="ltr"><td id="AfCg" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_grade</code></mark></td><td id="&lt;E|L" class="">제조 결과 화면</td><td id="IaIz" class="">제조 단계만 반영한 소문자 등급 enum</td></tr><tr id="3b8b98f5-804b-4c5e-b868-fce47f0f55e7" dir="ltr"><td id="AfCg" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>penalty_breakdown</code></mark></td><td id="&lt;E|L" class="">런타임 기록·QA</td><td id="IaIz" class="">기믹·잔·도구·재료·시간 감점 내역</td></tr><tr id="9561045b-a30a-4ab4-8bff-e892940dcf83" dir="ltr"><td id="AfCg" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>missing_core_ingredient_ids[]</code></mark></td><td id="&lt;E|L" class="">서빙 판정</td><td id="IaIz" class="">코스터 드롭 시 강제 Sewage 검사에 사용</td></tr><tr id="88bd4919-5274-4429-a2e0-eeabfd1620b3" dir="ltr"><td id="AfCg" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>score_status</code></mark></td><td id="&lt;E|L" class="">상태 전이</td><td id="IaIz" class=""><code>SCORED</code>와 <mark class="highlight-red" data-notion-highlight="red"><code>DATA_ERROR</code></mark> 구분</td></tr></tbody></table><p id="8e74033d-8189-4791-b65c-df60e0d4fbfe" class="" dir="auto"><mark class="highlight-blue" data-notion-highlight="blue"><code>final_grade</code></mark>는 이 단계에서 확정하지 않는다. 코스터에 칵테일을 제공할 때 대상 주문과 Selected를 비교하고 핵심 재료 누락을 함께 검사한 뒤 확정한다.</p><p id="5c673791-a87b-4f26-959d-8f06e5c93987" class="" dir="auto">개별 점수, 대표 점수, 가중치, 감점과 등급 변환 공식은 다음 문서를 정본으로 사용한다.</p><p id="922e544f-a2e7-4141-9408-12fd557113e7" class="" dir="auto"><a href="https://app.notion.com/p/3c01612298dc8095b35adb795a68e3a7?pvs=21" data-notion-page-id="3c016122-98dc-8095-b35a-db795a68e3a7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제조 기믹·등급 계산 시스템</a></p><hr id="3b0a6534-3704-43e6-8021-0f7ae570c675" dir="auto"/><h1 id="64c91370-30a3-48df-85ff-3738f7c66357" class="" dir="auto">8. 구현 계약</h1><p id="47bdfadd-11cd-4f01-b8e8-9ea420aa2414" class="" dir="auto"><strong>문서 경계:</strong> 1–7장은 플레이 규칙의 정본이다. 8장 이후는 프로그래머가 해당 규칙을 JSON·UI·런타임 상태에 연결하기 위한 구현 계약이며 같은 규칙을 다시 정의하지 않는다.</p><h2 id="0f5a0849-c4f6-4946-a7d8-65a213ed34fe" class="" dir="auto">8.1 시스템 책임</h2><table id="bac0a455-98fd-42bd-8729-55dd6b86d4b8" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="ea2cafd9-e50c-40da-b4cf-4c80a0f0d64c" dir="ltr"><th id="ZCua" class="block-color-blue_background simple-table-header" style="width:99.453125px">처리</th><th id="{{Z:" class="block-color-blue_background simple-table-header" style="width:256px">이 시스템의 책임</th><th id="`TPS" class="block-color-blue_background simple-table-header" style="width:277px">외부 정본</th></tr></thead><tbody><tr id="c50fbc76-abd5-4352-a88c-c3b2f92c1da7" dir="ltr"><td id="ZCua" class="" style="width:99.453125px">1부 손님 생성</td><td id="{{Z:" class="" style="width:256px">당일 슬롯을 읽고 성격·외형·좌석·주문 회차를 생성</td><td id="`TPS" class="" style="width:277px"><a href="https://app.notion.com/p/1-3c11612298dc81639163fc4e4124812c?pvs=21" data-notion-page-id="3c116122-98dc-8163-9163-fc4e4124812c" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 운영 런타임 명세</a></td></tr><tr id="86fb21c7-fc82-43dd-b864-3c725c3a6720" dir="ltr"><td id="ZCua" class="" style="width:99.453125px">대사와 표정</td><td id="{{Z:" class="" style="width:256px">현재 성격과 상황에 맞는 후보를 추첨하고 현재 언어로 출력</td><td id="`TPS" class="" style="width:277px"><mark class="highlight-purple" data-notion-highlight="purple"><code>barks.json</code></mark>·<mark class="highlight-purple" data-notion-highlight="purple"><code>bark_situations.json</code></mark>·<mark class="highlight-purple" data-notion-highlight="purple"><code>guest_bodies.json → emotions</code></mark></td></tr><tr id="12160226-554e-4faa-926a-ef85c59e853a" dir="ltr"><td id="ZCua" class="" style="width:99.453125px">제조 대상 결정</td><td id="{{Z:" class="" style="width:256px">손님별 Order와 제조 시도별 Selected를 분리하고 요청에는 guest_id·order_id를 연결하지 않음</td><td id="`TPS" class="" style="width:277px"><mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json</code></mark></td></tr><tr id="2c874cb7-036f-4728-8801-653f1529c9bb" dir="ltr"><td id="ZCua" class="" style="width:99.453125px">제조 준비</td><td id="{{Z:" class="" style="width:256px">Actual Craft를 구성하고 제조 요청을 생성</td><td id="`TPS" class="" style="width:277px"><mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json</code></mark>·<mark class="highlight-purple" data-notion-highlight="purple"><code>shelf_items.json</code></mark></td></tr><tr id="a3530680-8ac9-460b-bfb9-031f09caa3c9" dir="ltr"><td id="ZCua" class="" style="width:99.453125px">기믹·판정 연동</td><td id="{{Z:" class="" style="width:256px">외부 시스템에 요청을 전달하고 완료·판정 결과를 수신</td><td id="`TPS" class="" style="width:277px"><a href="https://app.notion.com/p/3c01612298dc8095b35adb795a68e3a7?pvs=21" data-notion-page-id="3c016122-98dc-8095-b35a-db795a68e3a7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제조 기믹·등급 계산 시스템</a></td></tr><tr id="93a76aab-f52d-4d70-be43-33f24c2ad144" dir="ltr"><td id="ZCua" class="" style="width:99.453125px">서빙과 매출</td><td id="{{Z:" class="" style="width:256px">유효 코스터 검사, 결과 대사, 주문별 매출 반영과 중복 방지</td><td id="`TPS" class="" style="width:277px"><mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json → price</code></mark>·<mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → settlement_rules</code></mark></td></tr><tr id="f30a2de7-c028-46f6-8677-d548182b88df" dir="ltr"><td id="ZCua" class="" style="width:99.453125px">UI 출력</td><td id="{{Z:" class="" style="width:256px">정적 데이터와 런타임 상태를 화면에 표시</td><td id="`TPS" class="" style="width:277px"><mark class="highlight-purple" data-notion-highlight="purple"><code>ui_strings.json</code></mark>과 각 UI 문서</td></tr></tbody></table><h2 id="0a770e82-8055-4deb-83cd-d6bbfe7a2c66" class="" dir="auto">8.2 실행 흐름</h2><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="ba1857a6-d4c9-403c-878c-7c72b6bffdec" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">당일 1부 슬롯 조회
+→ 손님 생성·착석
+→ 코스터 대기
+→ ask_order → order_think(확률) → order
+→ 손님·주문 회차별 Order Cocktail 저장
+→ 공통 칵테일 메뉴
+→ Selected Cocktail 저장
+→ 제조 준비
+→ 기믹 시스템 호출
+→ 제조 판정 결과 수신
+→ 제공하기 또는 버리기
+→ 유효 코스터 드롭·target_order_id 확정
+→ 대상 주문 일치·핵심 재료 검사
+→ Final Grade·반응·매출 반영
+→ 추가 주문 또는 퇴장
+→ 슬롯 소진·전 좌석 비움
+→ 2부 전환</code></pre><ul id="bc8afa1f-85b3-4d83-a156-ff0a8b13aaf0" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-teal" data-notion-highlight="teal"><code>order_think</code></mark>은 <mark class="highlight-purple" data-notion-highlight="purple"><code>personalities.json → think_chance</code></mark> 추첨에 실패하면 생략한다.</li></ul><ul id="c427e3fe-54e7-4680-b7d5-73164a5b70e4" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 중 바 운영 타이머는 <mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → config.craft_pause_start·craft_pause_end·discard_keeps_pause</code></mark>를 따른다.</li></ul><ul id="0a3b47ae-82fa-46d6-a07f-c236bfe0820d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제공과 매출 반영은 각각 한 번만 커밋한다.</li></ul><ul id="778e1ee0-48f9-4a7e-b7eb-26614fbf4a79" class="bulleted-list" dir="auto"><li style="list-style-type:disc">당일 1부 슬롯이 없으면 손님 생성 단계를 건너뛰고 2부로 전환한다.</li></ul><hr id="03e481eb-5349-4e53-993b-164e5a148402" dir="auto"/><h1 id="d552abf8-7a34-4fda-98fa-05d60208ac7e" class="" dir="auto">9. 현지화 공통 규칙</h1><ul id="7efbb290-e321-43d4-9188-daf6890bdd2d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">모든 사용자 노출 이름·설명·대사는 현재 언어의 <mark class="highlight-blue" data-notion-highlight="blue"><code>ko</code></mark> 또는 <mark class="highlight-blue" data-notion-highlight="blue"><code>en</code></mark> 값을 사용한다.</li></ul><ul id="7b7d53fe-8453-4bba-b3e8-ac349666ee06" class="bulleted-list" dir="auto"><li style="list-style-type:disc">버튼과 등급 문구는 <mark class="highlight-purple" data-notion-highlight="purple"><code>ui_strings.json</code></mark>을 사용한다.</li></ul><ul id="17c10d55-73db-4613-8275-c8c4077c3518" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>{cocktail}</code></mark> 치환에는 현재 언어의 칵테일 이름을 사용한다.</li></ul><ul id="b4a1299b-c6ab-42c1-83d4-772428e467af" class="bulleted-list" dir="auto"><li style="list-style-type:disc">개발 빌드에서 영어 누락은 한국어 폴백과 오류 로그로 식별한다.</li></ul><ul id="7999d8a5-a96a-4929-b979-c5fa31942c46" class="bulleted-list" dir="auto"><li style="list-style-type:disc">영어 데모 제출 빌드에서는 노출되는 모든 <mark class="highlight-blue" data-notion-highlight="blue"><code>en</code></mark> 값의 존재를 빌드 검증으로 보장한다.</li></ul><ul id="a6ccf85c-9a13-4785-88ac-cf1cb999b3d5" class="bulleted-list" dir="auto"><li style="list-style-type:disc">UI 레이아웃은 영어 이름·설명과 5–6줄 본문을 기준으로 넘침을 검사한다.</li></ul><hr id="e3806784-034a-4d23-8710-21507be71d1b" dir="auto"/><h1 id="6925051c-0c2f-4a34-ae10-8f386e5633c2" class="" dir="auto">10. 외부 시스템 요청·응답 계약</h1><p id="5be2986d-22a7-498f-919b-9570050927c8" class="" dir="auto"><strong>런타임 인터페이스 정본:</strong> 아래 객체는 정적 JSON 파일이 아니다. 한 번의 제조 실행과 결과를 연결하는 런타임 DTO다. <code>actual_craft_ref</code>나 <code>gimmick_result_ref</code>와 실제 객체를 혼용하지 않고, 현재 계약에서는 필요한 객체를 직접 포함한다. 제조 요청에는 guest_id와 order_id를 넣지 않는다.</p><h2 id="582a7c27-ddf2-4d05-bb02-675fbb4f20ee" class="" dir="auto">10.1 제조 세션과 식별자</h2><p id="261c66b8-2bd5-4ca6-a17a-22508740c9fc" class="" dir="auto"><strong>CraftSessionContext</strong>는 제조 화면을 여는 런타임 문맥이다. 주문 표시와 튜토리얼 강제 노출을 관리하지만 공용 제조 채점 요청에는 손님 ID와 주문 ID를 전달하지 않는다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" integrity="sha512-QXFMVAusM85vUYDaNgcYeU3rzSlc+bTV4JvkfJhjxSHlQEo+ig53BtnGkvFTiNJh8D+wv6uWAQ2vJaVmxe8d3w==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="02060eb8-4109-4d51-a516-12667af13595" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;craft_session_id&quot;: &quot;craft_session_0001&quot;,
+  &quot;day&quot;: 0,
+  &quot;mode&quot;: &quot;order&quot;,
+  &quot;ordered_cocktail_id&quot;: &quot;gin_tonic&quot;,
+  &quot;forced_cocktail_id&quot;: null,
+  &quot;temporary_exposure_cocktail_ids&quot;: []
+}</code></pre><table id="3bd2900c-0b0f-406a-9e73-46bfdee20aa6" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="bf6e8e4a-eed2-4ba3-976d-aa8a365d320c" dir="ltr"><th id="nIO@" class="block-color-blue_background simple-table-header">식별자</th><th id="risL" class="block-color-blue_background simple-table-header">생성·수명</th></tr></thead><tbody><tr id="d6c88e84-58fb-4885-9300-67b62e111415" dir="ltr"><td id="nIO@" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_session_id</code></mark></td><td id="risL" class="">제조 화면 진입부터 제공·버리기 또는 세션 취소까지 유지하는 화면 세션 ID</td></tr><tr id="3d4ae989-a448-4ec2-9d3d-b82ee58d1239" dir="ltr"><td id="nIO@" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>craft_attempt_id</code></mark></td><td id="risL" class="">한 번의 실제 제조 시도를 식별하는 영속 ID. 제조 결과와 버리기 기록의 소유자</td></tr><tr id="349c7784-64a8-48b0-b734-13e49e13047e" dir="ltr"><td id="nIO@" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark></td><td id="risL" class="">CraftExecutionRequest 한 건의 멱등 토큰. 같은 요청을 재전송할 때 유지하고 새 제조 시도에서는 새로 발급</td></tr><tr id="2324370e-545e-4713-bf7c-f8cc3e3af2d3" dir="ltr"><td id="nIO@" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>prepared_result_id</code></mark></td><td id="risL" class="">채점 완료 후 제공하기를 선택했을 때 생성하는 드래그 가능한 완성 결과물 ID</td></tr><tr id="5bec44da-d801-4aac-b369-9b4e88fc4a34" dir="ltr"><td id="nIO@" class=""><mark class="highlight-blue" data-notion-highlight="blue"><code>serve_result_id</code></mark></td><td id="risL" class="">prepared_result를 유효 코스터에 드롭해 서빙을 확정할 때 생성하는 결과 ID</td></tr></tbody></table><h2 id="de34ecce-42be-47b9-bfd8-cacec689e632" class="" dir="auto">10.2 제조 실행 요청과 결과</h2><p id="ab9e4af0-073c-49cc-9e59-a4cd6e2f0c4d" class="" dir="auto"><strong>CraftExecutionRequest</strong></p><pre id="4909ae4d-a913-4bdb-af5c-f13c9b83ee3c" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;request_id&quot;: &quot;craft_attempt_0001_exec_01&quot;,
+  &quot;craft_attempt_id&quot;: &quot;craft_attempt_0001&quot;,
+  &quot;selected_cocktail_id&quot;: &quot;gin_fizz&quot;,
+  &quot;actual_craft&quot;: {
+    &quot;actual_glass_id&quot;: &quot;long_drink&quot;,
+    &quot;actual_tool_id&quot;: &quot;shaker&quot;,
+    &quot;actual_mix&quot;: &quot;shake&quot;,
+    &quot;actual_ingredients&quot;: [
+      {
+        &quot;ingredient_id&quot;: &quot;gin&quot;,
+        &quot;action&quot;: &quot;pour&quot;,
+        &quot;selection_index&quot;: 0
+      },
+      {
+        &quot;ingredient_id&quot;: &quot;soda_water&quot;,
+        &quot;action&quot;: &quot;fill_up&quot;,
+        &quot;selection_index&quot;: 1
+      }
+    ],
+    &quot;auto_applied_ingredients&quot;: [
+      {
+        &quot;ingredient_id&quot;: &quot;lemon&quot;,
+        &quot;action&quot;: &quot;squeeze&quot;,
+        &quot;value&quot;: 0.5,
+        &quot;unit&quot;: &quot;oz&quot;
+      }
+    ],
+    &quot;ice&quot;: {
+      &quot;mixing&quot;: &quot;cubed&quot;,
+      &quot;serving&quot;: &quot;cubed&quot;
+    }
+  },
+  &quot;gimmick_queue&quot;: [
+    {
+      &quot;gimmick_id&quot;: &quot;craft_attempt_0001_pour_01&quot;,
+      &quot;action&quot;: &quot;pour&quot;,
+      &quot;ingredient_id&quot;: &quot;gin&quot;
+    }
+  ]
+}</code></pre><p id="a8af9129-7495-4580-8347-aca55c773227" class="" dir="auto"><strong>CraftExecutionResult</strong></p><pre id="9b6d8207-0f8c-49b0-bf25-384c94c44594" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;request_id&quot;: &quot;craft_attempt_0001_exec_01&quot;,
+  &quot;craft_attempt_id&quot;: &quot;craft_attempt_0001&quot;,
+  &quot;score_status&quot;: &quot;SCORED&quot;,
+  &quot;error_code&quot;: null,
+  &quot;gimmick_results&quot;: [
+    {
+      &quot;gimmick_id&quot;: &quot;craft_attempt_0001_pour_01&quot;,
+      &quot;action&quot;: &quot;pour&quot;,
+      &quot;ingredient_id&quot;: &quot;gin&quot;,
+      &quot;target_value&quot;: 1.5,
+      &quot;actual_value&quot;: 1.45,
+      &quot;unit&quot;: &quot;oz&quot;,
+      &quot;success_count&quot;: null,
+      &quot;failure_count&quot;: null,
+      &quot;elapsed_manual_sec&quot;: 2.8,
+      &quot;end_type&quot;: &quot;MANUAL_NEXT&quot;
+    }
+  ],
+  &quot;elapsed_manual_sec&quot;: 18.4,
+  &quot;craft_score&quot;: 88.4,
+  &quot;craft_grade&quot;: &quot;good&quot;,
+  &quot;penalty_breakdown&quot;: {
+    &quot;gimmick_error&quot;: 11.6,
+    &quot;glass&quot;: 0,
+    &quot;tool&quot;: 0,
+    &quot;missing_ingredient&quot;: 0,
+    &quot;extra_ingredient&quot;: 0,
+    &quot;overtime&quot;: 0
+  },
+  &quot;missing_core_ingredient_ids&quot;: []
+}</code></pre><ul id="673932f0-6f74-49d8-94b3-a29a7ec69469" class="bulleted-list" dir="auto"><li style="list-style-type:disc">요청과 응답의 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>는 반드시 일치해야 한다.</li></ul><ul id="6a7ac3ae-e67e-4d58-9df2-d592620a7936" class="bulleted-list" dir="auto"><li style="list-style-type:disc">같은 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>의 완료 응답은 한 번만 수락한다.</li></ul><ul id="efe0bcac-562c-471c-8ad0-fe0fca51ca17" class="bulleted-list" dir="auto"><li style="list-style-type:disc">기믹 종류에 사용하지 않는 결과 필드는 null로 둔다.</li></ul><ul id="7ace641e-2d3a-45b9-a6bc-7fff598cab79" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-red" data-notion-highlight="red"><code>score_status = DATA_ERROR</code></mark>이면 <code>craft_score·craft_grade</code>를 null로 두고 <mark class="highlight-blue" data-notion-highlight="blue"><code>error_code</code></mark>에 원인 코드를 기록한다.</li></ul><ul id="d6ef0ad5-50f8-4a49-953f-706e1cac03b1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">DATA_ERROR는 플레이어의 제조 실패가 아니라 데이터·Config·참조 오류다. 같은 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>를 자동 재전송하거나 기본 Target과 0점 결과로 대체하지 않는다.</li></ul><ul id="8a5edb95-99cd-467a-b821-2011bc800f70" class="bulleted-list" dir="auto"><li style="list-style-type:disc">발생 즉시 제조 입력과 제조 타이머를 정지한다. <code>prepared_result_id·ServeResult·등급·매출·호감도</code>는 생성하거나 반영하지 않으며 오류 런타임 상태는 저장 슬롯에 기록하지 않는다.</li></ul><ul id="0c3bd02c-2ab0-4339-83ae-280185835141" class="bulleted-list" dir="auto"><li style="list-style-type:disc">오류 팝업은 현재 언어의 <mark class="highlight-purple" data-notion-highlight="purple"><code>ui_data_error_title·ui_data_error_body·ui_data_error_retry·ui_data_error_cancel</code></mark>을 사용해 <strong>다시 시도</strong>와 <strong>제조 취소</strong>를 제공한다.</li></ul><ul id="186b75eb-6a09-4338-83be-18e75f14b85b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">다시 시도는 오류 직전의 동일한 Actual Craft 스냅숏으로 기믹 큐를 다시 생성한다. 같은 CraftAttempt를 유지하되 매 시도마다 새로운 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>를 발급하고, 이전 오류 응답은 재사용하지 않는다.</li></ul><ul id="f28a2f2d-e799-4fdb-8bf2-0761575b251d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 취소는 현재 <mark class="highlight-blue" data-notion-highlight="blue"><code>craft_attempt_id</code></mark>를 폐기 상태로 닫는다. 손님의 대기 주문은 유지하고 칵테일 선택 화면으로 복귀한다. 다시 제조하면 새 <mark class="highlight-blue" data-notion-highlight="blue"><code>craft_attempt_id</code></mark>와 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>를 발급한다.</li></ul><ul id="821260c5-cb1e-4cf0-950f-dac245fa3aab" class="bulleted-list" dir="auto"><li style="list-style-type:disc">같은 CraftAttempt에서 같은 <mark class="highlight-blue" data-notion-highlight="blue"><code>error_code</code></mark>가 연속 2회 발생하면 <mark class="highlight-purple" data-notion-highlight="purple"><code>data_error_safe_exit_after_same_code = 2</code></mark>에 따라 <mark class="highlight-purple" data-notion-highlight="purple"><code>ui_data_error_repeat_body·ui_data_error_safe_exit</code></mark>로 안전 이탈을 우선 안내한다. 안전 이탈을 선택하면 오류 상태를 자동 저장하지 않고 타이틀로 돌아가며, 이어하기는 제조 진입 전 마지막 안전 체크포인트를 복원한다.</li></ul><ul id="b74946b1-04df-4f27-b027-fea18c6c1c2b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">개발 로그에는 <code>request_id·craft_attempt_id·error_code·same_code_repeat_count</code>를 함께 남긴다. 정상 SCORED 응답의 <code>error_code</code>는 null이다.</li></ul><ul id="fb9eb162-877e-45a6-ab7a-1137820b6366" class="bulleted-list" dir="auto"><li style="list-style-type:disc">정상 <mark class="highlight-teal" data-notion-highlight="teal"><code>SCORED</code></mark> 결과 화면에서 버리기를 선택하면 현재 <mark class="highlight-blue" data-notion-highlight="blue"><code>craft_attempt_id</code></mark>를 폐기 상태로 닫는다. DATA_ERROR 팝업의 제조 취소와 마찬가지로 다음 제조에는 새 <mark class="highlight-blue" data-notion-highlight="blue"><code>craft_attempt_id</code></mark>와 <mark class="highlight-blue" data-notion-highlight="blue"><code>request_id</code></mark>를 발급한다.</li></ul><ul id="4bc3760e-f7b9-4b7f-ac80-be04cb3c016b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">채점 완료 후 제공하기를 선택하면 해당 CraftAttempt를 참조하는 <mark class="highlight-blue" data-notion-highlight="blue"><code>prepared_result_id</code></mark>를 생성한다.</li></ul><ul id="d2c17f92-d1fb-438e-a6c8-2c1823c18f32" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>serve_result_id·target_order_id·final_grade·is_sewage_override·sewage_reason</code>은 유효 코스터 드롭 뒤 ServeResult에서 생성한다.</li></ul><hr id="23a6db0b-f74f-42cf-af19-ef0db26f91b4" dir="auto"/><h1 id="b8c2bbec-9505-4ecf-9948-4b7bd674baa8" class="" dir="auto">11. 상태·오류 계약</h1><p id="1ef43c85-927d-45ad-b1ed-7c2b44c59559" class="" dir="auto">저장 대상·체크포인트·불러오기·중복 결과 방지는 <a href="https://app.notion.com/p/3c01612298dc80ad838cef1228340ab5?pvs=21" data-notion-page-id="3c016122-98dc-80ad-838c-ef1228340ab5" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">저장·불러오기 시스템</a>을 단일 기준으로 사용한다. 이 문서는 제조 루프가 발생시키는 상태와 오류만 정의한다.</p><h2 id="1d88b255-bb46-40da-9aa2-7af79a53965e" class="" dir="auto">11.1 주요 상태</h2><p id="f6c130b3-9c03-4106-a039-23553ec116d6" class="" dir="auto">손님 큐 생성부터 입장·좌석 예약까지의 <code>PART1_INITIALIZE·SPAWN_WAIT·SPAWN_BLOCKED·GUEST_ENTERING</code> 상태는 <a href="https://app.notion.com/p/1-3c11612298dc81639163fc4e4124812c?pvs=21" data-notion-page-id="3c116122-98dc-8163-9163-fc4e4124812c" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 운영 런타임 명세</a>을 따른다. 아래 표는 코스터 대기 이후 제조 루프의 상태만 정의한다.</p><table id="af734674-bfc0-457b-a757-164cf582f8e7" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="ec262107-334e-4f4a-a3b2-6a2b9992cdb6" dir="ltr"><th id="&gt;VJH" class="block-color-teal_background simple-table-header">상태</th><th id="tTY{" class="block-color-teal_background simple-table-header">화면</th><th id="[cT`" class="block-color-teal_background simple-table-header">허용 입력</th><th id="UBIX" class="block-color-teal_background simple-table-header">종료 조건</th></tr></thead><tbody><tr id="427b6ad8-e047-4370-a78f-8aee7fa6cce4" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>WAIT_COASTER</code></mark></td><td id="tTY{" class="">바 내부</td><td id="[cT`" class="">코스터 드래그, 공용 읽기 패널</td><td id="UBIX" class="">유효 좌석에 코스터 드롭 또는 인내심 소진</td></tr><tr id="7935b599-a2cf-4300-97cf-33cfa99e404c" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>ORDER_DIALOGUE</code></mark></td><td id="tTY{" class="">바 내부 대화</td><td id="[cT`" class="">대사 진행</td><td id="UBIX" class="">Order Cocktail 저장</td></tr><tr id="e52ffa62-8c01-494f-828d-18aacc932a8c" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>SELECT_COCKTAIL</code></mark></td><td id="tTY{" class="">레시피 목차·디테일</td><td id="[cT`" class="">A·D, Space, Esc</td><td id="UBIX" class="">Selected Cocktail 확정</td></tr><tr id="a5461307-cf62-4a56-91e6-906722ebb7e6" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>PREPARE_CRAFT</code></mark></td><td id="tTY{" class="">잔·도구·재료 선반</td><td id="[cT`" class="">선택·해제, 레시피 노트, 다음</td><td id="UBIX" class="">Actual Craft와 제조 요청 생성</td></tr><tr id="66dda8c0-38a2-4548-8155-76d2e310f537" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>PLAY_GIMMICK</code></mark></td><td id="tTY{" class="">외부 기믹 시스템 화면</td><td id="[cT`" class="">현재 기믹 전용 입력</td><td id="UBIX" class="">완료 응답 수신 후 제조 판정 요청</td></tr><tr id="30715736-71f5-44c6-ba22-d566bdbb3a52" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>RESULT</code></mark></td><td id="tTY{" class="">완성 연출·결과</td><td id="[cT`" class="">제공하기 또는 버리기</td><td id="UBIX" class="">테이블 복귀 또는 재제조</td></tr><tr id="e8bf4cfa-54aa-46eb-b00f-af5b85bd2a60" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>SERVING_READY</code></mark></td><td id="tTY{" class="">바 내부</td><td id="[cT`" class="">완성 잔 드래그</td><td id="UBIX" class="">대기 주문이 있는 유효 코스터에 드롭·target_order_id 확정</td></tr><tr id="b8fa0d8c-1659-4401-a39c-899b55b8344d" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>RESOLVING_SERVE</code></mark></td><td id="tTY{" class="">수령·음용·반응</td><td id="[cT`" class="">연출 완료 전 잠금</td><td id="UBIX" class="">서빙·매출 커밋 완료</td></tr><tr id="2195b63f-c8a6-4fe6-bd28-504d0013bab9" dir="ltr"><td id="&gt;VJH" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>GUEST_EXIT</code></mark></td><td id="tTY{" class="">퇴장 연출</td><td id="[cT`" class="">진행 입력</td><td id="UBIX" class="">좌석 정리 또는 추가 주문 재진입</td></tr></tbody></table><h2 id="ee63a98a-f36d-4272-a53e-f2d9f387cef6" class="" dir="auto">11.2 오류 처리</h2><table id="9034408e-484f-4254-bc60-d8bfac7b1165" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="5d0344b3-739b-4bef-a1d2-de77009a77ec" dir="ltr"><th id="i?s&gt;" class="block-color-red_background simple-table-header">오류 코드</th><th id="GQ^j" class="block-color-red_background simple-table-header">조건</th><th id="J&gt;cZ" class="block-color-red_background simple-table-header">처리</th></tr></thead><tbody><tr id="dee6f9d0-0518-45fd-b428-4b089fcaaafa" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>DATA_SCHEMA_MISMATCH</code></mark></td><td id="GQ^j" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → config.data_schema_version</code></mark>을 지원하지 않음</td><td id="J&gt;cZ" class="">제조 진입 차단과 현재 버전 로그</td></tr><tr id="c3a46234-e901-4cf1-be74-cbd07a1dc494" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>COCKTAIL_NOT_FOUND</code></mark></td><td id="GQ^j" class="">Order 또는 Selected ID가 <mark class="highlight-purple" data-notion-highlight="purple"><code>cocktails.json</code></mark>에 없음</td><td id="J&gt;cZ" class="">폴백 칵테일을 만들지 않고 진행 차단</td></tr><tr id="5a11520f-369a-4383-aea1-445ebb8287b7" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>RECIPE_REFERENCE_MISSING</code></mark></td><td id="GQ^j" class="">확정 레시피의 재료·잔·도구 참조가 없음</td><td id="J&gt;cZ" class="">빌드 차단</td></tr><tr id="7fc7abf0-2a37-48d9-a8f3-285028e6ce9a" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>CRAFT_DATA_ERROR</code></mark></td><td id="GQ^j" class="">기믹 실행·제조 판정 중 Target·단위·Config·참조 오류로 <code>score_status = DATA_ERROR</code> 수신</td><td id="J&gt;cZ" class="">결과·서빙·정산 미생성, 오류 자동 저장 금지. 한영 팝업에서 같은 Actual Craft 재시도 또는 제조 취소를 제공하고, 같은 오류 2회 반복 시 타이틀 안전 이탈·제조 진입 전 체크포인트 복원을 우선 안내</td></tr><tr id="bf03b09f-30a1-47ee-9636-7c7cef0a1d05" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>ORDER_CONTEXT_MISSING</code></mark></td><td id="GQ^j" class="">제조 진입 시 pending_orders[]가 비어 있거나 서빙 대상 order_id를 찾을 수 없음</td><td id="J&gt;cZ" class="">요청 거절·결과 확정 차단·안전 상태 복귀</td></tr><tr id="c28a2cc0-e661-4f76-84d2-acf68cedca93" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>SERVE_TARGET_INVALID</code></mark></td><td id="GQ^j" class="">코스터 없음·대기 주문 없음·이미 소비된 order_id에 드롭</td><td id="J&gt;cZ" class="">잔을 원위치로 되돌리고 상태·반응·매출 변경 없음</td></tr><tr id="c0e5a945-93d1-4f25-b7a2-9a9cc253517a" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>DUPLICATE_RESULT_COMMIT</code></mark></td><td id="GQ^j" class="">같은 attempt·serve·settlement ID를 두 번 확정</td><td id="J&gt;cZ" class="">두 번째 요청 무시와 중복 로그</td></tr><tr id="e20d9e0a-de65-4002-b2cf-949bdf2b1164" dir="ltr"><td id="i?s&gt;" class=""><mark class="highlight-red" data-notion-highlight="red"><code>LOCALIZATION_MISSING</code></mark></td><td id="GQ^j" class="">현재 언어의 사용자 노출 문자열이 없음</td><td id="J&gt;cZ" class="">개발 빌드 폴백·로그, 제출 빌드 검증 차단</td></tr></tbody></table><hr id="bd833176-50d5-42c0-84f6-203cfc04cdd0" dir="auto"/><h1 id="63b66e6c-ce42-450c-9f9c-cca2c0a6f495" class="" dir="auto">12. 구현 완료 기준</h1><table id="22642bbd-4cf3-415a-b5d1-cfdcd069e15a" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="f4f4195e-3ab5-437c-ba02-798a0c3e6ef6" dir="ltr"><th id="TyqF" class="block-color-teal_background simple-table-header">검증 항목</th><th id="hPe]" class="block-color-teal_background simple-table-header" style="width:572px">통과 기준</th></tr></thead><tbody><tr id="8253759e-2a20-4c23-86bf-65a8d7272e02" dir="ltr"><td id="TyqF" class="">0일차 메뉴</td><td id="hPe]" class="" style="width:572px">일반 선택은 진토닉·진피즈만 가능하고 직접 선택 재료는 진·탄산수만 노출. 과거 토닉워터·소다수는 정본 ID <mark class="highlight-blue" data-notion-highlight="blue"><code>soda_water</code></mark>, 표시명 ko <code>탄산수</code>·en <code>Carbonated Water</code>로 통합</td></tr><tr id="76304aa8-7055-422c-aefa-a771376d9e6a" dir="ltr"><td id="TyqF" class="">자동 적용</td><td id="hPe]" class="" style="width:572px">진피즈의 레몬·설탕과 얼음이 선반 선택 대상에서 제외되고 제조 요청에 자동 적용 항목으로 포함</td></tr><tr id="d6d61b62-b867-4053-83db-302422da3b41" dir="ltr"><td id="TyqF" class="">실제 잔 반영</td><td id="hPe]" class="" style="width:572px">결과 화면·서빙 오브젝트·음용 후 빈 잔에서 내용물은 Selected Cocktail, 용기는 Actual Glass 기준으로 표시</td></tr><tr id="eb575a91-1c69-4937-8273-ef5b6a7b8209" dir="ltr"><td id="TyqF" class="">정상 제조</td><td id="hPe]" class="" style="width:572px">손님별 Order와 CraftAttempt의 Selected·Actual이 분리되고 외부 시스템 완료 응답이 같은 request_id로 결과 화면에 연결</td></tr><tr id="b5da1a48-6f20-48b2-94c0-da175175eca9" dir="ltr"><td id="TyqF" class="">잘못된 칵테일</td><td id="hPe]" class="" style="width:572px">유효 코스터 드롭 시 대상 주문을 확정하고 제조 등급이 높아도 주문 불일치면 Final Grade Sewage와 wrong 반응 적용</td></tr><tr id="16e5a334-2755-4579-89e6-0b28780dc5f4" dir="ltr"><td id="TyqF" class="">핵심 재료 누락</td><td id="hPe]" class="" style="width:572px"><mark class="highlight-purple" data-notion-highlight="purple"><code>is_core</code></mark> 재료 누락 시 Final Grade Sewage 강제</td></tr><tr id="367edf0b-b680-4d4a-8297-fb7ce6cb0a04" dir="ltr"><td id="TyqF" class="">버리기·재제조</td><td id="hPe]" class="" style="width:572px">모든 pending_orders[]를 유지하고 공통 메뉴로 돌아가며 바 운영 타이머 정지 상태 유지</td></tr><tr id="ce5f1683-4197-4129-99ff-3c7ba95246ce" dir="ltr"><td id="TyqF" class="">다회 주문</td><td id="hPe]" class="" style="width:572px"><mark class="highlight-blue" data-notion-highlight="blue"><code>max_rounds</code></mark>만큼 새 Order를 만들고 회차별 결과·매출 ID를 분리 보존</td></tr><tr id="a4c352f0-63b2-4fa4-93c0-d599cd19ff4d" dir="ltr"><td id="TyqF" class="">매출</td><td id="hPe]" class="" style="width:572px">각 주문은 내부 누계에 한 번만 반영되고 잔별 팝업 없이 2부 종료 뒤 일일 매출 정산에 포함</td></tr><tr id="1d8c92ac-e808-4bb8-96c3-dddd48c98339" dir="ltr"><td id="TyqF" class="">1부 슬롯 없음</td><td id="hPe]" class="" style="width:572px">개점 대화 뒤 손님 생성 없이 2부로 전환</td></tr><tr id="a4943419-3860-4751-9a12-4b54a92a38ea" dir="ltr"><td id="TyqF" class="">영어</td><td id="hPe]" class="" style="width:572px">메뉴·선반·대사·등급·버튼·설명에 한글 하드코딩과 잘림이 없음</td></tr><tr id="ee35fc5f-623d-4126-ae5f-2520bf47122c" dir="ltr"><td id="TyqF" class="">저장 시스템 연결</td><td id="hPe]" class="" style="width:572px">제조·서빙·매출 이벤트에 고정 ID를 전달하며, 저장·복구 통과 기준은 <a href="https://app.notion.com/p/3c01612298dc80ad838cef1228340ab5?pvs=21" data-notion-page-id="3c016122-98dc-80ad-838c-ef1228340ab5" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">저장·불러오기 시스템</a>을 따름</td></tr></tbody></table><h2 id="f8288422-e3d0-42b8-a113-9507a5835c8a" class="" dir="auto">12.1 데이터 검증 항목</h2><ul id="d3c6d8bd-ac21-44f8-a3a6-568a197e50b8" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>status = &quot;confirmed&quot;</code></mark>인 모든 칵테일의 <mark class="highlight-purple" data-notion-highlight="purple"><code>glass·recipe[].ingredient·garnish</code></mark> 참조가 존재해야 한다.</li></ul><ul id="31072e1c-1640-4131-b630-4b74d4a5d0f7" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>tbd</code></mark> 칵테일은 일반 메뉴와 필터 결과에서 제외해야 한다.</li></ul><ul id="cc734b42-de21-453c-ad7a-2b823da3545d" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>random_waves.json → order</code></mark>가 비어 있지 않으면 존재하는 칵테일 ID여야 한다.</li></ul><ul id="66d8e79b-e08d-475a-ac50-1c815ad19d0f" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>random_waves.json → personality</code></mark>는 <mark class="highlight-purple" data-notion-highlight="purple"><code>personalities.json → id</code></mark>와 일치해야 한다.</li></ul><ul id="d62fa114-87c6-4ba2-ab9d-021a5f87c47a" class="bulleted-list" dir="auto"><li style="list-style-type:disc">사용자 노출 <mark class="highlight-purple" data-notion-highlight="purple"><code>name·desc·flavor·recipe_desc·text</code></mark>의 한국어·영어 값이 모두 존재해야 한다.</li></ul><ul id="7c2f65e0-b50f-430f-b64c-33aaacb42972" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-purple" data-notion-highlight="purple"><code>barks.json → situation</code></mark>은 <mark class="highlight-purple" data-notion-highlight="purple"><code>bark_situations.json</code></mark>에 존재해야 한다.</li></ul><ul id="c495429f-71b3-43e5-8e02-409c2e5b14e2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">0일차의 일반 해금 풀은 진토닉·진피즈 두 종류와 일치해야 한다.</li></ul><h2 id="ce243f2e-f9c5-4132-9963-43ac7f05c67a" class="" dir="auto">12.2 관련 문서</h2><table id="a48fc646-baf1-4bc2-9ef5-47526e3566fe" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="170a4e15-db75-4b6d-9fb5-8cea3a16a4a4" dir="ltr"><th id="MBKM" class="block-color-blue_background simple-table-header">문서</th><th id=":BXb" class="block-color-blue_background simple-table-header" style="width:327px">역할</th></tr></thead><tbody><tr id="d6bfb2d0-669e-46f9-88d8-e91f745054d4" dir="ltr"><td id="MBKM" class=""><a href="https://app.notion.com/p/2-3c01612298dc80e2821cdf00ef63eafc?pvs=21" data-notion-page-id="3c016122-98dc-80e2-821c-df00ef63eafc" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">2부 운영 시스템 구현 명세</a></td><td id=":BXb" class="" style="width:327px">1부 종료 뒤 이어지는 2부 운영 상태·대본 계약</td></tr><tr id="773a716e-e3e9-4078-9cc7-5f1cef39705d" dir="ltr"><td id="MBKM" class=""><a href="https://app.notion.com/p/39f1612298dc80e89029fb739290812d?pvs=21" data-notion-page-id="39f16122-98dc-80e8-9029-fb739290812d" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">데이터 구조</a></td><td id=":BXb" class="" style="width:327px">현행 JSON 파일별 스키마 정본</td></tr><tr id="a3de4a9f-e468-40d4-9e8c-b0e0aca56b33" dir="ltr"><td id="MBKM" class=""><a href="https://app.notion.com/p/UI-3bf1612298dc804fb7a6e1e2a98ee401?pvs=21" data-notion-page-id="3bf16122-98dc-804f-b7a6-e1e2a98ee401" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">[기획] 칵테일 레시피 UI 화면</a></td><td id=":BXb" class="" style="width:327px">칵테일 목차·디테일·필터 UI/UX</td></tr><tr id="43f56442-a567-4387-a6e0-5aa672f0866b" dir="ltr"><td id="MBKM" class=""><a href="https://app.notion.com/p/UI-UX-3be1612298dc809891c0dc5eb03a2e49?pvs=21" data-notion-page-id="3be16122-98dc-8098-91c0-dc5eb03a2e49" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">[기획] 스터 플레이 화면 | UI, UX, 애니메이션, 이펙트</a></td><td id=":BXb" class="" style="width:327px">Stir 플레이 화면 UI/UX</td></tr><tr id="296859c1-b555-45ad-a1f4-db446f6fe1df" dir="ltr"><td id="MBKM" class=""><a href="https://app.notion.com/p/UI-3b21612298dc807e81cbc6107834b17d?pvs=21" data-notion-page-id="3b216122-98dc-807e-81cb-c6107834b17d" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">[기획] 바 내부 기본 화면 UI</a></td><td id=":BXb" class="" style="width:327px">바 내부 대화 화면과 공용 패널 UI</td></tr><tr id="06115a93-0a4a-4d02-abb7-c366143f9244" dir="ltr"><td id="MBKM" class=""><a href="https://app.notion.com/p/3c01612298dc8095b35adb795a68e3a7?pvs=21" data-notion-page-id="3c016122-98dc-8095-b35a-db795a68e3a7" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제조 기믹·등급 계산 시스템</a></td><td id=":BXb" class="" style="width:327px">기믹·점수·등급 계산 세부 기준</td></tr></tbody></table></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

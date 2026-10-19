@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Bubi">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\Entity\Bubi.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InteractionAction">
+    <Position X="3" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\Entity\InteractionAction.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InteractiveEntity" Collapsed="true">
+    <Position X="1.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIQAAAAAAAQAAAABBAAAAAAAIAAAAAAAAAAAEAAAAEA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\Entity\InteractiveEntity.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="InteractiveNPCEntity" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAICAAAAAAAAAAAAAAAAAAAIAAgAABAAAEAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\Entity\InteractiveNPCEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InteractiveObjectEntity">
+    <Position X="2.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\Entity\InteractiveObjectEntity.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OutsideEntity" Collapsed="true">
+    <Position X="1.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\Entity\OutsideEntity.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="InteractableEventChannel" Collapsed="true">
+    <Position X="8.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAAQAAAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\InteractableEventChannel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InteractionDetector" Collapsed="true">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>GEwASAAQIQAGAEAAAAEAEAAAABAAAAAIAAAAQABICEA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\InteractionDetector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InteractorEventChannel" Collapsed="true">
+    <Position X="11.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAAQAAAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\InteractorEventChannel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OutsideCharacterData" Collapsed="true">
+    <Position X="8.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAgA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\OutsideDataManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OutsideDataManager" Collapsed="true">
+    <Position X="10" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAIACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\OutsideDataManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OutsideDialoguePresenter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAIAAAASAABAAAAIEAAAAQAACBAAAABAAAAAAIACI=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\OutsideDialoguePresenter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="OutsideElevator">
+    <Position X="3" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\OutsideElevator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OutSideEventSO" Collapsed="true">
+    <Position X="8.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\OutSideEventSO.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UIInteractableButton" Collapsed="true">
+    <Position X="8.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAAAQAAIAAAAAAgACAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\UIInteractableButton.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UIOutsideTextview" Collapsed="true">
+    <Position X="10.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAIAAAAAAAACAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\UIOutsideTextview.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="UIOutsideTracker" Collapsed="true">
+    <Position X="9.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACADAAAAAAgAIAAIAAAIAAAAAAAAAAIAAAAAAAICAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\UIOutsideTracker.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="IEntity" Collapsed="true">
+    <Position X="0.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\Entity\OutsideEntity.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="IInteractable" Collapsed="true">
+    <Position X="0.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAEAAAAAAQAIAAAAAAAAAAAEAAAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\IInteractable.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="IInteractor" Collapsed="true">
+    <Position X="8.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\IInteractor.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="UITracker" Collapsed="true">
+    <Position X="10" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>Assets\03.Scripts\Outside\UIOutsideTracker.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="맑은 고딕" Size="9" />
+</ClassDiagram>

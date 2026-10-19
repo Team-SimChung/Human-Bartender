@@ -23,7 +23,7 @@ public class UIDisplayOptions : MonoBehaviour
     [SerializeField] private Slider seSlider;
 
     [Inject] private IDisplaySettings _display;
-    [Inject] private IAudioVolumeSettings _sound;
+    [Inject] private ISoundManager _sound;
 
     static UIDisplayOptions activeOptions;
     public static bool IsOptionOpen
@@ -38,18 +38,12 @@ public class UIDisplayOptions : MonoBehaviour
     {
         BuildDropdownOptions();
         SyncUIFromCurrentSettings();
-        SyncAudioSliders();
 
     }
 
     private void OnEnable()
     {
         activeOptions = this;
-        SyncAudioSliders();
-    }
-
-    void SyncAudioSliders()
-    {
         if (_sound == null) return;
         if (bgmSlider) bgmSlider.SetValueWithoutNotify(_sound.GetBGMVolume());
         if (seSlider) seSlider.SetValueWithoutNotify(_sound.GetSEVolume());

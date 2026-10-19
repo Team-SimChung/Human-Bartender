@@ -39,7 +39,6 @@ public class GuestCharacterView : MonoBehaviour
 
         foreach (var part in rig.parts)
             part.Initialize();
-        rig.fade = CharacterFade.ForRig(rig);
     }
 
     void OnDestroy()
@@ -58,8 +57,6 @@ public class GuestCharacterView : MonoBehaviour
         if (!IsReady()) return;
         if (rig.slotCharacterName == characterId && rig.expression == expression) return;
 
-        bool entering = rig.slotCharacterName != characterId;
-        if (entering) (rig.fade ??= CharacterFade.ForRig(rig)).SetOpacity(0);
         cts?.Cancel();
         cts?.Dispose();
         cts = new CancellationTokenSource();
@@ -79,7 +76,6 @@ public class GuestCharacterView : MonoBehaviour
                 await ApplyPortraitAsync(characterId, expression, token);
             else
                 await ApplyPartsAsync(characterId, expression, token);
-            if (entering) await rig.fade.ToAsync(1, token);
         }
         catch (OperationCanceledException)
         {
@@ -132,12 +128,6 @@ public class GuestCharacterView : MonoBehaviour
         await UniTask.WhenAll(intros);
     }
 
-    public UniTask FadeOutAsync(CancellationToken token)
-    {
-        cts?.Cancel();
-        return rig == null ? UniTask.CompletedTask : (rig.fade ??= CharacterFade.ForRig(rig)).ToAsync(0, token);
-    }
-
     /// <summary>자리를 비운다. 손님이 퇴장할 때 부른다.</summary>
     public void Clear()
     {
@@ -147,7 +137,6 @@ public class GuestCharacterView : MonoBehaviour
         cts?.Dispose();
         cts = null;
 
-        rig.fade?.SetOpacity(1);
         rig.slotCharacterName = "";
         rig.expression = "";
 

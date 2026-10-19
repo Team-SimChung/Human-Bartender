@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 [Serializable]
 public struct NewDialogueStepData
 {
-    [JsonProperty("payment")] public string Payment { get; set; }
     [field: SerializeField][JsonProperty("seq")] public int Seq { get; set; }
     [field: SerializeField][JsonProperty("type")] public ENewStepType Type { get; set; }
 

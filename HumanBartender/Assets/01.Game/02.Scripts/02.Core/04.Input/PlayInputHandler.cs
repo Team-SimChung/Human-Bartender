@@ -30,32 +30,25 @@ public class PlayInputHandler : MonoBehaviour
         if (storyFlow != null) storyFlow.TryAdvance();
     }
 
-    /// <summary>Q: 영업 중 또는 바 둘러보기 실습 중 왼쪽으로 한 자리 이동한다.</summary>
-    public void OnLeft(InputValue value) => MoveSeat(value, -1);
-
-    /// <summary>E: 영업 중 또는 바 둘러보기 실습 중 오른쪽으로 한 자리 이동한다.</summary>
-    public void OnRight(InputValue value) => MoveSeat(value, 1);
-
-    void MoveSeat(InputValue value, int step)
+    /// <summary>카메라를 현재 슬롯 기준 왼쪽 옆 칸으로 전환한다. 컷씬/미니게임 또는 1부(Tycoon) 국면일 때는 무시한다.</summary>
+    public void OnLeft(InputValue value)
     {
-        // SendMessages also forwards key release; move only on the press.
-        if (!value.isPressed || playPhaseController == null) return;
-        if (playPhaseController.CanReceiveInput(EPlayPhase.Dialogue))
-        {
-            if (servicePanelController != null && servicePanelController.IsMenuOpen) return;
-            if (recipeScreen != null && recipeScreen.IsOpen) return;
-            storyFlow?.TryMoveTutorialSeat(step);
-            return;
-        }
-        if (!playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
+        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
         if (playCamera == null) return;
-        playCamera.MoveAdjacent(step, 0.5f);
+        playCamera.MoveAdjacent(-1, 0.5f);
+    }
+
+    /// <summary>카메라를 현재 슬롯 기준 오른쪽 옆 칸으로 전환한다. 컷씬/미니게임 또는 1부(Tycoon) 국면일 때는 무시한다.</summary>
+    public void OnRight(InputValue value)
+    {
+        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
+        if (playCamera == null) return;
+        playCamera.MoveAdjacent(1, 0.5f);
     }
 
     public void OnServicePanel(InputValue value)
     {
-        if (!value.isPressed || playPhaseController == null ||
-            !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) && !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
+        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
         if (servicePanelController == null) return;
         servicePanelController.Toggle();
     }

@@ -1,0 +1,96 @@
+
+=> AsyncOperationHandle로 로드한 후 사용한 에셋은 AsyncOperationHandle이 Release될 때 null로 바뀌므로
+Handle을 에셋을 사용하는 주체에서 관리할 필요가 있다.,
+비동기 로딩이다 보니 함수 재진입을 통한 기존 로딩 날림 및 새 로딩 시작 시 메모리 누수 및 위험 존재.
+
+CancellationToken 제어하기
+함수에 매개변수로 던지기만하면 취소 이벤트 발생 시 알아서 함수 종료됨.
+
+
+Dialogue 구조 자체에서 SetCharacterAsync를 기다리기는 하지만 이에 대한 예외처리 필요.
+SetCharacterAsync가 실행 중 SetCharacterAsync한번더 실행되면 일부 파츠는 변환이 되고 일부는 안될 수 이씅ㅁ
+실 사용에선 새 SetCharacterAsync가 덮어씌우기에 문제가 되지않겠지만 인지하기,
+
+
+Unitask의 await 기능과 tcs를 통한 시기 제한 기능을 통일해서 헷갈리지 않게 해야함.
+칵테일 패널 등에서 data가 아니라 allcocktail 기준 index번호만 들고있게 하는 방식도 확인.
+
+
+데이터 추가 변경 목적이 아니라면 IEnumerable 형태로 쓰기
+IEnumerable은 명령=쿼리문만 쌓아두고 실행을 나중에 하기에 추후 쿼리문을 이용할 경우
+덧씌웠다 하더라도 그전에 쌓였던 것들이 폭발함. 쿼리 누적 신경써야함.
+
+
+Unitask Await 기능 사용 할 때 구분 명확히 하기
+이미 타고들어가는 함수 내에서 await 써서 종료를 늦췄는데 호출한 곳에서도 await 할 필요가없음.
+
+
+외부 처리할 때 유니티 렌더피쳐 찾아보기
+
+
+
+
+characterManager 컴포지션으로 나누기
+
+아아 리펙토링 할 생각에 신난다~
+=> CutScene.json 바뀌면 수정하기
+
+컷씬 데이터 cutsceneType 체크하기
+outside가 있는게 애매한 점. (카메라 사이즈를 조절해야하기 때문)
+
+
+=> 추후 비동기 함수들에 CancellationToken 전달하기
+=> string 으로 case 검사하는 것들 enum으로 활용하기
+
+=> 추후 data null값들에 대한 처리하기 데이터 많음.
+=> AnimtionClip 로드하는거 SO에 담아서 하기, 구조 벼경 끼얏후
+=> Human Error 잡을 툴이든 뭐든 만들기
+=> 애니메이션 동기화 이슈를 해결하고, part마다 현재 값을 들고있는 상태로 비교 후 스킵하기
+
+
+카메ㄹ ㅏ사이드 조정 시점 문의하기
+
+
+
+1. Commad 추가하기 play_cutscene
+2. CutSceneManager 리펙토링
+3. Camera Action 리펙토링
+4. 외부 구현
+
+
+5. Trigger Next는 기본적으로 다이얼록 ㅡ데이터에서 쓰는지 확인
+6. 일단은 다이얼로그 매니저 클릭 내에서 next를 값으로 넘감
+
+
+8. 스터랑 빌드 넣기.
+
+Trigger 구조, "" 를 리턴할 경우 알아서 Next로 넘김 이미 해놨었네 나 좀 쩌는듯
+
+
+*** 추후 파츠 로드이 다를 수 있어서 애니메이션 실행 시점 동기화 헤야함***
+
+
+
+텍스트 뷰어. 사이즈 동적 조절 기능.
+
+
+
+Order in Layer
+
+
+TableBG 6
+Character 1~7
+
+
+DialogueCanvas 8
+CraftCanvas 9
+
+shakingBG 9
+shakingCH  10
+shaking liquid 10
+GameCanvas 11
+
+CutSceneCanvas 100
+Spriteanim 101
+
+GameButtonCanvas 102

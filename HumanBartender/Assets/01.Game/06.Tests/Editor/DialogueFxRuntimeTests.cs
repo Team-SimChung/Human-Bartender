@@ -1,125 +1,17 @@
 using System;
 using System.Collections;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using NUnit.Framework;
 using TMPro;
-using Unity.Cinemachine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.TestTools;
-using VContainer;
-using VContainer.Unity;
 
 public sealed class DialogueFxRuntimeTests
 {
-    [UnityTest]
-    [Explicit("Run alone: enters Play Mode with an empty scene and the real CSV, text player and camera pipeline.")]
-    public IEnumerator CsvDialogueMovesGlyphsAndShakesTheOutputCameraOnlyForShake()
-    {
-        DOTween.Clear(true);
-        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        yield return new EnterPlayMode();
-        var root = new GameObject("CSV dialogue runtime", typeof(RectTransform), typeof(Canvas));
-        IObjectResolver container = null;
-        UIDialogueTextView view = null;
-        try
-        {
-            var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
-            var steps = catalog.Read<NewDayScriptBase>("script/bar/day0").Scenes.SelectMany(scene => scene.Steps).ToArray();
-            var shake = steps.First(step => step.Text.HasValue && step.Text.Value.Ko.Contains("<fx=reproach>"));
-            var soft = steps.First(step => step.Text.HasValue && step.Text.Value.Ko.Contains("<fx=gentle>"));
-            var bubble = CreateBubble(root.transform, "CSV bubble");
-            view = root.AddComponent<UIDialogueTextView>();
-            view.lunaSpeechBubble = bubble;
-            var viewSettings = new SerializedObject(view);
-            viewSettings.FindProperty("defaultTypingDelay").floatValue = 0f;
-            viewSettings.ApplyModifiedPropertiesWithoutUndo();
-
-            var cameraObject = new GameObject("Output camera", typeof(Camera), typeof(CinemachineBrain));
-            cameraObject.transform.SetParent(root.transform, false);
-            var output = cameraObject.GetComponent<Camera>();
-            output.orthographic = true;
-            var brain = cameraObject.GetComponent<CinemachineBrain>();
-            brain.UpdateMethod = CinemachineBrain.UpdateMethods.ManualUpdate;
-            brain.DefaultBlend = new CinemachineBlendDefinition(CinemachineBlendDefinition.Styles.Cut, 0f);
-            var vcamObject = new GameObject("CM_GamePlay", typeof(CinemachineCamera), typeof(VerticalCameraImpulse));
-            vcamObject.transform.SetParent(root.transform, false);
-            vcamObject.transform.position = new Vector3(2, 3, -10);
-            var impulse = vcamObject.GetComponent<VerticalCameraImpulse>();
-            var impulseSettings = new SerializedObject(impulse);
-            // Keep the pulse observable even on a slow CI frame; the authored duration is checked in EditMode.
-            impulseSettings.FindProperty("duration").floatValue = 0.5f;
-            impulseSettings.ApplyModifiedPropertiesWithoutUndo();
-            var builder = new ContainerBuilder();
-            builder.RegisterInstance(view);
-            builder.RegisterInstance<ICameraImpulse>(impulse);
-            builder.RegisterEntryPoint<DialogueCameraFeedback>(Lifetime.Scoped);
-            container = builder.Build();
-            int cues = 0, firstShakeGlyph = -1;
-            view.ShakeSpanRevealed += () => { cues++; firstShakeGlyph = bubble.textLabel.maxVisibleCharacters - 1; };
-            yield return null;
-            brain.ManualUpdate();
-            Vector3 baseline = output.transform.position;
-
-            var playback = view.StartType(new TypingData(shake.Text.Value.Ko, shake.Actor, Vector3.zero, Color.white, true));
-            float deadline = Time.realtimeSinceStartup + 5f;
-            while (cues == 0 && Time.realtimeSinceStartup < deadline) yield return null;
-            Assert.That(cues, Is.EqualTo(1), "The authored reproach phrase must emit a real reveal cue.");
-            brain.ManualUpdate();
-            Vector3 shaken = output.transform.position;
-            Assert.That(shaken.y - baseline.y, Is.EqualTo(0.04f).Within(0.001f));
-            Assert.That(shaken.x, Is.EqualTo(baseline.x).Within(0.001f));
-            Assert.That(shaken.z, Is.EqualTo(baseline.z).Within(0.001f));
-            Assert.That(bubble.textLabel.text, Does.Not.Contain("<fx="), "Use presets, not readable fallback.");
-            var glyph = bubble.textLabel.textInfo.characterInfo[firstShakeGlyph];
-            Vector3 before = bubble.textLabel.textInfo.meshInfo[glyph.materialReferenceIndex].vertices[glyph.vertexIndex];
-            yield return new WaitForSeconds(0.04f);
-            Vector3 after = bubble.textLabel.textInfo.meshInfo[glyph.materialReferenceIndex].vertices[glyph.vertexIndex];
-            Assert.That(Vector3.Distance(before, after), Is.GreaterThan(0.001f), "The CSV phrase must move its TMP vertices in Play Mode.");
-            view.OnScreenClick();
-            yield return playback.ToCoroutine();
-            brain.ManualUpdate();
-            Vector3 stopped = output.transform.position;
-            Assert.That(stopped.y, Is.EqualTo(baseline.y).Within(0.001f), "Skip stops the camera pulse immediately.");
-
-            var gentle = view.StartType(new TypingData(soft.Text.Value.Ko, soft.Actor, Vector3.zero, Color.white, true));
-            yield return gentle.ToCoroutine();
-            brain.ManualUpdate();
-            Assert.That(cues, Is.EqualTo(1), "A gentle wave must not request a camera shake.");
-            Assert.That(output.transform.position.y, Is.EqualTo(baseline.y).Within(0.001f));
-            Assert.That(bubble.textLabel.text, Does.Not.Contain("<fx="));
-            string evidence = Newtonsoft.Json.JsonConvert.SerializeObject(new
-            {
-                shakeDialogueId = shake.DialogueId,
-                gentleDialogueId = soft.DialogueId,
-                cues,
-                baseline = new[] { baseline.x, baseline.y, baseline.z },
-                shaken = new[] { shaken.x, shaken.y, shaken.z },
-                stopped = new[] { stopped.x, stopped.y, stopped.z },
-                glyphMotion = Vector3.Distance(before, after),
-                cameraPulseStoppedOnSkip = true,
-                gentleDoesNotShakeCamera = true
-            }, Newtonsoft.Json.Formatting.Indented);
-            string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "../.utmp/dialogue-fx-20261017"));
-            Directory.CreateDirectory(folder);
-            File.WriteAllText(Path.Combine(folder, "runtime-evidence.json"), evidence);
-            Debug.Log("[DialogueFX Runtime] CSV reveal, animated glyphs, output-camera pulse, skip and gentle line passed. " + evidence);
-        }
-        finally
-        {
-            view?.StopTyping();
-            container?.Dispose();
-            UnityEngine.Object.Destroy(root);
-            DOTween.Clear(true);
-        }
-        yield return new ExitPlayMode();
-    }
-
     [UnityTest]
     [Explicit("Run in isolation: unrelated scene DOTween cancellation can fail during EnterPlayMode in the full EditMode batch.")]
     public IEnumerator PlayModeOneGlyphAndIndependentBubbleSessions()
@@ -197,7 +89,7 @@ public sealed class DialogueFxRuntimeTests
         var content = new GameObject("text", typeof(RectTransform), typeof(TextMeshProUGUI));
         content.transform.SetParent(root.transform, false);
         var label = content.GetComponent<TextMeshProUGUI>();
-        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
+        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset");
         var title = new GameObject("name", typeof(RectTransform), typeof(TextMeshProUGUI));
         title.transform.SetParent(root.transform, false);
         var bubble = root.AddComponent<DynamicSpeechBubble>();

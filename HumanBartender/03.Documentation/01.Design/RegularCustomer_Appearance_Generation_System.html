@@ -1,0 +1,866 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>일반 손님 외형 생성 시스템</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="3bf16122-98dc-8004-b2d3-c766e8e3892b" class="page sans"><header><h1 class="page-title" dir="auto">일반 손님 외형 생성 시스템</h1><p class="page-description" dir="auto"></p><table class="properties"><tbody><tr class="property-row property-row-person"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/friends_gray.svg" style="width:14px;height:14px;display:block"/></span>생성자</th><td><span class="user"><span class="icon text-icon user-icon"><span class="user-icon-inner">이</span></span>이준서 </span></td></tr><tr class="property-row property-row-created_time"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/clock_gray.svg" style="width:14px;height:14px;display:block"/></span>생성 일시</th><td><time datetime="2026-08-17T10:36">2026년 8월 17일 오전 10:36</time></td></tr><tr class="property-row property-row-select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/arrow-circle-down_gray.svg" style="width:14px;height:14px;display:block"/></span>문서 태그</th><td><span class="selected-value select-value-color-red">시스템</span></td></tr><tr class="property-row property-row-checkbox"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/checkmark-square_gray.svg" style="width:14px;height:14px;display:block"/></span>PIN</th><td><input type="checkbox" class="checkbox checkbox-off" disabled=""/></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>카테고리</th><td></td></tr><tr class="property-row property-row-status"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/burst_gray.svg" style="width:14px;height:14px;display:block"/></span>상태</th><td><span class="status-value"><div class="status-dot"></div>시작 전</span></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><img src="https://app.notion.com/icons/list_gray.svg" style="width:14px;height:14px;display:block"/></span>참여자</th><td></td></tr></tbody></table></header><div class="page-body"><blockquote id="3bf16122-98dc-8078-9864-e2739165e63c" class="block-color-gray" data-notion-highlight="gray" dir="auto">이 문서는 1부 일반 손님의 외형을 무작위로 생성하는 방식을 정의한 기능 명세서다.<br/>각 파츠의 적용 방법, 함께 사용할 수 없는 조합을 설정하는 방법, 오류 및 예외 처리 규칙을 다룬다.<br/>최종 파츠 종류와 수량은 그래픽 파트와 협의하여 별도로 확정한다.</blockquote><p id="3bf16122-98dc-8079-95bf-da4806fc0965" class="" dir="auto">
+</p><h2 id="3bf16122-98dc-8067-93df-eb1f897b3918" class="" dir="auto">랜덤 생성 시뮬레이터</h2><figure id="3bf16122-98dc-80f7-abf4-c7489a4a2f5a" class="image" data-notion-image="%E1%84%8F%E1%85%A2%E1%84%85%E1%85%B5%E1%86%A8%E1%84%90%E1%85%A5%E1%84%85%E1%85%A2%E1%86%AB%E1%84%83%E1%85%A5%E1%86%B7%E1%84%89%E1%85%A2%E1%86%BC%E1%84%89%E1%85%A5%E1%86%BC_0.gif" dir="ltr"><a href="%E1%84%8F%E1%85%A2%E1%84%85%E1%85%B5%E1%86%A8%E1%84%90%E1%85%A5%E1%84%85%E1%85%A2%E1%86%AB%E1%84%83%E1%85%A5%E1%86%B7%E1%84%89%E1%85%A2%E1%86%BC%E1%84%89%E1%85%A5%E1%86%BC_0.gif"><img style="width:703.96875px" src="%E1%84%8F%E1%85%A2%E1%84%85%E1%85%B5%E1%86%A8%E1%84%90%E1%85%A5%E1%84%85%E1%85%A2%E1%86%AB%E1%84%83%E1%85%A5%E1%86%B7%E1%84%89%E1%85%A2%E1%86%BC%E1%84%89%E1%85%A5%E1%86%BC_0.gif"/></a></figure><p id="3bf16122-98dc-807f-94fc-cc8db4984148" class="" dir="auto">이미지가 없어서 밑에 압축파일을 열고 index.html을 실행해야한다)</p><figure id="3bf16122-98dc-800b-bb9a-dcf2bfe83a32" dir="ltr"><div class="source"><a href="index.zip" data-notion-file="index.zip" data-notion-file-alias="index.zip">index.zip</a></div></figure><p id="3bf16122-98dc-8005-84ea-cb5a7e88a069" class="" dir="auto">
+</p><p id="3bf16122-98dc-8066-9567-dede06f04910" class="" dir="auto">
+</p><hr id="3bf16122-98dc-8032-82bb-d1616b0a2c44" dir="auto"/><h1 id="d13330f5-b31a-433a-95d2-8b7fc5b8f480" class="" dir="auto">일반 손님 외형 생성 시스템</h1><hr id="6ee97aa1-ecbd-4a86-b9ec-7814af6deba8" dir="auto"/><h2 id="02bd79b3-6e85-4761-b5ad-1f2b8719dced" class="" dir="auto">1. 개요와 실행 시점</h2><ul id="aefd952e-2253-4925-a968-686960501b3e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">외형은 1부에서 <code>random_waves.json</code>에 등록된 손님이 생성되는 순간 한 번만 결정한다.</li></ul><ul id="c68e4b75-da32-4640-9dbb-f9882fdb6561" class="bulleted-list" dir="auto"><li style="list-style-type:disc">결정된 외형은 해당 손님이 퇴장할 때까지 유지하며 다시 추첨하지 않는다.</li></ul><ul id="3797b5ea-7657-4f8a-a843-7e08881b3b16" class="bulleted-list" dir="auto"><li style="list-style-type:disc">카메오 손님(<code>regular_slots.json</code>)은 이 시스템을 사용하지 않고 캐릭터 전용 리소스를 사용한다.</li></ul><ul id="9195bb85-7082-4725-9996-12765301e197" class="bulleted-list" dir="auto"><li style="list-style-type:disc">외형 생성 시스템은 확정한 성별과 슬롯별 파츠 ID를 GuestInstance에 전달한다.</li></ul><ul id="3bf16122-98dc-803c-9770-e3ebae1cfc2c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">외형을 언제 저장하고 불러오기 뒤 어떻게 재사용하는지는 <a href="https://app.notion.com/p/3c01612298dc80ad838cef1228340ab5?pvs=21" data-notion-page-id="3c016122-98dc-80ad-838c-ef1228340ab5" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">저장·불러오기 시스템</a>을 따른다.</li></ul><hr id="6a908f04-923f-4989-b9fa-aa19457da874" dir="auto"/><h2 id="3bf16122-98dc-80d5-91e6-f6d5682a111e" class="" dir="auto">2. 데이터 — guest_bodies.json</h2><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" integrity="sha512-QXFMVAusM85vUYDaNgcYeU3rzSlc+bTV4JvkfJhjxSHlQEo+ig53BtnGkvFTiNJh8D+wv6uWAQ2vJaVmxe8d3w==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="3bf16122-98dc-803f-92f6-fb064e216152" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;gender&quot;: &quot;m&quot;,
+  &quot;personality&quot;: &quot;gentle&quot;,
+  &quot;slots&quot;: {
+    &quot;body&quot;: &quot;body_m&quot;,
+    &quot;outfit&quot;: &quot;outfit_m_7&quot;,
+    &quot;outerwear&quot;: null,
+    &quot;necklace&quot;: &quot;necklace_m_1&quot;,
+    &quot;eyes&quot;: &quot;eyes_m_1&quot;,
+    &quot;eyebrows&quot;: &quot;eyebrows_m_2&quot;,
+    &quot;mouth&quot;: &quot;mouth_m_1&quot;,
+    &quot;hair&quot;: &quot;hair_m_2&quot;,
+    &quot;arm_accessory&quot;: &quot;arm_accessory_m_1&quot;
+  },
+  &quot;current_emotion&quot;: &quot;default&quot;
+}</code></pre><ul id="3bf16122-98dc-8018-8277-f2b7119b641d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">파츠는 종류에 따라 여러 슬롯으로 구분한다.</li></ul><ul id="3bf16122-98dc-80a1-a56e-e9246d806558" class="bulleted-list" dir="auto"><li style="list-style-type:disc">배포되는 <code>guest_bodies.json</code>은 9슬롯을 슬롯별 배열로 담는다: <code>bodies</code>·<code>outfits</code>·<code>outerwears</code>·<code>necklaces</code>·<code>eyes</code>·<code>eyebrows</code>·<code>mouths</code>·<code>hairs</code>·<code>arm_accessories</code> + <code>defaults</code>·<code>exclusions</code>.</li></ul><ul id="9e9d992c-be3f-49f1-80e8-e4447119f4fd" class="bulleted-list" dir="auto"><li style="list-style-type:disc">남성 파츠는 실물 기준으로 등록되어 있다 — 의상 8 · 눈 3 · 눈썹 3 · 입 3 · 헤어 2 · 어깨 재킷 1 · 목걸이 1 · 팔 액세서리 1.</li></ul><ul id="a20cba88-5a96-4d9c-a537-d0c028475cdd" class="bulleted-list" dir="auto"><li style="list-style-type:disc">눈썹과 입은 기본 바디에 합치지 않은 독립 슬롯이다. 아래 표를 파츠의 종류와 표시 순서를 정하는 구현 기준으로 사용한다.</li></ul><ul id="22795f8b-478a-4bfe-b9c3-6a40154d8624" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>GuestBodies</code> 시트는 9슬롯 기준으로 확장되어 있다(32행).</li></ul><h3 id="ef072009-1232-43aa-9d32-67dc0130c0ca" class="" dir="auto">슬롯과 레이어 순서</h3><table id="44c0b660-333c-4c78-be25-74ec433b62aa" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="16cd0c06-c24d-46e9-8d82-13d229f5e563" dir="ltr"><th id="Y?KA" class="simple-table-header-color simple-table-header">순서</th><th id="Yc:g" class="simple-table-header-color simple-table-header">슬롯</th><th id="DVFc" class="simple-table-header-color simple-table-header">현재 남성 리소스</th><th id="~ILP" class="simple-table-header-color simple-table-header">선택 규칙</th></tr></thead><tbody><tr id="3965f898-8b8d-4911-b5aa-085c60ff1387" dir="ltr"><td id="Y?KA" class="">0</td><td id="Yc:g" class=""><code>body</code></td><td id="DVFc" class=""><code>body.png</code></td><td id="~ILP" class="">필수</td></tr><tr id="9467de33-4e7a-4f78-b8fc-f57018344a80" dir="ltr"><td id="Y?KA" class="">10</td><td id="Yc:g" class=""><code>outfit</code></td><td id="DVFc" class=""><code>Shirt_*.png</code></td><td id="~ILP" class="">하나 선택</td></tr><tr id="b6f19eee-283c-4935-88a9-83fae281af53" dir="ltr"><td id="Y?KA" class="">20</td><td id="Yc:g" class=""><code>outerwear</code></td><td id="DVFc" class=""><code>Acc_2.png</code>(어깨 재킷)</td><td id="~ILP" class="">선택 사항</td></tr><tr id="ea9dde16-e774-4a45-8948-4624e61e042e" dir="ltr"><td id="Y?KA" class="">30</td><td id="Yc:g" class=""><code>necklace</code></td><td id="DVFc" class=""><code>Acc_3.png</code>(목걸이)</td><td id="~ILP" class="">선택 사항</td></tr><tr id="2a8613d0-6565-41fd-820c-b8be8a19d4ee" dir="ltr"><td id="Y?KA" class="">40</td><td id="Yc:g" class=""><code>eyes</code></td><td id="DVFc" class=""><code>Eye_*.png</code></td><td id="~ILP" class="">하나 선택</td></tr><tr id="16e90c2f-aac8-4f75-bb69-7607bfd5f255" dir="ltr"><td id="Y?KA" class="">50</td><td id="Yc:g" class=""><code>eyebrows</code></td><td id="DVFc" class=""><code>Eyebrow_*.png</code></td><td id="~ILP" class="">하나 선택</td></tr><tr id="35145ee5-bf9d-4012-bf5f-b982a6b34162" dir="ltr"><td id="Y?KA" class="">60</td><td id="Yc:g" class=""><code>mouth</code></td><td id="DVFc" class=""><code>mouth_*.png</code></td><td id="~ILP" class="">하나 선택</td></tr><tr id="4496c777-08ca-40a9-8563-68a494e8af4b" dir="ltr"><td id="Y?KA" class="">70</td><td id="Yc:g" class=""><code>hair</code></td><td id="DVFc" class=""><code>Hair_*.png</code></td><td id="~ILP" class="">하나 선택</td></tr><tr id="f91b1745-86d3-4696-849e-e7915e09ac44" dir="ltr"><td id="Y?KA" class="">80</td><td id="Yc:g" class=""><code>arm_accessory</code></td><td id="DVFc" class=""><code>Acc_1.png</code>(팔 액세서리)</td><td id="~ILP" class="">선택 사항</td></tr></tbody></table><ul id="ce01f7c3-4105-4328-987c-fb364c8975ee" class="bulleted-list" dir="auto"><li style="list-style-type:disc">모든 파츠 PNG는 같은 기준점(pivot)·원점·발 위치로 정렬한다. 현재 남성 파츠의 캔버스 크기는 332×388이며, 여성 파츠도 남성과 같은 피벗과 레이어 정렬 기준을 사용한다.</li></ul><ul id="66158040-4381-4d9a-9a55-bf4af0e15ac3" class="bulleted-list" dir="auto"><li style="list-style-type:disc">여성 파츠의 정확한 캔버스 크기는 정식 리소스가 나온 뒤 확인한다. 원본 크기가 남성과 다르면 엔진에 성별 예외 좌표를 추가하지 않고, 가져오기 전에 공통 캔버스로 정규화한다.</li></ul><ul id="a8fff9de-d13c-4a02-898e-a5a315d26851" class="bulleted-list" dir="auto"><li style="list-style-type:disc">엔진은 파츠별 위치나 크기를 별도로 보정하지 않고 모든 이미지를 (0,0) 좌표에 그대로 겹쳐 표시한다.</li></ul><ul id="fc17801f-6689-47eb-a34e-d436201702a1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">투명 여백은 이미지의 위치를 맞추는 기준이므로 잘라내지 않는다.</li></ul><ul id="04a78136-e7c4-45f0-be7f-0669efc12504" class="bulleted-list" dir="auto"><li style="list-style-type:disc">슬롯 종류와 레이어 순서는 데이터 빌드 스크립트(<code>build.py</code>의 <code>part</code> 검증 목록)와 엔진의 캐릭터 렌더러에 동일하게 등록한다.</li></ul><ul id="a5e5f3a3-83f5-4cbe-aa1a-ac95fe41df46" class="bulleted-list" dir="auto"><li style="list-style-type:disc">두 목록 가운데 하나만 수정하면 데이터 빌드는 통과하더라도 엔진에서 새로운 슬롯이 표시되지 않을 수 있다.</li></ul><ul id="46c62770-7cdc-4590-ac89-019549f4c66d" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>GuestBodies → part</code>에 등록된 값이 정해진 슬롯 목록에 없으면 빌드 오류로 처리한다.</li></ul><ul id="fd69cadd-5d59-49c1-bb88-892f561a9ae9" class="bulleted-list" dir="auto"><li style="list-style-type:disc">슬롯을 추가하거나 순서를 변경할 때는 빌드 스크립트, 엔진 렌더러, 본 문서의 레이어 표를 함께 수정한다.</li></ul><h3 id="51d58e9b-7b40-499b-98fb-4f4299173b00" class="" dir="auto">파츠 항목의 주요 필드</h3><p id="8ed9155c-46f6-43f4-a639-9e973c6cf2df" class="" dir="auto"><code>GuestBodies → part</code>는 파츠의 슬롯을 구분한다. JSON으로 배포할 때는 <code>bodies</code>·<code>outfits</code>처럼 슬롯별 배열의 이름으로 변환된다.</p><pre id="fc778ec2-d658-4ac8-b9be-0c9406ba655d" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;id&quot;: &quot;hair_m_2&quot;,
+  &quot;gender&quot;: &quot;m&quot;,
+  &quot;personalities&quot;: [],
+  &quot;mode&quot;: &quot;sprite&quot;,
+  &quot;sprite&quot;: &quot;Guest/hair_m_2&quot;,
+  &quot;emotions&quot;: null,
+  &quot;parts&quot;: null,
+  &quot;weight&quot;: 1
+}</code></pre><ul id="57728259-92fd-46f3-b655-0c228207c2cd" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>id</code>: 파츠의 고유 ID다. 금지 조합과 기본 조합이 이 값을 참조한다.</li></ul><ul id="d36c6364-e894-459b-8f72-30c189e9b75a" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>gender</code>: 파츠를 사용할 수 있는 성별이다. <code>m</code> 또는 <code>f</code>를 사용한다.</li></ul><ul id="29f2e816-cf91-4805-94d8-34de8731016a" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>personalities</code>: 파츠를 사용할 수 있는 성격 목록이다. 빈 배열이면 모든 성격이 사용할 수 있다.</li></ul><ul id="bc0b01a5-055c-48bd-b033-a23ac6d96b32" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>mode</code>: 현재 일반 손님은 기본 외형 스프라이트 한 장만 표시하는 <code>sprite</code>를 사용한다. <code>parts_anim</code>은 후속 표정·애니메이션 리소스가 준비된 뒤 사용하기 위한 예약값이다.</li></ul><ul id="7d7f7e11-ad1e-4ab6-a954-44a99d1806f0" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>sprite</code>: 현재 빌드에서 반드시 필요한 기본 외형 이미지의 리소스 경로다.</li></ul><ul id="f9369bad-c897-4817-aac3-381275181b26" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>emotions</code>: 감정에 따라 교체할 이미지 목록이다. 표정 데이터 구조는 미리 유지하되, 현재는 모두 <code>null</code>이어도 정상 데이터로 인정한다. 자세한 규칙은 §6에서 설명한다.</li></ul><ul id="b119051f-3b39-4b66-ba68-c40bae3e61b9" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>parts</code>: <code>parts_anim</code>을 사용할 때 필요한 애니메이션 파츠 정보를 저장한다. 후속 리소스가 나오기 전까지 <code>null</code>을 사용하며 빌드 오류로 처리하지 않는다.</li></ul><ul id="0ae6a85a-d734-4582-a1aa-5d141dae18a9" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>weight</code>: 파츠가 선택될 가능성을 조절하는 가중치다.</li></ul><ul id="35cc0e93-e26f-438f-b199-6fbb925f8162" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>is_default</code>는 원본 <code>GuestBodies</code> 시트에서 기본 파츠를 표시하기 위한 컬럼이다. 각 파츠 항목에는 배포하지 않고 <code>guest_bodies.json → defaults</code>로 변환한다. 컬럼은 시트에 등록되어 있다.</li></ul><h3 id="8b5a5aff-85ae-4940-b755-f214203ce8ed" class="" dir="auto">성격 데이터</h3><p id="676320ac-b585-414a-9169-2ba6f6882ea8" class="" dir="auto">손님의 성격은 외형을 만들기 전에 <code>random_waves.json → personality</code>에서 확정한다.</p><pre id="600cdc97-3507-4886-8b1c-19e50d2819b5" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;day&quot;: 1,
+  &quot;seq&quot;: 1,
+  &quot;order&quot;: &quot;&quot;,
+  &quot;personality&quot;: &quot;gentle&quot;,
+  &quot;delay_sec&quot;: 0,
+  &quot;max_rounds&quot;: 1,
+  &quot;branch_choice&quot;: false
+}</code></pre><ul id="70dec28d-a824-4e9f-a4ef-2b5d0881ebbf" class="bulleted-list" dir="auto"><li style="list-style-type:disc">과거 <code>tier</code> 필드는 사용하지 않는다. 일반 손님의 성격은 현재 빌드에서 필수값이며 빈 문자열을 허용하지 않는다.</li></ul><hr id="55db53c9-91c0-434d-aed6-15ceb41da91e" dir="auto"/><h2 id="e5e8f7ef-2951-4831-a1e1-98ea306daafe" class="" dir="auto">3. 생성 순서</h2><table id="4165afd6-90fa-4333-8ac9-ee7376d39b25" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="4204f245-3c5d-4876-b429-6fd937c17010" dir="ltr"><th id="?Oxu" class="simple-table-header-color simple-table-header" style="width:52px">순서</th><th id="c^Aa" class="simple-table-header-color simple-table-header" style="width:84px">단계</th><th id="T;s[" class="simple-table-header-color simple-table-header" style="width:490px">규칙</th></tr></thead><tbody><tr id="97bbdc1d-e4c5-44cc-8203-177e9b3e5ccd" dir="ltr"><td id="?Oxu" class="" style="width:52px">1</td><td id="c^Aa" class="" style="width:84px">성격 확정</td><td id="T;s[" class="" style="width:490px"><code>random_waves.json → personality</code> 값을 사용한다. 필수값이며 비어 있으면 빌드 오류로 처리한다.</td></tr><tr id="28709562-ebe0-436d-ad60-f077ce64461a" dir="ltr"><td id="?Oxu" class="" style="width:52px">2</td><td id="c^Aa" class="" style="width:84px">성별 선택</td><td id="T;s[" class="" style="width:490px">데모에서는 <code>m</code>과 <code>f</code> 가운데 하나를 같은 확률로 선택한다. 이후 비율을 변경할 때 Config 값으로 분리한다.</td></tr><tr id="243ad88b-9007-4725-b637-e9ac094be9ea" dir="ltr"><td id="?Oxu" class="" style="width:52px">3</td><td id="c^Aa" class="" style="width:84px">외형 선택</td><td id="T;s[" class="" style="width:490px">§3.1에서 미리 만든 사용 가능한 조합 목록에서 가중치에 따라 완성 조합 하나를 선택한다.</td></tr><tr id="db47eccc-f8a4-4dd5-806c-941222531f28" dir="ltr"><td id="?Oxu" class="" style="width:52px">4</td><td id="c^Aa" class="" style="width:84px">외형 적용</td><td id="T;s[" class="" style="width:490px">선택한 파츠 ID를 손님 인스턴스에 기록하고 §2의 레이어 순서대로 겹쳐 표시한다.</td></tr></tbody></table><h3 id="43977c50-3dcf-4930-8b2d-51d617a180b5" class="" dir="auto">3.1 사용 가능한 조합 목록</h3><ul id="e2d484bc-d3b9-4d91-a9a3-0add7c99508c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">게임이 데이터를 불러올 때 성별과 성격에 따라 만들 수 있는 모든 외형 조합을 미리 계산한다.</li></ul><ul id="2151fded-9805-4382-b402-b419b0307dc3" class="bulleted-list" dir="auto"><li style="list-style-type:disc">각 파츠의 <code>gender</code>는 손님의 성별과 같아야 한다.</li></ul><ul id="310c8049-1ee2-4ece-a3be-11a7268f9e3e" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>personalities</code>가 비어 있거나 현재 손님의 성격을 포함한 파츠만 사용한다.</li></ul><ul id="b13c7e26-6668-48db-a514-999522645048" class="bulleted-list" dir="auto"><li style="list-style-type:disc">§4의 금지 규칙에 포함된 조합은 목록에서 제외한다.</li></ul><ul id="8d49ae0c-5af8-4566-8196-5e91aa830862" class="bulleted-list" dir="auto"><li style="list-style-type:disc">선택 슬롯(<code>outerwear</code>·<code>necklace</code>·<code>arm_accessory</code>)에는 조합을 계산할 때만 가상의 <code>없음</code> 후보를 추가한다.</li></ul><ul id="172a0400-7643-4ce8-8945-4254d35d3a1e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">선택 슬롯을 사용하지 않은 결과는 손님 인스턴스에 <code>null</code>로 기록하며, 렌더러는 해당 슬롯의 레이어를 만들지 않는다.</li></ul><ul id="de5246a9-7ff8-4f91-bfc1-4aafcdb0f852" class="bulleted-list" dir="auto"><li style="list-style-type:disc">조합의 가중치는 포함된 모든 파츠의 <code>weight</code>를 곱해 계산한다. 값이 클수록 선택될 가능성이 높다.</li></ul><ul id="1c7603a9-945e-4afb-9ada-78f4465fba23" class="bulleted-list" dir="auto"><li style="list-style-type:disc">특정 성별과 성격에서 사용할 수 있는 조합이 하나도 없으면 데이터 오류로 처리한다. 빌드 단계에서 이를 확인하며, 게임 실행 중에는 금지 규칙을 임의로 무시하지 않는다.</li></ul><ul id="c4aa7c4c-729c-4117-b749-353f648b9781" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현재 파츠 수에서는 조합 목록을 미리 만드는 데 필요한 성능 부담이 크지 않다. 빌드 리포트에는 성별과 성격별로 생성된 조합 수를 출력한다.</li></ul><h3 id="55d1f60b-f380-4512-9416-1e1c48904026" class="" dir="auto">3.2 중복과 선택 슬롯</h3><ul id="18328888-0b78-42fb-8384-ef6e5240806e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현재 바에 앉아 있는 다른 손님과 모든 슬롯이 같은 외형은 우선 후보에서 제외한다.</li></ul><ul id="e5b59b00-9852-4d6e-afb9-8e439e448eb5" class="bulleted-list" dir="auto"><li style="list-style-type:disc">중복을 제외한 뒤 선택할 수 있는 조합이 하나도 남지 않으면 중복을 허용하고 경고 로그를 남긴다.</li></ul><ul id="ea28ce49-2990-4c74-8784-8261d9d9b0e6" class="bulleted-list" dir="auto"><li style="list-style-type:disc">선택 슬롯의 <code>없음</code> 후보는 <code>balance.json → config.guest_acc_none_weight</code>(임시값 1)를 가중치로 사용한다.</li></ul><ul id="73e67617-1548-4e97-bb16-13e514120027" class="bulleted-list" dir="auto"><li style="list-style-type:disc">예를 들어 금지 조합의 영향이 없고 <code>없음</code>의 가중치가 1, 해당 슬롯의 실제 파츠 가중치 합이 3이면 그 슬롯을 사용하지 않을 확률은 25%다. 키는 Config 시트에 등록되어 있다(값 1).</li></ul><hr id="33b664a1-c0d9-43cf-b709-f4a6cea8b9be" dir="auto"/><h2 id="93279d26-3155-4eed-b49c-8e11b5c26cd8" class="" dir="auto">4. 금지 조합(<code>exclusions</code>)</h2><ul id="564430e2-711c-4c7b-8da1-0f54964ad6c4" class="bulleted-list" dir="auto"><li style="list-style-type:disc">특정 파츠 두 개가 한 손님에게 동시에 적용되지 않도록 데이터로 제한한다.</li></ul><ul id="8743b504-d7fa-497c-9a6e-f11d7c7875df" class="bulleted-list" dir="auto"><li style="list-style-type:disc">예를 들어 특정 헤어가 의상의 깃과 겹치거나 두 파츠를 함께 사용했을 때 외형이 부자연스럽게 보이는 경우에 사용한다.</li></ul><ul id="dd72b687-36b2-4d8d-a850-e6d32a10e55d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">원본 데이터는 <code>LUNA_System.xlsx → GuestBodyExclusions</code> 시트에 작성한다. 한 행에는 금지할 파츠 조합 하나와 그 이유를 기록한다 — 현재 팔 액세서리 6행.</li></ul><table id="fd2a1661-2867-4402-a249-001cf50c3472" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="56f66f62-2871-42b3-8195-f3f8e67e9d51" dir="ltr"><th id="|n^:" class="simple-table-header-color simple-table-header">part_a</th><th id="bB{[" class="simple-table-header-color simple-table-header">part_b</th><th id="b[z=" class="simple-table-header-color simple-table-header">note</th></tr></thead><tbody><tr id="a3c16575-034b-4fe2-b9d8-81e223a5eb22" dir="ltr"><td id="|n^:" class="">hair_m_2</td><td id="bB{[" class="">outfit_m_1</td><td id="b[z=" class="">헤어가 옷의 깃과 겹침</td></tr></tbody></table><ul id="8b501c3d-4c1e-41f4-8fbb-1939eb6b3b34" class="bulleted-list" dir="auto"><li style="list-style-type:disc">금지 규칙을 파츠 데이터와 분리하면 한 행에서 조합과 이유를 함께 확인할 수 있으며, 같은 내용을 양쪽 파츠에 중복해서 작성하지 않아도 된다.</li></ul><ul id="7b742d4a-6749-4b85-885c-cf01351fe94d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">빌드할 때 각 행은 <code>guest_bodies.json → exclusions</code> 배열로 변환한다. 검수용 <code>note</code>는 JSON에 포함하지 않는다.</li></ul><pre id="8bc108c9-7cc8-420f-b5b1-2d5c0472777d" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;exclusions&quot;: [
+    {
+      &quot;a&quot;: &quot;hair_m_2&quot;,
+      &quot;b&quot;: &quot;outfit_m_1&quot;
+    }
+  ]
+}</code></pre><ul id="a9224df0-d9c0-4ce9-a5e7-a57e3a6d657a" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>a</code>와 <code>b</code>의 순서는 결과에 영향을 주지 않는다. <code>(a, b)</code>와 <code>(b, a)</code>는 같은 금지 조합으로 처리한다.</li></ul><ul id="36d59fb8-778f-4e72-a45e-0c0d6e5d4c4b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">시트에 행이 없으면 <code>exclusions</code>는 빈 배열로 배포하며, 엔진은 이를 금지 조합이 없는 상태로 처리한다.</li></ul><h3 id="c0cab910-00aa-417e-ae44-3b83083848da" class="" dir="auto">확정 금지 규칙 — 팔 액세서리(Acc_1)</h3><div id="3bf16122-98dc-8053-910f-cdf3d35a1e45" class="column-list" data-notion-column-list="" dir="auto"><div id="3bf16122-98dc-8061-8506-f391ad774831" style="width:50%" class="column" data-notion-column-ratio="0.5" dir="auto"><figure id="3bf16122-98dc-8084-8c0a-e0ecec7ef00e" class="image" data-notion-image="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.40.png" dir="ltr"><a href="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.40.png"><img style="width:311.984375px" src="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.40.png"/></a></figure></div><div id="3bf16122-98dc-8097-a901-c3e02f21f92d" style="width:50%" class="column" data-notion-column-ratio="0.5" dir="auto"><figure id="3bf16122-98dc-805a-a5e9-da3dfe651e42" class="image" data-notion-image="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.27.png" dir="ltr"><a href="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.27.png"><img style="width:192px" src="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.27.png"/></a></figure></div></div><div id="3bf16122-98dc-80e9-992d-e7ee26fcfa7a" class="column-list" data-notion-column-list="" dir="auto"><div id="3bf16122-98dc-80cc-9e40-da2f9f3e4c43" style="width:50%" class="column" data-notion-column-ratio="0.5" dir="auto"><figure id="3bf16122-98dc-8011-a4ac-ea9e49e833cc" class="image" data-notion-image="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.45.png" dir="ltr"><a href="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.45.png"><img style="width:300.96875px" src="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.06.45.png"/></a></figure></div><div id="3bf16122-98dc-8026-ab8b-f4f6c0c95832" style="width:50%" class="column" data-notion-column-ratio="0.5" dir="auto"><figure id="3bf16122-98dc-80ec-8d02-f62a5c1d5bf4" class="image" data-notion-image="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.07.00.png" dir="ltr"><a href="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.07.00.png"><img style="width:309.984375px" src="%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2026-08-17_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_12.07.00.png"/></a></figure></div></div><ul id="2663a382-4ef0-4f49-91d7-07734a63a6e6" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Acc_1(팔 액세서리)은 민소매 상의에서만 노출한다. 현재 민소매 상의는 Shirt_3와 Shirt_3(2) 2종이다.</li></ul><ul id="01035707-555d-49b0-92ae-cb6389954abc" class="bulleted-list" dir="auto"><li style="list-style-type:disc">따라서 Acc_1은 민소매가 아닌 나머지 상의 전부와 금지 조합이다. 시트에는 등록 id 기준 6행(arm_accessory_m_1 × outfit_m_1..6)이 들어 있다. 아래 표는 실물 파일명 기준 대조표다.</li></ul><table id="0e96a961-9521-4ae0-bbc8-8557eab04c7e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="4dd12666-fede-414e-a302-b7b1dc9aaf84" dir="ltr"><th id="yHJ`" class="simple-table-header-color simple-table-header">part_a</th><th id="&gt;Chr" class="simple-table-header-color simple-table-header">part_b</th><th id="URoK" class="simple-table-header-color simple-table-header">note</th></tr></thead><tbody><tr id="846116b1-2008-4b48-87c5-10bde79f8109" dir="ltr"><td id="yHJ`" class="">Acc_1</td><td id="&gt;Chr" class="">Shirt_1</td><td id="URoK" class="">민소매 아님 — 소매가 팔 액세서리를 가린다</td></tr><tr id="4ef6e687-59d7-4dc7-ac74-bb6cc492c0cb" dir="ltr"><td id="yHJ`" class="">Acc_1</td><td id="&gt;Chr" class="">Shirt_1(2)</td><td id="URoK" class="">민소매 아님</td></tr><tr id="7277f567-d54a-4ce6-b9f9-4719b980deef" dir="ltr"><td id="yHJ`" class="">Acc_1</td><td id="&gt;Chr" class="">Shirt_1(3)</td><td id="URoK" class="">민소매 아님</td></tr><tr id="db5b01e3-0539-4f29-aeac-a189cd2d5f67" dir="ltr"><td id="yHJ`" class="">Acc_1</td><td id="&gt;Chr" class="">Shirt_1(4)</td><td id="URoK" class="">민소매 아님</td></tr><tr id="f7d0a9fe-c880-47d0-a033-7f80b1c95d4b" dir="ltr"><td id="yHJ`" class="">Acc_1</td><td id="&gt;Chr" class="">Shirt_1(5)</td><td id="URoK" class="">민소매 아님</td></tr><tr id="0c1088ef-db74-46c4-8219-906b24f63688" dir="ltr"><td id="yHJ`" class="">Acc_1</td><td id="&gt;Chr" class="">Shirt_2</td><td id="URoK" class="">민소매 아님</td></tr></tbody></table><ul id="fd3f9ffc-163b-44c2-955f-e48ae58c7219" class="bulleted-list" dir="auto"><li style="list-style-type:disc">새 상의를 추가할 때 민소매가 아니면 Acc_1 금지 행도 함께 추가한다. 빠뜨리면 소매 위에 팔 액세서리가 겹쳐 그려진다.</li></ul><ul id="b1a6cdf7-725e-43fa-957d-074ab0ff2fe0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">민소매 여부는 이미지를 보고 판단해야 하므로 데이터 검증으로 잡을 수 없다. 시트 작성자가 지킨다.</li></ul><h3 id="96ac9f7b-51bd-4299-869b-dd5587ed74e6" class="" dir="auto">프로그래머 구현 방식</h3><ul id="95c5b4aa-f12b-456b-bf23-a2c1168b955a" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>GuestBodyExclusions</code> 시트의 각 행은 빌드할 때 <code>guest_bodies.json → exclusions</code>로 변환한다.</li></ul><ul id="7049a771-fa04-40c5-b2e7-2d2f7c033f1b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">엔진은 <code>a</code>와 <code>b</code>의 순서에 관계없이 같은 금지 조합으로 비교할 수 있도록 목록을 만들어 둔다.</li></ul><ul id="2c830247-a3c4-4f21-a54d-7da90753e8d3" class="bulleted-list" dir="auto"><li style="list-style-type:disc">성별과 성격별 외형 조합을 만들 때 금지된 파츠 쌍이 포함된 조합은 제외한다.</li></ul><ul id="4ef5fbed-fc63-48e1-98b1-3bc502a62f02" class="bulleted-list" dir="auto"><li style="list-style-type:disc">손님의 외형은 금지 조합을 제외하고 남은 조합에서만 선택한다.</li></ul><ul id="1ee92e0e-1494-40f7-aaf6-300f363e4541" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>part_a</code>와 <code>part_b</code>에는 이미지 파일명이 아닌 <code>GuestBodies</code> 시트에 등록된 파츠 ID를 사용한다.</li></ul><h3 id="fe798a14-e84b-416a-8187-c09c550a3d7e" class="" dir="auto">빌드 검증</h3><ul id="c75505df-550f-4329-b9f6-a94d31061354" class="bulleted-list" dir="auto"><li style="list-style-type:disc">빌드할 때 아래 항목을 확인한다. 같은 조합을 중복으로 등록하거나 순서만 바꾸어 다시 등록한 경우에도 빌드 오류로 처리한다.</li></ul><ul id="8f00b348-173f-4d70-a097-0e9eeb094d79" class="bulleted-list" dir="auto"><li style="list-style-type:disc">빌드 리포트에는 성별과 성격별로 사용할 수 있는 조합 수를 출력한다.</li></ul><table id="1d139495-5a50-4864-ba35-0449b0de437e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="7445bd9a-9cd9-4e19-b02e-bcf8a54c7164" dir="ltr"><th id="rBb}" class="simple-table-header-color simple-table-header">검증 항목</th><th id="sCDb" class="simple-table-header-color simple-table-header">빌드 오류 조건</th></tr></thead><tbody><tr id="120a13d0-e810-48fd-92e6-86efd08465ba" dir="ltr"><td id="rBb}" class="">파츠 ID</td><td id="sCDb" class=""><code>part_a</code> 또는 <code>part_b</code>의 ID가 <code>GuestBodies</code> 시트에 존재하지 않는다.</td></tr><tr id="dc0ad805-2423-4545-aac7-26c5d7957fc2" dir="ltr"><td id="rBb}" class="">성별</td><td id="sCDb" class="">서로 다른 <code>gender</code>의 파츠를 금지 조합으로 등록했다. 두 파츠는 원래 함께 선택될 수 없으므로 불필요한 규칙이다.</td></tr><tr id="300f4792-e2be-4cf9-a740-dbc75212beea" dir="ltr"><td id="rBb}" class="">슬롯</td><td id="sCDb" class="">같은 슬롯에 속한 파츠끼리 금지 조합으로 등록했다. 같은 슬롯의 파츠는 동시에 적용되지 않으므로 불필요한 규칙이다.</td></tr><tr id="ec012b97-02c3-41b1-bf4b-4ad761822460" dir="ltr"><td id="rBb}" class="">조합 생성 가능 여부</td><td id="sCDb" class="">특정 성별과 성격에서 사용할 수 있는 조합이 하나도 남지 않는다. §5의 기본 조합이 금지 조합에 포함된 경우도 여기에 해당한다.</td></tr></tbody></table><hr id="888e59ea-83fa-4c8e-beee-61c3271ce9ed" dir="auto"/><h2 id="f2b20768-dfbe-48f3-8b21-1b2c3b212f75" class="" dir="auto">5. 오류 및 예외 처리</h2><ul id="4405579c-f2db-4211-b8e0-15f1d4a6d091" class="bulleted-list" dir="auto"><li style="list-style-type:disc">엔진은 어떤 상황에서도 금지 조합 규칙을 임의로 무시하지 않는다. 사용할 수 있는 조합이 없는 문제는 §4의 빌드 검증에서 미리 차단한다.</li></ul><ul id="c60f2d8f-ccee-4f14-8af2-6c498b1c0ce6" class="bulleted-list" dir="auto"><li style="list-style-type:disc">데이터 손상 등으로 외형 선택에 실패하면 해당 성별의 기본 조합을 적용하고 경고 로그를 남긴다. 외형 생성 오류 때문에 게임 진행이 멈추어서는 안 된다.</li></ul><ul id="117efc29-aed7-47cb-a540-b34020deb3fa" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현재 기본 외형을 구성하는 필수 <code>sprite</code> 가운데 하나라도 불러오지 못하면 해당 손님의 외형 전체를 성별 기본 조합으로 교체하고 경고 로그를 남긴다. 문제가 생긴 슬롯 하나만 교체하면 새 파츠가 나머지 파츠와 금지 조합을 이룰 수 있기 때문이다.</li></ul><ul id="50516263-f75f-4ea8-807b-c85f973caa3c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">성별 기본 조합의 이미지까지 불러오지 못하면 일반 손님용 누락 리소스 이미지를 표시하고 오류 로그를 남긴다. 해당 손님의 게임 진행은 계속한다.</li></ul><ul id="8a700b1d-f58d-4051-a5c7-d7ba1f3ebacf" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>emotions</code> 또는 <code>parts_anim</code>이 <code>null</code>이거나 요청한 표정·애니메이션 리소스가 아직 없는 것은 현재 제작 단계에서 허용되는 정상 폴백이다. 기본 <code>sprite</code>를 유지하며 빌드와 대화 진행을 막지 않는다.</li></ul><ul id="010603f8-365e-471a-bb43-027ba059ca64" class="bulleted-list" dir="auto"><li style="list-style-type:disc">데이터에 선택 리소스 경로가 적혀 있으나 실제 파일만 누락된 경우에는 개발 로그를 한 번 남기고 기본 <code>sprite</code>로 폴백한다. 플레이어에게 오류 팝업을 표시하지 않는다.</li></ul><ul id="568d4692-2f51-4bdc-adb9-7ff3af1e0b28" class="bulleted-list" dir="auto"><li style="list-style-type:disc">누락 리소스 이미지 발주 ❗</li></ul><h3 id="faf0aab3-c0ad-4e60-91a0-8794b4f3683c" class="" dir="auto">기본 조합</h3><ul id="a9e6861b-fc86-4b01-b631-ac9f3a511175" class="bulleted-list" dir="auto"><li style="list-style-type:disc">각 성별의 필수 슬롯마다 기본으로 사용할 파츠 ID를 하나씩 지정한다. 데이터의 행 순서에 따라 기본값이 정해져서는 안 된다.</li></ul><ul id="a1855cc9-9e77-4828-99d8-e2cefd7304ed" class="bulleted-list" dir="auto"><li style="list-style-type:disc">원본 데이터에서는 <code>GuestBodies → is_default</code>로 표시하고, 빌드 결과는 <code>guest_bodies.json → defaults</code>에 성별과 슬롯별 ID로 저장한다.</li></ul><ul id="4630997e-157e-4ed0-a2f9-56d2b788c680" class="bulleted-list" dir="auto"><li style="list-style-type:disc">선택 슬롯은 모두 <code>null</code>로 지정한다.</li></ul><pre id="e1aeedff-5004-46a6-bec6-b54c45b5d1f1" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;defaults&quot;: {
+    &quot;m&quot;: {
+      &quot;body&quot;: &quot;body_m&quot;,
+      &quot;outfit&quot;: &quot;outfit_m_1&quot;,
+      &quot;outerwear&quot;: null,
+      &quot;necklace&quot;: null,
+      &quot;eyes&quot;: &quot;eyes_m_1&quot;,
+      &quot;eyebrows&quot;: &quot;eyebrows_m_1&quot;,
+      &quot;mouth&quot;: &quot;mouth_m_1&quot;,
+      &quot;hair&quot;: &quot;hair_m_1&quot;,
+      &quot;arm_accessory&quot;: null
+    },
+    &quot;f&quot;: {
+      &quot;body&quot;: &quot;body_f&quot;,
+      &quot;outfit&quot;: &quot;outfit_f_1&quot;,
+      &quot;outerwear&quot;: null,
+      &quot;necklace&quot;: null,
+      &quot;eyes&quot;: &quot;eyes_f_1&quot;,
+      &quot;eyebrows&quot;: &quot;eyebrows_f_1&quot;,
+      &quot;mouth&quot;: &quot;mouth_f_1&quot;,
+      &quot;hair&quot;: &quot;hair_f_1&quot;,
+      &quot;arm_accessory&quot;: null
+    }
+  }
+}</code></pre><ul id="f76dce29-b020-44aa-a307-171de24b32aa" class="bulleted-list" dir="auto"><li style="list-style-type:disc">기본 조합은 빌드할 때 다음 항목을 확인한다.<ul id="b07248d8-ea12-4614-b455-45483177d7ba" class="bulleted-list" dir="auto"><li style="list-style-type:circle">모든 필수 슬롯에 기본 파츠가 지정되어 있어야 한다.</li></ul><ul id="ac85d6b2-8028-484b-a7f2-d638a084f297" class="bulleted-list" dir="auto"><li style="list-style-type:circle">각 성별과 필수 슬롯마다 <code>is_default</code>로 표시된 파츠가 정확히 하나여야 한다.</li></ul><ul id="4527ea76-bd7a-45a8-90e7-a7a2bb179e80" class="bulleted-list" dir="auto"><li style="list-style-type:circle">기본 파츠의 <code>personalities</code>는 빈 배열이어야 하며 모든 성격에서 사용할 수 있어야 한다.</li></ul><ul id="b316760f-97e9-4ea9-adc2-c30880f768ab" class="bulleted-list" dir="auto"><li style="list-style-type:circle">기본 조합에는 금지 조합이 포함되어서는 안 된다.</li></ul></li></ul><ul id="763bae91-024c-48c8-beaa-6ce73887069c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실제 이미지 파일이 존재하는지는 엔진이 데이터를 불러올 때 확인한다.</li></ul><ul id="530d722d-2235-4bfc-93c6-20cc5d73aadc" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>weight</code>가 1보다 작거나 정수가 아니면 빌드 오류로 처리한다. 게임 실행 중에 값을 임의로 보정하지 않는다.</li></ul><ul id="d8dcc5da-a66f-4d7d-a63e-8283a4deb48e" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>random_waves.json → personality</code>는 필수값이며, 비어 있으면 빌드 오류로 처리한다.</li></ul><ul id="70e86e9f-f990-4e3d-a10b-09530a9cd83f" class="bulleted-list" dir="auto"><li style="list-style-type:disc">같은 웨이브에서 여러 손님이 생성되더라도 각 손님의 외형은 서로 독립적으로 선택한다.</li></ul><ul id="c8727944-1893-419d-9f5d-fa571d5cc8fa" class="bulleted-list" dir="auto"><li style="list-style-type:disc">같은 손님이 <code>max_rounds</code>에 따라 여러 잔을 주문하더라도 처음 결정된 외형을 유지한다.</li></ul><hr id="4c3aba59-3924-4be3-9d06-1425f60c1c34" dir="auto"/><h2 id="2ea700bd-691d-4875-a2d5-fe3df8a069be" class="" dir="auto">6. 표정·애니메이션 연동</h2><blockquote id="66445e6d-c9fe-413d-88fe-a820e5b85111" class="block-color-yellow" data-notion-highlight="yellow" dir="auto"><strong>현재 리소스 범위</strong><p id="495e12af-c1f5-44b8-ad55-69e27844eb65" class="" dir="auto">일반 손님의 표정·파츠 애니메이션 리소스는 후속 3–4주 차에 제공될 예정이다. 현재 구현에 전달할 수 있는 리소스는 각 일반 손님의 <strong>기본 외형 스프라이트 한 장</strong>이며, 표정과 애니메이션이 없어도 1부 운영 전체가 정상 진행되어야 한다.</p></blockquote><h3 id="94bb0cfb-18cc-4635-8745-181310484eb6" class="" dir="auto">6.1 표정 데이터와 화면 표시</h3><ul id="fd38d859-b545-4bb8-a412-e2cb2fa39688" class="bulleted-list" dir="auto"><li style="list-style-type:disc">대사에서 사용할 표정 ID는 외형 선택과 별도로 계속 결정한다.</li></ul><ul id="33870269-530d-4720-8933-20615325a4e0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">먼저 <code>barks.json → expression</code>을 확인한다. 값이 없으면 <code>bark_situations.json → default_expression</code>을 사용하며, 두 곳 모두 값이 없으면 <code>default</code>를 사용한다.</li></ul><ul id="6ba649a4-f2b3-4038-aca1-4163e4f533cf" class="bulleted-list" dir="auto"><li style="list-style-type:disc">표정 ID가 계산되더라도 <code>guest_bodies.json → emotions</code>에 대응 이미지가 없으면 화면에서는 기본 <code>sprite</code>를 그대로 유지한다.</li></ul><ul id="aec2a8be-6bb4-4c86-84f7-06433bda5fd4" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현재 <code>emotions: null</code>은 미완성 데이터가 아니라 <strong>기본 외형만 사용하는 현재 제작 단계의 정상값</strong>이다.</li></ul><ul id="5cfe42f3-8506-4795-af9c-b72a0c403444" class="bulleted-list" dir="auto"><li style="list-style-type:disc">표정 이미지가 없는 동안에도 대사, 인내심, 주문, 서빙 반응과 퇴장 상태는 데이터에 따라 정상 처리한다. 시각 이미지만 바뀌지 않는다.</li></ul><h3 id="c591538d-3600-41fb-bb37-967ae65582e4" class="" dir="auto">6.2 애니메이션 폴백</h3><ul id="155a4fdf-7002-4bd2-a4b8-a0a46de54548" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현재 일반 손님은 프레임 애니메이션 없이 기본 외형 스프라이트를 고정 표시한다.</li></ul><ul id="d35b3bf2-b79a-44e6-bc0c-7a9284fbca68" class="bulleted-list" dir="auto"><li style="list-style-type:disc">입장·퇴장에 최소 연출이 필요하면 캐릭터 전용 프레임 대신 공용 위치 이동·페이드와 같은 화면 연출을 사용할 수 있다.</li></ul><ul id="52599a88-7c46-4330-8448-6f9820ecd9c7" class="bulleted-list" dir="auto"><li style="list-style-type:disc">표정 전환이나 애니메이션 완료를 대사·상태 전이의 필수 완료 조건으로 두지 않는다. 선택 리소스가 없으면 기다리지 않고 다음 흐름을 진행한다.</li></ul><ul id="3e62fecf-8b16-4faf-87db-c3a4d2e58068" class="bulleted-list" dir="auto"><li style="list-style-type:disc">후속 리소스가 등록되면 <code>emotions</code> 또는 <code>parts_anim</code> 참조만 추가해 기존 표정 ID와 상태 호출을 그대로 사용할 수 있어야 한다. 별도의 대사 데이터나 운영 로직 수정이 필요해서는 안 된다.</li></ul><h3 id="8cae6939-020c-489b-9597-80ad5d8d8b66" class="" dir="auto">6.3 리소스 판정 기준</h3><table id="357769c2-c7bf-4ded-9987-0e4ead11601e" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="d35341aa-ae13-4601-948b-ad2b2ab7b7f7" dir="ltr"><th id="R@PO" class="simple-table-header-color simple-table-header">구분</th><th id="jEg]" class="simple-table-header-color simple-table-header">현재 처리</th><th id="hu_H" class="simple-table-header-color simple-table-header">빌드·진행 영향</th></tr></thead><tbody><tr id="f086a900-8f08-4198-b794-59c5f46310cb" dir="ltr"><td id="R@PO" class="">기본 <code>sprite</code> 존재</td><td id="jEg]" class="">기본 외형 한 장 표시</td><td id="hu_H" class="">정상</td></tr><tr id="4eca3cfc-6622-4c04-b624-46e973f238bb" dir="ltr"><td id="R@PO" class=""><code>emotions</code>·<code>parts_anim</code>이 <code>null</code></td><td id="jEg]" class="">기본 외형 유지</td><td id="hu_H" class="">정상, 차단하지 않음</td></tr><tr id="2a18a6ba-212f-48e7-a4f8-87a7cbbc2cd5" dir="ltr"><td id="R@PO" class="">요청한 표정·애니메이션 키가 없음</td><td id="jEg]" class="">기본 외형 유지</td><td id="hu_H" class="">정상 폴백</td></tr><tr id="d44d005f-a83a-454c-b0e3-9d9ca90013c4" dir="ltr"><td id="R@PO" class="">선택 리소스 경로만 있고 파일 누락</td><td id="jEg]" class="">기본 외형 유지·개발 로그 1회</td><td id="hu_H" class="">진행 유지</td></tr><tr id="cfd99537-0fe5-4d3c-9496-47df08fe9c5a" dir="ltr"><td id="R@PO" class="">기본 <code>sprite</code> 누락</td><td id="jEg]" class="">성별 기본 조합 또는 누락 리소스 이미지</td><td id="hu_H" class="">오류 로그, 진행 유지</td></tr></tbody></table><hr id="f9d1125e-9862-47bd-a03d-07ad3c8cddea" dir="auto"/><h2 id="ef30ae61-8d8f-4e1c-83af-0811bc0c873a" class="" dir="auto">7. 결과 기록</h2><ul id="db7cccd8-fb81-4b1a-91e8-71b8f030c3d4" class="bulleted-list" dir="auto"><li style="list-style-type:disc">손님 인스턴스에는 성별과 슬롯별 파츠 ID를 기록한다.</li></ul><ul id="a6b5e0b5-a14d-4739-86fd-07ee4861291d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">표정 변경 기능을 사용할 때는 현재 감정도 함께 기록한다.</li></ul><ul id="37207cf2-4a3d-41f4-96f1-2c8160ada983" class="bulleted-list" dir="auto"><li style="list-style-type:disc">사용하지 않는 선택 슬롯은 <code>null</code>로 저장하며, 렌더러는 해당 슬롯의 레이어를 만들지 않는다.</li></ul><pre id="763c474d-1b9f-47d4-a866-f3fc566fa5ce" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;outerwear&quot;: null,
+  &quot;necklace&quot;: &quot;necklace_m_1&quot;,
+  &quot;arm_accessory&quot;: null
+}</code></pre><ul id="de75d874-a509-4695-a48f-fd7764416c44" class="bulleted-list" dir="auto"><li style="list-style-type:disc">좌석 UI와 대사 출력 기능은 외형 정보를 직접 참조하지 않는다. 외형을 표시하는 렌더러만 이 정보를 사용한다.</li></ul><ul id="4d72f17a-43e4-4217-b3a9-8146f328b183" class="bulleted-list" dir="auto"><li style="list-style-type:disc">손님이 좌석을 떠나면 화면의 외형 인스턴스를 제거한다. 파츠 ID의 영속 보존 범위는 저장 시스템 문서에서만 관리한다.</li></ul><ul id="3b8c0c70-0de5-45d6-bf64-6198c2c3951c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">손님 생성·좌석·대사·저장 연결 순서는 <a href="https://app.notion.com/p/1-3c11612298dc81639163fc4e4124812c?pvs=21" data-notion-page-id="3c116122-98dc-8163-9163-fc4e4124812c" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 운영 런타임 명세</a>을 따른다.</li></ul><hr id="bbbf1391-18d9-44ee-b146-5216f7c1eb2e" dir="auto"/><h2 id="94dd0f5a-9796-494b-9243-cbfc5deee860" class="" dir="auto">8. 결정 대기 ❓</h2><ul id="a96fd6cc-4d37-4c8f-bcaa-b9cdcd6c58cf" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>성별 비율:</strong> 데모에서는 남성과 여성을 각각 50% 확률로 선택한다. 이후 일차나 시간대에 따라 비율을 다르게 적용해야 할 때 Config 값으로 분리한다.</li></ul><ul id="ddc0dc35-dd11-4b83-8a43-5fad9f1165f7" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>여성 눈썹·입 아트:</strong> 실물이 없어 자리 파츠(eyebrows_f_1·mouth_f_1)로 채워 두었다 — 발주 ❗</li></ul><ul id="013c9709-07b7-4db4-93cb-53e566064306" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>여성 파츠:</strong> 피벗·원점·발 위치와 레이어 정렬 기준은 남성과 동일하게 확정했다. 정식 리소스가 나오면 정확한 캔버스 크기만 확인하고, 규격이 다르면 가져오기 전에 공통 캔버스로 정규화한다.</li></ul><ul id="cc02a7e1-a6c8-41ae-9d15-47505f27cbb7" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><strong>신규 슬롯:</strong> 귀와 같은 슬롯을 추가할 때는 빌드 스크립트의 슬롯 목록, 엔진 렌더러, §2의 레이어 표를 함께 수정한다. §3과 §4의 생성 및 금지 조합 규칙은 같은 방식으로 적용한다.</li></ul><hr id="13d33cf1-9ec4-4f5a-8532-a9440510fb6e" dir="auto"/><h2 id="bf15333f-6781-41a9-85b4-8d3fe4019267" class="" dir="auto">9. 참조 프로토타입</h2><ul id="bab787b5-9d3c-48fe-8975-ee2e43f6d1c2" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>Document/이준서/05_웹시뮬레이터/web/일반손님_남자_파츠_시뮬레이터/index.html</code></li></ul><ul id="a23bd4bf-8520-4cbd-b8d1-9a6ef335c249" class="bulleted-list" dir="auto"><li style="list-style-type:disc">실제로 제작된 남성 파츠의 레이어 순서와 조합 결과를 확인하기 위한 프로토타입이다.</li></ul><ul id="48b8580c-cc94-49a4-b673-1f0b999385e7" class="bulleted-list" dir="auto"><li style="list-style-type:disc">금지 조합과 성격에 따른 파츠 제한 기능은 아직 구현되어 있지 않다.</li></ul><p id="3bf16122-98dc-8079-80b5-dc9597db25d5" class="" dir="auto">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

@@ -1,0 +1,551 @@
+================================================================================
+  HumanBartender - 코드 플로우 인수인계 가이드
+  작성 기준: Unity 6000.0.47f1 / 작성일: 2026-07-02
+================================================================================
+
+이 문서는 프로젝트를 처음 인수받는 개발자가 게임의 전체적인 코드 흐름을
+빠르게 파악할 수 있도록 작성된 가이드입니다.
+
+--------------------------------------------------------------------------------
+목차
+  1. 프로젝트 구조 개요
+  2. 핵심 기술 스택
+  3. 씬 구성 및 전환 흐름
+  4. VContainer 의존성 주입 구조
+  5. 데이터 로딩 시스템
+  6. 게임 전체 루프 (대화 Bar → Outside → Home)
+  7. 대화 시스템 상세 플로우
+  8. 트리거 시스템
+  9. 칵테일 제조 미니게임 플로우
+  10. 컷씬 시스템
+  11. Outside 씬 플로우
+  12. Home 씬 / 정산 플로우
+  13. 히스토리 / 사운드 / 옵션 서브시스템
+  14. 주요 열거형(enum) 정리
+  15. JSON 데이터 파일 목록
+================================================================================
+
+
+1. 프로젝트 구조 개요
+================================================================================
+
+  Assets/
+  ├── 03.Scripts/          ← 모든 C# 스크립트
+  │   ├── Camera/          ← 카메라 컨트롤러
+  │   ├── Command/         ← 대화 트리거 커맨드 패턴
+  │   ├── Craft/           ← 칵테일 제조 시스템
+  │   │   └── UI/          ← 제조 UI 패널
+  │   ├── Cutscene/        ← 컷씬 재생 매니저
+  │   │   ├── Outside Timeline/ ← Outside 씬 전용 Timeline 트랙
+  │   │   └── UI Timeline/      ← Bar 씬 컷씬 UI Timeline 트랙
+  │   ├── Data/            ← ScriptableObject 데이터 정의 + 로더
+  │   │   └── Outside/     ← Outside 씬 전용 데이터 SO
+  │   ├── Dialogue/        ← 대화 UI 및 캐릭터 연출
+  │   ├── Event/           ← ScriptableObject 이벤트 채널 (코드 변경 없음)
+  │   ├── Event SO/        ← VoidEvent 등 이벤트 에셋 (스크립트 없음)
+  │   ├── History/         ← 대화 히스토리 기록 및 뷰
+  │   ├── Home/            ← Home 씬 정산 매니저
+  │   ├── MiniGame/
+  │   │   ├── Shaker/      ← 쉐이커 미니게임
+  │   │   └── Stur/        ← 스터 미니게임
+  │   ├── Option/          ← 디스플레이 설정
+  │   ├── Outside/         ← Outside 씬 인터랙션 (NPC, 오브젝트 등)
+  │   ├── Player/          ← 플레이어 데이터 SO 및 Reader/Writer
+  │   ├── Pool/            ← 오브젝트 풀링
+  │   ├── Shader/          ← 셰이더 관련 컴포넌트
+  │   ├── Sound/           ← 사운드 매니저
+  │   └── Tool/            ← 공용 유틸 (씬전환, JsonManager, LifetimeScope 등)
+  └── StreamingAssets/     ← JSON 게임 데이터 파일들
+
+
+2. 핵심 기술 스택
+================================================================================
+
+  ┌──────────────────────┬─────────────────────────────────────────────────────┐
+  │ 라이브러리            │ 용도                                                │
+  ├──────────────────────┼─────────────────────────────────────────────────────┤
+  │ VContainer           │ 의존성 주입(DI). LifetimeScope로 씬별 스코프 관리   │
+  │ UniTask              │ async/await 비동기. Forget(), UniTaskCompletionSource│
+  │ DOTween              │ UI 트윈 애니메이션 (페이드, 이동, 셰이크 등)        │
+  │ Spine                │ SkeletonGraphic/SkeletonDataAsset 골격 애니메이션   │
+  │ Newtonsoft.Json      │ StreamingAssets JSON 역직렬화                       │
+  │ Unity Addressables   │ 런타임 에셋 로드 (컷씬, 애니메이션 클립 등)        │
+  │ Unity Timeline       │ 컷씬 타임라인 재생 (PlayableDirector)               │
+  │ TextMeshPro          │ 대화 텍스트 렌더링                                  │
+  └──────────────────────┴─────────────────────────────────────────────────────┘
+
+
+3. 씬 구성 및 전환 흐름
+================================================================================
+
+  씬 목록:
+    Main       ─ 타이틀/로고 씬
+    Play       ─ 바(Bar) 씬. 핵심 게임플레이 (대화 + 칵테일 제조)
+    Outside    ─ 출퇴근 연출 씬 (Timeline 컷씬 재생)
+    Home       ─ 집 씬. 정산 UI 표시 후 다음 일차 진행
+    TempEnding ─ 엔딩 씬 (Outside에서 OnTriggerEnding() 호출 시)
+
+  씬 전환 담당: SceneTransitionManager (DontDestroyOnLoad 싱글톤)
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │ SceneTransitionManager.LoadScene("씬이름")                          │
+    │   1. FadeOut (CanvasGroup alpha 0 → 1, DOTween)                    │
+    │   2. SceneManager.LoadSceneAsync(씬이름)                            │
+    │   3. FadeIn  (CanvasGroup alpha 1 → 0, DOTween)                    │
+    └─────────────────────────────────────────────────────────────────────┘
+
+  전체 게임 루프:
+    [Main] → (TempStart 버튼) → [Play(Bar)]
+                                     ↓ 대화 종료 (EndScene)
+                                [Outside] ← (GameFlow = CommuteOut)
+                                     ↓ (연출 완료)
+                                  [Home]
+                                     ↓ (정산 확인, CheckSettlement)
+                                [Outside] ← (GameFlow = CommuteIn)
+                                     ↓ (다음 날 연출 완료)
+                               [Play(Bar)] ← 일차가 증가된 상태로 재진입
+
+
+4. VContainer 의존성 주입 구조
+================================================================================
+
+  VContainer는 씬 계층(부모→자식) 구조로 컨테이너를 구성합니다.
+
+  [ProjectLifetimeScope]  ← 모든 씬에서 공유되는 전역 싱글톤
+    등록 대상:
+      - CutSceneManager      (IEffectPlayer, ICutScenePlayer)
+      - PlayerDataSO         (IPlayerDataReader, IPlayerDataWriter)
+      - PlayerSettlement     (ISettlementLog)
+      - SoundManager         (ISoundManager)
+      - DisplaySettings      (IDisplaySettings) - 싱글톤
+      - UIDisplayOptions
+      - DialogueHistory      - 순수 C# 싱글톤
+      - DialogueHistoryView
+      - DataLoadManager      (IDataSwitcher)
+
+  [InGameLifetimeScope]   ← Play(Bar) 씬 전용
+    부모: ProjectLifetimeScope
+    등록 대상:
+      - CocktailCraftManager (ICocktailCraft)
+      - CameraController     (ICameraControl)
+      - DialogueCharacterManager (ICharacterSetter, IDialogueFader)
+
+  [OutsideGameLifetimeScope] ← Outside 씬 전용
+    부모: ProjectLifetimeScope
+    등록 대상:
+      - CameraControllerNew      (ICameraControlNew)
+      - InteractiveEntityManager
+      - OustideTimelineManager   (IOutsideTimeliner)
+
+  ▶ 인터페이스 목록 (Cutscene/FunctionInterfaces.cs)
+      ITimeLinePlayer       - Timeline 재생
+      ICharacterSetter      - 캐릭터 등장/퇴장/표정 제어
+      IDialogueFader        - 대화 UI 페이드
+      IFade                 - 화면 페이드
+      ICameraControl        - 카메라 줌 (Bar 씬)
+      ICameraControlNew     - 카메라 제어 (Outside 씬)
+      ICocktailCraft        - 칵테일 제조 시작
+      ICutScenePlayer       - 컷씬 재생
+      IEffectPlayer         - 화면 이펙트 재생
+
+
+5. 데이터 로딩 시스템
+================================================================================
+
+  DataLoadManager.Awake() → LoadData() 가 모든 JSON을 한 번에 로드합니다.
+
+  로딩 흐름:
+    DataLoadManager.Awake()
+      └─ LoadData()
+           ├─ dayFiles 목록의 JSON → _dayCache[파일명] 에 캐시
+           ├─ craftFiles 목록의 JSON → _craftCache[파일명] 에 캐시
+           ├─ SwitchDay(dayFile, craftFile) → DayDataSO, CraftDataSO 에 주입
+           ├─ cocktails.json     → CocktailDataSO
+           ├─ characters.json    → CharacterDataSO
+           ├─ character_anim.json → CharacterAnimSO
+           ├─ ingredients.json   → IngredientDataSO
+           ├─ cutscenes.json     → CutSceneDataSO
+           ├─ settlements.json   → SettlementDataSO
+           ├─ text_styles.json   → TextTagDataSO
+           ├─ character_tiers.json → CharacterTierDataSO
+           ├─ skill_tiers.json   → SkillTierDataSO
+           ├─ Cached() 호출 (SettlementDataSO, CocktailDataSO, CutSceneDataSO)
+           └─ outsideDataManager.Load() → Outside 씬 데이터
+
+  일차 전환 시 (HomeManager.CheckSettlement):
+    DataSwitcher.SwitchDay("day1.json", "day1_crafts.json")
+      └─ 캐시에서 꺼내 DayDataSO / CraftDataSO 교체
+
+  ▶ 테스트 모드: DataLoadManager 인스펙터의 isTest = true 설정 시
+      testDayName / testCraftName 으로 특정 데이터를 강제 로드 가능
+
+
+6. 게임 전체 루프 (상태 관리)
+================================================================================
+
+  GameStateManager (순수 C# 싱글톤)
+    CurrentGameState : GameState  ← None / Play / Effect / Loading / MiniGame
+    GameFlow         : EGameFlow  ← Bar / CommuteIn / CommuteOut / Home
+    CurrentDay       : int        ← 현재 일차 (0부터 시작)
+
+  EGameFlow 전환 흐름:
+    초기                    → EGameFlow.Bar
+    대화 종료 (EndScene)    → EGameFlow.CommuteOut + LoadScene("Outside")
+    Home 정산 완료          → EGameFlow.CommuteIn  + LoadScene("Outside")
+    Outside CommuteIn 완료  → LoadScene("Play")  [Outside 씬 내에서 처리]
+
+
+7. 대화 시스템 상세 플로우
+================================================================================
+
+  관련 파일:
+    DialogueManager.cs        ← 핵심 제어
+    DialogueSceneDirector.cs  ← 씬 연출 (캐릭터/대화창/타이핑)
+    DayDataSO.cs              ← JSON 데이터 컨테이너
+
+  데이터 구조 (JSON → ScriptableObject):
+    DayDataSO
+      └─ DayDatabBase
+           ├─ Day : int
+           └─ Scenes[] : SceneData
+                ├─ SceneId / Customer
+                ├─ Dialogues[] : DialogueData
+                │    ├─ Id / Text / Speaker / Type
+                │    ├─ Next : string (다음 DialogueData Id)
+                │    ├─ Choices[] : ChoiceData  (선택지가 있을 때)
+                │    ├─ Trigger? : TriggerData  (트리거가 있을 때)
+                │    └─ Nextconditions? : NextConditions (분기가 있을 때)
+                └─ (CutScene 등 추가 데이터)
+
+  DialogueState 열거형:
+    Idle              ← 아무것도 안 하는 대기
+    WaitingForTrigger ← 트리거 실행 중 (입력 차단)
+    Typing            ← 텍스트 타이핑 중
+    WaitingForInput   ← 플레이어 클릭 대기
+    WaitingForChoice  ← 선택지 선택 대기
+    CompleteTrigger   ← 트리거 완료
+
+  초기화 흐름:
+    DialogueManager.Start()
+      └─ InitSystem()  ← 3초 딜레이 후 실행
+           ├─ GameStateManager.IsDialogInitStart = true
+           ├─ GameFlow = EGameFlow.Bar
+           ├─ SoundManager.PlayBGM("BGM_bar_01")
+           └─ LoadScene(dayData.Scenes[0])
+
+  씬 로드 (손님 등장):
+    LoadScene(sceneData)
+      ├─ currentDialogueDB 구축 (Id → DialogueData 딕셔너리)
+      └─ DialogueEvent(첫 번째 Dialogue.Id)
+
+  대화 진행 메인 루프:
+    DialogueEvent(id)
+      ├─ id == null → EndScene()
+      └─ PlayDialogue(id)
+           ├─ Type == System
+           │    └─ sceneDirector.ShowSystemAction()
+           │         └─ ExecuteTriggerAsync() (트리거가 있으면)
+           ├─ Type == ConditionBranch
+           │    └─ PlayerData.GetCurCharacterAffinityTier() 비교
+           │         └─ 분기에 맞는 DialogueEvent(Goto) 호출
+           └─ 일반 대화
+                ├─ currentState = Typing
+                ├─ await sceneDirector.ShowDialogueAsync(dialogue)  ← 타이핑 연출
+                └─ currentState = WaitingForInput
+
+  플레이어 클릭 처리 (OnScreenClicked):
+    ┌─ WaitingForTrigger / WaitingForChoice → 무시
+    ├─ Typing
+    │    └─ sceneDirector.SkipTyping()  → WaitingForInput
+    └─ WaitingForInput
+         ├─ Choices 있음  → ShowChoices() → WaitingForChoice
+         ├─ Trigger 있음  → ExecuteTriggerAsync()
+         ├─ Next 있음     → DialogueEvent(next)
+         └─ Next 없음     → EndScene()
+
+  씬 종료:
+    EndScene()
+      └─ GameFlow == Bar
+           └─ GameFlow = CommuteOut
+                └─ SceneTransitionManager.LoadScene("Outside")
+
+
+8. 트리거 시스템
+================================================================================
+
+  DialogueData에 TriggerData가 있으면 ExecuteTriggerAsync()가 호출됩니다.
+
+  실행 흐름:
+    ExecuteTriggerAsync(trigger, nextId)
+      ├─ currentState = WaitingForTrigger
+      └─ sceneDirector.ExcuteTriggerAsync(trigger)
+           └─ DialogueCommandFactory.CreateCommand(trigger)
+                └─ command.ExecuteAsync()  ← 비동기 실행
+                     └─ 완료 시 다음 DialogueId 반환
+
+  트리거 타입 → 커맨드 매핑 (DialogueCommandFactory.cs):
+    ┌───────────────────┬──────────────────────────────────────────────────┐
+    │ ETriggetType      │ 생성되는 커맨드 (Command/ 폴더)                  │
+    ├───────────────────┼──────────────────────────────────────────────────┤
+    │ CustomerEnter     │ CustomerEnterCommand  ← 캐릭터 등장 연출         │
+    │ CustomerExit      │ CustomerExitCommand   ← 캐릭터 퇴장 연출         │
+    │ Effect            │ EffectCommand         ← 화면 이펙트 재생         │
+    │ StartCraft        │ StartCraftCommand     ← 칵테일 제조 시작         │
+    │ StartCutScene     │ StartCutSceneCommand  ← 컷씬 재생               │
+    │ SetStat           │ SetStatCommand        ← 호감도 직접 설정         │
+    │ AddStat           │ AddStatCommand        ← 호감도 누적 추가         │
+    │ SetFlag           │ SetFlagCommand        ← 플레이어 플래그 설정     │
+    │ MoneyChange       │ MoneyChangeCommand    ← 보유 금액 변경           │
+    │ Day_End           │ DayEndCommand         ← 하루 종료, Outside 전환  │
+    │ None / Char.Action│ null (무시)                                      │
+    └───────────────────┴──────────────────────────────────────────────────┘
+
+  각 커맨드는 IDialogueCommand 인터페이스를 구현합니다:
+    UniTask<string> ExecuteAsync(CancellationToken ct)
+      └─ 완료 후 다음 대화 Id 반환 (없으면 빈 문자열 "")
+
+
+9. 칵테일 제조 미니게임 플로우
+================================================================================
+
+  관련 파일:
+    CocktailCraftManager.cs  ← 전체 흐름 제어
+    StartCraftCommand.cs     ← 트리거에서 CocktailCraftManager.StartCraft() 호출
+    MiniGame/Shaker/         ← 쉐이커 미니게임 (ShakingManagerNew.cs)
+    MiniGame/Stur/           ← 스터 미니게임 (SturManagerNew.cs)
+
+  CraftDataSO 데이터 구조:
+    CraftDataSO
+      └─ CraftDataBase
+           └─ CraftEvents[] : CraftEventData
+                ├─ Id / AutoOpenRecipeUi
+                ├─ Evaluation.Rules[] ← 판정 규칙
+                └─ (칵테일 id, 재료 정보 등)
+
+  제조 플로우:
+    StartCraftCommand.ExecuteAsync()
+      └─ CocktailCraftManager.StartCraft(craftEventId)
+           ├─ craftObject 활성화, dialogueCanvas 비활성화
+           ├─ 재료 선택 UI 표시 (UIIngredientPanel)
+           ├─ 제조 방식 선택 (쉐이크 / 스터 / 빌드)
+           ├─ 미니게임 프리팹 Instantiate
+           │    └─ shakePrefab / stirPrefab / buildPrefab
+           │         └─ IMiniGameController.InitGame(tcs)
+           ├─ await tcs ← 미니게임 완료 대기
+           ├─ Evaluate() ← 결과 판정
+           │    └─ EResultType : Success / Fail / Perfect
+           ├─ 보상 지급 (금액 변경, 호감도 등)
+           └─ 초기화 → 대화 재개 (다음 DialogueId 반환)
+
+  IMiniGameController 인터페이스 (Craft 내 각 미니게임):
+    InitGame(tcs)   ← 미니게임 초기화 + 완료 시 tcs.TrySetResult()
+    CompleteMade()  ← 제조 완료 처리
+    OnNextButton()  ← 다음 단계 버튼
+    Serve()         ← 서빙
+    Retry()         ← 재시도
+
+
+10. 컷씬 시스템
+================================================================================
+
+  관련 파일:
+    CutsceneManager.cs          ← 메인 컷씬 재생 매니저 (IEffectPlayer, ICutScenePlayer)
+    SpriteAnimationManager.cs   ← Sprite 컷씬 (AnimationClip 기반)
+    SpineAnimationManager.cs    ← Spine 컷씬 (SkeletonDataAsset 기반)
+    CutSceneTimelineManager.cs  ← Timeline 컷씬 (PlayableDirector 기반)
+    Cutscene/UI Timeline/       ← Timeline 커스텀 트랙 정의 (총 11종 × 4 = 44개)
+
+  컷씬 데이터 (cutscenes.json → CutSceneDataSO):
+    SpriteCutscene[]
+      ├─ Id       ← Addressable 키 겸 고유 식별자
+      └─ Type     ← CutsceneType: Sprite / Spine / Comic / Timeline
+
+  재생 흐름:
+    CutSceneManager.PlayCutScene(id)
+      ├─ cutSceneDataSO.spriteCutsceneCachedById[id] 조회
+      └─ cutScene.Type 분기
+           ├─ Sprite
+           │    └─ ResourceLoader.TryLoadAsync<AnimationClip>(id)
+           │         └─ SpriteAnimationManager.PlayAnimation()
+           ├─ Spine
+           │    └─ ResourceLoader.TryLoadAsync<SkeletonDataAsset>(id)
+           │         └─ SpineAnimationManager.PlayAnimation()
+           ├─ Comic   ← 현재 미구현
+           └─ Timeline
+                └─ ResourceLoader.TryLoadAsync<TimelineAsset>(id)
+                     └─ CutSceneTimelineManager.PlayTimelineCutScene(asset)
+
+  화면 이펙트 (IEffectPlayer.PlayEffectAsync):
+    EEffectType 별 처리:
+      FadeOut      ← effectOverlay DOFade(0, duration)
+      FadeIn       ← effectOverlay DOFade(1, duration)
+      FlashWhite   ← 흰색 오버레이 → DOFade(0)
+      ScreenShake  ← canvasRect DOShakeAnchorPos
+      ZoomPulse    ← canvasRect DOScale (확대 → 원복)
+      Vignette     ← 검정 오버레이 DOFade(0.7)
+      Dim          ← 검정 오버레이 DOFade(intensity)
+      Chromatic    ← 미구현 (딜레이만)
+
+  UI Timeline 커스텀 트랙 목록 (모두 CutSceneTimelineManager 를 바인딩):
+    CutSceneBG          ← 배경 이미지 교체
+    CutSceneDialogue    ← 대사 버블 표시
+    CutSceneEffect      ← 화면 이펙트 오버레이
+    CutSceneImage       ← 이미지 오브젝트 등장/이동/페이드
+    CutSceneMove        ← 오브젝트 이동
+    CutSceneResolution  ← CanvasScaler 해상도 변경
+    CutSceneRootMove    ← cutSceneRoot / BGRoot 패닝
+    CutSceneRotateY     ← Y축 회전
+    CutSceneShake       ← 화면 흔들기 (DOTween)
+    CutSceneSpriteAnim  ← 스프라이트 애니메이션
+    CutSceneZoom        ← 카메라 줌 (스케일)
+    ※ 각 트랙은 Behaviour / Clip / MixerBehaviour / Track 4개 파일로 구성됨
+
+
+11. Outside 씬 플로우
+================================================================================
+
+  관련 파일:
+    OustideTimelineManager.cs    ← Timeline 재생 매니저
+    Outside/                     ← NPC 인터랙션, 오브젝트 등
+    Cutscene/Outside Timeline/   ← SpriteReveal 등 Outside 전용 트랙
+
+  진입 조건:
+    - GameFlow == CommuteOut : Bar 씬 종료 후 출근 연출
+    - GameFlow == CommuteIn  : Home 씬 정산 완료 후 다음날 출근 연출
+
+  재생 흐름:
+    OutsideGameLifetimeScope 등록 (씬 시작)
+      └─ OustideTimelineManager 초기화
+           └─ timelineList → _timelines 딕셔너리 구축
+
+    연출 재생:
+      OustideTimelineManager.PlayTimelineCutScene(id 또는 TimelineAsset)
+        └─ PlayableDirector.playableAsset = timeline
+             └─ PlayableDirector.Play()
+
+    엔딩 조건:
+      OustideTimelineManager.OnTriggerEnding()
+        └─ SceneTransitionManager.LoadScene("TempEnding")
+
+  CutsceneDialogueHandler (Outside Timeline Signal에서 호출):
+    PlayNextLine()      ← Timeline이 계속 진행되면서 대사 비동기 재생
+    PlayNextLinePause() ← 대사 완료까지 Timeline 일시정지 후 재개
+
+
+12. Home 씬 / 정산 플로우
+================================================================================
+
+  관련 파일:
+    HomeManager.cs      ← Home 씬 매니저
+    SettlementDataSO.cs ← settlements.json 컨테이너
+
+  정산 데이터 구조 (settlements.json):
+    SettlementDataBase
+      └─ dailySettlement[] : DailySettlementData
+           └─ Expenses[] : ExpenseItem
+                ├─ Amount     : int  ← 비용
+                └─ Condition? : OutsideCondition (없으면 무조건 차감)
+
+  Home 씬 진입 흐름:
+    HomeManager.Start()
+      ├─ SoundManager.StopBGM()
+      ├─ CalculateCost(settlementData.dailySettlement[CurrentDay])
+      │    └─ Expenses 순회:
+      │         ├─ Condition 없음 → 무조건 비용 추가
+      │         └─ Condition 있음 → CheckCondition()
+      │              ├─ Affinity → 캐릭터 호감도 값 비교
+      │              ├─ Skill   → 스킬 값 비교
+      │              └─ Money   → 보유 금액 비교
+      └─ showSettleMent 이벤트 발행 → 정산 UI 표시
+
+  정산 확인 후 (UI 버튼 → CheckSettlement() 호출):
+    CheckSettlement()
+      ├─ CurrentDay++
+      ├─ DataSwitcher.SwitchDay("day{N}.json", "day{N}_crafts.json")
+      ├─ GameFlow = CommuteIn
+      └─ SceneTransitionManager.LoadScene("Outside")
+
+
+13. 히스토리 / 사운드 / 옵션 서브시스템
+================================================================================
+
+  [대화 히스토리]
+    DialogueHistory (C# 싱글톤, VContainer 등록)
+      └─ HistoryRecord 목록 관리
+           ├─ AddDialogue()   ← 대화 한 줄 추가
+           ├─ AddSystem()     ← 시스템/내레이션 추가
+           ├─ AddChoice()     ← 선택지 결과 추가
+           └─ Clear()
+
+    DialogueHistoryView (UI)
+      └─ Open() → Rebuild() → ScrollRect에 프리팹 생성
+           ├─ HistoryEntryItem    ← 대화/시스템 항목
+           ├─ HistoryChoiceItem   ← 선택지 항목
+           └─ HistorySeparatorItem ← 씬 구분선
+
+  [사운드]
+    ISoundManager / SoundManager (ISoundManager 구현)
+      ├─ PlayBGM(name, fadeDuration, loop)  ← CrossfadeBGM 코루틴
+      ├─ StopBGM(fadeDuration)
+      ├─ PauseBGM() / ResumeBGM()
+      ├─ PlaySE(name)  ← AudioSource 풀에서 가져와 PlayOneShot
+      ├─ SetBGMVolume(0~1) / SetSEVolume(0~1)  ← AudioMixer + PlayerPrefs
+      └─ GetBGMVolume() / GetSEVolume()
+
+  [디스플레이 옵션]
+    IDisplaySettings / DisplaySettings (VContainer Singleton)
+      └─ UIDisplayOptions  ← 옵션 UI와 연결
+
+
+14. 주요 열거형(enum) 정리
+================================================================================
+
+  EGameFlow      : Bar / CommuteIn / CommuteOut / Home
+  GameState      : None / Play / Effect / Loading / MiniGame
+  DialogueState  : Idle / WaitingForTrigger / Typing / WaitingForInput
+                   WaitingForChoice / CompleteTrigger
+  EDialogueType  : (일반 / System / ConditionBranch 등)
+  ETriggetType   : None / Effect / StartCraft / CustomerEnter / CustomerExit
+                   StartCutScene / SetStat / AddStat / ApplyEffect
+                   CharacterAction / Day_End / SetFlag / MoneyChange
+  ECutSceneType  : Sprite / Spine / Comic / Timeline
+  EEffectType    : None / FadeOut / FadeIn / FlashWhite / ScreenShake
+                   ZoomPulse / Vignette / Dim / Chromatic
+  EMatchType     : (칵테일 재료 매칭 타입)
+  EVerdictType   : (칵테일 판정 결과)
+  EResultType    : Success / Fail / Perfect
+  EAffinityTier  : (캐릭터 호감도 티어)
+  ESkillTier     : (스킬 티어)
+  HistoryKind    : Dialogue / Choice / System
+  AnchorType     : Center / Left / Right / TopLeft / TopRight / BottomLeft / BottomRight
+
+
+15. JSON 데이터 파일 목록
+================================================================================
+
+  StreamingAssets/ 에 위치. DataLoadManager에서 Awake 시점에 읽습니다.
+
+  파일명                    ScriptableObject        내용
+  ────────────────────────────────────────────────────────────────────────────
+  day{N}.json             DayDataSO              일차별 씬/대화/트리거 데이터
+  day{N}_crafts.json      CraftDataSO            해당 일차 칵테일 제조 이벤트
+  cocktails.json          CocktailDataSO         칵테일 종류 및 레시피
+  ingredients.json        IngredientDataSO       재료 목록
+  characters.json         CharacterDataSO        캐릭터 기본 정보
+  character_anim.json     CharacterAnimSO        캐릭터 애니메이션 설정
+  cutscenes.json          CutSceneDataSO         컷씬 목록 (ID + Type)
+  settlements.json        SettlementDataSO       일차별 정산 비용 항목
+  text_styles.json        TextTagDataSO          텍스트 태그/스타일 정의
+  character_tiers.json    CharacterTierDataSO    호감도 티어 기준값
+  skill_tiers.json        SkillTierDataSO        스킬 티어 기준값
+
+  Outside 씬 데이터 (OutsideDataManager.Load()에서 별도 처리):
+    NPCCharacterDayDataSO  ← NPC 일차별 등장 / 선택지 데이터
+    OutsideObjectDataSO    ← 상호작용 가능 오브젝트 데이터
+    OutsideRadioDataSO     ← 라디오 음악/사연 데이터
+    OutsideTriggerCutSceneSO ← Outside 트리거 컷씬 연결 데이터
+
+
+================================================================================
+  작성: Claude AI (claude-sonnet-4-6) - 코드 분석 기반 자동 작성
+  참고: 코드가 변경될 경우 이 문서도 함께 업데이트해 주세요.
+================================================================================

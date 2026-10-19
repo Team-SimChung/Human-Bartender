@@ -27,17 +27,13 @@ public sealed class DialogueFxSceneWiringTests
                     Is.Not.Null, $"{sceneName}: CSV tag target");
             }
 
-            var impulse = roots.SelectMany(root => root.GetComponentsInChildren<VerticalCameraImpulse>(true)).Single();
-            Assert.That(impulse.GetComponent<Unity.Cinemachine.CinemachineCamera>(), Is.Not.Null,
-                $"{sceneName}: impulse must run on the gameplay Cinemachine camera");
-            Assert.That(impulse.gameObject.name, Is.EqualTo("CM_GamePlay"),
-                $"{sceneName}: dialogue feedback must not shake cutscene cameras");
-            Assert.That(impulse.enabled, Is.True, $"{sceneName}: dialogue camera feedback enabled");
-
             if (isBar)
             {
                 Assert.That(roots.SelectMany(root => root.GetComponentsInChildren<InGameLifetimeScope>(true)),
                     Is.Not.Empty, "Play: in-game DI scope");
+                var impulse = roots.SelectMany(root => root.GetComponentsInChildren<VerticalCameraImpulse>(true)).Single();
+                Assert.That(impulse.GetComponent<Unity.Cinemachine.CinemachineCamera>(), Is.Not.Null,
+                    "Play: impulse must run on the gameplay Cinemachine camera");
                 var phase = roots.SelectMany(root => root.GetComponentsInChildren<PlayPhaseController>(true)).Single();
                 Assert.That(new SerializedObject(phase).FindProperty("testDay").intValue, Is.EqualTo(-1));
                 Assert.That(new SerializedObject(phase).FindProperty("skipTycoonForTest").boolValue, Is.False);

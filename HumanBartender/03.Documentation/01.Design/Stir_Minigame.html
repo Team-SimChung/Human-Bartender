@@ -1,0 +1,1515 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Project L.U.N.A — 스터 기믹</title>
+  <style>
+    :root {
+      --bg: #070b0e;
+      --panel: #0b1115;
+      --panel-soft: #10191e;
+      --ink: #edf7f5;
+      --muted: #7c8f93;
+      --line: rgba(184, 222, 219, 0.16);
+      --cyan: #69f6e1;
+      --cyan-soft: rgba(105, 246, 225, 0.14);
+      --lime: #dfff6b;
+      --green: #72f2a0;
+      --red: #ff6478;
+      --violet: #a58cff;
+      --gold: #ffc85a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 16%, rgba(105, 246, 225, 0.07), transparent 30%),
+        radial-gradient(circle at 84% 78%, rgba(165, 140, 255, 0.09), transparent 34%),
+        var(--bg);
+      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      overflow-x: hidden;
+    }
+
+    button { font: inherit; }
+
+    .game-shell {
+      position: relative;
+      width: min(1500px, calc(100vw - 44px));
+      aspect-ratio: 16 / 9;
+      min-height: 650px;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(181, 220, 216, 0.21);
+      border-radius: 20px;
+      background: #090e12;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
+    }
+
+    .game-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 4px),
+        radial-gradient(circle at center, transparent 58%, rgba(0,0,0,0.3));
+      mix-blend-mode: screen;
+    }
+
+    .topbar {
+      position: absolute;
+      inset: 0 0 auto 0;
+      z-index: 40;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 26px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(6,10,13,0.98), rgba(6,10,13,0.82));
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+    }
+
+    .brand-mark {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--cyan);
+      border-radius: 50%;
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(105, 246, 225, 0.2);
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 11px;
+    }
+
+    .top-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-stat {
+      min-width: 126px;
+      padding: 8px 13px;
+      border: 1px solid rgba(184, 222, 219, 0.13);
+      background: rgba(255,255,255,0.018);
+      text-align: right;
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    }
+
+    .top-stat small {
+      display: block;
+      margin-bottom: 1px;
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 0.16em;
+    }
+
+    .top-stat strong {
+      color: var(--ink);
+      font-size: 15px;
+      letter-spacing: 0.05em;
+    }
+
+    .top-stat.timer strong { color: var(--cyan); }
+    .top-stat.combo strong { color: var(--lime); }
+
+    .playfield {
+      position: absolute;
+      inset: 68px 0 0;
+      overflow: hidden;
+    }
+
+    .input-stage {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      padding: 26px 28px 22px 40%;
+      display: flex;
+      flex-direction: column;
+      background:
+        linear-gradient(120deg, transparent 27%, rgba(105,246,225,0.028) 27.2%, transparent 50%),
+        linear-gradient(180deg, rgba(255,255,255,0.018), transparent 18%),
+        var(--panel);
+    }
+
+    .input-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(105,246,225,0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(105,246,225,0.022) 1px, transparent 1px);
+      background-size: 25px 25px;
+      mask-image: linear-gradient(to bottom, black, transparent 92%);
+    }
+
+    .character-stage {
+      position: absolute;
+      z-index: 6;
+      inset: 0 auto 0 0;
+      width: 44%;
+      overflow: hidden;
+      clip-path: polygon(0 0, 73% 0, 100% 100%, 0 100%);
+      background:
+        radial-gradient(circle at 34% 38%, rgba(105,246,225,0.08), transparent 34%),
+        linear-gradient(135deg, #101b1f, #080d10 74%);
+    }
+
+    .character-stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(90deg, transparent 72%, rgba(0,0,0,0.5));
+    }
+
+    #bartenderCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .diagonal-gauge {
+      position: absolute;
+      z-index: 18;
+      top: -2%;
+      left: 32%;
+      width: 30px;
+      height: 108%;
+      padding: 4px;
+      transform-origin: 50% 0;
+      transform: rotate(-12.5deg);
+      border: 1px solid rgba(105,246,225,0.33);
+      background: rgba(5, 11, 14, 0.9);
+      box-shadow: 0 0 28px rgba(105,246,225,0.1);
+    }
+
+    .gauge-segments {
+      position: absolute;
+      inset: 7px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 4px;
+    }
+
+    .gauge-segment {
+      flex: 1;
+      min-height: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.025);
+      transition: background 170ms, border-color 170ms, box-shadow 170ms;
+    }
+
+    .gauge-segment.done {
+      border-color: rgba(105,246,225,0.55);
+      background: linear-gradient(180deg, var(--cyan), #318e84);
+      box-shadow: 0 0 9px rgba(105,246,225,0.3);
+    }
+
+    .gauge-segment.clean {
+      border-color: rgba(223,255,107,0.72);
+      background: linear-gradient(180deg, var(--lime), #719038);
+    }
+
+    .gauge-segment.failed {
+      border-color: rgba(255,100,120,0.66);
+      background: linear-gradient(180deg, var(--red), #872f43);
+      box-shadow: 0 0 9px rgba(255,100,120,0.2);
+    }
+
+    .input-header,
+    .arena-wrap,
+    .input-footer { position: relative; z-index: 3; }
+
+    .input-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      gap: 20px;
+    }
+
+    .round-timer-card {
+      min-width: 150px;
+      padding: 10px 12px;
+      border: 1px solid rgba(184,222,219,0.14);
+      background: rgba(255,255,255,0.018);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    }
+
+    .round-timer-head {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 0.12em;
+    }
+
+    #roundTime {
+      margin-top: 4px;
+      color: var(--lime);
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .round-time-track {
+      height: 4px;
+      margin-top: 6px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.06);
+    }
+
+    #roundTimeFill {
+      width: 100%;
+      height: 100%;
+      background: var(--lime);
+      box-shadow: 0 0 12px rgba(223,255,107,0.28);
+      transform-origin: left center;
+    }
+
+    #roundTimeFill.danger { background: var(--red); box-shadow: 0 0 12px rgba(255,100,120,0.35); }
+
+    .arena-wrap {
+      flex: 1;
+      min-height: 450px;
+      display: grid;
+      place-items: center;
+      padding: 4px 0 0;
+    }
+
+    .stir-arena {
+      --spoon-angle: 0deg;
+      position: relative;
+      width: min(56vh, 470px, 82%);
+      aspect-ratio: 1;
+      border: 1px solid rgba(105,246,225,0.12);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(105,246,225,0.055), transparent 62%),
+        radial-gradient(circle, transparent 57%, rgba(255,255,255,0.035) 57.3%, transparent 58%);
+    }
+
+    .stir-arena::before,
+    .stir-arena::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      pointer-events: none;
+      background: rgba(105,246,225,0.06);
+      transform: translate(-50%, -50%);
+    }
+
+    .stir-arena::before { width: 78%; height: 1px; }
+    .stir-arena::after { width: 1px; height: 78%; }
+
+    .glass-shadow {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      width: 52%;
+      height: 16%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(0,0,0,0.56);
+      filter: blur(24px);
+    }
+
+    .glass {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 55%;
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      overflow: hidden;
+      border: 7px solid rgba(210, 238, 236, 0.43);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 36% 29%, rgba(255,255,255,0.24), transparent 8%),
+        radial-gradient(circle, rgba(104,191,187,0.24), rgba(44,88,89,0.58) 62%, rgba(9,27,30,0.92));
+      box-shadow:
+        inset 0 0 0 5px rgba(6,15,18,0.72),
+        inset 0 0 34px rgba(105,246,225,0.11),
+        0 18px 42px rgba(0,0,0,0.48);
+    }
+
+    .liquid-swirl {
+      position: absolute;
+      inset: 9%;
+      border: 1px solid rgba(205,255,248,0.14);
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent, rgba(105,246,225,0.14), transparent 32%, rgba(165,140,255,0.1), transparent 68%);
+      opacity: 0.42;
+      transition: transform 220ms cubic-bezier(.2,.85,.2,1), opacity 150ms;
+    }
+
+    .stir-arena.moving .liquid-swirl { transform: rotate(150deg) scale(1.06); opacity: 1; }
+
+    .ice {
+      position: absolute;
+      width: 27%;
+      aspect-ratio: 1;
+      border: 2px solid rgba(224,251,249,0.56);
+      border-radius: 18%;
+      background: linear-gradient(145deg, rgba(255,255,255,0.42), rgba(158,217,215,0.08) 52%, rgba(14,53,56,0.34));
+      box-shadow: inset 5px 5px 10px rgba(255,255,255,0.14), 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 220ms cubic-bezier(.2,.85,.2,1);
+    }
+
+    .ice::after {
+      content: "";
+      position: absolute;
+      inset: 17%;
+      border-top: 1px solid rgba(255,255,255,0.34);
+      border-left: 1px solid rgba(255,255,255,0.22);
+      transform: rotate(-14deg);
+    }
+
+    .ice-1 { left: 18%; top: 22%; transform: rotate(12deg); }
+    .ice-2 { right: 17%; top: 24%; transform: rotate(-22deg) scale(0.92); }
+    .ice-3 { left: 36%; bottom: 16%; transform: rotate(31deg) scale(0.84); }
+    .ice-4 { left: 17%; bottom: 23%; transform: rotate(-40deg) scale(0.66); }
+    .ice-5 { right: 16%; bottom: 19%; transform: rotate(52deg) scale(0.7); }
+    .ice-6 { left: 39%; top: 12%; transform: rotate(-8deg) scale(0.58); }
+    .stir-arena.moving .ice-1 { transform: translate(9px, 3px) rotate(41deg); }
+    .stir-arena.moving .ice-2 { transform: translate(-2px, 8px) rotate(10deg) scale(0.92); }
+    .stir-arena.moving .ice-3 { transform: translate(-8px, -2px) rotate(63deg) scale(0.84); }
+    .stir-arena.moving .ice-4 { transform: translate(2px, -8px) rotate(-7deg) scale(0.66); }
+    .stir-arena.moving .ice-5 { transform: translate(-7px, -5px) rotate(80deg) scale(0.7); }
+    .stir-arena.moving .ice-6 { transform: translate(5px, 5px) rotate(20deg) scale(0.58); }
+
+    .spoon-orbit {
+      position: absolute;
+      z-index: 8;
+      left: 50%;
+      top: 50%;
+      width: 12px;
+      height: 49%;
+      transform-origin: 50% 86%;
+      transform: translate(-50%, -86%) rotate(var(--spoon-angle));
+      transition: transform 215ms cubic-bezier(.2,.85,.2,1);
+      filter: drop-shadow(2px 3px 2px rgba(0,0,0,0.5));
+    }
+
+    .spoon-shaft {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 4px;
+      height: 88%;
+      transform: translateX(-50%);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 4px;
+      background: repeating-linear-gradient(0deg, #b7c8c9 0 4px, #5f7072 4px 7px);
+    }
+
+    .spoon-handle {
+      position: absolute;
+      left: 50%;
+      top: -8px;
+      width: 10px;
+      height: 18px;
+      transform: translateX(-50%);
+      border: 2px solid #d6e1e2;
+      border-radius: 45%;
+      background: #6f7b7d;
+    }
+
+    .spoon-bowl {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 15px;
+      height: 28px;
+      transform: translateX(-50%);
+      border: 2px solid rgba(241,251,251,0.78);
+      border-radius: 50%;
+      background: linear-gradient(90deg, #556568, #c8d4d5 50%, #667679);
+    }
+
+    .key-node {
+      position: absolute;
+      z-index: 12;
+      width: 78px;
+      height: 78px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid rgba(172,202,201,0.3);
+      border-radius: 50%;
+      color: rgba(237,247,245,0.58);
+      background: linear-gradient(145deg, rgba(30,40,44,0.98), rgba(9,14,17,0.98));
+      box-shadow: inset 0 0 0 5px rgba(255,255,255,0.018), 0 8px 22px rgba(0,0,0,0.34);
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      transition: border-color 140ms, color 140ms, box-shadow 140ms, background 140ms;
+    }
+
+    .key-node:hover { color: var(--ink); border-color: rgba(105,246,225,0.48); }
+    .key-node:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+    .key-node:active { filter: brightness(1.25); }
+
+    .key-node .letter {
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .key-node .alias {
+      position: absolute;
+      right: 12px;
+      bottom: 9px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .key-node .step-order {
+      position: absolute;
+      left: 50%;
+      bottom: -18px;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+
+    .key-w { left: 50%; top: 8%; transform: translate(-50%, -50%); }
+    .key-d { left: 92%; top: 50%; transform: translate(-50%, -50%); }
+    .key-s { left: 50%; top: 92%; transform: translate(-50%, -50%); }
+    .key-a { left: 8%; top: 50%; transform: translate(-50%, -50%); }
+
+    .key-node.target {
+      color: var(--lime);
+      border-color: var(--lime);
+      background: linear-gradient(145deg, rgba(70,84,30,0.8), rgba(13,20,10,0.98));
+      box-shadow: 0 0 0 5px rgba(223,255,107,0.09), 0 0 27px rgba(223,255,107,0.2);
+      animation: targetPulse 1s ease-in-out infinite;
+    }
+
+    .key-node.position {
+      color: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 4px var(--cyan-soft), 0 0 24px rgba(105,246,225,0.17);
+    }
+
+    .key-node.correct-flash {
+      color: #07130c;
+      border-color: var(--green);
+      background: var(--green);
+      box-shadow: 0 0 34px rgba(114,242,160,0.54);
+    }
+
+    .key-node.wrong-flash {
+      color: white;
+      border-color: var(--red);
+      background: rgba(151,32,54,0.92);
+      box-shadow: 0 0 34px rgba(255,100,120,0.5);
+    }
+
+    @keyframes targetPulse {
+      0%, 100% { filter: brightness(0.92); }
+      50% { filter: brightness(1.25); }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .stir-arena.feedback-good { animation: arenaGood 250ms ease-out; }
+    .stir-arena.feedback-wrong { animation: arenaWrong 280ms ease-in-out; }
+    @keyframes arenaGood { 50% { filter: drop-shadow(0 0 17px rgba(114,242,160,0.4)); transform: scale(1.012); } }
+    @keyframes arenaWrong {
+      20%, 60% { transform: translateX(-6px); filter: drop-shadow(0 0 14px rgba(255,100,120,0.38)); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .input-footer {
+      display: flex;
+      align-items: end;
+      justify-content: flex-end;
+      gap: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .finish-button {
+      min-width: 150px;
+      height: 46px;
+      border: 1px solid rgba(255,255,255,0.11);
+      color: #59666a;
+      background: rgba(255,255,255,0.025);
+      cursor: not-allowed;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      transition: color 160ms, background 160ms, border-color 160ms, box-shadow 160ms, transform 160ms;
+    }
+
+    .finish-button.ready {
+      border-color: var(--lime);
+      color: #10160a;
+      background: var(--lime);
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(223,255,107,0.2);
+      animation: finishPulse 1.1s ease-in-out infinite;
+    }
+
+    .finish-button.ready:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    @keyframes finishPulse { 50% { box-shadow: 0 0 42px rgba(223,255,107,0.34); } }
+
+    .start-overlay {
+      position: absolute;
+      z-index: 28;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding-left: 36%;
+      background: rgba(6,10,13,0.56);
+      backdrop-filter: blur(5px);
+      transition: opacity 180ms;
+    }
+
+    .start-overlay.hidden { opacity: 0; pointer-events: none; }
+
+    .start-card {
+      width: min(390px, 82%);
+      padding: 28px 30px;
+      border: 1px solid rgba(105,246,225,0.31);
+      background: rgba(8,14,17,0.93);
+      text-align: center;
+      box-shadow: 0 0 54px rgba(105,246,225,0.08);
+    }
+
+    .start-card small {
+      color: var(--violet);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+    }
+
+    .start-card h2 { margin: 9px 0 8px; font-size: 26px; }
+    .start-card p { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+
+    .start-key {
+      width: 72px;
+      height: 72px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+      border: 1px solid var(--lime);
+      border-radius: 50%;
+      color: var(--lime);
+      background: rgba(223,255,107,0.05);
+      box-shadow: 0 0 26px rgba(223,255,107,0.14);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 23px;
+      font-weight: 900;
+      cursor: pointer;
+      animation: targetPulse 1s ease-in-out infinite;
+    }
+
+    .result-overlay {
+      position: absolute;
+      z-index: 60;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: rgba(4,8,10,0.86);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms;
+    }
+
+    .result-overlay.show { opacity: 1; pointer-events: auto; }
+
+    .result-card {
+      width: min(530px, 92%);
+      padding: 32px;
+      border: 1px solid rgba(223,255,107,0.38);
+      background:
+        linear-gradient(145deg, rgba(223,255,107,0.07), rgba(105,246,225,0.025)),
+        #0a1114;
+      text-align: center;
+      box-shadow: 0 0 70px rgba(223,255,107,0.07);
+    }
+
+    .result-card > small {
+      color: var(--muted);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+    }
+
+    .result-grade {
+      margin: 7px 0 0;
+      color: var(--lime);
+      font-size: clamp(44px, 6vw, 72px);
+      line-height: 1;
+      letter-spacing: -0.055em;
+      text-transform: uppercase;
+    }
+
+    .result-percent {
+      margin: 8px 0 24px;
+      color: var(--ink);
+      font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 17px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .result-item {
+      padding: 12px 8px;
+      border: 1px solid rgba(184,222,219,0.12);
+      background: rgba(255,255,255,0.018);
+    }
+
+    .result-item small { display: block; color: var(--muted); font-size: 8px; letter-spacing: 0.1em; }
+    .result-item strong { display: block; margin-top: 4px; font-family: ui-monospace, Menlo, monospace; font-size: 16px; }
+
+    .grade-rule {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.7;
+    }
+
+    .result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+    .result-button {
+      height: 42px;
+      border: 1px solid rgba(105,246,225,0.28);
+      color: var(--ink);
+      background: rgba(105,246,225,0.07);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+    }
+
+    .result-button.primary { border-color: var(--lime); color: #10160a; background: var(--lime); }
+
+    @media (max-width: 1050px) {
+      body { padding: 0; display: block; }
+      .game-shell { width: 100%; min-height: 100vh; aspect-ratio: auto; border: 0; border-radius: 0; }
+      .top-stat { min-width: 98px; }
+      .character-stage { width: 40%; }
+      .input-stage { padding-left: 37%; }
+      .diagonal-gauge { left: 29.2%; }
+      .stir-arena { width: min(48vw, 430px); }
+    }
+
+    @media (max-width: 780px) {
+      .game-shell { min-height: 1120px; }
+      .topbar { padding: 0 14px; }
+      .brand { font-size: 9px; }
+      .top-stat:nth-child(2) { display: none; }
+      .playfield { overflow-y: auto; }
+      .character-stage { position: relative; width: 100%; height: 38%; clip-path: none; }
+      .input-stage { position: relative; min-height: 700px; padding: 24px 14px 18px; }
+      .diagonal-gauge { display: none; }
+      .start-overlay { position: fixed; inset: 68px 0 0; padding-left: 0; }
+      .stir-arena { width: min(86vw, 430px); }
+      .arena-wrap { min-height: 470px; }
+      .finish-button { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell" aria-label="Project L.U.N.A 스터 기믹">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">L</span> PROJECT L.U.N.A</div>
+      <div class="top-stats">
+        <div class="top-stat timer">
+          <small>ELAPSED TIME</small>
+          <strong id="elapsedTime">00:00.00</strong>
+        </div>
+        <div class="top-stat">
+          <small>CIRCLE</small>
+          <strong id="circleReadout">0 / 10</strong>
+        </div>
+        <div class="top-stat combo">
+          <small>COMBO / BEST</small>
+          <strong><span id="comboReadout">0</span> / <span id="bestCombo">0</span></strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="playfield">
+      <section class="input-stage" aria-label="스터 입력 화면">
+        <div class="input-header">
+          <div class="round-timer-card">
+            <div class="round-timer-head"><span>ROUND LIMIT</span><span>2.00 SEC</span></div>
+            <div id="roundTime">2.00</div>
+            <div class="round-time-track"><div id="roundTimeFill"></div></div>
+          </div>
+        </div>
+
+        <div class="arena-wrap">
+          <div class="stir-arena" id="stirArena">
+            <div class="glass-shadow"></div>
+            <div class="glass" aria-hidden="true">
+              <span class="liquid-swirl"></span>
+              <span class="ice ice-1"></span>
+              <span class="ice ice-2"></span>
+              <span class="ice ice-3"></span>
+              <span class="ice ice-4"></span>
+              <span class="ice ice-5"></span>
+              <span class="ice ice-6"></span>
+            </div>
+
+            <div class="spoon-orbit" aria-hidden="true">
+              <span class="spoon-handle"></span>
+              <span class="spoon-shaft"></span>
+              <span class="spoon-bowl"></span>
+            </div>
+
+            <button class="key-node key-w target" data-direction="0" aria-label="W 또는 위쪽 방향키">
+              <span class="letter">W</span><span class="alias">↑</span><span class="step-order">START / 04</span>
+            </button>
+            <button class="key-node key-d" data-direction="1" aria-label="D 또는 오른쪽 방향키">
+              <span class="letter">D</span><span class="alias">→</span><span class="step-order">01</span>
+            </button>
+            <button class="key-node key-s" data-direction="2" aria-label="S 또는 아래쪽 방향키">
+              <span class="letter">S</span><span class="alias">↓</span><span class="step-order">02</span>
+            </button>
+            <button class="key-node key-a" data-direction="3" aria-label="A 또는 왼쪽 방향키">
+              <span class="letter">A</span><span class="alias">←</span><span class="step-order">03</span>
+            </button>
+
+            <div class="sr-only" aria-live="polite">
+              <strong id="judge">READY</strong>
+              <span id="instruction">W / ↑로 시작</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-footer">
+          <button class="finish-button" id="finishButton" type="button" disabled>제조 종료</button>
+        </div>
+      </section>
+
+      <section class="character-stage" aria-label="캐릭터 스터 애니메이션">
+        <canvas id="bartenderCanvas"></canvas>
+      </section>
+
+      <div class="diagonal-gauge" aria-hidden="true">
+        <div class="gauge-segments" id="gaugeSegments"></div>
+      </div>
+
+      <div class="start-overlay" id="startOverlay">
+        <div class="start-card">
+          <small>STIR GIMMICK</small>
+          <h2>10바퀴를 저어 완성하세요</h2>
+          <p>처음 W로 시작점을 잡습니다.<br>실패하면 그 위치가 새로운 시작점이 되며, 같은 위치로 돌아오면 한 바퀴가 완성됩니다.</p>
+          <button class="start-key" id="startButton" type="button" aria-label="W 입력으로 게임 시작">W</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="result-overlay" id="resultOverlay" role="dialog" aria-modal="true" aria-labelledby="resultGrade">
+      <div class="result-card">
+        <small>STIR RESULT</small>
+        <h2 class="result-grade" id="resultGrade">PERFECT</h2>
+        <div class="result-percent" id="resultPercent">완성도 90%</div>
+        <div class="result-grid">
+          <div class="result-item"><small>SUCCESS</small><strong id="resultSuccess">9 / 10</strong></div>
+          <div class="result-item"><small>BEST COMBO</small><strong id="resultBest">9</strong></div>
+          <div class="result-item"><small>TIME</small><strong id="resultTime">00:00.00</strong></div>
+        </div>
+        <p class="grade-rule">Perfect 90% 이상 · Good 70% 이상 · Normal 50% 이상 · Poor 50% 미만</p>
+        <div class="result-actions">
+          <button class="result-button" id="closeResult" type="button">결과 닫기</button>
+          <button class="result-button primary" id="retryButton" type="button">다시 플레이</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const DIRECTIONS = [
+        { key: "W", arrow: "↑", angle: 0, dx: 0, dy: -1 },
+        { key: "D", arrow: "→", angle: 90, dx: 1, dy: 0 },
+        { key: "S", arrow: "↓", angle: 180, dx: 0, dy: 1 },
+        { key: "A", arrow: "←", angle: 270, dx: -1, dy: 0 }
+      ];
+      const KEY_MAP = new Map([
+        ["KeyW", 0], ["ArrowUp", 0],
+        ["KeyD", 1], ["ArrowRight", 1],
+        ["KeyS", 2], ["ArrowDown", 2],
+        ["KeyA", 3], ["ArrowLeft", 3]
+      ]);
+      const TARGET_CIRCLES = 10;
+      const ROUND_LIMIT = 2;
+
+      const arena = document.getElementById("stirArena");
+      const keyNodes = [...document.querySelectorAll(".key-node")];
+      const judge = document.getElementById("judge");
+      const instruction = document.getElementById("instruction");
+      const elapsedTime = document.getElementById("elapsedTime");
+      const circleReadout = document.getElementById("circleReadout");
+      const comboReadout = document.getElementById("comboReadout");
+      const bestCombo = document.getElementById("bestCombo");
+      const roundTime = document.getElementById("roundTime");
+      const roundTimeFill = document.getElementById("roundTimeFill");
+      const finishButton = document.getElementById("finishButton");
+      const startOverlay = document.getElementById("startOverlay");
+      const startButton = document.getElementById("startButton");
+      const resultOverlay = document.getElementById("resultOverlay");
+      const resultGrade = document.getElementById("resultGrade");
+      const resultPercent = document.getElementById("resultPercent");
+      const resultSuccess = document.getElementById("resultSuccess");
+      const resultBest = document.getElementById("resultBest");
+      const resultTime = document.getElementById("resultTime");
+      const retryButton = document.getElementById("retryButton");
+      const closeResult = document.getElementById("closeResult");
+      const gaugeSegments = document.getElementById("gaugeSegments");
+
+      let gameStarted = false;
+      let roundActive = false;
+      let locked = false;
+      let allCirclesDone = false;
+      let expectedStep = 0;
+      let currentPosition = -1;
+      let roundStartPosition = 0;
+      let roundProgressSteps = 0;
+      let spoonAngle = 0;
+      let attemptedCircles = 0;
+      let successfulCircles = 0;
+      let failedCircles = 0;
+      let combo = 0;
+      let highestCombo = 0;
+      let roundDeadline = 0;
+      let startTimestamp = 0;
+      let finalElapsed = 0;
+
+      const animationState = {
+        handX: 0,
+        handY: -1,
+        targetX: 0,
+        targetY: -1,
+        phase: 0,
+        targetPhase: 0,
+        wrong: 0,
+        glow: 0
+      };
+
+      for (let i = 0; i < TARGET_CIRCLES; i += 1) {
+        const segment = document.createElement("span");
+        segment.className = "gauge-segment";
+        gaugeSegments.appendChild(segment);
+      }
+      const gaugeSegmentNodes = [...gaugeSegments.children];
+
+      function formatTime(milliseconds) {
+        const total = Math.max(0, milliseconds);
+        const minutes = Math.floor(total / 60000);
+        const seconds = Math.floor((total % 60000) / 1000);
+        const hundredths = Math.floor((total % 1000) / 10);
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(hundredths).padStart(2, "0")}`;
+      }
+
+      function setMessage(title, color, subtitle) {
+        judge.textContent = title;
+        judge.style.color = color;
+        instruction.textContent = subtitle;
+      }
+
+      function clearFeedback() {
+        arena.classList.remove("feedback-good", "feedback-wrong", "moving");
+        keyNodes.forEach(node => node.classList.remove("correct-flash", "wrong-flash"));
+      }
+
+      function updateKeyUI() {
+        keyNodes.forEach((node, index) => {
+          node.classList.toggle("target", !allCirclesDone && index === expectedStep);
+          node.classList.toggle("position", currentPosition >= 0 && index === currentPosition && index !== expectedStep);
+        });
+        arena.style.setProperty("--spoon-angle", `${spoonAngle}deg`);
+      }
+
+      function updateStatistics() {
+        circleReadout.textContent = `${attemptedCircles} / ${TARGET_CIRCLES}`;
+        comboReadout.textContent = String(combo);
+        bestCombo.textContent = String(highestCombo);
+        gaugeSegmentNodes.forEach((segment, index) => {
+          segment.classList.toggle("done", index < attemptedCircles);
+          segment.classList.toggle("clean", segment.dataset.result === "clean");
+          segment.classList.toggle("failed", segment.dataset.result === "wrong" || segment.dataset.result === "timeout");
+        });
+      }
+
+      function startGame() {
+        if (gameStarted) return;
+        gameStarted = true;
+        startTimestamp = performance.now();
+        startOverlay.classList.add("hidden");
+        clearFeedback();
+        roundActive = true;
+        locked = false;
+        expectedStep = 1;
+        currentPosition = 0;
+        roundStartPosition = 0;
+        roundProgressSteps = 0;
+        spoonAngle = 0;
+        roundDeadline = performance.now() + ROUND_LIMIT * 1000;
+        roundTime.textContent = ROUND_LIMIT.toFixed(2);
+        roundTimeFill.style.width = "100%";
+        roundTimeFill.classList.remove("danger");
+        setMessage("START", "var(--cyan)", "다음 D / →");
+        animationState.targetX = DIRECTIONS[0].dx;
+        animationState.targetY = DIRECTIONS[0].dy;
+        updateKeyUI();
+      }
+
+      function moveAnimation(directionIndex) {
+        const direction = DIRECTIONS[directionIndex];
+        animationState.targetX = direction.dx;
+        animationState.targetY = direction.dy;
+        animationState.targetPhase += Math.PI / 2;
+        animationState.glow = 1;
+        currentPosition = directionIndex;
+        spoonAngle += 90;
+      }
+
+      function playTone(kind) {
+        try {
+          const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextCtor) return;
+          playTone.ctx ||= new AudioContextCtor();
+          const ctx = playTone.ctx;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = kind === "wrong" ? "sawtooth" : "sine";
+          const base = kind === "combo" ? 640 : kind === "correct" ? 470 : 150;
+          osc.frequency.setValueAtTime(base, ctx.currentTime);
+          if (kind !== "wrong") osc.frequency.exponentialRampToValueAtTime(base * 1.24, ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(kind === "combo" ? 0.065 : 0.04, ctx.currentTime + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.13);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.14);
+        } catch (_) {
+          // 오디오를 사용할 수 없으면 시각 피드백만 유지한다.
+        }
+      }
+
+      function handleCorrect(directionIndex) {
+        moveAnimation(directionIndex);
+        roundProgressSteps += 1;
+        expectedStep = (directionIndex + 1) % DIRECTIONS.length;
+        keyNodes[directionIndex].classList.remove("wrong-flash");
+        keyNodes[directionIndex].classList.add("correct-flash");
+        arena.classList.remove("feedback-good");
+        void arena.offsetWidth;
+        arena.classList.add("moving", "feedback-good");
+        const circleCompleted = roundProgressSteps >= DIRECTIONS.length;
+        playTone(circleCompleted ? "combo" : "correct");
+        window.setTimeout(() => keyNodes[directionIndex].classList.remove("correct-flash"), 130);
+        window.setTimeout(() => arena.classList.remove("moving", "feedback-good"), 150);
+
+        if (circleCompleted) {
+          completeCircle(true, "clean");
+          return;
+        }
+
+        const next = DIRECTIONS[expectedStep];
+        setMessage("GOOD", "var(--green)", `다음 ${next.key} / ${next.arrow}`);
+        updateKeyUI();
+      }
+
+      function handleWrong(directionIndex) {
+        animationState.wrong = 1;
+        keyNodes[directionIndex].classList.remove("correct-flash");
+        keyNodes[directionIndex].classList.add("wrong-flash");
+        arena.classList.remove("feedback-wrong");
+        void arena.offsetWidth;
+        arena.classList.add("feedback-wrong");
+        playTone("wrong");
+        window.setTimeout(() => keyNodes[directionIndex].classList.remove("wrong-flash"), 140);
+        window.setTimeout(() => arena.classList.remove("feedback-wrong"), 170);
+        completeCircle(false, "wrong");
+      }
+
+      function handleTimeout() {
+        if (!roundActive || allCirclesDone) return;
+        animationState.wrong = 1;
+        roundTime.textContent = "0.00";
+        roundTimeFill.style.width = "0%";
+        roundTimeFill.classList.add("danger");
+        arena.classList.remove("feedback-wrong");
+        void arena.offsetWidth;
+        arena.classList.add("feedback-wrong");
+        playTone("wrong");
+        window.setTimeout(() => arena.classList.remove("feedback-wrong"), 180);
+        completeCircle(false, "timeout");
+      }
+
+      function completeCircle(success, result) {
+        const restartPosition = currentPosition >= 0 ? currentPosition : roundStartPosition;
+        attemptedCircles += 1;
+        const gaugeIndex = attemptedCircles - 1;
+        gaugeSegmentNodes[gaugeIndex].dataset.result = success ? "clean" : result;
+        if (success) {
+          successfulCircles += 1;
+          combo += 1;
+          highestCombo = Math.max(highestCombo, combo);
+        } else {
+          failedCircles += 1;
+          combo = 0;
+        }
+        updateStatistics();
+
+        if (attemptedCircles >= TARGET_CIRCLES) {
+          unlockFinish();
+          return;
+        }
+
+        roundStartPosition = restartPosition;
+        roundProgressSteps = 0;
+        currentPosition = restartPosition;
+        expectedStep = (restartPosition + 1) % DIRECTIONS.length;
+        roundDeadline = performance.now() + ROUND_LIMIT * 1000;
+        roundTime.textContent = ROUND_LIMIT.toFixed(2);
+        roundTimeFill.style.width = "100%";
+        roundTimeFill.classList.remove("danger");
+        const anchor = DIRECTIONS[restartPosition];
+        setMessage(
+          success ? "COMBO +1" : result === "timeout" ? "TIME OUT" : "FAILED",
+          success ? "var(--green)" : "var(--red)",
+          `${anchor.key} / ${anchor.arrow} 위치에서 다시 한 바퀴`
+        );
+        updateKeyUI();
+      }
+
+      function unlockFinish() {
+        roundActive = false;
+        allCirclesDone = true;
+        locked = true;
+        finalElapsed = performance.now() - startTimestamp;
+        roundTime.textContent = "0.00";
+        roundTimeFill.style.width = "0%";
+        clearFeedback();
+        setMessage("TARGET REACHED", "var(--lime)", "제조 종료 버튼을 눌러주세요");
+        keyNodes.forEach(node => node.classList.remove("target", "position"));
+        finishButton.disabled = false;
+        finishButton.classList.add("ready");
+        updateStatistics();
+      }
+
+      function handleDirection(directionIndex) {
+        if (allCirclesDone || locked) return;
+        if (!gameStarted) {
+          if (directionIndex === 0) startGame();
+          else {
+            keyNodes[directionIndex].classList.add("wrong-flash");
+            setMessage("START AT W", "var(--red)", "W / ↑로 시작점을 잡아주세요");
+            playTone("wrong");
+            window.setTimeout(() => keyNodes[directionIndex].classList.remove("wrong-flash"), 140);
+          }
+          return;
+        }
+        if (!roundActive) return;
+        if (performance.now() >= roundDeadline) handleTimeout();
+        if (allCirclesDone || !roundActive) return;
+        if (directionIndex === expectedStep) handleCorrect(directionIndex);
+        else handleWrong(directionIndex);
+      }
+
+      function getGrade(percent) {
+        if (percent >= 90) return { name: "Perfect", color: "var(--lime)" };
+        if (percent >= 70) return { name: "Good", color: "var(--green)" };
+        if (percent >= 50) return { name: "Normal", color: "var(--gold)" };
+        return { name: "Poor", color: "var(--red)" };
+      }
+
+      function showResult() {
+        if (!allCirclesDone) return;
+        const percent = Math.round((successfulCircles / TARGET_CIRCLES) * 100);
+        const grade = getGrade(percent);
+        resultGrade.textContent = grade.name;
+        resultGrade.style.color = grade.color;
+        resultPercent.textContent = `완성도 ${percent}%`;
+        resultSuccess.textContent = `${successfulCircles} / ${TARGET_CIRCLES}`;
+        resultBest.textContent = String(highestCombo);
+        resultTime.textContent = formatTime(finalElapsed);
+        resultOverlay.classList.add("show");
+      }
+
+      function resetGame() {
+        gameStarted = false;
+        roundActive = false;
+        locked = false;
+        allCirclesDone = false;
+        expectedStep = 0;
+        currentPosition = -1;
+        roundStartPosition = 0;
+        roundProgressSteps = 0;
+        spoonAngle = 0;
+        attemptedCircles = 0;
+        successfulCircles = 0;
+        failedCircles = 0;
+        combo = 0;
+        highestCombo = 0;
+        roundDeadline = 0;
+        startTimestamp = 0;
+        finalElapsed = 0;
+        animationState.handX = 0;
+        animationState.handY = -1;
+        animationState.targetX = 0;
+        animationState.targetY = -1;
+        animationState.phase = 0;
+        animationState.targetPhase = 0;
+        animationState.wrong = 0;
+        animationState.glow = 0;
+        gaugeSegmentNodes.forEach(segment => {
+          segment.dataset.result = "";
+          segment.className = "gauge-segment";
+        });
+        clearFeedback();
+        finishButton.disabled = true;
+        finishButton.classList.remove("ready");
+        resultOverlay.classList.remove("show");
+        startOverlay.classList.remove("hidden");
+        elapsedTime.textContent = "00:00.00";
+        roundTime.textContent = ROUND_LIMIT.toFixed(2);
+        roundTimeFill.style.width = "100%";
+        roundTimeFill.classList.remove("danger");
+        setMessage("READY", "var(--lime)", "W / ↑로 시작");
+        updateKeyUI();
+        updateStatistics();
+      }
+
+      window.addEventListener("keydown", event => {
+        const directionIndex = KEY_MAP.get(event.code);
+        if (directionIndex === undefined) return;
+        event.preventDefault();
+        if (event.repeat) return;
+        handleDirection(directionIndex);
+      });
+
+      keyNodes.forEach(node => {
+        node.addEventListener("pointerdown", event => {
+          event.preventDefault();
+          handleDirection(Number(node.dataset.direction));
+        });
+      });
+      finishButton.addEventListener("click", showResult);
+      startButton.addEventListener("click", () => handleDirection(0));
+      retryButton.addEventListener("click", resetGame);
+      closeResult.addEventListener("click", () => resultOverlay.classList.remove("show"));
+
+      const canvas = document.getElementById("bartenderCanvas");
+      const ctx = canvas.getContext("2d");
+      let canvasWidth = 0;
+      let canvasHeight = 0;
+      let scale = 1;
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        scale = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(1, Math.round(rect.width * scale));
+        canvas.height = Math.max(1, Math.round(rect.height * scale));
+        canvasWidth = rect.width;
+        canvasHeight = rect.height;
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      }
+      new ResizeObserver(resizeCanvas).observe(canvas);
+      resizeCanvas();
+
+      function roundedRect(x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, radius);
+      }
+
+      function strokeLine(points, color, width = 2) {
+        ctx.beginPath();
+        ctx.moveTo(points[0][0], points[0][1]);
+        for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i][0], points[i][1]);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.stroke();
+      }
+
+      function drawBottle(x, y, bottleScale, color) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(bottleScale, bottleScale);
+        ctx.fillStyle = "rgba(4,10,12,.78)";
+        roundedRect(-12, -62, 24, 62, 5); ctx.fill();
+        ctx.fillStyle = color;
+        roundedRect(-9, -54, 18, 46, 4); ctx.fill();
+        ctx.fillStyle = "rgba(215,245,240,.2)";
+        roundedRect(-4, -78, 8, 20, 2); ctx.fill();
+        ctx.fillStyle = "rgba(235,245,242,.3)";
+        roundedRect(-7, -40, 14, 15, 2); ctx.fill();
+        ctx.restore();
+      }
+
+      function drawIce(x, y, size, rotation, alpha = 1) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = "rgba(193,239,237,.22)";
+        ctx.strokeStyle = "rgba(224,255,251,.58)";
+        ctx.lineWidth = 1.5;
+        roundedRect(-size / 2, -size / 2, size, size, 4); ctx.fill(); ctx.stroke();
+        strokeLine([[-size * .28, -size * .14], [size * .22, -size * .3]], "rgba(255,255,255,.3)", 1);
+        ctx.restore();
+      }
+
+      function animate(now) {
+        const width = canvasWidth;
+        const height = canvasHeight;
+        const delta = Math.min(0.033, animate.last ? (now - animate.last) / 1000 : 0.016);
+        animate.last = now;
+
+        if (gameStarted && !allCirclesDone) elapsedTime.textContent = formatTime(now - startTimestamp);
+        if (roundActive && !locked) {
+          const left = Math.max(0, (roundDeadline - now) / 1000);
+          roundTime.textContent = left.toFixed(2);
+          const ratio = left / ROUND_LIMIT;
+          roundTimeFill.style.width = `${ratio * 100}%`;
+          roundTimeFill.classList.toggle("danger", ratio < 0.34);
+          if (left <= 0) handleTimeout();
+        }
+
+        const easing = 1 - Math.pow(0.0008, delta);
+        animationState.phase += (animationState.targetPhase - animationState.phase) * easing;
+        // 손목은 고정하고 손가락으로 스푼을 굴리는 작은 움직임만 남긴다.
+        animationState.handX = Math.sin(animationState.phase * 2) * .04;
+        animationState.handY = Math.cos(animationState.phase * 2) * .025;
+        animationState.wrong = Math.max(0, animationState.wrong - delta * 4.2);
+        animationState.glow = Math.max(0, animationState.glow - delta * 2.5);
+
+        if (!width || !height) {
+          requestAnimationFrame(animate);
+          return;
+        }
+
+        ctx.clearRect(0, 0, width, height);
+        const shake = animationState.wrong > 0 ? Math.sin(now * .075) * 5 * animationState.wrong : 0;
+        const glow = animationState.glow;
+
+        const background = ctx.createLinearGradient(0, 0, width, height);
+        background.addColorStop(0, "#111d20");
+        background.addColorStop(.6, "#0a1114");
+        background.addColorStop(1, "#070c0f");
+        ctx.fillStyle = background;
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = "rgba(105,246,225,.035)";
+        ctx.fillRect(0, height * .14, width, height * .25);
+        ctx.strokeStyle = "rgba(148,190,187,.09)";
+        ctx.strokeRect(width * .05, height * .12, width * .85, height * .31);
+        ctx.fillStyle = "rgba(165,140,255,.09)";
+        ctx.fillRect(width * .08, height * .2, width * .76, 2);
+        for (let i = 0; i < 9; i += 1) {
+          const x = width * .1 + i * width * .085;
+          const colors = ["rgba(105,246,225,.17)", "rgba(165,140,255,.18)", "rgba(223,255,107,.12)"];
+          drawBottle(x, height * .37, .72 + (i % 3) * .08, colors[i % colors.length]);
+        }
+
+        ctx.save();
+        ctx.translate(width * .43 + shake, 0);
+        const bodyTop = height * .13;
+        const glassX = -width * .05;
+        const glassY = height * .76;
+
+        ctx.fillStyle = "rgba(0,0,0,.4)";
+        ctx.beginPath(); ctx.ellipse(-width * .02, height * .94, width * .31, height * .07, 0, 0, Math.PI * 2); ctx.fill();
+
+        // 얼굴은 화면 위로 잘라 하관만 보이게 한다.
+        ctx.fillStyle = "#d5c3b5";
+        ctx.beginPath(); ctx.ellipse(-width * .02, -height * .03, width * .125, height * .24, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#28243a";
+        ctx.beginPath(); ctx.ellipse(-width * .02, -height * .14, width * .145, height * .2, -.08, Math.PI, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "rgba(71,49,49,.74)";
+        ctx.beginPath(); ctx.arc(-width * .02, height * .105, width * .027, .18, Math.PI - .18); ctx.strokeStyle = "rgba(70,48,48,.8)"; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.fillStyle = "rgba(105,246,225,.7)";
+        ctx.fillRect(-width * .026, height * .145, width * .012, 3);
+
+        ctx.fillStyle = "#d7dfde";
+        ctx.beginPath();
+        ctx.moveTo(-width * .23, bodyTop);
+        ctx.quadraticCurveTo(-width * .34, height * .45, -width * .31, height * .94);
+        ctx.lineTo(width * .29, height * .94);
+        ctx.quadraticCurveTo(width * .31, height * .45, width * .2, bodyTop);
+        ctx.closePath(); ctx.fill();
+
+        ctx.fillStyle = "#162126";
+        ctx.beginPath();
+        ctx.moveTo(-width * .19, bodyTop);
+        ctx.lineTo(-width * .07, height * .91);
+        ctx.lineTo(width * .07, height * .91);
+        ctx.lineTo(width * .17, bodyTop);
+        ctx.lineTo(width * .07, height * .1);
+        ctx.lineTo(-width * .02, height * .3);
+        ctx.lineTo(-width * .1, height * .1);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = "rgba(105,246,225,.2)"; ctx.lineWidth = 1.4; ctx.stroke();
+
+        ctx.fillStyle = "#151d21";
+        ctx.fillRect(-width * .5, height * .84, width, height * .18);
+        ctx.fillStyle = "#2b3a3d";
+        ctx.fillRect(-width * .5, height * .825, width, height * .02);
+        ctx.fillStyle = `rgba(105,246,225,${.05 + glow * .11})`;
+        ctx.fillRect(-width * .5, height * .847, width, 2);
+
+        const glassW = width * .15;
+        const glassH = height * .21;
+        ctx.fillStyle = "rgba(106,166,165,.13)";
+        ctx.strokeStyle = "rgba(220,247,244,.66)";
+        ctx.lineWidth = 2.5;
+        roundedRect(glassX - glassW / 2, glassY - glassH / 2, glassW, glassH, 8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "rgba(75,139,138,.23)";
+        roundedRect(glassX - glassW * .46, glassY - glassH * .09, glassW * .92, glassH * .55, 5); ctx.fill();
+
+        const phase = animationState.phase;
+        const iceDrift = 5;
+        drawIce(glassX - glassW * .25 + Math.sin(phase) * iceDrift, glassY + glassH * .04, glassW * .3, phase * .22, .92);
+        drawIce(glassX + glassW * .19 + Math.sin(phase + 1.1) * iceDrift, glassY + glassH * .06, glassW * .26, -phase * .18, .88);
+        drawIce(glassX - glassW * .04 + Math.sin(phase + 2.1) * iceDrift, glassY + glassH * .19, glassW * .28, phase * .16, .86);
+        drawIce(glassX + glassW * .27 + Math.sin(phase + 3.2) * iceDrift, glassY + glassH * .25, glassW * .2, -phase * .2, .78);
+        drawIce(glassX - glassW * .28 + Math.sin(phase + 4.2) * iceDrift, glassY + glassH * .31, glassW * .2, phase * .14, .74);
+        drawIce(glassX + glassW * .02 + Math.sin(phase + 5.1) * iceDrift, glassY + glassH * .36, glassW * .18, -phase * .15, .7);
+
+        // 스푼의 아래쪽은 잔 가장자리의 큰 타원을 시계 방향으로 돈다.
+        const spoonBottomX = glassX + Math.sin(phase) * glassW * .36;
+        const spoonBottomY = glassY + glassH * .18 - Math.cos(phase) * glassH * .2;
+        const handX = glassX + animationState.handX * glassW;
+        const handY = glassY - glassH * .69 + animationState.handY * glassH;
+        const vectorX = handX - spoonBottomX;
+        const vectorY = handY - spoonBottomY;
+        const vectorLength = Math.max(1, Math.hypot(vectorX, vectorY));
+        const unitX = vectorX / vectorLength;
+        const unitY = vectorY / vectorLength;
+        const spoonTopX = handX + unitX * glassH * .42;
+        const spoonTopY = handY + unitY * glassH * .42;
+        const shaftAngle = Math.atan2(spoonBottomY - spoonTopY, spoonBottomX - spoonTopX);
+
+        // 하나의 긴 축을 먼저 그려 손 위와 잔 속에 모두 스푼이 보이게 한다.
+        strokeLine([[spoonTopX, spoonTopY], [spoonBottomX, spoonBottomY]], "rgba(61,75,77,.92)", 5);
+        strokeLine([[spoonTopX, spoonTopY], [spoonBottomX, spoonBottomY]], "#dbe7e7", 2.2);
+        const shaftLength = Math.hypot(spoonBottomX - spoonTopX, spoonBottomY - spoonTopY);
+        const normalX = -Math.sin(shaftAngle);
+        const normalY = Math.cos(shaftAngle);
+        for (let i = 1; i < 15; i += 1) {
+          const ratio = i / 15;
+          const twistX = spoonTopX + Math.cos(shaftAngle) * shaftLength * ratio;
+          const twistY = spoonTopY + Math.sin(shaftAngle) * shaftLength * ratio;
+          const twistWidth = i % 2 === 0 ? 3 : 1.5;
+          strokeLine([
+            [twistX - normalX * twistWidth, twistY - normalY * twistWidth],
+            [twistX + normalX * twistWidth, twistY + normalY * twistWidth]
+          ], "rgba(47,65,67,.82)", 1);
+        }
+        ctx.fillStyle = "#91a3a4";
+        ctx.strokeStyle = "rgba(255,255,255,.76)";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.ellipse(spoonBottomX, spoonBottomY + 7, 6, 13, shaftAngle - Math.PI / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // 팔과 손은 잔 위 중앙에 고정한다. 손가락만 축을 감싸며 미세하게 움직인다.
+        const shoulderX = -width * .2;
+        const shoulderY = height * .35;
+        const elbowX = -width * .14;
+        const elbowY = height * .64;
+        strokeLine([[shoulderX, shoulderY], [elbowX, elbowY], [handX, handY]], "#c7d1d0", width * .065);
+        strokeLine([[shoulderX, shoulderY], [elbowX, elbowY], [handX, handY]], "rgba(40,52,55,.42)", 2);
+        ctx.fillStyle = "#d5c3b5";
+        ctx.beginPath();
+        ctx.ellipse(handX, handY, width * .034, height * .029, -.24 + animationState.handX * .8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(92,67,61,.46)";
+        ctx.lineWidth = 1.2;
+        for (let finger = -1; finger <= 1; finger += 1) {
+          ctx.beginPath();
+          ctx.arc(handX + finger * width * .009, handY + height * .003, width * .011, .1, Math.PI - .15);
+          ctx.stroke();
+        }
+
+        strokeLine([[width * .18, shoulderY], [width * .2, height * .73], [width * .115, height * .81]], "#c7d1d0", width * .065);
+        ctx.fillStyle = "#d5c3b5";
+        ctx.beginPath(); ctx.ellipse(width * .095, height * .81, width * .052, height * .022, -.2, 0, Math.PI * 2); ctx.fill();
+
+        if (Math.abs(animationState.targetPhase - animationState.phase) > .05) {
+          ctx.strokeStyle = `rgba(105,246,225,${.2 + glow * .38})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(glassX, glassY + glassH * .18, glassW * .4, glassH * .23, 0, phase - 1.35, phase - .18);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        requestAnimationFrame(animate);
+      }
+
+      resetGame();
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>

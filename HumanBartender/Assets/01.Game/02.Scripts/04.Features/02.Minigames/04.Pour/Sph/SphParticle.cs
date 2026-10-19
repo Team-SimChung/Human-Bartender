@@ -4,8 +4,10 @@ using UnityEngine;
 /// <summary>
 /// SPH 파티클 하나의 물리 상태. AlexandreSajus/Unity-Fluid-Simulation의 Particle.cs를 이식했다.
 ///
-/// SphSimulation이 이동을 예측하고 밀도/경계를 보정한 뒤 Transform에 한 번 반영한다.
-/// 벽 충돌은 Rigidbody2D 대신 SphContainerBoundary가 처리한다.
+/// 벽 충돌은 Unity 물리(Rigidbody2D/Collider2D)를 쓰지 않고 PourManager.ConstrainParticles()가
+/// 컨테이너 로컬 좌표로 직접 클램프한다. 둘을 같이 쓰면 콜라이더가 미는 위치와 클램프가 미는 위치가
+/// 미묘하게 달라 파티클이 매 프레임 두 지점을 오가며 떨렸다. 물리 컴포넌트를 안 붙이는 쪽이
+/// 그 진동이 없고, 파티클마다 강체를 만들지 않아 훨씬 가볍다.
 /// </summary>
 public class SphParticle : MonoBehaviour
 {
@@ -18,7 +20,7 @@ public class SphParticle : MonoBehaviour
     public Vector2 velocity;
     public Vector2 force;
 
-    internal readonly List<SphNeighbour> neighbours = new List<SphNeighbour>(8);
+    public readonly List<SphParticle> neighbours = new List<SphParticle>();
 
     public int gridX;
     public int gridY;
@@ -33,12 +35,6 @@ public class SphParticle : MonoBehaviour
     /// 않도록 전부 계산한 뒤 한꺼번에 반영한다.</summary>
     public Vector2 smoothedVelocity;
 
-    internal bool insideContainer;
-    internal int solverIndex;
-    internal float densityLambda;
-    internal float neighbourWeight;
-    internal Vector2 densityCorrection;
-
     public void Init(SphConfig sphConfig)
     {
         config = sphConfig;
@@ -52,7 +48,6 @@ public class SphParticle : MonoBehaviour
         velocity = Vector2.zero;
         force = Vector2.zero;
         exitedBottle = false;
-        insideContainer = false;
         transform.position = spawnPos;
 
         gameObject.SetActive(true);
@@ -67,26 +62,21 @@ public class SphParticle : MonoBehaviour
     {
         density = 0f;
         densityNear = 0f;
+        neighbours.Clear();
         force = new Vector2(0f, -config.gravity);
     }
 
     public void Integrate(float dt)
     {
-        if (dt <= 0f) return;
         previousPos = pos;
+
         velocity += force * dt;
-        LimitVelocity(dt);
         pos += velocity * dt;
-    }
 
-    public void UpdateVelocityFromPosition(float dt)
-    {
+        transform.position = pos;
+
         velocity = (pos - previousPos) / Mathf.Max(dt, 0.0001f);
-        LimitVelocity(dt);
-    }
 
-    void LimitVelocity(float dt)
-    {
         // 한 스텝에 간격의 일부 이상 움직이면 이웃 관계가 통째로 바뀌어 밀도가 튀고, 벽도 뚫는다.
         // spacing을 줄이면 이 한계도 같이 내려가야 하므로 dt에서 직접 구한다 — 고정값만 쓰면
         // 알갱이를 곱게 만드는 순간 액체가 담길 때 사방으로 튄다.
@@ -94,7 +84,7 @@ public class SphParticle : MonoBehaviour
         float cflLimit = config.spacing * maxTravelPerStep / Mathf.Max(dt, 0.0001f);
         float speedLimit = Mathf.Min(config.maxVelocity, cflLimit);
 
-        if (velocity.sqrMagnitude > speedLimit * speedLimit)
+        if (velocity.magnitude > speedLimit)
             velocity = velocity.normalized * speedLimit;
     }
 
@@ -116,19 +106,4 @@ public class SphParticle : MonoBehaviour
         pressureNear = config.NearPressureStiffness * densityNear;
     }
 
-}
-
-/// <summary>이웃 탐색 시 구한 거리/방향을 압력, 점성, 밀도 보정에서 재사용한다.</summary>
-internal readonly struct SphNeighbour
-{
-    public readonly SphParticle particle;
-    public readonly float weight;
-    public readonly Vector2 direction;
-
-    public SphNeighbour(SphParticle particle, float weight, Vector2 direction)
-    {
-        this.particle = particle;
-        this.weight = weight;
-        this.direction = direction;
-    }
 }

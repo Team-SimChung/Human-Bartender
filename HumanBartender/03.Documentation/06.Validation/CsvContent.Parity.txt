@@ -1,0 +1,11 @@
+PASS raw content parity: 37 sources
+PASS typed runtime parity: 30 loader targets
+PASS CSV BOM, multiline, quotes, commas and trailing empty field
+PASS rejection: unclosed quote
+PASS rejection: quote in bare field
+PASS rejection: text after quote
+PASS rejection: duplicate header
+PASS rejection: orphan step
+PASS rejection: invalid integer
+PASS rejection: duplicate row ID
+ALL CSV RUNTIME TESTS PASSED

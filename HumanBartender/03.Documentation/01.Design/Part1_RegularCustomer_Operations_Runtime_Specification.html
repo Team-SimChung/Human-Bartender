@@ -1,0 +1,865 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>1부 일반 손님 운영 런타임 명세</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+/*
+ * Toggles and callouts hold arbitrary content, so they can easily be taller
+ * than a page. They must stay breakable: avoiding breaks inside them makes
+ * Chromium push the whole block onto the next page, which leaves the previous
+ * page mostly empty before every long toggle.
+ */
+details,
+aside {
+	margin: 1.25em 0;
+}
+
+/* Keep a toggle's title on the same page as the start of its content. */
+summary {
+	page-break-after: avoid;
+	break-after: avoid;
+}
+
+/*
+ * Toggle headings render as <h1/h2/h3 style="display:inline-block"> inside
+ * <summary>. Without this reset, the heading's margin-top pushes it below the
+ * ::marker (▼), so the triangle and the title appear on separate lines.
+ */
+summary h1,
+summary h2,
+summary h3,
+summary h4 {
+	margin-top: 0;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')</style></head><body><article id="3c116122-98dc-8163-9163-fc4e4124812c" class="page sans"><header><h1 class="page-title" dir="auto">1부 일반 손님 운영 런타임 명세</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><blockquote id="eb65d639-7e41-41e8-b74c-c71a0786b3ac" class="block-color-red" data-notion-highlight="red" dir="auto"><strong>목적</strong><p id="4ff918a0-cbcd-4cf1-8261-ee39bfe067a8" class="" dir="auto"><mark class="highlight-default" data-notion-highlight="default">바 1부에서 플레이어가 바에 들어온 뒤 일반 손님이 생성·입장·착석하고, 성격에 맞는 대사를 하며 주문·제조·제공·퇴장을 거쳐 2부로 전환될 때까지의 런타임 계약을 정의한다.</mark></p></blockquote><h1 id="3368293a-719c-4b76-bcb1-93f32dcf57a8" class="" dir="auto">1. 문서 범위</h1><p id="40bbd5d3-0a6f-426b-8766-03aa691d5853" class="" dir="auto">이 문서는 기존 칵테일 제조 문서보다 앞에 있는 <strong>일반 손님 운영 구간</strong>을 다룬다. 칵테일 선택·제조·기믹·판정·서빙 계산은 기존 하위 문서를 정본으로 사용하며 여기에서 반복하지 않는다.</p><table id="70dabfde-ceff-47ad-9d54-058c6f4070ab" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="edee5516-9cce-4bc2-b082-0b7edcfe4f51" dir="ltr"><th id="Z@Wb" class="block-color-blue_background simple-table-header">영역</th><th id="dATu" class="block-color-blue_background simple-table-header">이 문서의 책임</th><th id="VE]M" class="block-color-blue_background simple-table-header">외부 정본</th></tr></thead><tbody><tr id="d693848c-ef34-45fa-8882-f58387df1c13" dir="ltr"><td id="Z@Wb" class="">진입·손님 큐</td><td id="dATu" class="">개점 대화 종료 후 1부 시작 여부 판단, 당일 슬롯 병합</td><td id="VE]M" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>random_waves.json</code></mark> · <mark class="highlight-purple" data-notion-highlight="purple"><code>regular_slots.json</code></mark></td></tr><tr id="93b8eea6-5eef-417e-a99f-2f18b08e64f0" dir="ltr"><td id="Z@Wb" class="">손님 생성</td><td id="dATu" class="">성격·외형·좌석·주문 회차를 가진 GuestInstance 생성</td><td id="VE]M" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>personalities.json</code></mark> · <mark class="highlight-purple" data-notion-highlight="purple"><code>guest_bodies.json</code></mark></td></tr><tr id="a4ba6bbd-3b57-48e6-9543-98043b73c990" dir="ltr"><td id="Z@Wb" class="">대사·표정</td><td id="dATu" class="">현재 상황과 성격에 맞는 대사 추첨과 표정 결정</td><td id="VE]M" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>barks.json</code></mark> · <mark class="highlight-purple" data-notion-highlight="purple"><code>bark_situations.json</code></mark></td></tr><tr id="b5ed8df1-378b-4f66-acb0-0387a738c13a" dir="ltr"><td id="Z@Wb" class="">대기·좌석</td><td id="dATu" class="">코스터·서빙 인내심, 만석 대기, 좌석 예약과 해제</td><td id="VE]M" class=""><mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → config</code></mark></td></tr><tr id="7a20cb2a-715f-4b6b-a1d4-225b0504aff8" dir="ltr"><td id="Z@Wb" class="">주문 이후</td><td id="dATu" class="">기존 제조 루프로 전달하고 완료 결과만 수신</td><td id="VE]M" class=""><a href="https://app.notion.com/p/1-3bf1612298dc80a4a67ad1d6af9a5506?pvs=21" data-notion-page-id="3bf16122-98dc-80a4-a67a-d1d6af9a5506" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 칵테일 제조 루프 기획서</a></td></tr><tr id="ca5981f2-9e7c-4ae4-9a3b-23627fa7ed96" dir="ltr"><td id="Z@Wb" class="">저장 시스템 연결</td><td id="dATu" class="">손님 생성·주문 확정·결과 커밋·퇴장·1부 종료 이벤트 전달</td><td id="VE]M" class=""><a href="https://app.notion.com/p/3c01612298dc80ad838cef1228340ab5?pvs=21" data-notion-page-id="3c016122-98dc-80ad-838c-ef1228340ab5" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">저장·불러오기 시스템</a></td></tr></tbody></table><blockquote id="726db45a-1e7b-43e2-959e-668b83941821" class="block-color-teal" data-notion-highlight="teal" dir="auto"><strong>핵심 원칙</strong><p id="431ba1cc-30ff-41e8-a237-48be25a8d6af" class="" dir="auto"><mark class="highlight-default" data-notion-highlight="default">일반 손님의 성격·성별·외형·주문 후보는 GuestInstance를 처음 만들 때 한 번 확정한다. 같은 손님이 추가 주문을 하는 동안에는 이 값을 바꾸지 않는다.</mark></p></blockquote><hr id="28e7a27c-085d-4b26-b26f-fc4848b36ff9" dir="auto"/><h1 id="fe89afb3-60b4-4d8a-8d8a-3dba2bd4181a" class="" dir="auto">2. 바 입장부터 1부 진입까지</h1><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="392a89eb-6574-40d4-9eb3-240395ee3f7b" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">BAR_ENTER
+→ 당일 바 배경·공용 UI 로드
+→ bar_open 대본 실행
+→ 당일 random_waves와 regular_slots 조회
+→ 슬롯 0개: PART1_COMPLETE로 기록 후 즉시 2부
+→ 슬롯 1개 이상: 1부 런타임 세션 생성 후 SPAWN_WAIT</code></pre><ul id="eb38b995-f458-4a53-b611-9aa32600d295" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>bar_open</code> 대사가 끝나기 전에는 일반 손님 생성 타이머를 시작하지 않는다.</li></ul><ul id="d7118c1c-9a12-4494-b7c5-a97bb2f30c46" class="bulleted-list" dir="auto"><li style="list-style-type:disc">당일 슬롯이 없으면 빈 1부 화면을 잠시 표시하지 않고 2부로 전환한다.</li></ul><ul id="13a4ce99-ed59-403b-a65a-ad3c7f33be58" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Day 0은 현재 일반 손님 슬롯이 없으므로 개점 대화 뒤 바로 2부로 간다.</li></ul><ul id="17cc78cc-90ea-47a6-b033-7b0486890176" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Day 3은 바 영업일이 아니며 1부와 2부를 모두 건너뛰고 다음 구간으로 이동한다.</li></ul><ul id="7e32b95b-ffd8-456d-afb8-9611d8a1e99b" class="bulleted-list" dir="auto"><li style="list-style-type:disc">1부 완료와 2부 세션 시작은 각각 한 번만 커밋한다.</li></ul><hr id="cc406c10-7375-44e2-8f72-b48febe5e633" dir="auto"/><h1 id="43124a3e-2b6d-4a24-9e73-7a74426d1335" class="" dir="auto">3. 당일 손님 큐 구성</h1><h2 id="5c98c2f2-1138-4d6c-bd02-473b83b61b85" class="" dir="auto">3.1 슬롯 병합</h2><ol type="1" id="9359fb6e-a2b3-46c2-af0b-8e91ce449ed4" class="numbered-list" start="1" dir="auto"><li>현재 Day와 같은 <mark class="highlight-purple" data-notion-highlight="purple"><code>random_waves.json</code></mark> 행을 가져온다.</li></ol><ol type="1" id="d85d5ab2-e826-4761-b4b2-47cca7444dab" class="numbered-list" start="2" dir="auto"><li>현재 Day와 같은 <mark class="highlight-purple" data-notion-highlight="purple"><code>regular_slots.json</code></mark> 행을 가져온다.</li></ol><ol type="1" id="fd6133cf-1412-43d2-aabc-81295f28aa7e" class="numbered-list" start="3" dir="auto"><li>두 목록을 합쳐 <mark class="highlight-blue" data-notion-highlight="blue"><code>seq</code></mark> 오름차순으로 정렬한다.</li></ol><ol type="1" id="55250edd-b4a6-4f93-b740-c1d4a59b9e83" class="numbered-list" start="4" dir="auto"><li>같은 Day에서 <mark class="highlight-blue" data-notion-highlight="blue"><code>seq</code></mark>가 중복되면 순서를 임의로 정하지 않고 빌드 오류로 처리한다.</li></ol><ol type="1" id="e79c3375-6355-46b3-94f7-bd7a56aa3358" class="numbered-list" start="5" dir="auto"><li><code>day=99</code> QA 행은 실제 Day 99 테스트에서만 소비하며 데모 Day 0–3에는 포함하지 않는다.</li></ol><h2 id="cf791af0-4bb4-470f-a2b4-a67821c45092" class="" dir="auto">3.2 생성 지연</h2><ul id="c4dbad2b-69c3-48c1-bd1f-c534ec0913a0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">1부 시작 뒤 첫 슬롯은 <mark class="highlight-purple" data-notion-highlight="purple"><code>balance.config.first_spawn_delay_sec</code></mark>만큼 기다린다. 현재 값은 5초다.</li></ul><ul id="ef53b30a-f1a1-472b-b907-b764a0cb07a9" class="bulleted-list" dir="auto"><li style="list-style-type:disc">첫 슬롯의 <mark class="highlight-blue" data-notion-highlight="blue"><code>delay_sec</code></mark>가 0보다 크면 최초 지연 뒤 해당 값을 추가로 기다린다.</li></ul><ul id="201247d0-ba93-400c-9851-e5279f01e560" class="bulleted-list" dir="auto"><li style="list-style-type:disc">두 번째 슬롯부터는 앞 슬롯의 <strong>입장이 확정된 시점</strong>을 기준으로 현재 슬롯의 <mark class="highlight-blue" data-notion-highlight="blue"><code>delay_sec</code></mark>를 센다.</li></ul><ul id="8ed5b1e8-cba3-41d0-81c4-745b74998fec" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><mark class="highlight-blue" data-notion-highlight="blue"><code>delay_sec</code></mark>가 비어 있는 예외 데이터는 <mark class="highlight-purple" data-notion-highlight="purple"><code>spawn_delay_default_sec</code></mark>를 사용한다. 현재 값은 25초다.</li></ul><ul id="faef392e-787c-4058-8085-26077cbbecb7" class="bulleted-list" dir="auto"><li style="list-style-type:disc">생성 순서는 앞 슬롯을 추월하지 않는다.</li></ul><h2 id="953fa128-555f-4019-9b76-c6729f2455eb" class="" dir="auto">3.3 만석 처리</h2><ul id="ecfe2b35-93f1-4bb3-b4ae-c33b9f32ad41" class="bulleted-list" dir="auto"><li style="list-style-type:disc">지연시간이 끝났지만 빈 좌석이 없으면 슬롯을 <mark class="highlight-teal" data-notion-highlight="teal"><code>SPAWN_BLOCKED</code></mark> 상태로 유지한다.</li></ul><ul id="4165a909-bd59-42fd-9944-02a902aa6ad2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">대기 슬롯의 성격·성별·외형은 좌석이 실제로 확보되는 시점에 확정한다.</li></ul><ul id="06f9e594-4bba-45a3-8c5f-0fcdb628bd8e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">좌석이 비면 <mark class="highlight-purple" data-notion-highlight="purple"><code>reseat_delay_sec</code></mark>만큼 기다린 뒤 가장 앞의 대기 슬롯부터 입장시킨다. 현재 값은 10초다.</li></ul><ul id="0ade4b9e-6cf1-4db0-a74b-b244cf29fa3e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">대기 중인 슬롯을 제거하거나 뒤 슬롯과 순서를 바꾸지 않는다.</li></ul><ul id="7fad69c6-d4d4-4505-a7f1-905a80316fc1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 화면에 진입해 바 운영 타이머가 정지한 동안에는 손님 생성·재착석·인내심·잡담 타이머도 함께 정지한다.</li></ul><hr id="77ad0eb5-81cd-46fc-9bd8-070954d886e1" dir="auto"/><h1 id="52ce7c0f-d28f-40e7-bd1b-97c75edecbc5" class="" dir="auto">4. 일반 손님 인스턴스 생성</h1><h2 id="4860cb64-3108-4c78-9f5f-806013b8ecf4" class="" dir="auto">4.1 생성 순서</h2><pre id="2006be2c-0633-4972-bb2a-8ad29f6a7243" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">슬롯 선택
+→ personality 확정
+→ gender 결정
+→ 유효 외형 조합 선택
+→ GuestInstance 생성
+→ 빈 좌석 예약
+→ 입장 연출
+→ call 대사
+→ WAIT_COASTER</code></pre><ul id="1e15e2f8-fa3d-4d58-ba55-6cd1452d3467" class="bulleted-list" dir="auto"><li style="list-style-type:disc">일반 손님은 <mark class="highlight-blue" data-notion-highlight="blue"><code>random_waves.personality</code></mark>를 사용한다. 현재 빌드에서는 필수값이며 빈 문자열을 허용하지 않는다.</li></ul><ul id="afe0163e-0cf8-4f80-800c-d97f137e987a" class="bulleted-list" dir="auto"><li style="list-style-type:disc">데모의 성별 선택은 남성·여성 각 50%를 사용한다. 비율을 바꿀 필요가 생기면 Config로 분리한다.</li></ul><ul id="98cd26c6-9f52-4fa3-9a82-23305b776bfa" class="bulleted-list" dir="auto"><li style="list-style-type:disc">카메오 슬롯은 랜덤 외형을 만들지 않고 <mark class="highlight-blue" data-notion-highlight="blue"><code>regular_slots.character</code></mark>가 가리키는 캐릭터 전용 리소스를 사용한다.</li></ul><ul id="81beda6e-93ed-44ae-8e4e-f8ab6a497d31" class="bulleted-list" dir="auto"><li style="list-style-type:disc">외형 생성 세부 규칙은 <a href="https://app.notion.com/p/3bf1612298dc8004b2d3c766e8e3892b?pvs=21" data-notion-page-id="3bf16122-98dc-8004-b2d3-c766e8e3892b" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">일반 손님 외형 생성 시스템</a>을 단일 기준으로 사용한다.</li></ul><h2 id="88e538ad-c94f-48be-be57-efae195153ad" class="" dir="auto">4.2 외형 선택</h2><ol type="1" id="9a710182-3c52-4186-bbfb-06b32fc39459" class="numbered-list" start="1" dir="auto"><li>성별이 일치하는 파츠만 남긴다.</li></ol><ol type="1" id="2f25596e-24e5-48ea-bcf6-1beefab438c6" class="numbered-list" start="2" dir="auto"><li><code>personalities</code>가 비어 있거나 현재 성격을 포함하는 파츠만 남긴다.</li></ol><ol type="1" id="df6d91d7-6be9-454c-ae0e-8ea3e6be300c" class="numbered-list" start="3" dir="auto"><li><code>exclusions</code>에 포함된 금지 파츠 쌍을 가진 조합은 제거한다.</li></ol><ol type="1" id="09f0a618-fe95-40a0-844c-f0cf016b0546" class="numbered-list" start="4" dir="auto"><li>선택 슬롯에는 <code>null</code> 후보를 포함하고 <mark class="highlight-purple" data-notion-highlight="purple"><code>guest_acc_none_weight</code></mark>를 적용한다.</li></ol><ol type="1" id="be4a2e2e-2f81-4ca5-b508-5efac6733e10" class="numbered-list" start="5" dir="auto"><li>현재 착석 중인 손님과 모든 슬롯이 같은 조합은 우선 제외한다.</li></ol><ol type="1" id="02b919f0-26e9-498f-9070-f7cae040b302" class="numbered-list" start="6" dir="auto"><li>중복 제외 후 후보가 없으면 중복을 허용하고 경고를 기록한다.</li></ol><ol type="1" id="3502e6ea-e7a2-4f8e-aed0-0fcde4640732" class="numbered-list" start="7" dir="auto"><li>최종 파츠 ID를 GuestInstance에 저장하고 퇴장할 때까지 유지한다.</li></ol><p id="d84e2d85-5848-49e2-8b76-4b963b32f4c8" class="" dir="auto">현재 모든 파츠의 <code>personalities</code>가 빈 배열이므로 <strong>성격에 따른 말투와 인내심은 달라지지만 외형 후보 풀은 성격별로 동일하다.</strong> 성격별 외형 차이가 필요하면 파츠 데이터에 허용 성격을 입력해야 한다.</p><hr id="383782b1-ff5b-4b56-b3b1-370244f1b14e" dir="auto"/><h1 id="9c5b0953-1b8a-407f-9167-b23b4b661bd6" class="" dir="auto">5. 좌석 예약과 해제</h1><ul id="0254bf36-79f3-4bd6-8c57-efe653639028" class="bulleted-list" dir="auto"><li style="list-style-type:disc">1부 좌석 ID는 <mark class="highlight-blue" data-notion-highlight="blue"><code>L·M·R</code></mark>을 사용한다.</li></ul><ul id="6e03eeb3-daea-40c3-b600-46e1e1c2a64d" class="bulleted-list" dir="auto"><li style="list-style-type:disc">현재 배치 우선순위는 화면의 왼쪽부터 <mark class="highlight-blue" data-notion-highlight="blue"><code>L → M → R</code></mark>이다.</li></ul><ul id="25c57564-f785-444d-bf5e-88c99851129c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">입장 슬롯을 커밋하는 순간 좌석을 예약해 같은 프레임의 다른 손님이 중복 배정되지 않게 한다.</li></ul><ul id="947e3468-8332-46d8-8170-09924906ded1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">입장 연출이 끝나면 예약 좌석을 점유 상태로 바꾸고 <code>call</code> 대사를 재생한다.</li></ul><ul id="72f970bb-c961-4d21-9345-404d730ad1cf" class="bulleted-list" dir="auto"><li style="list-style-type:disc">퇴장 대사 시작 시점이 아니라 <strong>퇴장 연출이 끝난 시점</strong>에 좌석을 비운다.</li></ul><ul id="1c6af987-9b38-4325-b067-8d3897103129" class="bulleted-list" dir="auto"><li style="list-style-type:disc">좌석 해제 뒤 대기 슬롯이 있으면 재착석 타이머를 시작한다.</li></ul><ul id="49170b9e-7111-4134-95d5-91a48dbee6f2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">좌석 UI는 <code>EMPTY·WAIT_COASTER·ORDER_DIALOGUE·WAIT_SERVE·REACTION·EXITING</code> 상태를 구분한다.</li></ul><ul id="49bfab51-d4ec-4a8b-bc12-bab3e03badac" class="bulleted-list" dir="auto"><li style="list-style-type:disc">1부 카메라의 이동 시간·easing과 여러 손님 사이의 포커스 전환 연출은 바 내부 UI 문서에서 관리한다. GuestInstance는 카메라가 참조할 <code>seat_id</code>와 현재 발화자 ID만 제공한다.</li></ul><hr id="76997d9a-a7a0-41dc-82a1-a2fa612a06f7" dir="auto"/><h1 id="729b536d-d1ba-44b4-8eff-1ec10750874f" class="" dir="auto">6. 성격과 상황별 대사</h1><h2 id="8ebfabce-c143-4482-ba76-7b8cd5323ddb" class="" dir="auto">6.1 선택 알고리즘</h2><ol type="1" id="eae673b1-859f-4730-add1-c22d9075556a" class="numbered-list" start="1" dir="auto"><li><mark class="highlight-purple" data-notion-highlight="purple"><code>barks.json</code></mark>에서 현재 <code>situation</code>과 같은 행을 모은다.</li></ol><ol type="1" id="1926fb24-423e-403f-958c-c4376473cce2" class="numbered-list" start="2" dir="auto"><li>일반 손님은 <code>voice_id == personality_id</code>인 행만 남긴다.</li></ol><ol type="1" id="3c60306a-4398-48e5-9e26-7ea34eaade9c" class="numbered-list" start="3" dir="auto"><li>성격 전용 후보가 없으면 <code>voice_id = null</code>인 공용 후보로 폴백한다.</li></ol><ol type="1" id="c9aeeaf6-3f98-4dda-af38-3110f1ef96ba" class="numbered-list" start="4" dir="auto"><li><code>weight</code>에 따라 한 행을 가중 추첨한다.</li></ol><ol type="1" id="10e78016-599e-4b2f-a524-2bce4e7fc654" class="numbered-list" start="5" dir="auto"><li>현재 언어의 <code>text.ko</code> 또는 <code>text.en</code>을 출력한다.</li></ol><ol type="1" id="73786964-a308-423a-a994-d172167d9ee3" class="numbered-list" start="6" dir="auto"><li><code>{cocktail}</code>은 현재 언어의 칵테일 이름으로 치환한다.</li></ol><ol type="1" id="7be5816e-9b0f-4116-b3e9-ea75094e9565" class="numbered-list" start="7" dir="auto"><li>같은 상황에서 직전에 선택한 행과 다른 후보가 있으면 해당 행을 한 번 제외해 연속 중복을 줄인다. 후보가 하나뿐이면 중복을 허용한다.</li></ol><p id="f7452b42-9a36-4081-bc43-05a7cd42d39f" class="" dir="auto">카메오는 공용 폴백을 사용하지 않고 캐릭터 전용 <code>voice_id</code> 대사만 사용한다.</p><h2 id="ce55caf2-b417-418f-875d-04c06d8123a8" class="" dir="auto">6.2 상황 호출표</h2><table id="019e1079-b54a-429d-952e-a468041d2577" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="552a4651-8164-4953-a75d-ef0800d7270f" dir="ltr"><th id="hBij" class="block-color-teal_background simple-table-header">발생 시점</th><th id="QzWN" class="block-color-teal_background simple-table-header">situation</th><th id="[W=[" class="block-color-teal_background simple-table-header">처리</th></tr></thead><tbody><tr id="51b05689-3173-4ed6-921c-17b78be598a8" dir="ltr"><td id="hBij" class="">입장 완료</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>call</code></mark></td><td id="[W=[" class="">첫 대사 출력 뒤 코스터 대기 시작</td></tr><tr id="4bab1ec4-8c36-44cf-9c80-86c0c85663c6" dir="ltr"><td id="hBij" class="">코스터 대기 50%</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>call_urge</code></mark></td><td id="[W=[" class="">한 번만 재생</td></tr><tr id="1cf7295b-7802-4291-b8d0-27cb890c8a92" dir="ltr"><td id="hBij" class="">코스터 대기 80%</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>call_final</code></mark></td><td id="[W=[" class="">한 번만 재생</td></tr><tr id="b6e31913-5f85-44dd-bb32-470c9d85a51b" dir="ltr"><td id="hBij" class="">루나가 주문 질문</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>ask_order</code></mark></td><td id="[W=[" class="">루나 공용 대사</td></tr><tr id="22fce1ea-fbcc-4b95-97de-af180d5761fe" dir="ltr"><td id="hBij" class="">주문 고민 추첨 성공</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>order_think</code></mark></td><td id="[W=[" class="">personality.think_chance를 코스터 드롭마다 한 번 추첨</td></tr><tr id="10263b71-c522-4a2e-b40a-a971abc94b96" dir="ltr"><td id="hBij" class="">첫 주문</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>order</code></mark></td><td id="[W=[" class="">Order Cocktail 확정</td></tr><tr id="8135588d-72fa-4a9c-aee1-2cdbf3da3d3d" dir="ltr"><td id="hBij" class="">추가 주문</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>reorder</code></mark></td><td id="[W=[" class="">같은 외형·성격 유지</td></tr><tr id="5862f7f0-e111-41e1-8132-2767784e59d8" dir="ltr"><td id="hBij" class="">서빙 대기 50%·80%</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>serve_urge·serve_final</code></mark></td><td id="[W=[" class="">각각 한 번만 재생</td></tr><tr id="58513a12-d95c-4118-98b1-a2fb1abedc72" dir="ltr"><td id="hBij" class="">올바른 칵테일 수령</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>serve_thanks</code></mark></td><td id="[W=[" class="">수령 연출과 함께 재생</td></tr><tr id="4889f98c-9f77-4061-8e9e-9d7c7799ff29" dir="ltr"><td id="hBij" class="">등급 결과</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>react_excellent</code></mark><mark class="highlight-teal" data-notion-highlight="teal"> 등</mark></td><td id="[W=[" class="">Final Grade에 맞춰 한 번 재생</td></tr><tr id="ecac2872-1620-4161-a1af-8d908313a03e" dir="ltr"><td id="hBij" class="">틀린 칵테일</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>wrong_receive·wrong_drink</code></mark></td><td id="[W=[" class="">수령 전·음용 후 순서로 재생</td></tr><tr id="b4100f76-a545-49b8-914d-e17a1dcae531" dir="ltr"><td id="hBij" class="">정상·불만 퇴장</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>bye_good·bye_bad</code></mark></td><td id="[W=[" class="">마지막 주문 결과를 사용</td></tr><tr id="6c321902-21a0-43ba-b6ae-6477037cefdd" dir="ltr"><td id="hBij" class="">코스터·서빙 시간 초과</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>leave_coaster·leave_serve</code></mark></td><td id="[W=[" class="">해당 결과를 커밋하고 퇴장</td></tr><tr id="06b72914-8b02-4da5-9b5f-31659d4f7e8b" dir="ltr"><td id="hBij" class="">무행동 대기</td><td id="QzWN" class=""><mark class="highlight-teal" data-notion-highlight="teal"><code>idle</code></mark></td><td id="[W=[" class="">대사·연출·제조 중에는 재생하지 않음</td></tr></tbody></table><h2 id="650ccb83-853a-4994-b13d-e3fd20771b87" class="" dir="auto">6.3 표정·애니메이션 처리</h2><pre id="6133ebd5-b7a4-44e9-a253-6729cf7f7087" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">barks.expression
+→ 값이 없으면 bark_situations.default_expression
+→ 값이 없으면 default
+→ guest_bodies.emotions 또는 parts_anim 확인
+→ 대응 리소스가 없으면 기본 외형 sprite 유지
+→ 대사와 운영 상태는 그대로 진행</code></pre><ul id="1b58e6bd-0151-4903-b89a-8c9f7d9e1b2a" class="bulleted-list" dir="auto"><li style="list-style-type:disc">표정 ID와 애니메이션 요청 값은 후속 리소스 연결을 위해 현재도 계산하고 런타임에 유지한다.</li></ul><ul id="f9e85c51-cfff-453c-b32a-bca7c6ea92ff" class="bulleted-list" dir="auto"><li style="list-style-type:disc">일반 손님의 표정·애니메이션 리소스는 후속 3–4주 차에 제공될 예정이며, 현재는 각 손님의 기본 외형 스프라이트 한 장만 사용하는 것을 정상 기준으로 삼는다.</li></ul><ul id="e4e48470-303d-468c-a41e-5ba5d9215119" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>emotions</code>와 <code>parts_anim</code>이 <code>null</code>이거나 요청한 키가 없으면 기본 외형을 유지한다. 이는 데이터 오류가 아니며 대사, 인내심, 주문, 서빙 반응과 퇴장 흐름을 막지 않는다.</li></ul><ul id="b4d2ff10-c934-4959-879a-346a6ee9985a" class="bulleted-list" dir="auto"><li style="list-style-type:disc">일반 손님 전용 프레임 애니메이션이 없는 동안 입장·퇴장은 공용 이동·페이드 연출로 처리할 수 있다. 이 연출의 완료 여부를 표정 리소스 존재와 연결하지 않는다.</li></ul><ul id="82f81210-5fd4-4ddf-99a8-4d9ef2256bdd" class="bulleted-list" dir="auto"><li style="list-style-type:disc">후속 표정·애니메이션이 추가되면 기존 expression과 상태 호출을 그대로 사용하고 리소스 참조만 연결한다. 세부 폴백과 리소스 판정은 <a href="https://app.notion.com/p/3bf1612298dc8004b2d3c766e8e3892b?pvs=21" data-notion-page-id="3bf16122-98dc-8004-b2d3-c766e8e3892b" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">일반 손님 외형 생성 시스템</a>을 따른다.</li></ul><hr id="f9a478d5-f4b6-4620-9f69-cda12620f553" dir="auto"/><h1 id="b7478de8-181e-4332-846f-193d3dcf6dc5" class="" dir="auto">7. 인내심과 잡담 타이머</h1><h2 id="4737cf87-51fc-4390-bb43-66899685ca60" class="" dir="auto">7.1 코스터 대기</h2><pre id="b6f37637-f534-47d0-9c13-3f76cf952c7a" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">coaster_limit
+= clamp(coaster_base_sec × personality.patience_mult,
+        coaster_min_sec,
+        coaster_max_sec)</code></pre><ul id="2b6e3155-dddb-406e-9d12-31cb30fc7f0c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">입장 대사 <code>call</code>이 끝난 뒤 시작한다.</li></ul><ul id="6172d35d-a1bc-4951-9d80-0145dc54b01c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">50%에서 <code>call_urge</code>, 80%에서 <code>call_final</code>을 한 번씩 재생한다.</li></ul><ul id="abccb1e1-5e0b-4296-bce1-c0896a115eae" class="bulleted-list" dir="auto"><li style="list-style-type:disc">유효한 코스터를 놓으면 즉시 종료하고 주문 대사로 전환한다.</li></ul><ul id="a7774285-fa00-48ac-ad88-43f49128ced0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제한시간이 끝나면 <code>leave_coaster</code>와 이탈 결과를 한 번만 커밋한다.</li></ul><h2 id="f34c5da8-7b59-4d97-8bd6-666142216d24" class="" dir="auto">7.2 서빙 대기</h2><pre id="d176f672-d528-439d-8dcf-495a5c2ba0ef" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">serve_bonus
+= max(serve_min_bonus_sec,
+      serve_bonus_sec - cocktail.unlock_day × serve_grace_per_day_sec)
+
+serve_limit
+= cocktail.time_limit_sec + serve_bonus</code></pre><ul id="d37d5f00-bc20-4cfb-9e0b-92caba085d36" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Order Cocktail이 확정된 뒤 시작한다.</li></ul><ul id="9e467391-6b6a-45af-8308-65bbd6257843" class="bulleted-list" dir="auto"><li style="list-style-type:disc">성격의 <code>patience_mult</code>는 코스터 대기에만 적용하고 서빙 대기에는 적용하지 않는다.</li></ul><ul id="64b84f31-1c51-441c-85d6-7ebcc20b75a1" class="bulleted-list" dir="auto"><li style="list-style-type:disc">50%에서 <code>serve_urge</code>, 80%에서 <code>serve_final</code>을 한 번씩 재생한다.</li></ul><ul id="09a01603-a847-4d6f-9c87-ab5667ca4564" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제조 메뉴부터 결과 화면을 닫고 바에 돌아올 때까지 바 운영 타이머를 정지한다.</li></ul><ul id="0dc925db-b8d9-4af3-a813-b905b6048cdb" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제한시간이 끝나면 <code>leave_serve</code> 결과를 커밋하고 해당 손님을 퇴장시킨다.</li></ul><ul id="d2e866d4-abaa-4e18-a6b8-72ce87a44b76" class="bulleted-list" dir="auto"><li style="list-style-type:disc">유효 코스터 드롭과 인내심 종료가 같은 프레임에 발생하면 <mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → config.serve_timeout_same_frame_priority = timeout</code></mark>에 따라 <strong>인내심 종료를 먼저 커밋한다.</strong></li></ul><ul id="a4b6ebd8-8c4f-4ae1-8946-b0a360b46b91" class="bulleted-list" dir="auto"><li style="list-style-type:disc">이 경우 <mark class="highlight-blue" data-notion-highlight="blue"><code>ServeResult</code></mark>를 생성하지 않고 손님을 퇴장시킨다. 해당 좌석의 코스터와 좌석에 귀속된 잔은 퇴장 연출 완료 뒤 함께 제거한다. 동시에 드래그 중이던 완성 잔은 서빙으로 소비하지 않고 서빙 대기 위치로 되돌린다.</li></ul><h2 id="71c32c51-80b0-4559-9ba1-a411f12df33f" class="" dir="auto">7.3 잡담</h2><ul id="337ba959-d451-40c8-a643-27716eaff713" class="bulleted-list" dir="auto"><li style="list-style-type:disc">손님이 아무 대사·연출·주문 입력을 진행하지 않는 동안 <mark class="highlight-purple" data-notion-highlight="purple"><code>idle_min_sec</code></mark>부터 <mark class="highlight-purple" data-notion-highlight="purple"><code>idle_max_sec</code></mark> 사이에서 다음 잡담 시간을 추첨한다. 현재 범위는 8–13초다.</li></ul><ul id="9eec5c83-b141-47d9-9c97-0290f6fcdf8c" class="bulleted-list" dir="auto"><li style="list-style-type:disc">잡담을 출력하면 새 시간을 다시 추첨한다.</li></ul><ul id="fd375e09-508e-4e6d-a435-29d16175c862" class="bulleted-list" dir="auto"><li style="list-style-type:disc">주문 대사, 반응 대사, 퇴장 연출, 제조 화면에서는 잡담 타이머를 정지한다.</li></ul><ul id="bdcee30f-9944-4e96-8420-2fb81521e521" class="bulleted-list" dir="auto"><li style="list-style-type:disc">여러 손님의 잡담이 같은 프레임에 발생하면 좌석 순서 L → M → R로 하나씩 재생하고 나머지는 대기시킨다.</li></ul><hr id="d062ea23-c84a-4fb9-bb7f-3023445428ba" dir="auto"/><h1 id="ceb5c80b-b537-4977-8ce3-aa789b4e60b0" class="" dir="auto">8. 주문·제조·퇴장 연결</h1><ol type="1" id="e8081b23-c954-43b3-a99e-7a162caa5c82" class="numbered-list" start="1" dir="auto"><li>코스터 드롭 후 <code>ask_order</code>를 출력한다.</li></ol><ol type="1" id="c80f8b33-22e7-4ba4-ad41-2c818d129ff4" class="numbered-list" start="2" dir="auto"><li>일반 손님은 <code>think_chance</code> 추첨에 성공했을 때만 <code>order_think</code>을 출력한다.</li></ol><ol type="1" id="57646cc5-1b8e-4c6b-9a5d-58a79598de9f" class="numbered-list" start="3" dir="auto"><li><mark class="highlight-purple" data-notion-highlight="purple"><code>random_waves.order</code></mark>가 칵테일 ID면 해당 고정 주문을 사용하고 무작위 추첨은 실행하지 않는다.</li></ol><ol type="1" id="ac3d87cd-45eb-4d18-b1ca-3b936940f755" class="numbered-list" start="4" dir="auto"><li><code>order</code>가 비어 있으면 당일 해금된 <code>status=confirmed</code> 칵테일 후보를 <mark class="highlight-purple" data-notion-highlight="purple"><code>balance.json → config.random_order_sampling_mode = uniform_with_replacement</code></mark> 규칙으로 추첨한다. 모든 후보의 확률은 같고 주문 회차마다 독립 추첨하므로 같은 손님이 이전 칵테일을 다시 주문할 수 있다.</li></ol><ol type="1" id="43f56170-5936-4e56-9d70-5df196f9b12a" class="numbered-list" start="5" dir="auto"><li><code>order</code> 또는 <code>reorder</code> 대사와 함께 Order Cocktail을 확정한다.</li></ol><ol type="1" id="ff454485-169a-4609-9711-0c58c95fed39" class="numbered-list" start="6" dir="auto"><li>주문별 <code>order_id</code>를 만들고 <code>pending_orders[]</code>에 추가한다.</li></ol><ol type="1" id="678b5f72-edd5-4357-b7f4-ca719221afbe" class="numbered-list" start="7" dir="auto"><li>이후 제조·서빙은 기존 제조 루프 문서를 따른다.</li></ol><ol type="1" id="a0480557-a458-4424-b471-95c518bdff62" class="numbered-list" start="8" dir="auto"><li>서빙 결과와 매출이 커밋된 뒤 <code>round_index &lt; max_rounds</code>이면 같은 손님이 추가 주문을 시작한다.</li></ol><ol type="1" id="28389d41-79fb-4bf8-9874-410e6f006e0f" class="numbered-list" start="9" dir="auto"><li>추가 주문이 없으면 마지막 결과에 맞는 퇴장 대사를 출력한다.</li></ol><ol type="1" id="6e08b56e-aa4c-4fae-aeff-22b636485034" class="numbered-list numbered-list-digits-2" start="10" dir="auto"><li>퇴장 연출 완료 뒤 좌석·GuestInstance·코스터·해당 좌석에 귀속된 잔 리소스를 해제한다.</li></ol><ol type="1" id="84501b2a-d7f8-45fc-b818-cc9d8f132c8b" class="numbered-list numbered-list-digits-2" start="11" dir="auto"><li>완료된 슬롯 ID를 1부 런타임 상태에 기록한 뒤 다음 슬롯 또는 1부 종료 조건을 검사한다.</li></ol><p id="cde1bcd6-af58-4c50-83a5-b02fbf0bcd30" class="" dir="auto">틀린 칵테일도 서빙 결과와 반응을 정상적으로 처리한다. 1부 일반 손님의 이후 행동은 칵테일 제공·정산·다회 주문 문서를 따른다.</p><hr id="4547af48-f7ce-4c88-83d1-f6fb7628cb5f" dir="auto"/><h1 id="5534787b-b981-4973-83fb-f88e55beafd7" class="" dir="auto">9. 런타임 데이터 계약</h1><h2 id="79e0fbd6-fedf-4d2b-8703-2bd08cd5dc0a" class="" dir="auto">9.1 GuestInstance</h2><p id="e802fef0-abb3-4bbb-bd2a-549b88508141" class="" dir="auto">아래 객체는 정적 JSON 파일이 아니라 한 명의 1부 손님을 추적하기 위한 런타임 구조다.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js" integrity="sha512-QXFMVAusM85vUYDaNgcYeU3rzSlc+bTV4JvkfJhjxSHlQEo+ig53BtnGkvFTiNJh8D+wv6uWAQ2vJaVmxe8d3w==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="75d6d314-d6ef-4155-97bf-cb1ec1611ca6" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;guest_instance_id&quot;: &quot;rw_d1_s1&quot;,
+  &quot;source_type&quot;: &quot;random_wave&quot;,
+  &quot;source_day&quot;: 1,
+  &quot;source_seq&quot;: 1,
+  &quot;character_id&quot;: null,
+  &quot;personality_id&quot;: &quot;gentle&quot;,
+  &quot;gender&quot;: &quot;m&quot;,
+  &quot;appearance&quot;: {
+    &quot;body&quot;: &quot;body_m&quot;,
+    &quot;outfit&quot;: &quot;outfit_m_7&quot;,
+    &quot;outerwear&quot;: null,
+    &quot;necklace&quot;: &quot;necklace_m_1&quot;,
+    &quot;eyes&quot;: &quot;eyes_m_1&quot;,
+    &quot;eyebrows&quot;: &quot;eyebrows_m_2&quot;,
+    &quot;mouth&quot;: &quot;mouth_m_1&quot;,
+    &quot;hair&quot;: &quot;hair_m_2&quot;,
+    &quot;arm_accessory&quot;: &quot;arm_accessory_m_1&quot;
+  },
+  &quot;seat_id&quot;: &quot;L&quot;,
+  &quot;state&quot;: &quot;WAIT_COASTER&quot;,
+  &quot;round_index&quot;: 1,
+  &quot;max_rounds&quot;: 1,
+  &quot;active_order_id&quot;: null,
+  &quot;current_expression&quot;: &quot;default&quot;
+}</code></pre><ul id="668c55c8-c033-4500-9c45-7afca647e673" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>guest_instance_id</code>는 Day·source type·seq로 결정적으로 만든다.</li></ul><ul id="6c298ace-8012-41f1-8bde-fa1dc233c915" class="bulleted-list" dir="auto"><li style="list-style-type:disc">카메오는 <code>character_id</code>를 사용하고 <code>personality_id·gender·appearance</code>는 null로 둔다.</li></ul><ul id="91147c59-65ad-46ca-83e2-b8c2ae866cda" class="bulleted-list" dir="auto"><li style="list-style-type:disc">일반 손님은 <code>character_id</code>를 null로 두고 성격·외형을 사용한다.</li></ul><ul id="47f5649a-629d-424a-a1c7-12fcc2359b53" class="bulleted-list" dir="auto"><li style="list-style-type:disc">제한시간과 남은 시간은 현재 실행의 메모리 상태로 관리하며 손님 퇴장과 함께 폐기한다. 영속 저장과 불러오기 기준은 저장 시스템 문서를 따른다.</li></ul><h2 id="126f5755-dd16-48c6-8e29-e0820d7ed5ed" class="" dir="auto">9.2 저장 시스템 연결</h2><p id="fc686643-d2a9-4562-a81d-02d26fc620a2" class="" dir="auto">이 문서는 GuestInstance의 런타임 역할만 정의한다. 저장할 필드, Part1Session 구조, 체크포인트, 비정상 종료 복구와 중복 결과 방지는 <a href="https://app.notion.com/p/3c01612298dc80ad838cef1228340ab5?pvs=21" data-notion-page-id="3c016122-98dc-80ad-838c-ef1228340ab5" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">저장·불러오기 시스템</a>을 단일 기준으로 사용한다.</p><hr id="5e0f9266-66ed-476e-ba95-07eeccbd4f4c" dir="auto"/><h1 id="8058cb5c-d9f8-4137-af7c-00c81a72e887" class="" dir="auto">10. 저장 시스템 경계</h1><ul id="ae901e61-e2d9-42bc-aeb5-6ec3299c0625" class="bulleted-list" dir="auto"><li style="list-style-type:disc">일반 손님 운영 시스템은 손님의 생성·완료·1부 종료 이벤트를 런타임에 전달한다. Day 0 저장 정책은 바 최초 진입과 2부 시작 전환만 영속 저장하며, 손님 단위 이벤트로 자동 저장을 만들지 않는다.</li></ul><ul id="efa08b90-a0b0-4e02-a5f2-b758bc9dc467" class="bulleted-list" dir="auto"><li style="list-style-type:disc">어떤 값을 영속 저장하고 어디부터 다시 시작할지는 이 문서에서 별도로 정의하지 않는다.</li></ul><ul id="f2ecf7be-ac4c-4ba9-b517-edef3a615ebd" class="bulleted-list" dir="auto"><li style="list-style-type:disc">저장 구조를 변경할 때는 런타임 명세에 구조를 복사하지 않고 <a href="https://app.notion.com/p/3c01612298dc80ad838cef1228340ab5?pvs=21" data-notion-page-id="3c016122-98dc-80ad-838c-ef1228340ab5" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">저장·불러오기 시스템</a>만 수정한다.</li></ul><hr id="9220acf2-d7b0-4707-ae7a-bfdfbe20caff" dir="auto"/><h1 id="5f481aa8-97c7-4d58-8280-6f8ba777203d" class="" dir="auto">11. 오류와 검증</h1><table id="87b8c829-5bf3-4a2a-bf49-5d650254c621" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="4b39a2cf-f3b1-4f61-a37a-ad40bed9c7b1" dir="ltr"><th id="CLJ{" class="block-color-red_background simple-table-header">오류</th><th id="J^&gt;f" class="block-color-red_background simple-table-header">조건</th><th id="{HbB" class="block-color-red_background simple-table-header">처리</th></tr></thead><tbody><tr id="0b906482-7edc-4809-85da-c713f96d098f" dir="ltr"><td id="CLJ{" class=""><mark class="highlight-red" data-notion-highlight="red"><code>PART1_SLOT_DUPLICATE_SEQ</code></mark></td><td id="J^&gt;f" class="">같은 Day의 공용 큐에서 seq 중복</td><td id="{HbB" class="">빌드 차단</td></tr><tr id="4fa6659a-633b-4eeb-b13c-5720a3ff18c5" dir="ltr"><td id="CLJ{" class=""><mark class="highlight-red" data-notion-highlight="red"><code>PERSONALITY_MISSING</code></mark></td><td id="J^&gt;f" class="">일반 손님 personality가 비어 있거나 존재하지 않음</td><td id="{HbB" class="">빌드 차단</td></tr><tr id="dcee8e75-cd83-4963-82be-793f48d9ea60" dir="ltr"><td id="CLJ{" class=""><mark class="highlight-red" data-notion-highlight="red"><code>APPEARANCE_POOL_EMPTY</code></mark></td><td id="J^&gt;f" class="">성별·성격의 유효 외형 조합이 0개</td><td id="{HbB" class="">빌드 차단</td></tr><tr id="b313b868-80f6-4db7-87e8-e2cc2b11a58b" dir="ltr"><td id="CLJ{" class=""><mark class="highlight-red" data-notion-highlight="red"><code>APPEARANCE_RESOURCE_MISSING</code></mark></td><td id="J^&gt;f" class="">기본 외형을 구성하는 필수 sprite ID는 있으나 실제 리소스가 없음</td><td id="{HbB" class="">기본 조합 또는 누락 리소스 이미지 표시·오류 로그. 선택 표정·애니메이션 리소스 누락은 이 오류로 처리하지 않음</td></tr><tr id="f814b244-6d61-47a6-aa4f-f00322410ebb" dir="ltr"><td id="CLJ{" class=""><mark class="highlight-red" data-notion-highlight="red"><code>SEAT_DOUBLE_OCCUPIED</code></mark></td><td id="J^&gt;f" class="">같은 seat_id에 두 손님 배정</td><td id="{HbB" class="">두 번째 입장 취소·상태 복구</td></tr><tr id="e188e898-9d91-47b0-9b43-8b7c71f89cbc" dir="ltr"><td id="CLJ{" class=""><mark class="highlight-red" data-notion-highlight="red"><code>BARK_POOL_EMPTY</code></mark></td><td id="J^&gt;f" class="">상황·성격 후보와 공용 폴백이 모두 없음</td><td id="{HbB" class="">대사 생략·오류 로그, 필수 상황은 빌드 차단</td></tr><tr id="83ee7d3f-98f1-4703-af95-9958493833ed" dir="ltr"><td id="CLJ{" class=""><mark class="highlight-red" data-notion-highlight="red"><code>PART1_RESULT_DUPLICATE</code></mark></td><td id="J^&gt;f" class="">같은 serve·settlement·exit 결과 재적용</td><td id="{HbB" class="">두 번째 요청 무시</td></tr></tbody></table><p id="cd66a04f-fc19-4118-ae29-a5bb1b0462e4" class="" dir="auto">빌드에서 다음을 확인한다.</p><ul id="68f8dde6-2419-4848-85c9-f9e616e6c737" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Day·seq 중복과 잘못된 참조</li></ul><ul id="5415d35e-9ea1-4c4f-8513-8a9bc34eab65" class="bulleted-list" dir="auto"><li style="list-style-type:disc">personality 존재 여부</li></ul><ul id="8314af34-8d72-40b7-a5cf-e00c45f936da" class="bulleted-list" dir="auto"><li style="list-style-type:disc">고정 order의 칵테일 존재 여부</li></ul><ul id="a0c709ee-7335-44e1-836e-bd56eb921d41" class="bulleted-list" dir="auto"><li style="list-style-type:disc">카메오 character·scene·effects 참조</li></ul><ul id="320493c2-044e-49d6-b981-00046ad559fb" class="bulleted-list" dir="auto"><li style="list-style-type:disc">성별·성격별 외형 조합 최소 1개</li></ul><ul id="add02c9f-f546-4901-9380-afd2973e86a0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">exclusions의 파츠 ID·성별·슬롯·중복</li></ul><ul id="5b872990-927d-405d-85a1-98513c62a757" class="bulleted-list" dir="auto"><li style="list-style-type:disc">필수 bark situation의 성격별 또는 공용 폴백</li></ul><ul id="6e990276-aba4-42f0-bae6-b59ad62c30c2" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><code>text.ko·text.en</code>과 <code>{cocktail}</code> 치환 가능 여부</li></ul><ul id="e801794a-33a7-4f89-9e77-23d7bcbbadff" class="bulleted-list" dir="auto"><li style="list-style-type:disc">기본 외형 파츠와 실제 리소스 경로</li></ul><hr id="619fe18a-cef8-4696-8a89-1b2971f1faa9" dir="auto"/><h1 id="845c424b-41f6-4777-8b55-1caa26feaa14" class="" dir="auto">12. 실제 데이터 예시</h1><p id="c17de43d-ecbe-4c14-a3fe-28174b487d09" class="" dir="auto">현재 Day 1 첫 일반 손님 슬롯은 다음과 같다.</p><pre id="8e0a9e59-315c-4a11-ad7f-9528ec4c11c4" class="code code-wrap" data-notion-code-syntax="json"><code class="language-json" style="white-space:pre-wrap;word-break:break-all">{
+  &quot;day&quot;: 1,
+  &quot;seq&quot;: 1,
+  &quot;order&quot;: &quot;&quot;,
+  &quot;personality&quot;: &quot;gentle&quot;,
+  &quot;delay_sec&quot;: 0,
+  &quot;max_rounds&quot;: 1,
+  &quot;branch_choice&quot;: false
+}</code></pre><p id="83d78279-10ab-41d6-aa64-8892e2bb24ad" class="" dir="auto">실행 예시는 다음과 같다.</p><pre id="406da4e7-4ffb-4367-a6a0-54f2ebb365ae" class="code code-wrap"><code style="white-space:pre-wrap;word-break:break-all">개점 대화 종료
+→ 5초 뒤 gentle 손님 생성
+→ 성별·외형 결정
+→ L 좌석 예약과 입장
+→ &quot;한 명이요, 자리 있을까요?&quot;
+→ 코스터 한계 = clamp(22 × 1.2, 12, 60) = 26.4초
+→ 코스터 드롭
+→ think_chance 1.0이므로 order_think 출력
+→ 해금 칵테일 중 주문 확정
+→ &quot;{cocktail} 부탁드립니다.&quot;
+→ 제조·서빙·등급별 반응·매출 처리
+→ 퇴장과 좌석 해제
+→ 다음 슬롯 또는 1부 종료 검사</code></pre><hr id="92bf7c58-f992-43c1-8bfa-8ef238b35a4f" dir="auto"/><h1 id="df75bd7e-3db0-4bde-aa71-dc01f848eda6" class="" dir="auto">13. 현재 리소스 제약</h1><ul id="3ff49743-d56f-4b18-a03d-2a119ef02791" class="bulleted-list" dir="auto"><li style="list-style-type:disc">일반 손님 파츠의 <code>personalities</code>가 모두 비어 있어 성격별 외형 차이는 아직 없다.</li></ul><ul id="ed382d90-f1bd-4d4a-9926-262b48f298ad" class="bulleted-list" dir="auto"><li style="list-style-type:disc">모든 <code>emotions</code>가 null이라 표정 판정은 가능하지만 외형 스프라이트는 바뀌지 않는다.</li></ul><ul id="32bf0084-f1b9-4403-a6a1-c96ea5db2ef0" class="bulleted-list" dir="auto"><li style="list-style-type:disc">여성 눈썹·입은 자리 파츠이며 여성 외형 조합 수가 적다.</li></ul><ul id="ae66c12a-6362-4994-8e3f-92d7090f7c4a" class="bulleted-list" dir="auto"><li style="list-style-type:disc">누락 리소스용 공용 이미지가 아직 필요하다.</li></ul><ul id="708b5cf2-eaea-405c-9230-e7cce7755c76" class="bulleted-list" dir="auto"><li style="list-style-type:disc">위 항목은 런타임 흐름 구현을 막지는 않지만 최종 시각 결과에는 영향을 준다.</li></ul><hr id="9a7c0e6a-d555-4be4-abb4-9990c871497c" dir="auto"/><h1 id="f1f313c7-8f3a-4471-85cb-2786600cf810" class="" dir="auto">14. 남은 결정</h1><ul id="132a986f-bc08-46b3-8642-49d71d6b0ea9" class="bulleted-list" dir="auto"><li style="list-style-type:disc">1부에서 여러 손님 사이 카메라가 이동하는 시간과 easing</li></ul><ul id="591b5104-9081-4f3f-8872-2c8f984560ff" class="bulleted-list" dir="auto"><li style="list-style-type:disc">향후 성격별 외형 제한 또는 파츠 가중치를 사용할지</li></ul><ul id="1797ff86-8336-492e-9050-eccf6c5ec452" class="bulleted-list" dir="auto"><li style="list-style-type:disc">여성 파츠의 정확한 캔버스 크기 — 정식 리소스가 나오면 확인한다. 피벗·원점·발 위치와 레이어 정렬 기준은 남성 파츠와 동일하게 사용하며, 캔버스가 다르면 가져오기 전에 공통 규격으로 정규화한다.</li></ul><hr id="8844cc34-241c-4e02-ad3e-4e892e453b97" dir="auto"/><h1 id="453d36bb-3a92-4671-8c74-0155c213cfd4" class="" dir="auto">관련 문서</h1><ul id="e90be30a-bc1c-4869-a5f1-e90a1272ce5c" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/1-3bf1612298dc80a4a67ad1d6af9a5506?pvs=21" data-notion-page-id="3bf16122-98dc-80a4-a67a-d1d6af9a5506" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 일반 손님 칵테일 제조 루프 기획서</a></li></ul><ul id="d65ac3a4-3d3f-4df3-81af-cd6b5af0fb23" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3bf1612298dc8004b2d3c766e8e3892b?pvs=21" data-notion-page-id="3bf16122-98dc-8004-b2d3-c766e8e3892b" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">일반 손님 외형 생성 시스템</a></li></ul><ul id="92bdc5b1-8890-44f9-8f3c-20bf6f911184" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/39f1612298dc80e89029fb739290812d?pvs=21" data-notion-page-id="39f16122-98dc-80e8-9029-fb739290812d" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">데이터 구조</a></li></ul><ul id="e762a6be-eb88-4716-9399-377e80e2eb5d" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3c01612298dc80ad838cef1228340ab5?pvs=21" data-notion-page-id="3c016122-98dc-80ad-838c-ef1228340ab5" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">저장·불러오기 시스템</a></li></ul><ul id="03d8d7fe-da22-46cc-920c-7224793ec977" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/1-3c11612298dc814b9205c2ef7bc5961f?pvs=21" data-notion-page-id="3c116122-98dc-814b-9205-c2ef7bc5961f" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">1부 주문 및 칵테일 선택</a></li></ul><ul id="e892186c-6bdd-4168-b156-d9026bb6d6b8" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/3c11612298dc817185bfe4a56005f954?pvs=21" data-notion-page-id="3c116122-98dc-8171-85bf-e4a56005f954" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">칵테일 제공·정산·다회 주문</a></li></ul><ul id="9f786ae9-44c8-4f67-a091-ebd68e77f402" class="bulleted-list" dir="auto"><li style="list-style-type:disc"><a href="https://app.notion.com/p/2-3c01612298dc80e2821cdf00ef63eafc?pvs=21" data-notion-page-id="3c016122-98dc-80e2-821c-df00ef63eafc" data-notion-space-id="875a7cab-85a9-4c61-93a4-a502175e7339">2부 운영 시스템 구현 명세</a></li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

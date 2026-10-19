@@ -4,7 +4,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using VContainer;
 
 /// <summary>
 /// 스터(Stir) 미니게임의 메인 매니저.
@@ -20,8 +19,6 @@ using VContainer;
 public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd
 {
-    [Inject] ILoopingSoundManager loopSound;
-    IDisposable stirSound;
     [SerializeField] private bool isTest = false;
     [Tooltip("isTest일 때 표시할 칵테일 id. 스터 대상은 현재 dry_martini 1종이다.")]
     [SerializeField] private string testCocktailId = "dry_martini";
@@ -183,7 +180,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     void Update()
     {
         // 포커스가 없는 동안 들어온 입력은 없지만, 큐에 남아 있던 것도 돌아올 때까지 잡아둔다.
-        if (!hasFocus || isAppPaused) { StopStirSound(); return; }
+        if (!hasFocus || isAppPaused) return;
 
         // 입력을 타이머보다 먼저 소비한다. 제한시간 도달과 마지막 정답 입력이 같은 프레임에
         // 겹치면 입력이 이긴다는 규칙(명세 §7)이 이 순서 하나로 지켜진다.
@@ -194,9 +191,6 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         // 마지막 판정 이후에도 예약된 중단점까지 연출을 마무리한다.
         stirAnimation?.Tick(Time.deltaTime);
-        bool moving = isStarted && !isCompleted && Time.deltaTime > 0f && stirAnimation != null && stirAnimation.IsPlaying;
-        if (moving) stirSound ??= loopSound?.PlayLoop("SFX_stir");
-        else StopStirSound();
 
         if (isCompleted) return;
 
@@ -328,7 +322,6 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void Complete()
     {
-        StopStirSound();
         isCompleted = true;
         stackTime = 0f;
         inputQueue.Clear();
@@ -387,12 +380,9 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── 일시정지 ────────────────────────────────────────────────────────
 
-    void OnApplicationFocus(bool focus) { hasFocus = focus; if (!focus) StopStirSound(); }
+    void OnApplicationFocus(bool focus) => hasFocus = focus;
 
-    void OnApplicationPause(bool pause) { isAppPaused = pause; if (pause) StopStirSound(); }
-
-    void StopStirSound() { stirSound?.Dispose(); stirSound = null; }
-    void OnDisable() => StopStirSound();
+    void OnApplicationPause(bool pause) => isAppPaused = pause;
 
     // ── IMiniGameController ─────────────────────────────────────────────
 
@@ -479,7 +469,6 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         finally
         {
             Completed -= OnCompletedForRunner;
-            StopStirSound();
         }
 
         // 스터는 목표 스택을 채우면 저절로 끝난다. 중간에 그만두는 다음 버튼은 아직 없다.

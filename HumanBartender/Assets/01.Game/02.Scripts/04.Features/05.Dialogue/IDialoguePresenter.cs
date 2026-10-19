@@ -22,15 +22,3 @@ public interface IDialoguePresenter
     /// <summary>실외 선택지를 표시하고, 선택 시 onSelected 콜백을 호출한다.</summary>
     void ShowOutsideChoices(NewStreetOptionData[] options, Action<NewStreetOptionData> onSelected);
 }
-
-/// <summary>대사 출력 완료와 별도로, 플레이어의 다음 입력을 기다리는 상태를 표시한다.</summary>
-public interface IDialogueInputPrompt
-{
-    void SetWaitingForInput(bool waiting);
-}
-
-/// <summary>실제로 대사를 넘긴 입력에 대한 표현. 취소·자동 진행과 구분한다.</summary>
-public interface IDialogueInputFeedback
-{
-    void PlayAdvanceFeedback();
-}
