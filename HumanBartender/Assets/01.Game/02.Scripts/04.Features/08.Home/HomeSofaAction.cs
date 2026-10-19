@@ -6,7 +6,7 @@ using UnityEngine;
 using VContainer;
 
 /// <summary>공통 선택창으로 소파의 수면·저장·취소를 처리함.</summary>
-public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWorldInteractionSavePolicy
+public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWorldInteractionSavePolicy, IWorldInteractionCancellationPolicy
 {
     private const int SlotsPerPage = 2;
     [Inject] private IGameProgressionService progression;
@@ -16,6 +16,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
     private CancellationTokenSource execution;
     public bool CanExecute => isActiveAndEnabled && !running && progression != null && saves != null;
     public bool CanSave => running && !sleeping;
+    public bool CanCancel => !sleeping;
 
     public async UniTask ExecuteAsync(WorldInteractionActionContext context, CancellationToken token)
     {
@@ -99,11 +100,30 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
     private async UniTask<bool> SleepAsync(WorldInteractionActionContext context, CancellationToken token)
     {
         sleeping = true;
+        var playerTransform = context.Player?.Transform;
+        var originalPosition = playerTransform != null ? playerTransform.position : Vector3.zero;
+        int previousDay = GameStateManager.Instance.CurrentDay;
         try
         {
             if (context.PlayNight == null) throw new InvalidOperationException("집 대화 실행기가 없습니다.");
-            await context.PlayNight(token);
-            var result = await progression.SleepAsync(context.RefreshConditions, token);
+            GameProgressionResult result;
+            try
+            {
+                await context.PlayNight(token);
+                result = await progression.SleepAsync(() =>
+                {
+                    context.RefreshConditions?.Invoke();
+                    var state = GameStateManager.Instance;
+                    if (state.CurrentDay > previousDay && state.GameFlow == EGameFlow.CommuteIn)
+                        context.PrepareMorning?.Invoke();
+                    else if (playerTransform != null) playerTransform.position = originalPosition;
+                }, token);
+            }
+            finally
+            {
+                // 정상 취침은 이미 검은 화면에서 복원됨. 실패한 경우만 실내로 페이드 복귀함.
+                if (context.FinishNight != null) await context.FinishNight(CancellationToken.None);
+            }
             token.ThrowIfCancellationRequested();
             if (result.Succeeded) return true;
             await ShowMessageAsync(context, result.Message ?? Localize("지금은 잠들 수 없습니다.", "You cannot sleep right now."), token);

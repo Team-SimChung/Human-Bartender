@@ -34,6 +34,12 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     private WorldInteractionTarget target;
     private Transform speaker;
     private Transform player;
+    private WorldDialogueSpeakers sceneSpeakers;
+    private WorldSpeechBubblePlacement placement;
+    private Vector2 speakerOffset;
+    private bool explicitSpeaker;
+    private Vector2 authoredTailOffset;
+    private Quaternion authoredTailRotation;
     private bool imageMode;
     private bool built;
     private bool hasDialogue;
@@ -85,6 +91,9 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         bubble = Instantiate(bubblePrefab, root);
         bubble.name = "SpeechBubble";
         authoredMaximumSize = bubble.maxSize;
+        var tail = (RectTransform)bubble.centerArrow.transform;
+        authoredTailOffset = tail.anchoredPosition;
+        authoredTailRotation = tail.localRotation;
         bubbleVisibility = bubble.GetComponent<CanvasGroup>();
         if (bubbleVisibility == null) bubbleVisibility = bubble.gameObject.AddComponent<CanvasGroup>();
         // 말풍선이 클릭을 가로채지 않게 함. 외형 설정은 프리팹 값을 사용함.
@@ -118,13 +127,15 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     private Transform speakerOverride;
     private bool automatic;
 
-    public void Begin(WorldInteractionTarget value, Transform playerTransform, Transform anchor = null, bool autoAdvance = false)
+    public void Begin(WorldInteractionTarget value, Transform playerTransform, Transform anchor = null, bool autoAdvance = false,
+        WorldDialogueSpeakers speakers = null)
     {
         if (!built) throw new InvalidOperationException("상호작용 UI가 초기화되지 않았습니다.");
         EndScene();
         target = value;
         player = playerTransform;
         speakerOverride = anchor;
+        sceneSpeakers = speakers;
         automatic = autoAdvance;
         bubble.TextPlayer.ConfigureAudio(sound, automatic);
         imageMode = value.Output == WorldInteractionOutput.Image;
@@ -139,7 +150,15 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         if (target == null) throw new InvalidOperationException("상호작용 대상이 사라졌습니다.");
         choices.Hide();
         hasDialogue = true;
-        speaker = actor == "luna" ? player : speakerOverride != null ? speakerOverride : target.ResolveSpeaker(actor, player);
+        var bindings = sceneSpeakers != null ? sceneSpeakers : target.GetComponent<WorldDialogueSpeakers>();
+        placement = WorldSpeechBubblePlacement.Above;
+        speakerOffset = target.BubbleOffset;
+        explicitSpeaker = bindings != null && bindings.TryResolve(actor, out speaker, out placement, out speakerOffset);
+        if (!explicitSpeaker)
+        {
+            speaker = actor == "luna" ? player : speakerOverride != null ? speakerOverride : target.ResolveSpeaker(actor, player);
+            speakerOffset = target.BubbleOffset;
+        }
         bubble.gameObject.SetActive(true);
         bubble.centerArrow.SetActive(!imageMode);
         bubble.leftArrow.SetActive(false);
@@ -184,6 +203,9 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         speaker = null;
         player = null;
         speakerOverride = null;
+        sceneSpeakers = null;
+        explicitSpeaker = false;
+        placement = WorldSpeechBubblePlacement.Above;
         automatic = false;
         hasDialogue = false;
         menuMode = false;
@@ -254,11 +276,15 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         }
         else if (speaker != null && camera != null && bubble.gameObject.activeSelf)
         {
-            Vector3 position = speaker.position + (speaker == player ? Vector3.up * .4f : Vector3.zero);
-            Place(position, target.BubbleOffset, camera);
+            bool below = placement == WorldSpeechBubblePlacement.Below;
+            Vector3 position = speaker.position + (!explicitSpeaker && speaker == player ? Vector3.up * .4f : Vector3.zero);
+            Place(position, speakerOffset, camera, below);
             // 화면 가장자리에서도 꼬리가 화자의 위치를 가리키도록 보정함.
             RectTransformUtility.ScreenPointToLocalPointInRectangle(root, camera.WorldToScreenPoint(position), null, out var anchor);
             var tail = (RectTransform)bubble.centerArrow.transform;
+            tail.anchorMin = tail.anchorMax = new Vector2(.5f, below ? 1 : 0);
+            tail.localRotation = authoredTailRotation * Quaternion.Euler(0, 0, below ? 180 : 0);
+            tail.anchoredPosition = new Vector2(authoredTailOffset.x, below ? -authoredTailOffset.y : authoredTailOffset.y);
             Vector3 localAnchor = bubble.bubble.InverseTransformPoint(root.TransformPoint(anchor));
             Rect bounds = bubble.bubble.rect;
             Vector3 tailPosition = tail.localPosition;
@@ -284,10 +310,11 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         }
     }
 
-    private void Place(Vector3 worldPosition, Vector2 offset, Camera camera)
+    private void Place(Vector3 worldPosition, Vector2 offset, Camera camera, bool below)
     {
         Vector3 screen = camera.WorldToScreenPoint(worldPosition);
         RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, null, out var point);
+        if (below) offset.y -= ScaledSize(bubble.bubble).y;
         PlaceBubbleAt(point + offset);
         // 타이핑 작업을 끄지 않고 카메라 뒤에 있는 말풍선만 숨김.
         bubbleVisibility.alpha = screen.z > 0 ? 1 : 0;

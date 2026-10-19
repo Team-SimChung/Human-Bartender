@@ -11,10 +11,12 @@ using VContainer;
 public sealed class WorldInteractionController : MonoBehaviour
 {
     [SerializeField] private WorldInteractionView view;
+    [SerializeField] private HomeTerracePresentation homeTerrace;
     [Inject] private WorldInteractionSceneContext sceneContext;
     [Inject] private IConditionUtil conditions;
     [Inject] private IPlayerDataReader playerData;
     [Inject] private IPopupService popups;
+    [Inject] private ISceneFadeService sceneFades;
     private readonly HashSet<string> notifiedEvents = new(StringComparer.Ordinal);
     private readonly Dictionary<string, NewSceneData> stories = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> targetCounts = new(StringComparer.Ordinal);
@@ -43,7 +45,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         {
             if (!controller.isActiveAndEnabled || !controller.IsRunning) continue;
             escapeConsumedFrame = Time.frameCount;
-            controller.Cancel();
+            controller.RequestCancel();
             return true;
         }
         return false;
@@ -52,6 +54,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     public bool IsRunning => session != null;
     public bool IsReady => ready;
     public bool CanSave => !IsRunning || activeTarget != null && activeTarget.Action is IWorldInteractionSavePolicy policy && policy.CanSave;
+    public bool CanCancel => activeTarget == null || activeTarget.Action is not IWorldInteractionCancellationPolicy policy || policy.CanCancel;
     public WorldInteractionTarget FocusedTarget => focused;
     internal WorldInteractionTarget ActiveTarget => activeTarget;
     internal WorldInteractionView View => view;
@@ -80,7 +83,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             var data = gameObject.scene.name == "Home" ? NewDataLoadManager.HomeStory : NewDataLoadManager.StreetStory;
             foreach (var story in data.Scenes ?? Array.Empty<NewSceneData>())
                 if (story.RuntimeScene == gameObject.scene.name) stories.Add(story.Id, story);
-            view.Initialize(HandleInput, Cancel, () => playerData.HasMoney());
+            view.Initialize(HandleInput, RequestCancel, () => playerData.HasMoney());
             ready = true;
         }
         catch (OperationCanceledException) { }
@@ -156,9 +159,14 @@ public sealed class WorldInteractionController : MonoBehaviour
             TryCancelForEscape();
             return;
         }
-        if (!SessionAvailable || WorldInteractionInput.CancelPressed)
+        if (!SessionAvailable)
         {
             Cancel();
+            return;
+        }
+        if (WorldInteractionInput.CancelPressed)
+        {
+            RequestCancel();
             return;
         }
         if (UIDisplayOptions.IsOptionOpen) return;
@@ -231,6 +239,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     }
 
     private void HandleInput() => TryHandleInput();
+    private void RequestCancel() { if (CanCancel) Cancel(); }
     public void Cancel() => session?.Cancel();
 
     public async UniTask<StoryExecutionResult> PlayAsync(WorldInteractionTarget target)
@@ -285,7 +294,8 @@ public sealed class WorldInteractionController : MonoBehaviour
                 break;
             case WorldInteractionOutput.Action:
                 var context = new WorldInteractionActionContext(player, PlayAutomaticDialogueAsync,
-                    PlayNightAsync, sceneContext.RefreshContents, ChooseMenuAsync);
+                    PlayNightAsync, sceneContext.RefreshContents, ChooseMenuAsync,
+                    () => homeTerrace?.PrepareMorning(player), FinishNightAsync);
                 await target.Action.ExecuteAsync(context, token);
                 break;
             case WorldInteractionOutput.Image:
@@ -323,7 +333,12 @@ public sealed class WorldInteractionController : MonoBehaviour
         await cutscenePlayer.PlayAsync(sequence, token);
         token.ThrowIfCancellationRequested();
         // 컷씬이 월드를 복원하면 같은 CSV 실행과 대화 표현기로 돌아감.
-        if (target.Output != WorldInteractionOutput.Cutscene) view.Begin(target, player.transform);
+        if (target.Output != WorldInteractionOutput.Cutscene)
+        {
+            if (homeTerrace != null && homeTerrace.IsActive)
+                view.Begin(target, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);
+            else view.Begin(target, player.transform);
+        }
     }
 
     private async UniTask<StoryExecutionResult> PlayAutomaticDialogueAsync(Step[] steps, Transform anchor, CancellationToken token)
@@ -338,17 +353,38 @@ public sealed class WorldInteractionController : MonoBehaviour
         var state = GameStateManager.Instance;
         if (gameObject.scene.name != "Home" || state.GameFlow != EGameFlow.CommuteOut)
             throw new InvalidOperationException("귀가 후 Home에서만 취침 대화를 진행할 수 있습니다.");
-        foreach (var story in stories.Values.OrderBy(StoryOrder))
+        bool completed = false;
+        try
         {
-            if (story.StartMode != ENewSceneTrigger.Manual ||
-                !WorldInteractionSceneRules.IsEligible(story, gameObject.scene.name, state.CurrentDay, state.GameFlow, conditions)) continue;
-            view.Begin(activeTarget, player.transform, player.transform);
-            runner.Bind(view);
-            var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync);
-            if (result.Status == StoryExecutionStatus.Cancelled) throw new OperationCanceledException(token);
-            if (!result.Completed) throw new InvalidOperationException(result.Error);
-            if (!string.IsNullOrEmpty(story.CompletionFlag)) conditions.ApplyRequired("flag." + story.CompletionFlag + " = true");
+            foreach (var story in stories.Values.OrderBy(StoryOrder))
+            {
+                if (story.StartMode != ENewSceneTrigger.Manual ||
+                    !WorldInteractionSceneRules.IsEligible(story, gameObject.scene.name, state.CurrentDay, state.GameFlow, conditions)) continue;
+                bool terraceStory = homeTerrace != null && homeTerrace.ContainsStory(story.Id);
+                view.EndScene();
+                if (terraceStory) await homeTerrace.EnterAsync(sceneFades, token);
+                else if (homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, token);
+                if (terraceStory) view.Begin(activeTarget, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);
+                else view.Begin(activeTarget, player.transform, player.transform);
+                runner.Bind(view);
+                var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync);
+                if (result.Status == StoryExecutionStatus.Cancelled) throw new OperationCanceledException(token);
+                if (!result.Completed) throw new InvalidOperationException(result.Error);
+                if (!string.IsNullOrEmpty(story.CompletionFlag)) conditions.ApplyRequired("flag." + story.CompletionFlag + " = true");
+            }
+            completed = true;
         }
+        finally
+        {
+            view.EndScene();
+            if (!completed) await FinishNightAsync(CancellationToken.None);
+        }
+    }
+
+    private async UniTask FinishNightAsync(CancellationToken token)
+    {
+        if (view != null) view.EndScene();
+        if (homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, token);
     }
 
     private static int StoryOrder(NewSceneData story) => story.Seq;
