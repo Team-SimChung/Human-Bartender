@@ -588,6 +588,7 @@ public class GuestManager : MonoBehaviour
         slot.Seat(guest);
         SetSlotCharacter(slot, guest);
         ShowBark(slot, "call");
+        sound?.PlaySE("SFX_notification");
 
         StartPatienceTimer(slot, guest);
 

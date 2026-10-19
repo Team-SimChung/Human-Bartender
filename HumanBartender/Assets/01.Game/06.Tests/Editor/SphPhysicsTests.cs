@@ -291,61 +291,6 @@ public sealed class SphPhysicsTests
         Assert.That(gap, Is.LessThan(config.spacing * 1.5f), "A poured liquid must not keep a diagonal sand-like pile.");
     }
 
-    [TestCase(-81.335f)]
-    [TestCase(701.38f)]
-    public void SmallPourInScaledGlassSettles(float originX)
-    {
-        var config = LoadConfig("Liquid_Light");
-        Vector2 origin = new Vector2(originX,-33.7323f);
-        root.transform.position = origin;
-        root.transform.localScale = new Vector3(1.6f,2.7f,1);
-        var boundary = new SphContainerBoundary(root.transform,Vector2.one*0.45f,config.spacing*0.5f);
-        var sim = new SphSimulation(config,origin-Vector2.one*5,origin+Vector2.one*5,boundary.Constrain);
-        var seed = Grid(sim,config,5,5);
-        foreach (var p in seed) p.pos += origin;
-        sim.CalibrateRestDensity();
-        foreach (var p in seed) { sim.Unregister(p); Object.DestroyImmediate(p.gameObject); }
-        var particles = new List<SphParticle>();
-        Vector2 direction = Quaternion.Euler(0,0,-110)*Vector3.up;
-        Vector2 across = new Vector2(-direction.y,direction.x);
-        for (int step=0;step<1240;step++)
-        {
-            if (step<280 && step%5==0)
-                for (int lane=0;lane<2;lane++)
-                {
-                    var p = Create(config,origin+new Vector2(-0.576f,2.115f)+across*((lane-0.5f)*config.spacing));
-                    p.velocity = direction*1.6f; sim.Register(p); particles.Add(p);
-                }
-            sim.Tick(Dt);
-        }
-        var left = new List<float>(); var right = new List<float>();
-        foreach (var p in particles)
-        {
-            if (p.pos.x-origin.x < -0.15f) left.Add(p.pos.y);
-            if (p.pos.x-origin.x > 0.15f) right.Add(p.pos.y);
-        }
-        Assert.That(left.Count,Is.GreaterThan(5)); Assert.That(right.Count,Is.GreaterThan(5));
-        left.Sort(); right.Sort();
-        float gap = Mathf.Abs(left[(int)((left.Count-1)*0.95f)]-right[(int)((right.Count-1)*0.95f)]);
-        TestContext.WriteLine($"small pour gap={gap}, left={left.Count}, right={right.Count}");
-        Assert.That(gap,Is.LessThan(config.spacing*1.5f));
-    }
-
-    [Test]
-    public void RepeatedContainerConstraintsDoNotMoveInteriorParticles()
-    {
-        root.transform.position = new Vector3(-81.335f,-33.7323f);
-        root.transform.localScale = new Vector3(1.6f,2.7f,1f);
-        var boundary = new SphContainerBoundary(root.transform,Vector2.one*0.45f,0.0325f);
-        for (int x=-3;x<=3;x++)
-        {
-            Vector2 position = root.transform.TransformPoint(new Vector3(x*0.1f,0.05f));
-            var p = Create(new SphConfig(),position);
-            for (int i=0;i<1000;i++) boundary.Constrain(p);
-            Assert.That(p.pos,Is.EqualTo(position),"A boundary check inside the glass must not create drift.");
-        }
-    }
-
     [Test]
     public void FluidViscosityPreservesMomentumAndDoesNotAddEnergy()
     {

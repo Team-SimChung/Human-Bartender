@@ -1,37 +1,30 @@
 using UnityEngine;
 
 /// <summary>
-/// 플레이어의 상태에 맞춰 이동·애니메이션·상호작용 감지를 호출함.
-/// 기존 추적 이벤트를 유지하기 위해 InteractorEvent에서 자신을 전달함.
+/// 플레이어 파사드. 이동/애니메이션/상호작용 감지 컴포넌트를 조합해 상태(state)에 따라 매 프레임 위임 호출한다.
+/// IInteractor 구현체이면서 동시에 (다소 특이하게) 자기 자신을 상호작용 대상으로도 취급해 InteractorEvent에서
+/// Interact(this)를 호출한다 — 엘리베이터 등 "상호작용 주체가 곧 트리거 대상"인 케이스를 위한 것으로 보인다.
 /// </summary>
 public class Player : MonoBehaviour, IInteractor
 {
     [Header("Composition")]
-    [SerializeField] private PlayerMovement2D movement2D;
-    [SerializeField] private PlayerAnimator2D animator2D;
+    [SerializeField] PlayerMovement2D movement2D;
+    [SerializeField] PlayerAnimator2D animator2D;
 
-    [SerializeField] private InteractionDetector detector;
-    [SerializeField] private EInteractorState state = EInteractorState.None;
+    [SerializeField] InteractionDetector detector;
+    [SerializeField] EInteractorState state = EInteractorState.None;
 
     [Header("Stupid Issue")]
     [SerializeField] protected ITrackedbleEvent OnTrackedText;
     [SerializeField] private bool isAvaliable;
     [SerializeField] protected Vector2 buttonOffset;
-    [SerializeField] private Transform barspawn;
-    [SerializeField] private Transform homespawn;
-    private WorldInteractionSceneContext sceneEntities;
+    [SerializeField] Transform barspawn;
+    [SerializeField] Transform homespawn;
+    InteractiveEntityManager sceneEntities;
 
     public GameObject GameObject => gameObject;
     public Transform Transform => transform;
     public EInteractorState State { get => state; set => state = value; }
-
-    /// <summary>공통 상호작용을 시작할 때 연결된 애니메이터와 기존 감지기의 포커스를 정리함.</summary>
-    public void PrepareWorldInteraction()
-    {
-        animator2D?.Stop();
-        detector?.CurrentTarget?.OnFocusExit();
-        detector?.InteractedTarget();
-    }
 
 
     Vector2 ITrackedble.ButtonOffset => buttonOffset;
@@ -55,14 +48,14 @@ public class Player : MonoBehaviour, IInteractor
     }
     /// <summary>
     /// 상태별 게이트: Lock/Interct 상태에서는 완전히 정지, ForceMove(엘리베이터 탑승 등) 상태에서는
-    /// 이동/애니메이션은 계속하되 상호작용 감지는 멈춤.
+    /// 이동/애니메이션은 계속하되 상호작용 감지는 멈춘다.
     /// </summary>
     public void Update()
     {
         if (gameObject.scene.name is "Home" or "OutSide")
         {
             if (sceneEntities == null)
-                foreach (var candidate in FindObjectsByType<WorldInteractionSceneContext>(FindObjectsSortMode.None))
+                foreach (var candidate in FindObjectsByType<InteractiveEntityManager>(FindObjectsSortMode.None))
                     if (candidate.gameObject.scene == gameObject.scene) { sceneEntities = candidate; break; }
             if (sceneEntities == null || !sceneEntities.IsReady) return;
         }
@@ -73,7 +66,7 @@ public class Player : MonoBehaviour, IInteractor
         animator2D.Handle(movement2D.VelocityX);
 
         if (state == EInteractorState.ForceMove) return;
-        if (detector != null && detector.isActiveAndEnabled) detector.Handle();
+        detector.Handle();
     }
 
     /// <summary>플레이어 조작을 잠그고 애니메이션을 정지시킨다 (대사 진행 중 등).</summary>
@@ -85,7 +78,7 @@ public class Player : MonoBehaviour, IInteractor
     /// <summary>조작 잠금을 해제한다.</summary>
     public void UnLock() => state = EInteractorState.None;
 
-    /// <summary>IInteractable 구현: 다른 상호작용 대상이 플레이어 자신에게 상호작용을 걸 때 텍스트 추적 이벤트를 발생시킴.</summary>
+    /// <summary>IInteractable 구현: 다른 상호작용 대상이 플레이어 자신에게 상호작용을 걸 때 텍스트 추적 이벤트를 발생시킨다.</summary>
     public void Interact(IInteractor player)
     {
         OnTrackedText?.Raise(this);

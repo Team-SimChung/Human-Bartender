@@ -10,7 +10,6 @@ using UnityEngine;
 public class SphSimulation
 {
     public SphConfig config;
-    public bool SynchronizeTransforms { get; set; } = true;
 
     /// <summary>CalibrateRestDensity()가 실측해 채우는 기준 밀도. 보정 전에는 config 값을 쓴다.</summary>
     float restDensity;
@@ -99,8 +98,7 @@ public class SphSimulation
         foreach (var p in activeParticles)
         {
             constrainParticle?.Invoke(p);
-            p.CaptureRenderImpact(dt);
-            if (SynchronizeTransforms) p.transform.position = p.pos;
+            p.transform.position = p.pos;
         }
     }
 
@@ -163,8 +161,7 @@ public class SphSimulation
             p.UpdateVelocityFromPosition(dt);
             // 보정된 위치로 속도를 다시 구한 뒤에도 벽을 향하는 속도 성분은 제거한다.
             constrainParticle?.Invoke(p);
-            p.CaptureRenderImpact(dt);
-            if (SynchronizeTransforms) p.transform.position = p.pos;
+            p.transform.position = p.pos;
         }
     }
 

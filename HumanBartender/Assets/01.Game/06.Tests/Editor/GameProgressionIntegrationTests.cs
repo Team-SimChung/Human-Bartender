@@ -517,9 +517,9 @@ public class GameProgressionIntegrationTests
         GameStateManager.Instance.CurrentDay = 2;
         GameStateManager.Instance.GameFlow = EGameFlow.CommuteOut;
         var manager = testScene.GetRootGameObjects()
-            .SelectMany(root => root.GetComponentsInChildren<WorldInteractionSceneContext>(true)).Single();
-        typeof(WorldInteractionSceneContext).GetProperty("IsReady").SetValue(manager, true);
-        ((UniTaskCompletionSource<bool>)Field(typeof(WorldInteractionSceneContext), "readiness")
+            .SelectMany(root => root.GetComponentsInChildren<InteractiveEntityManager>(true)).Single();
+        typeof(InteractiveEntityManager).GetProperty("IsReady").SetValue(manager, true);
+        ((UniTaskCompletionSource<bool>)Field(typeof(InteractiveEntityManager), "readiness")
             .GetValue(manager)).TrySetResult(true);
 
         string directory = Path.Combine(Path.GetTempPath(), "hb-save-roundtrip-" + Guid.NewGuid().ToString("N"));

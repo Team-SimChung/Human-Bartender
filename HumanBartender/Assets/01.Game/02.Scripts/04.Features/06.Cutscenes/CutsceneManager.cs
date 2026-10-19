@@ -119,7 +119,6 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         if (_cts != null) throw new InvalidOperationException("A cutscene is already playing; cancel and await it first.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         _cts = source;
-        using var audioScope = GameAudioContext.Cutscene(GameAudioRules.SuppressesMusic(id));
         try
         {
             source.Token.ThrowIfCancellationRequested();

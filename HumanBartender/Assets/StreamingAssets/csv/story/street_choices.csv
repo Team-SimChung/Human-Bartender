@@ -2,15 +2,15 @@
 qa_choice,ch_qa_street_choice_1,1,지금은 줄 간식이 없다고 말한다.,Say that you do not have a treat right now.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_1,step_qa_choice_choice_3,options,0,street_choices_format_01,\N
 qa_choice,ch_qa_street_choice_2,2,가지고 있는 간식을 건넨다.,Give the treat you are carrying.,flag.qa_has_snack,먼저 테스트용 간식 보관함에서 간식을 챙겨야 합니다.,Pick up a treat from the test container first.,script/qa/street_day99,street_choices_qa_choice_2,step_qa_choice_choice_3,options,1,street_choices_format_02,\N
 qa_choice,ch_qa_street_choice_3,3,그냥 지나간다.,Walk away without giving anything.,\N,\N,\N,script/qa/street_day99,street_choices_qa_choice_3,step_qa_choice_choice_3,options,2,street_choices_format_01,\N
-,thug-pay,1,500원을 준다.,\N,money >= 500,선택할 수 없습니다. (소지금 부족),Unavailable (insufficient funds).,script/street,script_street_scenes_0_steps_11_options_0,script_street_scenes_0_steps_11,options,0,migration_streetchoices_3ff208da7b,
+,thug-pay,1,500원을 준다.,\N,money >= 500,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_0_steps_11_options_0,script_street_scenes_0_steps_11,options,0,migration_streetchoices_3ff208da7b,
 ,thug-refuse,2,주지 않는다.,\N,\N,,,script/street,script_street_scenes_0_steps_11_options_1,script_street_scenes_0_steps_11,options,1,migration_streetchoices_e6f0544966,\N
-,pay-gang,1,네. (50원),\N,money >= 50,선택할 수 없습니다. (소지금 부족),Unavailable (insufficient funds).,script/street,script_street_scenes_2_steps_1_options_0_result_steps_1_options_0,script_street_scenes_2_steps_1_options_0_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
+,pay-gang,1,네. (50원),\N,money >= 50,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_2_steps_1_options_0_result_steps_1_options_0,script_street_scenes_2_steps_1_options_0_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
 ,cancel-gang,2,아니요.,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_0_result_steps_1_options_1,script_street_scenes_2_steps_1_options_0_result_steps_1,options,1,migration_streetchoices_e6f0544966,\N
 ,info-gang,1,갱에 대해서,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_0,script_street_scenes_2_steps_1,options,0,migration_streetchoices_e6f0544966,\N
-,pay-coratech,1,네. (50원),\N,money >= 50,선택할 수 없습니다. (소지금 부족),Unavailable (insufficient funds).,script/street,script_street_scenes_2_steps_1_options_1_result_steps_1_options_0,script_street_scenes_2_steps_1_options_1_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
+,pay-coratech,1,네. (50원),\N,money >= 50,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_2_steps_1_options_1_result_steps_1_options_0,script_street_scenes_2_steps_1_options_1_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
 ,cancel-coratech,2,아니요.,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_1_result_steps_1_options_1,script_street_scenes_2_steps_1_options_1_result_steps_1,options,1,migration_streetchoices_e6f0544966,\N
 ,info-coratech,2,코라테크에 대해서,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_1,script_street_scenes_2_steps_1,options,1,migration_streetchoices_e6f0544966,\N
-,pay-chris,1,네. (50원),\N,money >= 50,선택할 수 없습니다. (소지금 부족),Unavailable (insufficient funds).,script/street,script_street_scenes_2_steps_1_options_2_result_steps_1_options_0,script_street_scenes_2_steps_1_options_2_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
+,pay-chris,1,네. (50원),\N,money >= 50,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_2_steps_1_options_2_result_steps_1_options_0,script_street_scenes_2_steps_1_options_2_result_steps_1,options,0,migration_streetchoices_3ff208da7b,
 ,cancel-chris,2,아니요.,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_2_result_steps_1_options_1,script_street_scenes_2_steps_1_options_2_result_steps_1,options,1,migration_streetchoices_e6f0544966,\N
 ,info-chris,3,크리스에 대해서,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_2,script_street_scenes_2_steps_1,options,2,migration_streetchoices_e6f0544966,\N
 ,info-cancel,4,대화 그만하기,\N,\N,,,script/street,script_street_scenes_2_steps_1_options_3,script_street_scenes_2_steps_1,options,3,migration_streetchoices_e6f0544966,\N
@@ -33,19 +33,7 @@ qa_choice,ch_qa_street_choice_3,3,그냥 지나간다.,Walk away without giving 
 ,allow-no,2,안 한다,\N,\N,,,script/street,script_street_scenes_15_steps_7_options_1,script_street_scenes_15_steps_7,options,1,migration_streetchoices_e6f0544966,\N
 ,shop-yes,1,한번 볼게요.,\N,\N,,,script/street,script_street_scenes_17_steps_1_options_0,script_street_scenes_17_steps_1,options,0,migration_streetchoices_e6f0544966,\N
 ,shop-no-revisit,2,아니요.,\N,\N,,,script/street,script_street_scenes_17_steps_1_options_1,script_street_scenes_17_steps_1,options,1,migration_streetchoices_e6f0544966,\N
-,buy-bd,1,구매한다. · 300원,\N,money >= 300,선택할 수 없습니다. (소지금 부족),Unavailable (insufficient funds).,script/street,script_street_scenes_18_steps_6_options_0,script_street_scenes_18_steps_6,options,0,migration_streetchoices_3ff208da7b,
+,buy-bd,1,구매한다. · 300원,\N,money >= 300,조건 또는 소지금이 부족합니다.,\N,script/street,script_street_scenes_18_steps_6_options_0,script_street_scenes_18_steps_6,options,0,migration_streetchoices_3ff208da7b,
 ,leave-bd,2,구매하지 않는다.,\N,\N,,,script/street,script_street_scenes_18_steps_6_options_1,script_street_scenes_18_steps_6,options,1,migration_streetchoices_e6f0544966,\N
 ,ch_st_shiba_1,1,"아뇨, 그냥 지나갈게요.","No, I'll just be on my way.",\N,,,script/street,script_street_scenes_23_steps_3_options_0,script_street_scenes_23_steps_3,options,0,migration_streetchoices_67d68004f8,\N
 ,ch_st_shiba_2,2,간식 좀 드릴까요?,Want a little treat?,flag.has_snack,줄 수 있는 간식이 없습니다.,You don't have a treat to give.,script/street,script_street_scenes_23_steps_3_options_1,script_street_scenes_23_steps_3,options,1,migration_streetchoices_a3ec2a7476,
-\N,example-read,1,계속 읽는다.,Keep reading.,\N,\N,\N,script/street,world_choice_example_read,world_choice_example_choice,options,0,migration_streetchoices_e6f0544966,\N
-\N,example-leave,2,그만 읽는다.,Stop reading.,\N,\N,\N,script/street,world_choice_example_leave,world_choice_example_choice,options,1,migration_streetchoices_e6f0544966,\N
-,money-example-pay,1,500원을 준다.,Pay 500.,money >= 500,선택할 수 없습니다. (소지금 부족),Unavailable (insufficient funds).,script/street,world_money_example_pay,world_money_example_choice,options,0,migration_streetchoices_3ff208da7b,
-\N,money-example-leave,2,주지 않는다.,Do not pay.,\N,\N,\N,script/street,world_money_example_leave,world_money_example_choice,options,1,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day0_watch,1,다시 본다.,Watch again.,\N,\N,\N,script/home,home_tv_day0_watch,home_tv_day0_choice,options,0,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day0_leave,2,보지 않는다.,Do not watch.,\N,\N,\N,script/home,home_tv_day0_leave,home_tv_day0_choice,options,1,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day1_watch,1,다시 본다.,Watch again.,\N,\N,\N,script/home,home_tv_day1_watch,home_tv_day1_choice,options,0,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day1_leave,2,보지 않는다.,Do not watch.,\N,\N,\N,script/home,home_tv_day1_leave,home_tv_day1_choice,options,1,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day2_watch,1,다시 본다.,Watch again.,\N,\N,\N,script/home,home_tv_day2_watch,home_tv_day2_choice,options,0,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day2_leave,2,보지 않는다.,Do not watch.,\N,\N,\N,script/home,home_tv_day2_leave,home_tv_day2_choice,options,1,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day3_watch,1,다시 본다.,Watch again.,\N,\N,\N,script/home,home_tv_day3_watch,home_tv_day3_choice,options,0,migration_streetchoices_e6f0544966,\N
-\N,home_tv_day3_leave,2,보지 않는다.,Do not watch.,\N,\N,\N,script/home,home_tv_day3_leave,home_tv_day3_choice,options,1,migration_streetchoices_e6f0544966,\N

@@ -97,7 +97,6 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
     public static NewStreetData HomeStory { get; private set; }
     public static NewCharacterData[] StoryCharacters { get; private set; }
     public static NewCocktailData[] StoryCocktails { get; private set; }
-    public static NewShelfItemData[] StoryShelfItems { get; private set; }
     static IConditionUtil storyConditions;
     [Inject] IConditionUtil conditionUtil;
 
@@ -143,7 +142,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         LoadVersion = 0;
         _barScriptCache.Clear();
         loadedDays = null;
-        StreetStory = default; HomeStory = default; StoryCocktails = null; StoryCharacters = null; StoryShelfItems = null; storyConditions = null;
+        StreetStory = default; HomeStory = default; StoryCocktails = null; StoryCharacters = null; storyConditions = null;
     }
 
     /// <summary>
@@ -269,7 +268,6 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         loadedDays = dayInfoData.dayInfoData;
         HomeStory = homeStory; StreetStory = streetData.newStreetData;
         StoryCharacters = characterData.characterData; StoryCocktails = cocktailData.cocktailData; storyConditions = conditionUtil;
-        StoryShelfItems = shelfItemData.shelfItemData;
         _barScriptCache.Clear();
         foreach (var pair in barScripts) _barScriptCache.Add(pair.Key, pair.Value);
         // Content lookups are rebuilt before a scene can register its runtime anchors.

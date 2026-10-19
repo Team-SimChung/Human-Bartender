@@ -29,8 +29,7 @@ public class ProjectLifetimeScope : LifetimeScope
                         .As<ISettlementLog>();
 
         builder.RegisterComponentInHierarchy<SoundManager>()
-        .AsSelf().As<ISoundEffectPlayer>().As<IBgmPlayer>().As<ILoopingSoundManager>().As<IAudioCuePlayer>();
-        builder.RegisterEntryPoint<SceneAudioController>();
+        .As<ISoundEffectPlayer>().As<IBgmPlayer>().As<ILoopingSoundManager>();
         builder.RegisterInstance(AudioOutputSettings.Shared);
         builder.Register<PlayerPrefsAudioVolumeStore>(Lifetime.Singleton).As<IAudioVolumeStore>();
         builder.RegisterEntryPoint<AudioVolumeSettings>(Lifetime.Singleton);

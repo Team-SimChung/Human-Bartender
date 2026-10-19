@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>현재 상호작용 소유자만 플레이어 입력을 복원함.</summary>
+/// <summary>현재 상호작용 소유자만 플레이어 입력을 복원한다.</summary>
 public sealed class InteractionStateLease : IDisposable
 {
-    private static readonly Dictionary<IInteractor, List<InteractionStateLease>> owners = new();
-    private readonly IInteractor player;
-    private readonly EInteractorState previous;
-    private readonly EInteractorState held;
-    private InteractionStateLease(IInteractor player, EInteractorState previous, EInteractorState held) { this.player=player; this.previous=previous; this.held=held; }
+    static readonly Dictionary<IInteractor, List<InteractionStateLease>> owners = new();
+    readonly IInteractor player;
+    readonly EInteractorState previous;
+    readonly EInteractorState held;
+    InteractionStateLease(IInteractor player, EInteractorState previous, EInteractorState held) { this.player=player; this.previous=previous; this.held=held; }
     public bool IsCurrent => owners.TryGetValue(player, out var stack) &&
         stack.Count > 0 && stack[stack.Count - 1] == this;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void Reset() => owners.Clear();
+    static void Reset() => owners.Clear();
     public static InteractionStateLease Acquire(IInteractor player, EInteractorState state = EInteractorState.Interct)
     {
         if (player == null) throw new ArgumentNullException(nameof(player));

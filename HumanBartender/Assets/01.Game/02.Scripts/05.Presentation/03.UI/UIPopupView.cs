@@ -21,8 +21,6 @@ public class UIPopupView : MonoBehaviour
     Tween movement;
     Tween hideTimer;
     readonly Vector3[] corners = new Vector3[4];
-    public event System.Action Shown;
-    bool notified;
 
     protected virtual void Awake() => Initialize();
 
@@ -77,37 +75,13 @@ public class UIPopupView : MonoBehaviour
         UpdateHiddenPosition();
         panel.anchoredPosition = hiddenPosition;
         showing = true;
-        notified = false;
         movement = panel.DOAnchorPos(shownPosition, duration).SetEase(enterEase).SetUpdate(true)
-            .OnUpdate(NotifyVisible)
             .OnComplete(() =>
             {
-                NotifyShown();
                 if (autoHideSeconds > 0)
                     hideTimer = DOVirtual.DelayedCall(autoHideSeconds, Hide).SetUpdate(true);
             });
         return true;
-    }
-
-    void NotifyVisible()
-    {
-        if (notified || !showing) return;
-        panel.GetWorldCorners(corners);
-        var canvas = (RectTransform)panel.GetComponentInParent<Canvas>().rootCanvas.transform;
-        float minimum = float.PositiveInfinity, maximum = float.NegativeInfinity;
-        foreach (var corner in corners)
-        {
-            float x = canvas.InverseTransformPoint(corner).x;
-            minimum = Mathf.Min(minimum, x); maximum = Mathf.Max(maximum, x);
-        }
-        if (maximum > canvas.rect.xMin && minimum < canvas.rect.xMax) NotifyShown();
-    }
-
-    void NotifyShown()
-    {
-        if (notified || !showing) return;
-        notified = true;
-        Shown?.Invoke();
     }
 
     protected virtual bool Prepare(string data) => true;

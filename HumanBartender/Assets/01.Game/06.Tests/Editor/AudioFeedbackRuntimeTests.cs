@@ -27,66 +27,7 @@ public sealed class AudioFeedbackRuntimeTests
         public readonly List<string> Keys = new();
         public readonly List<float> Times = new();
         public Recorder(ISoundEffectPlayer output) => this.output = output;
-        public void PlaySE(string name) { Keys.Add(name); Times.Add(Time.unscaledTime); output?.PlaySE(name); }
-    }
-
-    [UnityTest]
-    [Explicit("Run in isolation: verifies the new ambient presenter with the shared audio engine.")]
-    public IEnumerator WorldAmbientAudioHonorsDistanceDirectDialogueAndCancellation()
-    {
-        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        yield return new EnterPlayMode();
-        var root = new GameObject("ambient audio regression", typeof(RectTransform), typeof(Canvas));
-        var listener = new GameObject("listener");
-        var speaker = new GameObject("speaker");
-        try
-        {
-            var recorder = new Recorder(null);
-            var bubble = CreateBubble(root.transform);
-            bubble.centerArrow = new GameObject("center arrow");
-            bubble.leftArrow = new GameObject("left arrow");
-            bubble.rightArrow = new GameObject("right arrow");
-            foreach (var arrow in new[] { bubble.centerArrow, bubble.leftArrow, bubble.rightArrow })
-                arrow.transform.SetParent(bubble.transform);
-            var view = bubble.gameObject.AddComponent<WorldAmbientDialogueView>();
-            view.Initialize(bubble, (RectTransform)root.transform, null, .09f, recorder);
-            var target = speaker.AddComponent<WorldInteractionTarget>();
-            bool paused = false;
-            view.Begin(target, listener.transform, () => paused, 0, 1, 20);
-
-            var line = view.ShowDialogueAsync("npc", "가나다", null, CancellationToken.None);
-            Assert.IsTrue(GameAudioContext.AnyDialogue);
-            Assert.IsFalse(GameAudioContext.DirectDialogue, "Ambient typing must not suppress other background speakers as a direct conversation.");
-            yield return line.ToCoroutine();
-            Assert.That(recorder.Keys.Count, Is.GreaterThan(0), "Nearby ambient typing must reach the sound service.");
-            recorder.Keys.Clear();
-            using (GameAudioContext.Dialogue())
-                yield return view.ShowDialogueAsync("npc", "가나다", null, CancellationToken.None).ToCoroutine();
-            Assert.IsEmpty(recorder.Keys, "Direct dialogue suppresses background typing.");
-
-            speaker.transform.position = Vector3.right * 10;
-            yield return view.ShowDialogueAsync("npc", "가나다", null, CancellationToken.None).ToCoroutine();
-            Assert.IsEmpty(recorder.Keys, "Distant dialogue remains visible without audible typing.");
-            speaker.transform.position = Vector3.zero;
-            paused = true;
-            using (var source = new CancellationTokenSource())
-            {
-                var cancelled = view.ShowDialogueAsync("npc", "가나다", null, source.Token);
-                yield return null;
-                Assert.IsEmpty(recorder.Keys, "Paused ambient dialogue must be silent.");
-                source.Cancel();
-                yield return ExpectCancellation(cancelled).ToCoroutine();
-            }
-            view.EndScene();
-            Assert.IsFalse(GameAudioContext.AnyDialogue, "Cancellation and cleanup release the ambient audio scope.");
-        }
-        finally
-        {
-            UnityEngine.Object.Destroy(root);
-            UnityEngine.Object.Destroy(listener);
-            UnityEngine.Object.Destroy(speaker);
-        }
-        yield return new ExitPlayMode();
+        public void PlaySE(string name) { Keys.Add(name); Times.Add(Time.unscaledTime); output.PlaySE(name); }
     }
 
     [UnityTest]
@@ -155,8 +96,8 @@ public sealed class AudioFeedbackRuntimeTests
             Assert.That(pourSource.isPlaying && stirSource.isPlaying, Is.True);
             Assert.That(mixer.FindMatchingGroups("SE"), Does.Contain(pourSource.outputAudioMixerGroup));
             Assert.That(stirSource.outputAudioMixerGroup, Is.SameAs(pourSource.outputAudioMixerGroup));
-            Assert.That(pourSource.volume, Is.EqualTo(0.820f).Within(0.001f));
-            Assert.That(stirSource.volume, Is.EqualTo(0.846f).Within(0.001f));
+            Assert.That(pourSource.volume, Is.EqualTo(0.28f).Within(0.001f));
+            Assert.That(stirSource.volume, Is.EqualTo(0.32f).Within(0.001f));
             yield return new WaitForSeconds(0.12f);
             var samples = new float[512];
             pourSource.GetOutputData(samples, 0);

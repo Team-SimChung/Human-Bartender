@@ -56,15 +56,9 @@ public readonly struct SphContainerBoundary
             return;
         }
 
-        float clampedX = Mathf.Clamp(local.x, -innerWidth, innerWidth);
-        float clampedY = Mathf.Max(local.y, floor);
-        // 경계 안의 좌표를 매번 월드→로컬→월드로 왕복시키면 비균일 스케일과
-        // 무대 오프셋의 반올림 오차가 속도로 누적된다. 실제 침투량만 보정한다.
-        Vector3 correction = new Vector3(clampedX-local.x,clampedY-local.y,0f);
-        if (correction.sqrMagnitude > 0f)
-            particle.pos += (Vector2)toWorld.MultiplyVector(correction);
-        local.x = clampedX;
-        local.y = clampedY;
+        local.x = Mathf.Clamp(local.x, -innerWidth, innerWidth);
+        local.y = Mathf.Max(local.y, floor);
+        particle.pos = toWorld.MultiplyPoint3x4(local);
 
         float vx = Vector2.Dot(particle.velocity, xAxis);
         float vy = Vector2.Dot(particle.velocity, yAxis);

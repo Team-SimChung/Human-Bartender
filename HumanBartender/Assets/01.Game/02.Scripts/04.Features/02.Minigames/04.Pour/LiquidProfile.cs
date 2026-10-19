@@ -17,25 +17,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "LiquidProfile", menuName = "Data/Liquid Profile")]
 public class LiquidProfile : ScriptableObject
 {
-    [Header("픽셀과 재료별 표현")]
-    [Tooltip("1080 높이 기준 픽셀 크기. 물리 좌표에는 적용하지 않는다.")]
-    [Range(1, 12)] public int pixelSize = 4;
-    [Tooltip("탄산 방울 크기 배율. 잔의 가로세로 비율에 상관없이 둥글게 그린다.")]
-    [Range(0.5f, 4f)] public float bubbleSize = 2.2f;
-    [Range(3, 16)] public int colorSteps = 7;
-    [Range(0f, 0.12f)] public float surfaceDepth = 0.045f;
-    [Tooltip("ID가 일치하면 내장 프리셋 대신 사용한다. 기본색/alpha는 기존 재료 데이터가 정한다.")]
-    public LiquidAppearanceOverride[] appearanceOverrides = new LiquidAppearanceOverride[0];
-
-    public LiquidAppearance ResolveAppearance(string ingredientId)
-    {
-        if (appearanceOverrides != null)
-            foreach (var entry in appearanceOverrides)
-                if (entry != null && !string.IsNullOrEmpty(entry.ingredientId) && entry.ingredientId == ingredientId)
-                    return entry.appearance;
-        return LiquidAppearance.ForIngredient(ingredientId);
-    }
-
     [Header("물성")]
     public SphConfig physics = new SphConfig();
 
@@ -49,7 +30,7 @@ public class LiquidProfile : ScriptableObject
              "높이면 표면이 조여들어 가볍고 산뜻해 보인다.")]
     public float threshold = 0.5f;
 
-    [Tooltip("가장자리 조명의 전이 폭. 픽셀 실루엣은 또렷하게 유지한다.")]
+    [Tooltip("가장자리 부드러움. 0에 가까우면 또렷한 실루엣, 크면 흐릿하게 번진다.")]
     public float edgeSmoothness = 0.08f;
 
     [Header("흐를 때")]
@@ -68,12 +49,6 @@ public class LiquidProfile : ScriptableObject
              "spacing을 줄이지 않고 물줄기만 가늘게 만들 수 있는 값이라, 파티클 수를 늘리기 " +
              "곤란할 때 여기부터 만지면 된다.")]
     public float streamThinning = 0.35f;
-
-    [Range(1f, 3f)]
-    [Tooltip("흐르는 줄기와 떨어지는 방울만 이 배수로 두껍게 그린다(렌더 전용).\n" +
-             "spacing은 병목 폭·방출 간격·입자당 ml·목표선과 묶여 있어 바꾸지 않고, 작은 잔에 맞는 " +
-             "줄기 굵기와 방울 크기는 여기서 맞춘다. 느리게 고인 액체에는 적용하지 않아 수면 높이가 그대로다.")]
-    public float airborneWidth = 1.7f;
 
     [Header("색")]
     [Tooltip("켜면 아래 색을 쓰고, 끄면 칵테일 키워드에서 뽑은 색(CategoryColorData)을 쓴다.")]

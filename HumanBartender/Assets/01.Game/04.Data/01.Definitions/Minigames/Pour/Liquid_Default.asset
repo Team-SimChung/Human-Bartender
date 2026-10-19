@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85776558d1c78dd409defa7fa4629d81, type: 3}
   m_Name: Liquid_Default
   m_EditorClassIdentifier: Assembly-CSharp::LiquidProfile
-  pixelSize: 4
-  bubbleSize: 2.2
   physics:
     gravity: 9
     spacing: 0.16
@@ -31,7 +29,5 @@ MonoBehaviour:
   edgeSmoothness: 0.08
   stretchPerSpeed: 0.45
   maxStretch: 4
-  streamThinning: 0.35
-  airborneWidth: 1.7
   overrideColor: 0
   color: {r: 1, g: 0.82, b: 0.4, a: 1}

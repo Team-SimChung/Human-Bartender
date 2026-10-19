@@ -17,7 +17,7 @@ public sealed class DialogueFxSceneWiringTests
         {
             var roots = scene.GetRootGameObjects();
             var views = roots.SelectMany(root => root.GetComponentsInChildren<UIDialogueTextView>(true)).ToArray();
-            if (isBar) Assert.That(views, Is.Not.Empty, $"{sceneName}: dialogue view");
+            Assert.That(views, Is.Not.Empty, $"{sceneName}: dialogue view");
             foreach (var view in views)
             {
                 Assert.That(view.lunaSpeechBubble, Is.Not.Null, $"{sceneName}: player bubble");
@@ -39,7 +39,8 @@ public sealed class DialogueFxSceneWiringTests
                 Assert.That(roots.SelectMany(root => root.GetComponentsInChildren<InGameLifetimeScope>(true)),
                     Is.Not.Empty, "Play: in-game DI scope");
                 var phase = roots.SelectMany(root => root.GetComponentsInChildren<PlayPhaseController>(true)).Single();
-                Assert.IsNotNull(phase);
+                Assert.That(new SerializedObject(phase).FindProperty("testDay").intValue, Is.EqualTo(-1));
+                Assert.That(new SerializedObject(phase).FindProperty("skipTycoonForTest").boolValue, Is.False);
                 var presenter = roots.SelectMany(root => root.GetComponentsInChildren<BarStoryPresenter>(true)).Single();
                 Assert.That(views.Contains(new SerializedObject(presenter).FindProperty("textView").objectReferenceValue
                     as UIDialogueTextView), Is.True, "Play: story presenter view");
@@ -58,13 +59,9 @@ public sealed class DialogueFxSceneWiringTests
             {
                 Assert.That(roots.SelectMany(root => root.GetComponentsInChildren<OutsideGameLifetimeScope>(true)),
                     Is.Not.Empty, $"{sceneName}: outside DI scope");
-                var view = roots.SelectMany(root => root.GetComponentsInChildren<WorldInteractionView>(true)).Single();
-                var settings = new SerializedObject(view);
-                Assert.IsNotNull(settings.FindProperty("bubblePrefab").objectReferenceValue);
-                Assert.IsNotNull(settings.FindProperty("choicesPrefab").objectReferenceValue);
-                Assert.IsNotNull(settings.FindProperty("textTags").objectReferenceValue);
-                Assert.IsEmpty(views, "외부·홈에 이전 대화 표시기가 남아 있으면 안 됨.");
-
+                var presenter = roots.SelectMany(root => root.GetComponentsInChildren<OutsideDialoguePresenter>(true)).Single();
+                Assert.That(views.Contains(new SerializedObject(presenter).FindProperty("typer").objectReferenceValue
+                    as UIDialogueTextView), Is.True, $"{sceneName}: presenter view");
             }
         }
         finally { EditorSceneManager.CloseScene(scene, true); }

@@ -7106,29 +7106,24 @@ MonoBehaviour:
   sePoolSize: 12
   bgmList:
   - name: BGM_bar_01
-    clip: {fileID: 8300000, guid: f33cf1c80aff4b1694ef1c4928b2ad74, type: 3}
+    clip: {fileID: 8300000, guid: 52804db6aa874384a961168966cb3bb5, type: 3}
     alternatives: []
-    volume: 1
+    volume: 0.5
     pitch: 1
   - name: BGM_bar_02
-    clip: {fileID: 8300000, guid: 7c46412355504df2987eadee40116c9f, type: 3}
+    clip: {fileID: 8300000, guid: 7ae444bb009089e4f88e3fb5ea747a5f, type: 3}
     alternatives: []
-    volume: 1
+    volume: 0.5
     pitch: 1
   - name: BGM_outside
-    clip: {fileID: 8300000, guid: d23f17d5dc14452d90c48f86ede4a4ee, type: 3}
+    clip: {fileID: 8300000, guid: 805195d5e39d6734bb1692bddbe5bad1, type: 3}
     alternatives: []
-    volume: 1
+    volume: 0.5
     pitch: 1
   - name: BGM_title
     clip: {fileID: 8300000, guid: 41595c61ba3d0054dae6a3569fb84f2e, type: 3}
     alternatives: []
     volume: 0.5
-    pitch: 1
-  - name: BGM_bar_03
-    clip: {fileID: 8300000, guid: 138a4779fe5a4bcda3d92eb0ece15f67, type: 3}
-    alternatives: []
-    volume: 1
     pitch: 1
   seList:
   - name: SFX_shaking
@@ -7144,12 +7139,12 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 1870a52a27d3a4ab88a72486f1756a70, type: 3}
     - {fileID: 8300000, guid: ac02cfa1b994941d8b3f3048dab4ed88, type: 3}
     - {fileID: 8300000, guid: a899a636482954588b0cd8e066b99d24, type: 3}
-    volume: 0.68
+    volume: 0.5
     pitch: 1
   - name: SFX_ui_hover
     clip: {fileID: 8300000, guid: 2f7b0ffa0ad7143ba85994c129768c60, type: 3}
     alternatives: []
-    volume: 1
+    volume: 0.3
     pitch: 1
   - name: SFX_ui_click
     clip: {fileID: 8300000, guid: ba2d0f7d2ba294232a0d36a73853c272, type: 3}
@@ -7159,77 +7154,44 @@ MonoBehaviour:
   - name: SFX_money_change
     clip: {fileID: 8300000, guid: 6c1a48639c7d242a995a1860b653301d, type: 3}
     alternatives: []
-    volume: 0.65
+    volume: 0.45
     pitch: 1
   - name: SFX_goal_completed
     clip: {fileID: 8300000, guid: 4bc2ee11e89ac4c2a8349b5a6835548a, type: 3}
     alternatives: []
-    volume: 0.65
+    volume: 0.4
     pitch: 1
   - name: SFX_notification
     clip: {fileID: 8300000, guid: 5227b15be8ec24a459645619d084ad85, type: 3}
     alternatives: []
-    volume: 0.65
+    volume: 0.4
     pitch: 1
   - name: SFX_bottle_open
     clip: {fileID: 8300000, guid: a7834cae722894e4b9af3d2c31cca5d6, type: 3}
     alternatives: []
-    volume: 0.77528
+    volume: 0.5
     pitch: 1
   - name: SFX_fizz
     clip: {fileID: 8300000, guid: 0dd6a9d2763e94f549f58d9c4f3bec97, type: 3}
     alternatives: []
-    volume: 0.14
+    volume: 0.22
     pitch: 1
   - name: SFX_pour
     clip: {fileID: 8300000, guid: 6795a2d38e2974cb68f329e795589f0f, type: 3}
     alternatives: []
-    volume: 0.82
+    volume: 0.28
     pitch: 1
   - name: SFX_stir
     clip: {fileID: 8300000, guid: b1446a9fa89894fa2822ba2cdffdc385, type: 3}
-    alternatives: []
-    volume: 0.846
+    alternatives:
+    - {fileID: 8300000, guid: f9834edccedf14797bd34bc2b881398b, type: 3}
+    volume: 0.32
     pitch: 1
   - name: SFX_shaker_hit
     clip: {fileID: 8300000, guid: 5e488e21278224a548d1d86c07ac23a3, type: 3}
-    alternatives: []
-    volume: 0.416
-    pitch: 1
-  - name: SFX_street_loop
-    clip: {fileID: 8300000, guid: e1c39c253742c4521abcf426324afc02, type: 3}
-    alternatives: []
-    volume: 0.55
-    pitch: 1
-  - name: SFX_rain_loop
-    clip: {fileID: 8300000, guid: bb037b7a569564ce1b5a6a1e2c429ff5, type: 3}
-    alternatives: []
-    volume: 0.4675
-    pitch: 1
-  - name: SFX_change_clothes
-    clip: {fileID: 8300000, guid: 7a4964383b3164439be367373e242106, type: 3}
-    alternatives: []
-    volume: 0.5
-    pitch: 1
-  - name: SFX_door_open_close
-    clip: {fileID: 8300000, guid: 3c7a3783b29624bfa88e35952d7cbbfc, type: 3}
-    alternatives: []
-    volume: 0.48
-    pitch: 1
-  - name: SFX_incoming_call
-    clip: {fileID: 8300000, guid: 586fdce20cc23438bbb9593cfd7d4850, type: 3}
-    alternatives: []
-    volume: 0.3025
-    pitch: 1
-  - name: SFX_stir_alternate
-    clip: {fileID: 8300000, guid: f9834edccedf14797bd34bc2b881398b, type: 3}
-    alternatives: []
-    volume: 0.9
-    pitch: 1
-  - name: SFX_shaker_hit_alternate
-    clip: {fileID: 8300000, guid: b13d628d2d8954cb991f263a8456b54f, type: 3}
-    alternatives: []
-    volume: 0.473
+    alternatives:
+    - {fileID: 8300000, guid: b13d628d2d8954cb991f263a8456b54f, type: 3}
+    volume: 0.28
     pitch: 1
 --- !u!1 &1632002899958804732
 GameObject:

@@ -21,7 +21,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd
 {
     [Inject] ILoopingSoundManager loopSound;
-    IAudioLoop stirSound;
+    IDisposable stirSound;
     [SerializeField] private bool isTest = false;
     [Tooltip("isTest일 때 표시할 칵테일 id. 스터 대상은 현재 dry_martini 1종이다.")]
     [SerializeField] private string testCocktailId = "dry_martini";
@@ -195,7 +195,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         // 마지막 판정 이후에도 예약된 중단점까지 연출을 마무리한다.
         stirAnimation?.Tick(Time.deltaTime);
         bool moving = isStarted && !isCompleted && Time.deltaTime > 0f && stirAnimation != null && stirAnimation.IsPlaying;
-        if (moving) stirSound ??= loopSound.StartLoop("SFX_stir");
+        if (moving) stirSound ??= loopSound?.PlayLoop("SFX_stir");
         else StopStirSound();
 
         if (isCompleted) return;
