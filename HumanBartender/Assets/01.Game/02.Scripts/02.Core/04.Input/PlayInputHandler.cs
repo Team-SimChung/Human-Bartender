@@ -62,11 +62,11 @@ public class PlayInputHandler : MonoBehaviour
 
     public void OnPrepPrevious(InputValue value)
     {
-        if (craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Previous();
+        if (value.isPressed && craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Previous();
     }
 
     public void OnPrepNext(InputValue value)
     {
-        if (craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Next();
+        if (value.isPressed && craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Next();
     }
 }

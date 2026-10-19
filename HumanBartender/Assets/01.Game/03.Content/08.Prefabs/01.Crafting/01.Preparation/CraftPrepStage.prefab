@@ -61,7 +61,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -155,10 +155,8 @@ MonoBehaviour:
   itemId: grenadine
   stage: 2
   icon: {fileID: 2941528542972384128}
-  infoAnchor: {fileID: 8402504984023216348}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &30615945197716660
 GameObject:
@@ -286,6 +284,11 @@ MonoBehaviour:
   frame: {fileID: 1493049855065078185}
   nameText: {fileID: 2599762190548224806}
   descriptionText: {fileID: 5531558354100811501}
+  cursorOffset: {x: 18, y: -18}
+  screenPadding: 12
+  contentPadding: {x: 16, y: 12}
+  textSpacing: 6
+  maxWidth: 480
 --- !u!1 &160893627099582450
 GameObject:
   m_ObjectHideFlags: 0
@@ -324,7 +327,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -347, y: -30.025}
+  m_AnchoredPosition: {x: -347, y: -30.025024}
   m_SizeDelta: {x: -705.08887, y: -60.049866}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1317123973325277795
@@ -569,7 +572,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -617,10 +620,8 @@ MonoBehaviour:
   itemId: mug
   stage: 0
   icon: {fileID: 966131966841707880}
-  infoAnchor: {fileID: 1127237823407688592}
-  infoDirection: 0
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!61 &9157045117504874718
 BoxCollider2D:
@@ -1070,7 +1071,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1164,10 +1165,8 @@ MonoBehaviour:
   itemId: sour_mix
   stage: 2
   icon: {fileID: 828371660811224906}
-  infoAnchor: {fileID: 602695648928306571}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &910000000000000001
 GameObject:
@@ -1508,7 +1507,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -27.5}
+  m_AnchoredPosition: {x: 0, y: -27.50003}
   m_SizeDelta: {x: 0, y: -55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4868768271638049051
@@ -1640,7 +1639,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1734,10 +1733,8 @@ MonoBehaviour:
   itemId: tequila
   stage: 2
   icon: {fileID: 1208734347112999931}
-  infoAnchor: {fileID: 6839354791655364157}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &1646914276805709441
 GameObject:
@@ -1800,7 +1797,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1894,10 +1891,8 @@ MonoBehaviour:
   itemId: dry_vermouth
   stage: 3
   icon: {fileID: 4428102125602288709}
-  infoAnchor: {fileID: 8894691181254979741}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &1694061154327712234
 GameObject:
@@ -2498,7 +2493,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2592,10 +2587,8 @@ MonoBehaviour:
   itemId: vodka
   stage: 2
   icon: {fileID: 2478988196498045590}
-  infoAnchor: {fileID: 3802997811694258258}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &2726718278798283553
 GameObject:
@@ -2933,7 +2926,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2981,10 +2974,8 @@ MonoBehaviour:
   itemId: wine
   stage: 0
   icon: {fileID: 8781824930843868878}
-  infoAnchor: {fileID: 3360268057104594674}
-  infoDirection: 0
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!61 &7457566309137511034
 BoxCollider2D:
@@ -3632,7 +3623,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3726,10 +3717,8 @@ MonoBehaviour:
   itemId: orange_juice
   stage: 3
   icon: {fileID: 2576282093211815529}
-  infoAnchor: {fileID: 8747419303275247266}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &3767383693972618195
 GameObject:
@@ -4271,7 +4260,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4365,10 +4354,8 @@ MonoBehaviour:
   itemId: whiskey
   stage: 2
   icon: {fileID: 6069847491120432349}
-  infoAnchor: {fileID: 3834616382416101263}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &4198972012589055631
 GameObject:
@@ -4896,7 +4883,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4990,10 +4977,8 @@ MonoBehaviour:
   itemId: soda_water
   stage: 3
   icon: {fileID: 6746766977381032643}
-  infoAnchor: {fileID: 7994889114163115694}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &4628665333387137498
 GameObject:
@@ -5121,7 +5106,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -5131,8 +5116,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
+    m_HighlightedSprite: {fileID: 21300000, guid: 4aad9bad7df64085852f0667d67d4f3d, type: 3}
+    m_PressedSprite: {fileID: 21300000, guid: 4aad9bad7df64085852f0667d67d4f3d, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
@@ -5207,7 +5192,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5301,10 +5286,8 @@ MonoBehaviour:
   itemId: champagne
   stage: 3
   icon: {fileID: 3537686505705083845}
-  infoAnchor: {fileID: 8904635175413519399}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &4926201105889064954
 GameObject:
@@ -5489,8 +5472,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4734883767191183016}
   m_HandleRect: {fileID: 9160695361510469877}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 0.99877673
+  m_Size: 0.9998826
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5622,7 +5605,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -5632,8 +5615,8 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
+    m_HighlightedSprite: {fileID: 21300000, guid: d161f08e8c3b4fe6a1525a05a6c6987e, type: 3}
+    m_PressedSprite: {fileID: 21300000, guid: d161f08e8c3b4fe6a1525a05a6c6987e, type: 3}
     m_SelectedSprite: {fileID: 0}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
@@ -5739,7 +5722,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5833,10 +5816,8 @@ MonoBehaviour:
   itemId: cocktail
   stage: 0
   icon: {fileID: 6052468360448875332}
-  infoAnchor: {fileID: 1003647748447976183}
-  infoDirection: 0
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &5616098525566037046
 GameObject:
@@ -5870,8 +5851,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8588913894481715750}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 0.000117277516}
+  m_AnchorMax: {x: 1, y: 0.9999999}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6372,7 +6353,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6420,10 +6401,8 @@ MonoBehaviour:
   itemId: shaker
   stage: 1
   icon: {fileID: 2987963776132728228}
-  infoAnchor: {fileID: 3154584718893833190}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!61 &8569179324439369318
 BoxCollider2D:
@@ -6532,7 +6511,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6580,10 +6559,8 @@ MonoBehaviour:
   itemId: mixing_glass
   stage: 1
   icon: {fileID: 6420411917104880943}
-  infoAnchor: {fileID: 9081881269063636403}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!61 &2482037093347057024
 BoxCollider2D:
@@ -6787,7 +6764,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -6881,10 +6858,8 @@ MonoBehaviour:
   itemId: red_wine
   stage: 3
   icon: {fileID: 3494659541270782448}
-  infoAnchor: {fileID: 6124412924305405145}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &6742600056343439989
 GameObject:
@@ -6947,7 +6922,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7041,10 +7016,8 @@ MonoBehaviour:
   itemId: rum
   stage: 2
   icon: {fileID: 1496482196808769742}
-  infoAnchor: {fileID: 4299446179372803067}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &6745565538903258719
 GameObject:
@@ -7201,7 +7174,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7249,10 +7222,8 @@ MonoBehaviour:
   itemId: long_drink
   stage: 0
   icon: {fileID: 5897851902252309189}
-  infoAnchor: {fileID: 4154667779192393062}
-  infoDirection: 0
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!61 &60108951155688088
 BoxCollider2D:
@@ -7361,7 +7332,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7409,10 +7380,8 @@ MonoBehaviour:
   itemId: sour
   stage: 0
   icon: {fileID: 1041627636470535665}
-  infoAnchor: {fileID: 128742157123897387}
-  infoDirection: 0
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!61 &3684944087842119485
 BoxCollider2D:
@@ -7676,7 +7645,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7724,10 +7693,8 @@ MonoBehaviour:
   itemId: old_fashioned
   stage: 0
   icon: {fileID: 1901654725841470018}
-  infoAnchor: {fileID: 2435894638287677820}
-  infoDirection: 0
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!61 &8978288574703214559
 BoxCollider2D:
@@ -7867,7 +7834,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7961,10 +7928,8 @@ MonoBehaviour:
   itemId: cola
   stage: 3
   icon: {fileID: 1304389264218966355}
-  infoAnchor: {fileID: 200281362049796121}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &7331330039170414155
 GameObject:
@@ -8467,7 +8432,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.39085546, y: 0.39085546, z: 0.39085546}
+  m_LocalScale: {x: 0.11, y: -0.06, z: 8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5044187273188456776}
@@ -8521,7 +8486,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 100
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -4402591071629711681, guid: 7b03fb9396c5b374ebe95aff30159808, type: 3}
+  m_Sprite: {fileID: 6523944065022665437, guid: b839cb7e5c2f9a74f8f7cbb6c446c4c3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -8791,7 +8756,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -8885,10 +8850,8 @@ MonoBehaviour:
   itemId: beer
   stage: 3
   icon: {fileID: 7042005220232843192}
-  infoAnchor: {fileID: 4655956266721721337}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &8188882459688905807
 GameObject:
@@ -8951,7 +8914,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9045,10 +9008,8 @@ MonoBehaviour:
   itemId: gin
   stage: 2
   icon: {fileID: 3132951600657294997}
-  infoAnchor: {fileID: 842956958860709156}
-  infoDirection: 1
-  hoverColor: {r: 0.35, g: 0.9, b: 1, a: 1}
-  selectedColor: {r: 1, g: 0.85, b: 0.45, a: 1}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
   guideColor: {r: 0.75, g: 0.95, b: 1, a: 1}
 --- !u!1 &8193357328981216962
 GameObject:
@@ -9460,7 +9421,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 3833b7fc4be24cf7a35407d2882991f4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9507,14 +9468,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CraftPrepInfoHotspot
   owner: {fileID: 8244184963668552056}
   tooltip: {fileID: 6161592965792279878}
-  infoAnchor: {fileID: 128454390080660919}
-  isBottleOpener: 1
-  selectionIcon: {fileID: 1027505914658542558}
   stage: 1
-  infoDirection: 1
   displayName: "\uBCD1\uB530\uAC1C"
   description: "\uBCD1\uC774\uB098 \uC640\uC778\uC744 \uC5F4 \uB54C \uC4F0\uB294
     \uB3C4\uAD6C."
+  isBottleOpener: 1
+  selectionIcon: {fileID: 1027505914658542558}
+  hoverColor: {r: 0.38431373, g: 0.9254902, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.85490197, b: 0.48235294, a: 1}
 --- !u!61 &3184414815800235041
 BoxCollider2D:
   m_ObjectHideFlags: 0
