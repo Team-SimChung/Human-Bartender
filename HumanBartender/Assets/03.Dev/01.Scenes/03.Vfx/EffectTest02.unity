@@ -22666,7 +22666,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2058149163}
   - component: {fileID: 2058149162}
-  - component: {fileID: 2058149161}
   - component: {fileID: 2058149160}
   m_Layer: 0
   m_Name: Capture Camera
@@ -22719,14 +22718,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!81 &2058149161
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2058149159}
-  m_Enabled: 1
 --- !u!20 &2058149162
 Camera:
   m_ObjectHideFlags: 0

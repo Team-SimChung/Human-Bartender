@@ -162,7 +162,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     yield return "키프레임 탭에서 강도와 불투명도(흔들기는 감쇠)를 조절합니다.";
                     break;
                 case StudioKind.Audio:
-                    yield return "현재 프리뷰는 무음입니다. 오디오는 저장한 씬을 Play하거나 게임에서 컷씬을 호출해 확인하세요.";
+                    yield return "미리보기와 실제 재생에 같은 사운드 설정을 적용합니다. 일시정지·입력 대기 중에는 소리도 멈춥니다.";
                     break;
                 case StudioKind.Wait:
                     yield return "이 클립의 시작 시점에서 E / Enter 입력을 기다립니다.";

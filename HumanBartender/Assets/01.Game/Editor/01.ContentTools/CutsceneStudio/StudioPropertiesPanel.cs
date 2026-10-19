@@ -1,35 +1,31 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.Timeline;
-using System.Linq;
-using Object = UnityEngine.Object;
-using System.Collections.Generic;
-using System.IO;
-using HumanBartender.CutsceneStudio;
-using UnityEditor.Callbacks;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace HumanBartender.CutsceneStudio.Editor
 {
-    // 패널의 표시와 입력을 처리하며 다른 패널은 호스트 계약으로 연결함.
+    // 속성 패널의 바인딩과 선택 상태를 관리하며 편집은 기존 데이터에 직접 반영함.
     [Serializable]
-    internal sealed class StudioPropertiesPanel
+    internal sealed partial class StudioPropertiesPanel
     {
         [NonSerialized] private IStudioPropertiesHost host;
-        private CutsceneStudioWindow Window => host.Window;
-        internal void Initialize(IStudioPropertiesHost value) { host = value; }
-        [SerializeField]
-        private bool timingOpen = true, objectPropertiesOpen = true, sequencePropertiesOpen = true;
-
-        [NonSerialized] private DoubleField clipStart, clipDuration, sequenceDuration;
-
-        [NonSerialized] private FloatField selectedKeyTime, selectedKeyValue;
-
-        [NonSerialized] private string inspectorIdentity;
-
+        [NonSerialized] private ScrollView propertiesBody;
+        [NonSerialized] private Label typeLabel;
+        [NonSerialized] private VisualElement validationUI;
+        [NonSerialized] private string inspectorIdentity, actorNamesIdentity, scrollKey;
+        [NonSerialized] private int buildVersion;
         [NonSerialized] private readonly List<SerializedObject> panelBindings = new();
+        [NonSerialized] private readonly List<Action> refreshFields = new();
+        [NonSerialized] private readonly Dictionary<string, bool> foldouts = new();
+        [NonSerialized] private readonly Dictionary<string, Vector2> scrollPositions = new();
+        [NonSerialized] private readonly Dictionary<string, StudioClipField> clipFields = new();
+
+        internal void Initialize(IStudioPropertiesHost value) { host = value; }
 
         internal void ReleaseToolkitBindings()
         {
@@ -37,8 +33,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             foreach (var binding in panelBindings)
                 binding.Dispose();
             panelBindings.Clear();
+            refreshFields.Clear();
         }
-
 
         private SerializedObject PanelBinding(UnityEngine.Object target)
         {
@@ -47,326 +43,232 @@ namespace HumanBartender.CutsceneStudio.Editor
             return binding;
         }
 
-
-        private PropertyField BoundField(VisualElement parent, SerializedObject data, string path, string label, bool enabled = true, Action changed = null)
+        private PropertyField BoundField(VisualElement parent, SerializedObject data, string path,
+            string label, bool enabled = true, Action changed = null)
         {
-            var field = new PropertyField(StudioSerializedFields.Find(data, path), label)
-            {
-                name = "property-" + path
-            };
+            var property = StudioSerializedFields.Find(data, path);
+            var field = new PropertyField(property, label) { name = "property-" + path };
             field.AddToClassList("studio-property");
             field.SetEnabled(enabled);
-            // 바인딩의 초기 알림은 무시하고 실제 값이 달라졌을 때만 편집으로 처리함.
-            var observed = StudioSerializedFields.Find(data, path).contentHash;
-            field.RegisterCallback<SerializedPropertyChangeEvent>(NotifyBoundPropertyChanged);
+            var observed = property.contentHash;
+            field.RegisterCallback<SerializedPropertyChangeEvent>(OnChanged);
             parent.Add(field);
-            field.BindProperty(StudioSerializedFields.Find(data, path));
+            field.BindProperty(property);
             return field;
-            void NotifyBoundPropertyChanged(UnityEditor.UIElements.SerializedPropertyChangeEvent _)
+
+            void OnChanged(SerializedPropertyChangeEvent _)
             {
                 if (host.Sequence == null || data.targetObject == null)
                     return;
-                var property = StudioSerializedFields.Find(data, path);
-                if (property == null || property.contentHash == observed)
+                var current = StudioSerializedFields.Find(data, path);
+                if (current == null || current.contentHash == observed)
                     return;
-                observed = property.contentHash;
+                observed = current.contentHash;
                 changed?.Invoke();
                 host.Changed(data.targetObject == host.Sequence);
             }
         }
 
+        private PropertyField ClipField(VisualElement parent, SerializedObject data, string path,
+            bool enabled = true, Action changed = null)
+        {
+            var field = clipFields[path];
+            return BoundField(parent, data, path, field.Label, enabled && field.Enabled, changed);
+        }
+
+        private Foldout Section(string title, string id, bool open = true)
+        {
+            string key = (host.Selected != null ? host.Selected.Kind.ToString() : "sequence") + "-" + id;
+            return StudioGUI.Section(foldouts, propertiesBody, title, key, open);
+        }
+
+        private static void Note(VisualElement parent, string text)
+        {
+            var label = new Label(text);
+            label.AddToClassList("studio-properties-note");
+            parent.Add(label);
+        }
+
+        private static TextField ReadOnly(VisualElement parent, string label, string name)
+        {
+            var field = new TextField(label) { name = name, isReadOnly = true };
+            field.AddToClassList("studio-properties-readonly");
+            parent.Add(field);
+            return field;
+        }
+
+        internal VisualElement CreateGUI()
+        {
+            ReleaseToolkitBindings();
+            inspectorIdentity = null;
+            var panel = StudioGUI.MakePanel("properties-panel", "속성", out propertiesBody);
+            typeLabel = new Label { name = "properties-clip-type", pickingMode = PickingMode.Ignore };
+            panel.Add(typeLabel);
+            return panel;
+        }
 
         internal void BuildPropertiesPanel()
         {
-            var scroll = propertiesBody.scrollOffset;
+            if (scrollKey != null)
+                scrollPositions[scrollKey] = propertiesBody.scrollOffset;
             ReleaseToolkitBindings();
             propertiesBody.Clear();
-            clipTitle = null;
-            clipStart = clipDuration = sequenceDuration = null;
-            selectedKeyTime = selectedKeyValue = null;
+            clipFields.Clear();
             validationUI = null;
+            int version = ++buildVersion;
+            scrollKey = host.Selected != null ? host.Selected.Kind.ToString() : "sequence";
+            typeLabel.text = host.Selected != null ? StudioClipSchema.Definition(host.Selected.Kind).Label : "시퀀스";
             if (host.Sequence == null)
-                return;
-            var clip = host.FindSelected();
-            if (clip != null)
             {
-                BuildSelectedKeyFields(clip);
-                var timing = StudioGUI.Section(foldouts, propertiesBody, "클립 정보", "clip-info", timingOpen, StoreTimingFoldout);
-                clipTitle = new TextField("클립 이름")
-                {
-                    name = "clip-name",
-                    value = clip.displayName,
-                    isDelayed = true
-                };
-                clipStart = new DoubleField("시작 (초)")
-                {
-                    name = "clip-start",
-                    value = clip.start,
-                    isDelayed = true
-                };
-                clipDuration = new DoubleField("길이 (초)")
-                {
-                    name = "clip-duration",
-                    value = clip.duration,
-                    isDelayed = true
-                };
-                void TimingChanged()
-                {
-                    Undo.RecordObject(clip.GetParentTrack(), "클립 시간 변경");
-                    Undo.RecordObject(host.Sequence.Timeline, "컷씬 길이 변경");
-                    clip.displayName = clipTitle.value;
-                    clip.start = Math.Max(0, clipStart.value);
-                    clip.duration = Math.Max(StudioTiming.FrameDuration(host.Sequence), clipDuration.value);
-                    host.Sequence.Timeline.fixedDuration = Math.Max(host.Sequence.Duration, clip.end);
-                    host.Changed();
-                }
-
-                clipTitle.RegisterValueChangedCallback(ChangeClipName);
-                clipStart.RegisterValueChangedCallback(ChangeClipStart);
-                clipDuration.RegisterValueChangedCallback(ChangeClipDuration);
-                timing.Add(clipTitle);
-                timing.Add(clipStart);
-                timing.Add(clipDuration);
-                BuildClipFields(PanelBinding(host.Selected));
-                if (StudioEvaluation.OwnsActor(host.Selected) && host.ActorIndex >= 0 && host.ActorIndex < host.Sequence.Actors.Count)
-                    BuildActorFields(false);
-                var buttons = new VisualElement();
-                buttons.AddToClassList("studio-inspector-actions");
-                buttons.Add(StudioGUI.ActionButton("복제", host.DuplicateClip, "duplicate-clip"));
-                buttons.Add(StudioGUI.ActionButton("삭제", host.DeleteClip, "delete-clip"));
-                propertiesBody.Add(buttons);
-                void StoreTimingFoldout(bool v)
-                {
-                    timingOpen = v;
-                }
-
-                void ChangeClipName(ChangeEvent<string> _)
-                {
-                    TimingChanged();
-                }
-
-                void ChangeClipStart(ChangeEvent<double> _)
-                {
-                    TimingChanged();
-                }
-
-                void ChangeClipDuration(ChangeEvent<double> _)
-                {
-                    TimingChanged();
-                }
+                typeLabel.text = "";
+                Note(propertiesBody, "시퀀스를 만들거나 열어 속성을 편집하세요.");
+                return;
             }
-            else if (host.ActorIndex >= 0 && host.ActorIndex < host.Sequence.Actors.Count)
-                BuildActorFields(true);
+            var clip = host.FindSelected();
+            if (clip == null)
+                BuildSequenceFields();
             else
             {
-                var data = PanelBinding(host.Sequence);
-                var settings = StudioGUI.Section(foldouts, propertiesBody, "시퀀스 설정", "sequence-properties", sequencePropertiesOpen, StoreSequencePropertiesFoldout);
-                BoundField(settings, data, "Id", "게임 호출 ID");
-                BoundField(settings, data, "BackgroundColor", "배경 색상");
-                BoundField(settings, data, "AllowSkip", "Esc 스킵 허용");
-                sequenceDuration = new DoubleField("전체 길이 (초)")
-                {
-                    name = "sequence-duration",
-                    value = host.Sequence.Duration,
-                    isDelayed = true
-                };
-                sequenceDuration.RegisterValueChangedCallback(ChangeSequenceDuration);
-                settings.Add(sequenceDuration);
-                void StoreSequencePropertiesFoldout(bool v)
-                {
-                    sequencePropertiesOpen = v;
-                }
+                BuildTimingFields(clip);
+                BuildSelectedKeyFields(clip);
+                foreach (var field in StudioClipSchema.Fields(host.Selected))
+                    clipFields.Add(field.Path, field);
+                var data = PanelBinding(host.Selected);
+                foreach (var section in StudioPropertiesLayout.Sections(host.Selected.Kind))
+                    BuildSection(section, clip, data);
+                var actions = new VisualElement();
+                actions.AddToClassList("studio-inspector-actions");
+                actions.Add(StudioGUI.ActionButton("복제", host.DuplicateClip, "duplicate-clip"));
+                actions.Add(StudioGUI.ActionButton("삭제", host.DeleteClip, "delete-clip"));
+                propertiesBody.Add(actions);
+            }
+            validationUI = new VisualElement { name = "sequence-issues" };
+            propertiesBody.Add(validationUI);
+            propertiesBody.schedule.Execute(RestoreScroll);
 
-                void ChangeSequenceDuration(ChangeEvent<double> e)
+            void RestoreScroll()
+            {
+                if (version == buildVersion)
+                    propertiesBody.scrollOffset = scrollPositions.TryGetValue(scrollKey, out var offset) ? offset : Vector2.zero;
+            }
+        }
+
+        private void BuildTimingFields(TimelineClip clip)
+        {
+            var section = Section("클립 정보", "clip-info");
+            var title = new TextField("클립 이름") { name = "clip-name", isDelayed = true };
+            var start = new DoubleField("시작 (초)") { name = "clip-start", isDelayed = true };
+            var duration = new DoubleField("길이 (초)") { name = "clip-duration", isDelayed = true };
+            section.Add(title);
+            section.Add(start);
+            section.Add(duration);
+            var end = ReadOnly(section, "종료 (초)", "clip-end");
+            title.RegisterValueChangedCallback(ChangeName);
+            start.RegisterValueChangedCallback(ChangeTime);
+            duration.RegisterValueChangedCallback(ChangeTime);
+            refreshFields.Add(Refresh);
+            Refresh();
+
+            void ChangeName(ChangeEvent<string> e)
+            {
+                Undo.RecordObject(clip.GetParentTrack(), "클립 이름 변경");
+                clip.displayName = e.newValue;
+                host.Changed();
+            }
+            void ChangeTime(ChangeEvent<double> _)
+            {
+                if (StudioPropertyEditing.SetTiming(host.Sequence, clip, start.value, duration.value))
+                    host.Changed();
+                Refresh();
+            }
+            void Refresh()
+            {
+                title.SetValueWithoutNotify(clip.displayName);
+                start.SetValueWithoutNotify(clip.start);
+                duration.SetValueWithoutNotify(clip.duration);
+                end.SetValueWithoutNotify(clip.end.ToString("0.###"));
+            }
+        }
+
+        private void BuildSequenceFields()
+        {
+            var section = Section("시퀀스 설정", "settings");
+            var data = PanelBinding(host.Sequence);
+            BoundField(section, data, "Id", "게임 호출 ID");
+            BoundField(section, data, "BackgroundColor", "배경 색상");
+            BoundField(section, data, "AllowSkip", "Esc 스킵 허용");
+            var duration = new DoubleField("전체 길이 (초)") { name = "sequence-duration", isDelayed = true };
+            duration.SetEnabled(host.Sequence.Timeline != null);
+            section.Add(duration);
+            duration.RegisterValueChangedCallback(ChangeDuration);
+            refreshFields.Add(Refresh);
+            Refresh();
+
+            void ChangeDuration(ChangeEvent<double> e)
+            {
+                if (StudioPropertyEditing.IsFinite(e.newValue))
                 {
                     Undo.RecordObject(host.Sequence.Timeline, "전체 길이 변경");
                     host.Sequence.Timeline.fixedDuration = Math.Max(.1, e.newValue);
                     host.Changed();
                 }
+                Refresh();
             }
-
-            validationUI = new VisualElement
-            {
-                name = "sequence-issues"
-            };
-            propertiesBody.Add(validationUI);
-            propertiesBody.scrollOffset = scroll;
+            void Refresh() { duration.SetValueWithoutNotify(host.Sequence.Duration); }
         }
-
-
-        private void BuildClipFields(SerializedObject data)
-        {
-            var clip = host.Selected;
-            var section = StudioGUI.Section(foldouts, propertiesBody, StudioEditorAssets.Label(clip.Kind) + " 설정", "clip-settings", true);
-            Foldout animation = null;
-            foreach (var field in StudioClipSchema.Fields(clip))
-            {
-                if (field.Animation)
-                    animation ??= StudioGUI.Section(foldouts, propertiesBody, "애니메이션", "clip-animation", true);
-                BoundField(field.Animation ? animation : section, data, field.Path, field.Label, field.Enabled, UpdateClipTarget);
-            }
-
-            foreach (string message in StudioClipSchema.Help(clip))
-                section.Add(new HelpBox(message, HelpBoxMessageType.Info));
-            void UpdateClipTarget()
-            {
-                host.Session.ValidateSelection();
-            }
-        }
-
-
-        private void BuildActorFields(bool standalone)
-        {
-            var actor = host.Sequence.Actors[host.ActorIndex];
-            var clip = host.Selected;
-            var data = PanelBinding(host.Sequence);
-            string path = $"Actors.Array.data[{host.ActorIndex}].";
-            var section = StudioGUI.Section(foldouts, propertiesBody, "오브젝트", "object-properties", objectPropertiesOpen, StoreObjectPropertiesFoldout);
-            if (standalone)
-            {
-                string oldId = actor.Id;
-                BoundField(section, data, path + "Id", "캐릭터 ID", changed: UpdateActorReferences);
-                void UpdateActorReferences()
-                {
-                    if (oldId == actor.Id)
-                        return;
-                    foreach (var entry in StudioEvaluation.Clips(host.Sequence, true).Where(ReferencesOldActor))
-                    {
-                        Undo.RecordObject(entry.Asset, "캐릭터 연결 변경");
-                        entry.Asset.ActorId = actor.Id;
-                    }
-
-                    oldId = actor.Id;
-                    bool ReferencesOldActor(StudioEntry e)
-                    {
-                        return e.Asset.ActorId == oldId;
-                    }
-                }
-            }
-
-            BoundField(section, data, path + "Name", "이름");
-            var oldSprite = actor.Sprite;
-            BoundField(section, data, path + "Sprite", "이미지", changed: UpdateActorSprite);
-            if (standalone)
-                BoundField(section, data, path + "Position", "기본 위치");
-            BoundField(section, data, path + "Size", "기본 크기");
-            BoundField(section, data, path + "Color", "색상");
-            BoundField(section, data, path + "Layer", "그리기 순서");
-            if (!standalone)
-                return;
-            BoundField(section, data, path + "ClipControlled", "표시 클립 구간에만 보이기");
-            section.Add(StudioGUI.ActionButton("캐릭터와 연결된 클립 삭제", DeleteActorAndClips));
-            void StoreObjectPropertiesFoldout(bool v)
-            {
-                objectPropertiesOpen = v;
-            }
-
-            void UpdateActorSprite()
-            {
-                if (clip != null && oldSprite != actor.Sprite)
-                {
-                    Undo.RecordObject(clip, "오브젝트 이미지 변경");
-                    clip.Frames = new[]
-                    {
-                        actor.Sprite
-                    };
-                    clip.FrameTimes = null;
-                    clip.AnimationLength = 0;
-                    EditorUtility.SetDirty(clip);
-                }
-
-                oldSprite = actor.Sprite;
-            }
-
-            void DeleteActorAndClips()
-            {
-                Undo.IncrementCurrentGroup();
-                int group = Undo.GetCurrentGroup();
-                Undo.RecordObject(host.Sequence, "캐릭터 삭제");
-                foreach (var entry in StudioEvaluation.Clips(host.Sequence, true).Where(ReferencesActor).ToArray())
-                    StudioEditorAssets.DeleteClip(host.Sequence, entry.Clip);
-                host.Sequence.EditableActors.Remove(actor);
-                host.Session.ClearSelection();
-                Undo.CollapseUndoOperations(group);
-                host.Changed(true);
-                bool ReferencesActor(StudioEntry e)
-                {
-                    return e.Asset.ActorId == actor.Id;
-                }
-            }
-        }
-
 
         private void BuildSelectedKeyFields(TimelineClip clip)
         {
-            if (!host.KeyframeMode || host.KeySelectionOwner != host.Selected || host.KeyIndex < 0)
+            if (host.KeySelectionOwner != host.Selected || host.KeyIndex < 0)
                 return;
             var keys = StudioKeyframes.GetKeys(host.Selected, host.KeyProperty, clip.duration);
             if (host.KeyIndex >= keys.Length)
                 return;
-            var section = StudioGUI.Section(foldouts, propertiesBody, StudioTimelinePanel.PropertyLabel(host.Selected, host.KeyProperty) + " 키프레임", "selected-key", true);
-            selectedKeyTime = new FloatField("클립 내 시간 (초)")
-            {
-                name = "key-time",
-                isDelayed = true,
-                value = keys[host.KeyIndex].Time
-            };
-            selectedKeyValue = new FloatField("값")
-            {
-                name = "key-value",
-                isDelayed = true,
-                value = keys[host.KeyIndex].Value
-            };
-            void UpdateKey()
-            {
-                host.Session.UpdateKeyIndex(StudioKeyframeEditing.Set(clip, host.KeyProperty, host.KeyIndex, (float)host.Snap(selectedKeyTime.value), selectedKeyValue.value));
-                host.Seek(clip.start + StudioKeyframes.GetKeys(host.Selected, host.KeyProperty, clip.duration)[host.KeyIndex].Time);
-                host.Changed();
-            }
+            var section = Section("선택한 키프레임", "selected-key");
+            ReadOnly(section, "속성", "key-property").value = StudioTimelinePanel.PropertyLabel(host.Selected, host.KeyProperty);
+            var time = new FloatField("클립 내 시간 (초)") { name = "key-time", isDelayed = true };
+            var value = new FloatField("값") { name = "key-value", isDelayed = true };
+            section.Add(time);
+            var absolute = ReadOnly(section, "시퀀스 시간 (초)", "key-sequence-time");
+            section.Add(value);
+            time.RegisterValueChangedCallback(ChangeTime);
+            value.RegisterValueChangedCallback(ChangeValue);
+            section.Add(StudioGUI.ActionButton("선택 키 삭제", host.DeleteSelectedKey, "delete-selected-key"));
+            refreshFields.Add(Refresh);
+            Refresh();
 
-            selectedKeyTime.RegisterValueChangedCallback(ChangeKeyTime);
-            selectedKeyValue.RegisterValueChangedCallback(ChangeKeyValue);
-            section.Add(selectedKeyTime);
-            section.Add(selectedKeyValue);
-            section.Add(StudioGUI.ActionButton("선택 키 삭제", host.DeleteSelectedKey));
-            void ChangeKeyTime(ChangeEvent<float> _)
+            void ChangeTime(ChangeEvent<float> e) { UpdateKey((float)host.Snap(e.newValue), value.value); }
+            void ChangeValue(ChangeEvent<float> e) { UpdateKey(time.value, e.newValue); }
+            void UpdateKey(float nextTime, float nextValue)
             {
-                UpdateKey();
+                if (StudioPropertyEditing.IsFinite(nextTime) && StudioPropertyEditing.IsFinite(nextValue))
+                {
+                    host.Session.UpdateKeyIndex(StudioKeyframeEditing.Set(clip, host.KeyProperty, host.KeyIndex, nextTime, nextValue));
+                    var updated = StudioKeyframes.GetKeys(host.Selected, host.KeyProperty, clip.duration);
+                    host.Seek(clip.start + updated[host.KeyIndex].Time);
+                    host.Changed();
+                }
+                Refresh();
             }
-
-            void ChangeKeyValue(ChangeEvent<float> _)
+            void Refresh()
             {
-                UpdateKey();
+                var current = StudioKeyframes.GetKeys(host.Selected, host.KeyProperty, clip.duration);
+                if (host.KeyIndex < 0 || host.KeyIndex >= current.Length)
+                    return;
+                time.SetValueWithoutNotify(current[host.KeyIndex].Time);
+                value.SetValueWithoutNotify(current[host.KeyIndex].Value);
+                absolute.SetValueWithoutNotify((clip.start + current[host.KeyIndex].Time).ToString("0.###"));
             }
         }
-
 
         internal void SyncTimingFields()
         {
-            // 입력 중인 값은 유지하고 포커스가 없는 시간 필드만 타임라인에 맞추어 갱신함.
+            // 편집 중인 문자열을 보존하고 외부 편집과 실행 취소 결과를 갱신함.
             if (host.NativeTextEditing())
                 return;
-            var clip = host.FindSelected();
-            if (clip != null)
-            {
-                clipTitle?.SetValueWithoutNotify(clip.displayName);
-                clipStart?.SetValueWithoutNotify(clip.start);
-                clipDuration?.SetValueWithoutNotify(clip.duration);
-                if (selectedKeyTime != null && selectedKeyValue != null && host.KeyIndex >= 0)
-                {
-                    var keys = StudioKeyframes.GetKeys(host.Selected, host.KeyProperty, clip.duration);
-                    if (host.KeyIndex < keys.Length)
-                    {
-                        selectedKeyTime.SetValueWithoutNotify(keys[host.KeyIndex].Time);
-                        selectedKeyValue.SetValueWithoutNotify(keys[host.KeyIndex].Value);
-                    }
-                }
-            }
-
-            if (host.Sequence != null)
-                sequenceDuration?.SetValueWithoutNotify(host.Sequence.Duration);
+            foreach (var refresh in refreshFields)
+                refresh();
         }
-
 
         internal void RefreshValidation()
         {
@@ -377,28 +279,53 @@ namespace HumanBartender.CutsceneStudio.Editor
                 validationUI.Add(new HelpBox(issue, HelpBoxMessageType.Warning));
         }
 
-        [NonSerialized] private ScrollView propertiesBody;
-        [NonSerialized] private TextField clipTitle;
-        [NonSerialized] private VisualElement validationUI;
-        [NonSerialized] private readonly Dictionary<string, bool> foldouts = new();
-
-        internal VisualElement CreateGUI()
+        internal void ResetForSequence()
         {
-            ReleaseToolkitBindings();
             inspectorIdentity = null;
-            return StudioGUI.MakePanel("properties-panel", "속성", out propertiesBody);
+            scrollKey = null;
+            scrollPositions.Clear();
         }
 
-        internal void ResetForSequence() { inspectorIdentity = null; }
+        private string Identity()
+        {
+            var clip = host.Selected;
+            var identity = new StringBuilder();
+            identity.Append(host.Sequence?.GetInstanceID()).Append(':').Append(clip?.GetInstanceID())
+                .Append(':').Append(clip?.Kind).Append(':').Append(clip?.ActorId).Append(':').Append(host.ActorIndex)
+                .Append(':').Append(host.KeySelectionOwner?.GetInstanceID()).Append(':').Append(host.KeyIndex)
+                .Append(':').Append(host.KeyProperty).Append(':').Append(clip?.StateCamera)
+                .Append(':').Append(clip?.Effect).Append(':').Append(clip?.WaitForInput)
+                .Append(':').Append(clip?.Frames?.Length);
+            if (clip != null)
+                identity.Append(':').Append(StudioPropertyEditing.UsesSourceTiming(clip))
+                    .Append(':').Append(StudioKeyframes.HasOverrides(clip))
+                    .Append(':').Append(StudioKeyframes.Channel(clip, StudioProperty.Strength) != null);
+            if (host.Sequence != null)
+                foreach (var actor in host.Sequence.Actors)
+                    identity.Append('|').Append(actor?.Id);
+            return identity.ToString();
+        }
+
+        private string ActorNamesIdentity()
+        {
+            var names = new StringBuilder();
+            if (host.Sequence != null)
+                foreach (var actor in host.Sequence.Actors)
+                    names.Append('|').Append(actor?.Name);
+            return names.ToString();
+        }
 
         internal void Sync(bool contentChanged)
         {
             if (propertiesBody == null)
                 return;
-            string identity = $"{host.Sequence?.GetInstanceID()}:{host.Selected?.GetInstanceID()}:{host.ActorIndex}:{host.KeyframeMode}:{host.KeyIndex}:{host.KeyProperty}:{host.KeySelectionOwner?.GetInstanceID()}:{host.Selected?.StateCamera}:{(host.Selected != null && StudioKeyframes.HasOverrides(host.Selected))}";
-            if (inspectorIdentity != identity)
+            string identity = Identity();
+            string names = ActorNamesIdentity();
+            // 오브젝트 이름을 입력하는 동안은 바인딩을 유지하고 입력 완료 후 목록을 갱신함.
+            if (inspectorIdentity != identity || actorNamesIdentity != names && !host.NativeTextEditing())
             {
                 inspectorIdentity = identity;
+                actorNamesIdentity = names;
                 BuildPropertiesPanel();
                 contentChanged = true;
             }
@@ -406,6 +333,5 @@ namespace HumanBartender.CutsceneStudio.Editor
             if (contentChanged)
                 RefreshValidation();
         }
-
     }
 }

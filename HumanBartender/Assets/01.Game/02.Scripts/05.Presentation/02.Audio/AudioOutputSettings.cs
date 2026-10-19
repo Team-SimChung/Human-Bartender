@@ -51,10 +51,15 @@ public sealed class AudioOutputSettings : ScriptableObject
         source.outputAudioMixerGroup = GetGroup(bus);
     }
 
-    public void ApplyVolume(AudioBus bus, float linear)
+    public static float ToDecibels(float linear)
     {
         float value = Mathf.Clamp01(linear);
-        float db = value <= 0.0001f ? -80f : Mathf.Log10(value) * 20f;
+        return value <= 0.0001f ? -80f : Mathf.Log10(value) * 20f;
+    }
+
+    public void ApplyVolume(AudioBus bus, float linear)
+    {
+        float db = ToDecibels(linear);
         if (!GetGroup(bus).audioMixer.SetFloat(VolumeParameter(bus), db))
             throw new InvalidOperationException($"{bus} 음량 파라미터를 적용하지 못했습니다.");
     }
