@@ -35,7 +35,7 @@ namespace HumanBartender.CutsceneStudio
                     voices.Add(clip, voice);
                 }
 
-                voice.volume = StudioEvaluation.AudioGain(entry, time);
+                voice.volume = StudioEvaluation.AudioGain(entry, time) * (clip.Bus == AudioBus.SoundEffects ? .55f : 1f);
                 if (waiting)
                     voice.Pause();
                 else

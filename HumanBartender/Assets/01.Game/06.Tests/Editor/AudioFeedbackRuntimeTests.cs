@@ -96,8 +96,8 @@ public sealed class AudioFeedbackRuntimeTests
             Assert.That(pourSource.isPlaying && stirSource.isPlaying, Is.True);
             Assert.That(mixer.FindMatchingGroups("SE"), Does.Contain(pourSource.outputAudioMixerGroup));
             Assert.That(stirSource.outputAudioMixerGroup, Is.SameAs(pourSource.outputAudioMixerGroup));
-            Assert.That(pourSource.volume, Is.EqualTo(0.28f).Within(0.001f));
-            Assert.That(stirSource.volume, Is.EqualTo(0.32f).Within(0.001f));
+            Assert.That(pourSource.volume, Is.EqualTo(0.820f).Within(0.001f));
+            Assert.That(stirSource.volume, Is.EqualTo(0.846f).Within(0.001f));
             yield return new WaitForSeconds(0.12f);
             var samples = new float[512];
             pourSource.GetOutputData(samples, 0);

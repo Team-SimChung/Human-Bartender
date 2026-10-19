@@ -79,7 +79,6 @@ public class UICashPanel : MonoBehaviour
         CurrencyGainText popup = Instantiate(gainPrefab, gainLayer);
         popup.Play(amount, suffix, start, target, () =>
         {
-            sound?.PlaySE("SFX_money_change");
             SyncFromModel();
             Punch();
             activeGainCount = Mathf.Max(0, activeGainCount - 1);

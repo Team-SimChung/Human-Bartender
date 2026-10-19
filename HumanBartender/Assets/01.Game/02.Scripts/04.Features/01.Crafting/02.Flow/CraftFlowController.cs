@@ -438,7 +438,6 @@ public class CraftFlowController : MonoBehaviour
         {
             Notify<CraftSession, CraftJudgement>(OnCraftJudged, session, Judgement);
             PendingDrink = new CraftedDrink(session, Judgement, selected);
-            sound?.PlaySE("SFX_goal_completed");
             IsAwaitingServeDecision = serveScreen != null;
             if (!IsAwaitingServeDecision || !serveScreen.TryPlay(PendingDrink))
             {

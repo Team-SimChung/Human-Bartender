@@ -97,12 +97,14 @@ public sealed class GameProgressionService : IGameProgressionService
     }
 
     public GameProgressionService(GameStateManager gameState, ISceneTransitionService sceneTransitions,
-        ISceneFadeService sceneFades)
+        ISceneFadeService sceneFades, ISoundEffectPlayer sound = null)
     {
+        this.sound = sound;
         this.gameState = gameState ?? throw new ArgumentNullException(nameof(gameState));
         this.sceneTransitions = sceneTransitions ?? throw new ArgumentNullException(nameof(sceneTransitions));
         this.sceneFades = sceneFades ?? throw new ArgumentNullException(nameof(sceneFades));
     }
+    readonly ISoundEffectPlayer sound;
 
     public UniTask<GameProgressionResult> CompleteBarAsync(CancellationToken cancellationToken = default)
     {
@@ -319,6 +321,10 @@ public sealed class GameProgressionService : IGameProgressionService
                 cancellationToken: cancellationToken);
             if (!request.Accepted)
                 return outcome = ConvertSceneResult(await request.Completion);
+
+            if ((sourceScene == "Home" && destinationScene == "OutSide") ||
+                (sourceScene == "OutSide" && destinationScene == "Home"))
+                sound?.PlaySE("SFX_door_open_close");
 
             if (destinationScene == "Play")
             {
