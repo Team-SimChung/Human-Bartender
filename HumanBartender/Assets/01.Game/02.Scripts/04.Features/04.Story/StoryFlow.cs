@@ -39,6 +39,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// 같은 식이 곳에 따라 다르게 판정되지 않게 하려는 것이다.
     /// </summary>
     [Inject] IConditionUtil conditions;
+    [Inject] IPopupService popupService;
 
     public UniTask RunAsync(CancellationToken cancellationToken = default) => RunPhaseAsync(ENewScenePhase.Bar, cancellationToken);
 
@@ -75,7 +76,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         // 비우지 않으면 같은 날을 다시 열었을 때 effects가 통째로 건너뛰어진다.
         // The runner owns its execution result and effect tokens.
 
-        runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
+        runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer, popupService);
         if (craftFlow == null) throw new InvalidOperationException("[Story] Craft Flow 참조가 필요합니다.");
 
         var tutorial = GetComponent<StoryTutorialController>();

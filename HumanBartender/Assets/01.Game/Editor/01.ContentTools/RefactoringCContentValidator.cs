@@ -187,6 +187,10 @@ public static class RefactoringCContentValidator
                 case "say": case "timeline":
                     if (string.IsNullOrWhiteSpace(step.Text?.Ko)) add("ERROR",at,"Dialogue text is empty (street timeline currently uses the dialogue presenter).");
                     break;
+                case "popup":
+                    var popupError = PopupCsvStep.Validate(step.Arg, step.Sync, step.Text?.Ko);
+                    if (popupError != null) add("ERROR", at, popupError);
+                    break;
                 case "set_state": case "effect": break;
                 case "goto": if (!scenes.Contains(step.SceneId ?? "")) add("ERROR",at,"Missing goto scene: "+step.SceneId);break;
                 case "choice":
@@ -218,6 +222,10 @@ public static class RefactoringCContentValidator
                 if (!string.IsNullOrEmpty(step.Actor) && !actors.Contains(step.Actor)) add("ERROR",at,"Unknown actor: "+step.Actor);
                 switch(step.Type)
                 {
+                    case ENewStepType.Popup:
+                        var popupError = PopupCsvStep.Validate(step.Arg, step.Sync, step.Text?.Ko);
+                        if (popupError != null) add("ERROR", at, popupError);
+                        break;
                     case ENewStepType.Say:
                         if (string.IsNullOrWhiteSpace(step.Text?.Ko)) add("ERROR",at,"Say text is empty."); break;
                     case ENewStepType.Choice:

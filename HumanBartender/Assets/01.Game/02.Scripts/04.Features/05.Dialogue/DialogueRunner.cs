@@ -12,6 +12,7 @@ public enum DialogueState { Idle, Typing, WaitingForInput, WaitingForChoice }
 public class DialogueRunner : MonoBehaviour
 {
     [Inject] IConditionUtil conditionUtil;
+    [Inject] IPopupService popupService;
     [Inject] ICutScenePlayer cutscenes;
     [SerializeField] NewStreetDataSO StreetDataSO;
     IDialoguePresenter presenter;
@@ -126,6 +127,9 @@ public class DialogueRunner : MonoBehaviour
             bool branch = false;
             switch (step.Type?.ToLowerInvariant())
             {
+                case "popup":
+                    await PopupCsvStep.ExecuteAsync(popupService, step.Arg, Text(step.Text), step.Sync, token);
+                    break;
                 case "say":
                     await SayAsync(step.Actor, Text(step.Text), step.Arg, step.Sync, run);
                     break;

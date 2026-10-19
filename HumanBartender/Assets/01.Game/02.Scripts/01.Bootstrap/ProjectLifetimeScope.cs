@@ -55,5 +55,6 @@ public class ProjectLifetimeScope : LifetimeScope
             .As<IGameProgressionService>();
         builder.Register<SaveManager>(Lifetime.Singleton);
         builder.Register<IConditionUtil, ConditionUtil>(Lifetime.Singleton);
+        builder.RegisterComponentInHierarchy<PopupService>().As<IPopupService>();
     }
 }
