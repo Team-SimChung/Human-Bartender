@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 5e25f75d474e9475eb574fa79f45c1af
+guid: bf085c0e987654d28894c17ccd59a3cb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1650352655425170588
-    second: ForeFore_Object_0
-  - first:
-      213: -5842832752169147090
-    second: ForeFore_Object_1
-  - first:
-      213: 998854359539506482
-    second: ForeFore_Object_2
-  - first:
-      213: -7470112012935359766
-    second: ForeFore_Object_3
+      213: 7073629785218366078
+    second: Room_Entrance_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -55,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -81,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 512
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -109,79 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ForeFore_Object_0
+      name: Room_Entrance_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 17
-        width: 59
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c9c6db40ffa37e610800000000000000
-      internalID: 1650352655425170588
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ForeFore_Object_1
-      rect:
-        serializedVersion: 2
-        x: 157
-        y: 14
-        width: 7
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e25a0fc81961aeea0800000000000000
-      internalID: -5842832752169147090
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ForeFore_Object_2
-      rect:
-        serializedVersion: 2
-        x: 163
-        y: 14
-        width: 20
-        height: 23
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 23dd3b27fb4acdd00800000000000000
-      internalID: 998854359539506482
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ForeFore_Object_3
-      rect:
-        serializedVersion: 2
-        x: 207
         y: 0
-        width: 57
-        height: 55
+        width: 26
+        height: 87
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -190,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ae21c9cd3b4d45890800000000000000
-      internalID: -7470112012935359766
+      spriteID: e7a309cdfc49a2260800000000000000
+      internalID: 7073629785218366078
       vertices: []
       indices: 
       edges: []
@@ -200,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -210,10 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ForeFore_Object_0: 1650352655425170588
-      ForeFore_Object_1: -5842832752169147090
-      ForeFore_Object_2: 998854359539506482
-      ForeFore_Object_3: -7470112012935359766
+      Room_Entrance_0: 7073629785218366078
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
