@@ -29,7 +29,10 @@ public class ProjectLifetimeScope : LifetimeScope
                         .As<ISettlementLog>();
 
         builder.RegisterComponentInHierarchy<SoundManager>()
-        .As<ISoundManager>();
+        .As<ISoundEffectPlayer>().As<IBgmPlayer>().As<ILoopingSoundManager>();
+        builder.RegisterInstance(AudioOutputSettings.Shared);
+        builder.Register<PlayerPrefsAudioVolumeStore>(Lifetime.Singleton).As<IAudioVolumeStore>();
+        builder.RegisterEntryPoint<AudioVolumeSettings>(Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<UIDisplayOptions>();
         builder.RegisterComponentInHierarchy<UICashPanel>();

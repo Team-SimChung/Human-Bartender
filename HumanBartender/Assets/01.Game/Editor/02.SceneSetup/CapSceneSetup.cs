@@ -21,12 +21,12 @@ using UnityEngine.UI;
 public static class CapSceneSetup
 {
     const string ScenePath = "Assets/03.Dev/01.Scenes/01.Minigames/Cap.unity";
-    const string FontAssetPath = "Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset";
+    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset";
     const string CraftStationDataPath = "Assets/01.Game/04.Data/01.Definitions/Crafting/CraftLiquidData.asset";
     const string NewCocktailDataSOPath = "Assets/01.Game/04.Data/02.RuntimeCaches/NewCocktailDataSO.asset";
     const string CraftServePath = "Assets/01.Game/04.Data/03.Events/Craft/CraftServe.asset";
     const string CraftRetryPath = "Assets/01.Game/04.Data/03.Events/Craft/CraftRetry.asset";
-    const string PlaceholderPath = "Assets/01.Game/03.Content/03.Crafting/04.Minigames/05.Cap/01.Sprites/CapPlaceholder.png";
+    const string PlaceholderPath = "Assets/01.Game/03.Content/01.ArtResources/07.Legacy/03.Crafting/03.Minigames/05.Cap/01.Sprites/CapPlaceholder.png";
 
     [MenuItem("Tools/Tycoon/Setup Cap Scene")]
     public static void Run()

@@ -26,7 +26,7 @@ using UnityEngine.UI;
 public static class StirSceneSetup
 {
     const string ScenePath = "Assets/03.Dev/01.Scenes/01.Minigames/Stir.unity";
-    const string FontAssetPath = "Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset";
+    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset";
     const string CraftStationDataPath = "Assets/01.Game/04.Data/01.Definitions/Crafting/CraftLiquidData.asset";
     const string NewCocktailDataSOPath = "Assets/01.Game/04.Data/02.RuntimeCaches/NewCocktailDataSO.asset";
     const string BalanceDataSOPath = "Assets/01.Game/04.Data/02.RuntimeCaches/NewBalanceDataSO.asset";

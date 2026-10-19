@@ -24,7 +24,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     [SerializeField] private OrderRequestController orderController;
     [SerializeField] private CraftFlowController craftFlow;
 
-    [Inject] ISoundManager soundManager;
+    [Inject] IBgmPlayer soundManager;
 
     /// <summary>
     /// 컷씬 재생기(CutSceneManager). 루트 스코프에 있어 인스펙터로 꽂을 수 없으므로 주입받는다.
@@ -40,7 +40,13 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     [Inject] IConditionUtil conditions;
 
-    public async UniTask RunAsync(CancellationToken cancellationToken = default)
+    public UniTask RunAsync(CancellationToken cancellationToken = default) => RunPhaseAsync(ENewScenePhase.Bar, cancellationToken);
+
+    public UniTask RunOpeningAsync(CancellationToken cancellationToken = default) =>
+        GameStateManager.Instance.CurrentDay >= 1 && GameStateManager.Instance.CurrentDay <= 3
+            ? RunPhaseAsync(ENewScenePhase.BarOpen, cancellationToken) : UniTask.CompletedTask;
+
+    async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken)
     {
         int day = GameStateManager.Instance.CurrentDay;
 
@@ -72,6 +78,13 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
         if (craftFlow == null) throw new InvalidOperationException("[Story] Craft Flow 참조가 필요합니다.");
 
+        var tutorial = GetComponent<StoryTutorialController>();
+        if (tutorial == null) tutorial = gameObject.AddComponent<StoryTutorialController>();
+        tutorial.ConnectSceneResources();
+        runner.SetTutorialController(tutorial);
+        if (day == 0 && phase == ENewScenePhase.Bar)
+            await tutorial.RunIntroAsync(cutScenePlayer, linked.Token);
+
         soundManager?.PlayBGM("BGM_bar_01", 1f, true);
 
         Debug.Log($"[Story] Day {day} 2부 시작");
@@ -81,7 +94,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         StoryExecutionResult result;
         try
         {
-            result = await runner.RunAsync(script, linked.Token);
+            result = await runner.RunAsync(script, linked.Token, phase);
         }
         finally
         {
@@ -120,5 +133,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         runner.OnAdvanceInput();
         return true;
+    }
+
+    public bool TryMoveTutorialSeat(int step)
+    {
+        if (runner == null || !runner.IsRunning) return false;
+        var tutorial = GetComponent<StoryTutorialController>();
+        return tutorial != null && tutorial.TryMoveSeat(step);
     }
 }

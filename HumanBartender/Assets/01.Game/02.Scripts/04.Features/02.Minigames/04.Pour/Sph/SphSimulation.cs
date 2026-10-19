@@ -1,13 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// SPH 밀도/압력/점성 계산 + 공간 분할 그리드. AlexandreSajus/Unity-Fluid-Simulation의 Simulation.cs를
-/// 최대한 그대로 이식했다(밀도·압력힘·점성힘을 "쌍을 이루는 두 파티클 모두에서" 누적하는 구조 포함 —
-/// 이 이중 누적은 원본 K 계수 튜닝에 이미 녹아있는 특성이라 그대로 유지, 임의로 "정리"하면 검증된
-/// 레퍼런스 거동과 달라질 위험이 있어 그대로 둔다).
-///
-/// PourManager가 파티클들의 Integrate()가 끝난 뒤 시점에 맞춰 매 프레임 Tick()을 명시적으로 호출한다.
+/// 위치 기반 밀도 보정으로 압축을 제한한다. 중력은 모든 입자에 계속 적용한다.
+/// 기존 밀도 커널의 두 배 가중치는 유지하고, 위치 보정의 미분에도 같은 가중치를 쓴다.
+/// PourManager가 고정 시간 간격으로 Tick을 호출한다.
 /// </summary>
 public class SphSimulation
 {
@@ -18,26 +16,32 @@ public class SphSimulation
 
     readonly List<SphParticle> activeParticles = new List<SphParticle>();
     public IReadOnlyList<SphParticle> ActiveParticles => activeParticles;
+    public int LastDensityIterations { get; private set; }
 
-    readonly List<SphParticle>[,] grid;
+    readonly List<SphParticle>[] grid;
+    readonly List<int> occupiedCells = new List<int>();
+    readonly Stack<List<SphParticle>> emptyCells = new Stack<List<SphParticle>>();
     readonly int gridSizeX;
     readonly int gridSizeY;
+    readonly float cellSize;
     readonly Vector2 gridMin;
-    readonly Vector2 gridMax;
+    readonly Action<SphParticle> constrainParticle;
 
-    public SphSimulation(SphConfig config, Vector2 gridMin, Vector2 gridMax, int gridSizeX = 24, int gridSizeY = 24)
+    public SphSimulation(SphConfig config, Vector2 gridMin, Vector2 gridMax,
+        Action<SphParticle> constrainParticle = null)
     {
         this.config = config;
         this.restDensity = config.restDensity;
         this.gridMin = gridMin;
-        this.gridMax = gridMax;
-        this.gridSizeX = gridSizeX;
-        this.gridSizeY = gridSizeY;
-
-        grid = new List<SphParticle>[gridSizeX, gridSizeY];
-        for (int x = 0; x < gridSizeX; x++)
-            for (int y = 0; y < gridSizeY; y++)
-                grid[x, y] = new List<SphParticle>();
+        this.constrainParticle = constrainParticle;
+        Vector2 area = gridMax - gridMin;
+        float radius = Mathf.Max(config.NeighborRadius, 0.0001f);
+        // 셀 크기를 이웃 반경에 맞춰 불필요한 입자 비교를 줄인다.
+        // 비어 있는 셀은 목록을 만들지 않고, 사용했던 목록도 재사용한다.
+        cellSize = Mathf.Max(radius, Mathf.Max(area.x, area.y) / 512f);
+        gridSizeX = Mathf.Max(1, Mathf.CeilToInt(area.x / cellSize));
+        gridSizeY = Mathf.Max(1, Mathf.CeilToInt(area.y / cellSize));
+        grid = new List<SphParticle>[gridSizeX * gridSizeY];
     }
 
     public void Register(SphParticle particle)
@@ -73,10 +77,66 @@ public class SphSimulation
             restDensity = maxDensity * slack;
     }
 
+    void TickPositionBased(float dt)
+    {
+        // 압력 힘과 위치 보정을 동시에 적용하면 같은 압축을 두 번 밀어내며 튀게 된다.
+        // 위치 보정 모드에서는 중력으로 예측하고 밀도 제약 한 가지로 압축을 푼다.
+        foreach (var p in activeParticles)
+        {
+            p.Integrate(dt);
+            constrainParticle?.Invoke(p);
+        }
+        CorrectDensity();
+
+        foreach (var p in activeParticles)
+        {
+            // 공중의 겹침 정리를 발사 속도로 바꾸지 않는다. 중력/방출 속도는 계속 유지한다.
+            // 잔 안에서는 보정된 이동량을 속도에 반영해 압력에 따른 옆 흐름을 유지한다.
+            if (p.insideContainer) p.UpdateVelocityFromPosition(dt);
+        }
+        ApplyFluidViscosity(dt);
+        foreach (var p in activeParticles)
+        {
+            constrainParticle?.Invoke(p);
+            p.transform.position = p.pos;
+        }
+    }
+
+    void ApplyFluidViscosity(float dt)
+    {
+        // 매 스텝 속도를 크게 깎으면 액체가 모래처럼 경사진 상태로 멈춘다.
+        // 이웃 수로 정규화하고 초당 감쇠율로 적용해 수평 이동을 과하게 죽이지 않는다.
+        float rate = Mathf.Max(0f, config.viscosity) * 4f + Mathf.Clamp01(config.velocitySmoothing) * 8f;
+        float blend = Mathf.Min(0.5f, 1f - Mathf.Exp(-rate * dt));
+        if (blend <= 0f) return;
+        foreach (var p in activeParticles) p.smoothedVelocity = p.velocity;
+        foreach (var p in activeParticles)
+        {
+            foreach (var neighbour in p.neighbours)
+            {
+                var n = neighbour.particle;
+                if (p.solverIndex >= n.solverIndex) continue;
+                float weight = neighbour.weight / Mathf.Max(1f, Mathf.Max(p.neighbourWeight, n.neighbourWeight));
+                Vector2 exchange = (n.velocity - p.velocity) * (blend * weight);
+                p.smoothedVelocity += exchange;
+                n.smoothedVelocity -= exchange;
+            }
+        }
+        foreach (var p in activeParticles) p.velocity = p.smoothedVelocity;
+    }
+
     public void Tick(float dt)
     {
+        LastDensityIterations = 0;
+        if (dt <= 0f || activeParticles.Count == 0) return;
         foreach (var p in activeParticles)
             p.ResetForFrame();
+
+        if (config.densityIterations > 0)
+        {
+            TickPositionBased(dt);
+            return;
+        }
 
         AssignToGrid();
         CalculateDensity();
@@ -89,7 +149,97 @@ public class SphSimulation
         SmoothVelocities();
 
         foreach (var p in activeParticles)
+        {
             p.Integrate(dt);
+            constrainParticle?.Invoke(p);
+        }
+
+        CorrectDensity();
+
+        foreach (var p in activeParticles)
+        {
+            p.UpdateVelocityFromPosition(dt);
+            // 보정된 위치로 속도를 다시 구한 뒤에도 벽을 향하는 속도 성분은 제거한다.
+            constrainParticle?.Invoke(p);
+            p.transform.position = p.pos;
+        }
+    }
+
+    void CorrectDensity()
+    {
+        float radius = Mathf.Max(config.NeighborRadius, 0.0001f);
+        float targetDensity = Mathf.Max(restDensity, 2.0001f); // 자기 자신만의 밀도 기여는 2다.
+        float tolerance = Mathf.Clamp(config.densityTolerance, 0f, 0.2f);
+        float regularizer = 0.0001f / Mathf.Max(config.spacing * config.spacing, 0.000001f);
+        float maxCorrection = config.spacing * 0.2f;
+        int iterations = Mathf.Clamp(config.densityIterations, 0, 8);
+        float gradientScale = -4f / (radius * targetDensity);
+
+        for (int iteration = 0; iteration < iterations; iteration++)
+        {
+            AssignToGrid();
+            CalculateDensity();
+            float maxError = 0f;
+            foreach (var p in activeParticles)
+            {
+                float error = Mathf.Max(0f, p.density / targetDensity - 1f - tolerance);
+                maxError = Mathf.Max(maxError, error);
+                if (error <= 0f)
+                {
+                    p.densityLambda = 0f;
+                    continue;
+                }
+                float gradientX = 0f;
+                float gradientY = 0f;
+                float gradientSquares = 0f;
+                for (int i = 0; i < p.neighbours.Count; i++)
+                {
+                    var neighbour = p.neighbours[i];
+                    float scale = gradientScale * neighbour.weight;
+                    float x = neighbour.direction.x * scale;
+                    float y = neighbour.direction.y * scale;
+                    gradientX += x;
+                    gradientY += y;
+                    gradientSquares += x * x + y * y;
+                }
+                p.densityLambda = -error / (gradientSquares + gradientX * gradientX + gradientY * gradientY + regularizer);
+            }
+            if (maxError <= 0f) break;
+
+            // Jacobi 보정: 모두 계산한 다음 함께 적용해 입자 순서에 따른 편향을 막는다.
+            foreach (var p in activeParticles)
+            {
+                float x = 0f;
+                float y = 0f;
+                for (int i = 0; i < p.neighbours.Count; i++)
+                {
+                    var neighbour = p.neighbours[i];
+                    float scale = (p.densityLambda + neighbour.particle.densityLambda) * gradientScale * neighbour.weight;
+                    x += neighbour.direction.x * scale;
+                    y += neighbour.direction.y * scale;
+                }
+                p.densityCorrection = Vector2.ClampMagnitude(new Vector2(x, y), maxCorrection);
+            }
+            foreach (var p in activeParticles)
+            {
+                p.pos += p.densityCorrection;
+                constrainParticle?.Invoke(p);
+            }
+            LastDensityIterations++;
+        }
+    }
+
+    static Vector2 SeparationDirection(SphParticle p, SphParticle n, float distance)
+    {
+        if (distance > 0.000001f) return (p.pos - n.pos) / distance;
+
+        // 완전히 같은 위치도 분리한다. 두 입자에 반대 방향을 써 전체를 한쪽으로 밀지 않는다.
+        int low = Mathf.Min(p.solverIndex, n.solverIndex);
+        int high = Mathf.Max(p.solverIndex, n.solverIndex);
+        uint hash = unchecked((uint)(low * 73856093 ^ high * 19349663));
+        float angle = (hash & 1023) * (2f * Mathf.PI / 1024f);
+        Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        return p.solverIndex < n.solverIndex ? direction : -direction;
     }
 
     /// <summary>
@@ -103,23 +253,15 @@ public class SphSimulation
         float k = config.velocitySmoothing;
         if (k <= 0f) return;
 
-        float r = config.NeighborRadius;
-
         foreach (var p in activeParticles)
         {
             Vector2 weightedSum = Vector2.zero;
             float weightTotal = 0f;
 
-            foreach (var n in p.neighbours)
+            foreach (var neighbour in p.neighbours)
             {
-                if (n == p) continue;
-
-                float distance = Vector2.Distance(p.pos, n.pos);
-                if (distance >= r) continue;
-
-                float weight = 1f - distance / r;
-                weightedSum += n.velocity * weight;
-                weightTotal += weight;
+                weightedSum += neighbour.particle.velocity * neighbour.weight;
+                weightTotal += neighbour.weight;
             }
 
             p.smoothedVelocity = weightTotal > 0f
@@ -133,45 +275,72 @@ public class SphSimulation
 
     void AssignToGrid()
     {
-        for (int x = 0; x < gridSizeX; x++)
-            for (int y = 0; y < gridSizeY; y++)
-                grid[x, y].Clear();
-
-        Vector2 size = gridMax - gridMin;
-
-        foreach (var p in activeParticles)
+        foreach (int index in occupiedCells)
         {
-            p.gridX = Mathf.Clamp(Mathf.FloorToInt((p.pos.x - gridMin.x) / size.x * gridSizeX), 0, gridSizeX - 1);
-            p.gridY = Mathf.Clamp(Mathf.FloorToInt((p.pos.y - gridMin.y) / size.y * gridSizeY), 0, gridSizeY - 1);
+            var cell = grid[index];
+            cell.Clear();
+            emptyCells.Push(cell);
+            grid[index] = null;
+        }
+        occupiedCells.Clear();
+        float inverseCellSize = 1f / cellSize;
 
-            grid[p.gridX, p.gridY].Add(p);
+        for (int i = 0; i < activeParticles.Count; i++)
+        {
+            var p = activeParticles[i];
+            p.solverIndex = i;
+            p.gridX = Mathf.Clamp(Mathf.FloorToInt((p.pos.x - gridMin.x) * inverseCellSize), 0, gridSizeX - 1);
+            p.gridY = Mathf.Clamp(Mathf.FloorToInt((p.pos.y - gridMin.y) * inverseCellSize), 0, gridSizeY - 1);
+            int index = p.gridY * gridSizeX + p.gridX;
+            var cell = grid[index];
+            if (cell == null)
+            {
+                cell = emptyCells.Count > 0 ? emptyCells.Pop() : new List<SphParticle>(8);
+                grid[index] = cell;
+                occupiedCells.Add(index);
+            }
+            cell.Add(p);
         }
     }
 
     void CalculateDensity()
     {
         float r = config.NeighborRadius;
+        float radiusSquared = r * r;
+        int searchRadius = Mathf.Max(1, Mathf.CeilToInt(r / cellSize));
 
         foreach (var p in activeParticles)
         {
-            for (int gx = p.gridX - 1; gx <= p.gridX + 1; gx++)
+            p.density = 2f;
+            p.densityNear = 2f;
+            p.neighbourWeight = 0f;
+            p.neighbours.Clear();
+            int minX = Mathf.Max(0, p.gridX - searchRadius);
+            int maxX = Mathf.Min(gridSizeX - 1, p.gridX + searchRadius);
+            int minY = Mathf.Max(0, p.gridY - searchRadius);
+            int maxY = Mathf.Min(gridSizeY - 1, p.gridY + searchRadius);
+            for (int gy = minY; gy <= maxY; gy++)
             {
-                for (int gy = p.gridY - 1; gy <= p.gridY + 1; gy++)
+                int row = gy * gridSizeX;
+                for (int gx = minX; gx <= maxX; gx++)
                 {
-                    if (gx < 0 || gx >= gridSizeX || gy < 0 || gy >= gridSizeY) continue;
-
-                    foreach (var n in grid[gx, gy])
+                    var cell = grid[row + gx];
+                    if (cell == null) continue;
+                    foreach (var n in cell)
                     {
-                        float dist = Vector2.Distance(p.pos, n.pos);
-                        if (dist >= r) continue;
+                        if (ReferenceEquals(n, p)) continue;
+                        float dx = p.pos.x - n.pos.x;
+                        float dy = p.pos.y - n.pos.y;
+                        float distanceSquared = dx * dx + dy * dy;
+                        if (distanceSquared >= radiusSquared) continue;
+                        float dist = Mathf.Sqrt(distanceSquared);
 
                         float normalDistance = 1f - dist / r;
-                        p.density += normalDistance * normalDistance;
-                        p.densityNear += normalDistance * normalDistance * normalDistance;
-                        n.density += normalDistance * normalDistance;
-                        n.densityNear += normalDistance * normalDistance * normalDistance;
+                        p.density += 2f * normalDistance * normalDistance;
+                        p.densityNear += 2f * normalDistance * normalDistance * normalDistance;
+                        p.neighbourWeight += normalDistance;
 
-                        p.neighbours.Add(n);
+                        p.neighbours.Add(new SphNeighbour(n, normalDistance, SeparationDirection(p, n, dist)));
                     }
                 }
             }
@@ -180,24 +349,19 @@ public class SphSimulation
 
     void ApplyPressureForce()
     {
-        float r = config.NeighborRadius;
-
         foreach (var p in activeParticles)
         {
             Vector2 pressureForce = Vector2.zero;
 
-            foreach (var n in p.neighbours)
+            foreach (var neighbour in p.neighbours)
             {
-                Vector2 toNeighbour = n.pos - p.pos;
-                float distance = toNeighbour.magnitude;
-                if (distance <= 0.0001f) continue;
-
-                float normalDistance = 1f - distance / r;
+                SphParticle n = neighbour.particle;
+                float normalDistance = neighbour.weight;
                 float totalPressure =
                     (p.pressure + n.pressure) * normalDistance * normalDistance +
                     (p.pressureNear + n.pressureNear) * normalDistance * normalDistance * normalDistance;
 
-                Vector2 pressureVector = totalPressure * (toNeighbour / distance);
+                Vector2 pressureVector = -totalPressure * neighbour.direction;
                 n.force += pressureVector;
                 pressureForce += pressureVector;
             }
@@ -208,24 +372,19 @@ public class SphSimulation
 
     void ApplyViscosity()
     {
-        float r = config.NeighborRadius;
         float sigma = config.viscosity;
 
         foreach (var p in activeParticles)
         {
-            foreach (var n in p.neighbours)
+            foreach (var neighbour in p.neighbours)
             {
-                Vector2 toNeighbour = n.pos - p.pos;
-                float distance = toNeighbour.magnitude;
-                if (distance <= 0.0001f) continue;
-
-                Vector2 normalDir = toNeighbour / distance;
-                float relativeDistance = distance / r;
+                SphParticle n = neighbour.particle;
+                Vector2 normalDir = -neighbour.direction;
                 float velocityDifference = Vector2.Dot(p.velocity - n.velocity, normalDir);
 
                 if (velocityDifference > 0f)
                 {
-                    Vector2 viscosityForce = (1f - relativeDistance) * velocityDifference * sigma * normalDir;
+                    Vector2 viscosityForce = neighbour.weight * velocityDifference * sigma * normalDir;
                     p.velocity -= viscosityForce * 0.5f;
                     n.velocity += viscosityForce * 0.5f;
                 }

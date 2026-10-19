@@ -7,8 +7,9 @@ public sealed class OrderDetails
     public string ReceiverId { get; }
     public string CocktailId { get; }
     public float TipMultiplier { get; }
+    public bool Paid { get; }
 
-    public OrderDetails(string id, string receiverId, string cocktailId, float tipMultiplier = 1f)
+    public OrderDetails(string id, string receiverId, string cocktailId, float tipMultiplier = 1f, bool paid = true)
     {
         if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(receiverId) ||
             string.IsNullOrWhiteSpace(cocktailId))
@@ -17,6 +18,7 @@ public sealed class OrderDetails
         ReceiverId = receiverId;
         CocktailId = cocktailId;
         TipMultiplier = tipMultiplier;
+        Paid = paid;
     }
 }
 

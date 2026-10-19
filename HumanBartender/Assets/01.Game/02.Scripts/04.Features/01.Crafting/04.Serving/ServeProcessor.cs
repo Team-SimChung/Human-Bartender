@@ -30,7 +30,7 @@ public sealed class ServeProcessor : IServeProcessor
         bool matches = ServeJudge.IsOrderMatch(drink, order.CocktailId);
         var grade = ServeJudge.ResolveFinalGrade(drink, order.CocktailId, data.Config);
         var settlement = OrderSettlement.Calculate(order.Id + "_settle", order.Id + "_serve",
-            grade, cocktail.Price, order.TipMultiplier, data);
+            grade, order.Paid ? cocktail.Price : 0, order.Paid ? order.TipMultiplier : 0, data);
         if (settlement == null) throw new InvalidOperationException("정산 계산에 실패했습니다.");
         return new ServeResult(order, drink, grade.Value, matches, settlement);
     }

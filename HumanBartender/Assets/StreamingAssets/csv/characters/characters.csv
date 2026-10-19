@@ -1,22 +1,32 @@
 ﻿id,name.ko,name.en,name_color,role,affinity,alive_flag,base_body,enter_sfx,exit_sfx,dataset_id,row_id,parent_id,parent_field,source_order,template_id
-luna,루나,Luna,#5e9fe1,player,false,\N,luna_body,\N,\N,characters,characters_luna,@characters,\N,0,characters_format_01
-chris,크리스,Chris,#8b5e2f,master,true,\N,chris_body,SFX_chris_enter,SFX_chris_exit,characters,characters_chris,@characters,\N,1,characters_format_02
-aili,아일리,Aili,#fcfe57,guest,true,\N,aili_body,SFX_guest_door_in,SFX_guest_door_out,characters,characters_aili,@characters,\N,2,characters_format_02
-port,포트,Port,#3c3cca,guest,true,\N,port_body,SFX_port_enter,SFX_port_exit,characters,characters_port,@characters,\N,3,characters_format_02
-tom,톰 거너,Tom Gunner,#7a4a2b,guest,true,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,characters_tom,@characters,\N,4,characters_format_03
-samho,삼호,Samho,#ea3a3a,guest,true,samho,samho_body,SFX_guest_door_in,SFX_guest_door_out,characters,characters_samho,@characters,\N,5,characters_format_04
-bubi,부비,Bubi,#fdd48e,guest,true,\N,bubi_body,SFX_cat_meow,SFX_guest_door_out,characters,characters_bubi,@characters,\N,6,characters_format_02
-haru,송하루,Song Haru,#9fd08f,guest,true,haru,\N,SFX_guest_door_in,SFX_guest_door_out,characters,characters_haru,@characters,\N,7,characters_format_05
-sunha,유선하,Yu Sunha,#c58bd6,guest,true,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,characters_sunha,@characters,\N,8,characters_format_03
-hina,히나,Hina,#f2a0b5,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,characters_hina,@characters,\N,9,characters_format_03
-shiba,시바,Shiba,#d9c58a,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,characters_shiba,@characters,\N,10,characters_format_03
-rios,리오스,Rios,#b03060,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,characters_rios,@characters,\N,11,characters_format_03
-volts,볼츠,Volts,#708090,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,characters_volts,@characters,\N,12,characters_format_03
-yuna,유나,Yuna,#a8d8ff,cutscene,false,\N,\N,\N,\N,characters,characters_yuna,@characters,\N,13,characters_format_06
-soldier,경비병,Guard,#888888,cutscene,false,\N,\N,\N,\N,characters,characters_soldier,@characters,\N,14,characters_format_06
-radio,아나운서,Announcer,#9ad0a0,npc_street,false,\N,\N,\N,\N,characters,characters_radio,@characters,\N,15,characters_format_06
-hound,하운드,Hound,#888888,cutscene,false,\N,\N,\N,\N,characters,characters_hound,@characters,\N,16,characters_format_06
-street_citizen_a,행인 A,Passerby A,#b9c4d0,npc_street,false,\N,\N,\N,\N,characters,characters_street_citizen_a,@characters,\N,17,characters_format_06
-street_citizen_b,행인 B,Passerby B,#c7b8a8,npc_street,false,\N,\N,\N,\N,characters,characters_street_citizen_b,@characters,\N,18,characters_format_06
-street_citizen_c,행인 C,Passerby C,#aeb9a8,npc_street,false,\N,\N,\N,\N,characters,characters_street_citizen_c,@characters,\N,19,characters_format_06
-street_citizen_d,행인 D,Passerby D,#b5a9c8,npc_street,false,\N,\N,\N,\N,characters,characters_street_citizen_d,@characters,\N,20,characters_format_06
+luna,루나,Luna,#5e9fe1,player,false,\N,luna_body,\N,\N,characters,migration_characters_0,@characters,\N,0,migration_characters_b0c1c29383
+chris,크리스,Chris,#8b5e2f,master,true,\N,chris_body,SFX_chris_enter,SFX_chris_exit,characters,migration_characters_1,@characters,\N,1,migration_characters_e23667edc4
+aili,아일리,Aili,#fcfe57,guest,true,\N,aili_body,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_2,@characters,\N,2,migration_characters_e23667edc4
+port,포트,Port,#3c3cca,guest,true,\N,port_body,SFX_port_enter,SFX_port_exit,characters,migration_characters_3,@characters,\N,3,migration_characters_e23667edc4
+tom,톰 거너,Tom Gunner,#7a4a2b,guest,true,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_4,@characters,\N,4,migration_characters_3728b3a5fa
+samho,삼호,Samho,#ea3a3a,guest,true,samho,samho_body,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_5,@characters,\N,5,migration_characters_28222ae912
+bubi,부비,Bubi,#fdd48e,guest,true,\N,bubi_body,SFX_cat_meow,SFX_guest_door_out,characters,migration_characters_6,@characters,\N,6,migration_characters_e23667edc4
+haru,송하루,Song Haru,#9fd08f,guest,true,haru,\N,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_7,@characters,\N,7,migration_characters_ba0ce2e084
+sunha,유선하,Yu Sunha,#c58bd6,guest,true,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_8,@characters,\N,8,migration_characters_3728b3a5fa
+hina,히나,Hina,#f2a0b5,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_9,@characters,\N,9,migration_characters_3728b3a5fa
+shiba,시바,Shiba,#d9c58a,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_10,@characters,\N,10,migration_characters_3728b3a5fa
+rios,리오스,Rios,#b03060,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_11,@characters,\N,11,migration_characters_3728b3a5fa
+volts,볼츠,Volts,#708090,guest,false,\N,\N,SFX_guest_door_in,SFX_guest_door_out,characters,migration_characters_12,@characters,\N,12,migration_characters_3728b3a5fa
+yuna,유나,Yuna,#a8d8ff,cutscene,false,\N,\N,\N,\N,characters,migration_characters_13,@characters,\N,13,migration_characters_ee018be645
+soldier,경비병,Guard,#888888,cutscene,false,\N,\N,\N,\N,characters,migration_characters_14,@characters,\N,14,migration_characters_ee018be645
+radio,아나운서,Announcer,#9ad0a0,npc_street,false,\N,\N,\N,\N,characters,migration_characters_15,@characters,\N,15,migration_characters_ee018be645
+hound,하운드,Hound,#888888,cutscene,false,\N,\N,\N,\N,characters,migration_characters_16,@characters,\N,16,migration_characters_ee018be645
+street_citizen_a,행인 A,Passerby A,#b9c4d0,npc_street,false,\N,\N,\N,\N,characters,migration_characters_17,@characters,\N,17,migration_characters_ee018be645
+street_citizen_b,행인 B,Passerby B,#c7b8a8,npc_street,false,\N,\N,\N,\N,characters,migration_characters_18,@characters,\N,18,migration_characters_ee018be645
+street_citizen_c,행인 C,Passerby C,#aeb9a8,npc_street,false,\N,\N,\N,\N,characters,migration_characters_19,@characters,\N,19,migration_characters_ee018be645
+street_citizen_d,행인 D,Passerby D,#b5a9c8,npc_street,false,\N,\N,\N,\N,characters,migration_characters_20,@characters,\N,20,migration_characters_ee018be645
+message,의뢰 연락 메시지,의뢰 연락 메시지,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_21,@characters,\N,21,migration_characters_ee018be645
+johnny,조니,조니,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_22,@characters,\N,22,migration_characters_ee018be645
+bd-vendor,BD 칩 판매상,BD 칩 판매상,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_23,@characters,\N,23,migration_characters_ee018be645
+day1-corridor-thug,불량배,불량배,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_24,@characters,\N,24,migration_characters_ee018be645
+day2-corridor-thug,불량배,불량배,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_25,@characters,\N,25,migration_characters_ee018be645
+day2-thug-information,불량배,불량배,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_26,@characters,\N,26,migration_characters_ee018be645
+trade-smuggler,밀수업자,밀수업자,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_27,@characters,\N,27,migration_characters_ee018be645
+trade-samho,삼호,삼호,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_28,@characters,\N,28,migration_characters_ee018be645
+contract-smuggler,밀수업자,밀수업자,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_29,@characters,\N,29,migration_characters_ee018be645
+contract-samho,삼호,삼호,#5e9fe1,npc_street,false,\N,\N,\N,\N,characters,migration_characters_30,@characters,\N,30,migration_characters_ee018be645

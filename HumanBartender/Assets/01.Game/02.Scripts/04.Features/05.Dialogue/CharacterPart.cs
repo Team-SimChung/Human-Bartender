@@ -41,6 +41,7 @@ public abstract class AnimationPart
     [SerializeField] public string partCurAnim;
     [SerializeField] protected Animator animator;
     [SerializeField] protected SpriteRenderer spriteRenderer;
+    public SpriteRenderer Renderer => spriteRenderer;
 
     [SerializeField] protected RuntimeAnimatorController baseController;
 
@@ -222,14 +223,17 @@ public class CharacterPart : AnimationPart, IFade
     /// <summary>알파값 0에서 1(불투명)로 서서히 전환한다.</summary>
     public async UniTask FadeIn(CancellationToken token)
     {
-        spriteRenderer.color = new Color(0, 0, 0, 1);
-        await spriteRenderer.DOColor(Color.white, 1f).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
+        var tint = spriteRenderer.color;
+        tint.a = 0;
+        spriteRenderer.color = tint;
+        await spriteRenderer.DOFade(1, CharacterFade.Duration).SetUpdate(true)
+            .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
     }
     /// <summary>알파값 1에서 0(투명)으로 서서히 전환한다.</summary>
     public async UniTask FadeOut(CancellationToken token)
     {
-        spriteRenderer.color = new Color(1, 1, 1, 1);
-        await spriteRenderer.DOColor(new Color(0, 0, 0, 0), 1f).ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
+        await spriteRenderer.DOFade(0, CharacterFade.Duration).SetUpdate(true)
+            .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
     }
 
 

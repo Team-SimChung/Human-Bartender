@@ -2,6 +2,8 @@ using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading;
+using System.Collections.Generic;
 
 /// <summary>서빙 위치와 트레이 표시를 담당한다.</summary>
 public class CraftServingView : MonoBehaviour
@@ -17,8 +19,12 @@ public class CraftServingView : MonoBehaviour
     [SerializeField] private Canvas serveCanvas;
     [SerializeField] private StoryServeDropTarget serveZonePrefab;
 
-    [Tooltip("좌석 월드 좌표에서 서빙 자리까지의 어긋남. 인물의 손 앞에 오도록 맞춘다.")]
+    [Tooltip("좌석 월드 좌표에서 서빙 자리까지의 어긋남. 좌석의 좌우·깊이 위치를 조정하며 높이는 책상 앵커를 사용한다.")]
     [SerializeField] private Vector3 serveZoneWorldOffset = new(0f, -0.6f, 0f);
+
+    [Tooltip("책상 표면의 서빙 높이. 인물 리그의 중심 높이와 별도로 배치한다.")]
+    [SerializeField] private Transform tabletopAnchor;
+    [SerializeField] private float tabletopWorldY = -1.5f;
 
     [Tooltip("서빙 자리를 눈에 보이게 할지. 코스터 그림이 붙기 전까지 자리를 확인하는 용도다.")]
     [SerializeField] private bool showServeZoneGuide = true;
@@ -27,14 +33,87 @@ public class CraftServingView : MonoBehaviour
     [SerializeField] private CraftFlowController craftFlow;
     int openPresentations;
     bool closeWhenIdle;
+    CoasterLesson coasterLesson;
+    readonly List<(GameObject zone, string actor)> trackedZones = new();
+
+    public RectTransform CoasterTarget => coasterLesson?.TargetRect;
+    public RectTransform CoasterSupply
+    {
+        get
+        {
+            if (serveCanvas == null) return null;
+            foreach (var item in serveCanvas.GetComponentsInChildren<CoasterDragItem>(true))
+                if (!item.IsPlaced) return item.TrayRect;
+            return null;
+        }
+    }
 
     public IOrderPresentation CreatePresentation(OrderDetails order) => new Presentation(this, order);
+
+    public CoasterLesson CreateCoasterLesson(string actor)
+    {
+        coasterLesson?.Dispose();
+        return coasterLesson = new(this, actor);
+    }
+
+    public sealed class CoasterLesson : IDisposable
+    {
+        readonly CraftServingView owner;
+        readonly string actor;
+        readonly UniTaskCompletionSource placed = new();
+        StoryCoasterDropTarget target;
+        public RectTransform TargetRect => target != null ? (RectTransform)target.transform : null;
+
+        public CoasterLesson(CraftServingView owner, string actor)
+        {
+            this.owner = owner;
+            this.actor = actor;
+            var zone = owner.BuildServeZone(new OrderDetails("tutorial-coaster", actor, "gin_tonic"));
+            zone.name = "Story Coaster Lesson (" + actor + ")";
+            zone.GetComponent<StoryServeDropTarget>().enabled = false;
+            target = zone.AddComponent<StoryCoasterDropTarget>();
+            owner.openPresentations++;
+            owner.OpenServeUi();
+            // Activating an initially hidden serve canvas runs StoryServeDropTarget.Awake,
+            // which disables its graphic. Bind the coaster input after that initialization.
+            target.Bind(() => placed.TrySetResult());
+        }
+
+        public UniTask WaitAsync(CancellationToken token) => placed.Task.AttachExternalCancellation(token);
+
+        internal bool TransferToOrder(string receiver, out GameObject zone, out CoasterDragItem coaster)
+        {
+            zone = null;
+            coaster = null;
+            if (target == null || receiver != actor || target.PlacedCoaster == null) return false;
+            zone = target.gameObject;
+            coaster = target.PlacedCoaster;
+            Destroy(target);
+            target = null;
+            owner.coasterLesson = null;
+            owner.openPresentations--;
+            zone.GetComponent<StoryServeDropTarget>().enabled = true;
+            return true;
+        }
+
+        public void Dispose()
+        {
+            if (target == null) return;
+            if (target.PlacedCoaster != null) target.PlacedCoaster.ReturnToTray();
+            Destroy(target.gameObject);
+            target = null;
+            if (owner.coasterLesson == this) owner.coasterLesson = null;
+            owner.openPresentations--;
+            if (owner.openPresentations == 0) owner.CloseUi();
+        }
+    }
 
     sealed class Presentation : IOrderPresentation
     {
         readonly CraftServingView owner;
         readonly OrderDetails order;
         GameObject zone;
+        CoasterDragItem coaster;
         bool opened;
 
         public Presentation(CraftServingView owner, OrderDetails order)
@@ -45,7 +124,9 @@ public class CraftServingView : MonoBehaviour
 
         public void Open(Func<CraftedDrink, bool> receive)
         {
-            zone = owner.BuildServeZone(order);
+            if (owner.coasterLesson == null ||
+                !owner.coasterLesson.TransferToOrder(order.ReceiverId, out zone, out coaster))
+                zone = owner.BuildServeZone(order);
             zone.GetComponent<StoryServeDropTarget>().Bind(receive);
             owner.openPresentations++;
             opened = true;
@@ -55,6 +136,7 @@ public class CraftServingView : MonoBehaviour
         public void Unbind()
         {
             if (zone == null) return;
+            if (coaster != null) { coaster.ReturnToTray(); coaster = null; }
             zone.GetComponent<StoryServeDropTarget>().Bind(null);
             Destroy(zone);
             zone = null;
@@ -79,6 +161,19 @@ public class CraftServingView : MonoBehaviour
     {
         if (closeWhenIdle && openPresentations == 0 && (craftFlow == null || !craftFlow.IsBusy))
             CloseUi();
+    }
+
+    void OnEnable() => Canvas.willRenderCanvases += UpdateServePositions;
+    void OnDisable() => Canvas.willRenderCanvases -= UpdateServePositions;
+
+    void UpdateServePositions()
+    {
+        for (int i = trackedZones.Count - 1; i >= 0; i--)
+        {
+            var tracked = trackedZones[i];
+            if (tracked.zone == null) { trackedZones.RemoveAt(i); continue; }
+            ((RectTransform)tracked.zone.transform).anchoredPosition = ResolveSeatCanvasPoint(tracked.actor);
+        }
     }
 
     private void OpenServeUi()
@@ -112,6 +207,7 @@ public class CraftServingView : MonoBehaviour
         go.name = $"Story Serve Zone ({order.ReceiverId})";
         RectTransform rect = (RectTransform)zone.transform;
         rect.anchoredPosition = ResolveSeatCanvasPoint(order.ReceiverId);
+        trackedZones.Add((go, order.ReceiverId));
 
         Image image = go.GetComponent<Image>();
         if (image != null && !showServeZoneGuide)
@@ -125,6 +221,7 @@ public class CraftServingView : MonoBehaviour
     Vector2 ResolveSeatCanvasPoint(string actorId)
     {
         Vector3 world = characterManager.GetCharacterPosition(actorId) + serveZoneWorldOffset;
+        world.y = tabletopAnchor != null ? tabletopAnchor.position.y : tabletopWorldY;
 
         Camera camera = Camera.main;
         if (camera == null) return Vector2.zero;
@@ -132,7 +229,8 @@ public class CraftServingView : MonoBehaviour
         Vector2 screenPoint = camera.WorldToScreenPoint(world);
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            (RectTransform)serveCanvas.transform, screenPoint, null, out Vector2 localPoint);
+            (RectTransform)serveCanvas.transform, screenPoint,
+            serveCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : serveCanvas.worldCamera, out Vector2 localPoint);
 
         return localPoint;
     }

@@ -52,7 +52,7 @@ public class UIDialogueTextView : MonoBehaviour
 {
     [Header("Data")]
     [SerializeField] NewTextTagDataSO textTagData;
-    [Inject] ISoundManager soundManager;
+    [Inject] ISoundEffectPlayer soundManager;
 
     [Header("UI Components")]
     public DynamicSpeechBubble lunaSpeechBubble;
@@ -92,6 +92,9 @@ public class UIDialogueTextView : MonoBehaviour
     {
         token.ThrowIfCancellationRequested();
         if (data == null) throw new ArgumentNullException(nameof(data));
+
+        // Only the current line is visible, including when its speaker changes.
+        ClearText();
 
         var type = data.bubbleType;
 
@@ -164,10 +167,31 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>화면 클릭 시 타이핑을 중단(스킵)한다.</summary>
     public void OnScreenClick()
     {
-        currentPlayer?.Skip();
+        if (currentPlayer == null || currentPlayer.CurrentSessionId == 0 || currentPlayer.IsHolding) return;
+        PlayAdvanceFeedback();
+        currentPlayer.Skip();
+    }
+
+    public void PlayAdvanceFeedback()
+    {
+        string key = DialoguePresentationSettings.Shared?.AdvanceSoundKey;
+        if (!string.IsNullOrWhiteSpace(key)) soundManager?.PlaySE(key);
     }
 
     void OnDisable() => StopTyping();
+
+    public void SetWaitingForInput(bool waiting)
+    {
+        SetBubbleWaiting(lunaSpeechBubble, waiting && targetBubble == lunaSpeechBubble);
+        SetBubbleWaiting(customerSpeechBubble, waiting && targetBubble == customerSpeechBubble);
+        SetBubbleWaiting(narrationSpeechBubble, waiting && targetBubble == narrationSpeechBubble);
+    }
+
+    private static void SetBubbleWaiting(DynamicSpeechBubble bubble, bool waiting)
+    {
+        if (bubble != null && bubble.TryGetComponent<DialogueInputPrompt>(out var prompt))
+            prompt.SetWaiting(waiting && bubble.gameObject.activeInHierarchy);
+    }
 
     /// <summary>타이핑 완료 후 현재 타이핑 데이터 참조를 정리한다.</summary>
     public void CompleteTyping()
@@ -178,6 +202,7 @@ public class UIDialogueTextView : MonoBehaviour
     /// <summary>진행 중인 타이핑 코루틴을 취소한다.</summary>
     public void StopTyping()
     {
+        SetWaitingForInput(false);
         var player = currentPlayer;
         currentPlayer = null;
         if (player == null) return;

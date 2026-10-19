@@ -13,7 +13,7 @@ using UnityEngine;
 /// </summary>
 public static class FixKoreanFontSetup
 {
-    const string FontAssetPath = "Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset";
+    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset";
 
     [MenuItem("Tools/Tycoon/Fix Korean Font On Scene Text")]
     public static void Run()

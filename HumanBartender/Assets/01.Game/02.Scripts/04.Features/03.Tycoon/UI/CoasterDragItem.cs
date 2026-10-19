@@ -28,10 +28,14 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     Vector2 trayAnchorMax;
     Vector2 trayPivot;
 
+    public bool IsPlaced => isPlaced;
+    public RectTransform TrayRect => trayParent as RectTransform;
+
     void Awake()
     {
         rect = (RectTransform)transform;
         canvasGroup = GetComponent<CanvasGroup>();
+        if (rootCanvas == null) rootCanvas = GetComponentInParent<Canvas>()?.rootCanvas;
 
         trayParent = rect.parent;
         trayAnchoredPosition = rect.anchoredPosition;

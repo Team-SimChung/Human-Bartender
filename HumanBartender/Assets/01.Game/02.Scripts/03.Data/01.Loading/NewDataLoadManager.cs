@@ -93,6 +93,16 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
     /// </summary>
     static readonly Dictionary<int, NewDayScriptBase> _barScriptCache = new();
     static NewDayInfoData[] loadedDays;
+    public static NewStreetData StreetStory { get; private set; }
+    public static NewStreetData HomeStory { get; private set; }
+    public static NewCharacterData[] StoryCharacters { get; private set; }
+    public static NewCocktailData[] StoryCocktails { get; private set; }
+    static IConditionUtil storyConditions;
+    [Inject] IConditionUtil conditionUtil;
+
+    public static bool HasJohnnyIngredients => storyConditions == null || storyConditions.CheckRequired("flag.shiba_bought_wild_dog && flag.shiba_bought_bitters && flag.campaign_observation");
+
+    public static void MarkBarCompleted(int day) => storyConditions?.ApplyRequired($"flag.day{day}_bar_completed = true");
 
     public static bool TryGetDayInfo(int day, out NewDayInfoData info)
     {
@@ -132,6 +142,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         LoadVersion = 0;
         _barScriptCache.Clear();
         loadedDays = null;
+        StreetStory = default; HomeStory = default; StoryCocktails = null; StoryCharacters = null; storyConditions = null;
     }
 
     /// <summary>
@@ -191,6 +202,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         try
         {
         var catalog = await CsvDataReader.LoadAsync(token);
+        var homeStory = catalog.Read<NewStreetData>("script/home");
         foreach (var day in barDayNumbers)
         {
             NewDayScriptBase bar = await LoadOptionalAsync(catalog, BarScriptFileName(day), token);
@@ -254,6 +266,8 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         token.ThrowIfCancellationRequested();
         foreach (var publish in pending) publish();
         loadedDays = dayInfoData.dayInfoData;
+        HomeStory = homeStory; StreetStory = streetData.newStreetData;
+        StoryCharacters = characterData.characterData; StoryCocktails = cocktailData.cocktailData; storyConditions = conditionUtil;
         _barScriptCache.Clear();
         foreach (var pair in barScripts) _barScriptCache.Add(pair.Key, pair.Value);
         // Content lookups are rebuilt before a scene can register its runtime anchors.

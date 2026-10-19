@@ -30,6 +30,10 @@ public class ServeTrayUI : MonoBehaviour
 
     private void OnEnable()
     {
+        // 비활성 중에 재시도된 잔은 폐기 알림을 놓쳤으므로 복귀할 때 먼저 치운다.
+        foreach (DrinkDragItem item in items.ToArray())
+            if (item != null && item.Drink?.Session.Phase == ECraftPhase.Discarded)
+                item.MarkDiscarded();
         if (trayRoot != null) trayRoot.gameObject.SetActive(true);
         foreach (DrinkDragItem item in items)
             if (item != null) item.gameObject.SetActive(true);
@@ -41,8 +45,9 @@ public class ServeTrayUI : MonoBehaviour
         }
 
         craftFlow.DrinkReady += AddDrink;
+        craftFlow.DrinkDiscarded += RemoveDiscardedDrink;
         CraftedDrink pending = craftFlow.PendingDrink;
-        if (pending != null && !ContainsDrink(pending)) AddDrink(pending);
+        if (pending != null && !craftFlow.IsAwaitingServeDecision && !ContainsDrink(pending)) AddDrink(pending);
     }
 
     private void OnDisable()
@@ -50,7 +55,11 @@ public class ServeTrayUI : MonoBehaviour
         foreach (DrinkDragItem item in items.ToArray())
             if (item != null) item.gameObject.SetActive(false);
         if (trayRoot != null) trayRoot.gameObject.SetActive(false);
-        if (craftFlow != null) craftFlow.DrinkReady -= AddDrink;
+        if (craftFlow != null)
+        {
+            craftFlow.DrinkReady -= AddDrink;
+            craftFlow.DrinkDiscarded -= RemoveDiscardedDrink;
+        }
     }
 
     private bool ContainsDrink(CraftedDrink drink)
@@ -95,6 +104,12 @@ public class ServeTrayUI : MonoBehaviour
         item.Removed -= OnItemRemoved;
         items.Remove(item);
         craftFlow?.RefreshCraftAvailability();
+    }
+
+    private void RemoveDiscardedDrink(CraftedDrink drink)
+    {
+        foreach (DrinkDragItem item in items.ToArray())
+            if (item != null && ReferenceEquals(item.Drink, drink)) item.MarkDiscarded();
     }
 
     private DrinkDragItem CreateItem()

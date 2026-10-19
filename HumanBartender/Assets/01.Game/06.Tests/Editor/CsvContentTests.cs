@@ -76,11 +76,11 @@ public class CsvContentTests
     }
 
     [Test]
-    public void ProjectCatalogLoadsNestedChoicesRecipesAndEmptyDays()
+    public void ProjectCatalogLoadsNestedChoicesRecipesAndAllStoryDays()
     {
         var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
         Assert.IsNotEmpty(catalog.Read<NewCocktailData[]>("cocktails").First().Recipe);
-        Assert.IsEmpty(catalog.Read<NewDayScriptBase>("script/bar/day2").Scenes);
+        Assert.IsNotEmpty(catalog.Read<NewDayScriptBase>("script/bar/day2").Scenes);
         Assert.IsEmpty(catalog.Read<NewQuestDataBase>("quests").Quests);
         var street = catalog.Read<NewStreetData>("script/street");
         Assert.IsTrue(street.Scenes.SelectMany(s => s.Steps).Any(s => s.Options != null && s.Options.Any(o => o.ResultSteps != null)));

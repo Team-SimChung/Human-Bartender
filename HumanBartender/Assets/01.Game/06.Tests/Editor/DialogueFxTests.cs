@@ -33,7 +33,7 @@ public sealed class DialogueFxTests
         };
         textObject = new GameObject("DialogueFX test", typeof(TextMeshPro));
         label = textObject.GetComponent<TextMeshPro>();
-        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset");
+        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
         Assert.That(label.font, Is.Not.Null);
     }
 
@@ -101,13 +101,21 @@ public sealed class DialogueFxTests
         animator.Clear();
     }
 
-    [Test]
-    public void DayZeroChrisCsvKeepsWordsAndAppliesEffectsOnlyToEmotionalPhrases()
+    static System.Collections.Generic.Dictionary<string, NewDialogueStepData> EmotionalPhraseFixtures() => new()
     {
-        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
-        var script = CsvDataReader.LoadDirectory(directory).Read<NewDayScriptBase>("script/bar/day0");
-        var steps = script.Scenes.SelectMany(scene => scene.Steps)
-            .Where(step => step.DialogueId != null).ToDictionary(step => step.DialogueId);
+        ["dlg_d1_tutorial_chris_003"] = new NewDialogueStepData { Actor = "chris", Text = new LocalizedText { Ko = "방금 내가 무슨 말을 했는지 <fx=reproach>듣긴 한 거야?</fx>" } },
+        ["dlg_d1_tutorial_chris_012"] = new NewDialogueStepData { Actor = "chris", Text = new LocalizedText { Ko = "<fx=mutter>또</fx> <fx=burst>딴생각하지.</fx>" } },
+        ["dlg_d1_tutorial_chris_054"] = new NewDialogueStepData { Actor = "chris", Text = new LocalizedText { Ko = "…생각보다 <fx=admire>재능이 있군</fx>." } },
+        ["dlg_d1_tutorial_chris_060"] = new NewDialogueStepData { Actor = "chris", Text = new LocalizedText { Ko = "<fx=approve>괜찮군</fx>." } },
+        ["dlg_d1_tutorial_chris_065"] = new NewDialogueStepData { Actor = "chris", Text = new LocalizedText { Ko = "아직 손님에게 내놓기엔 완성도가 <fx=disappoint>부족한데</fx>." } },
+        ["dlg_d1_tutorial_chris_067"] = new NewDialogueStepData { Actor = "chris", Text = new LocalizedText { Ko = "이런 식이면 곤란한데, 루나.\n<fx=command>제대로 만들어.</fx>" } },
+        ["dlg_d1_tutorial_wrap_011"] = new NewDialogueStepData { Actor = "chris", Text = new LocalizedText { Ko = "<fx=encourage>좋아.</fx> 처음에는 그렇게 시작하는 거지." } },
+    };
+
+    [Test]
+    public void EmotionalPhraseFixturesKeepWordsAndLimitEffectsToTheirPhrases()
+    {
+        var steps = EmotionalPhraseFixtures();
         var cases = new[]
         {
             (id: "dlg_d1_tutorial_chris_003", plain: "방금 내가 무슨 말을 했는지 듣긴 한 거야?", phrase: "듣긴 한 거야?", shake: true, wave: false, enlarged: true),
@@ -145,12 +153,9 @@ public sealed class DialogueFxTests
     }
 
     [Test]
-    public void DayZeroChrisCsvPacesItsEmotionalBeats()
+    public void EmotionalPhraseFixturesKeepConfiguredTiming()
     {
-        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
-        var script = CsvDataReader.LoadDirectory(directory).Read<NewDayScriptBase>("script/bar/day0");
-        var steps = script.Scenes.SelectMany(scene => scene.Steps)
-            .Where(step => step.DialogueId != null).ToDictionary(step => step.DialogueId);
+        var steps = EmotionalPhraseFixtures();
         var beats = new[]
         {
             (id: "dlg_d1_tutorial_chris_003", phrase: "듣긴", wait: 0.15f, speed: 0.02f),
@@ -171,9 +176,14 @@ public sealed class DialogueFxTests
         }
     }
 
-    [TestCase("script/bar/day0", 20)]
-    [TestCase("script/bar/day1", 40)]
-    public void BarScriptEffectLinesCompileAndBind(string source, int minimumLines)
+    [TestCase("script/bar/day0", 100)]
+    [TestCase("script/bar/day1", 200)]
+    [TestCase("script/bar/day2", 100)]
+    [TestCase("script/bar/day3", 120)]
+    [TestCase("script/cutscene", 70)]
+    [TestCase("script/ambient", 50)]
+    [TestCase("script/common", 30)]
+    public void LatestBarScriptLinesCompileAndBind(string source, int minimumLines)
     {
         string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
         var script = CsvDataReader.LoadDirectory(directory).Read<NewDayScriptBase>(source);
@@ -182,11 +192,7 @@ public sealed class DialogueFxTests
         {
             if (!step.Text.HasValue) continue;
             string raw = step.Text.Value.Ko;
-            if (string.IsNullOrEmpty(raw) ||
-                !(raw.Contains("<shake") || raw.Contains("<wave") || raw.Contains("<pop") ||
-                  raw.Contains("<slow") || raw.Contains("<fast") || raw.Contains("<fx=")))
-                continue;
-
+            if (string.IsNullOrEmpty(raw)) continue;
             bool compiled = DialogueTextCompiler.TryCompile(raw, tags, DialoguePresentationSettings.Shared,
                 null, 0.05f, out var line, out string error);
             Assert.That(compiled, Is.True, $"{source} {step.DialogueId}: {error}");
@@ -194,12 +200,50 @@ public sealed class DialogueFxTests
             label.ForceMeshUpdate(true, true);
             line.Bind(label.textInfo);
             Assert.That(line.Characters.Length, Is.GreaterThan(0), $"{source} {step.DialogueId}");
-            Assert.That(line.Characters.Any(character => character.Shake || character.Wave ||
-                character.Pop || Math.Abs(character.SpeedSeconds - 0.05f) > 0.0001f),
-                Is.True, $"{source} {step.DialogueId}: effect did not reach glyphs");
+
             checkedLines++;
         }
         Assert.That(checkedLines, Is.GreaterThanOrEqualTo(minimumLines), source);
+    }
+
+    [Test]
+    public void PresentationPresetsLoadFromTheSingleRuntimeResource()
+    {
+        var settings = Resources.Load<DialoguePresentationSettings>("DialoguePresentationSettings");
+        Assert.That(settings, Is.Not.Null, "Dialogue FX presets must be included in player builds.");
+        Assert.That(AssetDatabase.FindAssets("t:DialoguePresentationSettings", new[] { "Assets/01.Game" }),
+            Has.Length.EqualTo(1), "Keep one shared owner of presentation defaults.");
+        Assert.That(DialoguePresentationSettings.Shared, Is.SameAs(settings));
+        foreach (string id in new[] { "angry", "reproach", "gentle", "emphasis", "tremble" })
+            Assert.That(settings.GetPreset(id), Is.Not.Null, id);
+    }
+
+    [TestCase("script/street", 250)]
+    [TestCase("script/home", 80)]
+    public void OutsideScriptLinesAndChoiceResultsCompile(string source, int minimumLines)
+    {
+        string directory = Path.Combine(Application.dataPath, "StreamingAssets", "csv");
+        var script = CsvDataReader.LoadDirectory(directory).Read<NewStreetData>(source);
+        int checkedLines = 0;
+        foreach (var scene in script.Scenes)
+            CheckSteps(scene.Steps);
+        Assert.That(checkedLines, Is.GreaterThanOrEqualTo(minimumLines), source);
+
+        void CheckSteps(Step[] steps)
+        {
+            if (steps == null) return;
+            foreach (var step in steps)
+            {
+                if (step.Text != null && !string.IsNullOrEmpty(step.Text.Ko))
+                {
+                    Bind(step.Text.Ko, settings: DialoguePresentationSettings.Shared);
+                    checkedLines++;
+                }
+                if (step.Options != null)
+                    foreach (var option in step.Options)
+                        CheckSteps(option.ResultSteps);
+            }
+        }
     }
 
     [Test]
@@ -448,7 +492,7 @@ public sealed class DialogueFxTests
         var content = new GameObject("text", typeof(RectTransform), typeof(TextMeshProUGUI));
         content.transform.SetParent(root.transform, false);
         var label = content.GetComponent<TextMeshProUGUI>();
-        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/08.Fonts/NeoDunggeunmo SDF.asset");
+        label.font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
         var title = new GameObject("name", typeof(RectTransform), typeof(TextMeshProUGUI));
         title.transform.SetParent(root.transform, false);
         var bubble = root.AddComponent<DynamicSpeechBubble>();

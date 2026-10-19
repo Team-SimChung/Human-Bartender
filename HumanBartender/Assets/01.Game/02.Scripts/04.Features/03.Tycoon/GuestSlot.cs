@@ -55,6 +55,8 @@ public class GuestSlot : MonoBehaviour
 
     bool useTempAppearance;
     CancellationTokenSource bubbleCts;
+    CancellationTokenSource appearanceCts;
+    CharacterFade randomFade;
 
     public ESlotType SlotType => slotType;
     public EGuestState CurrentState { get; private set; } = EGuestState.Empty;
@@ -89,7 +91,13 @@ public class GuestSlot : MonoBehaviour
         CurrentGuest = guest;
         CurrentState = EGuestState.Coming;
 
-        ApplyAppearanceAsync(guest).Forget();
+        appearanceCts?.Cancel();
+        appearanceCts?.Dispose();
+        appearanceCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        ApplyAppearanceAsync(guest, appearanceCts.Token).Forget(error =>
+        {
+            if (error is not OperationCanceledException) Debug.LogException(error);
+        });
     }
 
     /// <summary>
@@ -98,21 +106,40 @@ public class GuestSlot : MonoBehaviour
     /// 랜덤 손님만 대상이다. 단골(카메오)은 파츠를 조합하지 않고 2부 대화와 같은 캐릭터 체계로
     /// 붙이므로, 그쪽은 GuestManager가 DialogueCharacterManager에 맡긴다.
     /// </summary>
-    async UniTaskVoid ApplyAppearanceAsync(Guest guest)
+    async UniTask ApplyAppearanceAsync(Guest guest, CancellationToken token)
     {
         if (guest.appearance == null) return;
+        RandomFade().SetOpacity(0);
 
         if (useTempAppearance)
         {
             if (tempAppearanceObject != null) tempAppearanceObject.SetActive(true);
+            await RandomFade().ToAsync(1, token);
             return;
         }
 
-        await UniTask.WaitUntil(() => guest.bodySprites != null, cancellationToken: this.GetCancellationTokenOnDestroy());
+        await UniTask.WaitUntil(() => guest.bodySprites != null, cancellationToken: token);
 
         if (CurrentGuest != guest) return; // 기다리는 동안 자리가 비워지거나 다른 손님으로 교체됨
 
         ApplySprites(guest.bodySprites);
+        await RandomFade().ToAsync(1, token);
+    }
+
+    CharacterFade RandomFade()
+    {
+        if (randomFade != null) return randomFade;
+        var sprites = new System.Collections.Generic.List<SpriteRenderer>();
+        if (partRenderers != null) foreach (var part in partRenderers) if (part != null) sprites.Add(part.renderer);
+        if (tempAppearanceObject != null) sprites.AddRange(tempAppearanceObject.GetComponentsInChildren<SpriteRenderer>(true));
+        return randomFade = new CharacterFade(sprites);
+    }
+
+    public UniTask FadeOutAsync(CancellationToken token)
+    {
+        appearanceCts?.Cancel();
+        return CurrentGuest != null && CurrentGuest.isRegular && characterView != null
+            ? characterView.FadeOutAsync(token) : RandomFade().ToAsync(0, token);
     }
 
     /// <summary>
@@ -229,6 +256,10 @@ public class GuestSlot : MonoBehaviour
     /// <summary>손님이 자리를 완전히 비웠을 때 호출한다. 로드된 파츠 스프라이트의 addressable 핸들을 반납하고 렌더러를 비운다.</summary>
     public void Clear()
     {
+        appearanceCts?.Cancel();
+        appearanceCts?.Dispose();
+        appearanceCts = null;
+        randomFade?.SetOpacity(1);
         CurrentGuest?.bodySprites?.Release();
 
         HideBark();
