@@ -28,8 +28,9 @@ public static class PopupCsvStep
         if (!TryParseType(arg, out var type)) return "Unknown popup kind: " + arg;
         if (!string.IsNullOrWhiteSpace(sync) && !string.Equals(sync, "nowait", StringComparison.OrdinalIgnoreCase))
             return "Popup sync must be nowait (or empty). Popup never waits for dismissal.";
-        if ((type == PopupType.IngredientAcquired || type == PopupType.AffinityIncreased || type == PopupType.AffinityDecreased)
-            && string.IsNullOrWhiteSpace(data)) return "Ingredient/affinity popup requires text data.";
+        if ((type == PopupType.IngredientAcquired || type == PopupType.AffinityIncreased || type == PopupType.AffinityDecreased
+            || type == PopupType.NewObjective || type == PopupType.ObjectiveCompleted)
+            && string.IsNullOrWhiteSpace(data)) return "Ingredient/affinity/objective popup requires text data.";
         return null;
     }
 

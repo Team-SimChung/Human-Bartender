@@ -44,18 +44,39 @@ public sealed class PopupCsvStepTests
         Assert.AreEqual(PopupType.IngredientAcquired, popup.Type);
     }
 
+    [TestCase("new_objective", PopupType.NewObjective)]
+    [TestCase("objective_completed", PopupType.ObjectiveCompleted)]
+    public void ObjectivePopupPreservesTypeText(string arg, PopupType expected)
+    {
+        var popup = new RecordingPopup();
+        const string objectiveType = "메인 목표";
+
+        PopupCsvStep.ExecuteAsync(popup, arg, objectiveType, "nowait").GetAwaiter().GetResult();
+
+        Assert.AreEqual(1, popup.Calls);
+        Assert.AreEqual(expected, popup.Type);
+        Assert.AreEqual(objectiveType, popup.Data);
+    }
+
     [Test]
     public void FailedStartFailsTheStep()
     {
         var popup = new RecordingPopup { Result = false };
         Assert.Throws<InvalidOperationException>(() =>
-            PopupCsvStep.ExecuteAsync(popup, "new_objective", null, "nowait").GetAwaiter().GetResult());
+            PopupCsvStep.ExecuteAsync(popup, "new_objective", "메인 목표", "nowait").GetAwaiter().GetResult());
+        Assert.AreEqual(1, popup.Calls);
     }
 
     [TestCase("0", "nowait", "data")]
     [TestCase("tutorial", "nowait", "data")]
     [TestCase("event_occurred", "wait", "data")]
     [TestCase("affinity_increased", "nowait", "")]
+    [TestCase("new_objective", "nowait", null)]
+    [TestCase("new_objective", "nowait", "")]
+    [TestCase("new_objective", "nowait", "   ")]
+    [TestCase("objective_completed", "nowait", null)]
+    [TestCase("objective_completed", "nowait", "")]
+    [TestCase("objective_completed", "nowait", "   ")]
     public void InvalidCsvDoesNotInvokeUi(string arg, string sync, string data)
     {
         var popup = new RecordingPopup();

@@ -13,12 +13,13 @@ Timeline의 대사 전용 신호(CutsceneDialogueHandler)는 `say`만 지원하�
 | 신규 인물 등록 | character_registered | UIPopupView | 비워도 됨 |
 | 호감도 상승 | affinity_increased | UIAffinityPopupView | 표시할 인물 이름 |
 | 호감도 하락 | affinity_decreased | UIAffinityPopupView | 표시할 인물 이름 |
-| 새로운 목표 | new_objective | UIPopupView | 비워도 됨 |
-| 목표 달성 | objective_completed | UIPopupView | 비워도 됨 |
+| 새로운 목표 | new_objective | UIObjectivePopupView | 표시할 목표 종류 |
+| 목표 달성 | objective_completed | UIObjectivePopupView | 표시할 목표 종류 |
 | 이벤트 발생 | event_occurred | UIPopupView | 비워도 됨 |
 
 - 재료 UI: Shelf Data에 NewShelfItemDataSO, Visuals에 CocktailRecipeVisualCatalog, Ingredient Name과 Ingredient Icon에 텍스트·이미지를 연결합니다. 이름은 현재 한국어 데이터이며, 이미지는 기존 카탈로그의 재료 ID 매핑을 사용합니다. 이름·이미지 조회 실패 시 실행 실패입니다.
 - 호감도 UI: Character Name에 이름 텍스트를 연결합니다. CSV 문자열을 그대로 표시합니다.
+- 목표 UI: Objective Type에 큰 글씨 텍스트를 연결합니다. 전달받은 목표 종류를 그대로 표시하며 빈 문자열은 실행 실패입니다.
 - 나머지 UI: 기존에 배치한 고정 내용을 표시하며 전달 문자열은 사용하지 않습니다.
 - 공통 Panel의 편집 위치가 표시 위치입니다. Enter From Right=true면 오른쪽에서 왼쪽으로 진입하고 false면 반대입니다. 화면 밖으로 완전히 나가는 위치를 Canvas 기준으로 계산합니다.
 - 팝업 컨트롤러 오브젝트는 활성 상태로 유지합니다. 외부 신호는 UI의 `Hide()`에 연결합니다. 들어온 쪽으로 퇴장합니다. Auto Hide Seconds=0은 신호 대기, 양수는 진입 완료 후 자동 닫힘 시간입니다.
@@ -32,7 +33,7 @@ Timeline의 대사 전용 신호(CutsceneDialogueHandler)는 `say`만 지원하�
 |---|---|
 | type | popup |
 | arg | 위 표의 종류 문자열. 대소문자 무시, 앞뒤 공백 제거. 숫자와 미등록 명칭은 오류 |
-| text.ko | 한국어 전달 데이터. 재료는 ID, 호감도는 표시 이름 |
+| text.ko | 한국어 전달 데이터. 재료는 ID, 호감도는 표시 이름, 목표는 목표 종류 |
 | text.en | 영어 전달 데이터. 재료 ID는 한국어와 동일하게 작성 |
 | sync | nowait. 비워도 동일하게 작동. wait/auto 등은 오류 |
 | actor / dialogue_id | 사용하지 않음. 직접 CSV 편집 시 \N |
@@ -40,7 +41,7 @@ Timeline의 대사 전용 신호(CutsceneDialogueHandler)는 `say`만 지원하�
 | effects | 표시 시작 성공 후 적용할 기존 효과식. 실패하면 적용하지 않음 |
 | seq | 장면 내 실행 순서. 기존 값과 중복되지 않게 지정 |
 
-영어 설정이면 text.en을 사용하고, 영어가 없으면 text.ko로 대체합니다. `text.ko`는 검증 기준이므로 재료·호감도는 반드시 작성합니다. 신규 인물·목표·이벤트 팝업은 현재 고정 UI만 표시합니다. 데이터 조회나 게임 상태 변경은 수행하지 않습니다.
+영어 설정이면 text.en을 사용하고, 영어가 없으면 text.ko로 대체합니다. `text.ko`는 검증 기준이므로 재료·호감도·목표는 반드시 작성합니다. 신규 인물·이벤트 팝업은 현재 고정 UI만 표시합니다. 데이터 조회나 게임 상태 변경은 수행하지 않습니다.
 
 `await Popup(...)`은 표시 시작 성공 여부만 기다립니다. 진입/유지/퇴장 완료를 기다리지 않습니다. 따라서 연속 팝업 스텝은 동시에 표시될 수 있습니다. 종류 오류, UI 미연결, 재료 조회 실패 등으로 false가 반환되면 해당 대본 실행이 실패하고 후속 스텝과 그 행의 effects는 실행하지 않습니다.
 
@@ -54,8 +55,8 @@ intro,10,popup,ingredient_acquired,sugar_cube,sugar_cube,\N,\N,nowait
 intro,11,popup,character_registered,\N,\N,\N,\N,nowait
 intro,12,popup,affinity_increased,포트,Port,\N,\N,nowait
 intro,13,popup,affinity_decreased,포트,Port,\N,\N,nowait
-intro,14,popup,new_objective,\N,\N,\N,\N,nowait
-intro,15,popup,objective_completed,\N,\N,\N,\N,nowait
+intro,14,popup,new_objective,메인 목표,Main Objective,\N,\N,nowait
+intro,15,popup,objective_completed,메인 목표,Main Objective,\N,\N,nowait
 intro,16,popup,event_occurred,\N,\N,\N,\N,nowait
 ```
 
