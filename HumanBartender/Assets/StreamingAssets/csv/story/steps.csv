@@ -1466,3 +1466,15 @@ who designed this insane game, shiba.",dlg_np_shiba_2_005,\N,,player_input,,scri
 \N,1,timeline,\N,tv_news_d3,\N,\N,\N,\N,flag.tv_news_d3_seen = true,wait,\N,script/home,home_tv_day3_replay,home_tv_day3_watch,result_steps,0,migration_steps_8e3124a9d7,\N,\N
 \N,2,say,luna,default,방송이 끝났다.,The broadcast has ended.,\N,\N,\N,wait,\N,script/home,home_tv_day3_replay_end,home_tv_day3_watch,result_steps,1,migration_steps_6432533c82,\N,\N
 \N,1,effect,\N,\N,\N,\N,\N,\N,\N,\N,\N,script/home,home_tv_day3_leave_end,home_tv_day3_leave,result_steps,0,migration_steps_e10e04f2d1,\N,\N
+home_tv_morning,1,say,tv_announcer,default,"최근 B구역 일대에서 실종 사건이
+급격히 증가하고 있습니다.","Disappearances are rising sharply
+across District B.",\N,\N,\N,auto,\N,script/home,home_tv_morning_say_1,home_tv_morning_scene,steps,0,steps_format_13,\N,\N
+home_tv_morning,2,say,tv_announcer,default,"지난 일주일에만 30명이 넘는 실종자가 발생하며
+전례 없는 연쇄 실종 사건으로 번지고 있습니다.","With over thirty people missing in the past week alone,
+it is escalating into an unprecedented serial-disappearance case.",\N,\N,\N,auto,\N,script/home,home_tv_morning_say_2,home_tv_morning_scene,steps,1,steps_format_13,\N,\N
+home_tv_morning,3,say,tv_announcer,default,"KCPD는 추가 인력을 급파해
+집중 수사에 착수했다고 밝혔습니다.","The KCPD has dispatched additional officers
+and launched a focused investigation.",\N,\N,\N,auto,\N,script/home,home_tv_morning_say_3,home_tv_morning_scene,steps,2,steps_format_13,\N,\N
+street_neighbours_ambient,1,say,citizen_a,default,"저 가게, 다시 여는 건가?",Is that shop opening again?,\N,\N,\N,auto,\N,script/street,street_neighbours_ambient_say_1,street_neighbours_ambient_scene,steps,0,steps_format_13,\N,\N
+street_neighbours_ambient,2,say,citizen_b,default,아직 그런 얘긴 없던데. 그냥 잠깐 켜 둔 거 아니야?,I have not heard anything. Maybe they just left the lights on.,\N,\N,\N,auto,\N,script/street,street_neighbours_ambient_say_2,street_neighbours_ambient_scene,steps,1,steps_format_13,\N,\N
+street_neighbours_ambient,3,say,citizen_a,default,그런가. 나중에 다시 봐야겠네.,Maybe. I will check again later.,\N,\N,\N,auto,\N,script/street,street_neighbours_ambient_say_3,street_neighbours_ambient_scene,steps,2,steps_format_13,\N,\N

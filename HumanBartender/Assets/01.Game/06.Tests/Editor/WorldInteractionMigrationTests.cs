@@ -35,12 +35,13 @@ public sealed class WorldInteractionMigrationTests
             Assert.IsNotNull(context.Runner);
             var targets = components.OfType<WorldInteractionTarget>().ToArray();
             Assert.AreEqual(targets.Length, targets.Select(target => target.RegistryKey).Distinct().Count());
-            var data = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"))
-                .Read<NewStreetData>(name == "Home" ? "script/home" : "script/street");
+            var csv = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
+            var data = csv.Read<NewStreetData>(name == "Home" ? "script/home" : "script/street");
+            var definitions = csv.Read<NewInteractPointData[]>(name == "Home" ? "interact_points_home" : "interact_points_outside");
             foreach (var story in data.Scenes)
                 if (story.RuntimeScene == name && story.Radius > 0 &&
                     (story.StartMode == ENewSceneTrigger.Interact || story.StartMode == ENewSceneTrigger.Auto))
-                    Assert.AreEqual(1, targets.Count(target => target.StorySceneId == story.Id), story.Id);
+                    Assert.AreEqual(1, targets.Count(target => OwnsStory(target, story.Id, definitions)), story.Id);
             var sourceIds = components.OfType<WorldInteractionContent>().Select(content => content.SourceId).ToArray();
             Assert.AreEqual(sourceIds.Length, sourceIds.Distinct().Count());
             foreach (var door in components.OfType<WorldEntranceAction>())
@@ -54,6 +55,14 @@ public sealed class WorldInteractionMigrationTests
             else CollectionAssert.IsSubsetOf(new[] { "street_home_door", "street_bar_door", "elevator_radio" }, sourceIds);
         }
         finally { EditorSceneManager.CloseScene(scene, true); }
+    }
+
+    private static bool OwnsStory(WorldInteractionTarget target, string id, NewInteractPointData[] definitions)
+    {
+        if (target.Content == null) return target.StorySceneId == id;
+        foreach (var row in definitions)
+            if (row.SourceId == target.Content.SourceId && row.DialogueFlows != null && row.DialogueFlows.Any(flow => flow.SceneId == id)) return true;
+        return false;
     }
 
     [UnityTest, Explicit("외부에서 Home까지 실제 이동하며 취침·취소·자동 이벤트를 확인함.")]

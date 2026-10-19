@@ -9,7 +9,11 @@ public sealed class WorldInteractionTargetEditor : Editor
         serializedObject.Update();
         Draw("content");
         if (serializedObject.FindProperty("content").objectReferenceValue == null) Draw("storySceneId");
-        else Draw("interactionRadius");
+        else
+        {
+            Draw("interactionRadius");
+            EditorGUILayout.HelpBox("CSV activation_mode가 proximity면 E 입력 없이 자동 대화를 진행함. 여러 화자는 같은 오브젝트의 WorldDialogueSpeakers에 actor와 기준점을 연결함.", MessageType.Info);
+        }
         Draw("interactionLabel");
         Draw("output");
         Draw("highlight");

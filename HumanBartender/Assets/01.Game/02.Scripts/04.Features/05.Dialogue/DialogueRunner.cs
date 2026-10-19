@@ -124,6 +124,8 @@ public class DialogueRunner : MonoBehaviour
         foreach (var step in ordered)
         {
             token.ThrowIfCancellationRequested();
+            if (run.Presenter is IDialogueAutomaticPlayback automatic)
+                await automatic.WaitUntilReadyAsync(token);
             if (++run.VisitedSteps > 10000) throw new InvalidOperationException("Street execution exceeded its step limit.");
             if (!run.Conditions.CheckRequired(step.When)) continue;
             bool branch = false;
@@ -196,7 +198,9 @@ public class DialogueRunner : MonoBehaviour
         await run.Presenter.ShowDialogueAsync(actor, text, arg, token);
         token.ThrowIfCancellationRequested();
         run.State = DialogueState.WaitingForInput;
-        if (sync == "auto" || run.AutoAdvance) await UniTask.Delay(TimeSpan.FromSeconds(2), cancellationToken:token);
+        if (run.Presenter is IDialogueAutomaticPlayback automatic)
+            await automatic.WaitAfterLineAsync(token);
+        else if (sync == "auto" || run.AutoAdvance) await UniTask.Delay(TimeSpan.FromSeconds(2), cancellationToken:token);
         else
         {
             var input = new UniTaskCompletionSource();

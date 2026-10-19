@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &22096239
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 22096240}
+  m_Layer: 0
+  m_Name: BroadcastAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &22096240
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 22096239}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.45, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 155609259}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &49123262
 GameObject:
   m_ObjectHideFlags: 0
@@ -150,6 +181,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 398070675}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &59448421
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 59448422}
+  m_Layer: 0
+  m_Name: AmbientDialogueLayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &59448422
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 59448421}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1978158279}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &121025263
 GameObject:
   m_ObjectHideFlags: 0
@@ -327,6 +393,8 @@ GameObject:
   m_Component:
   - component: {fileID: 155609259}
   - component: {fileID: 155609260}
+  - component: {fileID: 155609262}
+  - component: {fileID: 155609261}
   m_Layer: 0
   m_Name: TV
   m_TagString: Untagged
@@ -346,7 +414,8 @@ Transform:
   m_LocalPosition: {x: 1.22, y: -0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 22096240}
   m_Father: {fileID: 391182537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &155609260
@@ -361,9 +430,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c62a35bee00e4a48bc61174e0b037694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
-  storySceneId: home_tv_cutscene
-  content: {fileID: 0}
-  interactionRadius: 1.5
+  storySceneId: 
+  content: {fileID: 155609262}
+  interactionRadius: 0.8
   interactionLabel: "TV \uBCF4\uAE30"
   output: 0
   speechAnchor: {fileID: 0}
@@ -382,6 +451,36 @@ MonoBehaviour:
     sequence: {fileID: 11400000, guid: 6de9c43b92de8a64da4b9d43ef0fcf80, type: 2}
   optionalTimelineIds: []
   action: {fileID: 0}
+--- !u!114 &155609261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155609258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91b83097fffd487daba3a51cbf23d36c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldDialogueSpeakers
+  speakers:
+  - actor: tv_announcer
+    anchor: {fileID: 22096240}
+--- !u!114 &155609262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155609258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15262b802278409c966da57c1121a88f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionContent
+  sourceId: home_tv
+  useSpotPosition: 0
+  controlObjectVisibility: 0
 --- !u!1 &220094231
 GameObject:
   m_ObjectHideFlags: 0
@@ -1260,6 +1359,7 @@ GameObject:
   - component: {fileID: 630451093}
   - component: {fileID: 630451092}
   - component: {fileID: 630451094}
+  - component: {fileID: 630451095}
   m_Layer: 0
   m_Name: InteractionSystem
   m_TagString: Untagged
@@ -1326,6 +1426,22 @@ MonoBehaviour:
   streetData: {fileID: 11400000, guid: c8fee4a984072cf4591e1c219a36020d, type: 2}
   player: {fileID: 398070682}
   runner: {fileID: 1021899254}
+--- !u!114 &630451095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 630451090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d7c5c7899dd418a9624e496dfe08b21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldAmbientDialogueController
+  exitMargin: 0.2
+  minimumReadTime: 1.2
+  maximumReadTime: 4
+  charactersPerSecond: 22
 --- !u!1 &637079065
 GameObject:
   m_ObjectHideFlags: 0
@@ -2632,7 +2748,9 @@ MonoBehaviour:
   imageViewerPrefab: {fileID: 840190000000000001, guid: cf6806ae035edd1428b8478ff3d75d09, type: 3}
   interactionHintPrefab: {fileID: 840190000000000002, guid: 76e126889013adf43a68246c6f5516ad, type: 3}
   choicesPrefab: {fileID: 850190000000000013, guid: f6a49d2cec2c4334aad9fa3230990a31, type: 3}
+  ambientLayer: {fileID: 59448422}
   choiceSideGap: 14
+  menuScale: 0.7
   textTags: {fileID: 11400000, guid: a4036fdbe34f51f32d1cb38225f1d890, type: 2}
   typingDelay: 0.035
 --- !u!1 &1305537442
@@ -3747,6 +3865,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 59448422}
   - {fileID: 1238596390}
   m_Father: {fileID: 2000715059}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

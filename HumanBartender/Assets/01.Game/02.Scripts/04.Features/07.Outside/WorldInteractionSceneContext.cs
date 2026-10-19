@@ -19,6 +19,10 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
     private readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
     private readonly UniTaskCompletionSource<bool> readiness = new();
     private WorldInteractionController controller;
+    private WorldAmbientDialogueController ambient;
+    private readonly Dictionary<string, NewSceneData> sceneStories = new(StringComparer.Ordinal);
+    private int currentDay;
+    private EGameFlow currentPhase;
 
     public Player Player => player;
     public DialogueRunner Runner => runner;
@@ -39,6 +43,9 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
             if (player == null || runner == null || interactPointData == null || streetData == null || conditions == null)
                 throw new InvalidOperationException("외부·Home의 초기화 참조가 없습니다.");
             controller = WorldInteractionController.ForScene(gameObject.scene);
+            ambient = GetComponent<WorldAmbientDialogueController>();
+            var stories = gameObject.scene.name == "Home" ? NewDataLoadManager.HomeStory : NewDataLoadManager.StreetStory;
+            foreach (var story in stories.Scenes ?? Array.Empty<NewSceneData>()) sceneStories.Add(story.Id, story);
             var sources = new HashSet<string>(StringComparer.Ordinal);
             foreach (var root in gameObject.scene.GetRootGameObjects())
             {
@@ -68,13 +75,26 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
 
     public void RefreshContents()
     {
+        currentDay = GameStateManager.Instance.CurrentDay;
+        currentPhase = GameStateManager.Instance.GameFlow;
         foreach (var content in contents)
-            if (content != null) content.Refresh(controller != null && controller.IsRunning && controller.ActiveTarget != null && controller.ActiveTarget.Content == content);
+            if (content != null) content.Refresh(IsContentRunning(content));
         if (gameObject.scene.name != "Home") return;
         string required = GameStateManager.Instance.GameFlow == EGameFlow.CommuteOut ? "home_sofa" : "home_exit_door";
         foreach (var content in contents)
             if (content.SourceId == required && content.IsAvailable) return;
         throw new InvalidOperationException("필수 Home 상호작용을 사용할 수 없습니다: " + required);
+    }
+
+    private bool IsContentRunning(WorldInteractionContent content) =>
+        controller != null && controller.IsRunning && controller.ActiveTarget != null && controller.ActiveTarget.Content == content ||
+        ambient != null && ambient.IsRunningFor(content);
+
+    private void Update()
+    {
+        if (!IsReady || currentDay == GameStateManager.Instance.CurrentDay && currentPhase == GameStateManager.Instance.GameFlow) return;
+        try { RefreshContents(); }
+        catch (Exception error) { ReportArrivalFailure(error.Message); Debug.LogException(error, this); }
     }
 
     internal NewInteractPointData? SelectDefinition(string sourceId)
@@ -88,8 +108,9 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
         var flow = WorldInteractionContentRules.SelectDialogue(definition.DialogueFlows,
             GameStateManager.Instance.CurrentDay, conditions, onceHistory);
         if (!flow.HasValue) return null;
-        if (!streetData.TryGetSceneData(flow.Value.SceneId, out var scene))
+        if (!sceneStories.TryGetValue(flow.Value.SceneId, out var scene) && !streetData.TryGetSceneData(flow.Value.SceneId, out scene))
             throw new InvalidOperationException("CSV 대화를 찾을 수 없습니다: " + flow.Value.SceneId);
+        if (!string.IsNullOrEmpty(scene.CompletionFlag) && conditions.CheckRequired("flag." + scene.CompletionFlag)) return null;
         return scene;
     }
 

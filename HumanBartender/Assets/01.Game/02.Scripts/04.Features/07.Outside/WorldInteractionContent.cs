@@ -15,6 +15,7 @@ public sealed class WorldInteractionContent : MonoBehaviour
     public NewInteractPointData? Definition { get; private set; }
     public NewSceneData? Dialogue { get; private set; }
     public bool IsAvailable { get; private set; }
+    public bool IsProximity => Definition.HasValue && Definition.Value.ActivationMode == EActivationMode.Proximity;
 
     internal void Initialize(WorldInteractionSceneContext value) => context = value;
 
@@ -64,8 +65,8 @@ public sealed class WorldInteractionContent : MonoBehaviour
         story.RuntimeScene = gameObject.scene.name;
         story.Route = "both";
         story.Radius = radius;
-        story.StartMode = ENewSceneTrigger.Interact;
-        return Definition.Value.ActivationMode == EActivationMode.Interact;
+        story.StartMode = IsProximity ? ENewSceneTrigger.Auto : ENewSceneTrigger.Interact;
+        return true;
     }
 
     public void CompleteDialogue(string sceneId, StoryExecutionResult result)

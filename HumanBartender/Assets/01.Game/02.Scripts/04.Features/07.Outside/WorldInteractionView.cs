@@ -12,6 +12,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     [SerializeField] private WorldInteractionImageView imageViewerPrefab;
     [SerializeField] private WorldInteractionHintView interactionHintPrefab;
     [SerializeField] private WorldInteractionChoiceView choicesPrefab;
+    [SerializeField] private RectTransform ambientLayer;
     [SerializeField, Min(0)] private float choiceSideGap = 14;
     [Tooltip("소파 같은 동작 메뉴에만 적용하는 선택창 배율. 일반 대화 선택창에는 적용하지 않음.")]
     [SerializeField, Range(.1f, 1)] private float menuScale = .7f;
@@ -44,6 +45,20 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     internal WorldInteractionImageView ImageViewer => imageViewer;
     internal WorldInteractionChoiceView Choices => choices;
     public bool IsChoosing => choices != null && choices.IsOpen;
+
+    internal WorldAmbientDialogueView CreateAmbientView()
+    {
+        if (!built || ambientLayer == null) throw new InvalidOperationException("InteractionLayer의 Ambient Layer를 연결하세요.");
+        var instance = Instantiate(bubblePrefab, ambientLayer);
+        try
+        {
+            instance.name = "AmbientSpeechBubble";
+            var presenter = instance.gameObject.AddComponent<WorldAmbientDialogueView>();
+            presenter.Initialize(instance, ambientLayer, textTags, typingDelay);
+            return presenter;
+        }
+        catch { Destroy(instance.gameObject); throw; }
+    }
 
     public void Initialize(Action onAdvance, Action onClose, Func<int> moneyReader = null)
     {
@@ -122,7 +137,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         if (target == null) throw new InvalidOperationException("상호작용 대상이 사라졌습니다.");
         choices.Hide();
         hasDialogue = true;
-        speaker = actor == "luna" ? player : speakerOverride != null ? speakerOverride : target.SpeechAnchor;
+        speaker = actor == "luna" ? player : speakerOverride != null ? speakerOverride : target.ResolveSpeaker(actor, player);
         bubble.gameObject.SetActive(true);
         bubble.centerArrow.SetActive(!imageMode);
         bubble.leftArrow.SetActive(false);

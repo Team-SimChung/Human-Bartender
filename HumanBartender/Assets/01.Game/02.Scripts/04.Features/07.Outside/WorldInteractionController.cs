@@ -178,6 +178,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             foreach (var target in WorldInteractionTarget.InScene(gameObject.scene))
             {
                 if (!TryResolve(target, out var story)) continue;
+                if (target.IsAmbient) continue;
                 // 씬에서 옮긴 오브젝트의 현재 위치를 기준으로 감지함.
                 float distance = Vector2.Distance(player.transform.position, target.transform.position);
                 if (story.StartMode == ENewSceneTrigger.Auto && distance <= story.Radius)
@@ -232,7 +233,7 @@ public sealed class WorldInteractionController : MonoBehaviour
 
     public async UniTask<StoryExecutionResult> PlayAsync(WorldInteractionTarget target)
     {
-        if (!CanStartSession ||
+        if (target == null || target.IsAmbient || !CanStartSession ||
             !TryResolve(target, out var story) || Vector2.Distance(player.transform.position, target.transform.position) > story.Radius)
             return new StoryExecutionResult(StoryExecutionStatus.Failed, "현재 상호작용할 수 없습니다.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());

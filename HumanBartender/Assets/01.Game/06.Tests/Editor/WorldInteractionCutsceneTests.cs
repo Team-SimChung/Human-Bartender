@@ -133,7 +133,7 @@ public sealed class WorldInteractionCutsceneTests
             }
             var home = EditorSceneManager.OpenScene(HomePath, OpenSceneMode.Single);
             var tv = home.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<WorldInteractionTarget>(true))
-                .Single(t => t.StorySceneId == StoryId);
+                .Single(t => t.Content != null && t.Content.SourceId == "home_tv");
             Assert.AreEqual(WorldInteractionOutput.SpeechBubble, tv.Output);
             var sequence = AssetDatabase.LoadAssetAtPath<StudioSequence>(SequencePath);
             Assert.IsEmpty(sequence.Validate());
@@ -263,7 +263,7 @@ public sealed class WorldInteractionCutsceneTests
             var runner = Get<DialogueRunner>(controller, "runner");
             var data = Get<IPlayerDataReader>(controller, "playerData") as PlayerDataSO;
             Assert.NotNull(data);
-            var tv = WorldInteractionTarget.InScene(home).Single(t => t.StorySceneId == StoryId);
+            var tv = WorldInteractionTarget.InScene(home).Single(t => t.Content != null && t.Content.SourceId == "home_tv");
             data.AddFlag("tv_news_d0_seen", false);
             data.AddFlag("tv_news_d1_seen", false);
             player.transform.position = tv.transform.position;

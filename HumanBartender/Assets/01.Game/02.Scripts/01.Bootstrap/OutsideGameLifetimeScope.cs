@@ -19,6 +19,7 @@ public class OutsideGameLifetimeScope : LifetimeScope
             foreach (var interaction in root.GetComponentsInChildren<WorldInteractionController>(true))
                 builder.RegisterComponent(interaction);
         builder.RegisterComponentInHierarchy<WorldInteractionView>();
+        builder.RegisterComponentInHierarchy<WorldAmbientDialogueController>();
         builder.RegisterComponentInHierarchy<VerticalCameraImpulse>().As<ICameraImpulse>();
 
     }

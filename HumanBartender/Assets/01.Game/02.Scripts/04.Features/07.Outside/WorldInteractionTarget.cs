@@ -46,6 +46,7 @@ public sealed class WorldInteractionTarget : MonoBehaviour
     private static readonly HashSet<WorldInteractionTarget> registered = new();
     public string StorySceneId => storySceneId;
     public WorldInteractionContent Content => content;
+    public bool IsAmbient => content != null && content.IsProximity;
     public float InteractionRadius => interactionRadius;
     internal string RegistryKey => content != null ? "source:" + content.SourceId : "scene:" + storySceneId;
     public string Label => interactionLabel;
@@ -55,6 +56,13 @@ public sealed class WorldInteractionTarget : MonoBehaviour
     public Transform SpeechAnchor => speechAnchor != null ? speechAnchor : transform;
     public Vector2 BubbleOffset => bubbleOffset;
     public Sprite InspectionImage => inspectionImage != null ? inspectionImage : GetComponent<SpriteRenderer>()?.sprite;
+
+    public Transform ResolveSpeaker(string actor, Transform player)
+    {
+        if (actor == "luna") return player;
+        var speakers = GetComponent<WorldDialogueSpeakers>();
+        return speakers != null ? speakers.Resolve(actor) : SpeechAnchor;
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetRegistry()
