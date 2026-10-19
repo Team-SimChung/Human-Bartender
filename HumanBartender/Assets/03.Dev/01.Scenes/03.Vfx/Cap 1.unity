@@ -10199,6 +10199,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1652682311284201865, guid: af3de9c0ee7a8734b8111d347b1a14ad, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 435571439024574365, guid: af3de9c0ee7a8734b8111d347b1a14ad, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.03
@@ -11214,22 +11218,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 200139201}
     m_Modifications:
-    - target: {fileID: 1801375861448826426, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 4.139
-      objectReference: {fileID: 0}
-    - target: {fileID: 1801375861448826426, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 4.139
-      objectReference: {fileID: 0}
-    - target: {fileID: 1801375861448826426, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 4.139
-      objectReference: {fileID: 0}
-    - target: {fileID: 1801375861448826426, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -4.11
-      objectReference: {fileID: 0}
+    - target: {fileID: 1999398480900238089, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
+      propertyPath: successEffectOverride
+      value:
+      objectReference: {fileID: 405700001}
     - target: {fileID: 2367392343269019837, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
       propertyPath: m_LocalPosition.x
       value: 849.74866
@@ -11270,26 +11262,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6734058259486016229, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 4.139
-      objectReference: {fileID: 0}
-    - target: {fileID: 6734058259486016229, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 4.139
-      objectReference: {fileID: 0}
-    - target: {fileID: 6734058259486016229, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 4.139
-      objectReference: {fileID: 0}
-    - target: {fileID: 6734058259486016229, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.015
-      objectReference: {fileID: 0}
-    - target: {fileID: 6734058259486016229, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.915
-      objectReference: {fileID: 0}
     - target: {fileID: 6963323729362678000, guid: 874b920cdb2d42947a0f61c029bb6636, type: 3}
       propertyPath: m_Name
       value: CapMinigame
@@ -11316,3 +11288,8 @@ SceneRoots:
   - {fileID: 200139201}
   - {fileID: 1600243818}
   - {fileID: 1358281718}
+--- !u!1 &405700001 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1652682311284201865, guid: af3de9c0ee7a8734b8111d347b1a14ad, type: 3}
+  m_PrefabInstance: {fileID: 1358281718}
+  m_PrefabAsset: {fileID: 0}

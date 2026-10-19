@@ -61,6 +61,35 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     [Header("Visual")]
     [Tooltip("병뚜껑. 성공하면 튕겨 날아가고, 실패하면 살짝 꺾인다. 비워둬도 게임은 돌아간다.")]
     [SerializeField] private Transform capPiece;
+
+    [Header("Opener")]
+    [Tooltip("병 입구를 회전축으로 삼는 오프너 피벗. 입력할 때 들어 올린 뒤 제자리로 돌아온다.")]
+    [SerializeField] private Transform openerPivot;
+    [SerializeField, Min(0.01f)] private float openerMotionSeconds = 0.32f;
+    [SerializeField] private float openerLift = 0.12f;
+    [Tooltip("반전 전 이미지 기준 회전 각도. 좌우 반전된 오프너는 회전 방향을 자동으로 뒤집는다.")]
+    [SerializeField] private float openerAngle = -24f;
+
+    [Header("Success Effect")]
+    [SerializeField] private GameObject successEffectPrefab;
+    [Tooltip("씬에 별도로 배치한 연출이 있으면 위치·크기를 유지해 사용한다. 비워두면 프리팹을 병 입구에 생성한다.")]
+    [SerializeField] private GameObject successEffectOverride;
+    [Tooltip("뚜껑과 함께 날아가지 않는 고정된 병 입구 위치.")]
+    [SerializeField] private Transform successEffectAnchor;
+    [SerializeField, Min(0.01f)] private float successEffectScale = 0.35f;
+    [SerializeField, Min(0f)] private float successEffectEmissionSeconds = 0.3f;
+
+    Vector3 openerRestPosition;
+    Quaternion openerRestRotation;
+    SpriteRenderer openerRenderer;
+    bool openerPoseCached;
+    float openerMotionElapsed;
+    bool openerMoving;
+    GameObject successEffectInstance;
+    ParticleSystem[] successParticles;
+    float successEffectElapsed;
+    bool successEffectEmitting;
+
     [Header("Cap Physics")]
     [Tooltip("병뚜껑의 발사 속도(월드 단위/초). X는 가로, Y는 위쪽이다.")]
     [SerializeField] private Vector2 capLaunchVelocity = new Vector2(2f, 6f);
@@ -108,6 +137,18 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     /// <summary>지금 반지름에서 고리가 조여드는 속도. 시작~목표 구간을 approachSeconds에 지나도록 잡는다.</summary>
     float ShrinkSpeed => (startRadius - targetRadius) / Mathf.Max(0.1f, approachSeconds);
 
+    void Awake()
+    {
+        if (openerPivot != null)
+        {
+            openerRestPosition = openerPivot.localPosition;
+            openerRestRotation = openerPivot.localRotation;
+            openerRenderer = openerPivot.GetComponentInChildren<SpriteRenderer>(true);
+            openerPoseCached = true;
+        }
+        if (successEffectOverride != null) successEffectOverride.SetActive(false);
+    }
+
     void Start()
     {
         if (capPiece != null)
@@ -152,6 +193,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
     void Update()
     {
+        UpdateFeedback(Time.deltaTime);
         if (phase == Phase.Finished) return;
 
         float dt = Time.deltaTime;
@@ -191,6 +233,9 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
         // 쿨다운 중에는 받지 않는다. 안 그러면 실패 직후 연타로 다음 고리가 시작하기도 전에 또 실패가 쌓인다.
         if (phase != Phase.Approaching) return;
 
+        openerMotionElapsed = 0f;
+        openerMoving = openerPivot != null;
+
         if (Mathf.Abs(radius - targetRadius) <= judgeWindow) Succeed();
         else Fail();
     }
@@ -198,8 +243,8 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     void Succeed()
     {
         bool perfect = FailCount <= limitFailCount * .2f;
-        sound.PlayCue("SFX_bottle_open", pitch: perfect ? 1.16f : 1.08f);
-        sound.PlayCue("SFX_fizz", fadeIn: .08f, fadeOut: .5f);
+        sound?.PlayCue("SFX_bottle_open", pitch: perfect ? 1.16f : 1.08f);
+        sound?.PlayCue("SFX_fizz", fadeIn: .08f, fadeOut: .5f);
         opened = true;
         phase = Phase.Cooldown;
         cooldown = successCooldown;
@@ -207,6 +252,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
         if (incomingRing != null) incomingRing.SetVisible(false);
         if (judgeText != null) judgeText.text = "PERFECT";
 
+        PlaySuccessEffect();
         PopCap();
     }
 
@@ -310,6 +356,100 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
         if (capPiece == null) return;
 
         capPiece.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-8f, 8f));
+    }
+
+    void UpdateFeedback(float dt)
+    {
+        if (openerMoving && openerPivot != null)
+        {
+            openerMotionElapsed += dt;
+            float progress = Mathf.Clamp01(openerMotionElapsed / Mathf.Max(0.01f, openerMotionSeconds));
+            float lift = Mathf.Sin(progress * Mathf.PI);
+            openerPivot.localPosition = openerRestPosition + Vector3.up * (openerLift * lift);
+            float direction = 1f;
+            if (openerRenderer != null)
+            {
+                // SpriteRenderer.flipX와 자식 Transform의 음수 X 스케일을 함께 반영한다.
+                Vector3 right = openerPivot.InverseTransformVector(
+                    openerRenderer.transform.TransformVector(Vector3.right));
+                if (openerRenderer.flipX) right = -right;
+                if (right.x < 0f) direction = -1f;
+            }
+            openerPivot.localRotation = openerRestRotation * Quaternion.Euler(0f, 0f, openerAngle * direction * lift);
+            if (progress >= 1f) ResetOpener();
+        }
+
+        if (!successEffectEmitting) return;
+        successEffectElapsed += dt;
+        if (successEffectElapsed < successEffectEmissionSeconds) return;
+
+        // 원본에는 반복 파티클도 있다. 짧게 분출한 뒤 이미 나온 입자만 남긴다.
+        foreach (var particle in successParticles)
+            if (particle != null) particle.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+        successEffectEmitting = false;
+    }
+
+    void PlaySuccessEffect()
+    {
+        Transform anchor = successEffectAnchor != null ? successEffectAnchor : capPiece;
+        if (successEffectOverride == null && (successEffectPrefab == null || anchor == null)) return;
+
+        // 원본 프리팹의 회전과 파티클 설정을 보존하고, 실행 중인 사본만 조정한다.
+        successEffectInstance = successEffectOverride;
+        if (successEffectInstance == null)
+        {
+            successEffectInstance = Instantiate(successEffectPrefab, anchor);
+            successEffectInstance.transform.localPosition = Vector3.zero;
+            successEffectInstance.transform.localScale *= successEffectScale;
+        }
+        successEffectInstance.SetActive(true);
+        successParticles = successEffectInstance.GetComponentsInChildren<ParticleSystem>(true);
+
+        var capRenderer = capPiece != null ? capPiece.GetComponent<SpriteRenderer>() : null;
+        foreach (var particle in successParticles)
+        {
+            particle.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+            var main = particle.main;
+            main.loop = false;
+            main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+            var renderer = particle.GetComponent<ParticleSystemRenderer>();
+            if (renderer != null && capRenderer != null)
+            {
+                renderer.sortingLayerID = capRenderer.sortingLayerID;
+                renderer.sortingOrder = capRenderer.sortingOrder + 1;
+            }
+        }
+
+        foreach (var particle in successParticles)
+            particle.Play(false);
+        successEffectElapsed = 0f;
+        successEffectEmitting = true;
+    }
+
+    void ResetOpener()
+    {
+        openerMoving = false;
+        if (openerPivot == null || !openerPoseCached) return;
+        openerPivot.localPosition = openerRestPosition;
+        openerPivot.localRotation = openerRestRotation;
+    }
+
+    void OnDisable()
+    {
+        ResetOpener();
+        successEffectEmitting = false;
+        if (successEffectInstance != null)
+        {
+            if (successEffectInstance == successEffectOverride)
+            {
+                foreach (var particle in successParticles)
+                    if (particle != null) particle.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
+                successEffectInstance.SetActive(false);
+            }
+            else Destroy(successEffectInstance);
+        }
+        successEffectInstance = null;
+        successParticles = null;
     }
 
     // ── IMiniGameController ─────────────────────────────────────────────

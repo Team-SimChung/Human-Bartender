@@ -3,16 +3,17 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 아레나 바깥의 표시 전부 — 상단바 스탯, 라운드 타이머 카드, 사선 게이지, 시작 오버레이.
+/// 아레나 바깥 표시 — 경과 시간, 하단 결과 게이지, 시작 안내와 이전 화면의 선택적 표시.
 /// 판정은 하지 않고 StirManager가 넘겨준 값을 그리기만 한다.
 ///
-/// 프로토타입(Stir_Minigame.html)의 화면 구성을 그대로 따른다. 참조가 비어 있어도 게임은 돌아가므로
+/// 참조가 비어 있어도 게임은 돌아가므로
 /// 필요 없는 요소는 인스펙터에서 비워두면 된다.
 /// </summary>
 public class StirHudView : MonoBehaviour
 {
     [Header("Top Stats")]
     [SerializeField] TMP_Text elapsedText;
+    [SerializeField] GameObject elapsedIcon;
     [SerializeField] TMP_Text circleText;
     [SerializeField] TMP_Text comboText;
 
@@ -35,16 +36,18 @@ public class StirHudView : MonoBehaviour
     [SerializeField] TMP_Text judgeText;
 
     /// <summary>
-    /// 공통 표시와 겹치는 상단 스탯(판정 수·콤보)을 감춘다.
+    /// 공통 표시와 겹치는 상단 스탯과 로컬 경과 시간 표시를 감춘다.
     /// 같은 정보가 두 군데 뜨는 걸 막기 위해, 기믹 큐가 돌릴 때 한 번 부른다.
     ///
-    /// 잔 주변 2초 게이지와 사선 진행 게이지는 감추지 않는다 — 스터에만 있는 판정 표시라
+    /// 잔 주변 2초 게이지와 하단 결과 게이지는 감추지 않는다 — 스터에만 있는 판정 표시라
     /// 공통 표시에 자리가 없다.
     /// </summary>
     public void HideStatsSharedWithCommonHud()
     {
         if (circleText != null) circleText.gameObject.SetActive(false);
         if (comboText != null) comboText.gameObject.SetActive(false);
+        if (elapsedText != null) elapsedText.gameObject.SetActive(false);
+        if (elapsedIcon != null) elapsedIcon.SetActive(false);
     }
 
     public void SetRoundLimit(float seconds)
@@ -57,8 +60,7 @@ public class StirHudView : MonoBehaviour
     {
         if (elapsedText == null) return;
 
-        int totalSeconds = Mathf.FloorToInt(Mathf.Max(0f, seconds));
-        elapsedText.text = $"{totalSeconds / 60:00}:{totalSeconds % 60:00}";
+        elapsedText.text = CraftTimer.FormatElapsed(seconds);
     }
 
     public void SetCircle(int done, int total)
@@ -83,6 +85,8 @@ public class StirHudView : MonoBehaviour
     }
 
     public void SetGaugeResult(int index, bool success) => gauge?.SetResult(index, success);
+
+    public void ConfigureGauge(int count) => gauge?.Configure(count);
 
     public void SetGaugeNextSegment(int index) => gauge?.SetNextSegment(index);
 

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 
 public class ServeScreen : MonoBehaviour
@@ -14,7 +16,7 @@ public class ServeScreen : MonoBehaviour
     }
 
     [SerializeField] private List<AnimationEntry> _animations = new();
-    [SerializeField] private Animation ani;
+    [SerializeField] private Animator animator;
     [SerializeField] private CraftFlowController craftFlow;
     [Tooltip("켜면 버리기 후 이전 잔·도구·재료 선택을 유지하고 첫 기믹부터 다시 제작한다.")]
     [SerializeField] private bool retryOnDiscard = true;
@@ -27,9 +29,11 @@ public class ServeScreen : MonoBehaviour
 
     [SerializeField] private GameObject BG;
 
-    private const string AnimationName = "Serve";
     private const string FallbackId = "cosmopolitan";
-    private AnimationClip runtimeClip;
+    private PlayableGraph servingGraph;
+    private AnimationClipPlayable servingPlayable;
+    private float animationDuration;
+    private bool animationCompleted;
     private bool initialized;
     private CraftedDrink currentDrink;
 
@@ -41,8 +45,7 @@ public class ServeScreen : MonoBehaviour
     {
         if (initialized) return;
         initialized = true;
-        if (ani == null) ani = GetComponent<Animation>();
-        if (ani != null) ani.playAutomatically = false;
+        if (animator == null) animator = GetComponent<Animator>();
         if (Restart != null) Restart.onClick.AddListener(Discard);
         if (Accept != null) Accept.onClick.AddListener(Provide);
         Reset();
@@ -62,10 +65,10 @@ public class ServeScreen : MonoBehaviour
         }
 
         Initialize();
-        if (ani == null) ani = GetComponent<Animation>();
-        if (ani == null)
+        if (animator == null) animator = GetComponent<Animator>();
+        if (animator == null)
         {
-            Debug.LogError("[ServeScreen] Ani에 Animation 컴포넌트를 연결해 주세요.", this);
+            Debug.LogError("[ServeScreen] Animator를 연결해 주세요.", this);
             return false;
         }
 
@@ -83,23 +86,32 @@ public class ServeScreen : MonoBehaviour
         currentDrink = drink;
         UpdateGrade();
 
-        // Animation은 Legacy 클립을 사용하므로 원본 에셋 대신 복사본을 변환한다.
-        runtimeClip = Instantiate(clip);
-        runtimeClip.legacy = true;
-        runtimeClip.wrapMode = WrapMode.ClampForever;
-        EnsureCompletionEvent(runtimeClip);
-
-        ani.enabled = true;
-        ani.playAutomatically = false;
-        ani.AddClip(runtimeClip, AnimationName);
-        ani.clip = runtimeClip;
-        if (!ani.Play(AnimationName))
-        {
-            Debug.LogError("[ServeScreen] 서빙 애니메이션을 재생할 수 없습니다.", this);
-            Reset();
-            return false;
-        }
+        // UI Image의 스프라이트 곡선은 Legacy 변환 없이 Animator에 재생한다.
+        animator.enabled = true;
+        animationDuration = clip.length;
+        animationCompleted = false;
+        servingGraph = PlayableGraph.Create($"Serve_{drink.CocktailId}");
+        servingGraph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
+        servingPlayable = AnimationClipPlayable.Create(servingGraph, clip);
+        servingPlayable.SetApplyFootIK(false);
+        servingPlayable.SetDuration(animationDuration);
+        var output = AnimationPlayableOutput.Create(servingGraph, "Serving", animator);
+        output.SetSourcePlayable(servingPlayable);
+        servingGraph.Play();
+        servingGraph.Evaluate(0f);
         return true;
+    }
+
+    private void Update()
+    {
+        if (!servingGraph.IsValid() || animationCompleted || !servingPlayable.IsValid()) return;
+        if (servingPlayable.GetTime() < animationDuration) return;
+
+        servingPlayable.SetTime(animationDuration);
+        servingGraph.Evaluate(0f);
+        servingGraph.Stop();
+        animationCompleted = true;
+        Apply();
     }
 
     public void Apply()
@@ -167,36 +179,11 @@ public class ServeScreen : MonoBehaviour
         };
     }
 
-    private static void EnsureCompletionEvent(AnimationClip clip)
-    {
-        var events = new List<AnimationEvent>();
-        bool hasCompletion = false;
-        foreach (var animationEvent in clip.events)
-        {
-            // Animation 창에서 아직 함수를 고르지 않은 빈 이벤트는 재생 오류를 내므로 제외한다.
-            if (string.IsNullOrEmpty(animationEvent.functionName)) continue;
-            events.Add(animationEvent);
-            if (animationEvent.functionName == nameof(Apply)) hasCompletion = true;
-        }
-        if (!hasCompletion)
-            events.Add(new AnimationEvent { time = clip.length, functionName = nameof(Apply) });
-        clip.events = events.ToArray();
-    }
-
     private void StopAnimation()
     {
-        if (runtimeClip == null) return;
-
-        if (ani != null)
-        {
-            ani.Stop();
-            ani.RemoveClip(AnimationName);
-            if (ani.clip == runtimeClip) ani.clip = null;
-        }
-
-        if (Application.isPlaying) Destroy(runtimeClip);
-        else DestroyImmediate(runtimeClip);
-        runtimeClip = null;
+        if (servingGraph.IsValid()) servingGraph.Destroy();
+        servingPlayable = default;
+        animationCompleted = false;
     }
 
     private void OnDisable() => StopAnimation();

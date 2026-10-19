@@ -503,7 +503,8 @@ MonoBehaviour:
   m_Name: CutSceneBGClip
   m_EditorClassIdentifier: Assembly-CSharp::CutSceneBGClip
   template:
-    bgPath: ServeBG
+    bgPath:
+    backgroundSprite: {fileID: -7443756053782179069, guid: 15ec71c706c5e41869c14782ee528ba0, type: 3}
     bgOffset: {x: 0, y: 0}
     bgScale: 1
     bgPivot: {x: 0.5, y: 0.5}
@@ -524,7 +525,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CutSceneSpriteAnimClip
   template:
     imagePath: Serve
-    spriteSheetPath: Serve/give_drink_gin_fizz-ezgif.com-gif-to-sprite-converter
+    spriteSheetPath:
+    animationClip: {fileID: 7400000, guid: 4520d6e1e89ea7948b678f2706e0bb48, type: 2}
     fps: 12
     loop: 0
     startFrame: 0
@@ -546,7 +548,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CutSceneImageClip
   template:
     imagePath: Serve
-    sheetPath: Serve/give_drink_gin_fizz-ezgif.com-gif-to-sprite-converter
+    sourceSprite: {fileID: 6439631403838373674, guid: 2349dbda7b22e45c3aac7c7b4f13c416, type: 3}
+    sheetPath:
     frameIndex: 0
     anchor: 0
     offsetX: 0

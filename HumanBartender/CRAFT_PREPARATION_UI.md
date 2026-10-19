@@ -62,3 +62,9 @@
 
 위 스크립트는 모두 `Assets/01.Game/02.Scripts/04.Features/01.Crafting/01.Preparation/`에 있으며,
 프리팹은 `Assets/01.Game/03.Content/08.Prefabs/01.Crafting/01.Preparation/`에 있습니다.
+
+
+## 임시 리소스 최종 정리 (2026-10-20)
+
+CraftPrepStage의 임시 리소스 연결 6개를 원본으로 교체했다. 설명창 IMG_card_R는 `Assets/01.Game/03.Content/01.ArtResources/05.UI/05.Profile/profile_window/IMG_card_R.png`, 좌우 화살표는 원본 제조 준비 UI 폴더를 사용한다. 화살표는 임시본의 Single Sprite 설정을 반영했다. 오브젝트 배치·아웃라인·설명창 크기 계산·A/D 입력 구조는 유지한다.
+전체 이관·삭제 목록과 검증 결과는 `TEMP_RESOURCE_FINALIZATION.md` 및 `RESOURCE_FINALIZATION.json`을 참고한다.

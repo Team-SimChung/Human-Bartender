@@ -14,6 +14,13 @@ public class CraftTimer
 {
     public float ElapsedSec { get; private set; }
 
+    /// <summary>제조 HUD와 독립 스터 화면이 함께 사용하는 분:초 표시.</summary>
+    public static string FormatElapsed(float seconds)
+    {
+        int totalSeconds = (int)System.Math.Max(0f, seconds);
+        return $"{totalSeconds / 60:00}:{totalSeconds % 60:00}";
+    }
+
     /// <summary>시작했고 아직 멈추지 않았는지.</summary>
     public bool IsRunning { get; private set; }
 

@@ -124,7 +124,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -159,10 +159,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 8192
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -190,12 +190,12 @@ TextureImporter:
       name: give_drink_beer_0
       rect:
         serializedVersion: 2
-        x: 441
-        y: 2492
-        width: 155
-        height: 214
+        x: 0
+        y: 2164
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -212,12 +212,12 @@ TextureImporter:
       name: give_drink_beer_1
       rect:
         serializedVersion: 2
-        x: 1394
-        y: 2477
-        width: 192
-        height: 229
+        x: 956
+        y: 2164
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -234,12 +234,12 @@ TextureImporter:
       name: give_drink_beer_2
       rect:
         serializedVersion: 2
-        x: 2348
-        y: 2461
-        width: 200
-        height: 245
+        x: 1912
+        y: 2164
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -256,12 +256,12 @@ TextureImporter:
       name: give_drink_beer_3
       rect:
         serializedVersion: 2
-        x: 3301
-        y: 2447
-        width: 207
-        height: 259
+        x: 2868
+        y: 2164
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -278,12 +278,12 @@ TextureImporter:
       name: give_drink_beer_4
       rect:
         serializedVersion: 2
-        x: 4254
-        y: 2435
-        width: 211
-        height: 271
+        x: 3824
+        y: 2164
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -300,12 +300,12 @@ TextureImporter:
       name: give_drink_beer_5
       rect:
         serializedVersion: 2
-        x: 5207
-        y: 2423
-        width: 215
-        height: 283
+        x: 4780
+        y: 2164
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -322,12 +322,12 @@ TextureImporter:
       name: give_drink_beer_6
       rect:
         serializedVersion: 2
-        x: 424
-        y: 1871
-        width: 217
-        height: 294
+        x: 0
+        y: 1623
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -344,12 +344,12 @@ TextureImporter:
       name: give_drink_beer_7
       rect:
         serializedVersion: 2
-        x: 1378
-        y: 1862
-        width: 219
-        height: 303
+        x: 956
+        y: 1623
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -366,12 +366,12 @@ TextureImporter:
       name: give_drink_beer_8
       rect:
         serializedVersion: 2
-        x: 2331
-        y: 1854
-        width: 221
-        height: 311
+        x: 1912
+        y: 1623
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -388,12 +388,12 @@ TextureImporter:
       name: give_drink_beer_9
       rect:
         serializedVersion: 2
-        x: 3285
-        y: 1845
-        width: 223
-        height: 320
+        x: 2868
+        y: 1623
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -410,12 +410,12 @@ TextureImporter:
       name: give_drink_beer_10
       rect:
         serializedVersion: 2
-        x: 4238
-        y: 1837
-        width: 226
-        height: 328
+        x: 3824
+        y: 1623
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -432,12 +432,12 @@ TextureImporter:
       name: give_drink_beer_11
       rect:
         serializedVersion: 2
-        x: 5192
-        y: 1828
-        width: 227
-        height: 337
+        x: 4780
+        y: 1623
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -454,12 +454,12 @@ TextureImporter:
       name: give_drink_beer_12
       rect:
         serializedVersion: 2
-        x: 410
-        y: 1281
-        width: 229
-        height: 343
+        x: 0
+        y: 1082
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -476,12 +476,12 @@ TextureImporter:
       name: give_drink_beer_13
       rect:
         serializedVersion: 2
-        x: 1364
-        y: 1274
-        width: 231
-        height: 350
+        x: 956
+        y: 1082
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -498,12 +498,12 @@ TextureImporter:
       name: give_drink_beer_14
       rect:
         serializedVersion: 2
-        x: 2318
-        y: 1268
-        width: 232
-        height: 356
+        x: 1912
+        y: 1082
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -520,12 +520,12 @@ TextureImporter:
       name: give_drink_beer_15
       rect:
         serializedVersion: 2
-        x: 3272
-        y: 1262
-        width: 234
-        height: 362
+        x: 2868
+        y: 1082
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -542,12 +542,12 @@ TextureImporter:
       name: give_drink_beer_16
       rect:
         serializedVersion: 2
-        x: 4226
-        y: 1255
-        width: 236
-        height: 369
+        x: 3824
+        y: 1082
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -564,12 +564,12 @@ TextureImporter:
       name: give_drink_beer_17
       rect:
         serializedVersion: 2
-        x: 5180
-        y: 1250
-        width: 237
-        height: 374
+        x: 4780
+        y: 1082
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -586,12 +586,12 @@ TextureImporter:
       name: give_drink_beer_18
       rect:
         serializedVersion: 2
-        x: 398
-        y: 704
-        width: 239
-        height: 379
+        x: 0
+        y: 541
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -608,12 +608,12 @@ TextureImporter:
       name: give_drink_beer_19
       rect:
         serializedVersion: 2
-        x: 1353
-        y: 699
-        width: 240
-        height: 384
+        x: 956
+        y: 541
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -630,12 +630,12 @@ TextureImporter:
       name: give_drink_beer_20
       rect:
         serializedVersion: 2
-        x: 2307
-        y: 695
-        width: 242
-        height: 388
+        x: 1912
+        y: 541
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -652,12 +652,12 @@ TextureImporter:
       name: give_drink_beer_21
       rect:
         serializedVersion: 2
-        x: 3262
-        y: 690
-        width: 242
-        height: 393
+        x: 2868
+        y: 541
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -674,12 +674,12 @@ TextureImporter:
       name: give_drink_beer_22
       rect:
         serializedVersion: 2
-        x: 4216
-        y: 685
-        width: 244
-        height: 396
+        x: 3824
+        y: 541
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -696,12 +696,12 @@ TextureImporter:
       name: give_drink_beer_23
       rect:
         serializedVersion: 2
-        x: 5171
-        y: 681
-        width: 245
-        height: 398
+        x: 4780
+        y: 541
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -718,12 +718,12 @@ TextureImporter:
       name: give_drink_beer_24
       rect:
         serializedVersion: 2
-        x: 390
-        y: 137
-        width: 246
-        height: 399
+        x: 0
+        y: 0
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -740,12 +740,12 @@ TextureImporter:
       name: give_drink_beer_25
       rect:
         serializedVersion: 2
-        x: 1345
-        y: 133
-        width: 247
-        height: 401
+        x: 956
+        y: 0
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -762,12 +762,12 @@ TextureImporter:
       name: give_drink_beer_26
       rect:
         serializedVersion: 2
-        x: 2299
-        y: 129
-        width: 248
-        height: 403
+        x: 1912
+        y: 0
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -784,12 +784,12 @@ TextureImporter:
       name: give_drink_beer_27
       rect:
         serializedVersion: 2
-        x: 3254
-        y: 126
-        width: 249
-        height: 404
+        x: 2868
+        y: 0
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -806,12 +806,12 @@ TextureImporter:
       name: give_drink_beer_28
       rect:
         serializedVersion: 2
-        x: 4209
-        y: 122
-        width: 250
-        height: 406
+        x: 3824
+        y: 0
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -828,12 +828,12 @@ TextureImporter:
       name: give_drink_beer_29
       rect:
         serializedVersion: 2
-        x: 5164
-        y: 119
-        width: 251
-        height: 407
+        x: 4780
+        y: 0
+        width: 956
+        height: 541
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
