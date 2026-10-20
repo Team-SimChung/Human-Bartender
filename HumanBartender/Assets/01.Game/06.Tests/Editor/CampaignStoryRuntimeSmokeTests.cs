@@ -399,7 +399,9 @@ public sealed class CampaignStoryRuntimeSmokeTests
             EventSystem.current.RaycastAll(pointer, hits);
             Assert.IsNotEmpty(hits, "coaster supply screen point " + from + " / screen " + Screen.width + "x" + Screen.height);
             var coaster = ExecuteEvents.GetEventHandler<IDragHandler>(hits[0].gameObject)?.GetComponent<CoasterDragItem>();
-            Assert.IsNotNull(coaster, "actual supply box raycast reaches a draggable coaster");
+            Assert.IsNotNull(coaster, "actual supply box raycast reaches a draggable coaster at " + from +
+                " / screen " + Screen.width + "x" + Screen.height + "; hits: " +
+                string.Join(", ", hits.Select(hit => hit.gameObject.name)));
             InputSystem.QueueStateEvent(mouse, new MouseState { position = from });
             yield return null;
             yield return null;

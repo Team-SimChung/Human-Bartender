@@ -180,6 +180,8 @@ internal static class WorldAmbientDialogueRuntime
         {
             var manual = WorldInteractionTarget.InScene(SceneManager.GetActiveScene())
                 .Single(candidate => candidate.StorySceneId == "outside_interaction_money_example");
+            manual.gameObject.SetActive(true); // Explicit tests opt into the disabled development target.
+            await UniTask.NextFrame(token);
             context.Player.transform.position = manual.transform.position;
             controller.PlayAsync(manual).Forget();
             await UniTask.WaitUntil(() => controller.IsRunning, cancellationToken: token);

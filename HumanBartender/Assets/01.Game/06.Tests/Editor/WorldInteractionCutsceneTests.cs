@@ -184,6 +184,10 @@ public sealed class WorldInteractionCutsceneTests
                 cancellationToken: token);
             var outside = SceneManager.GetActiveScene();
             controller = WorldInteractionController.ForScene(outside);
+            // The release scene no longer forces a test day/commute phase on startup.
+            GameStateManager.Instance.CurrentDay = 0;
+            GameStateManager.Instance.GameFlow = EGameFlow.CommuteOut;
+            controller.GetComponent<WorldInteractionSceneContext>().RefreshContents();
             var player = Get<Player>(controller, "player");
             var input = UnityEngine.Object.FindFirstObjectByType<OutsideInputHandler>().GetComponent<PlayerInput>();
             input.enabled = false;
@@ -245,6 +249,7 @@ public sealed class WorldInteractionCutsceneTests
 
             // 직접 재생도 CSV 요청과 같은 Timeline 재생기를 사용하는지 확인함.
             var direct = WorldInteractionTarget.InScene(outside).Single(t => t.StorySceneId == "outside_interaction_cutscene_example");
+            direct.gameObject.SetActive(true); // Only this explicit test enables the development TV.
             player.transform.position = direct.transform.position;
             await Frames(3, token);
             var directRun = controller.PlayAsync(direct);
@@ -254,7 +259,11 @@ public sealed class WorldInteractionCutsceneTests
 
             GameStateManager.Instance.CurrentDay = 0;
             GameStateManager.Instance.GameFlow = EGameFlow.CommuteOut;
-            var transition = await SceneTransitionManager.Instance.LoadSceneAsync("Home", cancellationToken: token);
+            // Enter through the same boundary as the door so save eligibility records a completed arrival.
+            var homeDoor = WorldInteractionTarget.InScene(outside)
+                .Single(target => target.Content != null && target.Content.SourceId == "street_home_door");
+            var transition = await Get<IGameProgressionService>(homeDoor.Action, "progression")
+                .EnterAsync(GameProgressionDestination.Home, token);
             Assert.IsTrue(transition.Succeeded, transition.Message);
             var home = SceneManager.GetSceneByPath(HomePath);
             controller = WorldInteractionController.ForScene(home);

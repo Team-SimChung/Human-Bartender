@@ -61,7 +61,8 @@ public static class HomeSofaMenuRuntime
             await Capture("sofa-save-slots", token);
             await Choose(controller, "slot-5", token);
             await WaitForMenu(controller, "ok", token);
-            Assert.IsTrue(isolated.HasSlotFile(5), "5번 슬롯도 공통 선택창에서 저장할 수 있어야 함.");
+            Assert.IsTrue(isolated.HasSlotFile(5), "5번 슬롯도 공통 선택창에서 저장할 수 있어야 함. 표시 결과: " +
+                controller.View.Bubble.textLabel.text);
             string path = Path.Combine(directory, "slot-5.json");
             string saved = File.ReadAllText(path);
             Assert.AreEqual(GameStateManager.Instance.CurrentDay, (int)JObject.Parse(saved)["current_day"]);

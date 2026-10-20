@@ -26,6 +26,7 @@ public sealed class ChoiceExampleTests
             Assert.IsEmpty(targets.GroupBy(target => target.RegistryKey).Where(group => group.Count() > 1), "Each authored target must own a unique CSV story");
             var example = targets.Single(target => target.StorySceneId == StoryId);
             Assert.AreEqual("ChoiceExample", example.name);
+            Assert.IsFalse(example.gameObject.activeSelf, "릴리스 씬에서는 테스트 NPC를 꺼 둔다.");
             Assert.AreEqual(WorldInteractionOutput.SpeechBubble, example.Output);
             Assert.IsNull(example.GetComponent<Animation>(), "A non-legacy clip needs an Animator");
             var animator = example.GetComponent<Animator>();
@@ -83,6 +84,9 @@ public sealed class ChoiceExampleTests
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(40));
         var token = timeout.Token;
         var target = WorldInteractionTarget.InScene(controller.gameObject.scene).Single(t => t.StorySceneId == StoryId);
+        // Only this explicitly selected test opts into the development NPC.
+        target.gameObject.SetActive(true);
+        await UniTask.NextFrame(token);
         Assert.IsTrue(controller.TryResolve(target, out var story), "Authored object resolves without the duplicate-ID error");
         var pay = story.Steps.Single(step => step.Type == "choice").Options.Single(option => option.Id == "money-example-pay");
         Assert.AreEqual("money >= 500", pay.When);

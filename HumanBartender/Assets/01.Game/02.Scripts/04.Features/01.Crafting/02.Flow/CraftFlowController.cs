@@ -29,7 +29,7 @@ public class CraftFlowController : MonoBehaviour
 
     [Header("Test")]
     [Tooltip("테스트용: 정답 구성(잔·도구·재료)을 자동으로 고르고 바로 기믹을 실행한다.")]
-    [SerializeField] private bool autoPrepareForTest = true;
+    [SerializeField] private bool autoPrepareForTest;
 
 
     // 실행 중 상태
@@ -128,11 +128,13 @@ public class CraftFlowController : MonoBehaviour
             Debug.LogWarning($"[CraftFlow] {reason}");
             return;
         }
+#if UNITY_EDITOR
         if (autoPrepareForTest && IsPreparing)
         {
             AutoPrepare();
             StartGimmicks();
         }
+#endif
     }
 
     public void StartGimmicks()

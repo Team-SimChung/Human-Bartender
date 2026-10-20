@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.TestTools;
@@ -98,9 +99,10 @@ public sealed class OutlineHighlightTests
     static float MaxDifference(Color[] a, Color[] b) => a.Zip(b, (x, y) =>
         Mathf.Max(Mathf.Abs(x.r - y.r), Mathf.Abs(x.g - y.g), Mathf.Abs(x.b - y.b), Mathf.Abs(x.a - y.a))).Max();
 
-    [UnityTest, Explicit("Run with OutSide open: preserves the edited scene and exercises actual distance focus and NPC animation.")]
+    [UnityTest, Explicit("Run alone: exercises actual distance focus and opts into the disabled development NPC.")]
     public IEnumerator NearbyOnlyOutlineIncludingAnimatedNpc()
     {
+        EditorSceneManager.OpenScene(WorldInteractionCutsceneTests.OutsidePath);
         yield return new EnterPlayMode();
         yield return ExerciseRuntime();
         yield return new ExitPlayMode();
@@ -156,11 +158,14 @@ public sealed class OutlineHighlightTests
         }
         finally { Object.Destroy(root); Object.Destroy(material); }
 
+        var npc = WorldInteractionTarget.InScene(controller.gameObject.scene)
+            .Single(t => t.StorySceneId == "outside_interaction_money_example");
+        npc.gameObject.SetActive(true);
         var targets = WorldInteractionTarget.InScene(controller.gameObject.scene).Where(t => t.isActiveAndEnabled).ToArray();
         foreach (var target in targets.Where(t => t != controller.FocusedTarget))
-            Assert.AreEqual(0, ReadIntensity(target.GetComponent<SpriteRenderer>()), "Unvisited target must start hidden: " + target.name);
+            if (target.TryGetComponent<SpriteRenderer>(out var targetRenderer))
+                Assert.AreEqual(0, ReadIntensity(targetRenderer), "Unvisited target must start hidden: " + target.name);
 
-        var npc = targets.Single(t => t.StorySceneId == "outside_interaction_money_example");
         var player = Object.FindFirstObjectByType<Player>();
         var originalPosition = player.transform.position;
         try

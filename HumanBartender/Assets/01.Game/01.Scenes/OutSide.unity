@@ -1820,11 +1820,11 @@ GameObject:
   - component: {fileID: 326686846}
   m_Layer: 0
   m_Name: CutScenesExample
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &326686841
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5439,11 +5439,11 @@ GameObject:
   - component: {fileID: 809348807}
   m_Layer: 9
   m_Name: ImageExample
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &809348806
 Transform:
   m_ObjectHideFlags: 0
@@ -18302,7 +18302,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2058149159}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &2058149162
 Camera:
   m_ObjectHideFlags: 0
@@ -19450,7 +19450,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27c6e16cdbb84b4093452b7785c4bf10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutsideSceneTestBootstrap
-  enableTest: 1
+  enableTest: 0
   testDay: 0
   testPhase: 1
 --- !u!114 &740190000000000025
@@ -19558,11 +19558,11 @@ GameObject:
   - component: {fileID: 860190000000000003}
   m_Layer: 9
   m_Name: ChoiceExample
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &860190000000000002
 Transform:
   m_ObjectHideFlags: 0

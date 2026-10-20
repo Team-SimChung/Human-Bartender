@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// 우측 하단 코스터 인벤토리에 놓인 코스터 아이콘 하나. uGUI 화면 좌표 기준으로 드래그하며,
@@ -19,6 +20,8 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     RectTransform placedParent;
     Vector2 placedOffset;
     bool isPlaced;
+    Image trayImage;
+    Vector4 originalRaycastPadding;
 
     // 트레이에서의 제자리. 손님 앞에 놓을 때 부모와 anchor/pivot을 통째로 바꾸기 때문에,
     // 되돌리려면 시작할 때의 값을 그대로 들고 있어야 한다.
@@ -42,6 +45,25 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         trayAnchorMin = rect.anchorMin;
         trayAnchorMax = rect.anchorMax;
         trayPivot = rect.pivot;
+        trayImage = GetComponent<Image>();
+        if (trayImage != null) originalRaycastPadding = trayImage.raycastPadding;
+        ExpandTrayHitArea();
+    }
+
+    // 공급함의 상자와 글자도 코스터를 집는 영역이다. 아이콘의 표시 크기는 바꾸지 않는다.
+    void ExpandTrayHitArea()
+    {
+        if (trayImage == null || trayParent is not RectTransform tray) return;
+        var corners = new Vector3[4];
+        tray.GetWorldCorners(corners);
+        Vector3 min = rect.InverseTransformPoint(corners[0]);
+        Vector3 max = rect.InverseTransformPoint(corners[2]);
+        Rect own = rect.rect;
+        trayImage.raycastPadding = new Vector4(
+            Mathf.Min(originalRaycastPadding.x, min.x - own.xMin),
+            Mathf.Min(originalRaycastPadding.y, min.y - own.yMin),
+            Mathf.Min(originalRaycastPadding.z, own.xMax - max.x),
+            Mathf.Min(originalRaycastPadding.w, own.yMax - max.y));
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -51,6 +73,7 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         droppedOnValidZone = false;
         originalParent = rect.parent;
         originalAnchoredPosition = rect.anchoredPosition;
+        if (trayImage != null) trayImage.raycastPadding = originalRaycastPadding;
 
         rect.SetParent(rootCanvas.transform, true);
         canvasGroup.blocksRaycasts = false; // 드롭존이 자기 자신에게 가려지지 않도록
@@ -86,6 +109,7 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         rect.SetParent(originalParent, true);
         rect.anchoredPosition = originalAnchoredPosition;
+        ExpandTrayHitArea();
     }
 
     /// <summary>
@@ -116,6 +140,7 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         rect.anchorMax = trayAnchorMax;
         rect.pivot = trayPivot;
         rect.anchoredPosition = trayAnchoredPosition;
+        ExpandTrayHitArea();
 
         canvasGroup.blocksRaycasts = true;
         gameObject.SetActive(true);

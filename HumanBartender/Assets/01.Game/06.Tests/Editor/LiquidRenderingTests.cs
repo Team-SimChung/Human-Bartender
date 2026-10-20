@@ -461,6 +461,9 @@ public sealed class LiquidRenderingTests
             for(int x=0;x<128;x++) columns[x]=new Color(0.4f+(x%4==0?0.07f:0),0.7f,1,1);
             synthetic.SetPixels(columns);synthetic.Apply();
             material.SetTexture("_SurfaceTex",synthetic);
+            // This assertion measures the foam edge. Bright carbonation bubbles in the
+            // falling stream are separate pixels above it and must not count as foam teeth.
+            material.SetVector("_Cloud",Vector4.zero);
             Graphics.Blit(Texture2D.blackTexture,target);
             Graphics.Blit(Texture2D.blackTexture,target,material,0);
             Save(target,"foam-column-review");

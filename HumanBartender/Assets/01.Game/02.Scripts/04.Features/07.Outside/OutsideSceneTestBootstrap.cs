@@ -10,7 +10,7 @@ public sealed class OutsideSceneTestBootstrap : MonoBehaviour
 {
     public enum TestPhase { CommuteIn, CommuteOut }
 
-    [SerializeField] private bool enableTest = true;
+    [SerializeField] private bool enableTest;
     [Min(0)] [SerializeField] private int testDay = 0;
     [SerializeField] private TestPhase testPhase = TestPhase.CommuteIn;
 

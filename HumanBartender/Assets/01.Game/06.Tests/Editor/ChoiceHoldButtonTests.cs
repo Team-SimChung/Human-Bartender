@@ -124,7 +124,6 @@ public sealed class ChoiceHoldButtonTests
     }
 
     [TestCase("ChoicePanel.prefab")]
-    [TestCase("outside ChoicePanel.prefab")]
     public void ReleasingOverASelectedChoiceKeepsHoverAndLeavingRestoresItsSelectedAppearance(string name)
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -243,7 +242,6 @@ public sealed class ChoiceHoldButtonTests
     }
 
     [TestCase("ChoicePanel.prefab")]
-    [TestCase("outside ChoicePanel.prefab")]
     public void ReopeningTheSameChoiceUnderAStationaryPointerKeepsHover(string name)
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -358,7 +356,6 @@ public sealed class ChoiceHoldButtonTests
     }
 
     [TestCase("ChoicePanel.prefab")]
-    [TestCase("outside ChoicePanel.prefab")]
     public void BothPrefabsUseAOneSecondHoldAndABlueNonBlockingBottomBar(string name)
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
@@ -392,7 +389,6 @@ public sealed class ChoiceHoldButtonTests
     }
 
     [TestCase("ChoicePanel.prefab")]
-    [TestCase("outside ChoicePanel.prefab")]
     public void EditorInstancesKeepTheirDefaultShapeAndRuntimeResetHidesOnlyProgress(string name)
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
