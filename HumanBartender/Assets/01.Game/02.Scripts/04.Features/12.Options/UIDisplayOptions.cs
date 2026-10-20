@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using VContainer;
 
@@ -26,6 +27,38 @@ public class UIDisplayOptions : MonoBehaviour
     [Inject] private IAudioVolumeSettings _sound;
 
     static UIDisplayOptions activeOptions;
+    GameObject previousSelection;
+    public static void ShowActive() { if (activeOptions != null) activeOptions.Show(); }
+    public void Show()
+    {
+        if (optionUI == null || optionUI.activeSelf) return;
+        previousSelection = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+        SyncUIFromCurrentSettings();
+        SyncAudioSliders();
+        optionUI.SetActive(true);
+        optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshValues();
+    }
+    public void Hide()
+    {
+        if (optionUI != null) optionUI.SetActive(false);
+        if (EventSystem.current != null && previousSelection != null && previousSelection.activeInHierarchy)
+            EventSystem.current.SetSelectedGameObject(previousSelection);
+    }
+    public void ResetSound()
+    {
+        if (_sound == null) return;
+        _sound.SetBGMVolume(.3f);
+        _sound.SetSEVolume(.8f);
+        SyncAudioSliders();
+        optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshValues();
+    }
+    public void ResetDisplayDraft()
+    {
+        windowedToggle.isOn = false;
+        windowSizeDropdown.value = 0;
+        windowSizeDropdown.interactable = false;
+        optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshNavigation();
+    }
     public static bool IsOptionOpen
     {
         get
@@ -65,7 +98,8 @@ public class UIDisplayOptions : MonoBehaviour
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
         if (ServicePanelController.TryCloseForEscape()) return;
         if (WorldInteractionController.TryCancelForEscape()) return;
-        if (optionUI != null) optionUI.SetActive(!optionUI.activeSelf);
+        if (IsOptionOpen) Hide();
+        else if (!TitleMenuView.TryCloseForEscape()) Show();
     }
 
     public void QuitGame()
@@ -76,6 +110,7 @@ public class UIDisplayOptions : MonoBehaviour
 
     private void BuildDropdownOptions()
     {
+        if (_display == null || windowSizeDropdown == null) return;
         windowSizeDropdown.ClearOptions();
 
         var labels = new List<string>();
@@ -87,6 +122,7 @@ public class UIDisplayOptions : MonoBehaviour
 
     private void SyncUIFromCurrentSettings()
     {
+        if (_display == null || windowSizeDropdown == null || windowedToggle == null) return;
         // 기본값 전체화면(1) → 창모드 토글은 off
         bool fullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
         bool windowed = !fullscreen;
@@ -101,6 +137,7 @@ public class UIDisplayOptions : MonoBehaviour
     public void OnWindowedToggled(bool windowedOn)
     {
         windowSizeDropdown.interactable = windowedOn;
+        optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshNavigation();
     }
 
     public void OnApplyClicked()

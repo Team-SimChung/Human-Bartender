@@ -7,13 +7,13 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 /// <summary>
-/// 현재 열려있는 씬의 TextMeshProUGUI(비활성 오브젝트 포함)에 NeoDunggeunmo SDF를 일괄 적용한다.
+/// 현재 열려있는 씬의 TextMeshProUGUI(비활성 오브젝트 포함)에 PF Stardust SDF를 일괄 적용한다.
 /// 기본 TMP 폰트가 한글을 지원하지 않는 기존 씬 텍스트를 수정할 때 사용한다.
 /// 결과를 확인한 뒤 직접 Ctrl+S로 저장해야 한다.
 /// </summary>
 public static class FixKoreanFontSetup
 {
-    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset";
+    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/Regular_PFStardust_3_0_SDF.asset";
 
     [MenuItem("Tools/Tycoon/Fix Korean Font On Scene Text")]
     public static void Run()

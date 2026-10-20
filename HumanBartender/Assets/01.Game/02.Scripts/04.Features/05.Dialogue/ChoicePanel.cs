@@ -15,7 +15,8 @@ public class ChoicePanel : MonoBehaviour
 
     public void SetPanelText(string text)
     {
-        panelText.text = text;
+        if (panelTMPText != null && panelTMPText.gameObject.activeSelf) panelTMPText.text = text;
+        else if (panelText != null) panelText.text = text;
     }
 
     public void SetActive(bool isOn)

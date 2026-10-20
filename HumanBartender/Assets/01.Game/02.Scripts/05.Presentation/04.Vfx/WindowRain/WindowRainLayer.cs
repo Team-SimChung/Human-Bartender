@@ -4,12 +4,13 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 /// <summary>
-/// 외부 플레이 카메라 앞 유리에 맺히고 흘러내리는 빗물. 이 컴포넌트가 붙은 카메라에만
+/// 카메라 앞 유리에 맺히고 흘러내리는 빗물. 이 컴포넌트가 붙은 카메라에만
 /// <see cref="WindowRainFeature"/>가 합성 패스를 추가한다. 캡처 카메라·다른 씬·기믹 카메라는
 /// 등록되지 않으므로 효과가 중복되지 않는다.
 ///
 /// 방울 생성은 씬의 기존 비 파티클(FX_Rain)이 실제로 방출 중인지에 맞춘다. 오디오의 날짜 조건이 아니라
-/// 화면에 보이는 비를 기준으로 삼아 시각 효과끼리 어긋나지 않게 한다.
+/// 화면에 보이는 비를 기준으로 삼아 시각 효과끼리 어긋나지 않게 한다. 비 파티클이 없는
+/// 타이틀 배경은 ambientRain을 켜서 계속 방울을 생성할 수 있다.
 /// </summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(10000)] // Cinemachine이 카메라를 옮긴 뒤 위치를 읽는다.
@@ -18,6 +19,8 @@ public sealed class WindowRainLayer : MonoBehaviour
 {
     [Tooltip("씬의 기존 비 효과(FX_Rain). 하위 반복 파티클이 방출 중일 때만 새 방울이 맺힌다.")]
     [SerializeField] GameObject rainSource;
+    [Tooltip("비 파티클이 없는 타이틀 배경에서 계속 방울을 생성한다. rainSource가 있으면 실제 파티클 방출 상태를 따른다.")]
+    [SerializeField] bool ambientRain;
     [Tooltip("캐릭터의 이동 기준 위치. 카메라가 화면 끝에서 고정돼도 이동 중에는 물방울이 계속 흐른다.")]
     [SerializeField] Transform movementSource;
     [SerializeField] WindowRainSettings settings = new WindowRainSettings();
@@ -139,7 +142,8 @@ public sealed class WindowRainLayer : MonoBehaviour
 
     bool RainActive()
     {
-        if (rainSource == null || !rainSource.activeInHierarchy) return false;
+        if (rainSource == null) return ambientRain;
+        if (!rainSource.activeInHierarchy) return false;
         foreach (var system in rainSystems)
             if (system != null && system.gameObject.activeInHierarchy && system.emission.enabled && system.isEmitting)
                 return true;

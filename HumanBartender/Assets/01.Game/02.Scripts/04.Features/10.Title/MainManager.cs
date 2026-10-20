@@ -10,6 +10,9 @@ using VContainer.Unity;
 public class MainManager : MonoBehaviour
 {
     static readonly Rect ContinueButton = new(20, 20, 150, 38);
+    public bool IsStarting => starting;
+    public string StartError => startError;
+    [SerializeField] TitleMenuView titleView;
     bool starting;
     bool continueOpen;
     string startError;
@@ -19,8 +22,9 @@ public class MainManager : MonoBehaviour
     {
         // 타이틀의 새 게임 버튼은 전체 화면을 덮는다. IMGUI 이어하기 영역의 클릭은 새 게임으로 보내지 않는다.
         var pointer = Input.mousePosition;
-        if (continueOpen || (Input.GetMouseButtonUp(0) && ContinueButton.Contains(
-                new Vector2(pointer.x, Screen.height - pointer.y)))) return;
+        if (UIDisplayOptions.IsOptionOpen) return;
+        if (titleView == null && (continueOpen || (Input.GetMouseButtonUp(0) && ContinueButton.Contains(
+                new Vector2(pointer.x, Screen.height - pointer.y))))) return;
         if (!starting) StartNewGameAsync().Forget(Debug.LogException);
     }
 
@@ -52,6 +56,22 @@ public class MainManager : MonoBehaviour
         finally { starting = false; }
     }
 
+    public void DescribeSlot(int slot, out string label, out bool canLoad)
+    {
+        label = "저장 서비스 준비 중";
+        canLoad = false;
+        var scope = LifetimeScope.Find<ProjectLifetimeScope>();
+        var saves = scope?.Container?.Resolve<SaveManager>();
+        if (saves != null) saves.TryDescribeSlot(slot, out label, out canLoad);
+    }
+
+    public void LoadSlot(int slot)
+    {
+        if (starting || UIDisplayOptions.IsOptionOpen) return;
+        DescribeSlot(slot, out _, out bool canLoad);
+        if (canLoad) ContinueAsync(slot).Forget(Debug.LogException);
+    }
+
     async UniTask ContinueAsync(int slot)
     {
         starting = true;
@@ -74,7 +94,7 @@ public class MainManager : MonoBehaviour
 
     void OnGUI()
     {
-        if (starting) return;
+        if (titleView != null || starting) return;
         if (GUI.Button(ContinueButton, continueOpen ? "이어하기 닫기" : "이어하기"))
             continueOpen = !continueOpen;
         if (continueOpen)

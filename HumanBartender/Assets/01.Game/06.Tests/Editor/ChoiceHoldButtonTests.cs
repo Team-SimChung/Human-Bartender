@@ -411,11 +411,11 @@ public sealed class ChoiceHoldButtonTests
             hold.SendMessage("Update");
             Assert.That(track.activeSelf, Is.True);
             Assert.That(progress.rectTransform.anchorMax.x, Is.EqualTo(1f));
-            var labels = instance.GetComponentsInChildren<Text>();
+            var labels = instance.GetComponentsInChildren<TMPro.TMP_Text>();
             Assert.That(labels.Length, Is.EqualTo(1));
             Assert.That(labels[0].text, Is.Not.Empty);
-            Assert.That(instance.GetComponentsInChildren<TMPro.TMP_Text>(), Is.Empty,
-                "The unused TMP label must not overlap the live Legacy label.");
+            Assert.That(instance.GetComponentsInChildren<Text>(), Is.Empty,
+                "The Legacy label must not overlap the live TMP label.");
 
             typeof(ChoiceHoldButton).GetMethod("CancelHold", BindingFlags.Instance | BindingFlags.NonPublic)
                 .Invoke(hold, new object[] { true });

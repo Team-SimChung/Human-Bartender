@@ -152,11 +152,24 @@ public class GuestSlot : MonoBehaviour
     {
         if (partRenderers == null) return;
 
+        Sprite body = sprites?.Get(EGuestBodySlot.Body);
+        // Parts are cropped from the same source canvas. Their individual pivots are not
+        // interchangeable: reconstruct the source positions relative to the body's base.
+        Vector2 sourceOrigin = body == null ? Vector2.zero :
+            new Vector2(body.rect.center.x, body.rect.yMin);
+
         foreach (var entry in partRenderers)
         {
             if (entry == null || entry.renderer == null) continue;
 
-            entry.renderer.sprite = sprites == null ? null : sprites.Get(entry.slot);
+            Sprite sprite = sprites?.Get(entry.slot);
+            entry.renderer.sprite = sprite;
+            if (sprite != null && body != null)
+            {
+                Vector2 offset = (sprite.rect.position + sprite.pivot - sourceOrigin) / sprite.pixelsPerUnit;
+                var position = entry.renderer.transform.localPosition;
+                entry.renderer.transform.localPosition = new Vector3(offset.x, offset.y, position.z);
+            }
         }
     }
 

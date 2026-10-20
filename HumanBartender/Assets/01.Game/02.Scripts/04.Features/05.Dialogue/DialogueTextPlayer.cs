@@ -58,7 +58,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         gameObject.SetActive(true);
         if (bubble == null) Awake();
         bubble.nameLabel.text = data.speaker;
-        bubble.nameLabel.color = data.nameColor;
+        // 화자별 원본 색상과 관계없이 대화창 이름은 공통 하늘색을 사용한다.
+        bubble.nameLabel.color = bubble.speakerNameColor;
         var session = Begin(data.str, tags, cocktailName, defaultDelay, false);
         session.Revealing = true;
         session.ExternalRegistration = external.Register(() => Close(session));

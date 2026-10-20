@@ -63,7 +63,8 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
             ArrowHead(mesh, to, to - from, mint);
             return;
         }
-        Vector2 bend = new Vector2(Mathf.Min(from.x, to.x) - 65, Mathf.Max(from.y, to.y) + 70);
+        Vector2 bend = new Vector2((from.x + to.x) * .5f,
+            Mathf.Max(source?.yMax ?? from.y, destination?.yMax ?? to.y) + 48);
         Vector2 previous = from;
         int phase = (int)(Time.unscaledTime * 12) % 7;
         for (int i = 1; i <= 64; i++)

@@ -269,7 +269,7 @@ public sealed class StoryTutorialView : MonoBehaviour
             var title = MakeText("State", row, heading.font, new Vector2(246, 30), new Vector2(20, 23), 16);
             title.alignment = TextAlignmentOptions.Left;
             title.text = titles[i];
-            var description = MakeText("Meaning", row, heading.font, new Vector2(246, 48), new Vector2(20, -15), 14);
+            var description = MakeText("Meaning", row, instruction.font, new Vector2(246, 48), new Vector2(20, -15), 14);
             description.alignment = TextAlignmentOptions.Left;
             description.color = new Color(.71f, .80f, .82f);
             description.text = descriptions[i];
@@ -323,15 +323,15 @@ public sealed class StoryTutorialView : MonoBehaviour
         Vector2? from = null, to = null;
         if (source.HasValue && dragGuide && target.HasValue)
         {
-            from = new Vector2(source.Value.xMin - 10, source.Value.center.y);
-            to = new Vector2(target.Value.xMax + 10, target.Value.center.y);
+            // 실제 두 강조 영역을 잇는다. 방향을 좌/우로 가정하면 좌석이 바뀌었을 때 화살촉이 빗나간다.
+            from = RectEdge(source.Value, target.Value.center);
+            to = target.Value.center;
         }
         else if (source.HasValue)
         {
             Rect box = source.Value;
-            Vector2 direction = (box.center - panel.anchoredPosition).normalized;
-            to = box.center - new Vector2(direction.x * (box.width * .5f + 16), direction.y * (box.height * .5f + 16));
-            from = to - direction * 30;
+            to = RectEdge(box, panel.anchoredPosition);
+            from = RectEdge(new Rect(panel.anchoredPosition - size * .5f, size), box.center);
         }
         guide.gameObject.SetActive(source.HasValue || target.HasValue);
         guide.SetGuide(source, target, from, to, dragGuide);
@@ -346,7 +346,7 @@ public sealed class StoryTutorialView : MonoBehaviour
         {
             rect.GetWorldCorners(corners);
             var canvas = target.GetComponentInParent<Canvas>();
-            camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera ?? Camera.main : null;
         }
         else
         {
@@ -354,13 +354,28 @@ public sealed class StoryTutorialView : MonoBehaviour
             if (renderer == null) return null;
             var bounds = renderer.bounds;
             corners[0] = bounds.min;
+            corners[1] = new Vector3(bounds.min.x, bounds.max.y, bounds.center.z);
             corners[2] = bounds.max;
+            corners[3] = new Vector3(bounds.max.x, bounds.min.y, bounds.center.z);
             camera = target.GetComponentInParent<CraftPrepStageScreen>()?.GuideCamera ?? Camera.main;
         }
         var root = (RectTransform)transform;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(root, RectTransformUtility.WorldToScreenPoint(camera, corners[0]), null, out var min);
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(root, RectTransformUtility.WorldToScreenPoint(camera, corners[2]), null, out var max);
+        Vector2 min = new Vector2(float.PositiveInfinity, float.PositiveInfinity), max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+        foreach (var corner in corners)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, RectTransformUtility.WorldToScreenPoint(camera, corner), null, out var point);
+            min = Vector2.Min(min, point); max = Vector2.Max(max, point);
+        }
         return Rect.MinMaxRect(min.x - 7, min.y - 7, max.x + 7, max.y + 7);
+    }
+
+    static Vector2 RectEdge(Rect rect, Vector2 towards)
+    {
+        Vector2 direction = towards - rect.center;
+        if (direction.sqrMagnitude < .001f) return rect.center;
+        float x = Mathf.Abs(direction.x) > .001f ? rect.width * .5f / Mathf.Abs(direction.x) : float.PositiveInfinity;
+        float y = Mathf.Abs(direction.y) > .001f ? rect.height * .5f / Mathf.Abs(direction.y) : float.PositiveInfinity;
+        return rect.center + direction * Mathf.Min(x, y);
     }
 
     public void ShowSeats(ESlotType current, Action<ESlotType> selected)

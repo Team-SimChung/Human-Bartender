@@ -28,7 +28,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             path = AssetDatabase.GenerateUniqueAssetPath(path);
             var sequence = ScriptableObject.CreateInstance<StudioSequence>();
             sequence.Id = Path.GetFileNameWithoutExtension(path);
-            sequence.Font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
+            sequence.Font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/Regular_PFStardust_3_0_SDF.asset");
             sequence.Timeline = ScriptableObject.CreateInstance<TimelineAsset>();
             sequence.Timeline.durationMode = TimelineAsset.DurationMode.FixedLength;
             sequence.Timeline.fixedDuration = 10;

@@ -21,7 +21,7 @@ using UnityEngine.UI;
 public static class CapSceneSetup
 {
     const string ScenePath = "Assets/03.Dev/01.Scenes/01.Minigames/Cap.unity";
-    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset";
+    const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/Regular_PFStardust_3_0_SDF.asset";
     const string CraftStationDataPath = "Assets/01.Game/04.Data/01.Definitions/Crafting/CraftLiquidData.asset";
     const string NewCocktailDataSOPath = "Assets/01.Game/04.Data/02.RuntimeCaches/NewCocktailDataSO.asset";
     const string CraftServePath = "Assets/01.Game/04.Data/03.Events/Craft/CraftServe.asset";

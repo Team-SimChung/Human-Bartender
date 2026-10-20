@@ -206,6 +206,10 @@ public sealed class CampaignStoryRuntimeSmokeTests
         Assert.That(targetPoint.y, Is.EqualTo(tableScreen.y).Within(2), "drop zone is on the tabletop");
         Assert.Less(((RectTransform)target.transform).rect.height, 80, "drop zone is a low tabletop area");
         Assert.IsTrue(tutorialView.Guide.HasDragRoute, "coaster source and tabletop have a visible route");
+        var arrowTip = Field<Vector2?>(tutorialView.Guide, "arrowTo");
+        Vector3 localTarget = tutorialView.transform.InverseTransformPoint(target.transform.position);
+        Assert.That(Vector2.Distance(arrowTip.Value, localTarget), Is.LessThan(1f), "tutorial arrow points into the actual tabletop target");
+        Assert.That(Field<TMPro.TMP_Text>(tutorialView, "instruction").font.name, Is.EqualTo("Medium_Paperlogy_SDF"));
         SavePreview(missingTutorialReferences ? "fallback-coaster-guide" : "coaster-guide");
         yield return null;
         Canvas.ForceUpdateCanvases();

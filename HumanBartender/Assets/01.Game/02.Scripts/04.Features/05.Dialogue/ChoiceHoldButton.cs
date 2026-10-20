@@ -13,6 +13,9 @@ public sealed class ChoiceHoldButton : Button
     [SerializeField] private GameObject holdProgressRoot;
     [SerializeField] private Image holdProgressFill;
 
+    public bool IsHolding => holding;
+    public event System.Action<bool> HoldingChanged;
+
     private bool holding;
     private int heldPointerId;
     private double holdStartedAt;
@@ -103,6 +106,7 @@ public sealed class ChoiceHoldButton : Button
     private void BeginHold()
     {
         holding = true;
+        HoldingChanged?.Invoke(true);
         holdStartProgress = displayedProgress;
         holdStartedAt = Time.unscaledTimeAsDouble;
         lastProgressUpdateTime = holdStartedAt;
@@ -145,7 +149,9 @@ public sealed class ChoiceHoldButton : Button
 
     private void CancelHold(bool immediately = false)
     {
+        bool wasHolding = holding;
         holding = false;
+        if (wasHolding) HoldingChanged?.Invoke(false);
         submitControl = null;
         lastProgressUpdateTime = Time.unscaledTimeAsDouble;
         if (immediately || displayedProgress <= 0f)

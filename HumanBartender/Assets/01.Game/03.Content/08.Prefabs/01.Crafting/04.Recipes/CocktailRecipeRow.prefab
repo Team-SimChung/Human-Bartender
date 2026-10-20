@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5650513015374593134
 RectTransform:
   m_ObjectHideFlags: 0
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -8050923838913525479, guid: 82f67efaedc36ac4ca60e7a4f75718b3, type: 3}
+  m_Sprite: {fileID: -434157067763657943, guid: bdc479ee8efec4889b1210416d0ad2f9, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -176,7 +176,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 2
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -186,9 +186,9 @@ MonoBehaviour:
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
+    m_HighlightedSprite: {fileID: -809007333491799233, guid: 6645b8f1159784fc8beb77cfae42cb9f, type: 3}
+    m_PressedSprite: {fileID: -809007333491799233, guid: 6645b8f1159784fc8beb77cfae42cb9f, type: 3}
+    m_SelectedSprite: {fileID: -809007333491799233, guid: 6645b8f1159784fc8beb77cfae42cb9f, type: 3}
     m_DisabledSprite: {fileID: 0}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
@@ -305,8 +305,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "BUILD \xB7 180G"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
-  m_sharedMaterial: {fileID: 5518620734502561977, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  m_sharedMaterial: {fileID: -8687957992645072016, guid: 08017e76388328b48aecd8069b267557, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -517,8 +517,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uCE75\uD14C\uC77C \uC774\uB984"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
-  m_sharedMaterial: {fileID: 5518620734502561977, guid: 3bc0c61a83ff6c741bda5b2a6e98c7a8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  m_sharedMaterial: {fileID: -8687957992645072016, guid: 08017e76388328b48aecd8069b267557, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

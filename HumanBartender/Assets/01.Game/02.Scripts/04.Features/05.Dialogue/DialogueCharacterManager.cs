@@ -45,6 +45,21 @@ public class SlotCharacterPart
     [System.NonSerialized] public UniTaskCompletionSource loadFinished;
     [System.NonSerialized] public int requestVersion;
     [System.NonSerialized] public CharacterFade fade;
+
+    /// <summary>통짜 초상의 하단을 좌석 기준선에 맞춘다. 그림마다 다른 피벗에 의존하지 않는다.</summary>
+    public void ApplyPortrait(Sprite sprite)
+    {
+        if (portaitSpriteRenderer == null) return;
+        portaitSpriteRenderer.sprite = sprite;
+        if (sprite != null)
+        {
+            var position = portaitSpriteRenderer.transform.localPosition;
+            position.x = -sprite.bounds.center.x;
+            position.y = -sprite.bounds.min.y;
+            portaitSpriteRenderer.transform.localPosition = position;
+        }
+        portaitSpriteRenderer.gameObject.SetActive(sprite != null);
+    }
 }
 
 

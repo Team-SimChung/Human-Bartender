@@ -71,7 +71,7 @@ public static class StoryTutorialSceneSetup
     {
         Directory.CreateDirectory(Path.GetDirectoryName(PrefabPath));
         AssetDatabase.Refresh();
-        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/NeoDunggeunmo SDF.asset");
+        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/01.Game/03.Content/05.Fonts/Medium_Paperlogy_SDF.asset");
         if (font == null) throw new System.InvalidOperationException("튜토리얼 한글 폰트를 찾을 수 없습니다.");
         var view = StoryTutorialView.CreateFallback(font, false);
         try { return PrefabUtility.SaveAsPrefabAsset(view.gameObject, PrefabPath).GetComponent<StoryTutorialView>(); }
