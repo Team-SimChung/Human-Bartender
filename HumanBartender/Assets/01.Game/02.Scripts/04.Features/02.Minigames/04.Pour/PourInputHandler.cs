@@ -48,6 +48,7 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
 
     void Update()
     {
+        if (UIDisplayOptions.IsOptionOpen) { EndDrag(); SynchronizePress(); return; }
         if (!routedInput)
         {
             Pointer pointer = Pointer.current;

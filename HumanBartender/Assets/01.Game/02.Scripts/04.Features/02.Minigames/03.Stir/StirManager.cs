@@ -102,7 +102,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     int NextDirection => StirDirections.Next(pos);
 
     /// <summary>시작 전·완료 후·포커스 이탈 중에는 시간이 흐르지 않는다.</summary>
-    bool IsTimerRunning => isStarted && !isCompleted && hasFocus && !isAppPaused;
+    bool IsTimerRunning => isStarted && !isCompleted && hasFocus && !isAppPaused && !UIDisplayOptions.IsOptionOpen;
 
     void Start()
     {
@@ -124,7 +124,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
 
         RefreshView();
-        SetJudgeText("W / ↑ 로 시작");
+        SetJudgeText($"{StirDirections.KeyLabel(0)} / ↑ 로 시작");
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     void Update()
     {
         // 포커스가 없는 동안 들어온 입력은 없지만, 큐에 남아 있던 것도 돌아올 때까지 잡아둔다.
-        if (!hasFocus || isAppPaused) { StopStirSound(); return; }
+        if (!hasFocus || isAppPaused || UIDisplayOptions.IsOptionOpen) { StopStirSound(); return; }
 
         // 입력을 타이머보다 먼저 소비한다. 제한시간 도달과 마지막 정답 입력이 같은 프레임에
         // 겹치면 입력이 이긴다는 규칙(명세 §7)이 이 순서 하나로 지켜진다.

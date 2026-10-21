@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 /// <summary>공용 설정 창의 탭과 표시만 관리한다. 설정 저장·적용은 UIDisplayOptions가 담당한다.</summary>
 [DisallowMultipleComponent]
@@ -15,7 +16,19 @@ public sealed class OptionsPanelView : MonoBehaviour
     [SerializeField] Button closeButton, backButton, resetButton, applyButton;
     [SerializeField] Slider bgmSlider, seSlider;
     [SerializeField] TMP_Text bgmValue, seValue;
+    [SerializeField] Button titleButton, confirmTitleButton, cancelTitleButton;
+    [SerializeField] GameObject titleConfirmation;
+    [SerializeField] Button[] bindingButtons;
+    [SerializeField] TMP_Text controlsHint;
+    [SerializeField] TMP_Text statusMessage;
+    [SerializeField] ScrollRect bindingsScroll;
+    [SerializeField] CanvasGroup inputGroup;
     int currentTab;
+    int rebindingIndex = -1, rebindStartedFrame;
+    GameObject lastSelected;
+    GameObject rebindSelection;
+    int selectionAfterFrame;
+    public const string DefaultControlsHint = "버튼을 누른 뒤 새 키를 입력하세요. Esc: 취소 · 방향키 / Enter / 마우스 / 패드는 기존 조작 유지";
     readonly Color active = new Color32(70, 235, 241, 255);
     readonly Color inactive = new Color32(9, 21, 30, 255);
 
@@ -24,14 +37,133 @@ public sealed class OptionsPanelView : MonoBehaviour
         for (int i = 0; i < tabs.Length; i++) { int index = i; tabs[i].onClick.AddListener(() => SelectTab(index)); }
         closeButton.onClick.AddListener(controller.Hide);
         backButton.onClick.AddListener(controller.Hide);
-        resetButton.onClick.AddListener(() => { if (currentTab == 0) controller.ResetSound(); else controller.ResetDisplayDraft(); });
+        resetButton.onClick.AddListener(() =>
+        {
+            if (currentTab == 0) controller.ResetSound();
+            else if (currentTab == 1) controller.ResetDisplayDraft();
+            else { GameKeyBindings.Reset(); RefreshBindings(); ShowMessage("조작키를 기본값으로 되돌렸습니다."); }
+        });
         applyButton.onClick.AddListener(controller.OnApplyClicked);
         bgmSlider.onValueChanged.AddListener(_ => RefreshValues());
         seSlider.onValueChanged.AddListener(_ => RefreshValues());
+        titleButton.onClick.AddListener(() =>
+        {
+            if (!controller.CanReturnToTitle) return;
+            titleConfirmation.SetActive(true);
+            ConfigureNavigation();
+            if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(cancelTitleButton.gameObject);
+        });
+        cancelTitleButton.onClick.AddListener(CloseTitleConfirmation);
+        confirmTitleButton.onClick.AddListener(() => { CloseTitleConfirmation(); controller.ReturnToTitle(); });
+        for (int i = 0; i < bindingButtons.Length; i++)
+        {
+            int index = i;
+            bindingButtons[i].onClick.AddListener(() => BeginRebind(index));
+        }
     }
-    void OnEnable() { SelectTab(0); RefreshValues(); }
+    void OnEnable()
+    {
+        titleConfirmation.SetActive(false);
+        if (statusMessage != null) statusMessage.text = "";
+        if (titleButton.interactable != controller.CanReturnToTitle)
+        {
+            titleButton.interactable = controller.CanReturnToTitle;
+            ConfigureNavigation();
+        }
+        ShowMessage(DefaultControlsHint);
+        SelectTab(0);
+        RefreshValues();
+        RefreshBindings();
+    }
+    void OnDisable() { CancelRebind(); rebindSelection = null; }
+    void OnApplicationFocus(bool focused)
+    {
+        if (!focused && rebindingIndex >= 0) { CancelRebind(); ShowMessage("키 변경을 취소했습니다."); }
+    }
+    void Update()
+    {
+        if (Keyboard.current?.escapeKey.wasPressedThisFrame == true) { controller.HandleEscape(); return; }
+        if (titleButton.interactable != controller.CanReturnToTitle)
+        {
+            titleButton.interactable = controller.CanReturnToTitle;
+            ConfigureNavigation();
+        }
+        if (rebindSelection != null && Time.frameCount > selectionAfterFrame)
+        {
+            if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(rebindSelection);
+            rebindSelection = null;
+        }
+        if (rebindingIndex < 0 || Time.frameCount == rebindStartedFrame || Keyboard.current == null) return;
+        foreach (var key in Keyboard.current.allKeys)
+        {
+            if (!key.wasPressedThisFrame || key.keyCode == Key.Escape) continue;
+            if (GameKeyBindings.TrySetKey(GameKeyBindings.Bindings[rebindingIndex].Control, key.keyCode, out string message))
+            {
+                CancelRebind();
+                RefreshBindings();
+            }
+            ShowMessage(message);
+            break;
+        }
+    }
+    void LateUpdate()
+    {
+        if (bindingsScroll == null || currentTab != 2 || EventSystem.current == null) return;
+        var selected = EventSystem.current.currentSelectedGameObject;
+        if (selected == lastSelected) return;
+        lastSelected = selected;
+        int index = System.Array.FindIndex(bindingButtons, button => button.gameObject == selected);
+        if (index < 0) return;
+        Canvas.ForceUpdateCanvases();
+        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(bindingsScroll.viewport, bindingButtons[index].transform);
+        var position = bindingsScroll.content.anchoredPosition;
+        if (bounds.min.y < bindingsScroll.viewport.rect.yMin) position.y += bindingsScroll.viewport.rect.yMin - bounds.min.y;
+        else if (bounds.max.y > bindingsScroll.viewport.rect.yMax) position.y -= bounds.max.y - bindingsScroll.viewport.rect.yMax;
+        bindingsScroll.content.anchoredPosition = position;
+    }
+    void BeginRebind(int index)
+    {
+        rebindingIndex = index;
+        rebindStartedFrame = Time.frameCount;
+        inputGroup.interactable = false;
+        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
+        bindingButtons[index].GetComponentInChildren<TMP_Text>().text = "키 입력 대기…";
+        ShowMessage($"‘{GameKeyBindings.Bindings[index].Label}’의 새 키를 누르세요. Esc로 취소합니다.");
+    }
+    void CancelRebind()
+    {
+        if (rebindingIndex >= 0)
+        {
+            rebindSelection = bindingButtons[rebindingIndex].gameObject;
+            selectionAfterFrame = Time.frameCount;
+        }
+        rebindingIndex = -1;
+        if (inputGroup != null) inputGroup.interactable = true;
+        RefreshBindings();
+    }
+    void RefreshBindings()
+    {
+        if (bindingButtons == null) return;
+        for (int i = 0; i < bindingButtons.Length; i++)
+            bindingButtons[i].GetComponentInChildren<TMP_Text>().text = GameKeyBindings.DisplayName(GameKeyBindings.Bindings[i].Control);
+    }
+    public void ShowMessage(string message) { if (controlsHint != null) controlsHint.text = message; }
+    public void ShowError(string message) { if (statusMessage != null) statusMessage.text = message; }
+    public bool TryCancelForEscape()
+    {
+        if (rebindingIndex >= 0) { CancelRebind(); ShowMessage("키 변경을 취소했습니다."); return true; }
+        if (titleConfirmation.activeSelf) { CloseTitleConfirmation(); return true; }
+        return false;
+    }
+    void CloseTitleConfirmation()
+    {
+        titleConfirmation.SetActive(false);
+        ConfigureNavigation();
+        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(titleButton.gameObject);
+    }
     public void SelectTab(int index)
     {
+        CancelRebind();
         currentTab = Mathf.Clamp(index, 0, pages.Length - 1);
         for (int i = 0; i < pages.Length; i++)
         {
@@ -41,7 +173,7 @@ public sealed class OptionsPanelView : MonoBehaviour
             tabs[i].GetComponentInChildren<TMP_Text>().color = i == currentTab ? inactive : new Color32(157, 184, 195, 255);
         }
         applyButton.gameObject.SetActive(currentTab == 1);
-        resetButton.gameObject.SetActive(currentTab != 2);
+        resetButton.gameObject.SetActive(true);
         if (Application.isPlaying && EventSystem.current != null) EventSystem.current.SetSelectedGameObject(tabs[currentTab].gameObject);
         ConfigureNavigation();
         RefreshValues();
@@ -50,7 +182,8 @@ public sealed class OptionsPanelView : MonoBehaviour
     void ConfigureNavigation()
     {
         // 화면 밖의 게임 UI로 포커스가 빠지지 않도록 현재 탭의 활성 위젯 안에서 순환한다.
-        var controls = GetComponentsInChildren<Selectable>().Where(s => s.IsInteractable()).ToArray();
+        var root = titleConfirmation != null && titleConfirmation.activeSelf ? titleConfirmation.transform : transform;
+        var controls = root.GetComponentsInChildren<Selectable>().Where(s => s.IsInteractable()).ToArray();
         for (int i = 0; i < controls.Length; i++)
         {
             var navigation = controls[i].navigation; navigation.mode = Navigation.Mode.Explicit;

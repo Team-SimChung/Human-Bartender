@@ -6,6 +6,7 @@ using TMPro;
 using UnityEditor;
 using UnityEditor.U2D.Sprites;
 using UnityEditor.SceneManagement;
+using UnityEditor.Events;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -401,6 +402,15 @@ public static class VisualUISetup
         File.WriteAllText(scene.path, Regex.Replace(saved, pattern, _ => rects[index++]));
     }
 
+    [MenuItem("Tools/Human Bartender/UI/Rebuild settings panel")]
+    public static void RebuildSettings()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("편집 모드에서 실행하세요.");
+        UpdateSettings();
+        AssetDatabase.SaveAssets();
+        Debug.Log("[VisualUISetup] 확장된 설정 화면을 저장했습니다.");
+    }
+
     static void UpdateSettings()
     {
         var root = PrefabUtility.LoadPrefabContents(Scope);
@@ -426,18 +436,20 @@ public static class VisualUISetup
             frame.rectTransform.anchorMin = frame.rectTransform.anchorMax = new Vector2(.5f, .5f); frame.rectTransform.pivot = new Vector2(.5f, .5f); frame.rectTransform.anchoredPosition = Vector2.zero;
             var inside = Image("Surface", frame.transform, 1, 1, 998, 538, Ink);
             var view = frame.gameObject.AddComponent<OptionsPanelView>(); Set(view, "controller", controller);
+            var inputGroup = frame.gameObject.AddComponent<CanvasGroup>(); Set(view, "inputGroup", inputGroup);
             Image("Header", frame.transform, 1, 1, 998, 79, Hex("102731"));
             Image("Header accent", frame.transform, 0, 0, 52, 4, Hex("96e5eb"));
             Image("Header line", frame.transform, 1, 80, 998, 1, Line);
             Image("Menu icon", frame.transform, 28, 21, 40, 40, Color.white, Sprite("01.Shared/01.MainScreen/service_panel/BTN_service_panel.png"));
             Text("Heading", frame.transform, "설정", 88, 19, 400, 45, 30, null, Font("Bold_PFStardust_3_0_SDF"));
+            Set(view, "statusMessage", Text("Settings status", frame.transform, "", 510, 19, 400, 45, 12, Hex("efb4a5")));
             var close = Button("Close settings", frame.transform, "", 934, 21, 40, 40);
             close.GetComponent<Image>().sprite = Sprite("01.Shared/01.MainScreen/service_panel/BTN_service_close.png"); close.GetComponent<Image>().color = Color.white;
             Image("Navigation background", frame.transform, 1, 81, 217, 394, Hex("09151e"));
             Image("Navigation rule", frame.transform, 218, 81, 1, 394, Line);
             Image("Footer", frame.transform, 1, 475, 998, 64, Hex("0f242e"));
             Image("Footer rule", frame.transform, 1, 475, 998, 1, Line);
-            var pages = new GameObject[3]; var tabs = new Button[3]; var indicators = new GameObject[3]; string[] titles = { "사운드", "게임 설정", "조작 안내" };
+            var pages = new GameObject[3]; var tabs = new Button[3]; var indicators = new GameObject[3]; string[] titles = { "사운드", "그래픽", "조작키" };
             for (int i = 0; i < 3; i++)
             {
                 tabs[i] = Button(titles[i] + " tab", frame.transform, titles[i], 16, 106 + i * 60, 186, 50);
@@ -448,37 +460,100 @@ public static class VisualUISetup
                 pages[i] = Rect(titles[i] + " page", frame.transform, 248, 104, 722, 346).gameObject;
             }
             var sound = pages[0].transform;
-            LabelRow(sound, "음악 음량", "배경 음악의 크기를 조절합니다.", 0);
-            LabelRow(sound, "효과음 음량", "UI · 상호작용 · 제조 효과음", 76);
-            StyleSlider(bgm, sound, 490, 15); StyleSlider(se, sound, 490, 91);
+            Text("BGM label", sound, "배경음", 0, 0, 400, 28, 16);
+            Text("BGM help", sound, "음소거를 해제하면 설정한 음량으로 돌아옵니다.", 0, 28, 480, 25, 11, Muted);
+            Text("SE label", sound, "효과음", 0, 118, 400, 28, 16);
+            Text("SE help", sound, "UI · 상호작용 · 제조 효과음", 0, 146, 480, 25, 11, Muted);
+            Image("BGM rule", sound, 0, 104, 722, 1, Line);
+            Image("SE rule", sound, 0, 222, 722, 1, Line);
+            StyleSlider(bgm, sound, 460, 15); StyleSlider(se, sound, 460, 133);
             var bgmValue = Text("BGM percentage", sound, "30%", 659, 9, 63, 30, 13, Hex("a6e7ed")); bgmValue.alignment = TextAlignmentOptions.MidlineRight;
-            var seValue = Text("SE percentage", sound, "80%", 659, 85, 63, 30, 13, Hex("a6e7ed")); seValue.alignment = TextAlignmentOptions.MidlineRight;
-            Text("Sound save hint", sound, "변경한 음량은 즉시 적용되고 저장됩니다.", 0, 183, 700, 30, 12, Muted);
+            var seValue = Text("SE percentage", sound, "80%", 659, 127, 63, 30, 13, Hex("a6e7ed")); seValue.alignment = TextAlignmentOptions.MidlineRight;
+            var bgmMute = SettingsToggle("BGM mute", sound, "배경음 음소거", 520, 52);
+            var seMute = SettingsToggle("SE mute", sound, "효과음 음소거", 520, 170);
+            UnityEventTools.AddPersistentListener(bgmMute.onValueChanged, controller.OnBgmMuted);
+            UnityEventTools.AddPersistentListener(seMute.onValueChanged, controller.OnSeMuted);
+            Set(controller, "bgmMuteToggle", bgmMute); Set(controller, "seMuteToggle", seMute);
+            Text("Sound save hint", sound, "음량과 음소거는 즉시 적용되고 저장됩니다.", 0, 250, 700, 30, 12, Muted);
             var game = pages[1].transform;
-            LabelRow(game, "화면 모드", "창모드를 끄면 전체화면으로 표시합니다.", 0);
-            LabelRow(game, "창 크기", "창모드에서 사용할 화면 크기를 선택합니다.", 76);
-            toggle.transform.SetParent(game, false); Position((RectTransform)toggle.transform, 520, 8, 202, 36);
+            GraphicsRow(game, "화면 모드", "창모드를 끄면 전체화면으로 표시합니다.", 0);
+            GraphicsRow(game, "창 크기", "창모드에서 사용할 해상도입니다.", 46);
+            GraphicsRow(game, "화면 채우기", "끄면 원래 비율을 유지하고 여백을 표시합니다.", 92);
+            GraphicsRow(game, "수직 동기화", "화면 주사율에 맞춰 화면 찢어짐을 줄입니다.", 138);
+            GraphicsRow(game, "프레임 제한", "수직 동기화를 끈 상태에서 선택할 수 있습니다.", 184);
+            GraphicsRow(game, "후처리 효과", "색 보정과 화면 후처리 효과를 사용합니다.", 230);
+            toggle.transform.SetParent(game, false); Position((RectTransform)toggle.transform, 520, 3, 202, 36);
             StyleToggle(toggle);
-            dropdown.transform.SetParent(game, false); Position((RectTransform)dropdown.transform, 520, 84, 202, 36);
+            dropdown.transform.SetParent(game, false); Position((RectTransform)dropdown.transform, 520, 49, 202, 36);
             StyleDropdown(dropdown);
-            Text("Display apply hint", game, "화면 설정은 아래 ‘적용’을 눌러 확정합니다.", 0, 183, 700, 30, 12, Muted);
+            var fill = SettingsToggle("Fill screen", game, "화면에 맞추기", 520, 95);
+            var vsync = SettingsToggle("VSync", game, "사용", 520, 141);
+            var post = SettingsToggle("Post processing", game, "사용", 520, 233);
+            var frameRate = Object.Instantiate(dropdown, game); frameRate.name = "Frame rate";
+            Position((RectTransform)frameRate.transform, 520, 187, 202, 36);
+            frameRate.onValueChanged = new TMP_Dropdown.DropdownEvent();
+            post.transform.SetAsLastSibling();
+            frameRate.ClearOptions(); frameRate.AddOptions(new System.Collections.Generic.List<string> { "30 FPS", "60 FPS", "120 FPS", "144 FPS", "제한 없음" });
+            UnityEventTools.AddPersistentListener(vsync.onValueChanged, controller.OnVSyncToggled);
+            Set(controller, "fillToggle", fill); Set(controller, "vSyncToggle", vsync);
+            Set(controller, "postProcessingToggle", post); Set(controller, "frameRateDropdown", frameRate);
+            Text("Display apply hint", game, "그래픽 변경은 ‘적용’을 눌러 저장합니다. 적용 전 닫으면 변경을 취소합니다.", 0, 294, 722, 40, 12, Muted);
             var controls = pages[2].transform;
-            LabelRow(controls, "대화 진행", "마우스 클릭으로 빠르게 표시하고 다음 대사로 진행합니다.", 0);
-            LabelRow(controls, "대화 선택지", "선택지를 마우스로 1초간 누릅니다. 키보드·패드도 확인 버튼을 길게 누릅니다.", 76);
-            LabelRow(controls, "설정 / 뒤로", "Esc  ·  열려 있는 서비스 메뉴나 상호작용을 먼저 닫습니다.", 152);
-            Text("Context controls", controls, "이동·제조 조작은 각 상황의 화면 안내를 따라 주세요.", 0, 257, 720, 40, 12, Muted);
+            var hint = Text("Controls hint", controls, OptionsPanelView.DefaultControlsHint, 0, 0, 722, 44, 12, Muted); Set(view, "controlsHint", hint);
+            var viewport = Image("Bindings viewport", controls, 0, 52, 702, 286, Hex("09151e"));
+            viewport.raycastTarget = true; viewport.gameObject.AddComponent<RectMask2D>();
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>(); scroll.horizontal = false;
+            scroll.viewport = viewport.rectTransform; scroll.movementType = ScrollRect.MovementType.Clamped;
+            var content = Rect("Bindings", viewport.transform, 0, 0, 702, GameKeyBindings.Bindings.Length * 40);
+            scroll.content = content; Set(view, "bindingsScroll", scroll);
+            var scrollbarImage = Image("Bindings scrollbar", controls, 710, 52, 12, 286, Hex("162f3b")); scrollbarImage.raycastTarget = true;
+            var scrollbar = scrollbarImage.gameObject.AddComponent<Scrollbar>(); scrollbar.direction = Scrollbar.Direction.BottomToTop;
+            var handle = Image("Handle", scrollbar.transform, 0, 0, 12, 286, Hex("59899b")); handle.raycastTarget = true;
+            Stretch(handle.rectTransform);
+            scrollbar.handleRect = handle.rectTransform; scrollbar.targetGraphic = handle; scroll.verticalScrollbar = scrollbar;
+            var bindingButtons = new Button[GameKeyBindings.Bindings.Length];
+            for (int i = 0; i < bindingButtons.Length; i++)
+            {
+                var binding = GameKeyBindings.Bindings[i];
+                Text(binding.Control + " label", content, binding.Label, 12, i * 40, 480, 36, 14);
+                bindingButtons[i] = Button(binding.Control + " binding", content, binding.DefaultKey.ToString(), 520, i * 40 + 2, 170, 32);
+                Image(binding.Control + " rule", content, 12, i * 40 + 39, 678, 1, Line);
+            }
+            SetArray(view, "bindingButtons", bindingButtons);
+            var title = Button("Return to title", frame.transform, "타이틀로 돌아가기", 24, 491, 172, 36);
+            Set(view, "titleButton", title);
             var reset = Button("Reset current tab", frame.transform, "이 항목 초기화", 640, 491, 118, 36);
             var apply = Button("Apply display", frame.transform, "적용", 770, 491, 80, 36);
             var back = Button("Back", frame.transform, "돌아가기  Esc", 862, 491, 112, 36, true);
             Set(view, "closeButton", close); Set(view, "backButton", back); Set(view, "resetButton", reset); Set(view, "applyButton", apply);
             Set(view, "bgmSlider", bgm); Set(view, "seSlider", se); Set(view, "bgmValue", bgmValue); Set(view, "seValue", seValue);
             SetArray(view, "tabs", tabs); SetArray(view, "pages", pages); SetArray(view, "tabIndicators", indicators);
+            var confirmation = Image("Title confirmation", frame.transform, 0, 0, 1000, 540, new Color(0, .02f, .04f, .94f)); confirmation.raycastTarget = true;
+            Image("Confirmation surface", confirmation.transform, 220, 165, 560, 210, Hex("162f3b"));
+            Text("Confirmation heading", confirmation.transform, "타이틀로 돌아갈까요?", 252, 190, 496, 38, 23);
+            Text("Confirmation help", confirmation.transform, "저장하지 않은 진행 상황은 사라집니다.", 252, 241, 496, 32, 14, Muted);
+            var cancel = Button("Cancel return", confirmation.transform, "계속 플레이", 460, 310, 130, 40);
+            var confirm = Button("Confirm return", confirmation.transform, "타이틀로 이동", 606, 310, 142, 40, true);
+            Set(view, "titleConfirmation", confirmation.gameObject); Set(view, "cancelTitleButton", cancel); Set(view, "confirmTitleButton", confirm);
+            confirmation.gameObject.SetActive(false);
             // 필드 연결을 끝낸 다음 활성화한다. OnEnable은 저장된 프리팹을 미리 보는데도 사용된다.
             pages[1].SetActive(false); pages[2].SetActive(false);
             overlay.SetActive(false);
             PrefabUtility.SaveAsPrefabAsset(root, Scope);
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+    static void GraphicsRow(Transform parent, string label, string description, float y)
+    {
+        Text(label, parent, label, 0, y, 490, 23, 14);
+        Text(label + " help", parent, description, 0, y + 22, 500, 19, 10, Muted);
+        Image(label + " rule", parent, 0, y + 44, 722, 1, Line);
+    }
+    static Toggle SettingsToggle(string name, Transform parent, string label, float x, float y)
+    {
+        var root = Image(name, parent, x, y, 202, 36, Hex("162f3b"));
+        var toggle = root.gameObject.AddComponent<Toggle>();
+        StyleToggle(toggle, label); return toggle;
     }
     static void LabelRow(Transform parent, string label, string description, float y)
     {
@@ -504,13 +579,13 @@ public static class VisualUISetup
         var rootImage = slider.GetComponent<Image>() ?? slider.gameObject.AddComponent<Image>();
         rootImage.sprite = null; rootImage.color = Color.clear; rootImage.raycastTarget = true;
     }
-    static void StyleToggle(Toggle toggle)
+    static void StyleToggle(Toggle toggle, string label = "창모드")
     {
         ClearChildren(toggle.transform);
         var bg = toggle.GetComponent<Image>() ?? toggle.gameObject.AddComponent<Image>(); bg.sprite = null; bg.color = Hex("162f3b"); bg.raycastTarget = true;
         var check = Image("Enabled", toggle.transform, 12, 11, 14, 14, Cyan);
         toggle.graphic = check; toggle.targetGraphic = bg;
-        Text("Label", toggle.transform, "창모드", 38, 0, 154, 36, 14);
+        Text("Label", toggle.transform, label, 38, 0, 154, 36, 14);
     }
     static void StyleDropdown(TMP_Dropdown dropdown)
     {

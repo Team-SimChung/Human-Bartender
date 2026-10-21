@@ -20,6 +20,8 @@ public class StirInputHandler : MonoBehaviour, ICraftStirInput
         actions[(int)EStirDirection.Right].performed += OnRight;
         actions[(int)EStirDirection.Down].performed += OnDown;
         actions[(int)EStirDirection.Left].performed += OnLeft;
+        GameKeyBindings.Changed += ApplyBindings;
+        ApplyBindings();
         if (stir != null) stir.Completed += DisableActions;
     }
 
@@ -35,6 +37,7 @@ public class StirInputHandler : MonoBehaviour, ICraftStirInput
 
     private void OnDestroy()
     {
+        GameKeyBindings.Changed -= ApplyBindings;
         if (stir != null) stir.Completed -= DisableActions;
         if (actions == null) return;
         actions[(int)EStirDirection.Up].performed -= OnUp;
@@ -54,7 +57,17 @@ public class StirInputHandler : MonoBehaviour, ICraftStirInput
 
     public void OnStirInput(EStirDirection direction)
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         if (stir != null) stir.EnqueueDirection((int)direction);
+    }
+
+    void ApplyBindings()
+    {
+        if (actions == null) return;
+        actions[(int)EStirDirection.Up].ApplyBindingOverride(0, GameKeyBindings.Path(GameKeyBindings.GetKey(GameControl.StirUp)));
+        actions[(int)EStirDirection.Right].ApplyBindingOverride(0, GameKeyBindings.Path(GameKeyBindings.GetKey(GameControl.StirRight)));
+        actions[(int)EStirDirection.Down].ApplyBindingOverride(0, GameKeyBindings.Path(GameKeyBindings.GetKey(GameControl.StirDown)));
+        actions[(int)EStirDirection.Left].ApplyBindingOverride(0, GameKeyBindings.Path(GameKeyBindings.GetKey(GameControl.StirLeft)));
     }
 
     private static InputAction CreateAction(string name, string keyPath, string arrowPath)

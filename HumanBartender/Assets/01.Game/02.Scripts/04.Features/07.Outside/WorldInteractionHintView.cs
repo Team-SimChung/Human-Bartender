@@ -20,6 +20,7 @@ public sealed class WorldInteractionHintView : MonoBehaviour
     private Action advance;
     private Action close;
     private bool exits;
+    private string currentText;
 
     internal Button Button => button;
     internal TMP_Text Label => label;
@@ -32,6 +33,7 @@ public sealed class WorldInteractionHintView : MonoBehaviour
         close = onClose;
         interactKeyIcon = keyIcon.sprite;
         button.onClick.AddListener(HandleClick);
+        GameKeyBindings.Changed += RefreshKey;
     }
 
     private void HandleClick()
@@ -50,18 +52,27 @@ public sealed class WorldInteractionHintView : MonoBehaviour
     private void Show(string text, bool exit)
     {
         exits = exit;
-        var icon = exit ? escapeKeyIcon : interactKeyIcon;
+        currentText = text;
+        RefreshKey();
+        gameObject.SetActive(true);
+    }
+
+    void RefreshKey()
+    {
+        if (keyIcon == null || label == null || currentText == null) return;
+        bool defaultKey = GameKeyBindings.GetKey(GameControl.Interact) == UnityEngine.InputSystem.Key.E;
+        var icon = exits ? escapeKeyIcon : defaultKey ? interactKeyIcon : null;
         keyIcon.sprite = icon;
         keyIcon.enabled = icon != null;
         // 상호작용·진행은 프리팹의 E 아이콘을 쓰고 종료는 Esc로 구분함.
-        label.text = icon != null ? text : (exit ? "Esc  " : "E  ") + text;
-        gameObject.SetActive(true);
+        label.text = icon != null ? currentText : (exits ? "Esc" : GameKeyBindings.DisplayName(GameControl.Interact)) + "  " + currentText;
     }
 
     public void Hide() => gameObject.SetActive(false);
 
     private void OnDestroy()
     {
+        GameKeyBindings.Changed -= RefreshKey;
         if (button != null) button.onClick.RemoveListener(HandleClick);
     }
 }

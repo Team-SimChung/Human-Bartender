@@ -36,9 +36,9 @@ public class ProjectLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<AudioVolumeSettings>(Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<UIDisplayOptions>();
+        builder.RegisterEntryPoint<GameKeyBindingRuntime>();
         builder.RegisterComponentInHierarchy<UICashPanel>();
-        builder.Register<DisplaySettings>(Lifetime.Singleton)
-            .AsImplementedInterfaces();
+        builder.RegisterEntryPoint<DisplaySettings>(Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<SceneTransitionManager>()
             .As<ISceneTransitionService>()

@@ -59,6 +59,7 @@ public class Player : MonoBehaviour, IInteractor
     /// </summary>
     public void Update()
     {
+        if (UIDisplayOptions.IsOptionOpen) { animator2D?.Stop(); return; }
         if (gameObject.scene.name is "Home" or "OutSide")
         {
             if (sceneEntities == null)

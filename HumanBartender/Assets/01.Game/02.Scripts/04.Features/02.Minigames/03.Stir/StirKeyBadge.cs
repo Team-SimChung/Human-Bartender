@@ -56,6 +56,8 @@ public class StirKeyBadge : MonoBehaviour
         if (stepOrder != null) stepOrder.text = order;
     }
 
+    public void SetKeyLabel(string key) { if (letter != null) letter.text = key; }
+
     public void SetState(EState value)
     {
         state = value;

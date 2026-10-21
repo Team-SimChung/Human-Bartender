@@ -16,6 +16,7 @@ public class OutsideInputHandler : MonoBehaviour
     /// <summary>공통 세션에서 시작·대화 진행·선택 확정을 구분함.</summary>
     public void OnInteract(InputValue value)
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         if (worldInteractions == null) worldInteractions = WorldInteractionController.ForScene(gameObject.scene);
         if (!value.isPressed || worldInteractions == null || !worldInteractions.isActiveAndEnabled) return;
         worldInteractions.TryHandleInput();

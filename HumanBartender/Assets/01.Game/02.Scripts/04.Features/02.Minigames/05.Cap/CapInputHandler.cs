@@ -20,6 +20,7 @@ public class CapInputHandler : MonoBehaviour, ICraftCapInput
 
     public void OnCapInput()
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         if (cap != null) cap.OnPress();
     }
 
@@ -28,15 +29,9 @@ public class CapInputHandler : MonoBehaviour, ICraftCapInput
         if (cap == null || routedInput) return;
 
         // 같은 프레임에 둘 다 눌려도 한 번만 친다 — || 단축 평가로 자연스럽게 처리된다.
-        bool pressed = WasSpacePressedThisFrame() || WasPointerPressedThisFrame();
+        bool pressed = GameKeyBindings.WasPressed(GameControl.CapPress) || WasPointerPressedThisFrame();
 
         if (pressed) OnCapInput();
-    }
-
-    static bool WasSpacePressedThisFrame()
-    {
-        Keyboard keyboard = Keyboard.current;
-        return keyboard != null && keyboard.spaceKey.wasPressedThisFrame;
     }
 
     static bool WasPointerPressedThisFrame()

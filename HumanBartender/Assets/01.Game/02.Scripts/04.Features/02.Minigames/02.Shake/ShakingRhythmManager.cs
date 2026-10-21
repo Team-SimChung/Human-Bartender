@@ -194,7 +194,7 @@ public class ShakingRhythmManager : MonoBehaviour, ICraftGimmick,
     /// </summary>
     private void Update()
     {
-        if (!ready) return;
+        if (!ready || UIDisplayOptions.IsOptionOpen) return;
         float dt = Time.deltaTime;
         uiAge += dt;
         feedbackLeft = Mathf.Max(0, feedbackLeft - dt);
@@ -209,8 +209,8 @@ public class ShakingRhythmManager : MonoBehaviour, ICraftGimmick,
         {
             // 팝업이 사라져도 게임은 시작 대기 상태이고 Space/A/K로 시작할 수 있다.
             if (introPanel != null && uiAge >= 4) introPanel.SetActive(false);
-            if (keyboard != null && (keyboard.spaceKey.wasPressedThisFrame ||
-                keyboard.aKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame)) StartGame();
+            if (keyboard?.spaceKey.wasPressedThisFrame == true ||
+                GameKeyBindings.WasPressed(GameControl.ShakeLeft) || GameKeyBindings.WasPressed(GameControl.ShakeRight)) StartGame();
             return;
         }
 
@@ -239,8 +239,8 @@ public class ShakingRhythmManager : MonoBehaviour, ICraftGimmick,
         if (keyboard != null)
         {
             // 두 키를 별도로 확인하므로 한 프레임에 두 레인을 모두 입력할 수 있다.
-            if (keyboard.aKey.wasPressedThisFrame) Judge(0);
-            if (keyboard.dKey.wasPressedThisFrame) Judge(1);
+            if (GameKeyBindings.WasPressed(GameControl.ShakeLeft)) Judge(0);
+            if (GameKeyBindings.WasPressed(GameControl.ShakeRight)) Judge(1);
         }
         // 카운트다운의 구간 길이 0.6초는 안내용 고정값이며 생성 간격 필드와 별개다.
         if (countdown != null)

@@ -23,7 +23,14 @@ public sealed class AudioRoutingRuntimeTests
     {
         public float Music = .8f, Effects = .4f;
         public int Saves;
+        public bool MusicMuted, EffectsMuted;
         public float Load(AudioBus bus) => bus == AudioBus.Music ? Music : Effects;
+        public bool LoadMuted(AudioBus bus) => bus == AudioBus.Music ? MusicMuted : EffectsMuted;
+        public void SaveMuted(AudioBus bus, bool muted)
+        {
+            if (bus == AudioBus.Music) MusicMuted = muted;
+            else EffectsMuted = muted;
+        }
         public void Save(AudioBus bus, float value)
         {
             if (bus == AudioBus.Music) Music = value;
@@ -98,6 +105,18 @@ public sealed class AudioRoutingRuntimeTests
             AssertVolume(output, AudioBus.SoundEffects, Mathf.Log10(.4f) * 20);
             AssertVolume(output, AudioBus.Music, Mathf.Log10(.8f) * 20);
             Assert.That(store.Saves, Is.Zero, "Loading preferences must not overwrite them.");
+            settings.SetBGMMuted(true);
+            AssertVolume(output, AudioBus.Music, -80);
+            AssertVolume(output, AudioBus.SoundEffects, Mathf.Log10(.4f) * 20);
+            Assert.That(settings.GetBGMVolume(), Is.EqualTo(.8f), "muting must remember the volume");
+            settings.SetSEMuted(true);
+            AssertVolume(output, AudioBus.SoundEffects, -80);
+            new AudioVolumeSettings(output, store).Start();
+            AssertVolume(output, AudioBus.Music, -80);
+            AssertVolume(output, AudioBus.SoundEffects, -80);
+            settings.SetBGMMuted(false); settings.SetSEMuted(false);
+            AssertVolume(output, AudioBus.Music, Mathf.Log10(.8f) * 20);
+            AssertVolume(output, AudioBus.SoundEffects, Mathf.Log10(.4f) * 20);
 
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
                 "Assets/01.Game/03.Content/08.Prefabs/04.Shared/01.Bootstrap/ProjectLifeScope.prefab")

@@ -193,6 +193,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
 
     void Update()
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         UpdateFeedback(Time.deltaTime);
         if (phase == Phase.Finished) return;
 

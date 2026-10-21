@@ -11,6 +11,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.TestTools;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 public sealed class VisualUIReviewTests
@@ -49,11 +52,19 @@ public sealed class VisualUIReviewTests
             view.SelectTab(1);
             Ref<Toggle>(options, "windowedToggle").isOn = true;
             Ref<TMP_Dropdown>(options, "windowSizeDropdown").value = 1;
+            Ref<Toggle>(options, "fillToggle").isOn = false;
+            Ref<Toggle>(options, "vSyncToggle").isOn = false;
+            Ref<TMP_Dropdown>(options, "frameRateDropdown").value = 2;
+            Ref<Toggle>(options, "postProcessingToggle").isOn = false;
             Assert.That(display.ApplyCalls, Is.Zero, "editing a draft must not change the actual screen");
             options.OnApplyClicked();
             Assert.That(display.Fullscreen, Is.False); Assert.That(display.Index, Is.EqualTo(1));
+            Assert.That(display.Fill, Is.False); Assert.That(display.VSync, Is.False);
+            Assert.That(display.FrameRateIndex, Is.EqualTo(2)); Assert.That(display.PostProcessing, Is.False);
+            audio.SetBGMMuted(true); audio.SetSEMuted(true);
             options.ResetSound();
             Assert.That(audio.Bgm, Is.EqualTo(.3f).Within(.001)); Assert.That(audio.Se, Is.EqualTo(.8f).Within(.001));
+            Assert.That(audio.IsBGMMuted, Is.False); Assert.That(audio.IsSEMuted, Is.False);
             view.SelectTab(0); Capture(options.GetComponent<Canvas>(), "settings-sound", 1280, 720);
             view.SelectTab(1); Capture(options.GetComponent<Canvas>(), "settings-game", 1920, 1080);
             view.SelectTab(2); Capture(options.GetComponent<Canvas>(), "settings-controls", 1024, 768);
@@ -167,13 +178,59 @@ public sealed class VisualUIReviewTests
         Ref<Slider>(options, "seSlider").value = .71f;
         Assert.That(audio.Bgm, Is.EqualTo(.51f).Within(.001), "the preserved persistent event must reach the injected audio service");
         Assert.That(audio.Se, Is.EqualTo(.71f).Within(.001));
+        Ref<Toggle>(options, "bgmMuteToggle").isOn = true;
+        Ref<Toggle>(options, "seMuteToggle").isOn = true;
+        Assert.That(audio.IsBGMMuted, Is.True); Assert.That(audio.IsSEMuted, Is.True);
         var panel = Ref<GameObject>(options, "optionUI").GetComponentInChildren<OptionsPanelView>();
+        Assert.That(Ref<Button>(panel, "titleButton").interactable, Is.False, "already at the title");
         Capture(options.GetComponent<Canvas>(), "runtime-settings", 1280, 720);
         panel.SelectTab(1);
         var windowed = Ref<Toggle>(options, "windowedToggle"); windowed.isOn = true;
         Assert.That(windowed.navigation.selectOnDown, Is.EqualTo(Ref<TMP_Dropdown>(options, "windowSizeDropdown")), "enabling windowed mode must make its size selector reachable by keyboard");
         options.ResetDisplayDraft();
         Assert.That(windowed.navigation.selectOnDown, Is.Not.EqualTo(Ref<TMP_Dropdown>(options, "windowSizeDropdown")));
+        panel.SelectTab(2);
+        var keys = new SerializedObject(panel).FindProperty("bindingButtons");
+        var bindingButton = (Button)keys.GetArrayElementAtIndex((int)GameControl.ShakeLeft).objectReferenceValue;
+        string preference = GameKeyBindings.PreferenceKey(GameControl.ShakeLeft);
+        bool hadKey = PlayerPrefs.HasKey(preference); int previousKey = PlayerPrefs.GetInt(preference);
+        var editorInput = InputSystem.settings.editorInputBehaviorInPlayMode;
+        var backgroundInput = InputSystem.settings.backgroundBehavior;
+        InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+        InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+        var keyboard = InputSystem.AddDevice<Keyboard>();
+        bool shakePressed = false;
+        void ObserveShakeInput() { if (GameKeyBindings.WasPressed(GameControl.ShakeLeft)) shakePressed = true; }
+        try
+        {
+            bindingButton.onClick.Invoke();
+            yield return null;
+            InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.J));
+            yield return null;
+            Assert.That(GameKeyBindings.GetKey(GameControl.ShakeLeft), Is.EqualTo(Key.J));
+            Assert.That(bindingButton.GetComponentInChildren<TMP_Text>().text, Does.Contain("J"));
+            InputSystem.QueueStateEvent(keyboard, new KeyboardState()); yield return null;
+            bindingButton.onClick.Invoke(); yield return null;
+            // The batch editor reserves Escape; use the same handler as the keyboard readers.
+            options.HandleEscape(); options.HandleEscape(); yield return null;
+            Assert.That(UIDisplayOptions.IsOptionOpen, Is.True, "Escape cancels rebinding before closing settings");
+            Assert.That(Ref<CanvasGroup>(panel, "inputGroup").interactable, Is.True);
+            Assert.That(GameKeyBindings.GetKey(GameControl.ShakeLeft), Is.EqualTo(Key.J));
+            Capture(options.GetComponent<Canvas>(), "runtime-settings-controls", 1280, 720);
+            InputSystem.QueueStateEvent(keyboard, new KeyboardState()); yield return null;
+            InputSystem.onAfterUpdate += ObserveShakeInput;
+            InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.J)); yield return null; yield return null;
+            Assert.That(shakePressed, Is.True, "direct minigame polling must use the saved key in the player loop");
+        }
+        finally
+        {
+            InputSystem.RemoveDevice(keyboard);
+            InputSystem.onAfterUpdate -= ObserveShakeInput;
+            InputSystem.settings.editorInputBehaviorInPlayMode = editorInput;
+            InputSystem.settings.backgroundBehavior = backgroundInput;
+            if (hadKey) PlayerPrefs.SetInt(preference, previousKey); else PlayerPrefs.DeleteKey(preference);
+            PlayerPrefs.Save();
+        }
         Ref<Button>(panel, "backButton").onClick.Invoke();
         Assert.That(UIDisplayOptions.IsOptionOpen, Is.False);
         Assert.That(EventSystem.current.currentSelectedGameObject, Is.EqualTo(settings.gameObject));
@@ -201,6 +258,25 @@ public sealed class VisualUIReviewTests
         hold.OnPointerUp(pointer);
         CollectionAssert.AreEqual(original, label.textInfo.meshInfo[0].vertices, "release must restore every glyph without waiting for the next frame");
         Object.Destroy(root);
+
+        // A gameplay scene uses the same persistent settings controller and the real fade/load service.
+        var gameplay = SceneManager.CreateScene("Options return review"); SceneManager.SetActiveScene(gameplay);
+        while (SceneTransitionManager.Instance.IsBusy) yield return null;
+        options.Show(); yield return null;
+        panel = Ref<GameObject>(options, "optionUI").GetComponentInChildren<OptionsPanelView>();
+        var returnButton = Ref<Button>(panel, "titleButton");
+        Assert.That(returnButton.interactable, Is.True);
+        returnButton.onClick.Invoke();
+        Assert.That(Ref<GameObject>(panel, "titleConfirmation").activeSelf, Is.True);
+        Capture(options.GetComponent<Canvas>(), "runtime-settings-title-confirmation", 1280, 720);
+        Ref<Button>(panel, "cancelTitleButton").onClick.Invoke();
+        Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Options return review"));
+        returnButton.onClick.Invoke(); Ref<Button>(panel, "confirmTitleButton").onClick.Invoke();
+        Assert.That(UIDisplayOptions.IsOptionOpen, Is.False);
+        double deadline = Time.realtimeSinceStartupAsDouble + 15;
+        while (SceneTransitionManager.Instance.IsBusy && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+        Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("Main"));
+        Assert.That(SceneTransitionManager.Instance.IsBusy, Is.False);
     }
 
     static void Capture(Canvas canvas, string name, int width, int height)
@@ -238,9 +314,14 @@ public sealed class VisualUIReviewTests
     {
         public Vector2Int[] WindowedSizes => new[] { new Vector2Int(1280, 720), new Vector2Int(1600, 900), new Vector2Int(1920, 1080) };
         public int ApplyCalls, Index; public bool Fullscreen;
+        public int FrameRateIndex;
+        public bool Fill, VSync, PostProcessing;
         public void SetWindowedSize(int index) { Index = index; ApplyCalls++; }
         public void SetFullscreen(bool fullscreen) { Fullscreen = fullscreen; ApplyCalls++; }
-        public void SetFillMode(bool value) { }
+        public void SetFillMode(bool value) => Fill = value;
+        public void SetVSync(bool value) => VSync = value;
+        public void SetFrameRate(int index) => FrameRateIndex = index;
+        public void SetPostProcessing(bool value) => PostProcessing = value;
         public void RegisterActiveCamera(UnityEngine.Rendering.Universal.PixelPerfectCamera camera) { }
         public void UnregisterActiveCamera(UnityEngine.Rendering.Universal.PixelPerfectCamera camera) { }
     }
@@ -249,5 +330,9 @@ public sealed class VisualUIReviewTests
         public float Bgm = .42f, Se = .63f;
         public float GetBGMVolume() => Bgm; public float GetSEVolume() => Se;
         public void SetBGMVolume(float value) => Bgm = value; public void SetSEVolume(float value) => Se = value;
+        public bool IsBGMMuted { get; private set; }
+        public bool IsSEMuted { get; private set; }
+        public void SetBGMMuted(bool value) => IsBGMMuted = value;
+        public void SetSEMuted(bool value) => IsSEMuted = value;
     }
 }

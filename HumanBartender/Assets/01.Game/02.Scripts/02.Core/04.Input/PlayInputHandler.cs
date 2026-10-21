@@ -23,6 +23,7 @@ public class PlayInputHandler : MonoBehaviour
     /// </summary>
     public void OnAdvance(InputValue value)
     {
+        if (UIDisplayOptions.IsOptionOpen || !value.isPressed) return;
         if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
         if (servicePanelController != null && servicePanelController.IsMenuOpen) return;
         if (recipeScreen != null && recipeScreen.IsOpen) return;
@@ -38,6 +39,7 @@ public class PlayInputHandler : MonoBehaviour
 
     void MoveSeat(InputValue value, int step)
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         // SendMessages also forwards key release; move only on the press.
         if (!value.isPressed || playPhaseController == null) return;
         if (playPhaseController.CanReceiveInput(EPlayPhase.Dialogue))
@@ -54,6 +56,7 @@ public class PlayInputHandler : MonoBehaviour
 
     public void OnServicePanel(InputValue value)
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         if (!value.isPressed || playPhaseController == null ||
             !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) && !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
         if (servicePanelController == null) return;
@@ -62,11 +65,13 @@ public class PlayInputHandler : MonoBehaviour
 
     public void OnPrepPrevious(InputValue value)
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         if (value.isPressed && craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Previous();
     }
 
     public void OnPrepNext(InputValue value)
     {
+        if (UIDisplayOptions.IsOptionOpen) return;
         if (value.isPressed && craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Next();
     }
 }

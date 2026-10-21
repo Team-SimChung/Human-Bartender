@@ -11280,6 +11280,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WindowRainLayer
   rainSource: {fileID: 9135345202383492205}
+  ambientRain: 0
   movementSource: {fileID: 398070675}
   settings:
     virtualRows: 270
@@ -11304,7 +11305,7 @@ MonoBehaviour:
   inertia: 0.3
   ambientWind: {x: -14, y: 0}
   gustStrength: 22
-  strength: 0.45
+  strength: 0.278
   shadingPixelSize: 1
   refraction: 0.045
   dispersion: 0.65
@@ -18722,8 +18723,12 @@ MonoBehaviour:
   speakers:
   - actor: citizen_a
     anchor: {fileID: 1183625827}
+    placement: 0
+    bubbleOffset: {x: 0, y: 8}
   - actor: citizen_b
     anchor: {fileID: 1824994704}
+    placement: 0
+    bubbleOffset: {x: 0, y: 8}
 --- !u!114 &2088661442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19438,6 +19443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   view: {fileID: 740190000000000033}
+  homeTerrace: {fileID: 0}
 --- !u!114 &740190000000000024
 MonoBehaviour:
   m_ObjectHideFlags: 0

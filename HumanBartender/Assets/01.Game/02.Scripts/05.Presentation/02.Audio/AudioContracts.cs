@@ -25,6 +25,10 @@ public interface IAudioVolumeSettings
     // 저장된 볼륨 조회 (옵션 슬라이더 초기값용)
     float GetBGMVolume();
     float GetSEVolume();
+    bool IsBGMMuted { get; }
+    bool IsSEMuted { get; }
+    void SetBGMMuted(bool muted);
+    void SetSEMuted(bool muted);
 }
 
 /// <summary>재생을 요청한 작업이 자신의 반복 효과음만 종료한다.</summary>

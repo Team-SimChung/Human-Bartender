@@ -33,7 +33,12 @@ public class StirGlassView : MonoBehaviour
     float targetAngle;
     float currentAngle;
 
-    // 노드의 글자·화살표·순번은 에디터 셋업(StirSceneSetup)이 만들 때 한 번 박아둔다.
+    void OnEnable() { GameKeyBindings.Changed += RefreshKeyLabels; RefreshKeyLabels(); }
+    void OnDisable() => GameKeyBindings.Changed -= RefreshKeyLabels;
+    void RefreshKeyLabels()
+    {
+        for (int i = 0; i < badges.Length; i++) badges[i]?.SetKeyLabel(StirDirections.KeyLabel(i));
+    }
 
     void Update()
     {

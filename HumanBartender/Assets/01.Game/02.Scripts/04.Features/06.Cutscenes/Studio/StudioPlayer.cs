@@ -80,8 +80,14 @@ namespace HumanBartender.CutsceneStudio
                 {
                     source.Token.ThrowIfCancellationRequested();
                     double now = Time.realtimeSinceStartupAsDouble;
+                    if (UIDisplayOptions.IsOptionOpen)
+                    {
+                        last = now;
+                        await UniTask.Yield(PlayerLoopTiming.Update, source.Token);
+                        continue;
+                    }
                     bool waiting = clock.Waiting.HasValue;
-                    if (advance || HandleKeyboardInput && (Keyboard.current?.eKey.wasPressedThisFrame == true || Keyboard.current?.enterKey.wasPressedThisFrame == true))
+                    if (advance || HandleKeyboardInput && (GameKeyBindings.WasPressed(GameControl.Interact) || Keyboard.current?.enterKey.wasPressedThisFrame == true))
                     {
                         if (waiting)
                             clock.Advance();
