@@ -150,3 +150,54 @@
 .studio-inspector-actions > Button { flex-grow: 1; margin-right: 5px; }
 .studio-property { margin-bottom: 5px; }
 #sequence-issues { margin: 8px 10px 0 18px; }
+
+/* 속성 패널에만 적용하여 다른 패널의 테마와 배치를 유지함. */
+#properties-panel #properties-clip-type {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 11px;
+    color: rgb(161, 161, 161);
+    margin: 0;
+}
+#properties-panel .studio-properties-note {
+    white-space: normal;
+    color: rgb(164, 164, 164);
+    font-size: 11px;
+    margin: 2px 0 8px 0;
+    flex-shrink: 0;
+}
+#properties-panel .studio-properties-pose { margin-bottom: 7px; flex-shrink: 0; }
+#properties-panel .studio-properties-subtitle {
+    -unity-font-style: bold;
+    margin: 1px 0 6px 0;
+    color: rgb(190, 190, 190);
+}
+#properties-panel .studio-properties-readonly > .unity-base-field__input {
+    background-color: rgb(49, 49, 49);
+    color: rgb(162, 162, 162);
+    border-color: rgb(49, 49, 49);
+}
+#properties-panel .studio-properties-preview {
+    height: 96px;
+    flex-shrink: 0;
+    margin: 2px 0 7px 0;
+    padding: 6px;
+    background-color: rgb(43, 43, 43);
+    border-width: 1px;
+    border-color: rgb(35, 35, 35);
+}
+#properties-panel .studio-properties-dialogue .unity-text-field {
+    flex-direction: column;
+    align-items: stretch;
+}
+#properties-panel .studio-properties-dialogue .unity-text-field > .unity-base-field__label {
+    width: auto;
+    margin-bottom: 5px;
+}
+#properties-panel .studio-properties-dialogue .unity-text-field > .unity-base-field__input {
+    min-height: 74px;
+    white-space: normal;
+}
+#properties-panel .studio-section .unity-base-field { min-width: 0; }
+#properties-panel .studio-section .unity-base-field__label { overflow: hidden; text-overflow: ellipsis; }

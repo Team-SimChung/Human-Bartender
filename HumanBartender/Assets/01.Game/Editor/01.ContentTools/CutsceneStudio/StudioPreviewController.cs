@@ -9,12 +9,30 @@ namespace HumanBartender.CutsceneStudio.Editor
         private readonly StudioEditSession session;
         private readonly Action repaint;
         private StudioPreview preview;
+        private StudioPreviewAudio audio;
+        private static StudioPreviewController activePlayback;
         private bool pending, playing;
         private double lastUpdate;
         internal StudioClock Clock { get; } = new();
         internal StudioPreview Preview => preview;
         internal bool RebuildPending => pending;
-        internal bool Playing { get { return playing; } set { playing = value; lastUpdate = EditorApplication.timeSinceStartup; } }
+        internal bool Playing
+        {
+            get { return playing; }
+            set
+            {
+                if (value && activePlayback != null && activePlayback != this)
+                    activePlayback.Playing = false;
+                playing = value;
+                lastUpdate = EditorApplication.timeSinceStartup;
+                if (value) activePlayback = this;
+                else
+                {
+                    ReleaseAudio();
+                    if (activePlayback == this) activePlayback = null;
+                }
+            }
+        }
 
         internal StudioPreviewController(StudioEditSession session, Action repaint)
         {
@@ -27,25 +45,41 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             double elapsed = now - lastUpdate;
             lastUpdate = now;
-            if (EditorApplication.isPlaying)
+            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
             {
-                playing = false;
+                Playing = false;
                 ReleasePreview();
                 return;
             }
             if (!playing || session.Sequence == null)
+            {
+                ReleaseAudio();
                 return;
+            }
             if (!applyInputWait && Clock.Waiting.HasValue)
                 Clock.Advance();
             Clock.Tick(session.Sequence, elapsed * speed, applyInputWait);
             if (Clock.Finished)
-                playing = false;
+                Playing = false;
+            else
+            {
+                try
+                {
+                    audio ??= new StudioPreviewAudio();
+                    audio.Evaluate(session.Sequence, Clock.Time, Clock.Waiting.HasValue, speed);
+                }
+                catch (Exception error)
+                {
+                    Playing = false;
+                    UnityEngine.Debug.LogException(error);
+                }
+            }
             repaint();
         }
 
         internal void Seek(double time)
         {
-            playing = false;
+            Playing = false;
             Clock.Seek(Math.Max(0, Math.Min(time, session.Sequence?.Duration ?? 0)));
             repaint();
         }
@@ -89,15 +123,22 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         private void ReleasePreview()
         {
+            ReleaseAudio();
             preview?.Dispose();
             preview = null;
+        }
+
+        private void ReleaseAudio()
+        {
+            audio?.Dispose();
+            audio = null;
         }
 
         public void Dispose()
         {
             EditorApplication.delayCall -= RebuildDeferred;
             pending = false;
-            playing = false;
+            Playing = false;
             ReleasePreview();
         }
     }

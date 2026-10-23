@@ -275,7 +275,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 var root = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath), scene);
                 root.GetComponent<StudioPlayer>().PlayOnStart = true;
                 PrefabUtility.RecordPrefabInstancePropertyModifications(root.GetComponent<StudioPlayer>());
-                var camera = new GameObject("Cutscene Camera", typeof(Camera), typeof(AudioListener));
+                // 씬 전환에도 유지되는 ProjectLifeScope의 전역 AudioListener를 사용함.
+                var camera = new GameObject("Cutscene Camera", typeof(Camera));
                 SceneManager.MoveGameObjectToScene(camera, scene);
                 camera.GetComponent<Camera>().clearFlags = CameraClearFlags.SolidColor;
                 camera.GetComponent<Camera>().backgroundColor = Color.black;

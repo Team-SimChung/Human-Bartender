@@ -177,7 +177,7 @@ namespace HumanBartender.CutsceneStudio
             if (channel == null && clip.Kind != StudioKind.State)
             {
                 float progress = Mathf.Clamp01(age / Mathf.Max(.001f, (float)duration));
-                if (clip.Kind != StudioKind.Effect && clip.Curve != null)
+                if (clip.Curve != null)
                     progress = clip.Curve.Evaluate(progress);
                 return Limit(property, Mathf.LerpUnclamped(Endpoint(clip, property, false), Endpoint(clip, property, true), progress));
             }
