@@ -19,7 +19,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -35,21 +35,47 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NeonDimMask:
+        m_Texture: {fileID: 2800000, guid: b5d34ae42a2d4637a85659b062da7db9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _NormalMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ScrollMaskTex:
+        m_Texture: {fileID: 2800000, guid: edf58bbfdaa047f6868df027abe167d8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SignGlowTex:
+        m_Texture: {fileID: 2800000, guid: 5349c919c2cbc144bbc0402a74f62f6a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _EnableExternalAlpha: 0
+    - _NeonDimFloor: 0.35
+    - _PixelsPerUnit: 100
+    - _ScrollLighting: 0
     - _ScrollOffset: 0
     - _ScrollSpeed: 12
     - _ScrollStep: 1
+    - _SignGlowStrength: 0.47
+    - _SignGlowVolume: 2
+    - _SpinInnerRadius: 2.08
+    - _SpinRadius: 6.75
+    - _SpinSpeed: 0.17
+    - _SpinSteps: 72.74
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _NeonDim: {r: 0, g: 0, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ScrollExcludeRect: {r: 904, g: 125, b: 2, a: 2}
-    - _ScrollRect: {r: 745, g: 125, b: 161, a: 20}
+    - _ScrollBlankPixel: {r: 840, g: 122, b: 0, a: 0}
+    - _ScrollRect: {r: 765, g: 121, b: 161, a: 26}
+    - _SignGlowColor: {r: 0.98211, g: 0.8611765, b: 1.12, a: 1}
+    - _SignGlowOffset: {r: -220, g: -56, b: 0, a: 0}
+    - _SpinCenter: {r: 217.2, g: 204.77, b: -17, a: 0}
+    - _SpinCenter2: {r: 1103.5, g: 210.77, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
