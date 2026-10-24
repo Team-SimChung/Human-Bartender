@@ -21,9 +21,11 @@ namespace HumanBartender.CutsceneStudio.Editor
         [NonSerialized] private int buildVersion;
         [NonSerialized] private readonly List<SerializedObject> panelBindings = new();
         [NonSerialized] private readonly List<Action> refreshFields = new();
+        [NonSerialized] private Action refreshSelectedKeyAvailability;
         [NonSerialized] private readonly Dictionary<string, bool> foldouts = new();
         [NonSerialized] private readonly Dictionary<string, Vector2> scrollPositions = new();
         [NonSerialized] private readonly Dictionary<string, StudioClipField> clipFields = new();
+        [NonSerialized] private readonly StudioCurrentKeyEditing currentKeys = new();
 
         internal void Initialize(IStudioPropertiesHost value) { host = value; }
 
@@ -34,6 +36,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 binding.Dispose();
             panelBindings.Clear();
             refreshFields.Clear();
+            refreshSelectedKeyAvailability = null;
         }
 
         private SerializedObject PanelBinding(UnityEngine.Object target)
@@ -130,17 +133,19 @@ namespace HumanBartender.CutsceneStudio.Editor
             else
             {
                 BuildTimingFields(clip);
-                BuildSelectedKeyFields(clip);
+                if (!StudioPropertiesLayout.HasCurrentEditor(host.Selected.Kind))
+                    BuildSelectedKeyFields(clip);
                 foreach (var field in StudioClipSchema.Fields(host.Selected))
                     clipFields.Add(field.Path, field);
                 var data = PanelBinding(host.Selected);
                 foreach (var section in StudioPropertiesLayout.Sections(host.Selected.Kind))
                     BuildSection(section, clip, data);
+                var actionSection = Section("클립 복제 / 삭제", "clip-actions", false);
                 var actions = new VisualElement();
                 actions.AddToClassList("studio-inspector-actions");
-                actions.Add(StudioGUI.ActionButton("복제", host.DuplicateClip, "duplicate-clip"));
-                actions.Add(StudioGUI.ActionButton("삭제", host.DeleteClip, "delete-clip"));
-                propertiesBody.Add(actions);
+                actions.Add(StudioGUI.ActionButton("클립 복제", host.DuplicateClip, "duplicate-clip"));
+                actions.Add(StudioGUI.ActionButton("클립 삭제", host.DeleteClip, "delete-clip"));
+                actionSection.Add(actions);
             }
             validationUI = new VisualElement { name = "sequence-issues" };
             propertiesBody.Add(validationUI);
@@ -155,14 +160,17 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         private void BuildTimingFields(TimelineClip clip)
         {
-            var section = Section("클립 정보", "clip-info");
+            bool wait = host.Selected.Kind == StudioKind.Wait;
+            var section = Section("클립 정보", "clip-info", wait);
             var title = new TextField("클립 이름") { name = "clip-name", isDelayed = true };
-            var start = new DoubleField("시작 (초)") { name = "clip-start", isDelayed = true };
-            var duration = new DoubleField("길이 (초)") { name = "clip-duration", isDelayed = true };
+            var start = new DoubleField(wait ? "대기 시작 (초)" : "시작 (초)") { name = "clip-start", isDelayed = true };
+            var duration = new DoubleField(wait ? "클립 길이 (초)" : "길이 (초)") { name = "clip-duration", isDelayed = true };
             section.Add(title);
             section.Add(start);
             section.Add(duration);
             var end = ReadOnly(section, "종료 (초)", "clip-end");
+            if (wait)
+                Note(section, "대기 시작은 클립의 시작 시간입니다. 클립 길이 / 종료 시간은 타임라인 구간이며, 입력 대기 제한 시간이 아닙니다.");
             title.RegisterValueChangedCallback(ChangeName);
             start.RegisterValueChangedCallback(ChangeTime);
             duration.RegisterValueChangedCallback(ChangeTime);
@@ -217,14 +225,16 @@ namespace HumanBartender.CutsceneStudio.Editor
             void Refresh() { duration.SetValueWithoutNotify(host.Sequence.Duration); }
         }
 
-        private void BuildSelectedKeyFields(TimelineClip clip)
+        private void BuildSelectedKeyFields(TimelineClip clip, VisualElement parent = null)
         {
             if (host.KeySelectionOwner != host.Selected || host.KeyIndex < 0)
                 return;
             var keys = StudioKeyframes.GetKeys(host.Selected, host.KeyProperty, clip.duration);
             if (host.KeyIndex >= keys.Length)
                 return;
-            var section = Section("선택한 키프레임", "selected-key");
+            var section = parent ?? Section("선택한 키프레임", "selected-key");
+            if (parent != null)
+                Note(section, "선택한 키프레임");
             ReadOnly(section, "속성", "key-property").value = StudioTimelinePanel.PropertyLabel(host.Selected, host.KeyProperty);
             var time = new FloatField("클립 내 시간 (초)") { name = "key-time", isDelayed = true };
             var value = new FloatField("값") { name = "key-value", isDelayed = true };
@@ -233,15 +243,30 @@ namespace HumanBartender.CutsceneStudio.Editor
             section.Add(value);
             time.RegisterValueChangedCallback(ChangeTime);
             value.RegisterValueChangedCallback(ChangeValue);
-            section.Add(StudioGUI.ActionButton("선택 키 삭제", host.DeleteSelectedKey, "delete-selected-key"));
+            var delete = StudioGUI.ActionButton("선택 키 삭제", DeleteKey, "delete-selected-key");
+            section.Add(delete);
+            refreshSelectedKeyAvailability = RefreshAvailability;
+            RefreshAvailability();
             refreshFields.Add(Refresh);
             Refresh();
 
+            bool CanEdit() => !host.Playing;
+            void RefreshAvailability()
+            {
+                bool enabled = CanEdit();
+                time.SetEnabled(enabled);
+                value.SetEnabled(enabled);
+                delete.SetEnabled(enabled);
+            }
+            void DeleteKey()
+            {
+                if (CanEdit()) host.DeleteSelectedKey();
+            }
             void ChangeTime(ChangeEvent<float> e) { UpdateKey((float)host.Snap(e.newValue), value.value); }
             void ChangeValue(ChangeEvent<float> e) { UpdateKey(time.value, e.newValue); }
             void UpdateKey(float nextTime, float nextValue)
             {
-                if (StudioPropertyEditing.IsFinite(nextTime) && StudioPropertyEditing.IsFinite(nextValue))
+                if (CanEdit() && StudioPropertyEditing.IsFinite(nextTime) && StudioPropertyEditing.IsFinite(nextValue))
                 {
                     host.Session.UpdateKeyIndex(StudioKeyframeEditing.Set(clip, host.KeyProperty, host.KeyIndex, nextTime, nextValue));
                     var updated = StudioKeyframes.GetKeys(host.Selected, host.KeyProperty, clip.duration);
@@ -263,6 +288,8 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void SyncTimingFields()
         {
+            // 재생 잠금은 텍스트 입력 중에도 즉시 갱신하며, 데이터 변경 직전에도 같은 상태를 확인함.
+            refreshSelectedKeyAvailability?.Invoke();
             // 편집 중인 문자열을 보존하고 외부 편집과 실행 취소 결과를 갱신함.
             if (host.NativeTextEditing())
                 return;
@@ -281,6 +308,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void ResetForSequence()
         {
+            currentKeys.Reset();
             inspectorIdentity = null;
             scrollKey = null;
             scrollPositions.Clear();
@@ -319,6 +347,8 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             if (propertiesBody == null)
                 return;
+            currentKeys.Observe(host.FindSelected(), host.CurrentTime);
+            if (host.Playing) currentKeys.ClearPending();
             string identity = Identity();
             string names = ActorNamesIdentity();
             // 오브젝트 이름을 입력하는 동안은 바인딩을 유지하고 입력 완료 후 목록을 갱신함.

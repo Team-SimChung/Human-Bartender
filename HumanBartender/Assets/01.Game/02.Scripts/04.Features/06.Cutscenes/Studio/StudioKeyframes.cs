@@ -122,6 +122,17 @@ namespace HumanBartender.CutsceneStudio
             return false;
         }
 
+        // 상태 적용도 보간과 같은 유효 채널을 사용함. 빈 채널 / 다른 대상의 숨은 키는 시작을 앞당기지 않음.
+        internal static bool HasStateStarted(StudioClip clip, float age)
+        {
+            if (clip == null || clip.Kind != StudioKind.State)
+                return false;
+            foreach (var property in Properties(clip))
+                if (ReadSamples(clip, property, Channel(clip, property), age).HasStarted)
+                    return true;
+            return false;
+        }
+
         public static float Value(StudioPoseKey pose, StudioProperty property) => property switch
         {
             StudioProperty.PositionX => pose.Position.x,
@@ -182,6 +193,11 @@ namespace HumanBartender.CutsceneStudio
                 return Limit(property, Mathf.LerpUnclamped(Endpoint(clip, property, false), Endpoint(clip, property, true), progress));
             }
 
+            return Limit(property, ReadSamples(clip, property, channel, age).Evaluate(age, clip.Curve, Endpoint(clip, property, false)));
+        }
+
+        private static KeySamples ReadSamples(StudioClip clip, StudioProperty property, StudioPropertyKeys channel, float age)
+        {
             var samples = new KeySamples();
             if (channel == null)
             {
@@ -197,7 +213,7 @@ namespace HumanBartender.CutsceneStudio
                         samples.Add(key.Time, key.Value, age);
             }
 
-            return Limit(property, samples.Evaluate(age, clip.Curve, Endpoint(clip, property, false)));
+            return samples;
         }
 
         // 기존 오브젝트 키와 속성별 키에 같은 경계 선택·보간 규칙을 적용함.
@@ -205,6 +221,8 @@ namespace HumanBartender.CutsceneStudio
         {
             private bool hasBefore, hasAfter;
             private float beforeTime, afterTime, beforeValue, afterValue;
+
+            internal bool HasStarted => hasBefore;
 
             internal void Add(float time, float value, float age)
             {

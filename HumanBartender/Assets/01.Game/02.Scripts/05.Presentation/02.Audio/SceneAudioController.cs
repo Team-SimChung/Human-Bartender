@@ -54,7 +54,6 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
             }
         }
         bool cinematic = GameAudioContext.Cinematic || GameStateManager.Instance.CurrentGameState == GameState.Effect;
-        sound.SetMusicSuppressed(GameAudioContext.MusicSuppressed);
         bool outside = group == "street" && scene == "OutSide" && focused && !cinematic;
         if (outside)
         {

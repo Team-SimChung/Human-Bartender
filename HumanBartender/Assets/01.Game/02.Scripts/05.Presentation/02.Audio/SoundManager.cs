@@ -49,6 +49,8 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
     string[] playlist;
     int trackIndex, shakerPitchIndex;
     bool repeatPlaylist = true, musicPaused;
+    bool sceneAudioSuspended;
+    bool MusicPaused => musicPaused || sceneAudioSuspended;
     float placeGain = 1f, musicEnvelope = 1f, musicVisibility = 1f, visibilityTarget = 1f, visibilitySeconds = .6f;
     Sound currentMusic;
 
@@ -57,7 +59,7 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
         musicVisibility = Mathf.MoveTowards(musicVisibility, visibilityTarget,
             Time.unscaledDeltaTime / Mathf.Max(.001f, visibilitySeconds));
         if (bgmSource == null) return;
-        if (_bgmFadeRoutine == null && !musicPaused && currentMusic != null &&
+        if (_bgmFadeRoutine == null && !MusicPaused && currentMusic != null &&
             !bgmSource.isPlaying && playlist != null && playlist.Length > 0 && repeatPlaylist)
         {
             trackIndex = (trackIndex + 1) % playlist.Length;
@@ -100,8 +102,34 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
         }
     }
 
+    void OnEnable()
+    {
+        GameAudioContext.CinematicChanged += SetSceneAudioSuspended;
+        SetSceneAudioSuspended(GameAudioContext.Cinematic);
+    }
+
+    // 컷씬 소스는 소유하지 않고 씬 음악·효과음만 정지하고 복구함.
+    void SetSceneAudioSuspended(bool suspended)
+    {
+        sceneAudioSuspended = suspended;
+        if (bgmSource != null)
+        {
+            if (MusicPaused) bgmSource.Pause();
+            else bgmSource.UnPause();
+        }
+        if (suspended)
+        {
+            foreach (var source in sePool) if (source != null) source.Stop();
+            foreach (var envelope in envelopes.Values) if (envelope != null) StopCoroutine(envelope);
+            envelopes.Clear();
+            exclusiveVoices.Clear();
+        }
+        foreach (var loop in loops) loop.SetPaused(suspended);
+    }
+
     void OnDisable()
     {
+        GameAudioContext.CinematicChanged -= SetSceneAudioSuspended;
         if (_bgmFadeRoutine != null) StopCoroutine(_bgmFadeRoutine);
         _bgmFadeRoutine = null;
         if (bgmSource != null) bgmSource.Stop();
@@ -141,6 +169,8 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
             if (!_bgm.TryGetValue(key, out var sound) || sound.clip == null)
             { Debug.LogWarning($"[SoundManager] BGM '{key}' 없음"); return; }
         if (requestedGroup == group) return;
+        // 컷씬 중 장소가 바뀌면 새 음악을 준비하고 종료 뒤 해당 음악부터 재개함.
+        if (sceneAudioSuspended) fadeDuration = 0f;
         requestedGroup = group;
         if (_bgmFadeRoutine != null) StopCoroutine(_bgmFadeRoutine);
         // 교체 전 원래 그룹으로 돌아오면 현재 곡과 재생 위치를 유지한다.
@@ -190,15 +220,17 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
         bgmSource.spatialBlend = 0f;
         bgmSource.volume = currentMusic.volume * placeGain * musicEnvelope * musicVisibility;
         bgmSource.Play();
-        if (musicPaused) bgmSource.Pause();
+        if (MusicPaused) bgmSource.Pause();
     }
 
     IEnumerator FadeMusic(float target, float seconds)
     {
         float start = musicEnvelope;
-        for (float time = 0f; time < seconds; time += Time.unscaledDeltaTime)
+        for (float time = 0f; time < seconds;)
         {
+            if (sceneAudioSuspended) { yield return null; continue; }
             musicEnvelope = Mathf.Lerp(start, target, Mathf.SmoothStep(0f, 1f, time / seconds));
+            time += Time.unscaledDeltaTime;
             yield return null;
         }
         musicEnvelope = target;
@@ -217,7 +249,7 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
         playlist = null;
         if (_bgmFadeRoutine != null) StopCoroutine(_bgmFadeRoutine);
         _bgmFadeRoutine = null;
-        if (!isActiveAndEnabled || fadeDuration <= 0f) { bgmSource.Stop(); currentMusic = null; return; }
+        if (!isActiveAndEnabled || sceneAudioSuspended || fadeDuration <= 0f) { bgmSource.Stop(); currentMusic = null; return; }
         _bgmFadeRoutine = StartCoroutine(FadeOutAndStop(fadeDuration));
     }
 
@@ -236,7 +268,7 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
         if (bgmSource != null) bgmSource.Pause();
     }
 
-    public void ResumeBGM() { musicPaused = false; if (bgmSource != null) bgmSource.UnPause(); }
+    public void ResumeBGM() { musicPaused = false; if (bgmSource != null && !sceneAudioSuspended) bgmSource.UnPause(); }
 
     // ─── SE (동시 재생) ─────────────────────────────
     public void PlaySE(string name)
@@ -245,7 +277,7 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
     public void PlayCue(string name, float gain = 1f, float pitch = 1f,
         float fadeIn = 0f, float fadeOut = 0f, bool exclusive = false)
     {
-        if (!isActiveAndEnabled) return;
+        if (!isActiveAndEnabled || sceneAudioSuspended) return;
         if (string.IsNullOrEmpty(name) || !_se.TryGetValue(name, out var sound))
         {
             Debug.LogWarning($"[SoundManager] SE '{name}' 없음");
@@ -333,7 +365,7 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
 
     public IAudioLoop StartLoop(string name, float fadeSeconds = .12f)
     {
-        if (!isActiveAndEnabled || string.IsNullOrEmpty(name)) return null;
+        if (!isActiveAndEnabled || sceneAudioSuspended || string.IsNullOrEmpty(name)) return null;
         if (!_se.TryGetValue(name, out var sound))
         {
             Debug.LogWarning($"[SoundManager] SE '{name}' 없음");
@@ -375,10 +407,16 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
             gain = Mathf.Max(0f, value);
             if (fadeSeconds <= 0f && source != null && !disposed) source.volume = Mathf.Clamp01(baseVolume * gain);
         }
+        public void SetPaused(bool paused)
+        {
+            if (source == null || disposed) return;
+            if (paused) source.Pause(); else source.UnPause();
+        }
         IEnumerator Animate()
         {
             while (source != null)
             {
+                if (owner.sceneAudioSuspended && !disposed) { yield return null; continue; }
                 float target = disposed ? 0f : Mathf.Clamp01(baseVolume * gain);
                 source.volume = Mathf.MoveTowards(source.volume, target, Time.unscaledDeltaTime / Mathf.Max(.001f, fadeSeconds));
                 if (disposed && source.volume <= 0f) { StopImmediately(); yield break; }
@@ -389,7 +427,7 @@ public class SoundManager : MonoBehaviour, ISoundEffectPlayer, IBgmPlayer, ILoop
         {
             if (disposed) return;
             disposed = true;
-            if (fadeSeconds <= 0f || !owner.isActiveAndEnabled) StopImmediately();
+            if (fadeSeconds <= 0f || !owner.isActiveAndEnabled || owner.sceneAudioSuspended) StopImmediately();
         }
         public void StopImmediately()
         {

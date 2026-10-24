@@ -118,6 +118,13 @@ namespace HumanBartender.CutsceneStudio.Editor
                 case StudioKind.Dialogue:
                     Add("Text", "대사");
                     Add("Font", "대사 글꼴");
+                    Add("UseDialogueStyle", "스타일 직접 지정");
+                    Add("DialogueFontSize", "글자 크기");
+                    Add("DialogueTextColor", "글자 색상");
+                    Add("DialogueAlignment", "가로 정렬");
+                    Add("UseBubbleLayout", "배치 직접 지정");
+                    Add("BubbleWidth", "말풍선 폭");
+                    Add("BubblePadding", "안쪽 여백");
                     Add("CharactersPerSecond", "초당 글자 수");
                     Add("BubbleOffset", "말풍선 높이");
                     Add("WaitForInput", "끝에서 입력 대기");

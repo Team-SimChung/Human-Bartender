@@ -201,3 +201,51 @@
 }
 #properties-panel .studio-section .unity-base-field { min-width: 0; }
 #properties-panel .studio-section .unity-base-field__label { overflow: hidden; text-overflow: ellipsis; }
+
+/* 현재 시점 영역도 기존 회색 섹션 테마를 사용함. */
+#properties-panel .studio-properties-current-times {
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background-color: rgb(43, 43, 43);
+    padding: 6px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+#properties-panel .studio-properties-current-times > Label { margin: 0 4px; color: rgb(196, 196, 196); font-size: 11px; }
+#properties-panel .studio-properties-current-property { margin-bottom: 10px; flex-shrink: 0; }
+#properties-panel .studio-properties-property-heading {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+}
+#properties-panel .studio-properties-property-heading > Label { -unity-font-style: bold; margin-left: 0; }
+#properties-panel .studio-properties-property-heading > Toggle { flex-direction: row-reverse; margin: 0; }
+#properties-panel .studio-properties-property-heading > Toggle > .unity-base-field__label { min-width: 0; width: auto; margin-left: 5px; }
+#properties-panel .studio-properties-property-heading > Toggle > .unity-base-field__input { min-width: 14px; }
+#properties-panel .studio-properties-property-footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+#properties-panel .studio-properties-property-footer > Label { font-size: 11px; margin-left: 0; color: rgb(192, 192, 192); }
+#properties-panel .studio-properties-property-footer > Label.has-key { color: rgb(220, 220, 220); -unity-font-style: bold; }
+#properties-panel .studio-properties-key-buttons { flex-direction: row; margin-left: auto; }
+#properties-panel .studio-properties-key-buttons > Button { min-height: 23px; font-size: 11px; margin: 0 0 0 3px; padding: 2px 6px; }
+#properties-panel .studio-properties-key-all { min-height: 27px; }
+#properties-panel .studio-properties-pose-heading {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+#properties-panel .studio-properties-pose-heading > .studio-properties-subtitle { font-size: 14px; -unity-font-style: bold; color: rgb(225, 225, 225); }
+#properties-panel .studio-properties-pose-heading > Button { font-size: 11px; min-height: 23px; margin-left: auto; }
+#properties-panel .studio-inspector-actions { margin: 0 0 5px 0; }
+#properties-panel .studio-properties-key-list { max-height: 160px; margin-top: 4px; }
+#properties-panel .studio-properties-key-list .studio-button { -unity-text-align: middle-left; min-height: 22px; }
+#properties-panel .studio-properties-key-list .is-selected { background-color: rgb(75, 75, 75); border-left-color: rgb(160, 160, 160); }

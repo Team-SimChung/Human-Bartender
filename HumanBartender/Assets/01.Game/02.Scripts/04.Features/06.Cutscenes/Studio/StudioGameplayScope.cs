@@ -10,11 +10,16 @@ namespace HumanBartender.CutsceneStudio
         private readonly GameState previousState;
         private readonly float previousScale;
         private readonly bool pause;
+        private readonly bool previousAudioPause;
         private bool disposed;
         private readonly IDisposable audioScope;
-        internal StudioGameplayScope(bool pause, bool suppressMusic = false)
+        internal StudioGameplayScope(bool pause)
         {
-            audioScope = GameAudioContext.Cutscene(suppressMusic);
+            // 공용 매니저 밖의 미니게임 음원·예약 재생도 정지함.
+            // 컷씬 음원은 StudioAudioPlayback에서 ignoreListenerPause를 사용함.
+            previousAudioPause = AudioListener.pause;
+            AudioListener.pause = true;
+            audioScope = GameAudioContext.Cutscene();
             manager = GameStateManager.Instance;
             previousState = manager.CurrentGameState;
             previousScale = Time.timeScale;
@@ -30,6 +35,7 @@ namespace HumanBartender.CutsceneStudio
                 return;
             disposed = true;
             audioScope.Dispose();
+            AudioListener.pause = previousAudioPause;
             if (pause)
                 Time.timeScale = previousScale;
             if (manager.CurrentGameState == GameState.Effect)

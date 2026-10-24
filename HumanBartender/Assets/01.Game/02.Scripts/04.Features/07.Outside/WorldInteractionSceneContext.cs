@@ -14,7 +14,6 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
     [SerializeField] private DialogueRunner runner;
     [Inject] private IConditionUtil conditions;
     [Inject] private IObjectResolver resolver;
-    [Inject] private IBgmPlayer soundManager;
     private readonly List<WorldInteractionContent> contents = new();
     private readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
     private readonly UniTaskCompletionSource<bool> readiness = new();
@@ -60,7 +59,6 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
             }
             RefreshContents();
             if (!player.TrySetPosition()) throw new InvalidOperationException("현재 씬의 플레이어 시작 위치가 없습니다.");
-            soundManager?.PlayBGM("BGM_outside");
             IsReady = true;
             readiness.TrySetResult(true);
         }

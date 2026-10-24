@@ -35,8 +35,10 @@ public sealed class AudioVolumeSettings : IAudioVolumeSettings, IStartable
         Apply(bus);
     }
 
-    void Apply(AudioBus bus) => output.ApplyVolume(bus,
-        store.LoadMuted(bus) ? 0f : Mathf.Clamp01(store.Load(bus)));
+    public static float EffectiveVolume(IAudioVolumeStore store, AudioBus bus) =>
+        store.LoadMuted(bus) ? 0f : Mathf.Clamp01(store.Load(bus));
+
+    void Apply(AudioBus bus) => output.ApplyVolume(bus, EffectiveVolume(store, bus));
 
     void ApplyAndSave(AudioBus bus, float value)
     {

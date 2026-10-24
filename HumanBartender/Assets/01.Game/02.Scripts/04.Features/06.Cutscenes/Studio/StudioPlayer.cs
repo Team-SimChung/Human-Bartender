@@ -72,7 +72,7 @@ namespace HumanBartender.CutsceneStudio
             try
             {
                 source.Token.ThrowIfCancellationRequested();
-                using var gameplay = new StudioGameplayScope(PauseGameplay, GameAudioRules.SuppressesMusic(sequence.Id));
+                using var gameplay = new StudioGameplayScope(PauseGameplay);
                 using var audio = new StudioAudioPlayback(gameObject, AudioOutputSettings.Shared);
                 var director = CreatePresentation(sequence, out var canvas);
                 double last = Time.realtimeSinceStartupAsDouble;
@@ -82,6 +82,7 @@ namespace HumanBartender.CutsceneStudio
                     double now = Time.realtimeSinceStartupAsDouble;
                     if (UIDisplayOptions.IsOptionOpen)
                     {
+                        audio.Evaluate(sequence, clock.Time, true);
                         last = now;
                         await UniTask.Yield(PlayerLoopTiming.Update, source.Token);
                         continue;

@@ -22,8 +22,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 CopyMixer(source.GetGroup(AudioBus.Music).audioMixer);
                 Output = (AudioOutputSettings)Copy(source);
                 foreach (var copy in copies.Values) RemapReferences(copy);
-                ApplyVolume(AudioBus.SoundEffects, volumes.Load(AudioBus.SoundEffects));
-                ApplyVolume(AudioBus.Music, volumes.Load(AudioBus.Music));
+                ApplyVolume(AudioBus.SoundEffects, AudioVolumeSettings.EffectiveVolume(volumes, AudioBus.SoundEffects));
+                ApplyVolume(AudioBus.Music, AudioVolumeSettings.EffectiveVolume(volumes, AudioBus.Music));
             }
             catch
             {

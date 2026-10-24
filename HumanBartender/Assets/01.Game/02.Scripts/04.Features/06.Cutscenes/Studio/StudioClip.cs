@@ -250,6 +250,27 @@ namespace HumanBartender.CutsceneStudio
             internal set { font = value; }
         }
 
+        [SerializeField] private bool useDialogueStyle;
+        public bool UseDialogueStyle { get => useDialogueStyle; internal set => useDialogueStyle = value; }
+
+        [SerializeField] private float dialogueFontSize = StudioDialoguePresentation.DefaultFontSize;
+        public float DialogueFontSize { get => dialogueFontSize; internal set => dialogueFontSize = value; }
+
+        [SerializeField] private Color dialogueTextColor = Color.white;
+        public Color DialogueTextColor { get => dialogueTextColor; internal set => dialogueTextColor = value; }
+
+        [SerializeField] private StudioDialogueAlignment dialogueAlignment;
+        public StudioDialogueAlignment DialogueAlignment { get => dialogueAlignment; internal set => dialogueAlignment = value; }
+
+        [SerializeField] private bool useBubbleLayout;
+        public bool UseBubbleLayout { get => useBubbleLayout; internal set => useBubbleLayout = value; }
+
+        [SerializeField] private float bubbleWidth = StudioDialoguePresentation.DefaultWidth;
+        public float BubbleWidth { get => bubbleWidth; internal set => bubbleWidth = value; }
+
+        [SerializeField] private Vector2 bubblePadding = StudioDialoguePresentation.DefaultPadding;
+        public Vector2 BubblePadding { get => bubblePadding; internal set => bubblePadding = value; }
+
         [Min(1)]
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("CharactersPerSecond")]
         private float charactersPerSecond = 22;

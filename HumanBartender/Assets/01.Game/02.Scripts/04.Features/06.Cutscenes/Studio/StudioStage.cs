@@ -17,6 +17,7 @@ namespace HumanBartender.CutsceneStudio
         private Image effect, background;
         private CanvasGroup bubbleVisibility;
         private TextMeshProUGUI dialogue;
+        private StudioDialoguePresentation dialoguePresentation;
         private readonly Dictionary<string, Image> actors = new();
         internal bool RevealDialogue { get; set; }
         internal int EvaluationVersion { get; private set; }
@@ -57,6 +58,7 @@ namespace HumanBartender.CutsceneStudio
             effect = background = null;
             bubbleVisibility = null;
             dialogue = null;
+            dialoguePresentation = null;
             builtSequence = null;
             RevealDialogue = false;
         }
@@ -79,17 +81,18 @@ namespace HumanBartender.CutsceneStudio
                 actors.Add(actor.Id, visual);
             }
 
-            bubble = Rect("Dialogue", frame, new Vector2(620, 106));
+            bubble = Rect("Dialogue", frame, new Vector2(StudioDialoguePresentation.DefaultWidth, StudioDialoguePresentation.DefaultHeight));
             bubbleVisibility = bubble.gameObject.AddComponent<CanvasGroup>();
             var panel = Image("Panel", bubble, bubble.sizeDelta);
             panel.color = new Color(.025f, .035f, .05f, .94f);
-            var label = Rect("Text", bubble, new Vector2(576, 82));
+            var label = Rect("Text", bubble, bubble.sizeDelta - StudioDialoguePresentation.DefaultPadding * 2);
             dialogue = label.gameObject.AddComponent<TextMeshProUGUI>();
             dialogue.font = sequence.Font != null ? sequence.Font : TMP_Settings.defaultFontAsset;
-            dialogue.fontSize = 22;
+            dialogue.fontSize = StudioDialoguePresentation.DefaultFontSize;
             dialogue.alignment = TextAlignmentOptions.MidlineLeft;
             dialogue.textWrappingMode = TextWrappingModes.Normal;
             dialogue.raycastTarget = false;
+            dialoguePresentation = new StudioDialoguePresentation(bubble, panel.rectTransform, dialogue);
             effect = Image("Screen Effect", frame, frame.sizeDelta);
             bool MatchesActorsWhere(StudioActor a)
             {
@@ -260,16 +263,8 @@ namespace HumanBartender.CutsceneStudio
             if (clip.Kind != StudioKind.State || time < entry.Clip.start || (!entry.Contains(time) && !clip.HoldEnd))
                 return;
             float age = (float)System.Math.Min(time - entry.Clip.start, entry.Clip.duration);
-            if (!StudioKeyframes.HasOverrides(clip))
-            {
-                float first = float.PositiveInfinity;
-                if (clip.Keys != null)
-                    foreach (var key in clip.Keys)
-                        if (key != null)
-                            first = Mathf.Min(first, key.Time);
-                if (age < first)
-                    return;
-            }
+            if (!StudioKeyframes.HasStateStarted(clip, age))
+                return;
 
             var pose = StudioKeyframes.Sample(clip, age, entry.Clip.duration);
             if (clip.StateCamera)
@@ -285,19 +280,16 @@ namespace HumanBartender.CutsceneStudio
         {
             var clip = entry.Asset;
             bubble.gameObject.SetActive(true);
-            dialogue.font = clip.Font != null ? clip.Font : Sequence.Font != null ? Sequence.Font : TMP_Settings.defaultFontAsset;
+            dialoguePresentation.Apply(clip, Sequence.Font);
             var position = new Vector2(0, -185);
             if (!string.IsNullOrEmpty(clip.ActorId) && actors.TryGetValue(clip.ActorId, out var speaker))
                 position = (speaker.rectTransform.anchoredPosition - center) * zoom + new Vector2(0, clip.BubbleOffset);
             // 출력 비율과 관계없이 말풍선 기준 위치를 연출 영역 안으로 제한함.
-            position.x = Mathf.Clamp(position.x, -160, 160);
-            position.y = Mathf.Clamp(position.y, -205, 205);
+            position = dialoguePresentation.ClampAnchor(position);
             var pose = Sample(entry, time);
             pose.Position += position;
             ApplyTransform(bubble, pose, false);
             bubbleVisibility.alpha = pose.Opacity;
-            if (dialogue.text != clip.Text)
-                dialogue.text = clip.Text;
             dialogue.maxVisibleCharacters = reveal ? int.MaxValue : Mathf.Max(0, Mathf.FloorToInt((float)(time - entry.Clip.start) * clip.CharactersPerSecond));
         }
 

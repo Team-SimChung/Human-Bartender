@@ -67,6 +67,15 @@ namespace HumanBartender.CutsceneStudio.Editor
         StudioPreview IStudioSequenceHost.Preview { get { return preview; } }
         StudioClip IStudioSequenceHost.Selected { get { return selected; } }
         StudioSequence IStudioSequenceHost.Sequence { get { return sequence; } }
+        double IStudioPropertiesHost.CurrentTime => clock.Time;
+        bool IStudioPropertiesHost.Playing => playing || EditorApplication.isPlayingOrWillChangePlaymode;
+        StudioPoseKey IStudioPropertiesHost.CapturePose(string actorId)
+        {
+            if (preview == null || previewRebuildPending) return null;
+            if (actorId != null && preview.Stage.ActorTransform(actorId) == null) return null;
+            preview.Stage.Evaluate(clock.Time, clock.Waiting.HasValue);
+            return preview.Stage.CapturePose(actorId);
+        }
         void IStudioPropertiesHost.Changed(bool rebuild) { Changed(rebuild); }
         void IStudioPropertiesHost.DeleteClip() { commandsComponent.DeleteClip(); }
         void IStudioPropertiesHost.DeleteSelectedKey() { timelineComponent.DeleteSelectedKey(); }

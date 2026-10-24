@@ -78,6 +78,9 @@ namespace HumanBartender.CutsceneStudio.Editor
     }
     internal interface IStudioPropertiesHost : IStudioPanelHost
     {
+        double CurrentTime { get; }
+        bool Playing { get; }
+        StudioPoseKey CapturePose(string actorId);
         void Changed(bool rebuild = false);
         void DeleteClip();
         void DeleteSelectedKey();

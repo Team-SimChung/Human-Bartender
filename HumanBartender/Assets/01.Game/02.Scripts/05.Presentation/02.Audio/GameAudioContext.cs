@@ -9,9 +9,10 @@ public static class GameAudioContext
     public static bool AnyDialogue => direct > 0 || background > 0;
     public static bool Cinematic => cinematics > 0;
     public static bool MusicSuppressed => mutedMusic > 0;
+    public static event Action<bool> CinematicChanged;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void Reset() { direct = background = cinematics = mutedMusic = 0; }
+    static void Reset() { direct = background = cinematics = mutedMusic = 0; CinematicChanged = null; }
 
     public static IDisposable Dialogue(bool ambient = false)
     {
@@ -23,11 +24,14 @@ public static class GameAudioContext
     {
         cinematics++;
         if (suppressMusic) mutedMusic++;
-        return new Lease(() =>
+        if (cinematics == 1) CinematicChanged?.Invoke(true);
+        return new Lease(Release);
+        void Release()
         {
             cinematics = Mathf.Max(0, cinematics - 1);
             if (suppressMusic) mutedMusic = Mathf.Max(0, mutedMusic - 1);
-        });
+            if (cinematics == 0) CinematicChanged?.Invoke(false);
+        }
     }
 
     sealed class Lease : IDisposable
