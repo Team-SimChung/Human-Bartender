@@ -9,7 +9,7 @@ using UnityEngine.Rendering.Universal;
 public sealed class OptionsSettingsTests
 {
     readonly Dictionary<string, int?> preferences = new();
-    static readonly string[] GraphicsKeys = { "FillStretch", "VSync", "FrameRateIndex", "PostProcessing" };
+    static readonly string[] GraphicsKeys = new[] { "FillStretch", "VSync", "FrameRateIndex", "PostProcessing" }.Concat(GraphicsEffectOptions.Keys).ToArray();
 
     [SetUp]
     public void SavePreferences()
@@ -90,6 +90,20 @@ public sealed class OptionsSettingsTests
             Assert.That(QualitySettings.vSyncCount, Is.Zero);
             Assert.That(Application.targetFrameRate, Is.EqualTo(120));
             Assert.That(PlayerPrefs.GetInt("FrameRateIndex"), Is.EqualTo(2));
+            int changes = 0;
+            System.Action count = () => changes++;
+            GraphicsEffectOptions.Changed += count;
+            var values = GraphicsEffectOptions.Values.Default;
+            values.Bloom = GraphicsEffectOptions.BloomLevel.Off; values.PuddleReflections = false;
+            settings.SetEffects(values);
+            GraphicsEffectOptions.Changed -= count;
+            Assert.That(changes, Is.EqualTo(1), "effect components must hear the applied options");
+            Assert.That(GraphicsEffectOptions.Current.Bloom, Is.EqualTo(GraphicsEffectOptions.BloomLevel.Off));
+            Assert.That(GraphicsEffectOptions.PuddleReflections, Is.False);
+            var bloomVolume = Resources.FindObjectsOfTypeAll<UnityEngine.Rendering.Volume>().Single(v => v.priority >= 1000);
+            Assert.That(bloomVolume.sharedProfile.TryGet(out Bloom bloom) && bloom.intensity.overrideState && bloom.intensity.value == 0, Is.True, "bloom off must override scene bloom to zero");
+            settings.SetEffects(GraphicsEffectOptions.Values.Default);
+            Assert.That(bloomVolume == null, Is.True, "normal bloom keeps the scene's authored value");
         }
         finally
         {

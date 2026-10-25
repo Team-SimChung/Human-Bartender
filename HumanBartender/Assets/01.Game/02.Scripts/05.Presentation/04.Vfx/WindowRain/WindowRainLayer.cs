@@ -134,20 +134,12 @@ public sealed class WindowRainLayer : MonoBehaviour
     /// <summary>기존 비 프리팹의 반복 파티클만 본다. 한 번만 터지는 루트 시스템은 비의 지속 여부가 아니다.</summary>
     void CollectRainSystems()
     {
-        rainSystems.Clear();
-        if (rainSource == null) return;
-        foreach (var system in rainSource.GetComponentsInChildren<ParticleSystem>(true))
-            if (system.main.loop) rainSystems.Add(system);
+        ParticleRainSource.Collect(rainSource, rainSystems);
     }
 
     bool RainActive()
     {
-        if (rainSource == null) return ambientRain;
-        if (!rainSource.activeInHierarchy) return false;
-        foreach (var system in rainSystems)
-            if (system != null && system.gameObject.activeInHierarchy && system.emission.enabled && system.isEmitting)
-                return true;
-        return false;
+        return ParticleRainSource.IsEmitting(rainSource, rainSystems, ambientRain);
     }
 
     /// <summary>테스트와 연출용. 비 파티클 없이 방울을 확인할 때 쓴다.</summary>

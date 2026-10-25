@@ -67,7 +67,14 @@ public sealed class VisualUIReviewTests
             Assert.That(audio.IsBGMMuted, Is.False); Assert.That(audio.IsSEMuted, Is.False);
             view.SelectTab(0); Capture(options.GetComponent<Canvas>(), "settings-sound", 1280, 720);
             view.SelectTab(1); Capture(options.GetComponent<Canvas>(), "settings-game", 1920, 1080);
-            view.SelectTab(2); Capture(options.GetComponent<Canvas>(), "settings-controls", 1024, 768);
+            view.SelectTab(OptionsPanelView.EffectsTab);
+            Ref<TMP_Dropdown>(options, "bloomDropdown").value = (int)GraphicsEffectOptions.BloomLevel.High;
+            Ref<Toggle>(options, "lightShaftToggle").isOn = false;
+            options.OnApplyClicked();
+            Assert.That(display.Effects.Bloom, Is.EqualTo(GraphicsEffectOptions.BloomLevel.High));
+            Assert.That(display.Effects.LightShafts, Is.False); Assert.That(display.Effects.PuddleReflections, Is.True);
+            Capture(options.GetComponent<Canvas>(), "settings-effects", 1280, 720);
+            view.SelectTab(OptionsPanelView.ControlsTab); Capture(options.GetComponent<Canvas>(), "settings-controls", 1024, 768);
             options.Hide();
             Assert.That(UIDisplayOptions.IsOptionOpen, Is.False);
             Assert.That(EventSystem.current.currentSelectedGameObject, Is.EqualTo(previous));
@@ -189,7 +196,7 @@ public sealed class VisualUIReviewTests
         Assert.That(windowed.navigation.selectOnDown, Is.EqualTo(Ref<TMP_Dropdown>(options, "windowSizeDropdown")), "enabling windowed mode must make its size selector reachable by keyboard");
         options.ResetDisplayDraft();
         Assert.That(windowed.navigation.selectOnDown, Is.Not.EqualTo(Ref<TMP_Dropdown>(options, "windowSizeDropdown")));
-        panel.SelectTab(2);
+        panel.SelectTab(OptionsPanelView.ControlsTab);
         var keys = new SerializedObject(panel).FindProperty("bindingButtons");
         var bindingButton = (Button)keys.GetArrayElementAtIndex((int)GameControl.ShakeLeft).objectReferenceValue;
         string preference = GameKeyBindings.PreferenceKey(GameControl.ShakeLeft);
@@ -322,6 +329,8 @@ public sealed class VisualUIReviewTests
         public void SetVSync(bool value) => VSync = value;
         public void SetFrameRate(int index) => FrameRateIndex = index;
         public void SetPostProcessing(bool value) => PostProcessing = value;
+        public GraphicsEffectOptions.Values Effects;
+        public void SetEffects(GraphicsEffectOptions.Values values) => Effects = values;
         public void RegisterActiveCamera(UnityEngine.Rendering.Universal.PixelPerfectCamera camera) { }
         public void UnregisterActiveCamera(UnityEngine.Rendering.Universal.PixelPerfectCamera camera) { }
     }

@@ -23,6 +23,7 @@ public sealed class OptionsPanelView : MonoBehaviour
     [SerializeField] TMP_Text statusMessage;
     [SerializeField] ScrollRect bindingsScroll;
     [SerializeField] CanvasGroup inputGroup;
+    public const int SoundTab = 0, GraphicsTab = 1, EffectsTab = 2, ControlsTab = 3;
     int currentTab;
     int rebindingIndex = -1, rebindStartedFrame;
     GameObject lastSelected;
@@ -39,8 +40,9 @@ public sealed class OptionsPanelView : MonoBehaviour
         backButton.onClick.AddListener(controller.Hide);
         resetButton.onClick.AddListener(() =>
         {
-            if (currentTab == 0) controller.ResetSound();
-            else if (currentTab == 1) controller.ResetDisplayDraft();
+            if (currentTab == SoundTab) controller.ResetSound();
+            else if (currentTab == GraphicsTab) controller.ResetDisplayDraft();
+            else if (currentTab == EffectsTab) controller.ResetEffectsDraft();
             else { GameKeyBindings.Reset(); RefreshBindings(); ShowMessage("조작키를 기본값으로 되돌렸습니다."); }
         });
         applyButton.onClick.AddListener(controller.OnApplyClicked);
@@ -108,7 +110,7 @@ public sealed class OptionsPanelView : MonoBehaviour
     }
     void LateUpdate()
     {
-        if (bindingsScroll == null || currentTab != 2 || EventSystem.current == null) return;
+        if (bindingsScroll == null || currentTab != ControlsTab || EventSystem.current == null) return;
         var selected = EventSystem.current.currentSelectedGameObject;
         if (selected == lastSelected) return;
         lastSelected = selected;
@@ -172,7 +174,8 @@ public sealed class OptionsPanelView : MonoBehaviour
             tabs[i].GetComponent<Image>().color = i == currentTab ? active : inactive;
             tabs[i].GetComponentInChildren<TMP_Text>().color = i == currentTab ? inactive : new Color32(157, 184, 195, 255);
         }
-        applyButton.gameObject.SetActive(currentTab == 1);
+        // 그래픽과 효과 탭은 같은 초안을 공유하고 '적용'으로 함께 저장한다.
+        applyButton.gameObject.SetActive(currentTab == GraphicsTab || currentTab == EffectsTab);
         resetButton.gameObject.SetActive(true);
         if (Application.isPlaying && EventSystem.current != null) EventSystem.current.SetSelectedGameObject(tabs[currentTab].gameObject);
         ConfigureNavigation();

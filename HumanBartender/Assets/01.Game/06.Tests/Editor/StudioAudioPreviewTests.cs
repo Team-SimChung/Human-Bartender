@@ -264,6 +264,8 @@ public sealed class StudioAudioPreviewTests
     {
         public float Load(AudioBus bus) => bus == AudioBus.Music ? .3f : .6f;
         public void Save(AudioBus bus, float value) => Assert.Fail("Preview must not save volume preferences.");
+        public bool LoadMuted(AudioBus bus) => false;
+        public void SaveMuted(AudioBus bus, bool muted) => Assert.Fail("Preview must not save mute preferences.");
     }
 
     [Test]

@@ -161,6 +161,8 @@ GameObject:
   - component: {fileID: 48449421}
   - component: {fileID: 48449420}
   - component: {fileID: 48449419}
+  - component: {fileID: 48449422}
+  - component: {fileID: 48449423}
   m_Layer: 0
   m_Name: Terrace_0
   m_TagString: Untagged
@@ -216,7 +218,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: b43f05ac6551df148aa70a53da31720f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -237,7 +239,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: -3186996342589748197, guid: 26eb8b1d91f3440f591f7cb4cb2f4507, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -266,6 +268,55 @@ Transform:
   - {fileID: 769636818}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &48449422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48449418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70e018e78d8186742b84c072af82c602, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideCharacterShadow
+  shadowMaterial: {fileID: 2100000, guid: 5a5b6e6f86e5534438d063430c85dba2, type: 2}
+  footOffset: {x: 0.06, y: -0.35}
+  opacity: 0.65
+  flatten: 0.28
+  maxLength: 0.85
+  transitionSeconds: 0.25
+  contactOpacity: 0.55
+  contactFlatten: 0.06
+  contactLean: 0.15
+  softness: 1
+  sortingLayer: GroundShadow
+--- !u!114 &48449423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48449418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21cc77d2f5740b14dbec6d2404ed3c5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterSpriteLighting
+  receive2DLights: 1
+  shadeColor: {r: 0.32, g: 0.3, b: 0.45, a: 1}
+  groundOcclusion: 0.35
+  occlusionHeight: 0.45
+  sideShadow: 0.4
+  sideShadowWidth: 2
+  ambientDirection: {x: 0.35, y: 1}
+  ambientSideShadow: 0.4
+  rimIntensity: 1.2
+  rimWidth: 1
+  rimUsesLightColor: 0.75
+  rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFullInfluence: 0.6
+  transitionSeconds: 0.3
 --- !u!1 &49123262
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,6 +752,60 @@ MonoBehaviour:
   sourceId: home_tv
   useSpotPosition: 0
   controlObjectVisibility: 0
+--- !u!1 &167713285
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 167713286}
+  - component: {fileID: 167713287}
+  m_Layer: 0
+  m_Name: Terrace floor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &167713286
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167713285}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 416017237}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &167713287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167713285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a3e34c438943f419adb6dc83ed2a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideGroundReceiver
+  area:
+    serializedVersion: 2
+    x: -2.05
+    y: -5.22
+    width: 4.8
+    height: 0.48
+  surfaceY: -4.91
+  footTolerance: 0.4
+  shadowSortingLayer: Default
+  shadowSortingOrder: 2
 --- !u!1 &220094231
 GameObject:
   m_ObjectHideFlags: 0
@@ -1226,6 +1331,8 @@ GameObject:
   - component: {fileID: 398070686}
   - component: {fileID: 398070687}
   - component: {fileID: 398070688}
+  - component: {fileID: 398070689}
+  - component: {fileID: 398070690}
   m_Layer: 3
   m_Name: Luna
   m_TagString: Player
@@ -1259,7 +1366,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: b43f05ac6551df148aa70a53da31720f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1279,7 +1386,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1950817317
-  m_SortingLayer: 10
+  m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
   m_Sprite: {fileID: 4072314344720324190, guid: 30810a83afa8b65479ae25117c3959f9, type: 3}
@@ -1590,6 +1697,55 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &398070689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398070673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70e018e78d8186742b84c072af82c602, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideCharacterShadow
+  shadowMaterial: {fileID: 2100000, guid: 5a5b6e6f86e5534438d063430c85dba2, type: 2}
+  footOffset: {x: -0.01, y: -0.27400002}
+  opacity: 0.65
+  flatten: 0.055
+  maxLength: 0.85
+  transitionSeconds: 0.25
+  contactOpacity: 0.55
+  contactFlatten: 0.06
+  contactLean: 0.15
+  softness: 1
+  sortingLayer: GroundShadow
+--- !u!114 &398070690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398070673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21cc77d2f5740b14dbec6d2404ed3c5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterSpriteLighting
+  receive2DLights: 1
+  shadeColor: {r: 0.32, g: 0.3, b: 0.45, a: 1}
+  groundOcclusion: 0.35
+  occlusionHeight: 0.45
+  sideShadow: 0.4
+  sideShadowWidth: 2
+  ambientDirection: {x: 0.35, y: 1}
+  ambientSideShadow: 0.4
+  rimIntensity: 1.2
+  rimWidth: 1
+  rimUsesLightColor: 0.75
+  rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFullInfluence: 0.6
+  transitionSeconds: 0.3
 --- !u!1 &400630329
 GameObject:
   m_ObjectHideFlags: 0
@@ -1667,6 +1823,41 @@ MonoBehaviour:
   m_DefaultActionMap: Outside
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!1 &416017236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 416017237}
+  m_Layer: 0
+  m_Name: Home Ground Shadows
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &416017237
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 416017236}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 761581409}
+  - {fileID: 167713286}
+  - {fileID: 1937147499}
+  - {fileID: 738407220}
+  m_Father: {fileID: 637079066}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &463204425
 GameObject:
   m_ObjectHideFlags: 0
@@ -1968,6 +2159,7 @@ Transform:
   - {fileID: 953149915}
   - {fileID: 967024373}
   - {fileID: 1144763784}
+  - {fileID: 416017237}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &720587697
@@ -2275,6 +2467,59 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   keepRenderResolutionDuringZoom: 0
+--- !u!1 &738407219
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 738407220}
+  - component: {fileID: 738407221}
+  m_Layer: 0
+  m_Name: Terrace city light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &738407220
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738407219}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.6, y: -3.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 416017237}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &738407221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738407219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d35073eade5d38a4b99cda9299d5c9d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideShadowLight
+  source: {fileID: 0}
+  emissionAnchor: {fileID: 0}
+  emissionOffset: {x: 0, y: 0}
+  radius: 5
+  priority: 1
+  bakedSource: 1
+  bakedIntensity: 2
+  bakedGround: {fileID: 167713287}
+  bakedColor: {r: 1, g: 0.86, b: 0.68, a: 1}
 --- !u!1 &746941018
 GameObject:
   m_ObjectHideFlags: 0
@@ -2309,6 +2554,60 @@ Transform:
   - {fileID: 1132780683}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &761581408
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 761581409}
+  - component: {fileID: 761581410}
+  m_Layer: 0
+  m_Name: Room floor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &761581409
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761581408}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 416017237}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &761581410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761581408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a3e34c438943f419adb6dc83ed2a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideGroundReceiver
+  area:
+    serializedVersion: 2
+    x: -1.55
+    y: -1.28
+    width: 4.65
+    height: 0.5
+  surfaceY: -1.04
+  footTolerance: 0.4
+  shadowSortingLayer: Default
+  shadowSortingOrder: 2
 --- !u!1 &769636817
 GameObject:
   m_ObjectHideFlags: 0
@@ -3529,9 +3828,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
+    y: 0.125
     width: 1
-    height: 1
+    height: 0.75000006
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -3793,7 +4092,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: d02dbe5bbfbed0d42a4b29f122237e57, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -4694,6 +4993,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1646853125}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1937147498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1937147499}
+  - component: {fileID: 1937147500}
+  m_Layer: 0
+  m_Name: Room ceiling light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1937147499
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937147498}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.9, y: 0.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 416017237}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1937147500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1937147498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d35073eade5d38a4b99cda9299d5c9d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideShadowLight
+  source: {fileID: 0}
+  emissionAnchor: {fileID: 0}
+  emissionOffset: {x: 0, y: 0}
+  radius: 6
+  priority: 1
+  bakedSource: 1
+  bakedIntensity: 2.5
+  bakedGround: {fileID: 761581410}
+  bakedColor: {r: 1, g: 0.86, b: 0.68, a: 1}
 --- !u!1 &1954464873
 GameObject:
   m_ObjectHideFlags: 0
