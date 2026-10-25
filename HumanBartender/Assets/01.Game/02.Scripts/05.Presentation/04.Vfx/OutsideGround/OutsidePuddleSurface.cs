@@ -19,6 +19,8 @@ public sealed class OutsidePuddleSurface : MonoBehaviour
     [SerializeField] Outline outline;
     [SerializeField, Range(0f, 1f)] float edgeBreakup = 0.45f;
     [SerializeField, Range(0f, 2f)] float rippleBrightness = 0.7f;
+    [Tooltip("파문이 사라질 때까지 퍼지는 최대 반경(월드 단위). 이전 고정값은 0.3이었다.")]
+    [SerializeField, Range(0.03f, 0.4f)] float rippleRadius = 0.15f;
     [Tooltip("캐릭터보다 앞에 그려지는 전봇대 등. 원래 정렬 순서를 유지하면서 반사에만 추가한다. 최대 4개.")]
     [SerializeField] SpriteRenderer[] foregroundReflectors = new SpriteRenderer[0];
     [SerializeField] int seed = 19;
@@ -184,6 +186,7 @@ public sealed class OutsidePuddleSurface : MonoBehaviour
         properties.SetVector("_SurfaceSize", new Vector4(Mathf.Abs(scale.x), Mathf.Abs(scale.y), distortionPixels, RippleLifetime));
         properties.SetVector("_Shape", new Vector4((int)outline, seed % 997, edgeBreakup, rippleBrightness));
         properties.SetVectorArray("_Ripples", ripples);
+        properties.SetFloat("_RippleSpeed", rippleRadius / RippleLifetime);
         ApplyForeground();
         surface.SetPropertyBlock(properties);
     }

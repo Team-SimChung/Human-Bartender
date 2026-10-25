@@ -770,6 +770,7 @@ MonoBehaviour:
   outline: 3
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -889,6 +890,7 @@ MonoBehaviour:
   outline: 1
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -1263,6 +1265,7 @@ MonoBehaviour:
   source: {fileID: 143577212}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.2}
+  useShapeTop: 1
   radius: 3.5
   priority: 1
   bakedSource: 0
@@ -1555,6 +1558,7 @@ MonoBehaviour:
   source: {fileID: 180705675}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.2}
+  useShapeTop: 1
   radius: 3.5
   priority: 1
   bakedSource: 0
@@ -2027,6 +2031,7 @@ MonoBehaviour:
   source: {fileID: 277536108}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.3}
+  useShapeTop: 1
   radius: 5
   priority: 1
   bakedSource: 0
@@ -2918,6 +2923,10 @@ MonoBehaviour:
   rimWidth: 1
   rimUsesLightColor: 0.75
   rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFocus: 2
+  rimDistanceFalloff: 1.5
+  rimGlow: 0.6
+  rimGlowWidth: 3
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
 --- !u!1 &400630329
@@ -3381,6 +3390,7 @@ MonoBehaviour:
   outline: 3
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -3760,6 +3770,7 @@ MonoBehaviour:
   outline: 2
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -4387,6 +4398,7 @@ MonoBehaviour:
   source: {fileID: 563325983}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.3}
+  useShapeTop: 1
   radius: 5
   priority: 1
   bakedSource: 0
@@ -5235,6 +5247,10 @@ MonoBehaviour:
   rimWidth: 1
   rimUsesLightColor: 0.75
   rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFocus: 2
+  rimDistanceFalloff: 1.5
+  rimGlow: 0.6
+  rimGlowWidth: 3
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
 --- !u!1 &720587697
@@ -6171,6 +6187,7 @@ MonoBehaviour:
   source: {fileID: 803825202}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.2}
+  useShapeTop: 1
   radius: 3.5
   priority: 1
   bakedSource: 0
@@ -7715,6 +7732,7 @@ MonoBehaviour:
   source: {fileID: 902379144}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.2}
+  useShapeTop: 1
   radius: 3.5
   priority: 1
   bakedSource: 0
@@ -9019,6 +9037,7 @@ MonoBehaviour:
   outline: 1
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -9398,6 +9417,7 @@ MonoBehaviour:
   source: {fileID: 1054065828}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.3}
+  useShapeTop: 1
   radius: 5
   priority: 1
   bakedSource: 0
@@ -10969,6 +10989,7 @@ MonoBehaviour:
   source: {fileID: 1185607953}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.2}
+  useShapeTop: 1
   radius: 3.5
   priority: 1
   bakedSource: 0
@@ -11117,6 +11138,7 @@ MonoBehaviour:
   outline: 0
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -11236,6 +11258,7 @@ MonoBehaviour:
   outline: 2
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -12258,9 +12281,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.125
+    y: 0
     width: 1
-    height: 0.75000006
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -14106,6 +14129,7 @@ MonoBehaviour:
   outline: 0
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -15157,6 +15181,7 @@ MonoBehaviour:
   outline: 0
   edgeBreakup: 1
   rippleBrightness: 0.45
+  rippleRadius: 0.15
   foregroundReflectors:
   - {fileID: 1268683209}
   - {fileID: 350656400}
@@ -16452,6 +16477,10 @@ MonoBehaviour:
   rimWidth: 1
   rimUsesLightColor: 0.75
   rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFocus: 2
+  rimDistanceFalloff: 1.5
+  rimGlow: 0.6
+  rimGlowWidth: 3
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
 --- !u!1 &1714253944
@@ -16640,6 +16669,7 @@ MonoBehaviour:
   source: {fileID: 1726878082}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.2}
+  useShapeTop: 1
   radius: 3.5
   priority: 1
   bakedSource: 0
@@ -19676,6 +19706,10 @@ MonoBehaviour:
   rimWidth: 1
   rimUsesLightColor: 0.75
   rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFocus: 2
+  rimDistanceFalloff: 1.5
+  rimGlow: 0.6
+  rimGlowWidth: 3
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
 --- !u!1 &2046130701
@@ -19778,6 +19812,7 @@ MonoBehaviour:
   source: {fileID: 2046130703}
   emissionAnchor: {fileID: 0}
   emissionOffset: {x: 0, y: 0.2}
+  useShapeTop: 1
   radius: 3.5
   priority: 1
   bakedSource: 0
@@ -20274,6 +20309,10 @@ MonoBehaviour:
   rimWidth: 1
   rimUsesLightColor: 0.75
   rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFocus: 2
+  rimDistanceFalloff: 1.5
+  rimGlow: 0.6
+  rimGlowWidth: 3
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
 --- !u!1 &2083238153
@@ -20654,6 +20693,10 @@ MonoBehaviour:
   rimWidth: 1
   rimUsesLightColor: 0.75
   rimColor: {r: 1, g: 0.85, b: 0.7, a: 1}
+  rimFocus: 2
+  rimDistanceFalloff: 1.5
+  rimGlow: 0.6
+  rimGlowWidth: 3
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
 --- !u!1 &2106893806
@@ -21606,6 +21649,18 @@ PrefabInstance:
     - target: {fileID: 4929053890369636392, guid: 54fd8c4231583ce4792f5357050f60f2, type: 3}
       propertyPath: m_Interactable
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5871000277190223149, guid: 54fd8c4231583ce4792f5357050f60f2, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+    - target: {fileID: 5871000277190223149, guid: 54fd8c4231583ce4792f5357050f60f2, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -8687957992645072016, guid: 08017e76388328b48aecd8069b267557, type: 2}
+    - target: {fileID: 5871000277190223149, guid: 54fd8c4231583ce4792f5357050f60f2, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6245279206375164906, guid: 54fd8c4231583ce4792f5357050f60f2, type: 3}
       propertyPath: m_Alpha

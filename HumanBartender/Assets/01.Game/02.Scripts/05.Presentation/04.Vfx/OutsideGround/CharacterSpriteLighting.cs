@@ -27,6 +27,10 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
     [Tooltip("0이면 rimColor, 1이면 광원 색을 그대로 쓴다.")]
     [SerializeField, Range(0, 1)] float rimUsesLightColor = 0.75f;
     [SerializeField] Color rimColor = new Color(1, 0.85f, 0.7f, 1);
+    [Tooltip("클수록 광원을 정면으로 향한 외곽에만 림이 생긴다. 1이면 비스듬한 외곽도 넓게 밝아진다.")]
+    [SerializeField, Range(0.5f, 4)] float rimFocus = 2;
+    [Tooltip("광원에서 먼 부분(가로등 아래의 발끝 등)일수록 림이 약해지는 정도. 0이면 몸 전체가 같은 밝기.")]
+    [SerializeField, Range(0, 3)] float rimDistanceFalloff = 1.5f;
     [Tooltip("림을 더 밝히고 안쪽으로 번지는 띠를 더해 블룸이 걸리기 쉽게 한다.")]
     [SerializeField, Range(0, 2)] float rimGlow = 0.6f;
     [Tooltip("번지는 띠의 폭(원본 텍셀).")]
@@ -40,7 +44,9 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
     static readonly int RimId = Shader.PropertyToID("_Rim");
     static readonly int RimColorId = Shader.PropertyToID("_RimColor");
     static readonly int RimGlowId = Shader.PropertyToID("_RimGlow");
+    static readonly int RimShapeId = Shader.PropertyToID("_RimShape");
     static readonly int LightPosId = Shader.PropertyToID("_LightPos");
+    static readonly int AmbientDirId = Shader.PropertyToID("_AmbientDir");
     static readonly int BodyBoundsId = Shader.PropertyToID("_BodyBounds");
     static readonly int SpriteTexelId = Shader.PropertyToID("_SpriteTexel");
     public const string ShaderName = "Custom/Character/SpriteLitShading";
@@ -55,6 +61,7 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
 
     public OutsideShadowLight CurrentLight => selected;
     public float RimStrength => lightWeight;
+    public Vector2 LightPosition => lightPosition;
 
     void OnEnable()
     {
@@ -62,7 +69,6 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
         ground = GetComponent<OutsideCharacterShadow>();
         block ??= new MaterialPropertyBlock();
         lightWeight = 0;
-        lightPosition = Foot() + Ambient() * 1000;
         RenderPipelineManager.beginCameraRendering += BeforeCamera;
     }
 
@@ -96,13 +102,13 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
         selected = OutsideShadowLight.Select(foot, source, selected);
         float influence = selected != null ? selected.Influence(foot, source) : 0;
         float target = Mathf.Clamp01(influence / rimFullInfluence);
-        Vector2 targetPosition = selected != null ? (Vector2)selected.Position : foot + Ambient() * 1000;
-        Color targetColor = selected != null ? Color.Lerp(rimColor, selected.Color, rimUsesLightColor) : litRim;
         float step = Application.isPlaying ? Time.deltaTime / Mathf.Max(0.01f, transitionSeconds) : 1;
         lightWeight = Mathf.MoveTowards(lightWeight, target, step);
-        // 광원이 바뀔 때 방향이 튀지 않도록 위치와 색도 같은 속도로 따라간다.
-        float follow = Application.isPlaying ? Mathf.Clamp01(step * 2) : 1;
-        lightPosition = Vector2.Lerp(lightPosition, targetPosition, follow);
+        if (selected == null) return; // 광원을 벗어나면 마지막 방향을 유지한 채 세기만 줄어든다.
+        Color targetColor = Color.Lerp(rimColor, selected.Color, rimUsesLightColor);
+        // 림이 꺼져 있던 상태에서 새 광원에 들어오면 이전 광원 위치에서 끌려오지 않고 바로 그 방향을 쓴다.
+        float follow = !Application.isPlaying || lightWeight <= step ? 1 : Mathf.Clamp01(step * 2);
+        lightPosition = Vector2.Lerp(lightPosition, selected.Position, follow);
         litRim = Color.Lerp(litRim, targetColor, follow);
     }
 
@@ -121,7 +127,13 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
         block.SetVector(RimId, new Vector4(rimIntensity, rimWidth, receive2DLights ? 1 : 0, 0));
         block.SetColor(RimColorId, litRim * lightWeight);
         block.SetVector(RimGlowId, new Vector4(rimGlow, rimGlowWidth, 0, 0));
-        block.SetVector(LightPosId, new Vector4(lightPosition.x, lightPosition.y, sideWeight, 0));
+        // 거리 감쇠 기준: 광원에서 스프라이트 영역까지 가장 가까운 거리. 그 지점이 최대 밝기다.
+        var bounds = source.bounds;
+        float nearest = Vector2.Distance(lightPosition, bounds.ClosestPoint(new Vector3(lightPosition.x, lightPosition.y, bounds.center.z)));
+        block.SetVector(RimShapeId, new Vector4(rimFocus, rimDistanceFalloff, Mathf.Max(0.05f, nearest), 0));
+        block.SetVector(LightPosId, new Vector4(lightPosition.x, lightPosition.y, sideWeight, lightWeight));
+        Vector2 ambient = Ambient();
+        block.SetVector(AmbientDirId, new Vector4(ambient.x, ambient.y, 0, 0));
         block.SetVector(BodyBoundsId, new Vector4(foot.y, height, 0, 0));
         block.SetVector(SpriteTexelId, new Vector4(1f / texture.width, 1f / texture.height, 0, 0));
         source.SetPropertyBlock(block);

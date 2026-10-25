@@ -138,6 +138,27 @@ public sealed class OutsideGroundEffectsTests
     }
 
     [Test]
+    public void FreeformStreetLampEmitsFromItsLampHeadNotItsPivot()
+    {
+        var caster = Make("caster under lamp").AddComponent<SpriteRenderer>();
+        caster.transform.position = new Vector3(2000, 2000);
+        var lamp = Make("freeform lamp"); lamp.transform.position = caster.transform.position + new Vector3(-.3f, 1.4f);
+        var light = lamp.AddComponent<Light2D>();
+        light.lightType = Light2D.LightType.Freeform;
+        light.intensity = 2;
+        light.targetSortingLayers = new[] { caster.sortingLayerID };
+        // 피벗은 원뿔 가운데, 램프 머리는 원뿔 윗변에 있는 실제 가로등 모양.
+        light.SetShapePath(new[] { new Vector3(-.35f, .52f), new Vector3(-.05f, -.62f), new Vector3(.57f, -.43f), new Vector3(-.11f, .55f) });
+        var emitter = lamp.AddComponent<OutsideShadowLight>();
+        emitter.Configure(light, new Vector2(0, .3f), 5);
+        Vector3 head = lamp.transform.position + new Vector3(-.23f, .535f);
+        Assert.That(Vector3.Distance(emitter.Position, head), Is.LessThan(.01f));
+        var lighting = caster.gameObject.AddComponent<CharacterSpriteLighting>();
+        lighting.Refresh();
+        Assert.That(Vector2.Distance(lighting.LightPosition, head), Is.LessThan(.01f), "Rim must point at the lamp head on the first frame.");
+    }
+
+    [Test]
     public void LightShaftFollowsFreeformConeAndEffectOption()
     {
         var saved = GraphicsEffectOptions.Current;

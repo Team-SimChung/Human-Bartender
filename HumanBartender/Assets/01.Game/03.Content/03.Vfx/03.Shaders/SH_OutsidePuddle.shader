@@ -30,7 +30,7 @@ Shader "Custom/Outside/Puddle"
                 half4 _Tint, _WaterColor;
                 float4 _Surface, _SurfaceSize, _Shape;
                 float4 _Ripples[16];
-                float _SurfaceEnabled, _ReflectionEnabled;
+                float _SurfaceEnabled, _ReflectionEnabled, _RippleSpeed;
                 float4x4 _ForegroundMatrix0, _ForegroundMatrix1, _ForegroundMatrix2, _ForegroundMatrix3;
                 float4 _ForegroundU0, _ForegroundU1, _ForegroundU2, _ForegroundU3;
                 float4 _ForegroundV0, _ForegroundV1, _ForegroundV2, _ForegroundV3;
@@ -109,7 +109,7 @@ Shader "Custom/Outside/Puddle"
                     float2 delta = (uv - _Ripples[i].xy) * size;
                     delta.y *= 2.7;
                     float distance = length(delta);
-                    float radius = age * 0.24 * _Ripples[i].w;
+                    float radius = age * _RippleSpeed * _Ripples[i].w;
                     float life = pow(saturate(1 - age / _SurfaceSize.w), 1.4) * step(0, age);
                     float ring = (1 - smoothstep(0.45, 1.25, abs(distance - radius) * ppu)) * life;
                     float inner = (1 - smoothstep(0.4, 1.1, abs(distance - radius * 0.62) * ppu)) * life * smoothstep(0.12, 0.3, age);
