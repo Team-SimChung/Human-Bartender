@@ -3575,6 +3575,8 @@ Transform:
   m_Children:
   - {fileID: 1228587063}
   - {fileID: 2013009710}
+  - {fileID: 1276843603}
+  - {fileID: 1045987849}
   m_Father: {fileID: 944276663}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &466114101
@@ -4212,6 +4214,7 @@ Transform:
   - {fileID: 11317596}
   - {fileID: 692369227}
   - {fileID: 1319968554}
+  - {fileID: 1251452808}
   m_Father: {fileID: 944276663}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &554808356
@@ -4309,6 +4312,7 @@ GameObject:
   - component: {fileID: 563325982}
   - component: {fileID: 563325983}
   - component: {fileID: 563325984}
+  - component: {fileID: 563325985}
   m_Layer: 11
   m_Name: Light_Freeform_X-7.1_Y0.4_01
   m_TagString: Untagged
@@ -4367,8 +4371,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0.11075002, y: -0.03425002, z: 0}
-    m_Extent: {x: 1.71475, y: 1.84075, z: 0}
+    m_Center: {x: 0.14485002, y: -0.35715002, z: 0}
+    m_Extent: {x: 1.74885, y: 2.16355, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
@@ -4380,8 +4384,8 @@ MonoBehaviour:
   m_ShapeLightFalloffOffset: {x: 0, y: 0}
   m_ShapePath:
   - {x: -0.3453002, y: 0.5172445, z: 0}
-  - {x: -0.054410934, y: -0.61679506, z: 0}
-  - {x: 0.5677943, y: -0.4293358, z: 0}
+  - {x: -0.03999424, y: -1.2626135, z: 0}
+  - {x: 0.6361923, y: -0.86126244, z: 0}
   - {x: -0.11028576, y: 0.54655105, z: 0}
 --- !u!114 &563325984
 MonoBehaviour:
@@ -4405,6 +4409,38 @@ MonoBehaviour:
   bakedIntensity: 1
   bakedGround: {fileID: 0}
   bakedColor: {r: 1, g: 0.86, b: 0.68, a: 1}
+--- !u!114 &563325985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563325981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea6bb55d54e439f42b8a4bdbbbf35fdc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightShaft
+  source: {fileID: 563325983}
+  material: {fileID: 2100000, guid: 3ff506dd456bdd04b9a0c3216b7aca57, type: 2}
+  sortingLayer: ForeLightground
+  sortingOrder: 50
+  length: 1.15
+  width: 0.9
+  intensity: 0.3
+  useLightColor: 0.85
+  tint: {r: 1, g: 0.9, b: 0.75, a: 1}
+  falloff: 1.6
+  edgeSoftness: 0.6
+  startFade: 0.08
+  brightnessSteps: 0
+  rayStrength: 0.35
+  rayCount: 5
+  raySpeed: 0.4
+  dust: 0.35
+  dustSpeed: 0.6
+  flicker: 0.04
+  pixelsPerUnit: 100
 --- !u!1 &567917246
 GameObject:
   m_ObjectHideFlags: 0
@@ -9224,6 +9260,67 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1045987848
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1045987849}
+  - component: {fileID: 1045987850}
+  m_Layer: 0
+  m_Name: Fog Mid
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1045987849
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045987848}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 429785304}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1045987850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045987848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49642af43e2dd2a4ab1f74c4da43b567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BackgroundFog
+  material: {fileID: 2100000, guid: b1d1b690da2668e40b6e0dd8d0efb124, type: 2}
+  fitTo: {fileID: 2013009711}
+  size: {x: 28.8, y: 8}
+  sortingLayer: BackgroundMid
+  sortingOrder: -10
+  color: {r: 0.5, g: 0.66, b: 0.88, a: 1}
+  density: 0.55
+  groundY: -0.9
+  height: 6
+  heightFalloff: 0.8
+  noiseScale: 2.5
+  noiseStrength: 0.45
+  driftSpeed: 0.12
+  lightInfluence: 0.2
+  alphaSteps: 0
+  edgeFade: 0.04
+  pixelsPerUnit: 100
 --- !u!1 &1047685602
 GameObject:
   m_ObjectHideFlags: 0
@@ -11770,6 +11867,67 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1251452807
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1251452808}
+  - component: {fileID: 1251452809}
+  m_Layer: 0
+  m_Name: Fog Near
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1251452808
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1251452807}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 552836710}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1251452809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1251452807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49642af43e2dd2a4ab1f74c4da43b567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BackgroundFog
+  material: {fileID: 2100000, guid: b1d1b690da2668e40b6e0dd8d0efb124, type: 2}
+  fitTo: {fileID: 11317597}
+  size: {x: 28.8, y: 8}
+  sortingLayer: CityLight
+  sortingOrder: -10
+  color: {r: 0.5, g: 0.66, b: 0.88, a: 1}
+  density: 0.35
+  groundY: -0.9
+  height: 4.5
+  heightFalloff: 1
+  noiseScale: 2.5
+  noiseStrength: 0.45
+  driftSpeed: 0.12
+  lightInfluence: 0.2
+  alphaSteps: 0
+  edgeFade: 0.04
+  pixelsPerUnit: 100
 --- !u!1 &1268683207
 GameObject:
   m_ObjectHideFlags: 0
@@ -11945,6 +12103,67 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   - {x: 0.5, y: 0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
+--- !u!1 &1276843602
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1276843603}
+  - component: {fileID: 1276843604}
+  m_Layer: 0
+  m_Name: Fog Far
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1276843603
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276843602}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 429785304}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1276843604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276843602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49642af43e2dd2a4ab1f74c4da43b567, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BackgroundFog
+  material: {fileID: 2100000, guid: b1d1b690da2668e40b6e0dd8d0efb124, type: 2}
+  fitTo: {fileID: 1228587064}
+  size: {x: 28.8, y: 8}
+  sortingLayer: BackgroundFar
+  sortingOrder: -10
+  color: {r: 0.5, g: 0.66, b: 0.88, a: 1}
+  density: 0.7
+  groundY: -0.9
+  height: 7
+  heightFalloff: 0.7
+  noiseScale: 2.5
+  noiseStrength: 0.45
+  driftSpeed: 0.12
+  lightInfluence: 0.2
+  alphaSteps: 0
+  edgeFade: 0.04
+  pixelsPerUnit: 100
 --- !u!1 &1281901988
 GameObject:
   m_ObjectHideFlags: 0
@@ -12215,7 +12434,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 809e414769787b14e869e5edc3657ded, type: 2}
+  sharedProfile: {fileID: 11400000, guid: faab20e2632331449918fd52d3d23f74, type: 2}
 --- !u!4 &1302879792
 Transform:
   m_ObjectHideFlags: 0
@@ -14477,7 +14696,7 @@ Transform:
   m_GameObject: {fileID: 1531018295}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.575, y: -0.755, z: 2}
+  m_LocalPosition: {x: -6.584, y: -0.755, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

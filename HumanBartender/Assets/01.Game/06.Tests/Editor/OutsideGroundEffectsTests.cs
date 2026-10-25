@@ -248,7 +248,21 @@ public sealed class OutsideGroundEffectsTests
         }
         var lamp = objects.SelectMany(o => o.GetComponentsInChildren<Light2D>(true)).Single(l => l.name == OutsideGroundEffectsSetup.StreetLampLight);
         Assert.That(lamp.GetComponent<LightShaft>(), Is.Not.Null, "The street lamp needs its light shaft.");
-        foreach (string shaderName in new[] { "Custom/Outside/Puddle", "Custom/Outside/CharacterShadow", CharacterSpriteLighting.ShaderName, "Custom/Outside/LightShaft" })
+        var fogs = objects.SelectMany(o => o.GetComponentsInChildren<BackgroundFog>(true)).ToArray();
+        CollectionAssert.AreEquivalent(OutsideGroundEffectsSetup.FogLayers, fogs.Select(f => f.name));
+        foreach (var fog in fogs)
+        {
+            var fogData = new SerializedObject(fog);
+            int fogLayer = SortingLayer.GetLayerValueFromName(fogData.FindProperty("sortingLayer").stringValue);
+            Assert.That(fogLayer, Is.LessThan(SortingLayer.GetLayerValueFromName("Foreground")), fog.name + " must stay behind the street buildings.");
+            Assert.That(fogData.FindProperty("material").objectReferenceValue, Is.Not.Null);
+        }
+        var pipelineAsset = (UniversalRenderPipelineAsset)GraphicsSettings.defaultRenderPipeline;
+        Assert.That(pipelineAsset.supportsHDR, Is.True, "Lit pixels must exceed 1.0 so lights can bloom.");
+        var outsideVolume = objects.SelectMany(o => o.GetComponentsInChildren<Volume>(true)).Single(v => v.isGlobal);
+        Assert.That(AssetDatabase.GetAssetPath(outsideVolume.sharedProfile), Is.EqualTo(OutsideGroundEffectsSetup.OutsideVolumeProfilePath));
+        Assert.That(outsideVolume.sharedProfile.TryGet(out Bloom outsideBloom) && outsideBloom.active, Is.True);
+        foreach (string shaderName in new[] { "Custom/Outside/Puddle", "Custom/Outside/CharacterShadow", CharacterSpriteLighting.ShaderName, "Custom/Outside/LightShaft", "Custom/Outside/BackgroundFog" })
         {
             var shader = Shader.Find(shaderName);
             Assert.That(shader, Is.Not.Null);

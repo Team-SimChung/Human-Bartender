@@ -154,6 +154,140 @@ public static class OutsideGroundEffectsSetup
         EditorSceneManager.MarkSceneDirty(light.gameObject.scene);
     }
 
+    public const string OutsideVolumeProfilePath = "Assets/01.Game/05.Settings/02.Rendering/VP_OutSide.asset";
+    public static readonly string[] FogLayers = { "Fog Far", "Fog Mid", "Fog Near" };
+
+    /// <summary>라이트가 1.0을 넘어 블룸에 걸리도록 HDR을 켜고, OutSide 전용 볼륨과 빌딩 층 사이 안개를 배치한다.
+    /// 이미 있는 안개/프로파일은 다시 만들지 않아 아트 튜닝을 보존한다.</summary>
+    [MenuItem("Tools/Human Bartender/Outside Ground/Apply Background Fog And Light Bloom")]
+    public static void ApplyFogAndBloom()
+    {
+        if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+        string previousScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path;
+        // HDR이 꺼져 있으면 2D 라이트를 받은 색이 1.0에서 잘려 블룸 임계값을 넘지 못한다.
+        var pipeline = new SerializedObject(AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(PipelinePath));
+        pipeline.FindProperty("m_SupportsHDR").boolValue = true;
+        pipeline.ApplyModifiedPropertiesWithoutUndo();
+
+        var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        var all = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<Transform>(true)).Where(t => (t.gameObject.hideFlags & HideFlags.DontSave) == 0).ToArray();
+        var volume = all.Select(t => t.GetComponent<Volume>()).First(v => v != null && v.isGlobal);
+        volume.sharedProfile = OutsideProfile(volume.sharedProfile);
+        EditorUtility.SetDirty(volume);
+
+        var fogMaterial = Material("M_OutsideFog", "SH_OutsideFog.shader");
+        SpriteRenderer Sprite(string name) => all.First(t => t.name == name && t.GetComponent<SpriteRenderer>() != null).GetComponent<SpriteRenderer>();
+        Transform Group(string name) => all.First(t => t.name == name && t.parent != null && t.parent.name == "StreetEnvironment");
+        // 먼 층일수록 짙게: 하늘 빌딩 위 → 뒤 빌딩 위 → 중간 빌딩 앞의 순서로 겹친다.
+        var fogColor = new Color(.5f, .66f, .88f, 1);
+        AddFog(Group("Background"), FogLayers[0], fogMaterial, Sprite("C_Back_Building_2"), "BackgroundFar", .7f, 7, fogColor);
+        AddFog(Group("Background"), FogLayers[1], fogMaterial, Sprite("C_Back_Building_1"), "BackgroundMid", .55f, 6, fogColor);
+        AddFog(Group("Middleground"), FogLayers[2], fogMaterial, Sprite("C_Middle_Building_2"), "CityLight", .35f, 4.5f, fogColor);
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        if (!string.IsNullOrEmpty(previousScene) && previousScene != ScenePath) EditorSceneManager.OpenScene(previousScene);
+        Debug.Log("Background fog layers and HDR light bloom applied to OutSide.");
+    }
+
+    /// <summary>현재 열린 OutSide에서 거리 화면을 안개/블룸 켜고 끈 상태로 렌더해 비교 이미지를 남긴다.</summary>
+    [MenuItem("Tools/Human Bartender/Outside Ground/Capture Fog And Bloom Comparison")]
+    public static void CaptureFogAndBloom()
+    {
+        var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        var all = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<Transform>(true)).ToArray();
+        var camera = all.First(t => t.name == "Main Camera").GetComponent<Camera>();
+        var fogs = all.Select(t => t.GetComponent<BackgroundFog>()).Where(f => f != null).ToArray();
+        var volume = all.Select(t => t.GetComponent<Volume>()).First(v => v != null && v.isGlobal);
+        var oldPosition = camera.transform.position; float oldSize = camera.orthographicSize; var oldTarget = camera.targetTexture;
+        float oldWeight = volume.weight;
+        var target = new RenderTexture(960, 540, 24, RenderTextureFormat.ARGB32) { filterMode = FilterMode.Point };
+        Directory.CreateDirectory(ValidationDirectory);
+        var report = new StringBuilder();
+        void Shot(string name)
+        {
+            foreach (var fog in fogs) fog.Refresh();
+            camera.Render();
+            var previous = RenderTexture.active; RenderTexture.active = target;
+            var texture = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
+            texture.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0); texture.Apply();
+            RenderTexture.active = previous;
+            File.WriteAllBytes(Path.Combine(ValidationDirectory, name + ".png"), texture.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(texture);
+            report.AppendLine(name);
+        }
+        try
+        {
+            camera.targetTexture = target;
+            camera.transform.position = new Vector3(-4.4f, -0.12f, -10);
+            camera.orthographicSize = 1.35f;
+            Shot("fogbloom-all");
+            foreach (var fog in fogs) fog.enabled = false;
+            Shot("fogbloom-no-fog");
+            foreach (var fog in fogs) fog.enabled = true;
+            volume.weight = 0;
+            Shot("fogbloom-no-bloom");
+            report.AppendLine($"fogs={fogs.Length} visible={fogs.Count(f => f.IsVisible)} areas={string.Join(" | ", fogs.Select(f => f.name + ":" + f.Area))}");
+            report.AppendLine($"hdr={camera.allowHDR} post={camera.GetUniversalAdditionalCameraData().renderPostProcessing} profile={AssetDatabase.GetAssetPath(volume.sharedProfile)}");
+        }
+        finally
+        {
+            volume.weight = oldWeight;
+            camera.transform.position = oldPosition; camera.orthographicSize = oldSize; camera.targetTexture = oldTarget;
+            target.Release(); UnityEngine.Object.DestroyImmediate(target);
+        }
+        File.WriteAllText(Path.Combine(ValidationDirectory, "fogbloom.txt"), report.ToString());
+        Debug.Log("Fog/bloom comparison saved to " + ValidationDirectory + "\n" + report);
+    }
+
+    static void AddFog(Transform parent, string name, Material material, SpriteRenderer target, string layer, float density, float height, Color color)
+    {
+        if (parent.Find(name) != null) return;
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        var fog = go.AddComponent<BackgroundFog>();
+        fog.Configure(material, target, layer, -10, density, color);
+        var data = new SerializedObject(fog);
+        data.FindProperty("height").floatValue = height;
+        data.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    /// <summary>개발용 테스트 프로파일을 직접 고치지 않도록 OutSide 전용 복사본을 만들고 라이트 블룸 값을 맞춘다.</summary>
+    static VolumeProfile OutsideProfile(VolumeProfile source)
+    {
+        var existing = AssetDatabase.LoadAssetAtPath<VolumeProfile>(OutsideVolumeProfilePath);
+        if (existing != null) return existing;
+        var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+        AssetDatabase.CreateAsset(profile, OutsideVolumeProfilePath);
+        if (source != null)
+            foreach (var component in source.components)
+            {
+                var copy = UnityEngine.Object.Instantiate(component);
+                copy.name = component.name;
+                copy.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+                AssetDatabase.AddObjectToAsset(copy, profile);
+                profile.components.Add(copy);
+            }
+        if (!profile.TryGet(out Bloom bloom))
+        {
+            bloom = ScriptableObject.CreateInstance<Bloom>();
+            bloom.name = nameof(Bloom);
+            bloom.hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
+            AssetDatabase.AddObjectToAsset(bloom, profile);
+            profile.components.Add(bloom);
+        }
+        // HDR에서 라이트를 받은 부분과 밝은 네온이 넓고 부드럽게 번지도록 한다.
+        bloom.active = true;
+        bloom.threshold.Override(.75f);
+        bloom.intensity.Override(1.4f);
+        bloom.scatter.Override(.75f);
+        bloom.highQualityFiltering.Override(true);
+        EditorUtility.SetDirty(bloom);
+        EditorUtility.SetDirty(profile);
+        return profile;
+    }
+
     static void TuneShadow(OutsideCharacterShadow shadow)
     {
         var data = new SerializedObject(shadow);
