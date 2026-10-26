@@ -19,10 +19,10 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         private void BuildAudioPlayback(VisualElement section, SerializedObject data)
         {
-            ClipField(section, data, "Volume").label = "클립 볼륨 (0–1)";
+            ClipField(section, data, "Volume", !StudioKeyframes.HasKeys(host.Selected, StudioProperty.Volume)).label = "기본 볼륨 (0–1)";
             ClipField(section, data, "AudioOffset").label = "원본 시작 (초)";
             ClipField(section, data, "Loop").label = "원본 반복";
-            Note(section, "클립 볼륨은 전체 구간의 기준값입니다. 시간에 따른 볼륨 변화는 페이드에서 설정합니다.");
+            Note(section, "기본 볼륨은 볼륨 키가 없을 때 적용됩니다. 볼륨 키가 있으면 현재 시점 / 키프레임에서 편집하세요.");
             Note(section, "원본 시작은 오디오 파일 안의 재생 시작 위치입니다. 반복을 끄면 원본 끝에서 소리가 멈추며, 반복을 켜면 원본 길이를 기준으로 되풀이합니다.");
         }
 

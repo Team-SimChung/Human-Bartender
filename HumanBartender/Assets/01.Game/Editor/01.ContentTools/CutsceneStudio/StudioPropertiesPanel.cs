@@ -25,7 +25,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         [NonSerialized] private readonly Dictionary<string, bool> foldouts = new();
         [NonSerialized] private readonly Dictionary<string, Vector2> scrollPositions = new();
         [NonSerialized] private readonly Dictionary<string, StudioClipField> clipFields = new();
-        [NonSerialized] private readonly StudioCurrentKeyEditing currentKeys = new();
+        private StudioCurrentKeyEditing currentKeys => host.Session.CurrentKeys;
 
         internal void Initialize(IStudioPropertiesHost value) { host = value; }
 
@@ -82,7 +82,11 @@ namespace HumanBartender.CutsceneStudio.Editor
         private Foldout Section(string title, string id, bool open = true)
         {
             string key = (host.Selected != null ? host.Selected.Kind.ToString() : "sequence") + "-" + id;
-            return StudioGUI.Section(foldouts, propertiesBody, title, key, open);
+            var section = StudioGUI.Section(foldouts, propertiesBody, title, key, open);
+            section.focusable = false;
+            var toggle = section.Q<Toggle>(className: Foldout.toggleUssClassName);
+            if (toggle != null) { toggle.focusable = false; toggle.tabIndex = -1; }
+            return section;
         }
 
         private static void Note(VisualElement parent, string text)
@@ -133,7 +137,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             else
             {
                 BuildTimingFields(clip);
-                if (!StudioPropertiesLayout.HasCurrentEditor(host.Selected.Kind))
+                if (host.Selected.Kind != StudioKind.Dialogue && !StudioPropertiesLayout.HasCurrentEditor(host.Selected.Kind))
                     BuildSelectedKeyFields(clip);
                 foreach (var field in StudioClipSchema.Fields(host.Selected))
                     clipFields.Add(field.Path, field);
@@ -161,14 +165,17 @@ namespace HumanBartender.CutsceneStudio.Editor
         private void BuildTimingFields(TimelineClip clip)
         {
             bool wait = host.Selected.Kind == StudioKind.Wait;
-            var section = Section("클립 정보", "clip-info", wait);
-            var title = new TextField("클립 이름") { name = "clip-name", isDelayed = true };
+            bool visual = host.Selected.Kind == StudioKind.Visual;
+            var section = Section("클립 정보", "clip-info", wait || visual);
+            var title = new TextField("클립 이름") { name = "clip-name", isDelayed = true, isReadOnly = visual };
+            if (visual) title.AddToClassList("studio-properties-readonly");
             var start = new DoubleField(wait ? "대기 시작 (초)" : "시작 (초)") { name = "clip-start", isDelayed = true };
             var duration = new DoubleField(wait ? "클립 길이 (초)" : "길이 (초)") { name = "clip-duration", isDelayed = true };
             section.Add(title);
             section.Add(start);
             section.Add(duration);
             var end = ReadOnly(section, "종료 (초)", "clip-end");
+            if (visual) BuildLinkedVisualSource(section);
             if (wait)
                 Note(section, "대기 시작은 클립의 시작 시간입니다. 클립 길이 / 종료 시간은 타임라인 구간이며, 입력 대기 제한 시간이 아닙니다.");
             title.RegisterValueChangedCallback(ChangeName);
@@ -179,6 +186,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
             void ChangeName(ChangeEvent<string> e)
             {
+                if (visual) { Refresh(); return; }
                 Undo.RecordObject(clip.GetParentTrack(), "클립 이름 변경");
                 clip.displayName = e.newValue;
                 host.Changed();
@@ -191,7 +199,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             }
             void Refresh()
             {
-                title.SetValueWithoutNotify(clip.displayName);
+                title.SetValueWithoutNotify(visual ? host.Sequence.FindActor(host.Selected.ActorId)?.Name ?? clip.displayName : clip.displayName);
                 start.SetValueWithoutNotify(clip.start);
                 duration.SetValueWithoutNotify(clip.duration);
                 end.SetValueWithoutNotify(clip.end.ToString("0.###"));
@@ -235,14 +243,17 @@ namespace HumanBartender.CutsceneStudio.Editor
             var section = parent ?? Section("선택한 키프레임", "selected-key");
             if (parent != null)
                 Note(section, "선택한 키프레임");
-            ReadOnly(section, "속성", "key-property").value = StudioTimelinePanel.PropertyLabel(host.Selected, host.KeyProperty);
+            ReadOnly(section, "속성", "key-property").value = StudioPropertyPresentation.Label(host.Selected, host.KeyProperty);
             var time = new FloatField("클립 내 시간 (초)") { name = "key-time", isDelayed = true };
             var value = new FloatField("값") { name = "key-value", isDelayed = true };
+            var toggle = new Toggle("값") { name = "key-boolean-value" };
+            bool discrete = StudioKeyframes.IsDiscrete(host.KeyProperty);
             section.Add(time);
             var absolute = ReadOnly(section, "시퀀스 시간 (초)", "key-sequence-time");
-            section.Add(value);
+            section.Add(discrete ? toggle : value);
             time.RegisterValueChangedCallback(ChangeTime);
             value.RegisterValueChangedCallback(ChangeValue);
+            toggle.RegisterValueChangedCallback(e => UpdateKey(time.value, e.newValue ? 1 : 0));
             var delete = StudioGUI.ActionButton("선택 키 삭제", DeleteKey, "delete-selected-key");
             section.Add(delete);
             refreshSelectedKeyAvailability = RefreshAvailability;
@@ -256,13 +267,17 @@ namespace HumanBartender.CutsceneStudio.Editor
                 bool enabled = CanEdit();
                 time.SetEnabled(enabled);
                 value.SetEnabled(enabled);
+                toggle.SetEnabled(enabled);
                 delete.SetEnabled(enabled);
             }
             void DeleteKey()
             {
-                if (CanEdit()) host.DeleteSelectedKey();
+                if (!CanEdit()) return;
+                StudioKeyframeEditing.Delete(clip, host.KeyProperty, host.KeyIndex);
+                host.Session.ClearKey();
+                host.Changed();
             }
-            void ChangeTime(ChangeEvent<float> e) { UpdateKey((float)host.Snap(e.newValue), value.value); }
+            void ChangeTime(ChangeEvent<float> e) { UpdateKey((float)host.Snap(e.newValue), discrete ? (toggle.value ? 1 : 0) : value.value); }
             void ChangeValue(ChangeEvent<float> e) { UpdateKey(time.value, e.newValue); }
             void UpdateKey(float nextTime, float nextValue)
             {
@@ -282,6 +297,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                     return;
                 time.SetValueWithoutNotify(current[host.KeyIndex].Time);
                 value.SetValueWithoutNotify(current[host.KeyIndex].Value);
+                toggle.SetValueWithoutNotify(current[host.KeyIndex].Value >= .5f);
+                toggle.text = StudioPropertyPresentation.Value(host.KeyProperty, current[host.KeyIndex].Value);
                 absolute.SetValueWithoutNotify((clip.start + current[host.KeyIndex].Time).ToString("0.###"));
             }
         }
@@ -321,13 +338,15 @@ namespace HumanBartender.CutsceneStudio.Editor
             identity.Append(host.Sequence?.GetInstanceID()).Append(':').Append(clip?.GetInstanceID())
                 .Append(':').Append(clip?.Kind).Append(':').Append(clip?.ActorId).Append(':').Append(host.ActorIndex)
                 .Append(':').Append(host.KeySelectionOwner?.GetInstanceID()).Append(':').Append(host.KeyIndex)
-                .Append(':').Append(host.KeyProperty).Append(':').Append(clip?.StateCamera)
+                .Append(':').Append(host.KeyProperty)
                 .Append(':').Append(clip?.Effect).Append(':').Append(clip?.WaitForInput)
                 .Append(':').Append(clip?.Frames?.Length);
+            identity.Append(':').Append(clip?.DialoguePrefab?.GetInstanceID()).Append(':').Append(clip?.CameraTargetId);
             if (clip != null)
                 identity.Append(':').Append(StudioPropertyEditing.UsesSourceTiming(clip))
                     .Append(':').Append(StudioKeyframes.HasOverrides(clip))
-                    .Append(':').Append(StudioKeyframes.Channel(clip, StudioProperty.Strength) != null);
+                    .Append(':').Append(StudioKeyframes.HasKeys(clip, StudioProperty.Strength))
+                    .Append(':').Append(StudioKeyframes.HasKeys(clip, StudioProperty.Volume));
             if (host.Sequence != null)
                 foreach (var actor in host.Sequence.Actors)
                     identity.Append('|').Append(actor?.Id);

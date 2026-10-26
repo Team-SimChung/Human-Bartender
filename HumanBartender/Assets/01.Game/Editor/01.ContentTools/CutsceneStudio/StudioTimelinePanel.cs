@@ -15,7 +15,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 {
     // 패널의 표시와 입력을 처리하며 다른 패널은 호스트 계약으로 연결함.
     [Serializable]
-    internal sealed class StudioTimelinePanel
+    internal sealed partial class StudioTimelinePanel
     {
         [NonSerialized] private IStudioTimelineHost host;
         private CutsceneStudioWindow Window => host.Window;
@@ -49,7 +49,9 @@ namespace HumanBartender.CutsceneStudio.Editor
             "크기",
             "회전",
             "불투명도",
-            "강도"
+            "강도",
+            "좌우 반전",
+            "볼륨"
         };
 
         private static readonly Color[] PropertyColors =
@@ -59,7 +61,9 @@ namespace HumanBartender.CutsceneStudio.Editor
             new(.48f, .66f, .86f),
             new(.74f, .57f, .80f),
             new(.77f, .73f, .50f),
-            new(.83f, .63f, .46f)
+            new(.83f, .63f, .46f),
+            new(.68f, .73f, .74f),
+            new(.58f, .74f, .48f)
         };
 
         private sealed class KeyRow
@@ -81,6 +85,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 0,
                 1,
                 5,
+                2,
                 3,
                 4
             }
@@ -125,6 +130,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             ReleaseKeyDrag();
             ReleaseTimelineResize();
             ReleaseTimelineScrub();
+            ReleaseTrackReorder();
             host.DialogueMode = false;
             keyframeMode = mode;
             timelineScroll = Vector2.zero;
@@ -312,7 +318,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
                         GUI.color = old;
                         float value = StudioKeyframes.Evaluate(asset, p, (float)(host.Clock.Time - row.Clip.start), row.Clip.duration);
-                        GUI.Label(new Rect(x + TrackHeaderWidth - 98, row.Y + 4, 66, 20), value.ToString("F2"), EditorStyles.miniLabel);
+                        GUI.Label(new Rect(x + TrackHeaderWidth - 98, row.Y + 4, 66, 20), StudioKeyframes.IsDiscrete(p) ? StudioPropertyPresentation.Value(p, value) : value.ToString("F2"), EditorStyles.miniLabel);
                         if (GUI.Button(new Rect(x + TrackHeaderWidth - 28, row.Y + 4, 22, 20), new GUIContent("+", "현재 시간에 속성 키 추가"), EditorStyles.miniButton))
                             AddPropertyKey(row.Clip, p, (float)(host.Clock.Time - row.Clip.start));
                     }
@@ -372,6 +378,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void DeleteSelectedKey()
         {
+            if (host.Playing) return;
             var clip = host.FindSelected();
             if (clip == null || host.KeySelectionOwner != host.Selected || host.KeyIndex < 0)
                 return;
@@ -522,6 +529,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             host.SnapEnabled = GUI.Toggle(new Rect(area.xMax - 270, controlsY + 7, 105, 22), host.SnapEnabled, "프레임 스냅");
             zoom = GUI.HorizontalSlider(new Rect(area.xMax - 150, controlsY + 13, 130, 20), zoom, 20, 160);
             DrawTimelineTabs(area);
+            if (host.DialogueMode || keyframeMode)
+                ReleaseTrackReorder();
             if (host.DialogueMode)
             {
                 DrawTimelineFooter(area);
@@ -537,6 +546,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             var rows = StudioTimelineLayout.Build(host.Sequence, collapsedTimelineGroups, timelineSearch);
             var viewport = new Rect(area.x, area.y + TimelineToolbarHeight, area.width, area.height - TimelineToolbarHeight - 27);
             HandleTimelineResize(viewport, rows);
+            HandleTrackReorder(viewport, rows);
             float bottom = rows.Length == 0 ? StudioTimelineLayout.RulerHeight : rows.Last().Y + rows.Last().Height;
             var content = new Rect(0, 0, Mathf.Max(viewport.width - 18, TrackHeaderWidth + (float)host.Sequence.Duration * zoom + 60), Mathf.Max(viewport.height - 18, bottom + 40));
             var e = Event.current;
@@ -637,8 +647,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     float nameY = row.Y + (row.Height - 22) * .5f;
                     using (new EditorGUI.DisabledScope(!inBody && e.type != EventType.Repaint && e.type != EventType.Layout))
                     {
-                        if (GUI.Button(new Rect(nameRect.x + 22, nameY, TrackHeaderWidth - 90, 22), new GUIContent(TimelineTrackName(row), "클릭하여 트랙 이름 변경"), EditorStyles.label))
-                            StudioTrackSettingsWindow.Open(Window, host.Sequence, row.Track, TimelineTrackName(row));
+                        DrawTrackDragLabel(nameRect, nameY, row);
                         bool mute = GUI.Toggle(new Rect(nameRect.xMax - 59, nameY, 25, 22), row.Track.muted, "M", EditorStyles.miniButton);
                         if (mute != row.Track.muted)
                         {
@@ -658,6 +667,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             }
 
             EditorGUI.DrawRect(new Rect(timelineScroll.x + TrackHeaderWidth - 1, 0, 1, content.height), new Color(.10f, .10f, .10f));
+            DrawTrackInsertion(content.width);
             GUI.EndScrollView();
             DrawTimelineRuler(viewport, firstSecond, lastSecond);
             EditorGUI.DrawRect(new Rect(viewport.x + TrackHeaderWidth - 2, viewport.y, 3, viewport.height - 16), resizingTimelineNames ? StudioGUI.Accent : new Color(.12f, .12f, .12f));
@@ -740,7 +750,6 @@ namespace HumanBartender.CutsceneStudio.Editor
                 ReleaseTimelineScrub();
             if (e.type == EventType.MouseDown && e.button == 0 && GUIUtility.hotControl == 0 && timeArea.Contains(e.mousePosition))
             {
-                host.ClearClipSelection();
                 scrubbingTimeline = true;
                 timelineScrubControl = control;
                 GUIUtility.hotControl = control;

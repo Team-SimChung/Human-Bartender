@@ -18,16 +18,19 @@ namespace HumanBartender.CutsceneStudio
         private CanvasGroup bubbleVisibility;
         private TextMeshProUGUI dialogue;
         private StudioDialoguePresentation dialoguePresentation;
+        private StudioDialoguePrefabPresentation prefabDialogue;
+        private StudioBackgroundPresentation backgroundPresentation;
+        private bool usingPrefabDialogue;
         private readonly Dictionary<string, Image> actors = new();
         internal bool RevealDialogue { get; set; }
         internal int EvaluationVersion { get; private set; }
         public RectTransform Frame => frame;
-        public TextMeshProUGUI Dialogue => dialogue;
+        public TextMeshProUGUI Dialogue => usingPrefabDialogue ? prefabDialogue.Label : dialogue;
         public float ScreenEffectAlpha => effect != null ? effect.color.a : 0;
         public RectTransform BackgroundTransform => background != null ? background.rectTransform : null;
         public float BackgroundOpacity => background != null ? background.color.a : 0;
-        public RectTransform DialogueTransform => bubble;
-        public float DialogueOpacity => bubbleVisibility != null ? bubbleVisibility.alpha : 0;
+        public RectTransform DialogueTransform => usingPrefabDialogue ? prefabDialogue.Root : bubble;
+        public float DialogueOpacity => usingPrefabDialogue ? prefabDialogue.Visibility.alpha : bubbleVisibility != null ? bubbleVisibility.alpha : 0;
 
         public void Build(StudioSequence value)
         {
@@ -59,6 +62,7 @@ namespace HumanBartender.CutsceneStudio
             bubbleVisibility = null;
             dialogue = null;
             dialoguePresentation = null;
+            prefabDialogue = null; backgroundPresentation = null; usingPrefabDialogue = false;
             builtSequence = null;
             RevealDialogue = false;
         }
@@ -70,8 +74,8 @@ namespace HumanBartender.CutsceneStudio
             var fill = Image("Backdrop", frame, frame.sizeDelta);
             fill.color = sequence.BackgroundColor;
             world = Rect("World", frame, frame.sizeDelta);
-            background = Image("Background", world, frame.sizeDelta);
-            background.color = Color.clear;
+            backgroundPresentation = new StudioBackgroundPresentation(world);
+            background = backgroundPresentation.Current;
             foreach (var actor in sequence.Actors.Where(MatchesActorsWhere).OrderBy(SelectNullOrderBy))
             {
                 if (string.IsNullOrEmpty(actor.Id) || actors.ContainsKey(actor.Id))
@@ -107,7 +111,18 @@ namespace HumanBartender.CutsceneStudio
 
         private readonly List<StudioEntry> entries = new();
         private readonly HashSet<string> ownedActors = new();
-        public void Evaluate(double time, bool revealDialogue = false)
+        private System.Func<StudioClip, StudioProperty, float, float> valueOverride;
+
+        // 미기록 편집값도 저장된 키와 같은 합성 / 렌더링 경로에서 평가함.
+        public void Evaluate(double time, bool revealDialogue = false,
+            System.Func<StudioClip, StudioProperty, float, float> overrideValue = null)
+        {
+            valueOverride = overrideValue;
+            try { EvaluateFrame(time, revealDialogue); }
+            finally { valueOverride = null; }
+        }
+
+        private void EvaluateFrame(double time, bool revealDialogue)
         {
             // 씬 복원이나 Inspector 직렬화로 참조가 바뀐 경우에도 화면을 함께 교체함.
             if (builtSequence != sequence || frame == null && sequence != null)
@@ -134,6 +149,7 @@ namespace HumanBartender.CutsceneStudio
             var center = Vector2.zero;
             float zoom = 1;
             var shake = Vector2.zero;
+            StudioEntry? cameraEntry = null;
             foreach (var entry in entries)
             {
                 if (time < entry.Clip.start)
@@ -144,14 +160,11 @@ namespace HumanBartender.CutsceneStudio
                     continue;
                 switch (clip.Kind)
                 {
-                    case StudioKind.Actor:
                     case StudioKind.Visual:
                         ApplyActor(entry, time);
                         break;
                     case StudioKind.Camera:
-                        var camera = Sample(entry, time);
-                        center = camera.Position;
-                        zoom = camera.Scale;
+                        cameraEntry = entry;
                         break;
                     case StudioKind.Dialogue when active:
                         line = entry;
@@ -165,13 +178,21 @@ namespace HumanBartender.CutsceneStudio
                 }
             }
 
-            // 오브젝트 키는 기본 이동·카메라 결과 위에 적용함.
-            foreach (var entry in entries)
-                ApplyState(entry, time, ref center, ref zoom);
+            if (cameraEntry.HasValue)
+            {
+                var entry = cameraEntry.Value;
+                var camera = Sample(entry, time);
+                center = camera.Position;
+                zoom = camera.Scale;
+                if (!string.IsNullOrEmpty(entry.Asset.CameraTargetId))
+                    center += CameraTargetPosition(entry.Asset.CameraTargetId, System.Math.Min(time, entry.Clip.end)) +
+                        StudioExtensionValues.Position(entry.Asset.CameraFollowOffset);
+            }
             world.anchoredPosition = -center * zoom + shake;
             world.localScale = Vector3.one * zoom;
             if (line.HasValue)
                 ApplyDialogue(line.Value, time, center, zoom, revealDialogue);
+            if (!usingPrefabDialogue) prefabDialogue?.StopWaiting();
         }
 
         private void ResetVisuals()
@@ -182,15 +203,12 @@ namespace HumanBartender.CutsceneStudio
             bubble.localScale = Vector3.one;
             bubble.localRotation = Quaternion.identity;
             bubbleVisibility.alpha = 1;
-            background.sprite = null;
-            background.color = Color.clear;
-            background.rectTransform.anchoredPosition = Vector2.zero;
-            background.rectTransform.localScale = Vector3.one;
-            background.rectTransform.localRotation = Quaternion.identity;
+            prefabDialogue?.Hide(); usingPrefabDialogue = false;
+            backgroundPresentation.Reset(); background = backgroundPresentation.Current;
             effect.color = Color.clear;
             foreach (var actor in Sequence.Actors)
             {
-                if (actor == null || string.IsNullOrEmpty(actor.Id) || !actors.TryGetValue(actor.Id, out var image))
+                if (actor == null || !TryGetActor(actor.Id, out var image))
                     continue;
                 image.sprite = actor.Sprite;
                 image.color = actor.Color;
@@ -202,33 +220,42 @@ namespace HumanBartender.CutsceneStudio
             }
         }
 
-        private static StudioPoseKey Sample(StudioEntry entry, double time)
+        private StudioPose Sample(StudioEntry entry, double time)
         {
-            return StudioKeyframes.Sample(entry.Asset, (float)(time - entry.Clip.start), entry.Clip.duration);
+            var pose = StudioKeyframes.Sample(entry.Asset, (float)(time - entry.Clip.start), entry.Clip.duration);
+            if (valueOverride == null) return pose;
+            pose.Position = new Vector2(Value(entry.Asset, StudioProperty.PositionX, pose.Position.x), Value(entry.Asset, StudioProperty.PositionY, pose.Position.y));
+            pose.Rotation = Value(entry.Asset, StudioProperty.Rotation, pose.Rotation);
+            pose.Scale = Value(entry.Asset, StudioProperty.Scale, pose.Scale);
+            pose.Opacity = Value(entry.Asset, StudioProperty.Opacity, pose.Opacity);
+            return pose;
         }
+
+        private float Value(StudioClip clip, StudioProperty property, float evaluated) => valueOverride?.Invoke(clip, property, evaluated) ?? evaluated;
 
         private void ApplyActor(StudioEntry entry, double time)
         {
             var clip = entry.Asset;
-            if (!actors.TryGetValue(clip.ActorId ?? "", out var image))
+            if (!TryGetActor(clip.ActorId, out var image))
                 return;
-            if (clip.Kind == StudioKind.Visual)
-                image.enabled = true;
-            ApplyActorPose(image, clip, Sample(entry, time));
+            image.enabled = true;
+            bool flip = Value(clip, StudioProperty.FlipX, StudioKeyframes.Evaluate(clip, StudioProperty.FlipX,
+                (float)(time - entry.Clip.start), entry.Clip.duration)) >= .5f;
+            ApplyActorPose(image, clip, Sample(entry, time), flip);
             var sprite = StudioSpriteAnimation.Sample(clip, time - entry.Clip.start, entry.Clip.duration);
             if (clip.Frames != null && clip.Frames.Length > 0)
                 image.sprite = sprite;
         }
 
-        private void ApplyActorPose(Image image, StudioClip clip, StudioPoseKey pose)
+        private void ApplyActorPose(Image image, StudioClip clip, StudioPose pose, bool flip)
         {
-            ApplyTransform(image.rectTransform, pose, clip.FlipX);
+            ApplyTransform(image.rectTransform, pose, flip);
             var color = image.color;
             color.a = (Sequence.FindActor(clip.ActorId)?.Color.a ?? 1) * pose.Opacity;
             image.color = color;
         }
 
-        private static void ApplyTransform(RectTransform rect, StudioPoseKey pose, bool flip)
+        private static void ApplyTransform(RectTransform rect, StudioPose pose, bool flip)
         {
             rect.anchoredPosition = pose.Position;
             rect.localScale = new Vector3(flip ? -pose.Scale : pose.Scale, pose.Scale, 1);
@@ -237,60 +264,69 @@ namespace HumanBartender.CutsceneStudio
 
         private void ApplyBackground(StudioEntry entry, double time)
         {
-            var pose = Sample(entry, time);
-            background.sprite = entry.Asset.BackgroundSprite;
-            ApplyTransform(background.rectTransform, pose, entry.Asset.FlipX);
-            background.color = new Color(1, 1, 1, background.sprite != null ? pose.Opacity : 0);
+            backgroundPresentation.Apply(entry, time, Sample(entry, time));
+            background = backgroundPresentation.Current;
+        }
+
+        private Vector2 CameraTargetPosition(string id, double time)
+        {
+            Vector2 position = Sequence.FindActor(id)?.Position ?? Vector2.zero;
+            foreach (var entry in entries)
+                if (entry.Asset.Kind == StudioKind.Visual && entry.Asset.ActorId == id && time >= entry.Clip.start &&
+                    (entry.Contains(time) || entry.Asset.HoldEnd)) position = Sample(entry, time).Position;
+            return position;
         }
 
         private Vector2 ApplyEffect(StudioEntry entry, double time)
         {
             var clip = entry.Asset;
             float age = (float)(time - entry.Clip.start);
-            float strength = StudioKeyframes.Evaluate(clip, StudioProperty.Strength, age, entry.Clip.duration);
-            float alpha = StudioKeyframes.Evaluate(clip, StudioProperty.Opacity, age, entry.Clip.duration);
+            float strength = Value(clip, StudioProperty.Strength, StudioKeyframes.Evaluate(clip, StudioProperty.Strength, age, entry.Clip.duration));
+            float alpha = Value(clip, StudioProperty.Opacity, StudioKeyframes.Evaluate(clip, StudioProperty.Opacity, age, entry.Clip.duration));
             if (clip.Effect == StudioEffect.Shake)
-                return new Vector2(Mathf.Sin((float)time * 73), Mathf.Sin((float)time * 91)) * (12 * strength * alpha);
+            {
+                float speed = StudioExtensionValues.NonNegative(clip.ShakeSpeed, 1);
+                var amount = clip.ShakeAmplitude;
+                return new Vector2(Mathf.Sin((float)time * 73 * speed) * StudioExtensionValues.NonNegative(amount.x, 12),
+                    Mathf.Sin((float)time * 91 * speed) * StudioExtensionValues.NonNegative(amount.y, 12)) * (strength * alpha);
+            }
             var color = clip.EffectColor;
             color.a *= alpha * strength;
             effect.color = StudioEvaluation.Composite(effect.color, color);
             return Vector2.zero;
         }
 
-        private void ApplyState(StudioEntry entry, double time, ref Vector2 center, ref float zoom)
-        {
-            var clip = entry.Asset;
-            if (clip.Kind != StudioKind.State || time < entry.Clip.start || (!entry.Contains(time) && !clip.HoldEnd))
-                return;
-            float age = (float)System.Math.Min(time - entry.Clip.start, entry.Clip.duration);
-            if (!StudioKeyframes.HasStateStarted(clip, age))
-                return;
-
-            var pose = StudioKeyframes.Sample(clip, age, entry.Clip.duration);
-            if (clip.StateCamera)
-            {
-                center = pose.Position;
-                zoom = pose.Scale;
-            }
-            else if (actors.TryGetValue(clip.ActorId ?? "", out var actor))
-                ApplyActorPose(actor, clip, pose);
-        }
-
         private void ApplyDialogue(StudioEntry entry, double time, Vector2 center, float zoom, bool reveal)
         {
             var clip = entry.Asset;
-            bubble.gameObject.SetActive(true);
-            dialoguePresentation.Apply(clip, Sequence.Font);
-            var position = new Vector2(0, -185);
-            if (!string.IsNullOrEmpty(clip.ActorId) && actors.TryGetValue(clip.ActorId, out var speaker))
+            int visible = reveal ? int.MaxValue : Mathf.Max(0, Mathf.FloorToInt((float)(time - entry.Clip.start) * clip.CharactersPerSecond));
+            usingPrefabDialogue = StudioDialoguePrefabPresentation.IsCompatible(clip.DialoguePrefab);
+            if (usingPrefabDialogue)
+            {
+                if (prefabDialogue == null || prefabDialogue.Source != clip.DialoguePrefab)
+                {
+                    prefabDialogue?.Destroy();
+                    prefabDialogue = new StudioDialoguePrefabPresentation(clip.DialoguePrefab, frame);
+                    prefabDialogue.Root.SetSiblingIndex(effect.transform.GetSiblingIndex());
+                }
+                prefabDialogue.Apply(clip, Sequence.Font, Sequence.FindActor(clip.ActorId)?.Name, visible, reveal);
+            }
+            else
+            {
+                bubble.gameObject.SetActive(true);
+                dialoguePresentation.Apply(clip, Sequence.Font);
+            }
+            var position = new Vector2(0, clip.BubbleScreenHeight);
+            if (TryGetActor(clip.ActorId, out var speaker))
                 position = (speaker.rectTransform.anchoredPosition - center) * zoom + new Vector2(0, clip.BubbleOffset);
             // 출력 비율과 관계없이 말풍선 기준 위치를 연출 영역 안으로 제한함.
-            position = dialoguePresentation.ClampAnchor(position);
+            position = usingPrefabDialogue ? prefabDialogue.ClampAnchor(position) : dialoguePresentation.ClampAnchor(position);
             var pose = Sample(entry, time);
             pose.Position += position;
-            ApplyTransform(bubble, pose, false);
-            bubbleVisibility.alpha = pose.Opacity;
-            dialogue.maxVisibleCharacters = reveal ? int.MaxValue : Mathf.Max(0, Mathf.FloorToInt((float)(time - entry.Clip.start) * clip.CharactersPerSecond));
+            ApplyTransform(DialogueTransform, pose, false);
+            if (usingPrefabDialogue) prefabDialogue.Visibility.alpha = pose.Opacity;
+            else bubbleVisibility.alpha = pose.Opacity;
+            Dialogue.maxVisibleCharacters = visible;
         }
 
         public void FitTo(Vector2 size)
@@ -300,30 +336,25 @@ namespace HumanBartender.CutsceneStudio
             frame.localScale = Vector3.one * Mathf.Min(size.x / StudioSequence.Width, size.y / StudioSequence.Height);
         }
 
-        public Vector2 ActorPosition(string id) => actors[id].rectTransform.anchoredPosition;
-        public bool ActorVisible(string id) => actors.TryGetValue(id, out var actor) && actor.enabled;
-        public RectTransform ActorTransform(string id) => actors.TryGetValue(id ?? "", out var actor) ? actor.rectTransform : null;
+        // 미리보기와 재생 모두 연결되지 않은 대상을 같은 기준으로 제외함.
+        private bool TryGetActor(string id, out Image actor)
+        {
+            actor = null;
+            return !string.IsNullOrEmpty(id) && actors.TryGetValue(id, out actor) && actor != null;
+        }
+
+        public Vector2 ActorPosition(string id) => TryGetActor(id, out var actor) ? actor.rectTransform.anchoredPosition : Vector2.zero;
+        public bool ActorVisible(string id) => TryGetActor(id, out var actor) && actor.enabled;
+        public RectTransform ActorTransform(string id) => TryGetActor(id, out var actor) ? actor.rectTransform : null;
         public Vector2 FrameToWorld(Vector2 point) => (point - world.anchoredPosition) / world.localScale.x;
         public Vector2 CameraCenter => -world.anchoredPosition / world.localScale.x;
         public float CameraZoom => world.localScale.x;
 
-        public StudioPoseKey CapturePose(string id) => actors.TryGetValue(id ?? "", out var actor) ? new StudioPoseKey
-        {
-            Position = actor.rectTransform.anchoredPosition,
-            Scale = Mathf.Abs(actor.rectTransform.localScale.x),
-            Rotation = actor.rectTransform.localEulerAngles.z,
-            Opacity = actor.color.a / Mathf.Max(.001f, (Sequence.FindActor(id)?.Color.a ?? 1))
-        }
-
-        : new StudioPoseKey
-        {
-            Position = CameraCenter,
-            Scale = CameraZoom
-        };
         public Rect ActorFrameBounds(string id)
         {
+            if (!TryGetActor(id, out var actor)) return default;
             var corners = new Vector3[4];
-            actors[id].rectTransform.GetWorldCorners(corners);
+            actor.rectTransform.GetWorldCorners(corners);
             var min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
             var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
             foreach (var corner in corners)

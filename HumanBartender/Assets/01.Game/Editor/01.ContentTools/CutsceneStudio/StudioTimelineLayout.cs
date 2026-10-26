@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Timeline;
 
@@ -45,6 +46,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                     if (clip.asset is not StudioClip data)
                         continue;
                     empty = false;
+                    if (!StudioEvaluation.IsSupported(data.Kind))
+                        continue;
                     if (!trackMatch && !MatchesClip(sequence, clip, data, query))
                         continue;
                     int group = Group(data);
@@ -52,7 +55,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     byGroup[group].Add(clip);
                 }
 
-                if (empty && trackMatch)
+                if (empty && trackMatch && (track.StudioTrackKind < 0 || StudioEvaluation.IsSupported((StudioKind)track.StudioTrackKind)))
                     byGroup[Group(track.StudioTrackKind >= 0 ? (StudioKind)track.StudioTrackKind : StudioKind.Camera)] = new List<TimelineClip>();
                 for (int group = 0; group < groups.Length; group++)
                     if (byGroup[group] != null)
@@ -63,7 +66,9 @@ namespace HumanBartender.CutsceneStudio.Editor
             float y = RulerHeight;
             for (int group = 0; group < groups.Length; group++)
             {
-                var lanes = groups[group];
+                // 순서가 없는 기존 트랙과 새 트랙은 원래 Timeline 순서를 유지함.
+                var category = StudioClipSchema.Groups[group].Kind;
+                var lanes = groups[group].OrderBy(row => row.Track.GetDisplayOrder(category)).ToList();
                 if (filtering && lanes.Count == 0)
                     continue;
                 var clips = new List<TimelineClip>();

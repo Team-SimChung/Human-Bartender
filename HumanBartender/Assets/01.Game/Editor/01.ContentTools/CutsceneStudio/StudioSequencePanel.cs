@@ -131,7 +131,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 host.Select(entry.Clip);
             bool MatchesTrueWhere2(StudioEntry e)
             {
-                return e.Asset.Kind == StudioKind.Camera || e.Asset.Kind == StudioKind.State && e.Asset.StateCamera;
+                return e.Asset.Kind == StudioKind.Camera;
             }
 
             bool MatchesEntriesLastOrDefault2(StudioEntry e)

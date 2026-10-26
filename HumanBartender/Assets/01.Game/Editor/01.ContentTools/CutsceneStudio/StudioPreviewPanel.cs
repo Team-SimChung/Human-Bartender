@@ -23,8 +23,6 @@ namespace HumanBartender.CutsceneStudio.Editor
         [SerializeField]
         private int previewTool;
 
-        [SerializeField]
-        private bool previewRecordKeys;
 
         [NonSerialized] private Vector2 previewToolbarScroll;
 
@@ -34,15 +32,17 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         [NonSerialized] private bool previewToolFocus;
 
-        [NonSerialized] private int previewDragAxis = -1, previewDragControl, previewUndoGroup;
+        [NonSerialized] private int previewDragAxis = -1, previewDragControl;
 
         [NonSerialized] private Vector2 previewDragStart, previewDragPivot;
 
-        [NonSerialized] private float previewUnits, previewKeyTime, previewLastAngle, previewAngle;
+        [NonSerialized] private float previewUnits, previewLastAngle, previewAngle;
 
         [NonSerialized] private TimelineClip previewDragClip;
 
-        [NonSerialized] private readonly StudioClipSnapshot previewBefore = new();
+        [NonSerialized] private StudioPreviewKeyGesture previewGesture;
+
+        private StudioCurrentKeyEditing CurrentKeys => host.Session.CurrentKeys;
 
         private void DrawPreviewTools(Rect area)
         {
@@ -55,8 +55,11 @@ namespace HumanBartender.CutsceneStudio.Editor
             for (int i = 0; i < labels.Length; i++)
                 if (GUI.Toggle(new Rect(area.x + i * 72, area.y, 70, 22), previewTool == i, labels[i], EditorStyles.miniButton))
                     previewTool = i;
-            string recordLabel = previewRecordKeys ? "키 기록 (현재 시간에 키 저장)" : "키 기록 (클립 전체 변형)";
-            previewRecordKeys = GUI.Toggle(new Rect(area.x + 224, area.y, area.width - 224, 22), previewRecordKeys, new GUIContent(recordLabel, "켜짐: 현재 시간에 키 저장 / 꺼짐: 클립 전체 변형"));
+            PrepareCurrentKeys();
+            var property = previewTool == 0 ? StudioProperty.PositionX : previewTool == 1 ? StudioProperty.Rotation : StudioProperty.Scale;
+            string recordLabel = CurrentKeys.IsArmed(property) ? "자동 키 기록 켜짐 / 현재 시점 기록" : "자동 키 기록 꺼짐 / 기존 키만 기록";
+            GUI.Label(new Rect(area.x + 224, area.y, area.width - 224, 22),
+                new GUIContent(recordLabel, "현재 시점에 키가 있는 속성은 값 변경 시 바로 갱신됩니다. 키가 없으면 속성 패널에서 ◇로 추가하거나 자동 키 기록을 켜세요."), EditorStyles.miniLabel);
             if (Event.current.rawType == EventType.MouseDown && area.Contains(Event.current.mousePosition))
                 previewToolFocus = true;
         }
@@ -96,7 +99,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 return null;
             if (host.Selected.Kind == StudioKind.Background)
                 return host.Preview.Stage.BackgroundOpacity > 0 ? host.Preview.Stage.BackgroundTransform : null;
-            if (StudioEvaluation.OwnsActor(host.Selected) || host.Selected.Kind == StudioKind.State && !host.Selected.StateCamera)
+            if (StudioEvaluation.OwnsActor(host.Selected))
                 return host.Preview.Stage.ActorVisible(host.Selected.ActorId) ? host.Preview.Stage.ActorTransform(host.Selected.ActorId) : null;
             return null;
         }
@@ -179,39 +182,32 @@ namespace HumanBartender.CutsceneStudio.Editor
                 previewDragStart = e.mousePosition;
                 previewDragPivot = pivot;
                 previewUnits = 1 / Mathf.Max(.001f, pixels * host.Preview.Stage.CameraZoom);
-                previewKeyTime = Mathf.Clamp((float)(host.Clock.DisplayTime - previewDragClip.start), 0, (float)previewDragClip.duration);
-                if (host.SnapEnabled)
-                    previewKeyTime = Mathf.Clamp((float)StudioTiming.Snap(host.Sequence, previewKeyTime), 0, (float)previewDragClip.duration);
-                previewBefore.Capture(host.Selected);
+                previewGesture = new StudioPreviewKeyGesture(CurrentKeys, previewDragClip, host.Clock.Time, host.Snap);
                 previewLastAngle = Mathf.Atan2(-(e.mousePosition.y - pivot.y), e.mousePosition.x - pivot.x) * Mathf.Rad2Deg;
                 previewAngle = 0;
-                Undo.IncrementCurrentGroup();
-                previewUndoGroup = Undo.GetCurrentGroup();
-                Undo.RegisterCompleteObjectUndo(host.Selected, "프리뷰 오브젝트 변형");
                 e.Use();
             }
 
             if (previewDragAxis >= 0 && e.type == EventType.MouseDrag && GUIUtility.hotControl == previewDragControl)
             {
-                previewBefore.Restore((StudioClip)previewDragClip.asset);
                 Vector2 delta = e.mousePosition - previewDragStart;
                 if (previewTool == 0)
                 {
                     if (previewDragAxis != 2)
-                        ApplyPreviewProperty(previewDragClip, StudioProperty.PositionX, previewKeyTime, delta.x * previewUnits, false, previewRecordKeys);
+                        ApplyPreviewChange(StudioProperty.PositionX, delta.x * previewUnits, false);
                     if (previewDragAxis != 1)
-                        ApplyPreviewProperty(previewDragClip, StudioProperty.PositionY, previewKeyTime, -delta.y * previewUnits, false, previewRecordKeys);
+                        ApplyPreviewChange(StudioProperty.PositionY, -delta.y * previewUnits, false);
                 }
                 else if (previewTool == 1)
                 {
                     float angle = Mathf.Atan2(-(e.mousePosition.y - previewDragPivot.y), e.mousePosition.x - previewDragPivot.x) * Mathf.Rad2Deg;
                     previewAngle += Mathf.DeltaAngle(previewLastAngle, angle);
                     previewLastAngle = angle;
-                    ApplyPreviewProperty(previewDragClip, StudioProperty.Rotation, previewKeyTime, e.shift ? Mathf.Round(previewAngle / 15) * 15 : previewAngle, false, previewRecordKeys);
+                    ApplyPreviewChange(StudioProperty.Rotation, e.shift ? Mathf.Round(previewAngle / 15) * 15 : previewAngle, false);
                 }
                 else
-                    ApplyPreviewProperty(previewDragClip, StudioProperty.Scale, previewKeyTime, Mathf.Exp(Mathf.Clamp((delta.x - delta.y) / 100, -7, 7)), true, previewRecordKeys);
-                host.Changed();
+                    ApplyPreviewChange(StudioProperty.Scale, Mathf.Exp(Mathf.Clamp((delta.x - delta.y) / 100, -7, 7)), true);
+                Window?.Repaint();
                 e.Use();
             }
 
@@ -223,53 +219,40 @@ namespace HumanBartender.CutsceneStudio.Editor
         }
 
 
-        internal static void ApplyPreviewProperty(TimelineClip clip, StudioProperty property, float at, float delta, bool multiply, bool recordKey)
+        private void ApplyPreviewChange(StudioProperty property, float delta, bool multiply)
         {
-            var data = (StudioClip)clip.asset;
-            float Change(float value) => StudioKeyframes.Limit(property, multiply ? value * delta : value + delta);
-            if (recordKey)
-            {
-                float value = StudioKeyframes.Evaluate(data, property, at, clip.duration);
-                StudioKeyframeEditing.Set(clip, property, -1, at, Change(value), false);
-            }
-            else
-            {
-                var keys = StudioKeyframes.GetKeys(data, property, clip.duration);
-                if (keys.Length == 0)
-                    StudioKeyframeEditing.Set(clip, property, -1, at, Change(StudioKeyframes.Evaluate(data, property, at, clip.duration)), false);
-                else
-                    for (int i = 0; i < keys.Length; i++)
-                        StudioKeyframeEditing.Set(clip, property, i, keys[i].Time, Change(keys[i].Value), false);
-            }
-
-            EditorUtility.SetDirty(data);
+            if (host.Playing || previewGesture == null) return;
+            float? at = previewGesture.Apply(property, delta, multiply);
+            if (!at.HasValue) return;
+            host.Session.ClearKey();
+            if (Math.Abs(host.Clock.Time - (previewDragClip.start + at.Value)) > .000001)
+                host.Seek(previewDragClip.start + at.Value);
+            host.Changed();
         }
 
+        private void PrepareCurrentKeys()
+        {
+            CurrentKeys.Observe(host.FindSelected(), host.Clock.Time);
+            if (host.Playing) CurrentKeys.ClearPending();
+        }
 
         internal void EndPreviewTransform(bool cancel = false)
         {
-            if (previewDragAxis < 0)
-                return;
-            if (cancel && previewDragClip?.asset != null)
-            {
-                previewBefore.Restore((StudioClip)previewDragClip.asset);
-                host.Changed();
-            }
-
-            if (GUIUtility.hotControl == previewDragControl)
-                GUIUtility.hotControl = 0;
-            Undo.CollapseUndoOperations(previewUndoGroup);
+            if (previewDragAxis < 0) return;
+            bool recorded = previewGesture?.Finish(cancel) ?? false;
+            if (cancel && recorded) host.Changed();
+            if (GUIUtility.hotControl == previewDragControl) GUIUtility.hotControl = 0;
             previewDragAxis = -1;
             previewDragClip = null;
-            previewBefore.Dispose();
+            previewGesture = null;
         }
-
 
         private void DrawPreviewInteraction(Rect output)
         {
             var frame = StudioEvaluation.Fit(output);
             host.HandleLibraryDrop(frame, false);
-            host.Preview.Stage.Evaluate(host.Clock.DisplayTime, host.Clock.Waiting.HasValue);
+            PrepareCurrentKeys();
+            host.Preview.Stage.Evaluate(host.Clock.DisplayTime, host.Clock.Waiting.HasValue, CurrentKeys.PreviewValue);
             DrawPreviewTransform(frame);
             foreach (var actor in host.Sequence.Actors.OrderByDescending(SelectActorsOrderByDescending))
             {
@@ -388,7 +371,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             float height = width / ratio;
             var output = new Rect(available.center.x - width / 2, available.center.y - height / 2, width, height);
             if (Event.current.type == EventType.Repaint && width > 0 && height > 0)
-                GUI.DrawTexture(output, host.Preview.Draw(new Rect(0, 0, width, height), host.Clock.DisplayTime, host.Clock.Waiting.HasValue), ScaleMode.StretchToFill, false);
+                GUI.DrawTexture(output, host.Preview.Draw(new Rect(0, 0, width, height), host.Clock.DisplayTime, host.Clock.Waiting.HasValue, CurrentKeys.PreviewValue), ScaleMode.StretchToFill, false);
             DrawPreviewInteraction(output);
             DrawPreviewPlayback(area);
             void SelectResolution(int index)

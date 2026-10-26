@@ -34,6 +34,12 @@ namespace HumanBartender.CutsceneStudio
         }
 
         internal static float FontSize(float value) => FiniteClamp(value, DefaultFontSize, 1, StudioSequence.Height);
+        internal static TextAlignmentOptions Alignment(StudioDialogueAlignment value) => value switch
+        {
+            StudioDialogueAlignment.Center => TextAlignmentOptions.Midline,
+            StudioDialogueAlignment.Right => TextAlignmentOptions.MidlineRight,
+            _ => TextAlignmentOptions.MidlineLeft
+        };
         internal static float Width(float value) => FiniteClamp(value, DefaultWidth, 1, StudioSequence.Width);
         internal static Vector2 Padding(Vector2 value, float width) => new(
             FiniteClamp(value.x, DefaultPadding.x, 0, (Width(width) - 1) * .5f),
@@ -49,12 +55,7 @@ namespace HumanBartender.CutsceneStudio
             var color = clip.UseDialogueStyle ? clip.DialogueTextColor : Color.white;
             label.color = new Color(FiniteClamp(color.r, 1, 0, 1), FiniteClamp(color.g, 1, 0, 1),
                 FiniteClamp(color.b, 1, 0, 1), FiniteClamp(color.a, 1, 0, 1));
-            label.alignment = clip.UseDialogueStyle ? clip.DialogueAlignment switch
-            {
-                StudioDialogueAlignment.Center => TextAlignmentOptions.Midline,
-                StudioDialogueAlignment.Right => TextAlignmentOptions.MidlineRight,
-                _ => TextAlignmentOptions.MidlineLeft
-            } : TextAlignmentOptions.MidlineLeft;
+            label.alignment = clip.UseDialogueStyle ? Alignment(clip.DialogueAlignment) : TextAlignmentOptions.MidlineLeft;
             string text = clip.Text ?? string.Empty;
             if (label.text != text) label.text = text;
 

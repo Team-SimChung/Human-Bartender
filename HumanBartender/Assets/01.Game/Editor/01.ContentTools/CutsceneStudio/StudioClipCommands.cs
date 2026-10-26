@@ -22,7 +22,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         internal void Initialize(IStudioCommandsHost value) { host = value; }
         internal void AddPalette(StudioKind kind, double at, StudioTrack track = null)
         {
-            if (host.Sequence == null)
+            if (host.Sequence == null || !StudioEvaluation.IsSupported(kind))
                 return;
             if (kind == StudioKind.Visual)
             {
@@ -36,29 +36,11 @@ namespace HumanBartender.CutsceneStudio.Editor
                 }
             }
 
-            if ((kind == StudioKind.Actor || kind == StudioKind.State && !host.CameraSelected) && host.ActorIndex < 0)
-            {
-                host.Status = "씬 오브젝트에서 대상을 먼저 선택하세요.";
-                return;
-            }
-
             host.Run(CreateTypedClip);
             void CreateTypedClip()
             {
                 string id = host.ActorIndex >= 0 ? host.Sequence.Actors[host.ActorIndex].Id : null;
                 var clip = StudioEditorAssets.AddClip(host.Sequence, kind, at, id, track);
-                var data = (StudioClip)clip.asset;
-                if (kind == StudioKind.State)
-                {
-                    host.Preview.Stage.Evaluate(at);
-                    data.StateCamera = host.CameraSelected;
-                    data.Keys = new[]
-                    {
-                        host.Preview.Stage.CapturePose(host.CameraSelected ? null : id)
-                    };
-                    data.FlipX = false;
-                }
-
                 host.Select(clip);
                 host.Changed();
             }
@@ -90,8 +72,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             string reason = payload is StudioKind ? null : StudioAssetLibrary.UnsupportedReason(source);
             if (payload is StudioKind && !timeline)
                 reason = "클립은 타임라인에 놓아 주세요.";
-            if (payload is StudioKind && (kind == StudioKind.Actor || kind == StudioKind.State && !host.CameraSelected) && host.ActorIndex < 0)
-                reason = "씬 오브젝트에서 대상을 먼저 선택하세요.";
+            if (payload is StudioKind && !StudioEvaluation.IsSupported(kind))
+                reason = "지원하지 않는 클립 유형입니다.";
             DragAndDrop.visualMode = reason == null ? DragAndDropVisualMode.Copy : DragAndDropVisualMode.Rejected;
             host.Status = reason ?? (timeline ? (track == null ? "새 트랙 / " : track.name + " / ") + at.ToString("F2") + "초에 추가" : "프리뷰에 배치");
             Window.Repaint();

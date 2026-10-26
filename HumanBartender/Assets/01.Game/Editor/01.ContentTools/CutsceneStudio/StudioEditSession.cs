@@ -18,7 +18,9 @@ namespace HumanBartender.CutsceneStudio.Editor
         [NonSerialized] private int keyIndex = -1;
         [NonSerialized] private readonly Dictionary<int, Hash128> undoState = new();
         [NonSerialized] private bool capturingUndoState;
+        [NonSerialized] private readonly StudioCurrentKeyEditing currentKeys = new();
 
+        internal StudioCurrentKeyEditing CurrentKeys => currentKeys;
         internal StudioSequence Sequence => sequence;
         internal StudioClip Selected => selected;
         internal StudioClip KeyOwner => keyOwner;
@@ -64,7 +66,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void UpdateKeyIndex(int index) { keyIndex = index; }
         internal void ClearKey() { keyOwner = null; keyIndex = -1; }
-        internal void ClearSelection() { selected = null; ClearKey(); }
+        internal void ClearSelection() { selected = null; ClearKey(); currentKeys.Reset(); }
 
         internal TimelineClip FindSelected()
         {

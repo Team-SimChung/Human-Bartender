@@ -10,7 +10,8 @@ namespace HumanBartender.CutsceneStudio
             if (clip.Frames == null || clip.Frames.Length == 0)
                 return null;
             // 원본 타이밍과 FPS 방식 모두 클립 종료 시점의 프레임을 유지함.
-            float age = Mathf.Max(0, (float)Math.Min(localTime, duration));
+            float age = StudioExtensionValues.NonNegative(clip.AnimationOffset) +
+                Mathf.Max(0, (float)Math.Min(localTime, duration)) * StudioExtensionValues.Speed(clip.AnimationSpeed);
             int index = Mathf.FloorToInt(age * Mathf.Max(1, clip.FramesPerSecond));
             index = clip.Loop ? index % clip.Frames.Length : Mathf.Min(index, clip.Frames.Length - 1);
             if (clip.FrameTimes != null && clip.FrameTimes.Length == clip.Frames.Length && clip.AnimationLength > 0)

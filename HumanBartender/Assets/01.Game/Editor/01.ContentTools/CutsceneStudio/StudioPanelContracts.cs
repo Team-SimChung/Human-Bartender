@@ -28,6 +28,8 @@ namespace HumanBartender.CutsceneStudio.Editor
         void Seek(double time);
         void Select(TimelineClip clip, bool reveal = true);
         void TogglePlay();
+        StudioEditSession Session { get; }
+        double Snap(double value);
         int ActorIndex { get; }
         StudioClock Clock { get; }
         bool Playing { get; }
@@ -41,7 +43,6 @@ namespace HumanBartender.CutsceneStudio.Editor
     {
         StudioViewState ViewState { get; }
         void Changed(bool rebuild = false);
-        void ClearClipSelection();
         TimelineClip FindSelected();
         float Inspector { get; }
         void PositionToolkitPanels();
@@ -52,6 +53,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         double Snap(double value);
         float TimelineHeight { get; }
         StudioClock Clock { get; }
+        bool Playing { get; }
         bool DialogueMode { get; set; }
         int KeyIndex { get; }
         StudioProperty KeyProperty { get; }
@@ -80,7 +82,6 @@ namespace HumanBartender.CutsceneStudio.Editor
     {
         double CurrentTime { get; }
         bool Playing { get; }
-        StudioPoseKey CapturePose(string actorId);
         void Changed(bool rebuild = false);
         void DeleteClip();
         void DeleteSelectedKey();

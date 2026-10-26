@@ -202,6 +202,10 @@ namespace HumanBartender.CutsceneStudio
                     errors.Add(entry.Clip.displayName + ": 길이를 확인하세요.");
                 if (StudioEvaluation.UsesActor(c) && !ids.Contains(c.ActorId))
                     errors.Add(entry.Clip.displayName + ": 연결된 캐릭터가 없습니다.");
+                if (c.Kind == StudioKind.Camera && !string.IsNullOrEmpty(c.CameraTargetId) && !ids.Contains(c.CameraTargetId))
+                    errors.Add(entry.Clip.displayName + ": 카메라가 따라갈 오브젝트가 없습니다.");
+                if (c.Kind == StudioKind.Dialogue && c.DialoguePrefab != null && !StudioDialoguePrefabPresentation.IsCompatible(c.DialoguePrefab))
+                    errors.Add(entry.Clip.displayName + ": 말풍선 프리팹의 DynamicSpeechBubble / 본문 TMP 연결을 확인하세요.");
                 if (c.Kind == StudioKind.Audio && c.Sound == null)
                     errors.Add(entry.Clip.displayName + ": 사운드가 없습니다.");
                 if (c.Kind == StudioKind.Dialogue && string.IsNullOrWhiteSpace(c.Text))

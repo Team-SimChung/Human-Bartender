@@ -46,6 +46,5 @@ namespace HumanBartender.CutsceneStudio.Editor
         internal void AddTimelineTrack(StudioSequence asset, StudioKind kind) { workspace.AddTimelineTrack(asset, kind); }
         internal void RenameTimelineTrack(StudioSequence asset, StudioTrack track, string name) { workspace.RenameTimelineTrack(asset, track, name); }
         internal void AppendDialogueEntries(StudioSequence asset, string[] lines, string[] speakers, double duration) { workspace.AppendDialogueEntries(asset, lines, speakers, duration); }
-        internal static void ApplyPreviewProperty(TimelineClip clip, StudioProperty property, float at, float delta, bool multiply, bool recordKey) { StudioPreviewPanel.ApplyPreviewProperty(clip, property, at, delta, multiply, recordKey); }
     }
 }

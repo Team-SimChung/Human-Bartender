@@ -7,15 +7,14 @@ namespace HumanBartender.CutsceneStudio
     // 저장된 Timeline의 열거형 값이 바뀌지 않도록 새 유형은 끝에 추가함.
     public enum StudioKind
     {
-        Actor,
-        Camera,
-        Dialogue,
-        Effect,
-        Audio,
-        Wait,
-        Visual,
-        State,
-        Background
+        // 폐기한 저장 번호 0 / 7은 재사용하지 않음.
+        Camera = 1,
+        Dialogue = 2,
+        Effect = 3,
+        Audio = 4,
+        Wait = 5,
+        Visual = 6,
+        Background = 8
     }
 
     public enum StudioEffect
@@ -27,10 +26,10 @@ namespace HumanBartender.CutsceneStudio
         Tint
     }
 
-    public sealed class StudioClip : PlayableAsset, ITimelineClipAsset
+    public sealed partial class StudioClip : PlayableAsset, ITimelineClipAsset
     {
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Kind")]
-        private StudioKind kind;
+        private StudioKind kind = StudioKind.Visual;
         public StudioKind Kind
         {
             get { return kind; }
@@ -175,24 +174,6 @@ namespace HumanBartender.CutsceneStudio
             internal set { animationLength = value; }
         }
 
-        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("StateCamera")]
-        private bool stateCamera;
-        public bool StateCamera
-        {
-            get { return stateCamera; }
-
-            internal set { stateCamera = value; }
-        }
-
-        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Keys")]
-        private StudioPoseKey[] keys;
-        internal StudioPoseKey[] Keys
-        {
-            get { return keys; }
-
-            set { keys = value; }
-        }
-
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("PropertyKeys")]
         private StudioPropertyKeys[] propertyKeys;
         internal StudioPropertyKeys[] PropertyKeys
@@ -299,6 +280,10 @@ namespace HumanBartender.CutsceneStudio
             internal set { bubbleOffset = value; }
         }
 
+        // 기존 화자 없는 대사의 기본 위치를 유지하며 화자 기준 높이와 독립적으로 저장함.
+        [SerializeField] private float bubbleScreenHeight = -185;
+        public float BubbleScreenHeight { get => bubbleScreenHeight; internal set => bubbleScreenHeight = value; }
+
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Effect")]
         private StudioEffect effect;
         public StudioEffect Effect
@@ -388,55 +373,4 @@ namespace HumanBartender.CutsceneStudio
         public override Playable CreatePlayable(PlayableGraph graph, GameObject owner) => Playable.Create(graph);
     }
 
-    [System.Serializable]
-    public sealed class StudioPoseKey
-    {
-        [Min(0)]
-        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Time")]
-        private float time;
-        public float Time
-        {
-            get { return time; }
-
-            internal set { time = value; }
-        }
-
-        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Position")]
-        private Vector2 position;
-        public Vector2 Position
-        {
-            get { return position; }
-
-            internal set { position = value; }
-        }
-
-        [Min(.01f)]
-        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Scale")]
-        private float scale = 1;
-        public float Scale
-        {
-            get { return scale; }
-
-            internal set { scale = value; }
-        }
-
-        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Rotation")]
-        private float rotation;
-        public float Rotation
-        {
-            get { return rotation; }
-
-            internal set { rotation = value; }
-        }
-
-        [Range(0, 1)]
-        [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Opacity")]
-        private float opacity = 1;
-        public float Opacity
-        {
-            get { return opacity; }
-
-            internal set { opacity = value; }
-        }
-    }
 }

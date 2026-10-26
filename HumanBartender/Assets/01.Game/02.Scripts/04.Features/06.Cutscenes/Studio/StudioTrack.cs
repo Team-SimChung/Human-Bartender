@@ -34,9 +34,38 @@ namespace HumanBartender.CutsceneStudio
             internal set { studioTrackKind = value; }
         }
 
+        // 표시 순서는 카테고리별로 저장하며 Timeline의 평가 순서와 분리함.
+        [System.Serializable]
+        private struct DisplayOrder
+        {
+            public StudioKind Category;
+            public int Order;
+        }
+
+        [SerializeField, HideInInspector]
+        private System.Collections.Generic.List<DisplayOrder> studioDisplayOrders = new();
+
+        internal int GetDisplayOrder(StudioKind category)
+        {
+            foreach (var item in studioDisplayOrders)
+                if (item.Category == category)
+                    return item.Order;
+            return int.MaxValue;
+        }
+
+        internal void SetDisplayOrder(StudioKind category, int order)
+        {
+            var item = new DisplayOrder { Category = category, Order = order };
+            int index = studioDisplayOrders.FindIndex(value => value.Category == category);
+            if (index < 0) studioDisplayOrders.Add(item);
+            else studioDisplayOrders[index] = item;
+        }
+
         // 추가·드롭·붙여넣기에서 같은 트랙 유형 판정을 사용함.
         public bool Accepts(StudioKind kind)
         {
+            if (!StudioEvaluation.IsSupported(kind))
+                return false;
             if (StudioTrackKind >= 0 && StudioTrackKind != (int)kind)
                 return false;
             foreach (var clip in GetClips())

@@ -21,14 +21,15 @@ namespace HumanBartender.CutsceneStudio
 
     public static class StudioEvaluation
     {
+        public static bool IsSupported(StudioKind kind) => Enum.IsDefined(typeof(StudioKind), kind);
+
         public static bool UsesActor(StudioClip clip) => clip.Kind switch
         {
-            StudioKind.Actor or StudioKind.Visual => true,
-            StudioKind.State => !clip.StateCamera,
+            StudioKind.Visual => true,
             StudioKind.Dialogue => !string.IsNullOrEmpty(clip.ActorId),
             _ => false
         };
-        public static bool OwnsActor(StudioClip clip) => clip.Kind == StudioKind.Actor || clip.Kind == StudioKind.Visual;
+        public static bool OwnsActor(StudioClip clip) => clip.Kind == StudioKind.Visual;
         public static HashSet<string> ActorIds(StudioSequence sequence, bool includeMuted = true)
         {
             var ids = new HashSet<string>();
@@ -63,7 +64,7 @@ namespace HumanBartender.CutsceneStudio
                 if (!includeMuted && track.mutedInHierarchy)
                     continue;
                 foreach (var clip in track.GetClips())
-                    if (clip.asset is StudioClip asset)
+                    if (clip.asset is StudioClip asset && IsSupported(asset.Kind))
                         result.Add(new StudioEntry(clip, asset));
             }
 
@@ -96,7 +97,7 @@ namespace HumanBartender.CutsceneStudio
             var c = entry.Asset;
             double age = time - entry.Clip.start;
             float fade = Mathf.Min(c.FadeIn <= 0 ? 1 : (float)(age / c.FadeIn), c.FadeOut <= 0 ? 1 : (float)((entry.Clip.end - time) / c.FadeOut));
-            return Mathf.Clamp01(fade) * c.Volume;
+            return Mathf.Clamp01(fade) * StudioKeyframes.Evaluate(c, StudioProperty.Volume, (float)age, entry.Clip.duration);
         }
     }
 

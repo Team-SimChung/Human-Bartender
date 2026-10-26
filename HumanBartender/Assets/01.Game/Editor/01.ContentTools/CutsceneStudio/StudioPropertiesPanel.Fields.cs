@@ -15,34 +15,14 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             if (kind == StudioPropertiesSection.CurrentKeys) { BuildCurrentFields(clip); return; }
             if (kind == StudioPropertiesSection.RecordedKeys) { BuildRecordedKeyFields(clip); return; }
-            if (kind == StudioPropertiesSection.Appearance && host.Selected.Kind == StudioKind.State && host.Selected.StateCamera)
-                return;
             if (kind == StudioPropertiesSection.SharedObject &&
                 (host.ActorIndex < 0 || host.ActorIndex >= host.Sequence.Actors.Count))
                 return;
-            var section = Section(StudioPropertiesLayout.Title(kind, host.Selected.Kind), kind.ToString(), kind != StudioPropertiesSection.SharedObject);
+            var section = Section(StudioPropertiesLayout.Title(kind, host.Selected.Kind), kind.ToString(), kind != StudioPropertiesSection.SharedObject || host.Selected.Kind == StudioKind.Visual);
             switch (kind)
             {
-                case StudioPropertiesSection.Target:
-                    BuildActorPicker(section, false);
-                    break;
-                case StudioPropertiesSection.Camera:
-                case StudioPropertiesSection.Transform:
-                    BuildTransform(section, clip, kind == StudioPropertiesSection.Camera, host.Selected.Kind is StudioKind.Actor or StudioKind.Visual or StudioKind.Dialogue or StudioKind.Background);
-                    break;
                 case StudioPropertiesSection.Appearance:
-                    if (host.Selected.Kind == StudioKind.State)
-                    {
-                        Note(section, "좌우 반전은 클립 전체에 적용됩니다. 회전 / 불투명도는 키프레임으로 편집하세요.");
-                        ClipField(section, data, "FlipX");
-                        break;
-                    }
-                    if (!StudioEvaluation.OwnsActor(host.Selected) && host.Selected.Kind != StudioKind.Background)
-                    {
-                        EndpointField(section, clip, StudioProperty.Opacity, false, "시작 불투명도");
-                        EndpointField(section, clip, StudioProperty.Opacity, true, "종료 불투명도");
-                    }
-                    else Note(section, "좌우 반전은 클립 전체에 적용됩니다. 불투명도는 현재 시점 또는 시작점 / 도착점에서 편집하세요.");
+                    Note(section, "좌우 반전은 클립 전체에 적용됩니다. 불투명도는 현재 시점 / 키프레임에서 편집하세요.");
                     ClipField(section, data, "FlipX");
                     break;
                 case StudioPropertiesSection.Animation:
@@ -64,7 +44,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     break;
                 case StudioPropertiesSection.Dialogue:
                     Note(section, "화자와 본문은 대사 클립 전체에 적용됩니다.");
-                    BuildActorPicker(section, true);
+                    BuildSpeakerPicker(section);
                     ClipField(section, data, "Text").AddToClassList("studio-properties-dialogue");
                     break;
                 case StudioPropertiesSection.Typography:
@@ -72,11 +52,10 @@ namespace HumanBartender.CutsceneStudio.Editor
                     break;
                 case StudioPropertiesSection.Bubble:
                     BuildDialogueLayout(section, data);
-                    bool hasSpeaker = host.ActorIndex >= 0;
-                    ClipField(section, data, "BubbleOffset", hasSpeaker).tooltip = "화자의 위치를 기준으로 말풍선 높이를 조절합니다.";
-                    if (!hasSpeaker)
-                        Note(section, "말풍선 높이는 연결된 화자가 있을 때 적용됩니다. 화자가 없으면 현재 시점 또는 시작점 / 도착점의 이동 Y로 조절하세요.");
-                    else Note(section, "화자를 따라가는 기준 높이입니다. 현재 시점의 말풍선 이동 값이 여기에 더해집니다.");
+                    BuildDialogueHeight(section, data);
+                    break;
+                case StudioPropertiesSection.DialoguePrefab:
+                    BuildDialoguePrefab(section, data);
                     break;
                 case StudioPropertiesSection.DialoguePlayback:
                     ClipField(section, data, "WaitForInput");
@@ -87,14 +66,16 @@ namespace HumanBartender.CutsceneStudio.Editor
                     ClipField(section, data, "Effect");
                     Note(section, "효과 유형은 클립 전체에 적용됩니다. 유형을 바꿔도 저장된 강도 / 불투명도 키는 유지됩니다.");
                     break;
-                case StudioPropertiesSection.EffectEndpoints:
-                    BuildEffectEndpoints(section, clip);
-                    break;
                 case StudioPropertiesSection.EffectSettings:
                     BuildEffect(section, data);
                     break;
                 case StudioPropertiesSection.Curve:
-                    if (host.Selected.Kind is StudioKind.Dialogue or StudioKind.Effect)
+                    if (host.Selected.Kind == StudioKind.Audio)
+                    {
+                        Note(section, "볼륨 키 사이의 변화에 적용됩니다. 페이드 인 / 아웃은 이 볼륨에 추가 적용됩니다.");
+                        BuildMotionPlayback(section, data, false);
+                    }
+                    else if (host.Selected.Kind is StudioKind.Dialogue or StudioKind.Effect)
                     {
                         Note(section, host.Selected.Kind == StudioKind.Dialogue ? "말풍선 속성 키 사이의 변화에 적용됩니다. 타이핑 속도는 글꼴 / 타이핑에서 설정하세요." :
                             "강도 / " + EffectOpacityLabel + "의 키 사이 변화에 적용됩니다. 효과는 클립 구간에서만 표시됩니다.");
@@ -124,29 +105,26 @@ namespace HumanBartender.CutsceneStudio.Editor
                 case StudioPropertiesSection.AudioPosition:
                     BuildAudioPosition(section, clip);
                     break;
-                case StudioPropertiesSection.StateTarget:
-                    Note(section, "선택한 대상의 상태를 키로 제어합니다. 대상 유형을 바꿔도 저장된 키는 유지됩니다.");
-                    BuildStateTarget(section);
-                    if (!host.Selected.StateCamera)
-                        BuildActorPicker(section, false);
-                    break;
-                case StudioPropertiesSection.StatePlayback:
-                    Note(section, "곡선은 각 속성의 키 사이에 적용됩니다. 종료 상태 유지를 끄면 클립 종료 후 기존 연출 상태를 따릅니다.");
-                    BuildMotionPlayback(section, data);
-                    break;
                 case StudioPropertiesSection.Background:
                     Note(section, "이미지는 클립 전체에 적용됩니다. 비워 두면 배경 이미지는 표시되지 않습니다. 위치 / 회전 / 크기 / 불투명도는 아래에서 편집하세요.");
                     ClipField(section, data, "BackgroundSprite");
                     BuildSpritePreview(section, true);
                     break;
+                case StudioPropertiesSection.CameraFollow:
+                    BuildCameraFollow(section, data);
+                    break;
+                case StudioPropertiesSection.BackgroundTransition:
+                    BoundField(section, data, "BackgroundDissolve", "디졸브 시간 (초)");
+                    Note(section, "0초는 즉시 전환 / 클립 시작부터 이전에 표시되던 배경 위로 서서히 나타납니다. 클립 길이를 넘는 값은 클립 길이로 제한됩니다.");
+                    break;
             }
         }
 
-        private void BuildActorPicker(VisualElement parent, bool allowNone)
+        private void BuildSpeakerPicker(VisualElement parent)
         {
             var asset = host.Selected;
-            var ids = new List<string>();
-            var labels = new List<string>();
+            var ids = new List<string> { "" };
+            var labels = new List<string> { "화자 없음" };
             var counts = new Dictionary<string, int>();
             foreach (var actor in host.Sequence.Actors)
             {
@@ -154,11 +132,6 @@ namespace HumanBartender.CutsceneStudio.Editor
                     continue;
                 string label = string.IsNullOrEmpty(actor.Name) ? actor.Id : actor.Name;
                 counts[label] = counts.TryGetValue(label, out int count) ? count + 1 : 1;
-            }
-            if (allowNone)
-            {
-                ids.Add("");
-                labels.Add("화자 없음");
             }
             foreach (var actor in host.Sequence.Actors)
             {
@@ -175,11 +148,9 @@ namespace HumanBartender.CutsceneStudio.Editor
                 ids.Add(asset.ActorId ?? "");
                 labels.Add(string.IsNullOrEmpty(asset.ActorId) ? "대상을 선택하세요" : $"연결 없음 ({asset.ActorId})");
             }
-            var picker = new PopupField<string>(allowNone ? "화자" : "대상 오브젝트", labels, index) { name = "actor-picker" };
+            var picker = new PopupField<string>("화자", labels, index) { name = "actor-picker" };
             parent.Add(picker);
             picker.RegisterValueChangedCallback(ChangeTarget);
-            if (!allowNone && string.IsNullOrEmpty(asset.ActorId))
-                Note(parent, "시퀀스에 등록된 오브젝트를 선택하세요.");
 
             void ChangeTarget(ChangeEvent<string> _)
             {
@@ -190,116 +161,6 @@ namespace HumanBartender.CutsceneStudio.Editor
             }
         }
 
-        private void BuildStateTarget(VisualElement parent)
-        {
-            var asset = host.Selected;
-            var picker = new PopupField<string>("대상 유형", new List<string> { "오브젝트", "카메라" }, asset.StateCamera ? 1 : 0)
-            { name = "state-target" };
-            parent.Add(picker);
-            picker.RegisterValueChangedCallback(ChangeTarget);
-            void ChangeTarget(ChangeEvent<string> _)
-            {
-                Undo.RecordObject(asset, "속성 키 대상 변경");
-                asset.StateCamera = picker.index == 1;
-                host.Session.ClearKey();
-                host.Changed();
-            }
-        }
-
-        private void BuildTransform(VisualElement parent, TimelineClip clip, bool camera, bool opacity = false)
-        {
-            bool currentEditor = StudioPropertiesLayout.HasCurrentEditor(host.Selected.Kind);
-            bool dialogue = host.Selected.Kind == StudioKind.Dialogue;
-            if (currentEditor) Note(parent, camera ? "클립 양 끝의 구도 / 현재 시간과 무관하게 편집합니다." :
-                dialogue ? "클립 양 끝의 말풍선 상태 / 이동은 기본 말풍선 위치에 더해집니다. 현재 시간과 무관하게 편집합니다." :
-                host.Selected.Kind == StudioKind.Background ? "클립 양 끝의 배경 상태 / 현재 시간과 무관하게 편집합니다." :
-                host.Selected.Kind == StudioKind.Visual ? "클립 양 끝의 오브젝트 상태 / 현재 시간과 무관하게 편집합니다." :
-                "클립 양 끝의 액터 상태 / 현재 시간과 무관하게 편집합니다.");
-            if (StudioKeyframes.HasOverrides(host.Selected))
-                Note(parent, "시작 / 종료 값을 바꾸면 클립 경계의 키를 편집합니다. 중간 키는 유지됩니다.");
-            for (int i = 0; i < 2; i++)
-            {
-                bool end = i == 1;
-                var pose = new VisualElement();
-                pose.AddToClassList("studio-properties-pose");
-                var heading = new VisualElement();
-                heading.AddToClassList("studio-properties-pose-heading");
-                var label = new Label(currentEditor ? end ? "도착점" : "시작점" : end ? "종료 상태" : "시작 상태");
-                label.AddToClassList("studio-properties-subtitle");
-                heading.Add(label);
-                if (currentEditor) AddPoseCapture(heading, clip, end);
-                pose.Add(heading);
-                if (currentEditor)
-                {
-                    var time = new Label();
-                    time.AddToClassList("studio-properties-note");
-                    pose.Add(time);
-                    refreshFields.Add(() => time.text = $"클립 내 {(end ? clip.duration : 0):0.###}초");
-                }
-                parent.Add(pose);
-                PositionField(pose, clip, end);
-                if (!camera)
-                    EndpointField(pose, clip, StudioProperty.Rotation, end, "회전 (°)");
-                EndpointField(pose, clip, StudioProperty.Scale, end, camera ? "줌 (배)" : "크기 (배)");
-                if (opacity)
-                    EndpointField(pose, clip, StudioProperty.Opacity, end, "불투명도");
-            }
-        }
-
-        private void PositionField(VisualElement parent, TimelineClip clip, bool end)
-        {
-            bool dialogue = host.Selected.Kind == StudioKind.Dialogue;
-            var field = new Vector2Field(dialogue ? "말풍선 이동" : "위치")
-            {
-                name = "endpoint-" + (end ? "end" : "start") + "-position",
-                tooltip = dialogue ? "기본 말풍선 위치에 더하는 X / Y 이동 값 / 화자 오브젝트의 위치는 유지됩니다." :
-                    $"{StudioSequence.Width:0} × {StudioSequence.Height:0} 기준 화면 좌표"
-            };
-            parent.Add(field);
-            field.RegisterValueChangedCallback(ChangePosition);
-            refreshFields.Add(Refresh);
-            Refresh();
-            void ChangePosition(ChangeEvent<Vector2> e)
-            {
-                if (StudioPropertyEditing.IsFinite(e.newValue.x) && StudioPropertyEditing.IsFinite(e.newValue.y))
-                {
-                    int group = Undo.GetCurrentGroup();
-                    if (e.previousValue.x != e.newValue.x)
-                        StudioPropertyEditing.SetEndpoint(clip, StudioProperty.PositionX, end, e.newValue.x);
-                    if (e.previousValue.y != e.newValue.y)
-                        StudioPropertyEditing.SetEndpoint(clip, StudioProperty.PositionY, end, e.newValue.y);
-                    Undo.CollapseUndoOperations(group);
-                    host.Session.ClearKey();
-                    host.Changed();
-                }
-                Refresh();
-            }
-            void Refresh()
-            {
-                field.SetValueWithoutNotify(new Vector2(StudioPropertyEditing.Endpoint(clip, StudioProperty.PositionX, end),
-                    StudioPropertyEditing.Endpoint(clip, StudioProperty.PositionY, end)));
-            }
-        }
-
-        private void EndpointField(VisualElement parent, TimelineClip clip, StudioProperty property, bool end, string label)
-        {
-            var field = new FloatField(label) { name = "endpoint-" + (end ? "end" : "start") + "-" + property, isDelayed = true };
-            parent.Add(field);
-            field.RegisterValueChangedCallback(ChangeValue);
-            refreshFields.Add(Refresh);
-            Refresh();
-            void ChangeValue(ChangeEvent<float> e)
-            {
-                if (StudioPropertyEditing.SetEndpoint(clip, property, end, e.newValue))
-                {
-                    host.Session.ClearKey();
-                    host.Changed();
-                }
-                Refresh();
-            }
-            void Refresh() { field.SetValueWithoutNotify(StudioPropertyEditing.Endpoint(clip, property, end)); }
-        }
-
         private void BuildAnimation(VisualElement parent, SerializedObject data)
         {
             var asset = host.Selected;
@@ -308,6 +169,9 @@ namespace HumanBartender.CutsceneStudio.Editor
             ReadOnly(parent, "프레임 타이밍", "animation-timing").value = sourceTiming ? "원본 애니메이션" : "초당 프레임";
             ClipField(parent, data, "FramesPerSecond", !sourceTiming);
             ClipField(parent, data, "Loop");
+            BoundField(parent, data, "AnimationOffset", "원본 시작 (초)");
+            BoundField(parent, data, "AnimationSpeed", "재생 배속");
+            Note(parent, "원본 시작 / 배속은 애니메이션 프레임에만 적용됩니다. 이동 키와 클립 길이는 유지됩니다.");
             if (sourceTiming)
                 Note(parent, $"원본 길이 {asset.AnimationLength:0.###}초의 프레임 시각을 사용합니다.");
             void FramesChanged() { StudioPropertyEditing.ValidateFrameTiming(asset); }
@@ -318,11 +182,55 @@ namespace HumanBartender.CutsceneStudio.Editor
             var data = PanelBinding(host.Sequence);
             string path = $"Actors.Array.data[{host.ActorIndex}].";
             Note(parent, "이 오브젝트를 사용하는 모든 클립에 적용됩니다.");
-            BoundField(parent, data, path + "Name", "이름");
-            BoundField(parent, data, path + "Sprite", "기본 이미지").tooltip = "클립에 프레임이 없을 때 사용하는 이미지";
+            if (host.Selected.Kind == StudioKind.Visual)
+                BuildSharedVisualIdentity(parent);
+            else
+            {
+                BoundField(parent, data, path + "Name", "이름");
+                BoundField(parent, data, path + "Sprite", "기본 이미지").tooltip = "클립에 프레임이 없을 때 사용하는 이미지";
+            }
             BoundField(parent, data, path + "Size", "기본 크기");
             BoundField(parent, data, path + "Color", "색상");
             BoundField(parent, data, path + "Layer", "그리기 순서");
+            if (host.Selected.Kind == StudioKind.Visual)
+                Note(parent, "이름 / 기본 이미지를 바꾸면 클립 정보에도 자동 반영됩니다. 애니메이션 프레임은 별도로 유지됩니다.");
+        }
+
+        private void BuildSharedVisualIdentity(VisualElement parent)
+        {
+            string id = host.Selected.ActorId;
+            var name = new TextField("이름") { name = "shared-object-name", isDelayed = true };
+            var sprite = new ObjectField("기본 이미지") { name = "shared-object-sprite", objectType = typeof(Sprite), allowSceneObjects = false };
+            parent.Add(name); parent.Add(sprite);
+            name.RegisterValueChangedCallback(e =>
+            {
+                if (StudioSharedObjectEditing.Rename(host.Sequence, id, e.newValue)) host.Changed(true);
+                Refresh();
+            });
+            sprite.RegisterValueChangedCallback(e =>
+            {
+                if (StudioSharedObjectEditing.SetSprite(host.Sequence, id, e.newValue as Sprite)) host.Changed(true);
+                Refresh();
+            });
+            refreshFields.Add(Refresh);
+            Refresh();
+            void Refresh()
+            {
+                var actor = host.Sequence.FindActor(id);
+                name.SetValueWithoutNotify(actor?.Name ?? "");
+                sprite.SetValueWithoutNotify(actor?.Sprite);
+            }
+        }
+
+        private void BuildLinkedVisualSource(VisualElement parent)
+        {
+            var image = new ObjectField("클립 이미지") { name = "clip-sprite", objectType = typeof(Sprite), allowSceneObjects = false };
+            image.SetEnabled(false); parent.Add(image);
+            refreshFields.Add(() => image.SetValueWithoutNotify(host.Sequence.FindActor(host.Selected.ActorId)?.Sprite));
+            BuildSpritePreview(parent, false);
+            Note(parent, "클립 이름 / 이미지는 오브젝트 공통 설정을 따릅니다.");
+            if (StudioSharedObjectEditing.HasStaticOverride(host.Selected))
+                Note(parent, "기존 개별 이미지는 유지 중 / 기본 이미지를 변경하면 공통 이미지에 연결됩니다.");
         }
 
         private void BuildClipSprite(VisualElement parent)
@@ -358,7 +266,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             Refresh();
             void Refresh()
             {
-                var sprite = background ? asset.BackgroundSprite : asset.Frames != null && asset.Frames.Length > 0 ? asset.Frames[0] : null;
+                var sprite = background ? asset.BackgroundSprite : asset.Kind == StudioKind.Visual ? host.Sequence.FindActor(asset.ActorId)?.Sprite : asset.Frames != null && asset.Frames.Length > 0 ? asset.Frames[0] : null;
                 preview.sprite = sprite;
                 preview.style.display = sprite != null ? DisplayStyle.Flex : DisplayStyle.None;
                 size.SetValueWithoutNotify(sprite != null ? $"{sprite.rect.width:0} × {sprite.rect.height:0} px" : "이미지 없음");
@@ -367,21 +275,26 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         private void BuildEffect(VisualElement parent, SerializedObject data)
         {
-            if (StudioKeyframes.Channel(host.Selected, StudioProperty.Strength) == null)
+            if (!StudioKeyframes.HasKeys(host.Selected, StudioProperty.Strength))
             {
                 var strength = ClipField(parent, data, "Strength");
                 strength.label = "기본 강도";
                 strength.tooltip = "강도 키가 없을 때 클립 전체에 적용되는 값입니다.";
-                Note(parent, "기본 강도는 강도 키가 없을 때 적용됩니다. 시간에 따라 바꾸려면 현재 시점 또는 시작값 / 종료값을 편집하세요.");
+                Note(parent, "기본 강도는 강도 키가 없을 때 적용됩니다. 시간에 따라 바꾸려면 현재 시점 / 키프레임을 편집하세요.");
             }
-            else Note(parent, "강도 키 사용 중 / 현재 시점 또는 시작값 / 종료값에서 강도를 편집하세요.");
+            else Note(parent, "강도 키 사용 중 / 현재 시점 / 키프레임에서 강도를 편집하세요.");
             bool shake = host.Selected.Effect == StudioEffect.Shake;
             if (!shake)
             {
                 ClipField(parent, data, "EffectColor");
                 Note(parent, "효과 색상은 클립 전체에 적용됩니다. 표시 불투명도는 색상의 알파 × 강도 × 불투명도 값입니다.");
             }
-            else Note(parent, "흔들림 크기는 강도 × 감쇠 값으로 조절합니다. 감쇠 1은 흔들림 유지 / 0은 흔들림 없음입니다.");
+            else
+            {
+                BoundField(parent, data, "ShakeSpeed", "흔들림 속도 (배)");
+                BoundField(parent, data, "ShakeAmplitude", "가로 / 세로 크기");
+                Note(parent, "기본값은 속도 1배 / 크기 12, 12입니다. 크기 × 강도 × 감쇠를 적용하며, 한 축을 0으로 두면 해당 방향은 흔들리지 않습니다.");
+            }
         }
 
     }

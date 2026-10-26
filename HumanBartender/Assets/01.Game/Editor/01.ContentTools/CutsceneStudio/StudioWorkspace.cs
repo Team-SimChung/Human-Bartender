@@ -52,6 +52,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void OnLostFocus()
         {
+            timelineComponent.ReleaseTrackReorder();
             previewComponent.PreviewToolFocus = false;
             previewComponent.EndPreviewTransform();
             layout.ReleaseDrag();
@@ -135,6 +136,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void OnDisable()
         {
+            timelineComponent.ReleaseTrackReorder();
             ReleaseToolkitEvents();
             timelineComponent.ReleaseClipDrag();
             timelineComponent.ReleaseTimelineScrub();
@@ -194,6 +196,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             if (!session.HasUndoChanges())
                 return;
+            timelineComponent.ReleaseTrackReorder();
             if (sequence == null)
             {
                 Load(null);
@@ -213,6 +216,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void Load(StudioSequence asset)
         {
+            timelineComponent.ReleaseTrackReorder();
             timelineComponent.ReleaseClipDrag();
             timelineComponent.ReleaseTimelineScrub();
             previewComponent.EndPreviewTransform();
@@ -291,6 +295,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 Event.current.Use();
             if (EditorApplication.isPlaying)
             {
+                timelineComponent.ReleaseTrackReorder();
                 timelineComponent.ReleaseClipDrag();
                 timelineComponent.ReleaseTimelineScrub();
                 playing = false;

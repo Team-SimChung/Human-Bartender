@@ -79,6 +79,11 @@
 .studio-panel-body > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container { padding-bottom: 10px; }
 .studio-section { margin: 6px 0 0 0; padding: 0; flex-shrink: 0; }
 .studio-section.first-section { margin-top: 0; }
+/* 닫힌 카테고리 다음 헤더만 붙이고 열린 카테고리 아래 간격은 유지함. */
+#sequence-panel .studio-section.after-closed-section,
+#properties-panel .studio-section.after-closed-section { margin-top: 0; }
+#sequence-panel .studio-section.closed > .unity-foldout__toggle,
+#properties-panel .studio-section.closed > .unity-foldout__toggle { margin-bottom: 0; }
 .studio-section > .unity-foldout__toggle {
     height: 24px;
     margin: 0;
@@ -167,7 +172,6 @@
     margin: 2px 0 8px 0;
     flex-shrink: 0;
 }
-#properties-panel .studio-properties-pose { margin-bottom: 7px; flex-shrink: 0; }
 #properties-panel .studio-properties-subtitle {
     -unity-font-style: bold;
     margin: 1px 0 6px 0;
@@ -236,16 +240,12 @@
 #properties-panel .studio-properties-key-buttons { flex-direction: row; margin-left: auto; }
 #properties-panel .studio-properties-key-buttons > Button { min-height: 23px; font-size: 11px; margin: 0 0 0 3px; padding: 2px 6px; }
 #properties-panel .studio-properties-key-all { min-height: 27px; }
-#properties-panel .studio-properties-pose-heading {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-}
-#properties-panel .studio-properties-pose-heading > .studio-properties-subtitle { font-size: 14px; -unity-font-style: bold; color: rgb(225, 225, 225); }
-#properties-panel .studio-properties-pose-heading > Button { font-size: 11px; min-height: 23px; margin-left: auto; }
 #properties-panel .studio-inspector-actions { margin: 0 0 5px 0; }
 #properties-panel .studio-properties-key-list { max-height: 160px; margin-top: 4px; }
 #properties-panel .studio-properties-key-list .studio-button { -unity-text-align: middle-left; min-height: 22px; }
 #properties-panel .studio-properties-key-list .is-selected { background-color: rgb(75, 75, 75); border-left-color: rgb(160, 160, 160); }
+
+/* 속성 카테고리의 삼각형은 클릭 상태에서도 같은 회색을 사용함. */
+#properties-panel .studio-section > .unity-foldout__toggle > .unity-toggle__input > .unity-toggle__checkmark {
+    -unity-background-image-tint-color: rgb(160, 160, 160);
+}

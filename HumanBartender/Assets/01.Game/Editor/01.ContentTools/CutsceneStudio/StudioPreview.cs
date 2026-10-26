@@ -33,9 +33,9 @@ namespace HumanBartender.CutsceneStudio.Editor
             Stage.Build(sequence);
         }
 
-        public Texture Draw(Rect rect, double time, bool reveal)
+        public Texture Draw(Rect rect, double time, bool reveal, Func<StudioClip, StudioProperty, float, float> overrideValue = null)
         {
-            Stage.Evaluate(time, reveal);
+            Stage.Evaluate(time, reveal, overrideValue);
             renderer.camera.aspect = rect.width / Mathf.Max(1, rect.height);
             renderer.camera.orthographicSize = Mathf.Max(StudioSequence.Height / 2, StudioSequence.Width / (2 * renderer.camera.aspect));
             renderer.BeginPreview(rect, GUIStyle.none);

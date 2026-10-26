@@ -15,6 +15,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 {
     internal sealed partial class StudioWorkspace
     {
+        private bool IsPlaybackActive => playing || EditorApplication.isPlayingOrWillChangePlaymode;
         CutsceneStudioWindow IStudioPanelHost.Window => Window;
         StudioViewState IStudioTimelineHost.ViewState => viewState;
         StudioViewState IStudioDialogueHost.ViewState => viewState;
@@ -27,16 +28,17 @@ namespace HumanBartender.CutsceneStudio.Editor
         void IStudioPreviewHost.Seek(double time) { Seek(time); }
         void IStudioPreviewHost.Select(TimelineClip clip, bool reveal) { Select(clip, reveal); }
         void IStudioPreviewHost.TogglePlay() { TogglePlay(); }
+        StudioEditSession IStudioPreviewHost.Session => session;
+        double IStudioPreviewHost.Snap(double value) => Snap(value);
         int IStudioPreviewHost.ActorIndex { get { return actorIndex; } }
         StudioClock IStudioPreviewHost.Clock { get { return clock; } }
-        bool IStudioPreviewHost.Playing { get { return playing; } }
+        bool IStudioPreviewHost.Playing => IsPlaybackActive;
         StudioPreview IStudioPreviewHost.Preview { get { return preview; } }
         bool IStudioPreviewHost.PreviewRebuildPending { get { return previewRebuildPending; } }
         StudioClip IStudioPreviewHost.Selected { get { return selected; } }
         StudioSequence IStudioPreviewHost.Sequence { get { return sequence; } }
         bool IStudioPreviewHost.SnapEnabled { get { return snap; } }
         void IStudioTimelineHost.Changed(bool rebuild) { Changed(rebuild); }
-        void IStudioTimelineHost.ClearClipSelection() { ClearClipSelection(); }
         TimelineClip IStudioTimelineHost.FindSelected() { return FindSelected(); }
         float IStudioTimelineHost.Inspector { get { return Inspector; } }
         void IStudioTimelineHost.PositionToolkitPanels() { PositionToolkitPanels(); }
@@ -47,6 +49,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         double IStudioTimelineHost.Snap(double value) { return Snap(value); }
         float IStudioTimelineHost.TimelineHeight { get { return TimelineHeight; } }
         StudioClock IStudioTimelineHost.Clock { get { return clock; } }
+        bool IStudioTimelineHost.Playing => IsPlaybackActive;
         bool IStudioTimelineHost.DialogueMode { get { return dialogueComponent.DialogueMode; } set { dialogueComponent.DialogueMode = value; } }
         int IStudioTimelineHost.KeyIndex { get { return keyIndex; } }
         StudioProperty IStudioTimelineHost.KeyProperty { get { return keyProperty; } }
@@ -68,14 +71,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         StudioClip IStudioSequenceHost.Selected { get { return selected; } }
         StudioSequence IStudioSequenceHost.Sequence { get { return sequence; } }
         double IStudioPropertiesHost.CurrentTime => clock.Time;
-        bool IStudioPropertiesHost.Playing => playing || EditorApplication.isPlayingOrWillChangePlaymode;
-        StudioPoseKey IStudioPropertiesHost.CapturePose(string actorId)
-        {
-            if (preview == null || previewRebuildPending) return null;
-            if (actorId != null && preview.Stage.ActorTransform(actorId) == null) return null;
-            preview.Stage.Evaluate(clock.Time, clock.Waiting.HasValue);
-            return preview.Stage.CapturePose(actorId);
-        }
+        bool IStudioPropertiesHost.Playing => IsPlaybackActive;
         void IStudioPropertiesHost.Changed(bool rebuild) { Changed(rebuild); }
         void IStudioPropertiesHost.DeleteClip() { commandsComponent.DeleteClip(); }
         void IStudioPropertiesHost.DeleteSelectedKey() { timelineComponent.DeleteSelectedKey(); }

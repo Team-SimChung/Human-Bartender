@@ -42,6 +42,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         public static StudioTrack AddTrack(StudioSequence sequence, StudioKind kind)
         {
+            RequireSupported(kind);
             Undo.IncrementCurrentGroup();
             Undo.SetCurrentGroupName("새 트랙 추가");
             Undo.RegisterCompleteObjectUndo(sequence.Timeline, "새 트랙 추가");
@@ -70,6 +71,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         public static TimelineClip AddClip(StudioSequence sequence, StudioKind kind, double at, string actorId = null, StudioTrack target = null)
         {
+            RequireSupported(kind);
             if (target != null && (target.timelineAsset != sequence.Timeline || !target.Accepts(kind)))
                 throw new InvalidOperationException("같은 종류의 트랙에 놓아 주세요.");
             Undo.RegisterCompleteObjectUndo(sequence.Timeline, "클립 추가");
@@ -88,10 +90,6 @@ namespace HumanBartender.CutsceneStudio.Editor
             asset.ActorId = actorId ?? (sequence.Actors.Count > 0 ? sequence.Actors[0].Id : "");
             switch (kind)
             {
-                case StudioKind.Actor:
-                    asset.From = sequence.FindActor(asset.ActorId)?.Position ?? Vector2.zero;
-                    asset.To = asset.From + new Vector2(160, 0);
-                    break;
                 case StudioKind.Background:
                     asset.ActorId = "";
                     asset.HoldEnd = false;
@@ -102,9 +100,6 @@ namespace HumanBartender.CutsceneStudio.Editor
                 case StudioKind.Wait:
                     clip.duration = .1;
                     break;
-                case StudioKind.State:
-                    asset.Keys = new[] { new StudioPoseKey { Position = sequence.FindActor(asset.ActorId)?.Position ?? Vector2.zero } };
-                    break;
                 case StudioKind.Dialogue:
                     asset.WaitForInput = true;
                     asset.Font = sequence.Font != null ? sequence.Font : TMP_Settings.defaultFontAsset;
@@ -114,6 +109,12 @@ namespace HumanBartender.CutsceneStudio.Editor
             sequence.Timeline.fixedDuration = Math.Max(sequence.Duration, clip.end);
             Dirty(sequence);
             return clip;
+        }
+
+        private static void RequireSupported(StudioKind kind)
+        {
+            if (!StudioEvaluation.IsSupported(kind))
+                throw new ArgumentOutOfRangeException(nameof(kind), kind, "지원하지 않는 클립 유형입니다.");
         }
 
         public static string Label(StudioKind kind)
@@ -165,14 +166,9 @@ namespace HumanBartender.CutsceneStudio.Editor
                 // 화자를 삭제해도 대사는 유지하며 화자 없는 기본 위치를 사용함.
                 foreach (var e in StudioEvaluation.Clips(sequence, true).FindAll(MatchesTrueFindAll))
                 {
-                    if (e.Asset.Kind == StudioKind.State && !e.Asset.StateCamera)
-                        DeleteTimelineClip(sequence, e.Clip);
-                    else
-                    {
-                        Undo.RecordObject(e.Asset, "화자 연결 해제");
-                        e.Asset.ActorId = "";
-                        EditorUtility.SetDirty(e.Asset);
-                    }
+                    Undo.RecordObject(e.Asset, "화자 연결 해제");
+                    e.Asset.ActorId = "";
+                    EditorUtility.SetDirty(e.Asset);
                 }
 
                 sequence.EditableActors.RemoveAll(MatchesActorsRemoveAll);
@@ -324,7 +320,12 @@ namespace HumanBartender.CutsceneStudio.Editor
                 Sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/01.Game/03.Content/01.ArtResources/07.Legacy/Cutscenes/Luna.png")
             };
             sequence.EditableActors.Add(actor);
-            AddClip(sequence, StudioKind.Actor, 0, actor.Id);
+            var visual = AddClip(sequence, StudioKind.Visual, 0, actor.Id);
+            visual.displayName = actor.Name;
+            var visualAsset = (StudioClip)visual.asset;
+            visualAsset.From = actor.Position;
+            visualAsset.To = actor.Position + new Vector2(160, 0);
+            visualAsset.HoldEnd = true;
             var line = AddClip(sequence, StudioKind.Dialogue, 3, actor.Id);
             ((StudioClip)line.asset).Text = "새 컷씬 스튜디오입니다.\n화면비가 달라도 같은 구도로 재생됩니다.";
             var fade = AddClip(sequence, StudioKind.Effect, 8);

@@ -11,7 +11,9 @@ namespace HumanBartender.CutsceneStudio
         Scale,
         Rotation,
         Opacity,
-        Strength
+        Strength,
+        FlipX,
+        Volume
     }
 
     [Serializable]
@@ -87,6 +89,17 @@ namespace HumanBartender.CutsceneStudio
             StudioProperty.Strength,
             StudioProperty.Opacity
         });
+        private static readonly IReadOnlyList<StudioProperty> VisualProperties = Array.AsReadOnly(new[]
+        {
+            StudioProperty.PositionX, StudioProperty.PositionY, StudioProperty.Rotation,
+            StudioProperty.FlipX, StudioProperty.Scale, StudioProperty.Opacity
+        });
+
+        private static readonly IReadOnlyList<StudioProperty> AudioProperties = Array.AsReadOnly(new[] { StudioProperty.Volume });
+        // 속성 패널과 타임라인이 같은 편집 채널 목록을 사용함.
+        public static IReadOnlyList<StudioProperty> EditingProperties(StudioClip clip) => Properties(clip);
+        public static bool IsDiscrete(StudioProperty property) => property == StudioProperty.FlipX;
+
         public static IReadOnlyList<StudioProperty> Properties(StudioClip clip)
         {
             if (clip == null)
@@ -95,13 +108,14 @@ namespace HumanBartender.CutsceneStudio
             {
                 StudioKind.Effect => EffectProperties,
                 StudioKind.Camera => CameraProperties,
-                StudioKind.State when clip.StateCamera => CameraProperties,
-                StudioKind.Actor or StudioKind.Visual or StudioKind.State or StudioKind.Dialogue or StudioKind.Background => TransformProperties,
+                StudioKind.Audio => AudioProperties,
+                StudioKind.Visual => VisualProperties,
+                StudioKind.Dialogue or StudioKind.Background => TransformProperties,
                 _ => Array.Empty<StudioProperty>()
             };
         }
 
-        public static bool IsCamera(StudioClip clip) => clip.Kind == StudioKind.Camera || clip.Kind == StudioKind.State && clip.StateCamera;
+        public static bool IsCamera(StudioClip clip) => clip.Kind == StudioKind.Camera;
         public static StudioPropertyKeys Channel(StudioClip clip, StudioProperty property)
         {
             if (clip.PropertyKeys == null)
@@ -110,6 +124,16 @@ namespace HumanBartender.CutsceneStudio
                 if (channel != null && channel.Property == property)
                     return channel;
             return null;
+        }
+
+        // 빈 채널은 저장 의미를 유지하되 기본값 편집을 막지 않음.
+        public static bool HasKeys(StudioClip clip, StudioProperty property)
+        {
+            var keys = Channel(clip, property)?.Keys;
+            if (keys != null)
+                foreach (var key in keys)
+                    if (key != null) return true;
+            return false;
         }
 
         public static bool HasOverrides(StudioClip clip)
@@ -122,48 +146,13 @@ namespace HumanBartender.CutsceneStudio
             return false;
         }
 
-        // 상태 적용도 보간과 같은 유효 채널을 사용함. 빈 채널 / 다른 대상의 숨은 키는 시작을 앞당기지 않음.
-        internal static bool HasStateStarted(StudioClip clip, float age)
-        {
-            if (clip == null || clip.Kind != StudioKind.State)
-                return false;
-            foreach (var property in Properties(clip))
-                if (ReadSamples(clip, property, Channel(clip, property), age).HasStarted)
-                    return true;
-            return false;
-        }
-
-        public static float Value(StudioPoseKey pose, StudioProperty property) => property switch
-        {
-            StudioProperty.PositionX => pose.Position.x,
-            StudioProperty.PositionY => pose.Position.y,
-            StudioProperty.Scale => pose.Scale,
-            StudioProperty.Rotation => pose.Rotation,
-            _ => pose.Opacity
-        };
-        public static float Limit(StudioProperty property, float value) => property == StudioProperty.Scale ? Mathf.Max(.01f, value) : property == StudioProperty.Opacity || property == StudioProperty.Strength ? Mathf.Clamp01(value) : value;
+        public static float Limit(StudioProperty property, float value) => IsDiscrete(property) ? (value >= .5f ? 1 : 0) : property == StudioProperty.Scale ? Mathf.Max(.01f, value) : property is StudioProperty.Opacity or StudioProperty.Strength or StudioProperty.Volume ? Mathf.Clamp01(value) : value;
         // 기본 키를 가상으로 만들어 창 열기만으로 에셋이 변경되지 않게 하고 기존 보간을 유지함.
         public static StudioFloatKey[] GetKeys(StudioClip clip, StudioProperty property, double duration)
         {
             var channel = Channel(clip, property);
             if (channel != null)
                 return channel.Keys ?? Array.Empty<StudioFloatKey>();
-            if (clip.Kind == StudioKind.State)
-            {
-                var result = new List<StudioFloatKey>();
-                if (clip.Keys != null)
-                    foreach (var key in clip.Keys)
-                    {
-                        if (key == null)
-                            continue;
-                        int index = result.Count;
-                        while (index > 0 && result[index - 1].Time > key.Time)
-                            index--;
-                        result.Insert(index, new StudioFloatKey(key.Time, Value(key, property)));
-                    }
-
-                return result.ToArray();
-            }
             return new[]
             {
                 new StudioFloatKey(0, Endpoint(clip, property, false)),
@@ -178,6 +167,8 @@ namespace HumanBartender.CutsceneStudio
             StudioProperty.Scale => end ? c.ScaleTo : c.ScaleFrom,
             StudioProperty.Rotation => end ? c.RotationTo : c.RotationFrom,
             StudioProperty.Strength => c.Strength,
+            StudioProperty.Volume => c.Volume,
+            StudioProperty.FlipX => c.FlipX ? 1 : 0,
             StudioProperty.Opacity when c.Kind == StudioKind.Effect => c.Effect == StudioEffect.FadeOut ? (end ? 1 : 0) : c.Effect == StudioEffect.Tint ? 1 : (end ? 0 : 1),
             _ => end ? c.OpacityTo : c.OpacityFrom
         };
@@ -185,7 +176,9 @@ namespace HumanBartender.CutsceneStudio
         {
             age = Mathf.Clamp(age, 0, (float)duration);
             var channel = Channel(clip, property);
-            if (channel == null && clip.Kind != StudioKind.State)
+            if (IsDiscrete(property))
+                return Limit(property, ReadSamples(channel, age).HeldValue(Endpoint(clip, property, false)));
+            if (channel == null)
             {
                 float progress = Mathf.Clamp01(age / Mathf.Max(.001f, (float)duration));
                 if (clip.Curve != null)
@@ -193,20 +186,13 @@ namespace HumanBartender.CutsceneStudio
                 return Limit(property, Mathf.LerpUnclamped(Endpoint(clip, property, false), Endpoint(clip, property, true), progress));
             }
 
-            return Limit(property, ReadSamples(clip, property, channel, age).Evaluate(age, clip.Curve, Endpoint(clip, property, false)));
+            return Limit(property, ReadSamples(channel, age).Evaluate(age, clip.Curve, Endpoint(clip, property, false)));
         }
 
-        private static KeySamples ReadSamples(StudioClip clip, StudioProperty property, StudioPropertyKeys channel, float age)
+        private static KeySamples ReadSamples(StudioPropertyKeys channel, float age)
         {
             var samples = new KeySamples();
-            if (channel == null)
-            {
-                if (clip.Keys != null)
-                    foreach (var key in clip.Keys)
-                        if (key != null)
-                            samples.Add(key.Time, Value(key, property), age);
-            }
-            else if (channel.Keys != null)
+            if (channel?.Keys != null)
             {
                 foreach (var key in channel.Keys)
                     if (key != null)
@@ -216,13 +202,13 @@ namespace HumanBartender.CutsceneStudio
             return samples;
         }
 
-        // 기존 오브젝트 키와 속성별 키에 같은 경계 선택·보간 규칙을 적용함.
+        // 모든 속성 채널이 같은 경계 선택 / 보간 규칙을 사용함.
         private struct KeySamples
         {
             private bool hasBefore, hasAfter;
             private float beforeTime, afterTime, beforeValue, afterValue;
 
-            internal bool HasStarted => hasBefore;
+            internal float HeldValue(float fallback) => hasBefore ? beforeValue : fallback;
 
             internal void Add(float time, float value, float age)
             {
@@ -253,12 +239,19 @@ namespace HumanBartender.CutsceneStudio
             }
         }
 
-        public static StudioPoseKey Sample(StudioClip clip, float age, double duration) => new StudioPoseKey
+        internal static StudioPose Sample(StudioClip clip, float age, double duration) => new StudioPose
         {
             Position = new Vector2(Evaluate(clip, StudioProperty.PositionX, age, duration), Evaluate(clip, StudioProperty.PositionY, age, duration)),
             Scale = Evaluate(clip, StudioProperty.Scale, age, duration),
             Rotation = Evaluate(clip, StudioProperty.Rotation, age, duration),
             Opacity = Evaluate(clip, StudioProperty.Opacity, age, duration)
         };
+    }
+
+    // 현재 시점 평가 결과. 저장되는 키 데이터는 StudioPropertyKeys에서만 관리함.
+    internal struct StudioPose
+    {
+        internal Vector2 Position;
+        internal float Scale, Rotation, Opacity;
     }
 }

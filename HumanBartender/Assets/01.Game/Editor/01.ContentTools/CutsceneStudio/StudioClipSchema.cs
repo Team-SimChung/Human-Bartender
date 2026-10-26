@@ -42,13 +42,11 @@ namespace HumanBartender.CutsceneStudio.Editor
         internal static IReadOnlyList<StudioClipDefinition> Definitions { get; } = Array.AsReadOnly(new[]
         {
             new StudioClipDefinition(StudioKind.Camera, "카메라", "▣", new Color(.53f, .46f, .67f), 0, "카메라"),
-            new StudioClipDefinition(StudioKind.Actor, "액터 이동", "↗", new Color(.38f, .55f, .63f), 1, "액터 / 오브젝트"),
             new StudioClipDefinition(StudioKind.Dialogue, "대사", "▤", new Color(.68f, .59f, .40f), 3, "대사 / 입력"),
             new StudioClipDefinition(StudioKind.Effect, "화면 효과", "✦", new Color(.65f, .45f, .48f), 4, "화면 효과"),
             new StudioClipDefinition(StudioKind.Wait, "입력 대기", "◇", new Color(.58f, .62f, .45f), 3),
-            new StudioClipDefinition(StudioKind.Visual, "에셋 / 오브젝트", "▧", new Color(.43f, .55f, .67f), 1),
+            new StudioClipDefinition(StudioKind.Visual, "에셋 / 오브젝트", "▧", new Color(.43f, .55f, .67f), 1, "액터 / 오브젝트"),
             new StudioClipDefinition(StudioKind.Audio, "사운드", "♫", new Color(.49f, .60f, .44f), 2, "사운드"),
-            new StudioClipDefinition(StudioKind.State, "오브젝트 키", "◆", new Color(.64f, .48f, .57f), 1),
             new StudioClipDefinition(StudioKind.Background, "배경", "▧", new Color(.46f, .61f, .56f), 5, "배경")
         });
         internal static IReadOnlyList<StudioClipDefinition> Groups { get; } = BuildGroups();
@@ -79,11 +77,10 @@ namespace HumanBartender.CutsceneStudio.Editor
                 fields.Add(new StudioClipField(path, label, enabled, animation));
             }
 
-            if (StudioEvaluation.OwnsActor(clip) || clip.Kind == StudioKind.Dialogue || clip.Kind == StudioKind.State && !clip.StateCamera)
+            if (StudioEvaluation.OwnsActor(clip) || clip.Kind == StudioKind.Dialogue)
                 Add("ActorId", "캐릭터 ID");
             switch (clip.Kind)
             {
-                case StudioKind.Actor:
                 case StudioKind.Visual:
                 case StudioKind.Camera:
                 case StudioKind.Background:
@@ -108,13 +105,6 @@ namespace HumanBartender.CutsceneStudio.Editor
                     Add("FramesPerSecond", "초당 프레임", animation: true);
                     Add("Loop", "반복", animation: true);
                     break;
-                case StudioKind.State:
-                    Add("StateCamera", "카메라 대상");
-                    Add("Keys", "속성 키 (클립 시작 기준 초)", editable);
-                    Add("Curve", "키 사이 보간 곡선");
-                    Add("HoldEnd", "종료 상태 유지");
-                    Add("FlipX", "좌우 반전");
-                    break;
                 case StudioKind.Dialogue:
                     Add("Text", "대사");
                     Add("Font", "대사 글꼴");
@@ -132,7 +122,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     break;
                 case StudioKind.Effect:
                     Add("Effect", "효과");
-                    Add("Strength", "강도", StudioKeyframes.Channel(clip, StudioProperty.Strength) == null);
+                    Add("Strength", "강도", !StudioKeyframes.HasKeys(clip, StudioProperty.Strength));
                     Add("EffectColor", "색상");
                     Add("Curve", "키 사이 보간 곡선");
                     break;
@@ -144,6 +134,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     Add("FadeIn", "페이드 인");
                     Add("FadeOut", "페이드 아웃");
                     Add("Loop", "반복");
+                    Add("Curve", "볼륨 키 보간 곡선");
                     break;
             }
 
@@ -158,9 +149,6 @@ namespace HumanBartender.CutsceneStudio.Editor
                 yield return "배경 이미지를 지정하세요.";
             switch (clip.Kind)
             {
-                case StudioKind.State:
-                    yield return "Time 순서로 위치 / 크기 / 회전 / 불투명도를 보간합니다. 카메라는 Position과 Scale(줌)을 사용합니다.";
-                    break;
                 case StudioKind.Dialogue:
                     yield return "키프레임 탭에서 말풍선의 이동 / 크기 / 회전 / 불투명도를 조절합니다. 이동 값은 기본 말풍선 위치에 더해집니다.";
                     yield return "E / Enter로 입력 대기를 진행합니다. Unity TMP 리치 텍스트 태그를 사용할 수 있습니다.";

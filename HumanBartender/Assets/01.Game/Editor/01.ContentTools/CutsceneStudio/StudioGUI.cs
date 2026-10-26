@@ -136,6 +136,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             if (parent.childCount == 0)
                 foldout.AddToClassList("first-section");
             parent.Add(foldout);
+            RefreshSectionSpacing(parent);
             return foldout;
             void StoreFoldoutState(ChangeEvent<bool> e)
             {
@@ -144,6 +145,21 @@ namespace HumanBartender.CutsceneStudio.Editor
                 panelFoldouts[key] = e.newValue;
                 store?.Invoke(e.newValue);
                 foldout.EnableInClassList("closed", !e.newValue);
+                RefreshSectionSpacing(parent);
+            }
+        }
+
+        private static void RefreshSectionSpacing(VisualElement parent)
+        {
+            bool previousClosed = false;
+            foreach (var child in parent.contentContainer.Children())
+            {
+                if (child is Foldout section && section.ClassListContains("studio-section"))
+                {
+                    section.EnableInClassList("after-closed-section", previousClosed);
+                    previousClosed = !section.value;
+                }
+                else previousClosed = false;
             }
         }
 
