@@ -3365,7 +3365,7 @@ Transform:
   m_GameObject: {fileID: 419967015}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -1, w: 0}
-  m_LocalPosition: {x: -15.946, y: -0.655, z: 1.75}
+  m_LocalPosition: {x: -15.946, y: -0.629, z: 1.75}
   m_LocalScale: {x: 0.1891237, y: 0.26430625, z: 0.015229}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3416,9 +3416,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: -718713797
-  m_SortingLayer: 12
-  m_SortingOrder: 0
+  m_SortingLayerID: 1950817317
+  m_SortingLayer: 10
+  m_SortingOrder: -1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -12231,9 +12231,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
-    width: 1
-    height: 1
+    y: 0.06772009
+    width: 0.5992509
+    height: 0.40632054
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
