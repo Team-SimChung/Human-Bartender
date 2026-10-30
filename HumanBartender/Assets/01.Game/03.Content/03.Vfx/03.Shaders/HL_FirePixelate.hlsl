@@ -5,6 +5,8 @@
 //                  셰이더가 쓰는 모든 UV를 이 값으로 바꾸면 무늬, 마스크, 흐름이 전부 월드 도트 칸 단위로 끊긴다.
 // FireSteppedTime: 시간을 초당 Fps 단계로 끊어 흐름이 도트 애니메이션처럼 칸칸이 넘어가게 한다. (Fps <= 0이면 끔)
 // FireSnapVertex : 오브젝트 원점을 도트 격자에 맞춰 서브픽셀 이동으로 무늬가 미끄러지지 않게 한다. (정점 단계)
+// FireHeatRamp   : 불의 열 값(노이즈 - 마스크)을 테두리 → 중간 → 중심 색 3단 그라디언트로 바꾸고 밝기 배율을 곱한다.
+//                  t = saturate(Heat * HeatScale + HeatBias). 0 ~ 0.5 테두리→중간, 0.5 ~ 1 중간→중심.
 
 #ifndef HL_FIRE_PIXELATE_INCLUDED
 #define HL_FIRE_PIXELATE_INCLUDED
@@ -80,6 +82,23 @@ void FireSnapVertex_half(half3 PositionOS, half PixelSize, half Enable, out half
     float3 p;
     FireSnapVertex_float(PositionOS, PixelSize, Enable, p);
     OutPositionOS = p;
+}
+
+void FireHeatRamp_float(float Heat, float HeatScale, float HeatBias, float4 ColorEdge, float4 ColorMid, float4 ColorCore,
+                        float Brightness, out float4 OutColor)
+{
+    float t = saturate(Heat * HeatScale + HeatBias);
+    float4 lower = lerp(ColorEdge, ColorMid, saturate(t * 2.0));
+    float4 color = lerp(lower, ColorCore, saturate(t * 2.0 - 1.0));
+    OutColor = float4(color.rgb * Brightness, color.a);
+}
+
+void FireHeatRamp_half(half Heat, half HeatScale, half HeatBias, half4 ColorEdge, half4 ColorMid, half4 ColorCore,
+                       half Brightness, out half4 OutColor)
+{
+    float4 c;
+    FireHeatRamp_float(Heat, HeatScale, HeatBias, ColorEdge, ColorMid, ColorCore, Brightness, c);
+    OutColor = c;
 }
 
 #endif

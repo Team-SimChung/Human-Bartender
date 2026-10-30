@@ -76,16 +76,19 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Anim_Fps: 16
-    - _Blend: 0
+    - _Blend: 2
+    - _Brightness: 2
     - _CastShadows: 1
     - _Cull: 2
-    - _DstBlend: 10
-    - _DstBlendAlpha: 10
+    - _DstBlend: 1
+    - _DstBlendAlpha: 1
     - _EnableExternalAlpha: 0
     - _FlowX: 1
     - _FlowY: 1
     - _Flow_01_X: 1
     - _Flow_01_Y: 1
+    - _Heat_Bias: 0
+    - _Heat_Scale: 0.6
     - _Offset_X: 459.67
     - _Offset_Y: 0.33
     - _Pixel_Size: 0.01
@@ -115,6 +118,9 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color_1: {r: 1, g: 1, b: 1, a: 0}
+    - _Color_Core: {r: 1, g: 0.92, b: 0.6, a: 1}
+    - _Color_Edge: {r: 0.85, g: 0.08, b: 0.02, a: 1}
+    - _Color_Mid: {r: 1, g: 0.42, b: 0.04, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

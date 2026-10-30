@@ -153,6 +153,15 @@ public sealed class NeonFlicker : MonoBehaviour
     private void RestoreAll()
     {
         if (!_initialized) return;
+        // 이 컴포넌트가 넣은 값과 다르면 다른 곳에서 바꾼 것이므로, 되돌리기 전에 그 값을 새 기준으로 삼는다.
+        foreach (var pair in _lights)
+        {
+            if (pair.Key != null && !Mathf.Approximately(pair.Key.intensity, pair.Value.applied))
+            {
+                pair.Value.baseIntensity = pair.Key.intensity;
+                pair.Value.applied = pair.Key.intensity;
+            }
+        }
         foreach (var group in groups)
         {
             if (group == null) continue;
