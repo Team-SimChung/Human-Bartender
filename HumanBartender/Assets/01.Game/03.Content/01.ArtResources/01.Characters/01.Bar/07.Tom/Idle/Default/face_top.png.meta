@@ -14,6 +14,18 @@ TextureImporter:
   - first:
       213: -4333199536065736919
     second: face_top_3
+  - first:
+      213: 1082140170995370419
+    second: Game_tom_upper_face_0
+  - first:
+      213: 1530200708174176734
+    second: Game_tom_upper_face_1
+  - first:
+      213: 2106023364292683296
+    second: Game_tom_upper_face_2
+  - first:
+      213: 1805292593481088474
+    second: Game_tom_upper_face_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -43,10 +55,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -81,10 +93,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -94,10 +106,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -196,6 +208,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_tom_upper_face_0
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7f3c925599cdb4d097db0e388b459c4
+      internalID: 1082140170995370419
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_tom_upper_face_1
+      rect:
+        serializedVersion: 2
+        x: 646
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b06cbe4627ee81b4e29881bf8d816c8d
+      internalID: 1530200708174176734
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_tom_upper_face_2
+      rect:
+        serializedVersion: 2
+        x: 1197
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc9b227e828d420981d2c3a386a417f7
+      internalID: 2106023364292683296
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_tom_upper_face_3
+      rect:
+        serializedVersion: 2
+        x: 1748
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 296b172bb4f48b9bbd93f22df99ed6c8
+      internalID: 1805292593481088474
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -210,6 +310,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_tom_upper_face_0: 1082140170995370419
+      Game_tom_upper_face_1: 1530200708174176734
+      Game_tom_upper_face_2: 2106023364292683296
+      Game_tom_upper_face_3: 1805292593481088474
       face_top_0: -3604364499777363812
       face_top_1: -7100472762771518397
       face_top_2: -6729282216146172841

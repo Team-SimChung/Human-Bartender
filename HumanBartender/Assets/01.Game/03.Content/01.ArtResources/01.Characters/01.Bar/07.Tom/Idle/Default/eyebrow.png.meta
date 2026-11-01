@@ -26,6 +26,18 @@ TextureImporter:
   - first:
       213: -9200250246077429175
     second: eyebrow_7
+  - first:
+      213: 1525055271671482914
+    second: Game_tom_eyebrows_0
+  - first:
+      213: 1602144312017381966
+    second: Game_tom_eyebrows_1
+  - first:
+      213: 1594148324508036100
+    second: Game_tom_eyebrows_2
+  - first:
+      213: 1548351176805558077
+    second: Game_tom_eyebrows_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,10 +67,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -93,10 +105,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -106,10 +118,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -296,6 +308,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_tom_eyebrows_0
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3156343a150899e3eac4e201dadbb745
+      internalID: 1525055271671482914
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_tom_eyebrows_1
+      rect:
+        serializedVersion: 2
+        x: 646
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 458043fe055f00dc3309c0d20708cef5
+      internalID: 1602144312017381966
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_tom_eyebrows_2
+      rect:
+        serializedVersion: 2
+        x: 1197
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8f7d951b7231793c1bc770c8e06af0e
+      internalID: 1594148324508036100
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_tom_eyebrows_3
+      rect:
+        serializedVersion: 2
+        x: 1748
+        y: 88
+        width: 360
+        height: 334
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff3b88f3bf8831e14f2373e3912514ee
+      internalID: 1548351176805558077
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -310,6 +410,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_tom_eyebrows_0: 1525055271671482914
+      Game_tom_eyebrows_1: 1602144312017381966
+      Game_tom_eyebrows_2: 1594148324508036100
+      Game_tom_eyebrows_3: 1548351176805558077
       eyebrow_0: 3078226200369244658
       eyebrow_1: 792538450687254331
       eyebrow_2: 1560319577188664042
