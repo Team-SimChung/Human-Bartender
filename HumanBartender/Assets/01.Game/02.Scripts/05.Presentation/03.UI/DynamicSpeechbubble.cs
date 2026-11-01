@@ -33,6 +33,7 @@ public class DynamicSpeechBubble : MonoBehaviour
     [Header("References")]
     public TMP_Text textLabel;
     public TMP_Text nameLabel;
+    public Color speakerNameColor = new Color32(143, 220, 255, 255);
     public RectTransform bubble;
     public GameObject centerArrow;
     public GameObject leftArrow;
@@ -87,10 +88,21 @@ public class DynamicSpeechBubble : MonoBehaviour
 
     void OnEnable()
     {
-        paddingLeft = textLabel.rectTransform.offsetMin.x;
-        paddingRight = -textLabel.rectTransform.offsetMax.x;
-        paddingTop = -textLabel.rectTransform.offsetMax.y;
-        paddingBottom = textLabel.rectTransform.offsetMin.y;
+        ApplyTextInsets();
+    }
+
+    void ApplyTextInsets()
+    {
+        if (nameLabel != null) nameLabel.color = speakerNameColor;
+        if (textLabel == null) return;
+        // Padding owns both measurement and the actual text area. Reading offsets here used
+        // to replace authored padding with stale scene overrides, including negative insets.
+        var rect = textLabel.rectTransform;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = new Vector2(paddingLeft, paddingBottom);
+        rect.offsetMax = new Vector2(-paddingRight, -paddingTop);
+        textLabel.textWrappingMode = TextWrappingModes.Normal;
     }
 
     // \n 으로 나눈 줄 중 가장 긴 줄의 자연 너비
@@ -126,6 +138,7 @@ public class DynamicSpeechBubble : MonoBehaviour
         sizeMode = mode;
         _ready = false;
         _fullText = fullClean ?? "";
+        ApplyTextInsets();
 
         if (sizeMode == BubbleSizeMode.Fixed)
         {

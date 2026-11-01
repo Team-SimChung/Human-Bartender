@@ -14,6 +14,8 @@ public class CutSceneImageBehaviour : PlayableBehaviour
     public string imagePath;
 
     [Header("스프라이트 소스 (선택)")]
+    [Tooltip("직접 연결하면 Resources 경로 대신 이 스프라이트를 사용한다.")]
+    public Sprite sourceSprite;
     [Tooltip("비어있으면 Resources/Cutscenes/{imagePath}에서 단일 이미지 로드.\n채우면 이 시트에서 특정 프레임을 로드")]
     public string sheetPath;
     [Tooltip("시트에서 몇 번째 프레임 (0부터). sheetPath가 있을 때만 사용")]

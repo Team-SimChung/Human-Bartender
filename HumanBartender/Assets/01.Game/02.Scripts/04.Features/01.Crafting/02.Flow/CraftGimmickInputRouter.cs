@@ -77,31 +77,31 @@ public sealed class CraftGimmickInputRouter : MonoBehaviour
 
     public void OnPointerPress(InputValue value)
     {
-        pointerReceiver?.OnPointerInput(value.isPressed);
+        pointerReceiver?.OnPointerInput(!UIDisplayOptions.IsOptionOpen && value.isPressed);
     }
 
     public void OnCapPress(InputValue value)
     {
-        if (value.isPressed) capReceiver?.OnCapInput();
+        if (!UIDisplayOptions.IsOptionOpen && value.isPressed) capReceiver?.OnCapInput();
     }
 
     public void OnStirUp(InputValue value)
     {
-        if (value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Up);
+        if (!UIDisplayOptions.IsOptionOpen && value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Up);
     }
 
     public void OnStirRight(InputValue value)
     {
-        if (value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Right);
+        if (!UIDisplayOptions.IsOptionOpen && value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Right);
     }
 
     public void OnStirDown(InputValue value)
     {
-        if (value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Down);
+        if (!UIDisplayOptions.IsOptionOpen && value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Down);
     }
 
     public void OnStirLeft(InputValue value)
     {
-        if (value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Left);
+        if (!UIDisplayOptions.IsOptionOpen && value.isPressed) stirReceiver?.OnStirInput(EStirDirection.Left);
     }
 }

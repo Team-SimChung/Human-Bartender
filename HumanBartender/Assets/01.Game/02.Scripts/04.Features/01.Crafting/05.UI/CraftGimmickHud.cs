@@ -22,8 +22,11 @@ public class CraftGimmickHud : MonoBehaviour
     [SerializeField] TMP_Text progressText;
     [Tooltip("상단 중앙. 지금 다루는 재료 이름. 재료를 쓰지 않는 기믹에서는 기믹 이름이 들어간다.")]
     [SerializeField] TMP_Text subjectText;
-    [Tooltip("우측 상단. 한 잔 전체의 경과 시간과 제한 시간.")]
+    [Tooltip("우측 상단. 스터와 같은 시계 아이콘과 분:초로 한 잔 전체의 경과 시간을 표시한다.")]
     [SerializeField] TMP_Text timeText;
+    [Tooltip("시계 아이콘과 시간 텍스트를 함께 감추기 위한 묶음.")]
+    [SerializeField] GameObject timeRoot;
+    [SerializeField] Vector2 timeInset = new Vector2(100f, 78f);
 
     [Header("O.K")]
     [Tooltip("목표에 도달했을 때 화면 가운데에서 깜빡인다. 기믹을 끝내지는 않는다.")]
@@ -34,16 +37,12 @@ public class CraftGimmickHud : MonoBehaviour
     [Tooltip("우측 하단. 지금까지의 결과로 기믹을 끝낸다. 끝낼 수 없는 기믹에서는 숨긴다.")]
     [SerializeField] Button nextButton;
 
-    /// <summary>표시할 값을 알 수 없을 때 대신 넣는 문구.</summary>
-    const string Hidden = "???";
-
     ICraftGimmickProgress progress;
     ICraftGimmickManualEnd manualEnd;
 
     /// <summary>이번 기믹이 자기가 그리겠다고 가져간 자리. 공통은 그 자리를 비워 둔다.</summary>
     ECraftHudPart ownedByGimmick;
     CraftTimer timer;
-    float timeLimitSec;
 
     /// <summary>
     /// 시간을 가릴지 여부. 플레이어가 고른 재료 중 정답이 하나도 없으면 제조시간도 알려 주지 않는다.
@@ -80,10 +79,10 @@ public class CraftGimmickHud : MonoBehaviour
     public void BeginCraft(CraftTimer craftTimer, float cocktailTimeLimitSec, bool hideTimeDisplay)
     {
         timer = craftTimer;
-        timeLimitSec = cocktailTimeLimitSec;
         hideTime = hideTimeDisplay;
 
         SetVisible(true);
+        RefreshTimeLayout();
     }
 
     /// <summary>기믹 하나를 시작할 때 부른다. 대상 이름을 바꾸고 진행 표시를 그 기믹에 연결한다.</summary>
@@ -97,6 +96,7 @@ public class CraftGimmickHud : MonoBehaviour
         SetPartActive(progressText, ECraftHudPart.Progress);
         SetPartActive(subjectText, ECraftHudPart.Subject);
         SetPartActive(timeText, ECraftHudPart.Time);
+        if (timeRoot != null) timeRoot.SetActive(!Owns(ECraftHudPart.Time));
 
         if (subjectText != null)
             subjectText.text = string.IsNullOrEmpty(step.IngredientId)
@@ -145,6 +145,22 @@ public class CraftGimmickHud : MonoBehaviour
         Refresh();
     }
 
+    void LateUpdate() => RefreshTimeLayout();
+
+    void RefreshTimeLayout()
+    {
+        if (timeRoot == null || !(timeRoot.transform is RectTransform rect)
+            || !(transform is RectTransform canvasRect)) return;
+        var scaler = GetComponent<CanvasScaler>();
+        Vector2 reference = scaler != null ? scaler.referenceResolution : new Vector2(1920f, 1080f);
+        if (reference.x <= 0f || reference.y <= 0f) return;
+        float scale = Mathf.Min(canvasRect.rect.width / reference.x, canvasRect.rect.height / reference.y);
+        if (scale <= 0f) return;
+        // 공용 HUD가 가로 기준으로 커져도 시계는 스터의 균등 배율과 같은 크기로 유지한다.
+        rect.localScale = Vector3.one * scale;
+        rect.anchoredPosition = -timeInset * scale;
+    }
+
     void Refresh()
     {
         if (root != null && !root.activeSelf) return;
@@ -156,8 +172,8 @@ public class CraftGimmickHud : MonoBehaviour
         {
             // 제한시간을 넘겨도 계속 센다. 넘겼다는 사실은 마지막에 한 번 판정한다.
             timeText.text = hideTime || timer == null
-                ? $"TIME {Hidden} / {Hidden}"
-                : $"TIME {timer.ElapsedSec:0.0} / {timeLimitSec:0.0}";
+                ? "??:??"
+                : CraftTimer.FormatElapsed(timer.ElapsedSec);
         }
 
         RefreshOkMark();

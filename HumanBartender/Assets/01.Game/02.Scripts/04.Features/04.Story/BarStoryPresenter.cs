@@ -14,8 +14,10 @@ using VContainer;
 /// 길거리처럼 좌석이 없는 화면이 신형 대본을 재생하게 되면 이 인터페이스의 다른 구현을 만들면 된다.
 /// 실행기는 그대로 쓴다.
 /// </summary>
-public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
+public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueVisibility, IStoryCharacterTransitions, IDialogueInputPrompt, IDialogueInputFeedback
 {
+    readonly HashSet<string> textOnlyActors = new();
+    readonly HashSet<ESlotType> enteringSlots = new();
     private sealed class ChoiceCompletionCallback
     {
         private readonly UniTaskCompletionSource<int> completion;
@@ -52,6 +54,10 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     /// <summary>표정을 따로 정하지 않은 등장에 쓰는 값.</summary>
     const string DefaultExpression = "default";
 
+    public void HideDialogue() => textView?.ClearText();
+    public void SetWaitingForInput(bool waiting) => textView?.SetWaitingForInput(waiting);
+    public void PlayAdvanceFeedback() => textView?.PlayAdvanceFeedback();
+
     /// <summary>화면을 잡는 두 가지 장치. 자리로 옮기는 것과 범위를 넓히고 좁히는 것이 따로 있다.</summary>
     [Inject] ISlotCamera slotCamera;
     [Inject] ICameraControlNew cameraZoom;
@@ -71,8 +77,10 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             throw new InvalidOperationException("[BarStory] textView가 비어 있습니다.");
         }
 
+        HideDialogue();
+
         if (!request.IsPlayer && !string.IsNullOrEmpty(request.Expression) && characterManager != null)
-            await characterManager.SetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
+            await TrySetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
 
         ResolveSpeaker(request.ActorId, out string displayName, out Color32 nameColor);
 
@@ -96,11 +104,49 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     {
         if (characterManager == null) return;
 
-        await characterManager.SetCharacterAsync(actorId, DefaultExpression, slot, token);
+        characterManager.SetCharacterOpacity(slot, 0);
+        try
+        {
+            await TrySetCharacterAsync(actorId, DefaultExpression, slot, token);
+            enteringSlots.Add(slot);
+        }
+        catch { characterManager.SetCharacterOpacity(slot, 1); throw; }
+    }
+
+    async UniTask TrySetCharacterAsync(string actor, string expression, ESlotType slot, CancellationToken token)
+    {
+        if (textOnlyActors.Contains(actor))
+        { characterManager.SetTextOnlyCharacter(actor, slot); return; }
+        try { await characterManager.SetCharacterAsync(actor, expression, slot, token); }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+        catch (Exception error)
+        {
+            textOnlyActors.Add(actor);
+            characterManager.SetTextOnlyCharacter(actor, slot);
+            Debug.LogWarning($"[BarStory] {actor} 외형을 표시하지 못해 텍스트로 진행합니다: {error.Message}");
+        }
+    }
+
+    public async UniTask FadeInAsync(CancellationToken token)
+    {
+        var pending = new List<ESlotType>(enteringSlots);
+        var fades = new List<UniTask>(pending.Count);
+        foreach (var slot in pending) fades.Add(characterManager.FadeInAsync(slot, token));
+        await UniTask.WhenAll(fades);
+        foreach (var slot in pending) enteringSlots.Remove(slot);
+    }
+
+    public async UniTask ExitAsync(ESlotType slot, CancellationToken token)
+    {
+        if (characterManager == null) return;
+        enteringSlots.Remove(slot);
+        await characterManager.FadeOutAsync(slot, token);
+        characterManager.ResetCharacter(slot);
     }
 
     public void Exit(ESlotType slot)
     {
+        enteringSlots.Remove(slot);
         if (characterManager != null) characterManager.ResetCharacter(slot);
     }
 
@@ -219,6 +265,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
 
     public void Clear()
     {
+        enteringSlots.Clear();
         if (textView != null) textView.ClearText();
         if (choiceView != null) choiceView.CloseChoices();
         if (characterManager != null) characterManager.ResetCharacter();

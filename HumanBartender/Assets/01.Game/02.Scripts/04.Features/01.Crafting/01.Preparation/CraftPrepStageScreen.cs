@@ -8,6 +8,8 @@ using TMPro;
 /// <summary>제조 준비 프리팹의 표시와 입력만 담당한다. 선택 상태는 CraftPreparation이 소유한다.</summary>
 public sealed class CraftPrepStageScreen : MonoBehaviour
 {
+    ISoundEffectPlayer sound;
+    public void ConfigureAudio(ISoundEffectPlayer player) => sound = player;
     public enum Stage { Glass, Tool, Liquor, Fridge }
 
     [Header("Data")]
@@ -55,6 +57,36 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     public bool IsOpen { get { return preparation != null; } }
     public bool IsBottleOpenerSelected => preparation != null && preparation.IsBottleOpenerSelected;
+    public Stage CurrentStage => (Stage)stageIndex;
+    public bool IsCameraMoving => cameraMoving;
+    public string HoveredItemId => hoveredSlot != null ? hoveredSlot.ItemId : null;
+    public System.Func<bool> TutorialCanStart { get; set; }
+    public Camera GuideCamera => stageCamera;
+
+    public Transform GetTutorialTarget(string step, bool beer)
+    {
+        if (step == "readRecipe") return recipeOpen ? recipeCloseButton.transform : recipeButton.transform;
+        if (step == "navigateGin" || step == "navigateSoda" || step == "opener" && CurrentStage != Stage.Tool)
+            return nextButton.transform;
+        if (step == "start") return startButton.transform;
+        if (step == "opener")
+            foreach (var hotspot in GetComponentsInChildren<CraftPrepInfoHotspot>(true))
+                if (hotspot.IsBottleOpener) return hotspot.transform;
+        if (step == "removeGin")
+        {
+            foreach (var item in trayItems) if (item != null && item.ItemId == "gin") return item.SelectionControl;
+            return trayContent;
+        }
+        string id = step switch
+        {
+            "glass" => preparation?.Cocktail.Glass,
+            "hoverGin" or "addGin" or "ginAgain" => "gin",
+            "hoverSoda" or "addSoda" => beer ? "beer" : "soda_water",
+            _ => null
+        };
+        foreach (var slot in slots) if (slot != null && slot.ItemId == id) return slot.transform;
+        return null;
+    }
 
     private void Awake()
     {
@@ -132,8 +164,8 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
                 slot.Configure(this, item, preparation.IsSelected(item.Id), preparation.IsGuideTarget(item.Id));
             }
         }
-        if (itemTooltip != null) itemTooltip.Hide();
-        hoveredSlot = null;
+        if (hoveredSlot != null && (!hoveredSlot.isActiveAndEnabled || !CanInteract(hoveredSlot.ItemStage)))
+            HideItemInfo(hoveredSlot);
         RefreshTray();
         if (stageIndicators != null)
         {
@@ -143,7 +175,15 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         }
         if (previousButton != null) previousButton.interactable = stageIndex > 0;
         if (nextButton != null) nextButton.interactable = stageIndex < stageAnchors.Length - 1;
-        if (startButton != null) startButton.interactable = preparation.CanProceed;
+        RefreshStartButton();
+    }
+
+    void Update() => RefreshStartButton();
+
+    void RefreshStartButton()
+    {
+        if (startButton != null) startButton.interactable = preparation != null && preparation.CanProceed &&
+            (TutorialCanStart == null || TutorialCanStart());
     }
 
     private void RefreshTray()
@@ -195,10 +235,12 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         return preparation != null && !cameraMoving && stageIndex == (int)stage;
     }
 
-    public void ShowItemInfo(CraftPrepShelfSlot slot, NewShelfItemData item)
+    public void ShowItemInfo(CraftPrepShelfSlot slot, NewShelfItemData item, Vector2 pointerPosition)
     {
+        if (hoveredSlot != slot && item.Kind == ENewShelfKind.Ingredient)
+            sound.PlayCue("SFX_ui_hover", exclusive: true);
         hoveredSlot = slot;
-        if (itemTooltip != null) itemTooltip.Show(item, slot.InfoAnchor, slot.InfoDirection);
+        if (itemTooltip != null) itemTooltip.Show(item, stageCamera, pointerPosition);
     }
 
     public void HideItemInfo(CraftPrepShelfSlot slot)
@@ -278,7 +320,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     private void StartCraft()
     {
-        if (preparation == null || !preparation.CanProceed) return;
+        if (preparation == null || !preparation.CanProceed || (TutorialCanStart != null && !TutorialCanStart())) return;
         if (craftFlow != null) craftFlow.StartGimmicks();
     }
 

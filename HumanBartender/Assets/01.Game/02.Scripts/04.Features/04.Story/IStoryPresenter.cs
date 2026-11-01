@@ -93,3 +93,16 @@ public interface IStoryPresenter
     /// <summary>대본이 끝나 화면을 정리한다.</summary>
     void Clear();
 }
+
+/// <summary>Hide a completed line immediately when the player advances it.</summary>
+public interface IStoryDialogueVisibility
+{
+    void HideDialogue();
+}
+
+/// <summary>인물 퇴장 연출이 끝난 뒤 다음 프레임으로 넘어갈 수 있는 화면.</summary>
+public interface IStoryCharacterTransitions
+{
+    UniTask FadeInAsync(CancellationToken token);
+    UniTask ExitAsync(ESlotType slot, CancellationToken token);
+}

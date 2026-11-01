@@ -36,6 +36,7 @@ public class UICashPanel : MonoBehaviour
     private Coroutine punchRoutine;
     private Coroutine hideLineRoutine;
     [Inject] IPlayerDataReader playerData;
+    [Inject] ISoundEffectPlayer sound;
 
     private void Awake()
     {

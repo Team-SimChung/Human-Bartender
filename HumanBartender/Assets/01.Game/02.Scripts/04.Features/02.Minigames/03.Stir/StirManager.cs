@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// 스터(Stir) 미니게임의 메인 매니저.
@@ -19,6 +20,8 @@ using UnityEngine;
 public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd
 {
+    [Inject] ILoopingSoundManager loopSound;
+    IAudioLoop stirSound;
     [SerializeField] private bool isTest = false;
     [Tooltip("isTest일 때 표시할 칵테일 id. 스터 대상은 현재 dry_martini 1종이다.")]
     [SerializeField] private string testCocktailId = "dry_martini";
@@ -27,20 +30,20 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private CraftStationData data;
     [SerializeField] private NewCocktailDataSO cocktailDataSO;
     [Tooltip("stir_target_stacks(판정 횟수)와 stir_circle_limit_sec(한 바퀴 제한시간)을 읽어온다. " +
-             "스터 수치는 코드에 고정하지 않고 balance.json을 정본으로 쓴다.")]
+             "스터 수치는 코드에 고정하지 않고 balance_config.csv을 정본으로 쓴다.")]
     [SerializeField] private NewBalanceDataSO balanceData;
 
     [Header("Fallback")]
     [Tooltip("balanceData가 비었거나 아직 로드되지 않았을 때만 쓰는 값. " +
-             "실제 플레이에서는 balance.json의 stir_target_stacks가 이긴다.")]
-    [SerializeField] private int fallbackStackCount = 6;
-    [Tooltip("같은 이유의 폴백. 실제 플레이에서는 balance.json의 stir_circle_limit_sec가 이긴다.")]
+             "실제 플레이에서는 balance_config.csv의 stir_target_stacks가 이긴다.")]
+    [SerializeField] private int fallbackStackCount = 10;
+    [Tooltip("같은 이유의 폴백. 실제 플레이에서는 balance_config.csv의 stir_circle_limit_sec가 이긴다.")]
     [SerializeField] private float fallbackStackSeconds = 2f;
 
     [Header("View")]
     [Tooltip("탑다운 잔(아레나) — 스푼 시침, 키 노드, 제한시간 링. 비워둬도 판정은 그대로 돌아간다.")]
     [SerializeField] private StirGlassView glass;
-    [Tooltip("아레나 바깥 표시 — 상단 스탯, 라운드 타이머 카드, 사선 게이지, 시작 오버레이.")]
+    [Tooltip("아레나 바깥 표시 — 경과 시간, 하단 결과 게이지, 시작 안내.")]
     [SerializeField] private StirHudView hud;
     [Tooltip("잔 속 얼음. 정답마다 휘돌림을 한 번 밀어준다. 비워둬도 판정은 그대로 돌아간다.")]
     [SerializeField] private StirIceSwirl ice;
@@ -99,7 +102,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     int NextDirection => StirDirections.Next(pos);
 
     /// <summary>시작 전·완료 후·포커스 이탈 중에는 시간이 흐르지 않는다.</summary>
-    bool IsTimerRunning => isStarted && !isCompleted && hasFocus && !isAppPaused;
+    bool IsTimerRunning => isStarted && !isCompleted && hasFocus && !isAppPaused && !UIDisplayOptions.IsOptionOpen;
 
     void Start()
     {
@@ -111,6 +114,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         if (hud != null)
         {
+            hud.ConfigureGauge(stackCount);
             hud.SetRoundLimit(stackSeconds);
             hud.ResetGauge();
             hud.SetStartOverlay(true);
@@ -120,7 +124,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
 
         RefreshView();
-        SetJudgeText("W / ↑ 로 시작");
+        SetJudgeText($"{StirDirections.KeyLabel(0)} / ↑ 로 시작");
     }
 
     /// <summary>
@@ -146,7 +150,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
     }
 
-    /// <summary>스터 수치를 balance.json에서 읽는다. 값이 비어 있으면 폴백으로 떨어진다.</summary>
+    /// <summary>스터 수치를 balance_config.csv에서 읽는다. 값이 비어 있으면 폴백으로 떨어진다.</summary>
     void LoadBalance()
     {
         NewBalanceConfig config = balanceData != null && balanceData.balanceData != null
@@ -180,7 +184,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     void Update()
     {
         // 포커스가 없는 동안 들어온 입력은 없지만, 큐에 남아 있던 것도 돌아올 때까지 잡아둔다.
-        if (!hasFocus || isAppPaused) return;
+        if (!hasFocus || isAppPaused || UIDisplayOptions.IsOptionOpen) { StopStirSound(); return; }
 
         // 입력을 타이머보다 먼저 소비한다. 제한시간 도달과 마지막 정답 입력이 같은 프레임에
         // 겹치면 입력이 이긴다는 규칙(명세 §7)이 이 순서 하나로 지켜진다.
@@ -191,6 +195,9 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         // 마지막 판정 이후에도 예약된 중단점까지 연출을 마무리한다.
         stirAnimation?.Tick(Time.deltaTime);
+        bool moving = isStarted && !isCompleted && Time.deltaTime > 0f && stirAnimation != null && stirAnimation.IsPlaying;
+        if (moving) stirSound ??= loopSound?.StartLoop("SFX_stir");
+        else StopStirSound();
 
         if (isCompleted) return;
 
@@ -322,6 +329,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void Complete()
     {
+        StopStirSound();
         isCompleted = true;
         stackTime = 0f;
         inputQueue.Clear();
@@ -380,9 +388,12 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── 일시정지 ────────────────────────────────────────────────────────
 
-    void OnApplicationFocus(bool focus) => hasFocus = focus;
+    void OnApplicationFocus(bool focus) { hasFocus = focus; if (!focus) StopStirSound(); }
 
-    void OnApplicationPause(bool pause) => isAppPaused = pause;
+    void OnApplicationPause(bool pause) { isAppPaused = pause; if (pause) StopStirSound(); }
+
+    void StopStirSound() { stirSound?.Dispose(); stirSound = null; }
+    void OnDisable() => StopStirSound();
 
     // ── IMiniGameController ─────────────────────────────────────────────
 
@@ -451,6 +462,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                   $"도구 {craftContext.ToolId ?? "없음"} / 재료 {string.Join(", ", craftContext.IngredientIds)}");
 
         drivenByRunner = true;
+        hud?.HideStatsSharedWithCommonHud();
         craftTimer = timer;
         runnerCompletion = new UniTaskCompletionSource();
 
@@ -469,6 +481,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         finally
         {
             Completed -= OnCompletedForRunner;
+            StopStirSound();
         }
 
         // 스터는 목표 스택을 채우면 저절로 끝난다. 중간에 그만두는 다음 버튼은 아직 없다.

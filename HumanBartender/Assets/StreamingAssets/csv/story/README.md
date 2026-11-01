@@ -1,5 +1,7 @@
 # 대본·선택지·컷신
 
+팝업 명령의 작성법·7종 arg·UI 연결·CSV 예시는 [POPUP_CSV.md](../../../../ContentAuthoring/POPUP_CSV.md)를 참고하세요.
+
 대사 수정은 steps.csv의 text.ko / text.en, 장면 조건은 scenes.csv, 바 선택 문구는 bar_choices.csv를 수정합니다.
 
 | CSV 파일 | 엑셀 시트 | 설정하는 내용 |

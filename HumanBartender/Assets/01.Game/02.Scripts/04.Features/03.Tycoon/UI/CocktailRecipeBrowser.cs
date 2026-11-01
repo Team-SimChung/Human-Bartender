@@ -25,16 +25,24 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
     private readonly List<CocktailRecipeRow> rows = new List<CocktailRecipeRow>();
     private int currentDay;
     private string instructionText;
+    private string tutorialCocktailId;
 
     public event Action CraftStarted;
+
+    public Transform GetTutorialTarget(string id)
+    {
+        foreach (var row in rows) if (row != null && row.CocktailId == id) return row.SelectionControl;
+        return null;
+    }
 
     private void Awake()
     {
         if (statusText != null) instructionText = statusText.text;
     }
 
-    public void Open()
+    public void Open(string tutorialCocktail = null)
     {
+        tutorialCocktailId = tutorialCocktail;
         gameObject.SetActive(true);
         if (preview != null) preview.Hide();
         if (statusText != null) statusText.text = instructionText;
@@ -91,6 +99,7 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
     public void TryStart(string cocktailId)
     {
         if (craftFlow == null) return;
+        if (tutorialCocktailId != null && cocktailId != tutorialCocktailId) return;
         if (!craftFlow.TryBegin(cocktailId, out _, out string reason))
         {
             if (statusText != null) statusText.text = reason;
@@ -113,6 +122,7 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
 
     private bool IsSelectable(NewCocktailData cocktail, int day)
     {
+        if (tutorialCocktailId != null && cocktail.Id != tutorialCocktailId) return false;
         bool isRequested = orderRequests != null && orderRequests.HasWaitingOrderForCocktail(cocktail.Id);
         return CocktailUnlockPolicy.CanSelect(cocktail, day, isRequested);
     }

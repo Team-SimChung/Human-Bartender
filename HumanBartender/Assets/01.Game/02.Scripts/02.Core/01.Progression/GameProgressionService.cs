@@ -77,7 +77,7 @@ public sealed class GameProgressionService : IGameProgressionService
             reason = "귀가 후 Home 준비 완료 상태에서만 저장할 수 있습니다.";
             return false;
         }
-        var manager = FindActiveEntityManager("Home");
+        var manager = FindSceneContext("Home");
         if (manager == null || !manager.IsSafeForSave)
         {
             reason = "Home의 상호작용 또는 화면 준비가 완료되지 않았습니다.";
@@ -97,12 +97,14 @@ public sealed class GameProgressionService : IGameProgressionService
     }
 
     public GameProgressionService(GameStateManager gameState, ISceneTransitionService sceneTransitions,
-        ISceneFadeService sceneFades)
+        ISceneFadeService sceneFades, ISoundEffectPlayer sound = null)
     {
+        this.sound = sound;
         this.gameState = gameState ?? throw new ArgumentNullException(nameof(gameState));
         this.sceneTransitions = sceneTransitions ?? throw new ArgumentNullException(nameof(sceneTransitions));
         this.sceneFades = sceneFades ?? throw new ArgumentNullException(nameof(sceneFades));
     }
+    readonly ISoundEffectPlayer sound;
 
     public UniTask<GameProgressionResult> CompleteBarAsync(CancellationToken cancellationToken = default)
     {
@@ -141,8 +143,7 @@ public sealed class GameProgressionService : IGameProgressionService
             hasBarEntry = true;
             barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
 
-            // 첫 새 게임은 Day 0의 2부 Play로 직접 들어간다. Play.Start는 이 작업의
-            // 최종 결과를 기다리므로 페이드 도중 국면을 시작하지 않는다.
+            // The title owns the intro; its completion enters the Day 0 bar directly.
             SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Play",
                 cancellationToken: cancellationToken);
             if (!request.Accepted)
@@ -233,7 +234,7 @@ public sealed class GameProgressionService : IGameProgressionService
                 restorePlayer();
             }
             if (!result.Succeeded && result.SceneActivated)
-                FindActiveEntityManager("Home")?.ReportArrivalFailure(result.Message);
+                FindSceneContext("Home")?.ReportArrivalFailure(result.Message);
             if (!result.Succeeded) return ConvertSceneResult(result);
             if (!await WaitForHomeReadyAsync())
                 return new GameProgressionResult(GameProgressionOutcome.Failed, "Home의 필수 준비에 실패했습니다.");
@@ -255,9 +256,9 @@ public sealed class GameProgressionService : IGameProgressionService
         finally { isRunning = false; }
     }
 
-    static InteractiveEntityManager FindActiveEntityManager(string sceneName)
+    static WorldInteractionSceneContext FindSceneContext(string sceneName)
     {
-        foreach (var manager in UnityEngine.Object.FindObjectsByType<InteractiveEntityManager>(
+        foreach (var manager in UnityEngine.Object.FindObjectsByType<WorldInteractionSceneContext>(
             UnityEngine.FindObjectsSortMode.None))
             if (manager.gameObject.scene.name == sceneName) return manager;
         return null;
@@ -265,7 +266,7 @@ public sealed class GameProgressionService : IGameProgressionService
 
     static async UniTask<bool> WaitForHomeReadyAsync()
     {
-        var manager = FindActiveEntityManager("Home");
+        var manager = FindSceneContext("Home");
         return manager != null && await manager.WaitUntilReadyAsync();
     }
 
@@ -283,6 +284,9 @@ public sealed class GameProgressionService : IGameProgressionService
         switch (destination)
         {
             case GameProgressionDestination.Bar:
+                if (gameState.CurrentDay == 3 && !NewDataLoadManager.HasJohnnyIngredients)
+                    return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
+                        "올드 패션드 재료가 필요합니다. 시BAR에서 와일드 독과 비터스를 구매하고, 귀가 후 이야기를 확인하세요."));
                 return MoveAsync("OutSide", "Play", EGameFlow.CommuteIn, EGameFlow.Bar, cancellationToken);
             case GameProgressionDestination.Home:
                 return MoveAsync("OutSide", "Home", EGameFlow.CommuteOut, EGameFlow.CommuteOut,
@@ -318,6 +322,10 @@ public sealed class GameProgressionService : IGameProgressionService
             if (!request.Accepted)
                 return outcome = ConvertSceneResult(await request.Completion);
 
+            if ((sourceScene == "Home" && destinationScene == "OutSide") ||
+                (sourceScene == "OutSide" && destinationScene == "Home"))
+                sound?.PlaySE("SFX_door_open_close");
+
             if (destinationScene == "Play")
             {
                 hasBarEntry = true;
@@ -332,7 +340,7 @@ public sealed class GameProgressionService : IGameProgressionService
                 SceneManager.GetActiveScene().name != destinationScene)
                 gameState.GameFlow = previousFlow;
             if (!result.Succeeded && result.SceneActivated)
-                FindActiveEntityManager(destinationScene)?.ReportArrivalFailure(result.Message);
+                FindSceneContext(destinationScene)?.ReportArrivalFailure(result.Message);
             if (result.Succeeded)
                 Debug.Log($"[Progression] {sourceScene} → {destinationScene}, Day {gameState.CurrentDay}, {gameState.GameFlow}");
             if (result.Succeeded && destinationScene == "Home")
@@ -386,6 +394,11 @@ public sealed class GameProgressionService : IGameProgressionService
         try
         {
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
+            if (previousDay == 3)
+            {
+                var ending = sceneTransitions.RequestLoadScene("TempEnding", cancellationToken: cancellationToken);
+                return ConvertSceneResult(await ending.Completion);
+            }
             int nextDay = previousDay + 1;
             if (!NewDataLoadManager.TryGetDayInfo(nextDay, out NewDayInfoData next))
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,
@@ -411,7 +424,7 @@ public sealed class GameProgressionService : IGameProgressionService
                     homeReturned = previousReturned;
                 }
                 if (!result.Succeeded && result.SceneActivated)
-                    FindActiveEntityManager("OutSide")?.ReportArrivalFailure(result.Message);
+                    FindSceneContext("OutSide")?.ReportArrivalFailure(result.Message);
                 return ConvertSceneResult(result);
             }
 

@@ -29,12 +29,16 @@ public class ProjectLifetimeScope : LifetimeScope
                         .As<ISettlementLog>();
 
         builder.RegisterComponentInHierarchy<SoundManager>()
-        .As<ISoundManager>();
+        .AsSelf().As<ISoundEffectPlayer>().As<IBgmPlayer>().As<ILoopingSoundManager>().As<IAudioCuePlayer>();
+        builder.RegisterEntryPoint<SceneAudioController>();
+        builder.RegisterInstance(AudioOutputSettings.Shared);
+        builder.Register<PlayerPrefsAudioVolumeStore>(Lifetime.Singleton).As<IAudioVolumeStore>();
+        builder.RegisterEntryPoint<AudioVolumeSettings>(Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<UIDisplayOptions>();
+        builder.RegisterEntryPoint<GameKeyBindingRuntime>();
         builder.RegisterComponentInHierarchy<UICashPanel>();
-        builder.Register<DisplaySettings>(Lifetime.Singleton)
-            .AsImplementedInterfaces();
+        builder.RegisterEntryPoint<DisplaySettings>(Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<SceneTransitionManager>()
             .As<ISceneTransitionService>()
@@ -52,5 +56,6 @@ public class ProjectLifetimeScope : LifetimeScope
             .As<IGameProgressionService>();
         builder.Register<SaveManager>(Lifetime.Singleton);
         builder.Register<IConditionUtil, ConditionUtil>(Lifetime.Singleton);
+        builder.RegisterComponentInHierarchy<PopupService>().As<IPopupService>();
     }
 }

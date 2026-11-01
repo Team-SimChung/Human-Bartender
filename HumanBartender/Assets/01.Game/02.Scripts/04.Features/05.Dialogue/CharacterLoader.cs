@@ -186,7 +186,7 @@ public class CharacterLoader
 
         if (spriteHandle.HasValue)
         {
-            ApplyOrQueue(pendingApply, () => { slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result; slot.portaitSpriteRenderer.gameObject.SetActive(true); });
+            ApplyOrQueue(pendingApply, () => slot.ApplyPortrait(spriteHandle.Value.Result));
             return true;
         }
 
@@ -217,7 +217,7 @@ public class CharacterLoader
         if (spriteHandle.HasValue)
         {
 
-            ApplyOrQueue(pendingApply, () => { slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result; slot.portaitSpriteRenderer.gameObject.SetActive(true); });
+            ApplyOrQueue(pendingApply, () => slot.ApplyPortrait(spriteHandle.Value.Result));
             return true;
         }
 

@@ -1,0 +1,19 @@
+{
+  "name": "com.assetdeleteguard.editor",
+  "version": "0.2.0-preview.1",
+  "displayName": "Asset Delete Guard",
+  "description": "Review asset referencers before deleting files or folders. Editor-only, independent of project code and rendering pipelines.",
+  "unity": "2019.4",
+  "keywords": [ "editor", "references", "assets", "delete" ],
+  "dependencies": {
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.jsonserialize": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Reference Demo",
+      "description": "Editor-only sample assets demonstrating direct and indirect references.",
+      "path": "Samples~/ReferenceDemo"
+    }
+  ]
+}

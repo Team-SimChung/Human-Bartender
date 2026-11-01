@@ -16,6 +16,7 @@ public class Texts
 [Serializable]
 public struct NewStreetOptionData
 {
+    [JsonIgnore] public bool? Selectable;
     [JsonProperty("id")] public string Id;
     [JsonProperty("seq")] public int Seq;
     [JsonProperty("text")] public Texts Text;
@@ -78,6 +79,12 @@ public struct Step
 [Serializable]
 public struct NewSceneData
 {
+    [JsonProperty("runtime_scene")] public string RuntimeScene;
+    [JsonProperty("route")] public string Route;
+    [JsonProperty("x")] public float X;
+    [JsonProperty("y")] public float Y;
+    [JsonProperty("radius")] public float Radius;
+    [JsonProperty("completion_flag")] public string CompletionFlag;
     [JsonProperty("id")] public string Id;
     [JsonProperty("day")] public int? Day;
 

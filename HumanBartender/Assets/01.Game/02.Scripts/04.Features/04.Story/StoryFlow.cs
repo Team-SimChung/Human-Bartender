@@ -24,7 +24,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     [SerializeField] private OrderRequestController orderController;
     [SerializeField] private CraftFlowController craftFlow;
 
-    [Inject] ISoundManager soundManager;
+    [Inject] IBgmPlayer soundManager;
 
     /// <summary>
     /// 컷씬 재생기(CutSceneManager). 루트 스코프에 있어 인스펙터로 꽂을 수 없으므로 주입받는다.
@@ -39,8 +39,15 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// 같은 식이 곳에 따라 다르게 판정되지 않게 하려는 것이다.
     /// </summary>
     [Inject] IConditionUtil conditions;
+    [Inject] IPopupService popupService;
 
-    public async UniTask RunAsync(CancellationToken cancellationToken = default)
+    public UniTask RunAsync(CancellationToken cancellationToken = default) => RunPhaseAsync(ENewScenePhase.Bar, cancellationToken);
+
+    public UniTask RunOpeningAsync(CancellationToken cancellationToken = default) =>
+        GameStateManager.Instance.CurrentDay >= 1 && GameStateManager.Instance.CurrentDay <= 3
+            ? RunPhaseAsync(ENewScenePhase.BarOpen, cancellationToken) : UniTask.CompletedTask;
+
+    async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken)
     {
         int day = GameStateManager.Instance.CurrentDay;
 
@@ -69,10 +76,16 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         // 비우지 않으면 같은 날을 다시 열었을 때 effects가 통째로 건너뛰어진다.
         // The runner owns its execution result and effect tokens.
 
-        runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
+        runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer, popupService);
         if (craftFlow == null) throw new InvalidOperationException("[Story] Craft Flow 참조가 필요합니다.");
 
-        soundManager?.PlayBGM("BGM_bar_01", 1f, true);
+        var tutorial = GetComponent<StoryTutorialController>();
+        if (tutorial == null) tutorial = gameObject.AddComponent<StoryTutorialController>();
+        tutorial.ConnectSceneResources();
+        runner.SetTutorialController(tutorial);
+        if (day == 0 && phase == ENewScenePhase.Bar)
+            await tutorial.RunIntroAsync(cutScenePlayer, linked.Token);
+
 
         Debug.Log($"[Story] Day {day} 2부 시작");
 
@@ -81,7 +94,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         StoryExecutionResult result;
         try
         {
-            result = await runner.RunAsync(script, linked.Token);
+            result = await runner.RunAsync(script, linked.Token, phase);
         }
         finally
         {
@@ -120,5 +133,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
         runner.OnAdvanceInput();
         return true;
+    }
+
+    public bool TryMoveTutorialSeat(int step)
+    {
+        if (runner == null || !runner.IsRunning) return false;
+        var tutorial = GetComponent<StoryTutorialController>();
+        return tutorial != null && tutorial.TryMoveSeat(step);
     }
 }

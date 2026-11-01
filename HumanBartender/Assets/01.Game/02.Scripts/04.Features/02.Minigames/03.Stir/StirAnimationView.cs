@@ -7,11 +7,15 @@ public class StirAnimationView : MonoBehaviour
     [SerializeField] Sprite[] frames;
     [SerializeField] SpriteRenderer spriteRenderer;
     [SerializeField] Image image;
+    [Tooltip("같은 프레임을 표시할 확대창.")]
+    [SerializeField] Image[] linkedImages;
     [SerializeField, Min(1f)] float framesPerSecond = 12f;
     [SerializeField, Min(1)] int framesPerInput = 3;
 
     double framePosition;
     double stopPosition;
+
+    public bool IsPlaying => isActiveAndEnabled && framePosition < stopPosition;
 
     public void ResetPlayback()
     {
@@ -61,5 +65,8 @@ public class StirAnimationView : MonoBehaviour
         Sprite sprite = frames[index % frames.Length];
         if (spriteRenderer != null) spriteRenderer.sprite = sprite;
         if (image != null && image.sprite != sprite) image.sprite = sprite;
+        if (linkedImages == null) return;
+        foreach (Image linkedImage in linkedImages)
+            if (linkedImage != null && linkedImage.sprite != sprite) linkedImage.sprite = sprite;
     }
 }

@@ -8,6 +8,10 @@ public interface IDisplaySettings
     void SetFullscreen(bool fullscreen);
     void SetWindowedSize(int index);
     void SetFillMode(bool stretchToFill);
+    void SetVSync(bool enabled);
+    void SetFrameRate(int index);
+    void SetPostProcessing(bool enabled);
+    void SetEffects(GraphicsEffectOptions.Values values);
 
     void RegisterActiveCamera(PixelPerfectCamera ppc);
     void UnregisterActiveCamera(PixelPerfectCamera ppc);

@@ -1,0 +1,15 @@
+{
+  "csv_folder": "../Assets/StreamingAssets/csv",
+  "datasets": [
+    "script/bar/day0", "script/bar/day1", "script/bar/day2", "script/bar/day3",
+    "script/street", "script/home", "script/cutscene", "script/ambient",
+    "characters", "cocktails", "shelf_items", "days",
+    "interact_points_outside", "interact_points_home"
+  ],
+  "appended_columns": {
+    "Steps": ["text", "payment"],
+    "Scenes": ["start_mode", "note", "runtime_scene", "route", "x", "y", "radius", "completion_flag"],
+    "StreetChoices": ["lock_reason"],
+    "CharacterExpressions": ["expression"]
+  }
+}

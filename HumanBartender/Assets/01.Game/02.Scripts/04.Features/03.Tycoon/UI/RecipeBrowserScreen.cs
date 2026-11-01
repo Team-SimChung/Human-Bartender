@@ -10,7 +10,6 @@ public sealed class RecipeBrowserScreen : MonoBehaviour
     [SerializeField] private Button closeButton;
     [SerializeField] private PlayPhaseController playPhaseController;
 
-    private bool storyOrderRequired;
     private EPlayPhase openedPhase;
 
     public bool IsOpen { get; private set; }
@@ -46,12 +45,12 @@ public sealed class RecipeBrowserScreen : MonoBehaviour
         Open(false);
     }
 
-    public void OpenForStoryOrder()
+    public void OpenForStoryOrder(string tutorialCocktailId = null)
     {
-        Open(true);
+        Open(true, tutorialCocktailId);
     }
 
-    private void Open(bool required)
+    private void Open(bool required, string tutorialCocktailId = null)
     {
         EPlayPhase phase = required ? EPlayPhase.Dialogue : EPlayPhase.Tycoon;
         if (playPhaseController == null || !playPhaseController.CanReceiveInput(phase)) return;
@@ -61,18 +60,16 @@ public sealed class RecipeBrowserScreen : MonoBehaviour
             return;
         }
 
-        storyOrderRequired = required;
         openedPhase = phase;
         IsOpen = true;
-        closeButton.interactable = !required;
+        closeButton.interactable = true;
         leftSlideCanvas.SetActive(true);
-        browser.Open();
+        browser.Open(tutorialCocktailId);
         OpenChanged?.Invoke();
     }
 
     public void Close()
     {
-        if (storyOrderRequired) return;
         ForceClose();
     }
 
@@ -85,7 +82,6 @@ public sealed class RecipeBrowserScreen : MonoBehaviour
     {
         bool wasOpen = IsOpen;
         IsOpen = false;
-        storyOrderRequired = false;
         openedPhase = EPlayPhase.None;
         if (closeButton != null) closeButton.interactable = true;
         if (browser != null) browser.Close();

@@ -10,6 +10,10 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "PlayerData", menuName = "Scriptable Objects/PlayerData")]
 public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWriter
 {
+    public event Action<int> MoneyAdded;
+    public event Action<string, int> AffinityAdded;
+    public event Action<string, bool> FlagChanged;
+    public event Action ProgressReplaced;
     [Header("Header")]
     [SerializeField] int money;
     [SerializeField] IntEvent addMoneyEvent;
@@ -60,6 +64,7 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
         int appliedDelta = money - previousMoney;
         if (appliedDelta != 0)
         {
+            MoneyAdded?.Invoke(appliedDelta);
             NotifyMoneyEvent(addMoneyEvent, appliedDelta, "OnAddMoney");
         }
     }
@@ -132,6 +137,7 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
     {
         CharacterAffinityData affinity = GetOrCreateCharacterAffinity(id);
         affinity.affinityAmount += val;
+        if (val != 0) AffinityAdded?.Invoke(id, val);
     }
 
     /// <summary>캐릭터 호감도를 절대값으로 설정한다 (세이브 로드 등).</summary>
@@ -199,7 +205,10 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
     /// <summary>스토리 플래그 값을 설정한다 (없으면 추가, 있으면 갱신).</summary>
     public void AddFlag(string id, bool value)
     {
-        flagList[CanonicalFlagKey(id)] = value;
+        string key = CanonicalFlagKey(id);
+        bool previous = flagList.TryGetValue(key, out bool stored) && stored;
+        flagList[key] = value;
+        if (previous != value) FlagChanged?.Invoke(key, value);
     }
     /// <summary>플래그 값을 조회한다. 등록되지 않았으면 false.</summary>
     public bool CheckFlag(string id)
@@ -246,6 +255,7 @@ public class PlayerDataSO : ScriptableObject, IPlayerDataReader, IPlayerDataWrit
         skillTierAmount = newSkill;
         characterAffinityDatas = nextAffinity;
         flagList = nextFlags;
+        ProgressReplaced?.Invoke();
         NotifyMoneyEvent(setMoneyEvent, money, "OnSetMoney");
     }
 

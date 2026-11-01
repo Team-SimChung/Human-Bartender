@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using System;
 using System.Threading;
 using UnityEngine;
@@ -24,6 +23,21 @@ enum FadeDirection
 public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, ISceneFadeService
 {
     public static SceneTransitionManager Instance { get; private set; }
+    private static bool suppressStartupFade;
+    private bool startupStarted;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStartupPresentation()
+    {
+        Instance = null;
+        suppressStartupFade = false;
+    }
+
+    // 독립 컷씬의 시작 연출을 사용하며 씬 로드 후 서비스 생성 시에도 Awake에서 먼저 요청함.
+    public static void SuppressStartupFadeForStandalonePlayback()
+    {
+        if (Instance == null || !Instance.startupStarted) suppressStartupFade = true;
+    }
 
     [SerializeField] CanvasGroup fadeCanvasGroup;
     [SerializeField, Min(0f)] float fadeDuration = 1f;
@@ -54,7 +68,8 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        // 프로젝트 LifetimeScope 하위 서비스는 부모가 함께 유지함.
+        if (transform.parent == null) DontDestroyOnLoad(gameObject);
 
         if (fadeCanvasGroup == null)
         {
@@ -62,6 +77,17 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             return;
         }
 
+        fadeCanvasGroup.alpha = 0f;
+        fadeCanvasGroup.blocksRaycasts = false;
+    }
+
+    void Start()
+    {
+        if (Instance != this || fadeCanvasGroup == null) return;
+        startupStarted = true;
+        bool skip = suppressStartupFade;
+        suppressStartupFade = false;
+        if (skip || coordinator.IsBusy) return;
         fadeCanvasGroup.alpha = 1f;
         FadeInAsync().Forget(ReportException);
     }
@@ -333,16 +359,23 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             return;
         }
 
-        await fadeCanvasGroup.DOFade(targetAlpha, duration)
-            .SetEase(Ease.Linear)
-            .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, cancellationToken);
+        // 컷씬이 게임 시간을 멈춰도 전환을 진행하며 트윈 종료 콜백 의존성 없이 보간함.
+        float initialAlpha = fadeCanvasGroup.alpha;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (fadeCanvasGroup == null) throw new MissingReferenceException("Fade CanvasGroup was destroyed during the transition.");
+            elapsed += Time.unscaledDeltaTime;
+            fadeCanvasGroup.alpha = Mathf.Lerp(initialAlpha, targetAlpha, Mathf.Clamp01(elapsed / duration));
+        }
         cancellationToken.ThrowIfCancellationRequested();
     }
 
     void RestoreVisibleState(float alpha)
     {
         if (fadeCanvasGroup == null) return;
-        fadeCanvasGroup.DOKill();
         fadeCanvasGroup.alpha = alpha;
     }
 

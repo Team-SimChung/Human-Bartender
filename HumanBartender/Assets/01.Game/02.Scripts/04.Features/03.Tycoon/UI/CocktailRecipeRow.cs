@@ -19,6 +19,9 @@ public sealed class CocktailRecipeRow : MonoBehaviour, IPointerEnterHandler
     private Color detailColor;
     private Color iconColor;
 
+    public string CocktailId => cocktailId;
+    public Transform SelectionControl => button != null ? button.transform : transform;
+
     private void Awake()
     {
         if (cocktailNameText != null) nameColor = cocktailNameText.color;
