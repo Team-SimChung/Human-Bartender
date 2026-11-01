@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>Shared C# UI for the missing intro and the clickable bartending lessons.</summary>
+/// <summary>Shared C# UI for the home guide pages and the clickable bartending lessons.</summary>
 public sealed class StoryTutorialView : MonoBehaviour
 {
     [SerializeField] Button fullScreenClick;
@@ -33,8 +33,8 @@ public sealed class StoryTutorialView : MonoBehaviour
     public bool IsSeatLegendVisible => legend != null && legend.activeInHierarchy;
     public RectTransform InstructionPanel => panel;
 
-    public bool IsIntroNoticeVisible => fullScreenClick != null && fullScreenClick.gameObject.activeSelf;
-    public Button IntroClickButton => fullScreenClick;
+    public bool IsPageVisible => fullScreenClick != null && fullScreenClick.gameObject.activeSelf;
+    public string Heading => heading != null ? heading.text : null;
     public string Instruction => instruction != null ? instruction.text : null;
 
     public static StoryTutorialView Create(StoryTutorialView prefab, TMP_FontAsset font)
@@ -124,20 +124,47 @@ public sealed class StoryTutorialView : MonoBehaviour
         return button;
     }
 
-    public async UniTask WaitForIntroClickAsync(CancellationToken token)
+    /// <summary>
+    /// 화면을 가리는 안내 한 장을 가운데에 띄우고 진행 입력을 기다린다. 처음 inputLockSeconds 동안은 입력을 받지 않아
+    /// 직전 입력으로 바로 넘어가지 않는다. 플레이 안내·이동·상호작용처럼 멈추고 읽게 하는 안내에 쓴다.
+    /// </summary>
+    /// <param name="shadeAlpha">뒤 화면을 가리는 정도. 1이면 완전히 가린다.</param>
+    public async UniTask ShowPageAsync(string title, string body, string footer, float shadeAlpha,
+        float inputLockSeconds, Func<bool> advancePressed, CancellationToken token)
     {
-        ShowInstruction("인트로 컷신", "현재 컷신 리소스가 적용되지 않았습니다.\n아무 곳이나 클릭하면 0일차 튜토리얼로 넘어갑니다.");
+        if (advancePressed == null) throw new ArgumentNullException(nameof(advancePressed));
+        string text = string.IsNullOrEmpty(footer) ? body : body + "\n\n<size=70%><color=#8FA9AD>" + footer + "</color></size>";
+        ShowInstruction(title, text);
         panel.anchorMin = panel.anchorMax = new Vector2(.5f, .5f);
         panel.anchoredPosition = Vector2.zero;
         fullScreenClick.gameObject.SetActive(true);
-        seatHud.Suppressed = true;
-        var clicked = new UniTaskCompletionSource();
-        void Continue() => clicked.TrySetResult();
-        fullScreenClick.onClick.AddListener(Continue);
-        // The notice text must also let clicks reach the full-screen button.
-        foreach (var graphic in panel.GetComponentsInChildren<Graphic>()) graphic.raycastTarget = false;
-        try { await clicked.Task.AttachExternalCancellation(token); }
-        finally { fullScreenClick.onClick.RemoveListener(Continue); Hide(); }
+        // 배경은 가리기만 하고 클릭으로 넘기지 않는다. 진행은 advancePressed만 따른다.
+        fullScreenClick.interactable = false;
+        if (fullScreenClick.targetGraphic != null)
+        {
+            var shade = fullScreenClick.targetGraphic.color;
+            shade.a = Mathf.Clamp01(shadeAlpha);
+            fullScreenClick.targetGraphic.color = shade;
+        }
+        if (seatHud != null) seatHud.Suppressed = true;
+        float unlockAt = Time.unscaledTime + Mathf.Max(0, inputLockSeconds);
+        try
+        {
+            while (true)
+            {
+                await UniTask.Yield(PlayerLoopTiming.Update, token);
+                if (Time.unscaledTime >= unlockAt && advancePressed()) break;
+            }
+        }
+        finally
+        {
+            // 씬이 바뀌어 취소된 경우에는 이미 파괴되었으므로 정리할 것이 없다.
+            if (this != null)
+            {
+                if (fullScreenClick != null) fullScreenClick.interactable = true;
+                Hide();
+            }
+        }
     }
 
     public void ShowInstruction(string title, string text, Action onConfirm = null)

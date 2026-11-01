@@ -25,6 +25,7 @@ public enum ENewStepType
     [EnumMember(Value = "tutorial")] Tutorial,
     [EnumMember(Value = "coaster")] Coaster,
     [EnumMember(Value = "popup")] Popup,
+    [EnumMember(Value = "empty_glass")] EmptyGlass,
 }
 
 /// <summary>씬이 진행되는 하루 중 구간을 나타내는 열거형.</summary>

@@ -10,7 +10,12 @@ using Newtonsoft.Json;
 [Serializable]
 public struct NewDialogueStepData
 {
+    [JsonProperty("web_fields")] public Dictionary<string, object> WebFields { get; set; }
+    [JsonProperty("entrance")] public string Entrance { get; set; }
     [JsonProperty("payment")] public string Payment { get; set; }
+    [JsonIgnore] public bool IsPaid => Payment != "none";
+    [JsonIgnore] public string DisplayName { get; set; }
+    [JsonIgnore] public string CutsceneAfter { get; set; }
     [field: SerializeField][JsonProperty("seq")] public int Seq { get; set; }
     [field: SerializeField][JsonProperty("type")] public ENewStepType Type { get; set; }
 

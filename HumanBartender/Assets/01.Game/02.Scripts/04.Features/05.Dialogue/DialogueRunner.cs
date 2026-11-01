@@ -13,6 +13,7 @@ public class DialogueRunner : MonoBehaviour
     [Inject] private IConditionUtil conditionUtil;
     [Inject] private IPopupService popupService;
     [Inject] private ICutScenePlayer cutscenes;
+    [Inject] private IOutsideStoryEvents storyEvents;
     [SerializeField] private NewStreetDataSO StreetDataSO;
     private IDialoguePresenter presenter;
     private Execution active;
@@ -26,8 +27,9 @@ public class DialogueRunner : MonoBehaviour
         public readonly UniTaskCompletionSource Finished = new();
         public DialogueState State;
         public int VisitedSteps;
-        public Func<string, CancellationToken, UniTask> PlayTimeline;
+        public Func<string, string, CancellationToken, UniTask<bool>> PlayTimeline;
         public bool AutoAdvance;
+        public OutsideStoryExecution Events;
     }
 
     public DialogueState CurrentState => active?.State ?? DialogueState.Idle;
@@ -55,7 +57,8 @@ public class DialogueRunner : MonoBehaviour
     private void OnDisable() => Stop();
 
     public async UniTask<StoryExecutionResult> PlayOutsideAsync(Step[] steps, CancellationToken token = default,
-        Func<string, CancellationToken, UniTask> playTimeline = null, bool autoAdvance = false)
+        Func<string, string, CancellationToken, UniTask<bool>> playTimeline = null, bool autoAdvance = false,
+        Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction = null)
     {
         if (active != null) return Failed("A dialogue is already running.");
         if (!Alive(presenter) || conditionUtil == null) return Failed("Dialogue presenter or conditions are missing.");
@@ -63,6 +66,7 @@ public class DialogueRunner : MonoBehaviour
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source,
             PlayTimeline=playTimeline, AutoAdvance=autoAdvance };
+        run.Events = new OutsideStoryExecution(run.Conditions, (options, ct) => ChooseAsync(options, run), playWorldAction);
         active = run;
         using var dialogueAudio = GameAudioContext.Dialogue(run.Presenter.GetPlayMode() == EActivationMode.Proximity);
         var result = new StoryExecutionResult(StoryExecutionStatus.Completed);
@@ -70,6 +74,7 @@ public class DialogueRunner : MonoBehaviour
         {
             await ExecuteAsync(steps, run, 0);
             source.Token.ThrowIfCancellationRequested();
+            result = new StoryExecutionResult(StoryExecutionStatus.Completed, destination: run.Events.Destination);
         }
         catch (OperationCanceledException) { result = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
         catch (Exception e) { result = Failed(e.Message); }
@@ -130,6 +135,21 @@ public class DialogueRunner : MonoBehaviour
                 await automatic.WaitUntilReadyAsync(token);
             if (++run.VisitedSteps > 10000) throw new InvalidOperationException("Street execution exceeded its step limit.");
             if (!run.Conditions.CheckRequired(step.When)) continue;
+            if (step.Command != OutsideStoryCommand.None)
+            {
+                if (storyEvents == null) throw new InvalidOperationException("Unity 사건 서비스가 등록되지 않았습니다.");
+                var replacement = await storyEvents.ExecuteAsync(step.Command, step.Arg, run.Events, token);
+                token.ThrowIfCancellationRequested();
+                run.Conditions.ApplyRequired(step.Effects);
+                if (replacement != null)
+                {
+                    // 실행용 순서만 복사본에서 조정한다. 로더가 공개한 원본 배열을 수정하지 않는다.
+                    var projected = replacement.Select((value, i) => { value.Seq = i + 1; return value; }).ToArray();
+                    await ExecuteAsync(projected, run, depth + 1);
+                    return;
+                }
+                continue;
+            }
             bool branch = false;
             switch (step.Type?.ToLowerInvariant())
             {
@@ -143,7 +163,7 @@ public class DialogueRunner : MonoBehaviour
                     if (!string.IsNullOrEmpty(Text(step.Text)))
                         await SayAsync(step.Actor, Text(step.Text), step.Arg, step.Sync, run);
                     // 현재 세션의 재생기만 교체함. 바와 기존 호출자는 기본 재생 경로를 유지함.
-                    else if (run.PlayTimeline != null) await run.PlayTimeline(step.Arg, token);
+                    else if (run.PlayTimeline != null) await run.PlayTimeline(step.Arg, null, token);
                     else await OptionalStoryCutscene.PlayAsync(cutscenes, step.Arg, token);
                     break;
                 case "effect":
@@ -161,6 +181,14 @@ public class DialogueRunner : MonoBehaviour
                 default: throw new NotSupportedException("Unsupported street step: " + step.Type);
             }
             token.ThrowIfCancellationRequested();
+            string cinemaAfter = step.CutsceneAfter;
+            if (!string.IsNullOrEmpty(cinemaAfter))
+            {
+                bool played = run.PlayTimeline != null ? await run.PlayTimeline(cinemaAfter, step.MemoryKey, token)
+                    : await OptionalStoryCutscene.PlayAsync(cutscenes, cinemaAfter, token);
+                token.ThrowIfCancellationRequested();
+                if (played && cinemaAfter == "johnny-memory") run.Conditions.ApplyRequired("flag.campaign_observation = true");
+            }
             run.Conditions.ApplyRequired(step.Effects);
             if (branch) return;
         }
@@ -168,9 +196,19 @@ public class DialogueRunner : MonoBehaviour
 
     private async UniTask<bool> PlayChoiceAsync(Step step, Execution run, int depth)
     {
-        var token = run.Cancellation.Token;
         if (step.Options == null || step.Options.Length == 0) throw new InvalidOperationException("Street choice has no options.");
-        var choices = step.Options.OrderBy(o=>o.Seq).ToArray();
+        var choice = await ChooseAsync(step.Options.OrderBy(o=>o.Seq).ToArray(), run);
+        if (choice.ResultSteps != null && choice.ResultSteps.Length > 0)
+        {
+            await ExecuteAsync(choice.ResultSteps, run, depth + 1);
+            return true;
+        }
+        return false;
+    }
+
+    private async UniTask<NewStreetOptionData> ChooseAsync(NewStreetOptionData[] choices, Execution run)
+    {
+        var token = run.Cancellation.Token;
         for (int i=0; i<choices.Length; i++) choices[i].Selectable = run.Conditions.CheckRequired(choices[i].When);
         if (!choices.Any(o => o.Selectable == true)) throw new InvalidOperationException("Street choice has no selectable options.");
         run.State = DialogueState.WaitingForChoice;
@@ -181,12 +219,8 @@ public class DialogueRunner : MonoBehaviour
         if (!choices.Contains(choice)) throw new InvalidOperationException("Unknown street choice result.");
         if (!run.Conditions.CheckRequired(choice.When))
             await SayAsync(null, Text(choice.LockReason), null, null, run);
-        else if (choice.ResultSteps != null && choice.ResultSteps.Length > 0)
-        {
-            await ExecuteAsync(choice.ResultSteps, run, depth + 1);
-            return true;
-        }
-        return false;
+        if (!run.Conditions.CheckRequired(choice.When)) throw new InvalidOperationException("Locked story choice selected.");
+        return choice;
     }
 
     private void CompleteChoice(Execution run, UniTaskCompletionSource<NewStreetOptionData> completion, NewStreetOptionData option)

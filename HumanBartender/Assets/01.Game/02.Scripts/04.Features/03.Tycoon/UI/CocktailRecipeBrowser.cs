@@ -18,6 +18,7 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
     [Header("Data and action")]
     [SerializeField] private NewCocktailDataSO cocktailData;
     [SerializeField] private CocktailRecipeVisualCatalog visuals;
+    public CocktailRecipeVisualCatalog Visuals => visuals;
     [SerializeField] private OrderRequestController orderRequests;
     [SerializeField] private CraftFlowController craftFlow;
 

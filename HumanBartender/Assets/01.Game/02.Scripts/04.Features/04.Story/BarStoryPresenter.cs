@@ -83,6 +83,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
             await TrySetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
 
         ResolveSpeaker(request.ActorId, out string displayName, out Color32 nameColor);
+        if (request.DisplayName != null) displayName = request.DisplayName;
 
         Vector3 speakerPos = characterManager != null && !request.IsPlayer
             ? characterManager.GetCharacterPosition(request.ActorId)

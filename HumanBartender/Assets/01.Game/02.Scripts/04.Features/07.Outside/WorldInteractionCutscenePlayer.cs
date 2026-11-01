@@ -17,8 +17,17 @@ public sealed class WorldInteractionCutscenePlayer : MonoBehaviour
 
     public async UniTask PlayAsync(StudioSequence sequence, CancellationToken token)
     {
-        if (request != null) throw new InvalidOperationException("상호작용 컷씬이 이미 재생 중입니다.");
         if (sequence == null) throw new InvalidOperationException("컷씬 스튜디오의 원본 StudioSequence를 연결하세요.");
+        await RunAsync(async ct => { await player.PlayAsync(sequence, ct); return true; }, token);
+    }
+
+    /// <summary>대상에 직접 연결되지 않은 사건도 기존 Addressables StudioCatalog를 사용한다.</summary>
+    public UniTask<bool> TryPlayAsync(string id, CancellationToken token)
+        => RunAsync(ct => StudioPlaybackService.TryPlayAsync(player, id, ct), token);
+
+    async UniTask<bool> RunAsync(Func<CancellationToken, UniTask<bool>> play, CancellationToken token)
+    {
+        if (request != null) throw new InvalidOperationException("상호작용 컷씬이 이미 재생 중입니다.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         request = source;
         try
@@ -28,8 +37,9 @@ public sealed class WorldInteractionCutscenePlayer : MonoBehaviour
             host.transform.SetParent(transform, false);
             player = host.AddComponent<StudioPlayer>();
             player.HandleKeyboardInput = false;
-            await player.PlayAsync(sequence, source.Token);
+            bool played = await play(source.Token);
             source.Token.ThrowIfCancellationRequested();
+            return played;
         }
         finally
         {

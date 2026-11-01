@@ -684,6 +684,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>결과 기록과 목표 도달 판정에 사용할, 목표 단위로 환산한 투입량.</summary>
     public float PouredInTargetUnit => ConvertMlTo(pouredMl, pourStep.TargetUnit ?? ENewUnit.Ml);
 
+    /// <summary>병을 잡아 조작 중인지. 놓은 뒤의 복귀 회전이나 남은 물줄기와 구분한다.</summary>
+    public bool IsPourInputHeld => IsManualInputActive && bottle != null && bottle.IsDragging;
+
     /// <summary>
     /// 이번 제조 시도의 사정(고른 잔·도구·재료). 실행기가 PlayAsync로 넘겨준다.
     /// 아직 그리는 데 쓰지는 않는다 — 리소스가 붙을 때 여기서 가져가면 된다.

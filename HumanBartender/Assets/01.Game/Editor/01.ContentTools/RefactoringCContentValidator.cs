@@ -38,15 +38,20 @@ public static class RefactoringCContentValidator
         var cutIds = new HashSet<string>(cuts.Select(c=>c.Id));
         var cocktails = new HashSet<string>(catalog.Read<NewCocktailData[]>("cocktails").Select(c=>c.Id));
         var streets = catalog.Read<NewStreetData>("script/street").Scenes ?? Array.Empty<NewSceneData>();
-        var streetIds = new HashSet<string>(streets.Select(s=>s.Id));
+        var homes = catalog.Read<NewStreetData>("script/home").Scenes ?? Array.Empty<NewSceneData>();
+        var streetIds = new HashSet<string>(streets.Concat(homes).Select(s=>s.Id));
         var spots = new HashSet<string>(catalog.Read<NewSpotData[]>("spots").Select(s=>s.Id));
-        foreach (var source in catalog.SourceIds.Where(IsCSource)) Walk(catalog.ReadUntyped(source), source, Add);
+        foreach (var source in catalog.SourceIds.Where(IsCSource))
+            Walk(catalog.ReadUntyped(source), source, (severity, location, message) =>
+                Add(IsActiveSource(source) ? severity : "WARN", location, message));
         foreach (var duplicate in streets.GroupBy(s=>s.Id).Where(g=>g.Count()>1)) Add("ERROR","script/street", "Duplicate scene id: " + duplicate.Key);
         foreach (var scene in streets) ValidateStreetSteps(scene.Steps, "script/street/" + scene.Id, streetIds, Add);
+        foreach (var scene in homes) if (scene.Steps?.Length > 0) ValidateStreetSteps(scene.Steps, "script/home/" + scene.Id, streetIds, Add);
         foreach (var source in catalog.SourceIds.Where(s=>s.StartsWith("script/bar/",StringComparison.Ordinal)))
         {
             var script = catalog.Read<NewDayScriptBase>(source);
-            ValidateBar(script, source, characters, cutIds, cocktails, Add);
+            ValidateBar(script, source, characters, cutIds, cocktails,
+                (severity, location, message) => Add(IsActiveSource(source) ? severity : "WARN", location, message));
         }
         foreach (var source in new[] {"interact_points_outside", "interact_points_home"})
             foreach (var point in catalog.Read<NewInteractPointData[]>(source))
@@ -85,6 +90,11 @@ public static class RefactoringCContentValidator
                 Add("ERROR","Addressables", "Duplicate address: "+duplicate.Key);
         }
         var sceneTimelines = ReadSceneTimelines(Add);
+        string bindingsFile = Path.Combine(Application.streamingAssetsPath, "unity/resource_bindings.csv");
+        if (File.Exists(bindingsFile))
+            foreach (var binding in CsvContentCatalog.ParseRows(File.ReadAllText(bindingsFile), bindingsFile))
+                if (addresses.TryGetValue(binding["unity_key"], out var targets))
+                    foreach (string target in targets.ToArray()) IndexKey(binding["source_key"], target);
         var localOnly = new HashSet<string>();
         foreach (var cut in cuts)
         {
@@ -158,6 +168,9 @@ public static class RefactoringCContentValidator
     static bool IsCSource(string source) => source.StartsWith("script/",StringComparison.Ordinal) ||
         source.StartsWith("interact_points_",StringComparison.Ordinal) || source is "cutscenes" or "character_anim" or "characters";
 
+    static bool IsActiveSource(string source) => source != "script/common" && source != "script/bar/day99" &&
+        !source.StartsWith("script/qa/", StringComparison.Ordinal) && source != "script/ambient" && source != "script/cutscene";
+
     static void Walk(object value, string path, Action<string,string,string> add)
     {
         if (value is IDictionary<string,object> fields)
@@ -177,15 +190,21 @@ public static class RefactoringCContentValidator
 
     static void ValidateStreetSteps(Step[] steps, string location, HashSet<string> scenes, Action<string,string,string> add)
     {
+        steps = StoryCsvCompiler.Compile(new NewStreetData { Scenes = new[] { new NewSceneData { Steps = steps } } }).Scenes[0].Steps;
         if (steps==null || steps.Length==0) { add("ERROR",location,"No dialogue steps.");return; }
         foreach(var duplicate in steps.Where(s=>s.Seq != 0).GroupBy(s=>s.Seq).Where(g=>g.Count()>1)) add("ERROR",location,"Duplicate step seq: "+duplicate.Key);
         foreach(var step in steps)
         {
             var at=location+"#"+step.Seq;
+            if (step.Command != OutsideStoryCommand.None) continue;
             switch(step.Type?.ToLowerInvariant())
             {
-                case "say": case "timeline":
+                case "say":
                     if (string.IsNullOrWhiteSpace(step.Text?.Ko)) add("ERROR",at,"Dialogue text is empty (street timeline currently uses the dialogue presenter).");
+                    break;
+                case "timeline":
+                    if (string.IsNullOrWhiteSpace(step.Text?.Ko) && string.IsNullOrWhiteSpace(step.Arg))
+                        add("ERROR", at, "Timeline needs an id or dialogue text.");
                     break;
                 case "popup":
                     var popupError = PopupCsvStep.Validate(step.Arg, step.Sync, step.Text?.Ko);
@@ -233,9 +252,15 @@ public static class RefactoringCContentValidator
                     case ENewStepType.Timeline:
                         if (!cutIds.Contains(step.Arg ?? "")) add("ERROR",at,"Unknown cutscene id: "+step.Arg);break;
                     case ENewStepType.Order:
-                        if (step.Arg==null || !step.Arg.StartsWith("exact:",StringComparison.Ordinal) || !cocktails.Contains(step.Arg.Substring(6).Trim())) add("ERROR",at,"Invalid exact cocktail order: "+step.Arg);break;
+                        if (step.Arg!="free" && (step.Arg==null || !step.Arg.StartsWith("exact:",StringComparison.Ordinal) || !cocktails.Contains(step.Arg.Substring(6).Trim()))) add("ERROR",at,"Invalid cocktail order: "+step.Arg);break;
                     case ENewStepType.Craft:
-                        if (step.Arg!="order" && (step.Arg==null || !step.Arg.StartsWith("tutorial:",StringComparison.Ordinal) || !cocktails.Contains(step.Arg.Substring(9).Trim()))) add("ERROR",at,"Invalid craft argument: "+step.Arg);break;
+                        if (!string.IsNullOrEmpty(step.Arg) && step.Arg!="order")
+                        {
+                            string tutorialCocktail = CsvGameContentRules.ResolveCraftTutorialCocktail(step.Arg);
+                            if (tutorialCocktail == null || !cocktails.Contains(tutorialCocktail)) add("ERROR",at,"Invalid craft argument: "+step.Arg);
+                        }
+                        break;
+                    case ENewStepType.Tutorial: case ENewStepType.Coaster: case ENewStepType.EmptyGlass: break;
                     case ENewStepType.Enter: case ENewStepType.Exit: case ENewStepType.Effect: case ENewStepType.Serve: case ENewStepType.EndPart: break;
                     default: add("ERROR",at,"Step has no StoryScriptRunner implementation: "+step.Type);break;
                 }

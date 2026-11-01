@@ -14,6 +14,10 @@ public class OutsideGameLifetimeScope : LifetimeScope
 
         builder.RegisterComponentInHierarchy<WorldInteractionSceneContext>();
         builder.RegisterComponentInHierarchy<DialogueRunner>();
+        builder.Register<ShopStoryEvents>(Lifetime.Scoped).As<IOutsideStoryEventHandler>();
+        builder.Register<NeighborhoodStoryEvents>(Lifetime.Scoped).As<IOutsideStoryEventHandler>();
+        builder.Register<StreetStoryEvents>(Lifetime.Scoped).As<IOutsideStoryEventHandler>();
+        builder.Register<OutsideStoryEvents>(Lifetime.Scoped).As<IOutsideStoryEvents>();
         // 외부·홈에 배치된 새 상호작용만 등록함. 바는 전용 스코프를 사용함.
         foreach (var root in gameObject.scene.GetRootGameObjects())
             foreach (var interaction in root.GetComponentsInChildren<WorldInteractionController>(true))

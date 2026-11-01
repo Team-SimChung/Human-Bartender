@@ -74,12 +74,34 @@ public readonly struct SceneTransitionRequest
     }
 }
 
+/// <summary>씬을 바꾸는 동안 보여 줄 화면. 바 출입처럼 장소를 드나드는 전환은 페이드 위에 문 화면을 띄운다.</summary>
+public enum SceneTransitionStyle
+{
+    Fade,
+    /// <summary>거리에서 바로 들어갈 때. "영업을 준비하고 있습니다" 문 화면.</summary>
+    BarEntrance,
+    /// <summary>바에서 거리로 나갈 때. "오늘의 영업을 마칩니다" 문 화면.</summary>
+    BarExit,
+}
+
+/// <summary>
+/// 페이드로 화면이 가려진 동안 그 위에 띄우는 전환 화면. 씬 작업 전에 나타나고, 씬 작업이 끝나면
+/// 자기 연출(최소 표시 시간·문 열림 등)을 마친 뒤 페이드 인과 함께 사라진다.
+/// </summary>
+public interface ISceneTransitionOverlay
+{
+    UniTask ShowAsync(SceneTransitionStyle style, CancellationToken cancellationToken);
+    UniTask FinishAsync(CancellationToken cancellationToken);
+    UniTask HideAsync(CancellationToken cancellationToken);
+    void HideImmediate();
+}
+
 public interface ISceneTransitionService
 {
     bool IsBusy { get; }
     SceneTransitionState CurrentState { get; }
     long CurrentOperationId { get; }
     SceneTransitionRequest RequestLoadScene(string sceneName, LoadSceneMode sceneMode = LoadSceneMode.Single,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default, SceneTransitionStyle style = SceneTransitionStyle.Fade);
     SceneTransitionRequest RequestUnloadScene(string sceneName, CancellationToken cancellationToken = default);
 }

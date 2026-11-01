@@ -14,6 +14,35 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 /// </summary>
 public static class ResourceLoader
 {
+    static IReadOnlyDictionary<string, string> bindings = new Dictionary<string, string>();
+
+    public static async UniTask<IReadOnlyDictionary<string, string>> ReadBindingsAsync(CancellationToken token)
+    {
+        var text = await CsvDataReader.ReadStreamingTextAsync("unity/resource_bindings.csv", token);
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var row in CsvContentCatalog.ParseRows(text, "unity/resource_bindings.csv"))
+        {
+            if (string.IsNullOrWhiteSpace(row["source_key"]) || string.IsNullOrWhiteSpace(row["unity_key"]))
+                throw new InvalidOperationException("Resource binding keys cannot be empty.");
+            string type = row["asset_type"];
+            if (type != "Sprite" && type != "AnimationClip" && type != "AudioClip" && type != "TimelineAsset" && type != "GameObject")
+                throw new InvalidOperationException("Unsupported resource binding type: " + type);
+            result.Add(type + "|" + row["source_key"], row["unity_key"]);
+        }
+        foreach (var binding in result)
+        {
+            string type = binding.Key.Substring(0, binding.Key.IndexOf('|'));
+            if (result.ContainsKey(type + "|" + binding.Value))
+                throw new InvalidOperationException("Resource bindings must point directly to a Unity key: " + binding.Key);
+        }
+        return result;
+    }
+
+    public static void PublishBindings(IReadOnlyDictionary<string, string> values) => bindings = values;
+    public static string ResolveKey(string key, Type type = null) => key != null && type != null && bindings.TryGetValue(type.Name + "|" + key, out var value) ? value : key;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetBindings() => bindings = new Dictionary<string, string>();
     /// <summary>
     /// 로드 성공 시 handle 반환, 실패/예외 시 null 반환.
     /// 실패한 handle은 내부에서 즉시 릴리즈.
@@ -23,6 +52,7 @@ public static class ResourceLoader
         string address,
         CancellationToken token)
     {
+        address = ResolveKey(address, typeof(T));
         //해당 주소 존재 여부 확인
         bool exists = await ExistsInAddressables(address, token);
         if (!exists)
@@ -59,6 +89,7 @@ public static class ResourceLoader
 
     public async static UniTask<bool> ExistsInAddressables(string key, CancellationToken token)
     {
+        key = ResolveKey(key);
         var handle = Addressables.LoadResourceLocationsAsync(key);
 
         try

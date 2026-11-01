@@ -1,0 +1,128 @@
+{
+  "web_commit": "b2f8ca7a524f19363d0f8c8af6fa075e5b5661b4",
+  "csv_files": 48,
+  "csv_hashes_unchanged": true,
+  "datasets": 38,
+  "python_tests": {
+    "passed": 9
+  },
+  "unity_all_editmode": {
+    "total": 48,
+    "passed": 41,
+    "failed": 3,
+    "skipped": 4
+  },
+  "unity_changed_area_tests": [
+    {
+      "name": "OutsideStoryCutsceneLifetimeTests.ActualStudioPlaybackRestoresGameplayOnCancelDisableAndReplay",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.AdoptionDefersSceneTravelUntilTheDialogueOwnerReleasesItsSession",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.CancellationAtCutsceneCompletionCannotCommitEffectsAndNextRunCanRetry",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.CancelledChoiceCannotChargeMoney",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.CsvCompilationDoesNotChangeSourceAndUnknownInstructionsAreRejected",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.EveryNativeCommandHasExactlyOneDomainOwnerAndDuplicatesAreRejected",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.MissingRequiredCutsceneCannotCompleteTheEvent(RepairElevator,\"elevator_repaired\")",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.MissingRequiredCutsceneCannotCompleteTheEvent(RevealCat,\"boobi_revealed\")",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.MissingRequiredCutsceneCannotCompleteTheEvent(AdoptCat,\"boobi_adopted\")",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.RepeatedAllowanceCommandUsesExistingPlayerFlagsAndPaysOnlyOnce",
+      "result": "Passed"
+    },
+    {
+      "name": "OutsideStoryEventTests.RepeatedWildDogGrantDoesNotReopenTheDealOrChangeMoney",
+      "result": "Passed"
+    },
+    {
+      "name": "StoryTableStateTests.CancellationCleanupCannotLeaveVisitStateForNextRun",
+      "result": "Passed"
+    },
+    {
+      "name": "StoryTableStateTests.CoastersBelongToVisitsAndAreIndependentForTwoActors",
+      "result": "Passed"
+    },
+    {
+      "name": "StoryTableStateTests.EmptyGlassDoesNotCreateADrinkAndRejectsMissingActor",
+      "result": "Passed"
+    },
+    {
+      "name": "WebContentRuntimeSmokeTests.PinnedContentLoadsThroughExistingProgressionAndSceneScopes",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.AllRuntimeDtosMapAndWebBehaviorMetadataIsRetained",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.DisplayingAnEmptyGlassDoesNotChangeTheCraftedDrinkOrOtherVisit",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.PaymentProjectionDoesNotTurnAFreeOrderIntoAPaidOrder",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.PublishedFilesAreExactlyThePinnedWebSnapshot",
+      "result": "Passed"
+    }
+  ],
+  "unity_changed_area_summary": {
+    "total": 19,
+    "passed": 19,
+    "failed": 0
+  },
+  "failures": [
+    {
+      "name": "VisualUIReviewTests.CommonOptionsKeepsItsWidgetsAppliesDisplayExplicitlyAndRestoresFocus",
+      "message": "System.NullReferenceException : Object reference not set to an instance of an object"
+    },
+    {
+      "name": "VisualUIReviewTests.RuntimeMenuWiringAndGlitchRestoreUseTheActualUnityLifecycle",
+      "message": "  direct minigame polling must use the saved key in the player loop\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "name": "VisualUIReviewTests.ServiceAndRecipeControlsKeepTheirOwnersAndUseCurrentArt",
+      "message": "  Expected: String containing \"/recipe_choice/\"\n  But was:  \"Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes/WebGenerated/Web_BTN_recipe_card_background_v02.png\"\n"
+    }
+  ],
+  "native_targets": {
+    "Home": 1,
+    "OutSide": 4
+  },
+  "cutscene_bindings": {
+    "defined_ids": 16,
+    "missing_source_assets": 16,
+    "catalog_registered": 0
+  },
+  "limits": [
+    "Required event StudioSequence assets are not authored/connected; affected branches fail explicitly.",
+    "Full manual 0-3 day route and visual review not performed.",
+    "The same three VisualUIReviewTests failed in the preceding 39-test run; no clean-baseline attribution claimed."
+  ],
+  "unity_batch_compatibility": "CSV_BATCH_VALIDATION_OK",
+  "repeat_import_changed_files": 0
+}

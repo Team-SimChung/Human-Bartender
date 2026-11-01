@@ -54,6 +54,10 @@ public struct ChoiceOption
 [Serializable]
 public struct Step
 {
+    [JsonIgnore] public OutsideStoryCommand Command;
+    [JsonIgnore] public string CutsceneAfter;
+    [JsonIgnore] public string MemoryKey;
+    [JsonProperty("web_fields")] public Dictionary<string, object> WebFields;
     [JsonProperty("seq")] public int Seq;
     [JsonProperty("type")] public string Type;
     [JsonProperty("actor")] public string Actor;

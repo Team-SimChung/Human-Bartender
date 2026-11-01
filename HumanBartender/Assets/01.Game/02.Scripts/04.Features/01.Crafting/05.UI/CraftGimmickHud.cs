@@ -85,9 +85,17 @@ public class CraftGimmickHud : MonoBehaviour
         RefreshTimeLayout();
     }
 
+    /// <summary>지금 진행 표시에 연결된 기믹. 튜토리얼이 안내 단계를 정할 때 읽기만 한다.</summary>
+    public object CurrentGimmick { get; private set; }
+    /// <summary>목표량·현재량을 보여 주는 진행 문구. 튜토리얼 강조 대상이다.</summary>
+    public Transform ProgressTarget => progressText != null && progressText.gameObject.activeInHierarchy ? progressText.transform : null;
+    /// <summary>기믹을 직접 끝내는 버튼(따르기 마치기 등). 튜토리얼 강조 대상이다.</summary>
+    public Transform NextControl => nextButton != null && nextButton.gameObject.activeInHierarchy ? nextButton.transform : null;
+
     /// <summary>기믹 하나를 시작할 때 부른다. 대상 이름을 바꾸고 진행 표시를 그 기믹에 연결한다.</summary>
     public void BindGimmick(GimmickStep step, object gimmick)
     {
+        CurrentGimmick = gimmick;
         progress = gimmick as ICraftGimmickProgress;
         manualEnd = gimmick as ICraftGimmickManualEnd;
         ownedByGimmick = (gimmick as ICraftGimmickOwnHud)?.OwnedParts ?? ECraftHudPart.None;
@@ -122,6 +130,7 @@ public class CraftGimmickHud : MonoBehaviour
     /// <summary>기믹 하나가 끝났을 때 부른다. 다음 기믹이 연결될 때까지 진행 표시를 비운다.</summary>
     public void UnbindGimmick()
     {
+        CurrentGimmick = null;
         progress = null;
         manualEnd = null;
         ownedByGimmick = ECraftHudPart.None;

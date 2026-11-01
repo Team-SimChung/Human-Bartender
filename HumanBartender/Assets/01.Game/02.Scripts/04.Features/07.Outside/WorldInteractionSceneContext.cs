@@ -12,6 +12,10 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
     [SerializeField] private NewStreetDataSO streetData;
     [SerializeField] private Player player;
     [SerializeField] private DialogueRunner runner;
+    [Tooltip("0일차 첫 출근 도착 연출. OutSide 씬에만 연결한다. 비어 있으면 첫 출근도 걷기 없이 시작한다.")]
+    [SerializeField] private FirstCommuteArrival firstCommuteArrival;
+    [Tooltip("새 게임 직후의 오프닝(플레이 안내·도입 컷신·조작 안내). Home 씬에만 연결한다.")]
+    [SerializeField] private NewGameOpening newGameOpening;
     [Inject] private IConditionUtil conditions;
     [Inject] private IObjectResolver resolver;
     private readonly List<WorldInteractionContent> contents = new();
@@ -58,9 +62,19 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
                     if (target.Action is MonoBehaviour action) resolver.Inject(action);
             }
             RefreshContents();
-            if (!player.TrySetPosition()) throw new InvalidOperationException("현재 씬의 플레이어 시작 위치가 없습니다.");
+            var state = GameStateManager.Instance;
+            var spawn = OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state.CurrentDay, state.GameFlow);
+            if (!player.TrySetPosition(spawn)) throw new InvalidOperationException("현재 씬의 플레이어 시작 위치가 없습니다: " + spawn);
             IsReady = true;
             readiness.TrySetResult(true);
+            // 준비가 끝나야 Player.Update가 이동을 처리하므로 도착 연출은 공개 뒤에 시작한다.
+            if (spawn == EPlayerSpawn.FirstCommute && firstCommuteArrival != null)
+                await firstCommuteArrival.PlayAsync(player, token);
+            if (newGameOpening != null && state.CurrentDay == 0 && state.GameFlow == EGameFlow.CommuteIn)
+            {
+                resolver.Inject(newGameOpening);
+                await newGameOpening.PlayAsync(player, token);
+            }
         }
         catch (OperationCanceledException) { readiness.TrySetResult(false); }
         catch (Exception error)

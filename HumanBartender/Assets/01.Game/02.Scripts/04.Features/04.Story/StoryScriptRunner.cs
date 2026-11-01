@@ -21,12 +21,17 @@ public class StoryScriptRunner : MonoBehaviour
 {
     [SerializeField] private RecipeBrowserScreen recipeScreen;
     [SerializeField] private StoryTutorialController tutorial;
+    CraftServingView tables;
 
     public bool CanStartCraft { get; private set; }
     string craftMenuTutorialCocktailId;
     public event Action CraftAuthorizationChanged;
 
-    public void SetTutorialController(StoryTutorialController controller) => tutorial = controller;
+    public void SetTutorialController(StoryTutorialController controller)
+    {
+        tutorial = controller;
+        tables = controller != null ? controller.Tables : null;
+    }
 
     /// <summary>
     /// 플레이어. 바에서는 1인칭이라 초상을 세우지 않는데, 그 판단은 화면이 하고 여기서는 누구인지만 안다.
@@ -160,6 +165,7 @@ public class StoryScriptRunner : MonoBehaviour
             if (currentOrder != null && orderController != null) Cleanup(CancelCurrentOrder);
             orderResultSignal = null;
             if (IsAlive(presenter)) Cleanup(presenter.Clear);
+            if (tables != null) Cleanup(tables.EndVisits);
             currentOrder = null;
             Cleanup(ClearConditionResult);
             IsRunning = false;
@@ -279,6 +285,9 @@ public class StoryScriptRunner : MonoBehaviour
 
             await PlayStepAsync(scene, step, token);
 
+            if (!string.IsNullOrEmpty(step.CutsceneAfter))
+                await OptionalStoryCutscene.PlayAsync(cutScenePlayer, step.CutsceneAfter, token);
+
             // effects는 스텝을 확정한 순간 한 번만. 같은 스텝을 두 번 지나도 값이 두 번 움직이지 않게
             // 씬과 seq를 합친 것을 표로 쓴다.
             token.ThrowIfCancellationRequested();
@@ -349,7 +358,14 @@ public class StoryScriptRunner : MonoBehaviour
                 return;
 
             case ENewStepType.Coaster:
+                RequireSeatedActor(step.Actor);
                 if (step.Arg == "tutorial") await RunTutorialAsync("coaster", step.Actor, token);
+                else await tables.WaitForCoasterAsync(step.Actor, token);
+                return;
+
+            case ENewStepType.EmptyGlass:
+                RequireSeatedActor(step.Actor);
+                tables.EmptyGlass(step.Actor);
                 return;
 
             default:
@@ -359,6 +375,12 @@ public class StoryScriptRunner : MonoBehaviour
     }
 
     // ── 대사 ────────────────────────────────────────────────────────────
+
+    void RequireSeatedActor(string actor)
+    {
+        if (tables == null || !TryFindSeatOf(actor, out _))
+            throw new InvalidOperationException("테이블 동작의 좌석 또는 서빙 기능이 없습니다: " + actor);
+    }
 
     async UniTask RunTutorialAsync(string kind, string actor, CancellationToken token)
     {
@@ -442,7 +464,7 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         await presenter.ShowSayAsync(
-            new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId), token);
+            new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId, step.DisplayName), token);
 
         await WaitForAdvanceAsync(token);
     }
@@ -494,7 +516,7 @@ public class StoryScriptRunner : MonoBehaviour
         if (!string.IsNullOrEmpty(body))
         {
             await presenter.ShowSayAsync(
-                new StorySayRequest(step.Actor, null, body, step.Actor == PlayerCharacterId), token);
+                new StorySayRequest(step.Actor, null, body, step.Actor == PlayerCharacterId, step.DisplayName), token);
 
             await WaitForAdvanceAsync(token);
         }
@@ -525,7 +547,7 @@ public class StoryScriptRunner : MonoBehaviour
 
         if (currentOrder != null) throw new InvalidOperationException("Previous story order has not been served.");
         if (orderController == null) throw new InvalidOperationException("OrderRequestController 연결이 필요합니다.");
-        var details = new OrderDetails($"{scene.Id}#{step.Seq}", step.Actor, cocktailId, paid: step.Payment != "none");
+        var details = new OrderDetails($"{scene.Id}#{step.Seq}", step.Actor, cocktailId, paid: step.IsPaid);
         var signal = new UniTaskCompletionSource<OrderResult>();
         orderResultSignal = signal;
         // 지역 신호를 캡처해 이전 주문의 늦은 콜백이 새 주문에 적용되지 않게 한다.
@@ -541,10 +563,10 @@ public class StoryScriptRunner : MonoBehaviour
             throw new InvalidOperationException($"[Story] orderController가 없어 제조로 넘어가지 못했습니다: {scene.Id}#{step.Seq}");
         }
 
-        string tutorialCocktailId = ParseTutorialCocktail(step.Arg);
-        bool guided = tutorialCocktailId != null && tutorial != null &&
-            (scene.Day == 0 && !conditions.CheckRequired("flag.day0_skip_tutorial") ||
-             scene.Day == 1 && tutorialCocktailId == "bottle_beer");
+        string tutorialCocktailId = CsvGameContentRules.ResolveCraftTutorialCocktail(step.Arg);
+        string lessonCocktailId = StoryTutorialController.ResolveCraftLesson(scene.Day, tutorialCocktailId,
+            currentOrder?.Details.CocktailId, scene.Day == 0 && conditions.CheckRequired("flag.day0_skip_tutorial"));
+        bool guided = lessonCocktailId != null && tutorial != null;
 
         // 튜토리얼은 무엇을 만들지가 대본에 적혀 있어 주문 없이도 열 수 있다.
         if (currentOrder == null && tutorialCocktailId == null)
@@ -553,11 +575,11 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         token.ThrowIfCancellationRequested();
-        craftMenuTutorialCocktailId = guided ? tutorialCocktailId : null;
+        craftMenuTutorialCocktailId = guided ? lessonCocktailId : null;
         SetCraftAuthorization(true);
         if (recipeScreen == null)
             throw new InvalidOperationException("[Story] Recipe Browser Screen 참조가 필요합니다.");
-        if (guided) tutorial.BeginCraftLesson(tutorialCocktailId);
+        if (guided) tutorial.BeginCraftLesson(lessonCocktailId);
         TryOpenCraftMenu();
         await UniTask.CompletedTask;
     }
@@ -626,18 +648,6 @@ public class StoryScriptRunner : MonoBehaviour
         return cocktailId.Length > 0;
     }
 
-    /// <summary>
-    /// craft.arg를 읽는다. "tutorial:&lt;id&gt;"면 그 칵테일을, "order"면 null(주문대로)을 돌려준다.
-    /// </summary>
-    static string ParseTutorialCocktail(string arg)
-    {
-        const string prefix = "tutorial:";
-        if (string.IsNullOrEmpty(arg) || !arg.StartsWith(prefix, StringComparison.Ordinal)) return null;
-
-        string cocktailId = arg.Substring(prefix.Length).Trim();
-        return cocktailId.Length > 0 ? cocktailId : null;
-    }
-
     // ── 등장·퇴장 ───────────────────────────────────────────────────────
 
     async UniTask EnterAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
@@ -651,6 +661,7 @@ public class StoryScriptRunner : MonoBehaviour
             throw new InvalidOperationException($"[Story] {slot} 자리에 '{sitting}'가 앉아 있는데 '{step.Actor}'가 또 앉습니다.");
 
         seatActors[slot] = step.Actor;
+        if (tables != null && !tables.TableState.Contains(step.Actor)) tables.BeginVisit(step.Actor);
         WarnIfSeatingInvalid();
 
         await presenter.EnterAsync(step.Actor, slot, token);
@@ -674,6 +685,7 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         seatActors.Remove(slot);
+        if (tables != null) tables.EndVisit(step.Actor);
         if (presenter is IStoryCharacterTransitions transition)
             await transition.ExitAsync(slot, token);
         else presenter.Exit(slot);
