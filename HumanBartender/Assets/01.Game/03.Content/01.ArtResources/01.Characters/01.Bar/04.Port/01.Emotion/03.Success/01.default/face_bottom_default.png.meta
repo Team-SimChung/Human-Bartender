@@ -14,6 +14,18 @@ TextureImporter:
   - first:
       213: 7085618057199064828
     second: face_bottom_default_3
+  - first:
+      213: 1307445284691000316
+    second: Game_face_bottom_default_44443db8
+  - first:
+      213: 2128234311152769633
+    second: Game_face_bottom_default_fa84b20d
+  - first:
+      213: 2022924563919259852
+    second: Game_face_bottom_default_e322878a
+  - first:
+      213: 1896463243384634297
+    second: Game_face_bottom_default_c70e091f
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -43,10 +55,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -81,10 +93,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -196,6 +208,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_default_44443db8
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44443db85e03bfcee4d9a648c31d72da
+      internalID: 1307445284691000316
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_default_fa84b20d
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa84b20dbab1a615ad19325fe2068422
+      internalID: 2128234311152769633
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_default_e322878a
+      rect:
+        serializedVersion: 2
+        x: 1745
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e322878a06dc8cc45b19aecbb2bfcbf1
+      internalID: 2022924563919259852
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_default_c70e091f
+      rect:
+        serializedVersion: 2
+        x: 1194
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c70e091f822bbb94c349aa6203c8f4aa
+      internalID: 1896463243384634297
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -210,6 +310,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_face_bottom_default_44443db8: 1307445284691000316
+      Game_face_bottom_default_fa84b20d: 2128234311152769633
+      Game_face_bottom_default_e322878a: 2022924563919259852
+      Game_face_bottom_default_c70e091f: 1896463243384634297
       face_bottom_default_0: -8165771816949415413
       face_bottom_default_1: -1271313029700247249
       face_bottom_default_2: -8461894641604624878

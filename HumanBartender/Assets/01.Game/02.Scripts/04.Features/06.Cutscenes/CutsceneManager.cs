@@ -5,14 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading;
 using UnityEngine;
-using UnityEngine.Playables;
-using UnityEngine.Timeline;
 using UnityEngine.UI;
-using VContainer;
 using HumanBartender.CutsceneStudio;
-
-
-
 
 /// <summary>IEffectPlayer.PlayEffectAsync()에서 사용하는 화면 이펙트 유형을 정의함.</summary>
 public enum EEffectType
@@ -37,34 +31,21 @@ public enum EEffectType
     Chromatic
 }
 
-
-
-
 /// <summary>
 /// 컷씬 재생과 화면 이펙트를 담당하며 IEffectPlayer와 ICutScenePlayer를 구현함.
-/// 등록된 Studio 컷씬을 우선 재생하고 기존 CSV 컷씬도 유형에 맞추어 재생함.
+/// 등록된 Cutscene Studio 컷씬을 재생함.
 /// 화면 이펙트는 effectOverlay와 DOTween으로 처리함.
 /// </summary>
 public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
 {
-    [SerializeField] private NewCutSceneDataSO data;
-
-    [SerializeField] private SpriteAnimationManager spriteAnimationManager;
-    [SerializeField] private CutSceneTimelineManager timelineManager;
 
     private CancellationTokenSource effectRun;
 
-
-    private const string ANIM_SLOT = "SpriteAnim";
-
-
-    [SerializeField] private Canvas cutSceneCanvas;
     [SerializeField] private RectTransform canvasRect;
     [SerializeField] private Image effectOverlay;           // 화면 전체 페이드와 플래시에 쓰임.
     [SerializeField] private List<Image> images = new();
 
     private CancellationTokenSource _cts;
-
 
     // 앵커 유형별 기준 좌표를 보관함.
     private readonly Dictionary<AnchorType, Vector2> anchorPreset = new()
@@ -81,38 +62,28 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
     private Queue<Image> imagePool = new();
     private Dictionary<string, Image> activeImages = new();   // 이미지 ID로 사용 중인 이미지를 조회함.
 
-
     private void Awake()
     {
         imagePool = new Queue<Image>(images);
         ResetImages();
 
-
-        // 스프라이트 애니메이터는 첫 클립을 재생할 때 초기화함.
     }
 
     public void OnContinueTimeline()
     {
         var studioPlayer = GetComponent<StudioPlayer>();
-        if (studioPlayer != null && studioPlayer.IsPlaying) { studioPlayer.Continue(); return; }
-        timelineManager.OnContinueCutScene();
+        if (studioPlayer != null && studioPlayer.IsPlaying) studioPlayer.Continue();
     }
-
-
 
     public void ClearCutScene()
     {
         _cts?.Cancel();
         GetComponent<StudioPlayer>()?.Stop();
         effectRun?.Cancel();
-        if (timelineManager != null) timelineManager.StopTimeline();
         ResetImages();
-        spriteAnimationManager?.SetInactive();
-        spriteAnimationManager?.ActiveSelf(false);
     }
 
     private void OnDisable() => ClearCutScene();
-    private void OnDestroy() => spriteAnimationManager?.Release();
 
     public async UniTask PlayCutScene(string id, UniTaskCompletionSource tcs = null, CancellationToken token = default)
     {
@@ -123,76 +94,14 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         try
         {
             source.Token.ThrowIfCancellationRequested();
-            if (await StudioPlaybackService.TryPlayAsync(this, id, source.Token))
-            {
-                source.Token.ThrowIfCancellationRequested();
-                tcs?.TrySetResult();
-                return;
-            }
-            if (data == null || !data.TryGet(id, out var cutScene)) throw new InvalidOperationException("Missing cutscene: " + id);
-            if (cutSceneCanvas != null) cutSceneCanvas.worldCamera = Camera.main;
-            switch (cutScene.Kind)
-            {
-                case ENewCutSceneKind.Timeline:
-                    await PlayTimelineCutScene(cutScene, source.Token);
-                    break;
-                case ENewCutSceneKind.Sprite:
-                    await PlaySpriteAnimationCutScene(cutScene, source.Token);
-                    break;
-                default: throw new NotSupportedException("Unsupported cutscene kind: " + cutScene.Kind + " (" + id + ")");
-            }
+            if (!await StudioPlaybackService.TryPlayAsync(this, id, source.Token))
+                throw new InvalidOperationException("Missing Cutscene Studio sequence: " + id);
             source.Token.ThrowIfCancellationRequested();
             tcs?.TrySetResult();
         }
         catch (OperationCanceledException) { tcs?.TrySetCanceled(source.Token); throw; }
         catch (Exception e) { tcs?.TrySetException(e); throw; }
         finally { if (ReferenceEquals(_cts, source)) _cts = null; }
-    }
-
-    /// <summary>디렉터 정지와 바인딩 해제가 끝날 때까지 로드한 에셋을 유지함.</summary>
-    public async UniTask PlayTimelineCutScene(NewCutSceneRefData data, CancellationToken token, UniTaskCompletionSource tcs = null)
-    {
-        var outside = FindFirstObjectByType<OustideTimelineManager>();
-        if (outside != null && outside.TryGetSceneTimeline(data.ResourceKey, out _))
-        {
-            try { await outside.PlayTimelineCutSceneAsync(data.Id, token); tcs?.TrySetResult(); }
-            catch (OperationCanceledException) { tcs?.TrySetCanceled(token); throw; }
-            catch (Exception e) { tcs?.TrySetException(e); throw; }
-            return;
-        }
-        var handle = await ResourceLoader.TryLoadAsync<TimelineAsset>(data.ResourceKey, token);
-        try
-        {
-            token.ThrowIfCancellationRequested();
-            if (!handle.HasValue || timelineManager == null)
-                throw new InvalidOperationException($"Cannot play timeline {data.Id} (resource_key={data.ResourceKey}).");
-            await timelineManager.PlayTimelineCutSceneAsync(handle.Value.Result, token);
-            tcs?.TrySetResult();
-        }
-        catch (OperationCanceledException) { tcs?.TrySetCanceled(token); throw; }
-        catch (Exception e) { tcs?.TrySetException(e); throw; }
-        finally { ResourceLoader.ReleaseHandle<TimelineAsset>(ref handle); }
-    }
-
-    private async UniTask PlaySpriteAnimationCutScene(NewCutSceneRefData data, CancellationToken token)
-    {
-        var handle = await ResourceLoader.TryLoadAsync<AnimationClip>(data.ResourceKey, token);
-        try
-        {
-            token.ThrowIfCancellationRequested();
-            if (!handle.HasValue || spriteAnimationManager == null)
-                throw new InvalidOperationException($"Cannot play sprite cutscene {data.Id} (resource_key={data.ResourceKey}).");
-            spriteAnimationManager.EnsureInitialized();
-            spriteAnimationManager.ActiveSelf(true);
-            spriteAnimationManager.SetClip(ANIM_SLOT, handle);
-            await spriteAnimationManager.PlayAnimation(ANIM_SLOT, token);
-        }
-        finally
-        {
-            spriteAnimationManager?.SetInactive();
-            spriteAnimationManager?.ActiveSelf(false);
-            ResourceLoader.ReleaseHandle<AnimationClip>(ref handle);
-        }
     }
 
     public async UniTask PlayEffectAsync(EEffectType type, float duration, float intensity = 0f, CancellationToken token = default)
@@ -277,7 +186,6 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
         }
     }
 
-
     public EEffectType ConvertStringToEffect(string input)
     {
         return input?.ToLowerInvariant() switch
@@ -293,7 +201,6 @@ public class CutSceneManager : MonoBehaviour, IEffectPlayer, ICutScenePlayer
             _ => EEffectType.None 
         };
     }
-
 
     // 이미지 풀에서 사용한 이미지를 반환하고 다시 꺼내 쓰는 데 쓰임.
 

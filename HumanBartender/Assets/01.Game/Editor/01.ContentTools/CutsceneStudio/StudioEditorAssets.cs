@@ -305,35 +305,5 @@ namespace HumanBartender.CutsceneStudio.Editor
             return copy;
         }
 
-        public static StudioSequence CreateSample(string path)
-        {
-            var sequence = Create(path);
-            var background = AddClip(sequence, StudioKind.Background, 0);
-            background.duration = 10;
-            ((StudioClip)background.asset).BackgroundSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/01.Game/03.Content/01.ArtResources/07.Legacy/Cutscenes/NewPortHouse.png");
-            var actor = new StudioActor
-            {
-                Id = "luna",
-                Name = "루나",
-                Position = new Vector2(-220, -130),
-                Size = new Vector2(100, 150),
-                Sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/01.Game/03.Content/01.ArtResources/07.Legacy/Cutscenes/Luna.png")
-            };
-            sequence.EditableActors.Add(actor);
-            var visual = AddClip(sequence, StudioKind.Visual, 0, actor.Id);
-            visual.displayName = actor.Name;
-            var visualAsset = (StudioClip)visual.asset;
-            visualAsset.From = actor.Position;
-            visualAsset.To = actor.Position + new Vector2(160, 0);
-            visualAsset.HoldEnd = true;
-            var line = AddClip(sequence, StudioKind.Dialogue, 3, actor.Id);
-            ((StudioClip)line.asset).Text = "새 컷씬 스튜디오입니다.\n화면비가 달라도 같은 구도로 재생됩니다.";
-            var fade = AddClip(sequence, StudioKind.Effect, 8);
-            fade.duration = 2;
-            ((StudioClip)fade.asset).Effect = StudioEffect.FadeOut;
-            sequence.Timeline.fixedDuration = 10;
-            Save(sequence);
-            return sequence;
-        }
     }
 }

@@ -5,6 +5,9 @@ TextureImporter:
   - first:
       213: -4065506497950358087
     second: enger_0
+  - first:
+      213: 1980106458279253622
+    second: Game_enger_d9a09a18
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +40,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +78,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -121,6 +124,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_enger_d9a09a18
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 71
+        width: 357
+        height: 369
+      alignment: 9
+      pivot: {x: 0.5, y: -0.0405}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9a09a187cd1676d7e7508e4e86b2e57
+      internalID: 1980106458279253622
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +160,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_enger_d9a09a18: 1980106458279253622
       enger_0: -4065506497950358087
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

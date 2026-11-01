@@ -5,6 +5,9 @@ TextureImporter:
   - first:
       213: -6693460075132858632
     second: IMG_choice_B_0
+  - first:
+      213: 1475851905872923477
+    second: Game_IMG_choice_B_69a90c98
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -34,10 +37,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -72,10 +75,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -121,6 +124,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_IMG_choice_B_69a90c98
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2103
+        height: 228
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69a90c9873f8b55fc5c3c17b26cf64d1
+      internalID: 1475851905872923477
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +160,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_IMG_choice_B_69a90c98: 1475851905872923477
       IMG_choice_B_0: -6693460075132858632
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

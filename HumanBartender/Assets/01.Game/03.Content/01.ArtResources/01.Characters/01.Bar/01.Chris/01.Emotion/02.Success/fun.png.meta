@@ -5,6 +5,9 @@ TextureImporter:
   - first:
       213: 7991705021861378407
     second: fun_0
+  - first:
+      213: 1543843099120683685
+    second: Game_fun_78c1e6ad
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +40,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +78,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -121,6 +124,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_fun_78c1e6ad
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 55
+        width: 339
+        height: 385
+      alignment: 9
+      pivot: {x: 0.5, y: -0.0405}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78c1e6ad0a2caa5f635a718df721a5ad
+      internalID: 1543843099120683685
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +160,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_fun_78c1e6ad: 1543843099120683685
       fun_0: 7991705021861378407
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

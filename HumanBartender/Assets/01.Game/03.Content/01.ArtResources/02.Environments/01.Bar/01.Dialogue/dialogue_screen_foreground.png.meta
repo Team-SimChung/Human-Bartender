@@ -8,6 +8,9 @@ TextureImporter:
   - first:
       213: -2431351056029816506
     second: dialogue_screen_foreground_1
+  - first:
+      213: 501200010000000002
+    second: dialogue_screen_foreground_Full
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,7 +43,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -78,7 +81,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -146,6 +149,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: dialogue_screen_foreground_Full
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2041
+        height: 792
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eafbf71951cc4ee9b7a1a331f22fd16e
+      internalID: 501200010000000002
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -160,6 +185,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      dialogue_screen_foreground_Full: 501200010000000002
       dialogue_screen_foreground_0: 701195814973605559
       dialogue_screen_foreground_1: -2431351056029816506
   mipmapLimitGroupName: 

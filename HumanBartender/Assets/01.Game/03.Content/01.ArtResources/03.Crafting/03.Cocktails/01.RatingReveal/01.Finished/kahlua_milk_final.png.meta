@@ -5,6 +5,12 @@ TextureImporter:
   - first:
       213: -3414027585044881724
     second: kahlua_milk_final_0
+  - first:
+      213: 21300000
+    second: kahlua_milk_final
+  - first:
+      213: 1451483225390947010
+    second: Game_kahlua_milk_final_643fd99f
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +52,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -121,6 +127,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: kahlua_milk_final
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 220
+        height: 411
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35ac478a5fe0587b731e1146ceb1ffdb
+      internalID: 21300000
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_kahlua_milk_final_643fd99f
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 0
+        width: 199
+        height: 254
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 643fd99f7799ac27242d4f52246bf7ea
+      internalID: 1451483225390947010
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +185,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      kahlua_milk_final: 21300000
+      Game_kahlua_milk_final_643fd99f: 1451483225390947010
       kahlua_milk_final_0: -3414027585044881724
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

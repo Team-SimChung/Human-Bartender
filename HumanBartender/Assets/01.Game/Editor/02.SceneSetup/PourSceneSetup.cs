@@ -27,7 +27,7 @@ public static class PourSceneSetup
 {
     const string ScenePath = "Assets/03.Dev/01.Scenes/01.Minigames/Pour.unity";
     const string FontAssetPath = "Assets/01.Game/03.Content/05.Fonts/Regular_PFStardust_3_0_SDF.asset";
-    const string GradientMaterialPath = "Assets/01.Game/03.Content/05.UI/04.Crafting/04.Minigames/02.Shake/03.Materials/New Material.mat";
+    const string GradientMaterialPath = "Assets/01.Game/03.Content/06.Shared/02.Materials/M_MinigameRatioGauge.mat";
     const string CraftStationDataPath = "Assets/01.Game/04.Data/01.Definitions/Crafting/CraftLiquidData.asset";
     const string CategoryColorDataPath = "Assets/01.Game/04.Data/01.Definitions/Crafting/CategoryColorData.asset";
     const string NewCocktailDataSOPath = "Assets/01.Game/04.Data/02.RuntimeCaches/NewCocktailDataSO.asset";
@@ -102,7 +102,7 @@ public static class PourSceneSetup
     /// </summary>
     static Sprite CreateOrLoadPlaceholderSprite()
     {
-        const string path = "Assets/01.Game/03.Content/01.ArtResources/07.Legacy/03.Crafting/03.Minigames/04.Pour/01.Sprites/PourPlaceholder.png";
+        const string path = "Assets/03.Dev/02.Content/Placeholders/PourPlaceholder.png";
 
         Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(path);
         if (existing != null) return existing;

@@ -14,6 +14,18 @@ TextureImporter:
   - first:
       213: 6526169181366970619
     second: eyes_3
+  - first:
+      213: 1322683955805611465
+    second: Game_eyes_47a67592
+  - first:
+      213: 1883528720900932978
+    second: Game_eyes_c42ecb0c
+  - first:
+      213: 1561664255415041647
+    second: Game_eyes_7cb6eaa1
+  - first:
+      213: 1184327157134347515
+    second: Game_eyes_28edc92a
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -43,10 +55,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -81,10 +93,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -196,6 +208,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_eyes_47a67592
+      rect:
+        serializedVersion: 2
+        x: 680
+        y: 55
+        width: 339
+        height: 385
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0027}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47a67592082e5c93cc755cebd0fa5930
+      internalID: 1322683955805611465
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_eyes_c42ecb0c
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 55
+        width: 339
+        height: 385
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0027}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c42ecb0c627c5723f4a19d87084c8baf
+      internalID: 1883528720900932978
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_eyes_7cb6eaa1
+      rect:
+        serializedVersion: 2
+        x: 1782
+        y: 55
+        width: 339
+        height: 385
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0027}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cb6eaa1b0c3e6f5a8be92cbf0b0d3f0
+      internalID: 1561664255415041647
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_eyes_28edc92a
+      rect:
+        serializedVersion: 2
+        x: 1231
+        y: 55
+        width: 339
+        height: 385
+      alignment: 9
+      pivot: {x: 0.5, y: 0.0027}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28edc92a3734cfbfdc4300fed02c831d
+      internalID: 1184327157134347515
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -210,6 +310,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_eyes_47a67592: 1322683955805611465
+      Game_eyes_c42ecb0c: 1883528720900932978
+      Game_eyes_7cb6eaa1: 1561664255415041647
+      Game_eyes_28edc92a: 1184327157134347515
       eyes_0: -8817426130257391540
       eyes_1: 3060230111996817670
       eyes_2: -7553300288962703749

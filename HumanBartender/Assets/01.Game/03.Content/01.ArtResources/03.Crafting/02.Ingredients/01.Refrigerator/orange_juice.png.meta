@@ -5,6 +5,12 @@ TextureImporter:
   - first:
       213: 1088284764398661387
     second: orange_juice_0
+  - first:
+      213: 21300000
+    second: orange_juice
+  - first:
+      213: 1845847538649729269
+    second: Game_orange_juice_bbd0ddad
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +52,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -121,6 +127,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: orange_juice
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 93
+        height: 223
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 558132d604b653ac946de00fe5526b54
+      internalID: 21300000
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_orange_juice_bbd0ddad
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 0
+        width: 42
+        height: 168
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbd0ddadb5b08f5becd3b411e19344cd
+      internalID: 1845847538649729269
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +185,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      orange_juice: 21300000
+      Game_orange_juice_bbd0ddad: 1845847538649729269
       orange_juice_0: 1088284764398661387
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

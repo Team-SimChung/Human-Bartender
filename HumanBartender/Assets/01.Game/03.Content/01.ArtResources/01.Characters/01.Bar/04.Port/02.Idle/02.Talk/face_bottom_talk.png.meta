@@ -14,6 +14,18 @@ TextureImporter:
   - first:
       213: 1580210327813942747
     second: face_bottom_talk_3
+  - first:
+      213: 2031732873090098721
+    second: Game_face_bottom_talk_e517394e
+  - first:
+      213: 1038539889801189287
+    second: Game_face_bottom_talk_088ebd35
+  - first:
+      213: 1456438223694497104
+    second: Game_face_bottom_talk_65598256
+  - first:
+      213: 1986547423076266639
+    second: Game_face_bottom_talk_db0eba78
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -43,10 +55,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -81,10 +93,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -196,6 +208,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_talk_e517394e
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e517394eba0e621f8cd50123f4187a2a
+      internalID: 2031732873090098721
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_talk_088ebd35
+      rect:
+        serializedVersion: 2
+        x: 1194
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 088ebd3594857a70b65aae252f7a925c
+      internalID: 1038539889801189287
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_talk_65598256
+      rect:
+        serializedVersion: 2
+        x: 1746
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6559825693885509a6196c03a3c83c88
+      internalID: 1456438223694497104
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_face_bottom_talk_db0eba78
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db0eba78289b28fad770e580e0d1de93
+      internalID: 1986547423076266639
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -210,6 +310,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_face_bottom_talk_e517394e: 2031732873090098721
+      Game_face_bottom_talk_088ebd35: 1038539889801189287
+      Game_face_bottom_talk_65598256: 1456438223694497104
+      Game_face_bottom_talk_db0eba78: 1986547423076266639
       face_bottom_talk_0: -2698972098500225668
       face_bottom_talk_1: -4420006079815854363
       face_bottom_talk_2: 568456962693834850

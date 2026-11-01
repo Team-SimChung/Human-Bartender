@@ -26,6 +26,18 @@ TextureImporter:
   - first:
       213: -9200250246077429175
     second: eyebrow_7
+  - first:
+      213: 1906529108816685359
+    second: Game_eyebrow_c94a36be
+  - first:
+      213: 1072031263985161378
+    second: Game_eyebrow_0ffe80d8
+  - first:
+      213: 1064785169868188481
+    second: Game_eyebrow_0e629c4c
+  - first:
+      213: 1536295801761341201
+    second: Game_eyebrow_7714e30b
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,10 +67,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -93,10 +105,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -296,6 +308,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Game_eyebrow_c94a36be
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c94a36be591e92f3136c94c7f6d65f9a
+      internalID: 1906529108816685359
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_eyebrow_0ffe80d8
+      rect:
+        serializedVersion: 2
+        x: 1745
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ffe80d8e8ed4a2e5d59f0916396b43f
+      internalID: 1072031263985161378
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_eyebrow_0e629c4c
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e629c4ccb4eb412a3fc900f065aa555
+      internalID: 1064785169868188481
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_eyebrow_7714e30b
+      rect:
+        serializedVersion: 2
+        x: 1194
+        y: 55
+        width: 373
+        height: 352
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7714e30b6849f11d30e6ba9f40492a2d
+      internalID: 1536295801761341201
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -310,6 +410,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      Game_eyebrow_c94a36be: 1906529108816685359
+      Game_eyebrow_0ffe80d8: 1072031263985161378
+      Game_eyebrow_0e629c4c: 1064785169868188481
+      Game_eyebrow_7714e30b: 1536295801761341201
       eyebrow_0: 3078226200369244658
       eyebrow_1: 792538450687254331
       eyebrow_2: 1560319577188664042

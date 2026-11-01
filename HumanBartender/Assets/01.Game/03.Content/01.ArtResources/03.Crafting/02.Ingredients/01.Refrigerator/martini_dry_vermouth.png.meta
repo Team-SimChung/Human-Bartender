@@ -5,6 +5,12 @@ TextureImporter:
   - first:
       213: 543146842458613262
     second: martini_dry_vermouth_0
+  - first:
+      213: 21300000
+    second: martini_dry_vermouth
+  - first:
+      213: 1841488248614000809
+    second: Game_martini_dry_vermouth_bad911a8
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +52,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -121,6 +127,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: martini_dry_vermouth
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 93
+        height: 223
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6a9b72176f5dd05304ec93583af5180
+      internalID: 21300000
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_martini_dry_vermouth_bad911a8
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 0
+        width: 57
+        height: 196
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bad911a8d4d98a984681a776599e5ac7
+      internalID: 1841488248614000809
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +185,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      martini_dry_vermouth: 21300000
+      Game_martini_dry_vermouth_bad911a8: 1841488248614000809
       martini_dry_vermouth_0: 543146842458613262
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

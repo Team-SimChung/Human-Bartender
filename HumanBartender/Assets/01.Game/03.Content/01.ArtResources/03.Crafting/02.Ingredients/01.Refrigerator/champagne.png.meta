@@ -5,6 +5,12 @@ TextureImporter:
   - first:
       213: -4115121420300158249
     second: champagne_0
+  - first:
+      213: 21300000
+    second: champagne
+  - first:
+      213: 1837879036266680782
+    second: Game_champagne_ba0be8b5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +52,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -121,6 +127,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: champagne
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 93
+        height: 223
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9177f19b8a1232a89a5c1e9fd183fb8
+      internalID: 21300000
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_champagne_ba0be8b5
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 0
+        width: 55
+        height: 204
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba0be8b516c11cef821c992cc8c59a0f
+      internalID: 1837879036266680782
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +185,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      champagne: 21300000
+      Game_champagne_ba0be8b5: 1837879036266680782
       champagne_0: -4115121420300158249
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

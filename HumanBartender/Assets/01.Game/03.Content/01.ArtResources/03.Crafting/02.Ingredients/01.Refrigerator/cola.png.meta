@@ -5,6 +5,12 @@ TextureImporter:
   - first:
       213: 2138416828236337748
     second: cola_0
+  - first:
+      213: 21300000
+    second: cola
+  - first:
+      213: 1493535546349690686
+    second: Game_cola_6d963f6e
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +52,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -121,6 +127,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: cola
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 93
+        height: 119
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acfe915b33c16aed07e2788d4c31c668
+      internalID: 21300000
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Game_cola_6d963f6e
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 0
+        width: 46
+        height: 90
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d963f6ec339f3e932558bf49f699b47
+      internalID: 1493535546349690686
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -135,6 +185,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      cola: 21300000
+      Game_cola_6d963f6e: 1493535546349690686
       cola_0: 2138416828236337748
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

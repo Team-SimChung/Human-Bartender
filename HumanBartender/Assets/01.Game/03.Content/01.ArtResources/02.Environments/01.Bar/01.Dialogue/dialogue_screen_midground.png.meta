@@ -17,6 +17,9 @@ TextureImporter:
   - first:
       213: -8224975554698046168
     second: dialogue_screen_midground_4
+  - first:
+      213: 501200010000000001
+    second: dialogue_screen_midground_Full
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +52,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -87,7 +90,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -221,6 +224,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: dialogue_screen_midground_Full
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2041
+        height: 792
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6a1237a6a9a4651b1bbd72d0d347b21
+      internalID: 501200010000000001
+      vertices: []
+      indices:
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -235,6 +260,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      dialogue_screen_midground_Full: 501200010000000001
       dialogue_screen_midground_0: 6822431694217442930
       dialogue_screen_midground_1: 302049501985499414
       dialogue_screen_midground_2: 7353805382565462309
