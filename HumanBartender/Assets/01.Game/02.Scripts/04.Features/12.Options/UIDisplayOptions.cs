@@ -23,6 +23,10 @@ public class UIDisplayOptions : MonoBehaviour
     [SerializeField] private Toggle fillToggle, vSyncToggle, postProcessingToggle;
     [SerializeField] private TMP_Dropdown frameRateDropdown;
 
+    [Header("Effect UI References")]
+    [SerializeField] private TMP_Dropdown bloomDropdown;
+    [SerializeField] private Toggle lightShaftToggle, characterLightingToggle, puddleReflectionToggle;
+
     [Header("Sound UI References")]
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider seSlider;
@@ -75,6 +79,18 @@ public class UIDisplayOptions : MonoBehaviour
         frameRateDropdown.SetValueWithoutNotify(1);
         frameRateDropdown.interactable = false;
         optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshNavigation();
+    }
+    public void ResetEffectsDraft()
+    {
+        ShowEffects(GraphicsEffectOptions.Values.Default);
+        optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshNavigation();
+    }
+    void ShowEffects(GraphicsEffectOptions.Values values)
+    {
+        if (bloomDropdown) bloomDropdown.SetValueWithoutNotify((int)values.Bloom);
+        if (lightShaftToggle) lightShaftToggle.SetIsOnWithoutNotify(values.LightShafts);
+        if (characterLightingToggle) characterLightingToggle.SetIsOnWithoutNotify(values.CharacterLighting);
+        if (puddleReflectionToggle) puddleReflectionToggle.SetIsOnWithoutNotify(values.PuddleReflections);
     }
     public static bool IsOptionOpen
     {
@@ -152,6 +168,11 @@ public class UIDisplayOptions : MonoBehaviour
             frameRateDropdown.ClearOptions();
             frameRateDropdown.AddOptions(new List<string> { "30 FPS", "60 FPS", "120 FPS", "144 FPS", "제한 없음" });
         }
+        if (bloomDropdown != null)
+        {
+            bloomDropdown.ClearOptions();
+            bloomDropdown.AddOptions(new List<string>(GraphicsEffectOptions.BloomLabels));
+        }
     }
 
     private void SyncUIFromCurrentSettings()
@@ -174,6 +195,7 @@ public class UIDisplayOptions : MonoBehaviour
             frameRateDropdown.SetValueWithoutNotify(Mathf.Clamp(PlayerPrefs.GetInt("FrameRateIndex", 1), 0, DisplaySettings.FrameRates.Length - 1));
             frameRateDropdown.interactable = !vsync;
         }
+        ShowEffects(GraphicsEffectOptions.Current);
     }
 
     // 창모드 토글 OnValueChanged 에 연결
@@ -195,6 +217,14 @@ public class UIDisplayOptions : MonoBehaviour
         _display.SetVSync(vSyncToggle.isOn);
         _display.SetFrameRate(frameRateDropdown.value);
         _display.SetPostProcessing(postProcessingToggle.isOn);
+        if (bloomDropdown == null) return;
+        _display.SetEffects(new GraphicsEffectOptions.Values
+        {
+            Bloom = (GraphicsEffectOptions.BloomLevel)bloomDropdown.value,
+            LightShafts = lightShaftToggle.isOn,
+            CharacterLighting = characterLightingToggle.isOn,
+            PuddleReflections = puddleReflectionToggle.isOn,
+        });
     }
 
     public void OnVSyncToggled(bool enabled)

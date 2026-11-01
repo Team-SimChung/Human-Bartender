@@ -449,8 +449,9 @@ public static class VisualUISetup
             Image("Navigation rule", frame.transform, 218, 81, 1, 394, Line);
             Image("Footer", frame.transform, 1, 475, 998, 64, Hex("0f242e"));
             Image("Footer rule", frame.transform, 1, 475, 998, 1, Line);
-            var pages = new GameObject[3]; var tabs = new Button[3]; var indicators = new GameObject[3]; string[] titles = { "사운드", "그래픽", "조작키" };
-            for (int i = 0; i < 3; i++)
+            string[] titles = { "사운드", "그래픽", "효과", "조작키" };
+            var pages = new GameObject[titles.Length]; var tabs = new Button[titles.Length]; var indicators = new GameObject[titles.Length];
+            for (int i = 0; i < titles.Length; i++)
             {
                 tabs[i] = Button(titles[i] + " tab", frame.transform, titles[i], 16, 106 + i * 60, 186, 50);
                 tabs[i].GetComponentInChildren<TMP_Text>().alignment = TextAlignmentOptions.MidlineLeft;
@@ -498,7 +499,21 @@ public static class VisualUISetup
             Set(controller, "fillToggle", fill); Set(controller, "vSyncToggle", vsync);
             Set(controller, "postProcessingToggle", post); Set(controller, "frameRateDropdown", frameRate);
             Text("Display apply hint", game, "그래픽 변경은 ‘적용’을 눌러 저장합니다. 적용 전 닫으면 변경을 취소합니다.", 0, 294, 722, 40, 12, Muted);
-            var controls = pages[2].transform;
+            var effects = pages[OptionsPanelView.EffectsTab].transform;
+            GraphicsRow(effects, "블룸", "밝은 네온과 림라이트 주변이 번지는 세기입니다. 후처리 효과가 켜져 있어야 합니다.", 0);
+            GraphicsRow(effects, "가로등 빛줄기", "가로등 아래로 내려오는 빛줄기를 표시합니다.", 46);
+            GraphicsRow(effects, "캐릭터 조명", "캐릭터 몸의 음영과 광원 쪽 림라이트를 표시합니다.", 92);
+            GraphicsRow(effects, "물웅덩이 반사", "바닥 물웅덩이에 주변 배경을 비춥니다.", 138);
+            var bloom = Object.Instantiate(dropdown, effects); bloom.name = "Bloom";
+            Position((RectTransform)bloom.transform, 520, 3, 202, 36);
+            bloom.onValueChanged = new TMP_Dropdown.DropdownEvent();
+            bloom.ClearOptions(); bloom.AddOptions(new System.Collections.Generic.List<string>(GraphicsEffectOptions.BloomLabels));
+            Set(controller, "bloomDropdown", bloom);
+            Set(controller, "lightShaftToggle", SettingsToggle("Light shafts", effects, "사용", 520, 49));
+            Set(controller, "characterLightingToggle", SettingsToggle("Character lighting", effects, "사용", 520, 95));
+            Set(controller, "puddleReflectionToggle", SettingsToggle("Puddle reflections", effects, "사용", 520, 141));
+            Text("Effects apply hint", effects, "효과 변경도 ‘적용’을 눌러 그래픽 설정과 함께 저장합니다.", 0, 294, 722, 40, 12, Muted);
+            var controls = pages[OptionsPanelView.ControlsTab].transform;
             var hint = Text("Controls hint", controls, OptionsPanelView.DefaultControlsHint, 0, 0, 722, 44, 12, Muted); Set(view, "controlsHint", hint);
             var viewport = Image("Bindings viewport", controls, 0, 52, 702, 286, Hex("09151e"));
             viewport.raycastTarget = true; viewport.gameObject.AddComponent<RectMask2D>();
@@ -537,7 +552,7 @@ public static class VisualUISetup
             Set(view, "titleConfirmation", confirmation.gameObject); Set(view, "cancelTitleButton", cancel); Set(view, "confirmTitleButton", confirm);
             confirmation.gameObject.SetActive(false);
             // 필드 연결을 끝낸 다음 활성화한다. OnEnable은 저장된 프리팹을 미리 보는데도 사용된다.
-            pages[1].SetActive(false); pages[2].SetActive(false);
+            for (int i = 1; i < pages.Length; i++) pages[i].SetActive(false);
             overlay.SetActive(false);
             PrefabUtility.SaveAsPrefabAsset(root, Scope);
         }

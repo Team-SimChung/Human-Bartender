@@ -11,6 +11,7 @@ public interface IDisplaySettings
     void SetVSync(bool enabled);
     void SetFrameRate(int index);
     void SetPostProcessing(bool enabled);
+    void SetEffects(GraphicsEffectOptions.Values values);
 
     void RegisterActiveCamera(PixelPerfectCamera ppc);
     void UnregisterActiveCamera(PixelPerfectCamera ppc);

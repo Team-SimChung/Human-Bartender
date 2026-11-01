@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using System;
@@ -23,6 +24,8 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
     public Vector2Int[] WindowedSizes => _windowedSizes;
 
     private PixelPerfectCamera _activePPC;
+    Volume bloomVolume;
+    VolumeProfile bloomProfile;
 
     public void Initialize()
     {
@@ -41,6 +44,7 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
         foreach (var pair in authoredPostProcessing)
             if (pair.Key != null) pair.Key.renderPostProcessing = pair.Value;
         authoredPostProcessing.Clear();
+        DestroyBloomVolume();
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode) => ApplySceneCameras();
@@ -57,6 +61,58 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
             if (!authoredPostProcessing.ContainsKey(data)) authoredPostProcessing.Add(data, data.renderPostProcessing);
             data.renderPostProcessing = PlayerPrefs.GetInt("PostProcessing", 1) == 1 && authoredPostProcessing[data];
         }
+        ApplyBloom();
+    }
+
+    public void SetEffects(GraphicsEffectOptions.Values values)
+    {
+        GraphicsEffectOptions.Save(values);
+        ApplyBloom();
+    }
+
+    /// <summary>씬에 배치된 블룸 세기를 기준(보통)으로 배율만 덮어쓴다. 보통이면 씬 연출값을 그대로 둔다.</summary>
+    void ApplyBloom()
+    {
+        var level = GraphicsEffectOptions.Current.Bloom;
+        if (level == GraphicsEffectOptions.BloomLevel.Normal) { DestroyBloomVolume(); return; }
+        float authored = 0;
+        foreach (var volume in UnityEngine.Object.FindObjectsByType<Volume>(FindObjectsSortMode.None))
+        {
+            if (volume == bloomVolume || !volume.isActiveAndEnabled || !volume.isGlobal || volume.sharedProfile == null) continue;
+            if (volume.sharedProfile.TryGet(out Bloom authoredBloom) && authoredBloom.active && authoredBloom.intensity.overrideState)
+                authored = Mathf.Max(authored, authoredBloom.intensity.value);
+        }
+        if (bloomVolume == null)
+        {
+            var go = new GameObject("Bloom option volume") { hideFlags = HideFlags.HideAndDontSave };
+            if (Application.isPlaying) UnityEngine.Object.DontDestroyOnLoad(go);
+            bloomVolume = go.AddComponent<Volume>();
+            bloomVolume.isGlobal = true;
+            bloomVolume.priority = 1000;
+            bloomProfile = ScriptableObject.CreateInstance<VolumeProfile>();
+            bloomProfile.hideFlags = HideFlags.HideAndDontSave;
+            bloomProfile.Add<Bloom>();
+            bloomVolume.sharedProfile = bloomProfile;
+        }
+        bloomProfile.TryGet(out Bloom bloom);
+        // 블룸이 없는 씬(Home 등)에서 '강하게'를 고르면 은은한 기본 블룸을 켠다.
+        bool fallback = authored <= 0 && level == GraphicsEffectOptions.BloomLevel.High;
+        bloom.intensity.Override(fallback ? .5f : authored * GraphicsEffectOptions.BloomScale(level));
+        bloom.threshold.overrideState = fallback;
+        bloom.threshold.value = .9f;
+    }
+
+    void DestroyBloomVolume()
+    {
+        if (bloomVolume != null) Destroy(bloomVolume.gameObject);
+        if (bloomProfile != null) Destroy(bloomProfile);
+        bloomVolume = null; bloomProfile = null;
+    }
+
+    static void Destroy(UnityEngine.Object target)
+    {
+        if (Application.isPlaying) UnityEngine.Object.Destroy(target);
+        else UnityEngine.Object.DestroyImmediate(target);
     }
 
     public void SetVSync(bool enabled)
