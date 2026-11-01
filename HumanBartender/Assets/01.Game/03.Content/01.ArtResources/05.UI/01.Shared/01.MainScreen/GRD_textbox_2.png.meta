@@ -5,6 +5,9 @@ TextureImporter:
   - first:
       213: -5269579663178271470
     second: GRD_textbox_2_0
+  - first:
+      213: 7102100100000000001
+    second: GRD_textbox_2_Body
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +78,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -88,7 +91,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -106,9 +109,9 @@ TextureImporter:
         x: 0
         y: 0
         width: 1405
-        height: 140
+        height: 77
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +128,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: faf4640132448f24386c1e5ae0d4a23d
     internalID: 0
     vertices: []
     indices: 
@@ -136,6 +139,7 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       GRD_textbox_2_0: -5269579663178271470
+      GRD_textbox_2_Body: 7102100100000000001
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -29,15 +29,18 @@ public class DynamicSpeechBubble : MonoBehaviour
 
     [Header("Mode")]
     public BubbleSizeMode sizeMode = BubbleSizeMode.GrowPerCharacter;
+    [Tooltip("크기 계산과 독립적인 외형 선택. Parts는 SpeechBubbleVisual과 파츠 구성이 필요합니다.")]
+    public SpeechBubbleVisualMode visualMode = SpeechBubbleVisualMode.SingleImage;
 
     [Header("References")]
     public TMP_Text textLabel;
     public TMP_Text nameLabel;
     public Color speakerNameColor = new Color32(143, 220, 255, 255);
     public RectTransform bubble;
-    public GameObject centerArrow;
-    public GameObject leftArrow;
-    public GameObject rightArrow;
+    // 직렬화된 참조와 기존 호출부를 보존하면서 Inspector 용어는 Tail로 통일한다.
+    [InspectorName("Center Tail")] public GameObject centerArrow;
+    [InspectorName("Left Tail")] public GameObject leftArrow;
+    [InspectorName("Right Tail")] public GameObject rightArrow;
 
 
     [Header("Size Limits")]
