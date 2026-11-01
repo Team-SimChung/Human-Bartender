@@ -8,6 +8,7 @@ using UnityEngine;
 public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter, IDialogueAutomaticPlayback
 {
     private DynamicSpeechBubble bubble;
+    private SpeechBubbleTail centerTail;
     private RectTransform layer;
     private CanvasGroup visibility;
     private NewTextTagDataSO tags;
@@ -31,6 +32,8 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
         ISoundEffectPlayer sound = null)
     {
         bubble = value;
+        centerTail = bubble.centerArrow.GetComponent<SpeechBubbleTail>();
+        if (centerTail == null) throw new InvalidOperationException("Bubble Prefab의 Center Tail 구성이 필요합니다.");
         bubble.TextPlayer.ConfigureAudio(sound, true, CanHear);
         layer = parent;
         tags = textTags;
@@ -118,9 +121,6 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
         Vector2 size = Vector2.Scale(rect.rect.size, new Vector2(Mathf.Abs(rect.localScale.x), Mathf.Abs(rect.localScale.y)));
         Vector2 position = anchor + target.BubbleOffset + new Vector2((rect.pivot.x - .5f) * size.x, rect.pivot.y * size.y);
         rect.position = layer.TransformPoint(WorldInteractionView.ClampToCanvas(layer.rect, size, rect.pivot, position, 8));
-        var tail = (RectTransform)bubble.centerArrow.transform;
-        Vector3 tailPosition = tail.localPosition;
-        tailPosition.x = Mathf.Clamp(rect.InverseTransformPoint(layer.TransformPoint(anchor)).x, rect.rect.xMin + 12, rect.rect.xMax - 12);
-        tail.localPosition = tailPosition;
+        centerTail.SetTarget(layer.TransformPoint(anchor), false);
     }
 }

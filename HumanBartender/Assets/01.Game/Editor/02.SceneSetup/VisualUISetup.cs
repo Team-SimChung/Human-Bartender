@@ -16,7 +16,7 @@ public static class VisualUISetup
 {
     const string Art = "Assets/01.Game/03.Content/01.ArtResources/05.UI/";
     const string Prefabs = "Assets/01.Game/03.Content/08.Prefabs/";
-    const string Dialogue = Prefabs + "03.UI/02.Dialogue/Dialogue TextBox.prefab";
+    const string Dialogue = SpeechBubblePartsSetup.PlayPrefabPath;
     const string Scope = Prefabs + "04.Shared/01.Bootstrap/ProjectLifeScope.prefab";
     static Color Ink => Hex("0b1720");
     static Color Cyan => Hex("43d6ee");
@@ -161,6 +161,18 @@ public static class VisualUISetup
 
     static void StyleBubble(DynamicSpeechBubble bubble, bool player)
     {
+        // 새 프리팹의 외형/글꼴 설정을 유지한다. 구형 Frame을 다시 추가하지 않는다.
+        if (bubble.TryGetComponent<SpeechBubbleVisual>(out var visual) && visual.IsConfigured)
+        {
+            foreach (var tail in bubble.GetComponentsInChildren<SpeechBubbleTail>(true))
+            {
+                var data = new SerializedObject(tail);
+                data.FindProperty("pointUp").boolValue = !player;
+                data.ApplyModifiedPropertiesWithoutUndo();
+            }
+            visual.Refresh();
+            return;
+        }
         bubble.minSize = new Vector2(240, 112); bubble.maxSize = new Vector2(390, 168);
         bubble.paddingLeft = bubble.paddingRight = 28.5f;
         bubble.paddingTop = 56; bubble.paddingBottom = 24;

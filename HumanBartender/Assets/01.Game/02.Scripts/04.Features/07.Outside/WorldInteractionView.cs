@@ -38,8 +38,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     private WorldSpeechBubblePlacement placement;
     private Vector2 speakerOffset;
     private bool explicitSpeaker;
-    private Vector2 authoredTailOffset;
-    private Quaternion authoredTailRotation;
+    private SpeechBubbleTail centerTail;
     private bool imageMode;
     private bool built;
     private bool hasDialogue;
@@ -91,9 +90,8 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         bubble = Instantiate(bubblePrefab, root);
         bubble.name = "SpeechBubble";
         authoredMaximumSize = bubble.maxSize;
-        var tail = (RectTransform)bubble.centerArrow.transform;
-        authoredTailOffset = tail.anchoredPosition;
-        authoredTailRotation = tail.localRotation;
+        centerTail = bubble.centerArrow.GetComponent<SpeechBubbleTail>();
+        if (centerTail == null) throw new InvalidOperationException("Bubble Prefab의 Center Tail 구성이 필요합니다.");
         bubbleVisibility = bubble.GetComponent<CanvasGroup>();
         if (bubbleVisibility == null) bubbleVisibility = bubble.gameObject.AddComponent<CanvasGroup>();
         // 말풍선이 클릭을 가로채지 않게 함. 외형 설정은 프리팹 값을 사용함.
@@ -281,15 +279,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
             Place(position, speakerOffset, camera, below);
             // 화면 가장자리에서도 꼬리가 화자의 위치를 가리키도록 보정함.
             RectTransformUtility.ScreenPointToLocalPointInRectangle(root, camera.WorldToScreenPoint(position), null, out var anchor);
-            var tail = (RectTransform)bubble.centerArrow.transform;
-            tail.anchorMin = tail.anchorMax = new Vector2(.5f, below ? 1 : 0);
-            tail.localRotation = authoredTailRotation * Quaternion.Euler(0, 0, below ? 180 : 0);
-            tail.anchoredPosition = new Vector2(authoredTailOffset.x, below ? -authoredTailOffset.y : authoredTailOffset.y);
-            Vector3 localAnchor = bubble.bubble.InverseTransformPoint(root.TransformPoint(anchor));
-            Rect bounds = bubble.bubble.rect;
-            Vector3 tailPosition = tail.localPosition;
-            tailPosition.x = Mathf.Clamp(localAnchor.x, bounds.xMin + 12, bounds.xMax - 12);
-            tail.localPosition = tailPosition;
+            centerTail.SetTarget(root.TransformPoint(anchor), below);
         }
         if (IsChoosing && player != null && camera != null)
         {
