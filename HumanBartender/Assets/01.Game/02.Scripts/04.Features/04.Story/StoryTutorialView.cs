@@ -18,6 +18,7 @@ public sealed class StoryTutorialView : MonoBehaviour
     [SerializeField] GameObject seats;
     [SerializeField] Button[] seatButtons;
     [SerializeField] TMP_Text[] seatLabels;
+    [SerializeField] TMP_FontAsset seatKeyFont;
 
     BarSeatStatusView seatHud;
     StoryTutorialGuideGraphic guide;
@@ -187,7 +188,7 @@ public sealed class StoryTutorialView : MonoBehaviour
         edge.gameObject.AddComponent<StoryTutorialShape>().Style(new Color(.32f, .54f, .58f), 7, 1);
         edge.SetAsFirstSibling();
         fillRect.SetAsFirstSibling();
-        seatHud = BarSeatStatusView.Create(transform, heading.font);
+        seatHud = BarSeatStatusView.Create(transform, seatKeyFont != null ? seatKeyFont : heading.font);
         seatHud.transform.SetSiblingIndex(1);
         var art = MakeRect("Tutorial Spotlight and Arrows", transform, Vector2.zero, Vector2.zero);
         art.anchorMin = Vector2.zero;

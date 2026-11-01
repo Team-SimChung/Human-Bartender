@@ -12,8 +12,11 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
     [SerializeField] GameObject focusDecoration;
     [SerializeField] Color restingColor = new Color32(77, 145, 165, 255);
     [SerializeField] Color focusedColor = new Color32(237, 252, 255, 255);
+    [SerializeField] TMP_FontAsset restingFont;
+    [SerializeField] TMP_FontAsset focusedFont;
     Selectable selectable;
     bool hovered, selected, animating;
+    bool lastFocus;
     double startedAt;
 
     void OnEnable()
@@ -31,6 +34,7 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
         if (label != null) label.OnPreRenderText -= Distort;
         hovered = selected = animating = false;
         if (focusDecoration != null) focusDecoration.SetActive(false);
+        if (label != null && restingFont != null) label.font = restingFont;
         Restore();
     }
 
@@ -49,8 +53,14 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
     void RefreshFocus(bool entered = false)
     {
         bool focus = (hovered || selected) && selectable != null && selectable.IsInteractable();
+        lastFocus = focus;
         if (focusDecoration != null) focusDecoration.SetActive(focus);
-        if (label != null) label.color = focus ? focusedColor : restingColor;
+        if (label != null)
+        {
+            label.color = focus ? focusedColor : restingColor;
+            TMP_FontAsset font = focus ? focusedFont : restingFont;
+            if (font != null && label.font != font) label.font = font;
+        }
         // 홀드 선택지도 포커스 색은 적용하되, 글자 글리치는 누르고 있는 동안만 재생한다.
         if (holdButton != null) return;
         if (focus && entered) { animating = true; startedAt = Time.unscaledTimeAsDouble; }
@@ -59,6 +69,8 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
 
     void LateUpdate()
     {
+        bool focus = (hovered || selected) && selectable != null && selectable.IsInteractable();
+        if (focus != lastFocus) RefreshFocus();
         if (!animating || label == null) return;
         if (selectable == null || !selectable.IsInteractable() ||
             (holdButton == null && Time.unscaledTimeAsDouble - startedAt >= .3))

@@ -16,6 +16,7 @@ public sealed class CocktailRecipePreview : MonoBehaviour
     [Header("Dynamic contents")]
     [SerializeField] private RectTransform tagList;
     [SerializeField] private RecipeTagChip tagPrefab;
+    [SerializeField] private CategoryColorData categoryColors;
     [SerializeField] private RectTransform ingredientList;
     [SerializeField] private RecipeIngredientCell ingredientPrefab;
     [SerializeField] private NewShelfItemDataSO shelfData;
@@ -137,14 +138,17 @@ public sealed class CocktailRecipePreview : MonoBehaviour
 
         foreach (NewCocktailTag tag in cocktail.Tags)
         {
-            if (!string.IsNullOrWhiteSpace(tag.Ko)) AddTag(tag.Ko);
+            if (string.IsNullOrWhiteSpace(tag.Ko)) continue;
+            Color? color = categoryColors != null && categoryColors.TryGetColor(tag.Ko, out Color mappedColor)
+                ? mappedColor : (Color?)null;
+            AddTag(tag.Ko, color);
         }
     }
 
-    private void AddTag(string value)
+    private void AddTag(string value, Color? color = null)
     {
         RecipeTagChip chip = Instantiate(tagPrefab, tagList);
-        chip.Bind(value);
+        chip.Bind(value, color);
         tagChips.Add(chip);
     }
 
