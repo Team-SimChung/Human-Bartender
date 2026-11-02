@@ -8,11 +8,10 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using VContainer;
 
 /// <summary>
-/// 타이쿤(1부) 국면의 손님 슬롯(GuestSlot) 전체를 관리한다. 랜덤 손님(random_waves.json)과
-/// 단골 손님(regular_slots.json)을 같은 day의 seq 순서로 합쳐 대기열을 구성하고, 빈 슬롯에 배정한다.
+/// 타이쿤(1부) 국면의 손님 슬롯(GuestSlot) 전체를 관리한다. 랜덤 손님(guests/random_waves.csv)과
+/// 단골 손님(guests/regular_slots.csv)을 같은 day의 seq 순서로 합쳐 대기열을 구성하고, 빈 슬롯에 배정한다.
 /// 손님이 자리를 떠나면 TycoonFlow에 응대 완료를 알려 남은 손님 수를 갱신시킨다.
-/// targetCocktailId는 cocktails.json에서 같은 tier의 칵테일 중 무작위로 배정한다.
-/// TODO: personality/max_rounds/branch_choice 반영 로직 연결.
+/// 주문이 지정되어 있으면 그 칵테일을, 비어 있으면 현재 주문 가능한 칵테일을 선택한다.
 /// </summary>
 public class GuestManager : MonoBehaviour
 {
@@ -40,7 +39,7 @@ public class GuestManager : MonoBehaviour
 
     [Header("Serve")]
     [Tooltip("잔을 받아 든 손님이 마시기까지 기다리는 시간(초). 받자마자 맛 반응이 나오면 마시는 장면 자체가 없다. " +
-             "balance.json에 해당 값이 생기면 그쪽으로 옮긴다.")]
+             "settings/balance_config.csv에 해당 값이 생기면 그쪽으로 옮긴다.")]
     [SerializeField] float drinkWaitSec = 4f;
 
     [Tooltip("서빙 반응 대사 하나가 말풍선에 떠 있는 시간(초).")]
@@ -56,13 +55,13 @@ public class GuestManager : MonoBehaviour
     /// <summary>serve_timeout_same_frame_priority가 이 값일 때, 같은 프레임 충돌에서 이탈을 먼저 확정한다.</summary>
     const string ServeTimeoutPriorityTimeout = "timeout";
 
-    /// <summary>단골에게 처음 붙이는 표정. barks.json의 expression을 읽게 되면 그쪽이 이 값을 대신한다.</summary>
+    /// <summary>단골에게 처음 붙이는 표정. guests/barks.csv의 expression을 읽게 되면 그쪽이 이 값을 대신한다.</summary>
     const string DefaultExpression = "default";
 
     const float PlayerBarkDurationSec = 3f;
 
     /// <summary>
-    /// balance.json 전체. 절대 필드에 받아 두지 않는다.
+    /// settings 폴더의 CSV로 조립한 balance 데이터 전체. 절대 필드에 받아 두지 않는다.
     ///
     /// 데이터 로더는 파일을 다 읽으면 SO의 balanceData에 **새 객체를 통째로 갈아 끼운다**. 그래서 로딩이
     /// 끝나기 전에 한 번 받아 둔 참조는 값이 비어 있는 옛 객체를 계속 가리키게 된다. 특히 settlement_rules는
@@ -111,7 +110,7 @@ public class GuestManager : MonoBehaviour
     public DailySales Sales => dailySales ??= new DailySales();
 
     /// <summary>
-    /// 현재 바 평판. 처음 쓸 때 만든다 — 시작값이 balance.json에서 오는데 Awake 시점에는 아직 로딩 전일 수 있다.
+    /// 현재 바 평판. 처음 쓸 때 만든다 — 시작값이 settings/balance_config.csv에서 오는데 Awake 시점에는 아직 로딩 전일 수 있다.
     /// </summary>
     public BarReputation Reputation => reputation ??= new BarReputation(Config.ReputationStart);
 
@@ -188,7 +187,7 @@ public class GuestManager : MonoBehaviour
 
     /// <summary>
     /// 제조 흐름에 들어가면 손님 쪽 시간을 멈추고, 나오면 멈추기 직전 남은 시간부터 다시 흘린다.
-    /// balance.json의 craft_pause_start = cocktail_menu_enter / craft_pause_end = return_to_table_after_serve_choice.
+    /// settings/balance_config.csv의 craft_pause_start = cocktail_menu_enter / craft_pause_end = return_to_table_after_serve_choice.
     /// </summary>
     void OnCraftFlowActiveChanged(bool craftFlowActive)
     {
@@ -215,7 +214,7 @@ public class GuestManager : MonoBehaviour
     /// 만들면 1부가 아직 비어 있는 큐를 보고 "오늘 손님 없음"으로 판단할 수 있다.
     /// </summary>
     /// <summary>
-    /// 슬롯을 준비한다. balance.json 값은 여기서 받아 두지 않는다 — 로딩이 끝나면서 객체가 새것으로
+    /// 슬롯을 준비한다. settings/balance_config.csv 값은 여기서 받아 두지 않는다 — 로딩이 끝나면서 객체가 새것으로
     /// 바뀌기 때문에, 쓸 때마다 Config·Balance 프로퍼티로 다시 읽는다.
     /// </summary>
     void Awake()
@@ -297,7 +296,7 @@ public class GuestManager : MonoBehaviour
     /// 그 한 벌을 다루는 곳이 이미 2부에 있다 — 여기서 다시 만들면 같은 캐릭터가 1부와 2부에서
     /// 다르게 보이기 시작한다.
     ///
-    /// 표정은 우선 기본값으로 둔다. barks.json의 expression을 읽어 상황마다 바꾸는 것은 아직 미구현이다.
+    /// 표정은 우선 기본값으로 둔다. guests/barks.csv의 expression을 읽어 상황마다 바꾸는 것은 아직 미구현이다.
     /// </summary>
     void SetSlotCharacter(GuestSlot slot, Guest guest)
     {
@@ -362,7 +361,7 @@ public class GuestManager : MonoBehaviour
 
         if (guest.appearance == null)
         {
-            Debug.LogError($"[Guest] {guest.id}의 외형을 만들지 못했습니다. guest_bodies.json을 확인하세요.");
+            Debug.LogError($"[Guest] {guest.id}의 외형을 만들지 못했습니다. guests/guest_parts.csv와 guest_settings.csv를 확인하세요.");
             return;
         }
 
@@ -407,7 +406,7 @@ public class GuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 조합을 만들어 두는 곳. 처음 쓸 때 만든다 — guest_bodies.json과 balance.json이 모두
+    /// 조합을 만들어 두는 곳. 처음 쓸 때 만든다 — 외형 CSV로 조립한 guest_bodies 데이터와 settings/balance_config.csv가 모두
     /// 로드된 뒤여야 하는데, Awake 시점에는 아직 아닐 수 있다.
     /// </summary>
     GuestAppearanceBuilder AppearanceBuilder =>
@@ -483,7 +482,20 @@ public class GuestManager : MonoBehaviour
         for (int i = 0; i < slotOrder.Count; i++)
             sprites.Set(slotOrder[i], handles[i]);
 
-        return sprites;
+        try
+        {
+            // The typed Unity binding owns the mapping; neither gender nor an ID suffix is inferred here.
+            if (appearance.TryGet(EGuestBodySlot.Mouth, out var mouth) &&
+                ResourceLoader.ResolveKey(mouth.Sprite, typeof(AnimationClip)) != mouth.Sprite)
+                sprites.SetMouthAnimation(await ResourceLoader.TryLoadAsync<AnimationClip>(mouth.Sprite, token));
+            token.ThrowIfCancellationRequested();
+            return sprites;
+        }
+        catch
+        {
+            sprites.Release();
+            throw;
+        }
 
         async UniTask<AsyncOperationHandle<Sprite>?> LoadPartAsync(string address)
         {
@@ -495,7 +507,7 @@ public class GuestManager : MonoBehaviour
 
     Guest CreateFromRegularSlot(NewRegularSlotData slot)
     {
-        // 단골은 personalities.json을 참조하지 않아 팁 배율과 인내심 배율이 모두 1이다.
+        // 단골은 guests/personalities.csv를 참조하지 않아 팁 배율과 인내심 배율이 모두 1이다.
         // 배율만 없을 뿐 기다리는 것은 랜덤 손님과 같아서, 코스터·서빙 타이머는 그대로 돈다.
         var guest = new Guest
         {
@@ -526,7 +538,7 @@ public class GuestManager : MonoBehaviour
             // 시스템이 임의로 다른 칵테일로 바꾸면 그 장면이 성립하지 않는다.
             if (cocktailData.TryGet(order, out _)) return order;
 
-            Logger.Log($"[Guest] 지정된 주문 '{order}'을 cocktails.json에서 찾지 못했습니다.");
+            Logger.Log($"[Guest] 지정된 주문 '{order}'을 craft/cocktails.csv에서 찾지 못했습니다.");
         }
 
         return PickRandomAvailableCocktailId();
@@ -560,7 +572,7 @@ public class GuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// personalities.json에서 personalityId와 일치하는 tip_mult/patience_mult/think_chance를 찾는다.
+    /// guests/personalities.csv에서 personalityId와 일치하는 tip_mult/patience_mult/think_chance를 찾는다.
     /// 찾지 못하면 전부 1.0 — 팁·인내심을 그대로 두고 주문 고민 대사는 늘 나오는 쪽으로 둔다.
     /// </summary>
     (float tipMult, float patienceMult, float thinkChance) GetPersonalityValues(string personalityId)
@@ -667,7 +679,7 @@ public class GuestManager : MonoBehaviour
         ShowBark(slot, leaveBark, leaveBarkDurationSec);
         slot.MarkLeaving();
 
-        // 응대하지 못하고 돌려보낸 손님이라 평판이 깎인다(balance.json의 leave_coaster_rep / leave_serve_rep).
+        // 응대하지 못하고 돌려보낸 손님이라 평판이 깎인다(settings/balance_config.csv의 leave_coaster_rep / leave_serve_rep).
         Reputation.Add(reputationDelta, $"{guest.id} {leaveBark}");
 
         // 손님이 바로 사라지지 않고, leave 말풍선이 떠있는 동안(leaveBarkDurationSec)은 자리에 남아있다가 그 뒤에 퇴장한다.
@@ -693,7 +705,7 @@ public class GuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// barks.json에서 situation과 손님의 personality(voice_id)가 모두 일치하는 대사 중 weight를 가중치로 하나를 뽑아
+    /// guests/barks.csv에서 situation과 손님의 personality(voice_id)가 모두 일치하는 대사 중 weight를 가중치로 하나를 뽑아
     /// 슬롯의 말풍선에 띄운다. personality가 일치하는 대사가 없으면 voice_id가 없는(공용) 대사 중에서 고른다.
     /// 그마저 없으면 아무것도 하지 않는다.
     /// </summary>
@@ -787,7 +799,7 @@ public class GuestManager : MonoBehaviour
         return picked;
     }
 
-    /// <summary>cocktails.json에서 cocktailId에 해당하는 이름(한글)을 찾는다. 없으면 null.</summary>
+    /// <summary>craft/cocktails.csv에서 cocktailId에 해당하는 이름(한글)을 찾는다. 없으면 null.</summary>
     string GetCocktailName(string cocktailId)
     {
         if (string.IsNullOrEmpty(cocktailId)) return null;
@@ -956,7 +968,7 @@ public class GuestManager : MonoBehaviour
     /// <summary>
     /// 이 손님의 서빙 제한시간이 이미 지났는지.
     ///
-    /// 유효한 드롭과 인내심 종료가 같은 프레임에 겹치면 balance.json의
+    /// 유효한 드롭과 인내심 종료가 같은 프레임에 겹치면 settings/balance_config.csv의
     /// serve_timeout_same_frame_priority = timeout 에 따라 이탈을 먼저 확정한다(운영 명세 §7.2).
     /// 타이머 쪽 대기가 아직 깨어나지 않아 손님이 자리에 남아 있어도, 시각으로 보면 지난 뒤이므로
     /// 여기서 막는다. 잔은 서빙으로 쓰이지 않고 트레이로 되돌아가며 정산도 만들지 않는다.
@@ -1053,7 +1065,7 @@ public class GuestManager : MonoBehaviour
 
     /// <summary>
     /// 코스터가 놓였을 때 플레이어(바텐더, luna)의 ask_order 대사를 손님 자리의 말풍선이 아니라
-    /// 다이얼로그 말풍선(UIDialogueTextView.lunaSpeechBubble)에 띄운다. barks.json에서 situation=ask_order,
+    /// 다이얼로그 말풍선(UIDialogueTextView.lunaSpeechBubble)에 띄운다. guests/barks.csv에서 situation=ask_order,
     /// voice_id=luna인 대사 중 weight로 하나를 골라 표시하며, {cocktail}은 손님의 targetCocktailId로 치환된다.
     /// </summary>
     void ShowPlayerAskOrderBark(Guest guest)

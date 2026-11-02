@@ -103,5 +103,11 @@
     "settings/ui_strings.csv": "6db654b5fe08373e26eb663926020b08b33f1fd263b7d8d5281e8c86bb33e1e8",
     "system/balance_root.csv": "8fb16be9ba3309f8d966cdadf9d0349c54e193ad6af688519b0dcd819f3ae10f",
     "presentation/values.csv": "33fe09a7753232b6a2b1df952ffc5a8019df5c68acf3a823bde2ab86d19201a9"
-  }
+  },
+  "unity_overrides": {
+    "guests/guest_parts.csv": "8eb445e5a3bd8fe35f5fb203bf023d9f1e1876b24f84c7ecddc3f6248fb5e885",
+    "guests/guest_exclusions.csv": "b77422fa71c72052d150ae7ce4bc8d99eab903ef06f2b5d8d45370239a654b11",
+    "system/data_sets.csv": "fbbb8c00506c17ea1e27c07eebef0711afa1d716b9ac56421d44eedd7063cfe3"
+  },
+  "unity_override_reason": "Guest appearance catalog is authored in Unity against installed art. Pinned web hashes remain the unmodified import baseline."
 }

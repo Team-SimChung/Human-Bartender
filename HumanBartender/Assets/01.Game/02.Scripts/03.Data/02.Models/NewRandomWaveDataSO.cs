@@ -20,7 +20,7 @@ public struct NewRandomWaveData
     [field: SerializeField][JsonProperty("branch_choice")] public bool BranchChoice { get; set; }
 }
 
-/// <summary>StreamingAssets/json/random_waves.json을 보유하는 ScriptableObject.</summary>
+/// <summary>StreamingAssets/csv/guests/random_waves.csv을 보유하는 ScriptableObject.</summary>
 [CreateAssetMenu(fileName = "NewRandomWaveDataSO", menuName = "Data/New/RandomWaveDataSO")]
 public class NewRandomWaveDataSO : ScriptableObject
 {

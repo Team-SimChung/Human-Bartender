@@ -154,6 +154,9 @@ def publish(folder, target, commit, lock_path=LOCK, id_map_path=None):
     target = target.resolve()
     target.mkdir(parents=True, exist_ok=True)
     old_lock = json.loads(lock_path.read_text(encoding='utf-8')) if lock_path.exists() else None
+    if old_lock and old_lock.get('unity_overrides'):
+        raise ValueError('Unity-authored CSV overrides are protected; reconcile these files before web import: ' +
+                         ', '.join(sorted(old_lock['unity_overrides'])))
     if old_lock:
         for name, expected in old_lock['files'].items():
             current = target / safe_path(name)

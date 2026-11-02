@@ -9,11 +9,11 @@ public class Guest
 
     // 손님별 난이도(tier)는 데이터에서 사라졌다. 이제 웨이브 데이터가 주문 칵테일을 직접 지정하고,
     // 서빙 여유는 손님이 아니라 진행 일차로 정해진다.
-    public string personality; // random_waves.json 전용, 단골은 null
-    public float tipMultiplier = 1f; // personalities.json의 tip_mult
-    public float patienceMultiplier = 1f; // personalities.json의 patience_mult. 단골은 성격이 없어 1이다.
+    public string personality; // guests/random_waves.csv 전용, 단골은 null
+    public float tipMultiplier = 1f; // guests/personalities.csv의 tip_mult
+    public float patienceMultiplier = 1f; // guests/personalities.csv의 patience_mult. 단골은 성격이 없어 1이다.
 
-    /// <summary>personalities.json의 think_chance. 이 확률로만 order_think(주문 고민) 대사가 나온다.</summary>
+    /// <summary>guests/personalities.csv의 think_chance. 이 확률로만 order_think(주문 고민) 대사가 나온다.</summary>
     public float thinkChance = 1f;
     public int maxRounds = 1;
 
@@ -64,6 +64,6 @@ public class Guest
 
     public bool isDrunk = false;
 
-    public GuestBodyAppearance appearance; // 랜덤 손님에게 배정된 파츠 조합(guest_bodies.json). 단골(isRegular)이면 null.
+    public GuestBodyAppearance appearance; // 랜덤 손님에게 배정된 파츠 조합(guests/guest_*.csv로 조립한 guest_bodies 데이터). 단골(isRegular)이면 null.
     public GuestBodySprites bodySprites; // appearance를 addressable로 로드한 스프라이트. 로딩이 끝나기 전에는 null.
 }
