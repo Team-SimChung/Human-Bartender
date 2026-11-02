@@ -340,7 +340,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void ConfigureVolume()
     {
-        visualCapacityMl = Mathf.Max(1f,craftContext.GlassId == "mug" ? mugCapacityMl : glassCapacityMl);
+        visualCapacityMl = Mathf.Max(1f,craftContext.GlassId == "weizen" ? mugCapacityMl : glassCapacityMl);
         Vector3 scale = glassCenter.lossyScale;
         float area = 4f * Mathf.Abs(glassInteriorHalfExtents.x * scale.x * glassInteriorHalfExtents.y * scale.y);
         particleVolumeMl = visualCapacityMl * Spacing * Spacing * particleAreaScale / Mathf.Max(0.0001f,area);
