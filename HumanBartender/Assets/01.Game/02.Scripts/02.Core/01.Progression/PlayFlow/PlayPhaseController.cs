@@ -20,6 +20,7 @@ public class PlayPhaseController : MonoBehaviour
 
     [Inject] IGameProgressionService progression;
     [Inject] PlayerSettlement settlement;
+    [Inject] IConditionUtil conditions;
 
     [Header("국면별 화면")]
     [Tooltip("1부에만 보이는 것. 손님 자리(Tycoon Resource), 코스터 트레이 캔버스, 제조 슬라이드 패널 캔버스.")]
@@ -259,7 +260,7 @@ public class PlayPhaseController : MonoBehaviour
             await RunPhaseAsync(storyFlow, cancellationToken);
             EndCurrentPhase();
 
-            NewDataLoadManager.MarkBarCompleted(GameStateManager.Instance.CurrentDay);
+            conditions.ApplyRequired($"flag.day{GameStateManager.Instance.CurrentDay}_bar_completed = true");
             departurePending = true;
             GameProgressionResult departure = await progression.CompleteBarAsync(cancellationToken);
             if (departure.Outcome == GameProgressionOutcome.Canceled)

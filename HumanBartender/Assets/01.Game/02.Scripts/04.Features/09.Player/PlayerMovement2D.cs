@@ -24,6 +24,8 @@ public class PlayerMovement2D : MonoBehaviour
 
 
     private float _moveInputX;
+    // 연출이 이동을 대신하는 동안의 입력. 값이 있으면 플레이어 입력보다 우선한다.
+    private float? _scriptedInputX;
 
     private float _velocityX;
     private float _velocityY;
@@ -37,11 +39,25 @@ public class PlayerMovement2D : MonoBehaviour
     public float VelocityY => _velocityY;
     public bool  IsGrounded => _isGrounded;
     public bool  IsFacingRight => _isFacingRight;
-    public bool  IsMoving => Mathf.Abs(_moveInputX) > 0.01f;
+    public bool  IsMoving => Mathf.Abs(CurrentInputX) > 0.01f;
+
+    private float CurrentInputX => _scriptedInputX ?? _moveInputX;
 
 
     /// <summary>이동 입력(좌우)을 저장한다. X 성분만 사용.</summary>
     public void GetMoveInput(Vector2 value) => _moveInputX = value.x;
+
+    /// <summary>
+    /// 자동 걷기 같은 연출이 좌우 입력을 대신한다. null을 넘기면 플레이어 입력으로 돌아간다.
+    /// 같은 충돌·속도·반전 경로를 쓰므로 연출 이동도 벽과 바닥 판정을 그대로 따른다.
+    /// </summary>
+    public void SetScriptedInput(float? inputX) => _scriptedInputX = inputX;
+
+    /// <summary>바라보는 방향을 지정한다. 씬 시작 자리처럼 입력 없이 방향을 정해야 할 때 쓴다.</summary>
+    public void Face(bool right)
+    {
+        if (_isFacingRight != right) Flip();
+    }
     /// <summary>엘리베이터 등 외부 요인에 의한 위치 이동량을 다음 프레임 이동에 누적 반영한다.</summary>
     public void HandleExternalDelta(Vector2 delta) => _externalDelta += delta;
 
@@ -54,7 +70,7 @@ public class PlayerMovement2D : MonoBehaviour
     /// <summary>매 프레임 호출: 입력 기반 X속도 계산 -> 충돌 처리된 이동 적용 -> 스프라이트 좌우 반전 처리.</summary>
     public void Handle()
     {
-        _velocityX = _moveInputX * curSpeed;
+        _velocityX = CurrentInputX * curSpeed;
 
         MoveWithCollision();
         HandleFlip();
@@ -110,8 +126,9 @@ public class PlayerMovement2D : MonoBehaviour
     /// <summary>이동 방향이 바뀌면 스프라이트를 반전시킨다.</summary>
     private void HandleFlip()
     {
-        if (_moveInputX > 0.01f && !_isFacingRight) Flip();
-        else if (_moveInputX < -0.01f && _isFacingRight) Flip();
+        float inputX = CurrentInputX;
+        if (inputX > 0.01f && !_isFacingRight) Flip();
+        else if (inputX < -0.01f && _isFacingRight) Flip();
     }
     /// <summary>
     /// 좌우 방향을 반전시키고 spriteRenderer.flipX로 반영한다.

@@ -22,7 +22,7 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
     [SerializeField] Vector2 ambientDirection = new Vector2(0.35f, 1);
     [SerializeField, Range(0, 1)] float ambientSideShadow = 0.4f;
     [Header("림라이트")]
-    [SerializeField, Range(0, 4)] float rimIntensity = 1.2f;
+    [SerializeField, Range(0, 4)] float rimIntensity = 0.4f;
     [SerializeField, Range(1, 4)] float rimWidth = 1;
     [Tooltip("0이면 rimColor, 1이면 광원 색을 그대로 쓴다.")]
     [SerializeField, Range(0, 1)] float rimUsesLightColor = 0.75f;
@@ -31,10 +31,10 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
     [SerializeField, Range(0.5f, 4)] float rimFocus = 2;
     [Tooltip("광원에서 먼 부분(가로등 아래의 발끝 등)일수록 림이 약해지는 정도. 0이면 몸 전체가 같은 밝기.")]
     [SerializeField, Range(0, 3)] float rimDistanceFalloff = 1.5f;
-    [Tooltip("림을 더 밝히고 안쪽으로 번지는 띠를 더해 블룸이 걸리기 쉽게 한다.")]
-    [SerializeField, Range(0, 2)] float rimGlow = 0.6f;
+    [Tooltip("림 안쪽으로 번지는 빛의 강도. 캐릭터의 남은 밝기 범위 안에서만 섞는다.")]
+    [SerializeField, Range(0, 2)] float rimGlow = 0.1f;
     [Tooltip("번지는 띠의 폭(원본 텍셀).")]
-    [SerializeField, Range(1, 6)] float rimGlowWidth = 3;
+    [SerializeField, Range(1, 6)] float rimGlowWidth = 1;
     [Tooltip("광원 영향이 이 값 이상이면 림이 최대가 된다.")]
     [SerializeField, Min(0.01f)] float rimFullInfluence = 0.6f;
     [SerializeField, Min(0.01f)] float transitionSeconds = 0.3f;

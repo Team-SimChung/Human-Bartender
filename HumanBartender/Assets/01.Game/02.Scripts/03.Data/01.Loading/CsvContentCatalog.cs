@@ -190,6 +190,12 @@ public sealed class CsvContentCatalog
         if (type == typeof(object)) return value;
         if (type == typeof(string))
         {
+            if (value is Dictionary<string, object> localized)
+            {
+                if (!localized.TryGetValue("ko", out var ko) || ko is not string)
+                    throw new InvalidOperationException($"문자열 필드에 지원하지 않는 객체가 있습니다: {path}");
+                return ko;
+            }
             // Some existing DTOs intentionally expose a numeric source as text (e.g. an open score bound).
             if (value is double number)
             {

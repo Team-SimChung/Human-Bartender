@@ -1530,11 +1530,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.z
@@ -2049,11 +2049,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.z
@@ -6192,7 +6192,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.49803922}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6704,8 +6704,9 @@ MonoBehaviour:
   serveZoneWorldOffset: {x: 0, y: -0.6, z: 0}
   tabletopAnchor: {fileID: 918300001}
   tabletopWorldY: -1.5
-  showServeZoneGuide: 1
+  showServeZoneGuide: 0
   craftFlow: {fileID: 1024022784}
+  visuals: {fileID: 0}
 --- !u!4 &749266212
 Transform:
   m_ObjectHideFlags: 0
@@ -7235,9 +7236,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: 0.020522388
     y: 0
-    width: 0.9996779
+    width: 0.9585406
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -7830,6 +7831,135 @@ MonoBehaviour:
   craft: {fileID: 1024022784}
   preparationHost: {fileID: 1330551589}
   recipes: {fileID: 3887766552}
+  gimmickHud: {fileID: 0}
+  copy:
+  - Key: seatLeft
+    Title: "\uBC14 \uB458\uB7EC\uBCF4\uAE30"
+    Text: "{PrevSeat}\uB97C \uB20C\uB7EC \uC67C\uCABD \uB05D \uC88C\uC11D\uC744 \uBC14\uB77C\uBCF4\uC138\uC694."
+  - Key: seatRight
+    Title: "\uBC14 \uB458\uB7EC\uBCF4\uAE30"
+    Text: "{NextSeat}\uB97C \uB20C\uB7EC \uC624\uB978\uCABD \uB05D \uC88C\uC11D\uC744
+      \uBC14\uB77C\uBCF4\uC138\uC694."
+  - Key: seatReturn
+    Title: "\uBC14 \uB458\uB7EC\uBCF4\uAE30"
+    Text: "{PrevSeat} / {NextSeat}\uB85C \uB2E4\uC2DC \uD06C\uB9AC\uC2A4\uAC00 \uC549\uC740
+      \uC88C\uC11D\uC744 \uBC14\uB77C\uBCF4\uC138\uC694."
+  - Key: coaster
+    Title: "\uC190\uB2D8 \uB9DE\uC774\uD558\uAE30"
+    Text: "\uCF54\uC2A4\uD130\uB97C \uD06C\uB9AC\uC2A4 \uC55E\uC73C\uB85C \uB4DC\uB798\uADF8\uD558\uC138\uC694."
+  - Key: recipeOpen
+    Title: "\uB808\uC2DC\uD53C \uC120\uD0DD"
+    Text: "{ServicePanel} \uD0A4 \uB610\uB294 \uC11C\uBE44\uC2A4 \uD328\uB110 \uBC84\uD2BC\uC744
+      \uB20C\uB7EC \uCE75\uD14C\uC77C \uB808\uC2DC\uD53C\uB97C \uC5F4\uC5B4 \uC8FC\uC138\uC694."
+  - Key: recipeSelect
+    Title: "\uB808\uC2DC\uD53C \uC120\uD0DD"
+    Text: "\uC9C4\uD1A0\uB2C9 \uB808\uC2DC\uD53C\uB97C \uB20C\uB7EC \uC120\uD0DD\uD558\uC138\uC694."
+  - Key: recipeSelectBeer
+    Title: "\uB808\uC2DC\uD53C \uC120\uD0DD"
+    Text: "\uB9E5\uC8FC \uB808\uC2DC\uD53C\uB97C \uB20C\uB7EC \uC120\uD0DD\uD558\uC138\uC694."
+  - Key: recipeSelectGinFizz
+    Title: "\uB808\uC2DC\uD53C \uC120\uD0DD"
+    Text: "\uC9C4\uD53C\uC988 \uB808\uC2DC\uD53C\uB97C \uB20C\uB7EC \uC120\uD0DD\uD558\uC138\uC694."
+  - Key: readRecipe
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uC88C\uCE21 \uC0C1\uB2E8\uC758 \uB808\uC2DC\uD53C\uB97C \uB20C\uB7EC
+      \uC0C1\uC138 \uC815\uBCF4\uB97C \uD655\uC778\uD558\uC138\uC694."
+  - Key: recipeRead
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uC794\xB7\uC7AC\uB8CC\xB7\uC81C\uC870\uBC95 \uB4F1 \uD544\uC694\uD55C
+      \uC815\uBCF4\uB97C \uD655\uC778\uD558\uC138\uC694."
+  - Key: recipeClose
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uD655\uC778\uC774 \uB05D\uB0AC\uB2E4\uBA74 \uB808\uC2DC\uD53C\uB97C \uB2EB\uC544
+      \uC8FC\uC138\uC694."
+  - Key: glass
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uB871\uB4DC\uB9C1\uD06C\uC794\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+  - Key: glassBeer
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uB9E5\uC8FC \uB808\uC2DC\uD53C\uC5D0 \uB9DE\uB294 \uC794\uC744 \uC120\uD0DD\uD558\uC138\uC694."
+  - Key: opener
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "{PrepPrev} / {PrepNext} \uB610\uB294 \uD654\uC0B4\uD45C \uBC84\uD2BC\uC73C\uB85C
+      \uB3C4\uAD6C \uC120\uBC18\uC5D0 \uAC00\uC11C \uBCD1\uB530\uAC1C\uB97C \uC120\uD0DD\uD558\uC138\uC694."
+  - Key: shaker
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uB3C4\uAD6C \uC120\uBC18\uC5D0\uC11C \uB808\uC2DC\uD53C\uC5D0 \uB9DE\uB294
+      \uC170\uC774\uCEE4\uB97C \uC120\uD0DD\uD558\uC138\uC694."
+  - Key: navigateGin
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "{PrepPrev} / {PrepNext} \uB610\uB294 \uC591\uCABD \uD654\uC0B4\uD45C\uB85C
+      \uB2E4\uC74C \uC120\uBC18\uC73C\uB85C \uC774\uB3D9\uD558\uC138\uC694."
+  - Key: hoverGin
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uC7AC\uB8CC\uC5D0 \uB9C8\uC6B0\uC2A4\uB97C \uC62C\uB824 \uC774\uB984\uACFC
+      \uC124\uBA85\uC744 \uD655\uC778\uD558\uC138\uC694."
+  - Key: addGin
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uC9C4\uC744 \uD074\uB9AD\uD574 \uC120\uD0DD\uD574 \uBCF4\uC138\uC694."
+  - Key: removeGin
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uC544\uB798\uC5D0 \uB2F4\uAE34 \uC7AC\uB8CC\uB97C \uD074\uB9AD\uD558\uBA74
+      \uB2E4\uC2DC \uBE84 \uC218 \uC788\uC5B4\uC694."
+  - Key: ginAgain
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uB2E4\uC2DC \uC9C4\uC744 \uB2F4\uC544 \uC81C\uC870\uB97C \uC900\uBE44\uD558\uC138\uC694."
+  - Key: navigateSoda
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "{PrepNext} \uB610\uB294 \uC624\uB978\uCABD \uD654\uC0B4\uD45C\uB97C \uB20C\uB7EC
+      \uB0C9\uC7A5\uACE0\uB85C \uC774\uB3D9\uD558\uC138\uC694."
+  - Key: hoverSoda
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uD0C4\uC0B0\uC218\uC5D0 \uB9C8\uC6B0\uC2A4\uB97C \uC62C\uB824 \uD655\uC778\uD558\uC138\uC694."
+  - Key: addSoda
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uD0C4\uC0B0\uC218\uB97C \uD074\uB9AD\uD574 \uB2F4\uC73C\uC138\uC694."
+  - Key: addBeer
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uB0C9\uC7A5\uACE0\uC5D0\uC11C \uBCD1\uB9E5\uC8FC\uB97C \uD074\uB9AD\uD574
+      \uB2F4\uC73C\uC138\uC694."
+  - Key: start
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uC774\uC81C \uC81C\uC870 \uC2DC\uC791\uC744 \uB20C\uB7EC \uC8FC\uC138\uC694."
+  - Key: startNotReady
+    Title: "\uC81C\uC870 \uC900\uBE44"
+    Text: "\uB808\uC2DC\uD53C\uC5D0 \uB9DE\uB294 \uC794\uACFC \uC7AC\uB8CC\uAC00
+      \uBAA8\uB450 \uB2F4\uACBC\uB294\uC9C0 \uD655\uC778\uD558\uC138\uC694."
+  - Key: pourTarget
+    Title: "\uCE75\uD14C\uC77C \uC81C\uC870"
+    Text: "\uBAA9\uD45C\uB7C9\uBD80\uD130 \uD655\uC778\uD574\uC694. \uBCD1\uC744
+      \uB204\uB978 \uCC44 \uAE30\uC6B8\uC5EC \uB530\uB974\uC138\uC694."
+  - Key: pourCurrent
+    Title: "\uCE75\uD14C\uC77C \uC81C\uC870"
+    Text: "\uD604\uC7AC\uB7C9\uC744 \uD655\uC778\uD574\uC694. \uBAA9\uD45C\uB7C9\uC5D0
+      \uB9DE\uC558\uB2E4\uBA74 \uB530\uB974\uAE30\uB97C \uB9C8\uCCD0 \uC8FC\uC138\uC694."
+  - Key: open
+    Title: "\uCE75\uD14C\uC77C \uC81C\uC870"
+    Text: "\uBCD1\uB69C\uAED1 \uC5F4\uAE30 \uD654\uBA74\uC758 \uC548\uB0B4\uC5D0
+      \uB9DE\uCDB0 \uD074\uB9AD\uD558\uC138\uC694."
+  - Key: shake
+    Title: "\uCE75\uD14C\uC77C \uC81C\uC870"
+    Text: "\uC250\uC774\uD0B9 \uD654\uBA74\uC758 \uD0C0\uC774\uBC0D\uC5D0 \uB9DE\uCDB0
+      \uB9C8\uC6B0\uC2A4 \uBC84\uD2BC\uC744 \uB204\uB974\uC138\uC694."
+  - Key: stir
+    Title: "\uCE75\uD14C\uC77C \uC81C\uC870"
+    Text: "\uC2A4\uD130 \uD654\uBA74\uC758 \uD45C\uC2DC \uC21C\uC11C\uC5D0 \uB9DE\uCDB0
+      \uBC29\uD5A5\uD0A4\uB97C \uB204\uB974\uC138\uC694."
+  - Key: gimmick
+    Title: "\uCE75\uD14C\uC77C \uC81C\uC870"
+    Text: "\uC81C\uC870 \uD654\uBA74\uC758 \uC548\uB0B4\uC5D0 \uB530\uB77C \uC9C4\uD589\uD558\uC138\uC694."
+  - Key: serveDrink
+    Title: "\uC644\uC131\uB41C \uC794 \uC11C\uBE59"
+    Text: "\uC644\uC131\uB41C \uCE75\uD14C\uC77C\uC744 \uD06C\uB9AC\uC2A4 \uC55E
+      \uCF54\uC2A4\uD130\uB85C \uB4DC\uB798\uADF8\uD558\uC138\uC694."
+  - Key: serveDrinkOrder
+    Title: "\uC644\uC131\uB41C \uC794 \uC11C\uBE59"
+    Text: "\uC644\uC131\uB41C \uCE75\uD14C\uC77C\uC744 \uC8FC\uBB38\uD55C \uC190\uB2D8
+      \uC55E \uCF54\uC2A4\uD130\uB85C \uB4DC\uB798\uADF8\uD558\uC138\uC694."
+  - Key: serveResult
+    Title: "\uC644\uC131\uB41C \uC794 \uC11C\uBE59"
+    Text: "\uC81C\uC870 \uACB0\uACFC\uB97C \uD655\uC778\uD558\uACE0 \uC81C\uACF5\uD558\uAE30\uB97C
+      \uB20C\uB7EC \uC8FC\uC138\uC694."
 --- !u!1 &918300000
 GameObject:
   m_ObjectHideFlags: 0
@@ -7982,7 +8112,6 @@ MonoBehaviour:
   tycoonOnlyObjects:
   - {fileID: 955020915}
   - {fileID: 2013979233}
-  - {fileID: 0}
   - {fileID: 673860021}
   storyOnlyObjects:
   - {fileID: 664356993}
@@ -9379,7 +9508,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -70}
+  m_AnchoredPosition: {x: 0, y: -125}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1124063434
@@ -10654,11 +10783,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.z
@@ -21048,11 +21177,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3521420422507016940, guid: d948ab23d993dcc4d97a6422419a2a01, type: 3}
       propertyPath: m_LocalScale.z

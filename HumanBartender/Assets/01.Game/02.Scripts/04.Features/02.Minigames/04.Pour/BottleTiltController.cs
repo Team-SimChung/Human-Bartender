@@ -44,6 +44,7 @@ public class BottleTiltController : MonoBehaviour
 
     public Transform BottleVisual => bottleVisual;
     public float CurrentAngle => currentAngle;
+    public bool IsDragging => dragging;
 
     public Vector3 PourPivotWorldPosition
     {

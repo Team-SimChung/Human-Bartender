@@ -1,5 +1,47 @@
 # Human Bartender CSV 편집
 
+> **현재 정본: 웹 저장소의 `bar-playtest/data/shared-csv`.** 아래 Excel 설명은 이전 작업 흐름의 기록입니다.
+> `web_content_source.json`이 웹 커밋과 48개 CSV의 해시를 고정합니다. 공통 CSV를 Unity에서 별도로 편집하지 않습니다.
+> Unity 사본의 연결 ID는 읽기 쉬운 이름으로 바뀌어 있습니다(아래 "읽기 쉬운 ID").
+> Excel 역수입은 차단되며, 기존 `system/`과 `csv_owned_datasets.json`은 웹 정본 반영에 사용하지 않습니다.
+
+## 웹 정본 반영
+
+```powershell
+python -B ContentAuthoring/import_web_content.py --commit <40자리-커밋-SHA>
+```
+
+이 명령은 임시 폴더에서 내려받아 원본 Git blob·CSV 구조·게임 ID·분기 참조·순서를 검사합니다. 실제 CSV는 바꾸지 않습니다.
+`--stage <임시 폴더>`를 지정하면 Unity에서 검사할 원본을 유지합니다.
+`CsvContentValidator.ValidateBatch`의 `-csvContentPath <임시 폴더> -csvValidationReport <결과 JSON>`으로
+Unity 타입·참조 검사를 수행한 뒤 `--apply --compatibility-report <결과 JSON>`으로 반영합니다.
+결과 JSON의 모든 파일 해시가 입력 CSV와 일치해야 하며, 검사 이후 파일이 바뀌면 반영을 거부합니다.
+직전 반영 후 로컬 CSV가 수정되었으면 덮어쓰기를 거부합니다. 쓰기 도중 오류가 나면 이전 파일과 manifest를 복구합니다.
+`--input`으로 이미 받은 shared-csv 폴더를 지정해도 고정 커밋의 Git blob과 일치해야 합니다.
+
+### 읽기 쉬운 ID
+
+웹 원본은 `row_id`·`parent_id`·`template_id`를 `shared_<해시>`로 만들고 `context`를 비웁니다.
+`readable_ids.py`가 Unity에 게시하는 사본에서만 이를 `expressions_tom_default`, `steps_format_03` 같은 이름으로 바꾸고
+`context`에 부모 경로를 채웁니다. 웹 원본 검증은 바뀌기 전 바이트로 하고, 바꾼 뒤 조립한 게임 데이터가 원본과 완전히
+같아야 게시합니다. `--stage`에는 바뀐 사본이 기록되므로 Unity 검사도 실제로 게시될 파일을 대상으로 합니다.
+
+- `web_id_map.json`: 해시 → 이름 대응표. 다음 반입에서 같은 해시는 같은 이름을 유지하고 새 행만 새 이름을 받습니다.
+- `web_content_source.json`: `files`는 Unity에 게시한 파일, `web_files`는 같은 커밋의 웹 원본 해시입니다.
+- 행 키로 쓰는 열은 `readable_ids.py`의 `TABLE_KEYS`에 있습니다. 새 표가 생기면 여기에 키 열을 추가합니다.
+- 웹이 처음부터 읽을 수 있는 ID를 쓰면(해시가 없으면) 그대로 둡니다.
+
+```powershell
+python -B ContentAuthoring/export_content.py --validate-only
+```
+
+Unity 리소스 주소는 `Assets/StreamingAssets/unity/resource_bindings.csv`에서만 보정합니다.
+대사·가격·조건·보상·진행 규칙은 이 보정표에 넣지 않습니다.
+SO와 조회 사전은 CSV에서 파생되는 런타임 캐시이며 편집 원본으로 사용하지 않습니다.
+
+CSV 반영 기록은 `Documentation/CSV_Web_Alignment_2026-11-01.md`, 현재 Unity C# 사건 구조와 컷신 수명은
+`Documentation/Unity_CSV_Runtime_Followup_2026-11-02.md`를 참고합니다. 사건 연출은 기존 Cutscene Studio에서 제작·연결합니다.
+
 ## 편집 파일
 
 - `HumanBartender_C_Content.xlsx`: 대사·장면·선택지·캐릭터·상호작용·컷신. 편집 표 18개.

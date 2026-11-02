@@ -177,6 +177,10 @@ def read_csv_tables(folder, manifest):
                 for key, value in r.items():
                     if value in (r'\N', ''):
                         value = None
+                    elif key == 'source_order':
+                        if not re.fullmatch(r'\d+', value):
+                            raise ValueError(f'{name}.source_order: 0 이상의 정수가 필요합니다.')
+                        value = int(value)
                     elif spec['types'].get(key) == ['bool']:
                         if value.lower() not in ('true', 'false'):
                             raise ValueError(f'{name}.{key}: true/false가 필요합니다.')
@@ -331,11 +335,15 @@ def write_outputs(out, manifest, tables, schema_folder):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source', choices=['xlsx', 'csv'], default='xlsx')
-    parser.add_argument('--input', type=Path, default=HERE, help='엑셀 파일들이 있는 폴더. CSV 모드에서는 CSV 폴더')
+    web_owned = (HERE / 'web_content_source.json').exists()
+    parser.add_argument('--source', choices=['xlsx', 'csv'], default='csv' if web_owned else 'xlsx')
+    parser.add_argument('--input', type=Path, default=HERE.parent / 'Assets/StreamingAssets/csv' if web_owned else HERE,
+                        help='엑셀 파일들이 있는 폴더. CSV 모드에서는 CSV 폴더')
     parser.add_argument('--out', type=Path, default=HERE / 'csv')
     parser.add_argument('--validate-only', action='store_true')
     args = parser.parse_args()
+    if web_owned and args.source == 'xlsx':
+        parser.error('공통 데이터 정본은 웹 CSV입니다. Excel 역수입은 지원하지 않습니다. import_web_content.py를 사용하세요.')
     schema_folder = (args.input if args.source == 'csv' else HERE) / 'system'
     owned = None
     ownership_file = HERE / 'csv_owned_datasets.json'
@@ -364,7 +372,18 @@ def main():
         tables = read_csv_tables(args.input, manifest)
     documents = assemble(manifest, tables)
     if not args.validate_only:
-        write_outputs(args.out, manifest, tables, schema_folder)
+        if web_owned:
+            paths = [spec['path'] for spec in manifest['tables'].values()]
+            paths += [spec['path'] for spec in manifest['internal'].values()]
+            paths += ['system/table_index.csv', 'system/columns.csv', 'system/data_sets.csv', 'system/row_formats.csv']
+            for path in dict.fromkeys(paths):
+                source = args.input / path
+                destination = args.out / path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                if source.resolve() != destination.resolve():
+                    shutil.copyfile(source, destination)
+        else:
+            write_outputs(args.out, manifest, tables, schema_folder)
         print(f'생성 완료: 편집 표 {len(tables)}개 + 구조용 CSV 5개 → {args.out.resolve()}')
     print(f'검증 완료: {len(documents)}개 데이터 묶음')
     print('구조·연결·타입을 검사했습니다. 게임 내 참조 ID·조건식·리소스의 실행 유효성은 별도 검증 대상입니다.')

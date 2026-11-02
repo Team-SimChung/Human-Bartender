@@ -19,13 +19,15 @@ public readonly struct StorySayRequest
     /// 그 판단은 화면마다 다를 수 있어 여기서는 사실만 전한다.
     /// </summary>
     public bool IsPlayer { get; }
+    public string DisplayName { get; }
 
-    public StorySayRequest(string actorId, string expression, string body, bool isPlayer)
+    public StorySayRequest(string actorId, string expression, string body, bool isPlayer, string displayName = null)
     {
         ActorId = actorId;
         Expression = expression;
         Body = body;
         IsPlayer = isPlayer;
+        DisplayName = displayName;
     }
 }
 

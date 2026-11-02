@@ -83,9 +83,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         if (tutorial == null) tutorial = gameObject.AddComponent<StoryTutorialController>();
         tutorial.ConnectSceneResources();
         runner.SetTutorialController(tutorial);
-        if (day == 0 && phase == ENewScenePhase.Bar)
-            await tutorial.RunIntroAsync(cutScenePlayer, linked.Token);
-
+        // 오프닝 컷신은 새 게임 직후 집에서 재생한다(NewGameOpening). 0일차 바는 바로 대본으로 들어간다.
 
         Debug.Log($"[Story] Day {day} 2부 시작");
 

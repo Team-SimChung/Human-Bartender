@@ -186,10 +186,15 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
 
         foreach (var canvas in barCanvases ?? Array.Empty<Canvas>())
         {
-            if (canvas == null || !canvas.enabled) continue;
-
-            canvas.enabled = false;
-            hiddenBarCanvases.Add(canvas);
+            if (canvas == null) continue;
+            // 정렬을 독립시킨 자식 Canvas는 부모 Canvas를 꺼도 남으므로 함께 숨긴다.
+            // 원래 켜져 있던 것만 기록해 종료·취소 때 이전 상태로 복구한다.
+            foreach (var child in canvas.GetComponentsInChildren<Canvas>(true))
+            {
+                if (!child.enabled) continue;
+                child.enabled = false;
+                hiddenBarCanvases.Add(child);
+            }
         }
 
         var names = new List<string>(hiddenBarCanvases.Count);

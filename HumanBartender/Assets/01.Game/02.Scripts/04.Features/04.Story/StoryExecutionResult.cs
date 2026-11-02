@@ -7,11 +7,13 @@ public readonly struct StoryExecutionResult
     public StoryExecutionStatus Status { get; }
     public string Error { get; }
     public bool Completed => Status == StoryExecutionStatus.Completed;
+    public GameProgressionDestination? Destination { get; }
 
-    public StoryExecutionResult(StoryExecutionStatus status, string error = null)
+    public StoryExecutionResult(StoryExecutionStatus status, string error = null, GameProgressionDestination? destination = null)
     {
         Status = status;
         Error = error;
+        Destination = status == StoryExecutionStatus.Completed ? destination : null;
     }
 }
 

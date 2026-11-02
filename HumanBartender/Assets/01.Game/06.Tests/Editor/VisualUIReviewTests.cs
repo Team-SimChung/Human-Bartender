@@ -23,6 +23,90 @@ public sealed class VisualUIReviewTests
     static T Ref<T>(Object owner, string field) where T : Object => (T)new SerializedObject(owner).FindProperty(field).objectReferenceValue;
     static void Inject(object owner, string name, object value) => owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, value);
 
+    [TestCase("NewShakingMinigame")]
+    [TestCase("RhythmShakingMinigame")]
+    public void ShakingAnimationKeepsSpriteFramesAndUnlitMaterial(string name)
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/01.Shake/" + name + ".prefab");
+        var driver = prefab.GetComponentInChildren<AnimSpeedController>(true);
+        Assert.That(driver, Is.Not.Null, "Luna animation driver must be connected.");
+        var character = driver.transform;
+        var renderer = character.GetComponent<SpriteRenderer>();
+        var animator = character.GetComponent<Animator>();
+        Assert.That(character.gameObject.activeSelf && renderer.enabled, Is.True);
+        Assert.That(renderer.sprite, Is.Not.Null);
+        Assert.That(renderer.sharedMaterial.shader.name, Does.Contain("Unlit"), "The isolated stage has no character lighting source.");
+        var frames = animator.runtimeAnimatorController.animationClips
+            .SelectMany(clip => AnimationUtility.GetObjectReferenceCurveBindings(clip)
+                .Where(binding => binding.propertyName == "m_Sprite")
+                .SelectMany(binding => AnimationUtility.GetObjectReferenceCurve(clip, binding))).ToArray();
+        Assert.That(frames, Is.Not.Empty);
+        Assert.That(frames.All(frame => frame.value != null), Is.True, "Luna animation must not contain missing sprite references.");
+    }
+
+    [TestCase(SceneTransitionStyle.BarEntrance, false)]
+    [TestCase(SceneTransitionStyle.BarExit, true)]
+    public void BarDoorUsesOppositePosesForEntranceAndExitAndResetsBetweenRuns(SceneTransitionStyle style, bool startsOpen)
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<BarDoorTransitionView>("Assets/01.Game/03.Content/08.Prefabs/03.UI/05.Transition/BarDoorTransition.prefab");
+        var view = Object.Instantiate(prefab);
+        try
+        {
+            using (var serialized = new SerializedObject(view))
+            {
+                foreach (var field in new[] { "fadeInSeconds", "minimumDisplaySeconds", "doorOpenSeconds", "holdAfterOpenSeconds", "fadeOutSeconds" })
+                    serialized.FindProperty(field).floatValue = 0;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+            }
+            typeof(BarDoorTransitionView).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(view, null);
+            var leaf = Ref<RectTransform>(view, "leaf");
+            var light = Ref<CanvasGroup>(view, "floorLight");
+            var curtain = Ref<CanvasGroup>(view, "fadeCurtain");
+            var closed = leaf.anchoredPosition;
+            var group = view.GetComponent<CanvasGroup>();
+            var token = System.Threading.CancellationToken.None;
+            view.ShowAsync(style, token).GetAwaiter().GetResult();
+            Assert.That(leaf.anchoredPosition.x < closed.x, Is.EqualTo(startsOpen));
+            Assert.That(light.alpha, Is.EqualTo(startsOpen ? 1 : 0));
+            Assert.That(group.blocksRaycasts, Is.True);
+            Assert.That(group.alpha, Is.EqualTo(1), "Door layers stay opaque; only the curtain fades.");
+            Assert.That(curtain.alpha, Is.Zero);
+            view.FinishAsync(token).GetAwaiter().GetResult();
+            Assert.That(leaf.anchoredPosition.x < closed.x, Is.EqualTo(!startsOpen));
+            Assert.That(light.alpha, Is.EqualTo(startsOpen ? 0 : 1));
+            view.HideImmediate();
+            Assert.That(leaf.anchoredPosition, Is.EqualTo(closed));
+            Assert.That(light.alpha, Is.Zero);
+            Assert.That(group.alpha, Is.Zero);
+            Assert.That(group.blocksRaycasts, Is.False);
+            Assert.That(curtain.alpha, Is.EqualTo(1));
+            // 취소 정리 뒤 같은 인스턴스를 반대 방향으로 다시 사용할 수 있어야 한다.
+            view.ShowAsync(startsOpen ? SceneTransitionStyle.BarEntrance : SceneTransitionStyle.BarExit, token).GetAwaiter().GetResult();
+            Assert.That(leaf.anchoredPosition.x < closed.x, Is.EqualTo(!startsOpen));
+        }
+        finally { Object.DestroyImmediate(view.gameObject); }
+    }
+
+    [Test]
+    public void BarDoorKeepsFullTexturePaddingAndDrawsFrameAndBinLidInFront()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<BarDoorTransitionView>("Assets/01.Game/03.Content/08.Prefabs/03.UI/05.Transition/BarDoorTransition.prefab");
+        foreach (var image in prefab.GetComponentsInChildren<Image>(true))
+        {
+            if (image.sprite == null) continue;
+            var sprite = image.sprite;
+            Assert.That(sprite.rect, Is.EqualTo(new Rect(0, 0, sprite.texture.width, sprite.texture.height)), image.name + " must retain transparent padding");
+            Assert.That(sprite.texture.filterMode, Is.EqualTo(FilterMode.Point), image.name);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprite));
+            Assert.That(importer.textureCompression, Is.EqualTo(TextureImporterCompression.Uncompressed), image.name);
+        }
+        var stage = prefab.transform.Find("Stage");
+        Assert.That(stage.Find("frame_border").GetSiblingIndex(), Is.GreaterThan(stage.Find("Aperture").GetSiblingIndex()));
+        Assert.That(stage.Find("prop_bin_before_background").GetSiblingIndex(), Is.GreaterThan(stage.Find("prop_bin_after_border").GetSiblingIndex()));
+        Assert.That(stage.Find("prop_bin_background").GetSiblingIndex(), Is.GreaterThan(stage.Find("prop_left_bag_background").GetSiblingIndex()));
+        Assert.That(Ref<CanvasGroup>(prefab, "floorLight").alpha, Is.Zero);
+    }
+
     [Test]
     public void CommonOptionsKeepsItsWidgetsAppliesDisplayExplicitlyAndRestoresFocus()
     {

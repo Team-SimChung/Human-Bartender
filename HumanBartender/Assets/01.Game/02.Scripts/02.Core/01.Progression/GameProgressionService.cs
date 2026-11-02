@@ -9,6 +9,7 @@ public enum GameProgressionDestination
     Bar,
     Home,
     OutsideFromHome,
+    HomeVisit,
 }
 
 public enum GameProgressionOutcome
@@ -58,6 +59,7 @@ public sealed class GameProgressionService : IGameProgressionService
     readonly GameStateManager gameState;
     readonly ISceneTransitionService sceneTransitions;
     readonly ISceneFadeService sceneFades;
+    readonly IConditionUtil conditions;
     bool isRunning;
     bool homeReturned;
     bool manualSaveRunning;
@@ -97,18 +99,20 @@ public sealed class GameProgressionService : IGameProgressionService
     }
 
     public GameProgressionService(GameStateManager gameState, ISceneTransitionService sceneTransitions,
-        ISceneFadeService sceneFades, ISoundEffectPlayer sound = null)
+        ISceneFadeService sceneFades, IConditionUtil conditions, ISoundEffectPlayer sound = null)
     {
         this.sound = sound;
         this.gameState = gameState ?? throw new ArgumentNullException(nameof(gameState));
         this.sceneTransitions = sceneTransitions ?? throw new ArgumentNullException(nameof(sceneTransitions));
         this.sceneFades = sceneFades ?? throw new ArgumentNullException(nameof(sceneFades));
+        this.conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
     }
     readonly ISoundEffectPlayer sound;
 
     public UniTask<GameProgressionResult> CompleteBarAsync(CancellationToken cancellationToken = default)
     {
-        return MoveAsync("Play", "OutSide", EGameFlow.Bar, EGameFlow.CommuteOut, cancellationToken);
+        return MoveAsync("Play", "OutSide", EGameFlow.Bar, EGameFlow.CommuteOut, cancellationToken,
+            SceneTransitionStyle.BarExit);
     }
 
     public async UniTask<GameProgressionResult> StartNewGameAsync(Action initializeRuntime,
@@ -126,25 +130,29 @@ public sealed class GameProgressionService : IGameProgressionService
         EGameFlow previousFlow = gameState.GameFlow;
         bool previousReturned = homeReturned;
         bool initialized = false;
+        string destinationScene = "Play";
         UniTaskCompletionSource<GameProgressionResult> entry = null;
         GameProgressionResult outcome = default;
         try
         {
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
-            if (!NewDataLoadManager.TryGetDayInfo(0, out _))
+            if (!NewDataLoadManager.TryGetDayInfo(0, out var firstDay))
                 return outcome = new GameProgressionResult(GameProgressionOutcome.Rejected,
                     "Day 0 데이터가 없습니다.");
 
+            if (firstDay.StartPhase != "bar" && firstDay.StartPhase != "home")
+                return outcome = new GameProgressionResult(GameProgressionOutcome.Rejected, "지원하지 않는 새 게임 시작 국면입니다: " + firstDay.StartPhase);
+            destinationScene = firstDay.StartPhase == "home" ? "Home" : "Play";
             gameState.CurrentDay = 0;
-            gameState.GameFlow = EGameFlow.Bar;
+            gameState.GameFlow = firstDay.StartPhase == "home" ? EGameFlow.CommuteIn : EGameFlow.Bar;
             initialized = true;
             initializeRuntime();
             homeReturned = false;
-            hasBarEntry = true;
-            barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
+            hasBarEntry = destinationScene == "Play";
+            if (hasBarEntry) barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
 
             // The title owns the intro; its completion enters the Day 0 bar directly.
-            SceneTransitionRequest request = sceneTransitions.RequestLoadScene("Play",
+            SceneTransitionRequest request = sceneTransitions.RequestLoadScene(destinationScene,
                 cancellationToken: cancellationToken);
             if (!request.Accepted)
             {
@@ -159,7 +167,7 @@ public sealed class GameProgressionService : IGameProgressionService
 
             SceneTransitionResult result = await request.Completion;
             if (!result.Succeeded && !result.SceneActivated &&
-                SceneManager.GetActiveScene().name != "Play")
+                SceneManager.GetActiveScene().name != destinationScene)
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -170,7 +178,7 @@ public sealed class GameProgressionService : IGameProgressionService
         }
         catch (OperationCanceledException error)
         {
-            if (initialized && SceneManager.GetActiveScene().name != "Play")
+            if (initialized && SceneManager.GetActiveScene().name != destinationScene)
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -181,7 +189,7 @@ public sealed class GameProgressionService : IGameProgressionService
         }
         catch (Exception error)
         {
-            if (initialized && SceneManager.GetActiveScene().name != "Play")
+            if (initialized && SceneManager.GetActiveScene().name != destinationScene)
             {
                 gameState.CurrentDay = previousDay;
                 gameState.GameFlow = previousFlow;
@@ -284,13 +292,18 @@ public sealed class GameProgressionService : IGameProgressionService
         switch (destination)
         {
             case GameProgressionDestination.Bar:
-                if (gameState.CurrentDay == 3 && !NewDataLoadManager.HasJohnnyIngredients)
+                if (gameState.CurrentDay == 3 && !CampaignStoryRules.CanPrepareJohnnyDrink(conditions))
                     return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
-                        "올드 패션드 재료가 필요합니다. 시BAR에서 와일드 독과 비터스를 구매하고, 귀가 후 이야기를 확인하세요."));
-                return MoveAsync("OutSide", "Play", EGameFlow.CommuteIn, EGameFlow.Bar, cancellationToken);
+                        "올드 패션드 재료가 필요합니다. 갱단 거래로 와일드 독을 받고, 시BAR에서 비터스를 구매한 뒤 집에서 조니의 기억을 확인하세요."));
+                return MoveAsync("OutSide", "Play", EGameFlow.CommuteIn, EGameFlow.Bar, cancellationToken,
+                    SceneTransitionStyle.BarEntrance);
             case GameProgressionDestination.Home:
                 return MoveAsync("OutSide", "Home", EGameFlow.CommuteOut, EGameFlow.CommuteOut,
                     cancellationToken);
+            case GameProgressionDestination.HomeVisit:
+                if (gameState.GameFlow != EGameFlow.CommuteIn && gameState.GameFlow != EGameFlow.CommuteOut)
+                    return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected, "출퇴근 중에만 집을 방문할 수 있습니다."));
+                return MoveAsync("OutSide", "Home", gameState.GameFlow, gameState.GameFlow, cancellationToken);
             case GameProgressionDestination.OutsideFromHome:
                 return MoveAsync("Home", "OutSide", EGameFlow.CommuteIn, EGameFlow.CommuteIn,
                     cancellationToken);
@@ -301,7 +314,8 @@ public sealed class GameProgressionService : IGameProgressionService
     }
 
     async UniTask<GameProgressionResult> MoveAsync(string sourceScene, string destinationScene,
-        EGameFlow requiredFlow, EGameFlow destinationFlow, CancellationToken cancellationToken)
+        EGameFlow requiredFlow, EGameFlow destinationFlow, CancellationToken cancellationToken,
+        SceneTransitionStyle style = SceneTransitionStyle.Fade)
     {
         if (isRunning || sceneTransitions.IsBusy)
             return new GameProgressionResult(GameProgressionOutcome.Rejected, "다른 진행 작업이 실행 중입니다.");
@@ -318,7 +332,7 @@ public sealed class GameProgressionService : IGameProgressionService
         try
         {
             SceneTransitionRequest request = sceneTransitions.RequestLoadScene(destinationScene,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken, style: style);
             if (!request.Accepted)
                 return outcome = ConvertSceneResult(await request.Completion);
 
@@ -400,6 +414,9 @@ public sealed class GameProgressionService : IGameProgressionService
                 return ConvertSceneResult(await ending.Completion);
             }
             int nextDay = previousDay + 1;
+            if (previousDay == 2 && !CampaignStoryRules.CanPrepareJohnnyDrink(conditions))
+                return new GameProgressionResult(GameProgressionOutcome.Rejected,
+                    "와일드 독·비터스와 조니의 기억을 확인해야 다음 날로 진행할 수 있습니다.");
             if (!NewDataLoadManager.TryGetDayInfo(nextDay, out NewDayInfoData next))
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,
                     $"등록되지 않은 다음 일차입니다: Day {nextDay}");

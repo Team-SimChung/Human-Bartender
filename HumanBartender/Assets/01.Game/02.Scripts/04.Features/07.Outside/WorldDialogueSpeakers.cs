@@ -19,9 +19,15 @@ public sealed class WorldDialogueSpeakers : MonoBehaviour
         public Transform Anchor => anchor;
         public WorldSpeechBubblePlacement Placement => placement;
         public Vector2 BubbleOffset => bubbleOffset;
+        internal Binding(string id, Transform value) { actor = id; anchor = value; }
     }
 
     [SerializeField] private Binding[] speakers = Array.Empty<Binding>();
+
+    internal void Configure((string id, Transform anchor)[] values)
+    {
+        speakers = Array.ConvertAll(values, value => new Binding(value.id, value.anchor));
+    }
 
     public Transform Resolve(string actor)
     {

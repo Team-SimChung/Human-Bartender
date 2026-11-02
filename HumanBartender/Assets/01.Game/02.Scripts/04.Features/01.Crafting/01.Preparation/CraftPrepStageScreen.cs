@@ -61,12 +61,16 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     public bool IsCameraMoving => cameraMoving;
     public string HoveredItemId => hoveredSlot != null ? hoveredSlot.ItemId : null;
     public System.Func<bool> TutorialCanStart { get; set; }
+    /// <summary>왼쪽 위 레시피 상세가 열려 있는지. 튜토리얼이 열기·확인·닫기 단계를 나눌 때 읽는다.</summary>
+    public bool IsRecipeOpen => recipeOpen;
     public Camera GuideCamera => stageCamera;
 
     public Transform GetTutorialTarget(string step, bool beer)
     {
         if (step == "readRecipe") return recipeOpen ? recipeCloseButton.transform : recipeButton.transform;
-        if (step == "navigateGin" || step == "navigateSoda" || step == "opener" && CurrentStage != Stage.Tool)
+        if ((step is "opener" or "shaker") && CurrentStage != Stage.Tool)
+            return CurrentStage < Stage.Tool ? nextButton.transform : previousButton.transform;
+        if (step == "navigateGin" || step == "navigateSoda")
             return nextButton.transform;
         if (step == "start") return startButton.transform;
         if (step == "opener")
@@ -80,6 +84,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         string id = step switch
         {
             "glass" => preparation?.Cocktail.Glass,
+            "shaker" => preparation?.Cocktail.TargetToolId,
             "hoverGin" or "addGin" or "ginAgain" => "gin",
             "hoverSoda" or "addSoda" => beer ? "beer" : "soda_water",
             _ => null

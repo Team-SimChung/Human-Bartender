@@ -340,7 +340,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void ConfigureVolume()
     {
-        visualCapacityMl = Mathf.Max(1f,craftContext.GlassId == "mug" ? mugCapacityMl : glassCapacityMl);
+        visualCapacityMl = Mathf.Max(1f,craftContext.GlassId == "weizen" ? mugCapacityMl : glassCapacityMl);
         Vector3 scale = glassCenter.lossyScale;
         float area = 4f * Mathf.Abs(glassInteriorHalfExtents.x * scale.x * glassInteriorHalfExtents.y * scale.y);
         particleVolumeMl = visualCapacityMl * Spacing * Spacing * particleAreaScale / Mathf.Max(0.0001f,area);
@@ -683,6 +683,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     /// <summary>결과 기록과 목표 도달 판정에 사용할, 목표 단위로 환산한 투입량.</summary>
     public float PouredInTargetUnit => ConvertMlTo(pouredMl, pourStep.TargetUnit ?? ENewUnit.Ml);
+
+    /// <summary>병을 잡아 조작 중인지. 놓은 뒤의 복귀 회전이나 남은 물줄기와 구분한다.</summary>
+    public bool IsPourInputHeld => IsManualInputActive && bottle != null && bottle.IsDragging;
 
     /// <summary>
     /// 이번 제조 시도의 사정(고른 잔·도구·재료). 실행기가 PlayAsync로 넘겨준다.

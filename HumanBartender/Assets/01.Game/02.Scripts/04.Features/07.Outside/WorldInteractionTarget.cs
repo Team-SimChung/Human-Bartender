@@ -57,6 +57,14 @@ public sealed class WorldInteractionTarget : MonoBehaviour
     public Vector2 BubbleOffset => bubbleOffset;
     public Sprite InspectionImage => inspectionImage != null ? inspectionImage : GetComponent<SpriteRenderer>()?.sprite;
 
+    internal void ConfigureStory(string id, float radius, string label)
+    {
+        storySceneId = id;
+        interactionRadius = radius;
+        interactionLabel = label;
+        RegistryRevision++;
+    }
+
     public Transform ResolveSpeaker(string actor, Transform player)
     {
         if (actor == "luna") return player;

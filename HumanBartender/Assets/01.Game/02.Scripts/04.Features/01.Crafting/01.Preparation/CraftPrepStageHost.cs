@@ -62,9 +62,13 @@ public sealed class CraftPrepStageHost : MonoBehaviour
         {
             foreach (Canvas canvas in barCanvases ?? Array.Empty<Canvas>())
             {
-                if (canvas == null || !canvas.enabled) continue;
-                canvas.enabled = false;
-                hiddenBarCanvases.Add(canvas);
+                if (canvas == null) continue;
+                foreach (var child in canvas.GetComponentsInChildren<Canvas>(true))
+                {
+                    if (!child.enabled) continue;
+                    child.enabled = false;
+                    hiddenBarCanvases.Add(child);
+                }
             }
             activeStage = Instantiate(stagePrefab, stageRoot, false);
             activeStage.ConfigureAudio(sound);

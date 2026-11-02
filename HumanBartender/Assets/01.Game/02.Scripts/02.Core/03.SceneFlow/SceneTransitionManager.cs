@@ -41,6 +41,8 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
 
     [SerializeField] CanvasGroup fadeCanvasGroup;
     [SerializeField, Min(0f)] float fadeDuration = 1f;
+    [Tooltip("바 출입 전환에서 페이드 위에 띄우는 문 화면. 비어 있으면 바 출입도 페이드만 한다.")]
+    [SerializeField] BarDoorTransitionView barDoorOverlay;
 
     readonly SceneTransitionCoordinator coordinator = new();
 
@@ -118,9 +120,10 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
     public SceneTransitionRequest RequestLoadScene(
         string sceneName,
         LoadSceneMode sceneMode = LoadSceneMode.Single,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        SceneTransitionStyle style = SceneTransitionStyle.Fade)
     {
-        return RequestSceneOperation(sceneName, sceneMode, SceneOperationKind.Load, cancellationToken);
+        return RequestSceneOperation(sceneName, sceneMode, SceneOperationKind.Load, cancellationToken, style);
     }
 
     public SceneTransitionRequest RequestUnloadScene(
@@ -138,7 +141,8 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         string sceneName,
         LoadSceneMode sceneMode,
         SceneOperationKind operationKind,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        SceneTransitionStyle style = SceneTransitionStyle.Fade)
     {
         if (cancellationToken.IsCancellationRequested)
         {
@@ -194,8 +198,9 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             return new SceneTransitionRequest(rejectedResult);
         }
 
+        ISceneTransitionOverlay overlay = style != SceneTransitionStyle.Fade ? barDoorOverlay : null;
         return new SceneTransitionRequest(true,
-            RunSceneOperationAsync(operationId, sceneName, sceneMode, operationKind, cancellationToken));
+            RunSceneOperationAsync(operationId, sceneName, sceneMode, operationKind, cancellationToken, style, overlay));
     }
 
     public async UniTask<SceneTransitionResult> LoadSceneAsync(
@@ -242,7 +247,9 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         string sceneName,
         LoadSceneMode sceneMode,
         SceneOperationKind operationKind,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        SceneTransitionStyle style,
+        ISceneTransitionOverlay overlay)
     {
         float restoreAlpha = fadeCanvasGroup.alpha;
         bool nativeOperationStarted = false;
@@ -256,6 +263,7 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             coordinator.TrySetState(operationId, SceneTransitionState.FadingOut);
             await FadeCoreAsync(1f, fadeDuration, beforeNative.Token);
             beforeNative.Token.ThrowIfCancellationRequested();
+            if (overlay != null) await overlay.ShowAsync(style, beforeNative.Token);
 
             // Unity의 씬 작업은 시작 후 취소할 수 없다. 이 지점부터는 호출자 취소를 성공으로 가장하지
             // 않고, 실제 씬 작업과 화면 복구가 끝날 때까지 기다린 뒤 최종 결과를 반환한다.
@@ -277,12 +285,19 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             await sceneOperation;
             sceneActivated = true;
 
+            // 새 씬이 준비된 뒤 전환 화면이 남은 연출(최소 표시 시간·문 열림)을 마치고, 페이드 인과 함께 걷힌다.
+            if (overlay != null) await overlay.FinishAsync(CancellationToken.None);
             coordinator.TrySetState(operationId, SceneTransitionState.FadingIn);
-            await FadeCoreAsync(0f, fadeDuration, CancellationToken.None);
+            if (overlay != null)
+                await UniTask.WhenAll(FadeCoreAsync(0f, fadeDuration, CancellationToken.None),
+                    overlay.HideAsync(CancellationToken.None));
+            else
+                await FadeCoreAsync(0f, fadeDuration, CancellationToken.None);
             return new SceneTransitionResult(SceneTransitionOutcome.Succeeded, sceneName);
         }
         catch (OperationCanceledException) when (!nativeOperationStarted)
         {
+            overlay?.HideImmediate();
             RestoreVisibleState(restoreAlpha);
             return new SceneTransitionResult(
                 SceneTransitionOutcome.Canceled,
@@ -291,6 +306,7 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         }
         catch (Exception error)
         {
+            overlay?.HideImmediate();
             RestoreVisibleState(restoreAlpha);
             return new SceneTransitionResult(SceneTransitionOutcome.Failed, sceneName, error.Message, error,
                 sceneActivated);

@@ -266,10 +266,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: 0.020522388
     y: 0
-    width: 1
-    height: 0.99953836
+    width: 0.9585406
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -811,6 +811,8 @@ MonoBehaviour:
   progressText: {fileID: 703555841}
   subjectText: {fileID: 75272290}
   timeText: {fileID: 984514894}
+  timeRoot: {fileID: 0}
+  timeInset: {x: 100, y: 78}
   okMark: {fileID: 114249917}
   okBlinkPerSecond: 2
   nextButton: {fileID: 1854437080}
@@ -925,6 +927,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CraftFlowController
   runner: {fileID: 701930319}
+  serveScreen: {fileID: 0}
   cocktailData: {fileID: 11400000, guid: 4cdd38f0ff8842f8a80c5e7c1fec4ecf, type: 2}
   orderRequests: {fileID: 0}
   shelfData: {fileID: 11400000, guid: f79c175af95447bba922a8c3fdddff37, type: 2}

@@ -34,6 +34,89 @@ public class CraftServingView : MonoBehaviour
     int openPresentations;
     bool closeWhenIdle;
     CoasterLesson coasterLesson;
+    readonly StoryTableState tables = new();
+    readonly Dictionary<string, TableVisual> tableVisuals = new(StringComparer.Ordinal);
+    [SerializeField] CocktailRecipeVisualCatalog visuals;
+
+    sealed class TableVisual
+    {
+        public GameObject Zone;
+        public StoryCoasterDropTarget Coaster;
+        public StoryServeZoneLayout Layout;
+        public readonly UniTaskCompletionSource Placed = new();
+    }
+
+    public StoryTableState TableState => tables;
+    public void SetVisuals(CocktailRecipeVisualCatalog value) => visuals = value;
+
+    public void BeginVisit(string actor)
+    {
+        tables.Enter(actor);
+    }
+
+    TableVisual EnsureTable(string actor)
+    {
+        if (visuals == null) throw new InvalidOperationException("서빙 그림 카탈로그를 연결하세요.");
+        tables.Get(actor);
+        if (tableVisuals.TryGetValue(actor, out var existing)) return existing;
+        var zone = BuildServeZone(new OrderDetails("story-table-" + actor, actor, "table"));
+        zone.GetComponent<StoryServeDropTarget>().enabled = false;
+        var layout = zone.GetComponent<StoryServeZoneLayout>();
+        if (layout == null) throw new InvalidOperationException("서빙 자리 프리팹에 StoryServeZoneLayout이 필요합니다: " + zone.name);
+        var visual = new TableVisual { Zone = zone, Layout = layout, Coaster = zone.AddComponent<StoryCoasterDropTarget>() };
+        tableVisuals.Add(actor, visual);
+        OpenServeUi();
+        visual.Coaster.Bind(() => { tables.PlaceCoaster(actor); visual.Placed.TrySetResult(); });
+        return visual;
+    }
+
+    public UniTask WaitForCoasterAsync(string actor, CancellationToken token)
+    {
+        var visual = EnsureTable(actor);
+        return tables.Get(actor).HasCoaster ? UniTask.CompletedTask : visual.Placed.Task.AttachExternalCancellation(token);
+    }
+
+    public void EmptyGlass(string actor)
+    {
+        tables.EmptyGlass(actor);
+        RefreshDrink(actor);
+    }
+
+    void RefreshDrink(string actor)
+    {
+        var visit = tables.Get(actor);
+        if (visit.Drink == null) return;
+        var visual = EnsureTable(actor);
+        var glass = visit.Drink.Session?.Actual.GlassId;
+        var sprite = visit.GlassEmpty ? visuals.GetIngredientSprite(glass) : visuals.GetTableCocktailSprite(visit.Drink.CocktailId);
+        visual.Layout.ShowGlass(sprite, visit.Drink.Color, visit.GlassEmpty);
+    }
+
+    public void EndVisit(string actor)
+    {
+        tables.Leave(actor);
+        if (tableVisuals.TryGetValue(actor, out var visual))
+        {
+            // Detach before resuming a canceled waiter: its finally may call EndVisits synchronously.
+            tableVisuals.Remove(actor);
+            if (visual.Coaster != null && visual.Coaster.PlacedCoaster != null) visual.Coaster.PlacedCoaster.ReturnToTray();
+            if (visual.Zone != null)
+            {
+                visual.Zone.SetActive(false);
+                Destroy(visual.Zone);
+            }
+            visual.Placed.TrySetCanceled();
+        }
+        if (tableVisuals.Count == 0 && openPresentations == 0) CloseUi();
+    }
+
+    public void EndVisits()
+    {
+        foreach (var actor in new List<string>(tableVisuals.Keys)) EndVisit(actor);
+        tables.Clear();
+    }
+
+    void OnDestroy() => EndVisits();
     readonly List<(GameObject zone, string actor)> trackedZones = new();
 
     public RectTransform CoasterTarget => coasterLesson?.TargetRect;
@@ -60,7 +143,6 @@ public class CraftServingView : MonoBehaviour
     {
         readonly CraftServingView owner;
         readonly string actor;
-        readonly UniTaskCompletionSource placed = new();
         StoryCoasterDropTarget target;
         public RectTransform TargetRect => target != null ? (RectTransform)target.transform : null;
 
@@ -68,43 +150,16 @@ public class CraftServingView : MonoBehaviour
         {
             this.owner = owner;
             this.actor = actor;
-            var zone = owner.BuildServeZone(new OrderDetails("tutorial-coaster", actor, "gin_tonic"));
-            zone.name = "Story Coaster Lesson (" + actor + ")";
-            zone.GetComponent<StoryServeDropTarget>().enabled = false;
-            target = zone.AddComponent<StoryCoasterDropTarget>();
-            owner.openPresentations++;
-            owner.OpenServeUi();
-            // Activating an initially hidden serve canvas runs StoryServeDropTarget.Awake,
-            // which disables its graphic. Bind the coaster input after that initialization.
-            target.Bind(() => placed.TrySetResult());
+            var visual = owner.EnsureTable(actor);
+            target = visual.Coaster;
         }
 
-        public UniTask WaitAsync(CancellationToken token) => placed.Task.AttachExternalCancellation(token);
-
-        internal bool TransferToOrder(string receiver, out GameObject zone, out CoasterDragItem coaster)
-        {
-            zone = null;
-            coaster = null;
-            if (target == null || receiver != actor || target.PlacedCoaster == null) return false;
-            zone = target.gameObject;
-            coaster = target.PlacedCoaster;
-            Destroy(target);
-            target = null;
-            owner.coasterLesson = null;
-            owner.openPresentations--;
-            zone.GetComponent<StoryServeDropTarget>().enabled = true;
-            return true;
-        }
+        public UniTask WaitAsync(CancellationToken token) => owner.WaitForCoasterAsync(actor, token);
 
         public void Dispose()
         {
-            if (target == null) return;
-            if (target.PlacedCoaster != null) target.PlacedCoaster.ReturnToTray();
-            Destroy(target.gameObject);
             target = null;
             if (owner.coasterLesson == this) owner.coasterLesson = null;
-            owner.openPresentations--;
-            if (owner.openPresentations == 0) owner.CloseUi();
         }
     }
 
@@ -124,10 +179,25 @@ public class CraftServingView : MonoBehaviour
 
         public void Open(Func<CraftedDrink, bool> receive)
         {
-            if (owner.coasterLesson == null ||
-                !owner.coasterLesson.TransferToOrder(order.ReceiverId, out zone, out coaster))
+            bool visit = owner.tables.Contains(order.ReceiverId);
+            if (visit)
+            {
+                var table = owner.EnsureTable(order.ReceiverId);
+                zone = table.Zone;
+                zone.GetComponent<StoryServeDropTarget>().enabled = true;
+                zone.GetComponent<StoryServeDropTarget>().Bind(drink =>
+                {
+                    if (!owner.tables.Get(order.ReceiverId).HasCoaster || !receive(drink)) return false;
+                    owner.tables.Serve(order.ReceiverId, drink);
+                    owner.RefreshDrink(order.ReceiverId);
+                    return true;
+                });
+            }
+            else
+            {
                 zone = owner.BuildServeZone(order);
-            zone.GetComponent<StoryServeDropTarget>().Bind(receive);
+                zone.GetComponent<StoryServeDropTarget>().Bind(receive);
+            }
             owner.openPresentations++;
             opened = true;
             owner.OpenServeUi();
@@ -136,6 +206,12 @@ public class CraftServingView : MonoBehaviour
         public void Unbind()
         {
             if (zone == null) return;
+            if (owner.tables.Contains(order.ReceiverId))
+            {
+                zone.GetComponent<StoryServeDropTarget>().Bind(null);
+                zone = null;
+                return;
+            }
             if (coaster != null) { coaster.ReturnToTray(); coaster = null; }
             zone.GetComponent<StoryServeDropTarget>().Bind(null);
             Destroy(zone);
@@ -148,7 +224,7 @@ public class CraftServingView : MonoBehaviour
             if (owner == null || !opened) return;
             opened = false;
             owner.openPresentations--;
-            if (owner.openPresentations != 0) return;
+            if (owner.openPresentations != 0 || owner.tableVisuals.Count != 0) return;
             // 주문 취소로 제조 오브젝트까지 비활성화하지 않는다.
             if (owner.craftFlow != null && owner.craftFlow.IsBusy)
                 owner.closeWhenIdle = true;

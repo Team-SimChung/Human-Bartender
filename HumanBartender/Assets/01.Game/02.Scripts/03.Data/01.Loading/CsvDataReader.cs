@@ -53,8 +53,13 @@ public static class CsvDataReader
     }
 
     static async UniTask<string> ReadTextAsync(string file, CancellationToken token)
+        => await ReadStreamingTextAsync(Folder + "/" + file, token);
+
+    public static async UniTask<string> ReadStreamingTextAsync(string relativePath, CancellationToken token)
     {
-        string path = Path.Combine(Application.streamingAssetsPath, Folder, file);
+        if (string.IsNullOrWhiteSpace(relativePath) || relativePath.Contains("..") || relativePath.Contains(":") || Path.IsPathRooted(relativePath))
+            throw new InvalidOperationException("Invalid StreamingAssets relative path: " + relativePath);
+        string path = Path.Combine(Application.streamingAssetsPath, relativePath);
         string url = path.Contains("://") || path.StartsWith("jar:", StringComparison.Ordinal) ? path : new Uri(path).AbsoluteUri;
         using var request = UnityWebRequest.Get(url);
         try
@@ -63,6 +68,6 @@ public static class CsvDataReader
             return request.downloadHandler.text;
         }
         catch (OperationCanceledException) { throw; }
-        catch (Exception e) { throw new InvalidOperationException($"CSV를 읽지 못했습니다: {file}: {e.Message}", e); }
+        catch (Exception e) { throw new InvalidOperationException($"CSV를 읽지 못했습니다: {relativePath}: {e.Message}", e); }
     }
 }
