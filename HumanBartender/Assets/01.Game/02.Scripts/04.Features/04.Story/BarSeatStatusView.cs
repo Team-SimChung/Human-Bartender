@@ -61,19 +61,28 @@ public sealed class BarSeatStatusView : MonoBehaviour
                 new Vector2(14, 14), position).gameObject.AddComponent<StoryTutorialShape>();
             view.dots[i].Style(EmptyColor, 7);
         }
-        view.LeftKey = MakeKey(root, font, "Left Seat Key", "< Q", new Vector2(0, .5f), new Vector2(29, 0));
-        view.RightKey = MakeKey(root, font, "Right Seat Key", "E >", new Vector2(1, .5f), new Vector2(-29, 0));
+        view.LeftKey = MakeKey(root, font, "Left Seat Key", new Vector2(0, .5f), new Vector2(29, 0));
+        view.RightKey = MakeKey(root, font, "Right Seat Key", new Vector2(1, .5f), new Vector2(-29, 0));
+        view.RefreshKeyLabels();
+        GameKeyBindings.Changed += view.RefreshKeyLabels;
         view.SetExploration(false, ESlotType.Right, false);
         return view;
     }
 
-    static RectTransform MakeKey(Transform parent, TMP_FontAsset font, string name, string label, Vector2 anchor, Vector2 position)
+    void RefreshKeyLabels()
+    {
+        LeftKey.GetComponentInChildren<TMP_Text>(true).text = "< " + GameKeyBindings.DisplayName(GameControl.PreviousSeat);
+        RightKey.GetComponentInChildren<TMP_Text>(true).text = GameKeyBindings.DisplayName(GameControl.NextSeat) + " >";
+    }
+
+    void OnDestroy() => GameKeyBindings.Changed -= RefreshKeyLabels;
+
+    static RectTransform MakeKey(Transform parent, TMP_FontAsset font, string name, Vector2 anchor, Vector2 position)
     {
         var key = StoryTutorialView.MakeRect(name, parent, new Vector2(48, 44), position);
         key.anchorMin = key.anchorMax = anchor;
         var text = StoryTutorialView.MakeText("Key", key, font, new Vector2(48, 44), Vector2.zero, 17);
         text.color = SelectedColor;
-        text.text = label;
         return key;
     }
 
