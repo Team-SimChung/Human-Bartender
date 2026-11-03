@@ -1,41 +1,26 @@
 // Editor/CoasterUISetup.cs
 // 메뉴: Tools > Tycoon > Setup Coaster UI
 
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 코스터 드래그앤드롭 UI(우측 하단 코스터 트레이 + 각 GuestSlot 앞 드롭존)를 현재 열려있는 씬에
-/// 자동으로 배치한다. 씬을 새로 열거나 저장하지 않는다 — 현재 활성 씬을 직접 수정하므로, 결과를
-/// 확인한 뒤 직접 Ctrl+S로 저장해야 한다. 위치/크기는 자리만 잡아둔 placeholder이므로 에디터에서
-/// 실제 비주얼에 맞게 다시 조정해야 한다.
+/// 현재 씬의 화면 코스터 공급함과 대화 클릭 캐처를 연결한다. 월드 서빙 자리는 런타임에 생성한다.
 /// </summary>
 public static class CoasterUISetup
 {
     const string TrayCanvasName = "Coaster Tray Canvas";
-    const string DropZoneName = "Coaster Drop Zone";
     const string SupplyTrayPrefabPath = "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/03.Serving/CoasterSupplyTray.prefab";
 
     [MenuItem("Tools/Tycoon/Setup Coaster UI")]
     public static void Run()
     {
-        var guestManager = Object.FindFirstObjectByType<GuestManager>();
-        if (guestManager == null)
-        {
-            Debug.LogError("[CoasterUISetup] 씬에서 GuestManager를 찾지 못했습니다. Play.unity를 열고 다시 실행하세요.");
-            return;
-        }
-
-        var slots = Object.FindObjectsByType<GuestSlot>(FindObjectsSortMode.InstanceID);
-        if (slots.Length == 0)
-        {
-            Debug.LogError("[CoasterUISetup] 씬에서 GuestSlot을 찾지 못했습니다.");
-            return;
-        }
-
-        if (GameObject.Find(TrayCanvasName) != null)
+        var scene = EditorSceneManager.GetActiveScene();
+        if (Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+            .Any(canvas => canvas.gameObject.scene == scene && canvas.name == TrayCanvasName))
         {
             Debug.LogWarning($"[CoasterUISetup] '{TrayCanvasName}'가 이미 있습니다. 중복 생성을 막기 위해 트레이 생성을 건너뜁니다.");
         }
@@ -44,24 +29,10 @@ public static class CoasterUISetup
             CreateTray();
         }
 
-        int created = 0;
-        foreach (var slot in slots)
-        {
-            if (slot.transform.Find(DropZoneName) != null)
-            {
-                Debug.LogWarning($"[CoasterUISetup] {slot.name}에 이미 '{DropZoneName}'가 있어 건너뜁니다.");
-                continue;
-            }
-
-            CreateDropZone(slot, guestManager);
-            created++;
-        }
-
         WireDialogueClickCatcher();
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-        Debug.Log($"[CoasterUISetup] 완료. 드롭존 {created}개 생성. Ctrl+S로 씬을 저장하세요. " +
-                  "위치/크기는 placeholder이니 Scene 뷰에서 실제 좌석 위치에 맞게 조정해주세요.");
+        Debug.Log("[CoasterUISetup] 코스터 공급함과 대화 클릭 영역을 확인했습니다.");
     }
 
     /// <summary>
@@ -117,31 +88,12 @@ public static class CoasterUISetup
         {
             SetSerializedField(coaster, "rootCanvas", canvas);
         }
-    }
-
-    static void CreateDropZone(GuestSlot slot, GuestManager guestManager)
-    {
-        var dropGO = new GameObject(DropZoneName, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(Image), typeof(CoasterDropZone));
-        dropGO.transform.SetParent(slot.transform, false);
-
-        var canvas = dropGO.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.WorldSpace;
-        canvas.worldCamera = Camera.main;
-        canvas.sortingOrder = 5;
-
-        var rect = dropGO.GetComponent<RectTransform>();
-        rect.localPosition = Vector3.zero;
-        rect.localScale = new Vector3(0.02f, 0.02f, 0.02f);
-        rect.sizeDelta = new Vector2(150, 150);
-        rect.anchoredPosition = Vector2.zero;
-
-        var image = dropGO.GetComponent<Image>();
-        image.color = new Color(1f, 1f, 1f, 0f); // 투명 — 레이캐스트 타겟 용도
-        image.raycastTarget = true;
-
-        var dropZone = dropGO.GetComponent<CoasterDropZone>();
-        SetSerializedField(dropZone, "targetSlot", slot);
-        SetSerializedField(dropZone, "guestManager", guestManager);
+        var serving = Object.FindFirstObjectByType<CraftServingView>(FindObjectsInactive.Include);
+        if (serving != null)
+        {
+            SetSerializedField(serving, "serveCanvas", canvas);
+            SetSerializedField(serving, "supplyArrow", tray.transform.Find("SupplyArrow").gameObject);
+        }
     }
 
     static void SetSerializedField(Object target, string fieldName, Object value)

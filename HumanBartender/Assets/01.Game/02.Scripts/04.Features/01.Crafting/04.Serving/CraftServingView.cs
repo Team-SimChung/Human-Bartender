@@ -1,175 +1,140 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Threading;
-using System.Collections.Generic;
 
-/// <summary>서빙 위치와 트레이 표시를 담당한다.</summary>
+/// <summary>좌석의 월드 서빙 자리와 화면의 공급함을 함께 표시한다. 스토리의 방문은 배우별로 관리한다.</summary>
 public class CraftServingView : MonoBehaviour
 {
-    [Tooltip("서빙 동안에만 켜는 트레이 등. 레시피 브라우저가 있는 Left Slide Panel Canvas는 넣지 않는다.")]
-    [SerializeField] private GameObject[] craftUiRoots;
-
-    [Header("Serve")]
-    [Tooltip("좌석에 앉은 인물의 위치를 묻는 곳. 서빙 자리를 그 앞에 놓는다.")]
-    [SerializeField] private DialogueCharacterManager characterManager;
-
-    [Tooltip("서빙 자리를 올려놓을 캔버스. 완성 잔 트레이가 쓰는 것과 같아야 잔을 끌어다 놓을 수 있다.")]
-    [SerializeField] private Canvas serveCanvas;
-    [SerializeField] private StoryServeDropTarget serveZonePrefab;
-
-    [Tooltip("좌석 월드 좌표에서 서빙 자리까지의 어긋남. 좌석의 좌우·깊이 위치를 조정하며 높이는 책상 앵커를 사용한다.")]
-    [SerializeField] private Vector3 serveZoneWorldOffset = new(0f, -0.6f, 0f);
-
-    [Tooltip("책상 표면의 서빙 높이. 인물 리그의 중심 높이와 별도로 배치한다.")]
-    [SerializeField] private Transform tabletopAnchor;
-    [SerializeField] private float tabletopWorldY = -1.5f;
-
-    [Tooltip("서빙 자리를 눈에 보이게 할지. 코스터 그림이 붙기 전까지 자리를 확인하는 용도다.")]
-    [SerializeField] private bool showServeZoneGuide = true;
-
-    [Header("Craft lifetime")]
-    [SerializeField] private CraftFlowController craftFlow;
-    int openPresentations;
-    bool closeWhenIdle;
-    CoasterLesson coasterLesson;
-    readonly StoryTableState tables = new();
-    readonly Dictionary<string, TableVisual> tableVisuals = new(StringComparer.Ordinal);
+    [SerializeField] DialogueCharacterManager characterManager;
+    [SerializeField] Canvas serveCanvas;
+    [SerializeField] TableServeSpot spotPrefab;
+    [SerializeField] Transform tabletopAnchor;
+    [SerializeField] GameObject supplyArrow;
+    [SerializeField] PlayCamera playCamera;
+    [SerializeField] RecipeBrowserScreen recipes;
+    [SerializeField] ServicePanelController servicePanel;
+    [SerializeField] CraftFlowController craftFlow;
     [SerializeField] CocktailRecipeVisualCatalog visuals;
 
-    sealed class TableVisual
+    readonly StoryTableState tables = new();
+    readonly Dictionary<string, StoryPlace> storyPlaces = new(StringComparer.Ordinal);
+    readonly List<TableServeSpot> spots = new();
+    int openPresentations;
+    bool closeWhenIdle;
+
+    sealed class StoryPlace
     {
-        public GameObject Zone;
-        public StoryCoasterDropTarget Coaster;
-        public StoryServeZoneLayout Layout;
+        public TableServeSpot Spot;
+        public int CoasterWaiters;
+        public int OpenOrders;
         public readonly UniTaskCompletionSource Placed = new();
     }
 
     public StoryTableState TableState => tables;
-    public void SetVisuals(CocktailRecipeVisualCatalog value) => visuals = value;
+    public void BeginVisit(string actor) => tables.Enter(actor);
 
-    public void BeginVisit(string actor)
+    bool BarVisible => serveCanvas.isActiveAndEnabled && !craftFlow.IsCraftFlowActive &&
+        !craftFlow.IsAwaitingServeDecision;
+    bool CanInteract() => BarVisible && !playCamera.IsMoving && !recipes.IsOpen &&
+        !servicePanel.IsMenuOpen && !UIDisplayOptions.IsOptionOpen;
+
+    TableServeSpot CreateSpot(string guest, float worldX)
     {
-        tables.Enter(actor);
+        var spot = Instantiate(spotPrefab, tabletopAnchor, false);
+        spot.name = $"TableServeSpot ({guest})";
+        var position = tabletopAnchor.position;
+        position.x = worldX;
+        spot.transform.position = position;
+        spot.Initialize(Camera.main, visuals, CanInteract);
+        spots.Add(spot);
+        return spot;
     }
 
-    TableVisual EnsureTable(string actor)
+    public TableServeSpot OpenGuestSpot(GuestManager manager, GuestSlot slot)
     {
-        if (visuals == null) throw new InvalidOperationException("서빙 그림 카탈로그를 연결하세요.");
-        tables.Get(actor);
-        if (tableVisuals.TryGetValue(actor, out var existing)) return existing;
-        var zone = BuildServeZone(new OrderDetails("story-table-" + actor, actor, "table"));
-        zone.GetComponent<StoryServeDropTarget>().enabled = false;
-        var layout = zone.GetComponent<StoryServeZoneLayout>();
-        if (layout == null) throw new InvalidOperationException("서빙 자리 프리팹에 StoryServeZoneLayout이 필요합니다: " + zone.name);
-        var visual = new TableVisual { Zone = zone, Layout = layout, Coaster = zone.AddComponent<StoryCoasterDropTarget>() };
-        tableVisuals.Add(actor, visual);
-        OpenServeUi();
-        visual.Coaster.Bind(() => { tables.PlaceCoaster(actor); visual.Placed.TrySetResult(); });
-        return visual;
+        var spot = CreateSpot(slot.CurrentGuest.id, slot.transform.position.x);
+        bool Focused() => manager.isActiveAndEnabled && slot.SlotType == playCamera.SelectedSeat;
+        spot.BindCoaster(() => Focused() && slot.CanReceiveCoaster, () => manager.TryPlaceCoaster(slot));
+        spot.BindDrink(() => Focused() && slot.CanReceiveDrink, drink => manager.TryServeDrink(slot, drink));
+        return spot;
     }
 
-    public UniTask WaitForCoasterAsync(string actor, CancellationToken token)
+    public void RemoveSpot(TableServeSpot spot)
     {
-        var visual = EnsureTable(actor);
-        return tables.Get(actor).HasCoaster ? UniTask.CompletedTask : visual.Placed.Task.AttachExternalCancellation(token);
+        spots.Remove(spot);
+        if (spot == null) return;
+        spot.gameObject.SetActive(false);
+        Destroy(spot.gameObject);
+    }
+
+    StoryPlace EnsureStoryPlace(string actor)
+    {
+        if (storyPlaces.TryGetValue(actor, out var place)) return place;
+        var visit = tables.Get(actor);
+        var spot = CreateSpot(actor, characterManager.GetCharacterPosition(actor).x);
+        place = new StoryPlace { Spot = spot };
+        storyPlaces.Add(actor, place);
+        spot.BindCoaster(() => !visit.HasCoaster && (place.CoasterWaiters > 0 || place.OpenOrders > 0), () =>
+        {
+            if (visit.HasCoaster) return;
+            tables.PlaceCoaster(actor);
+            spot.ShowCoaster();
+            place.Placed.TrySetResult();
+        });
+        serveCanvas.gameObject.SetActive(true);
+        return place;
+    }
+
+    public async UniTask WaitForCoasterAsync(string actor, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var place = EnsureStoryPlace(actor);
+        place.CoasterWaiters++;
+        try { await place.Placed.Task.AttachExternalCancellation(token); }
+        finally { place.CoasterWaiters--; }
     }
 
     public void EmptyGlass(string actor)
     {
         tables.EmptyGlass(actor);
-        RefreshDrink(actor);
-    }
-
-    void RefreshDrink(string actor)
-    {
-        var visit = tables.Get(actor);
-        if (visit.Drink == null) return;
-        var visual = EnsureTable(actor);
-        var glass = visit.Drink.Session?.Actual.GlassId;
-        var sprite = visit.GlassEmpty ? visuals.GetIngredientSprite(glass) : visuals.GetTableCocktailSprite(visit.Drink.CocktailId);
-        visual.Layout.ShowGlass(sprite, visit.Drink.Color, visit.GlassEmpty);
+        if (tables.Get(actor).GlassEmpty) storyPlaces[actor].Spot.ShowEmptyGlass();
     }
 
     public void EndVisit(string actor)
     {
         tables.Leave(actor);
-        if (tableVisuals.TryGetValue(actor, out var visual))
+        if (storyPlaces.Remove(actor, out var place))
         {
-            // Detach before resuming a canceled waiter: its finally may call EndVisits synchronously.
-            tableVisuals.Remove(actor);
-            if (visual.Coaster != null && visual.Coaster.PlacedCoaster != null) visual.Coaster.PlacedCoaster.ReturnToTray();
-            if (visual.Zone != null)
-            {
-                visual.Zone.SetActive(false);
-                Destroy(visual.Zone);
-            }
-            visual.Placed.TrySetCanceled();
+            RemoveSpot(place.Spot);
+            place.Placed.TrySetCanceled();
         }
-        if (tableVisuals.Count == 0 && openPresentations == 0) CloseUi();
+        if (storyPlaces.Count == 0 && openPresentations == 0) CloseUi();
     }
 
     public void EndVisits()
     {
-        foreach (var actor in new List<string>(tableVisuals.Keys)) EndVisit(actor);
+        foreach (var actor in new List<string>(storyPlaces.Keys)) EndVisit(actor);
         tables.Clear();
     }
 
-    void OnDestroy() => EndVisits();
-    readonly List<(GameObject zone, string actor)> trackedZones = new();
-
-    public RectTransform CoasterTarget => coasterLesson?.TargetRect;
-    public RectTransform CoasterSupply
+    void OnDestroy()
     {
-        get
-        {
-            if (serveCanvas == null) return null;
-            foreach (var item in serveCanvas.GetComponentsInChildren<CoasterDragItem>(true))
-                if (!item.IsPlaced) return item.TrayRect;
-            return null;
-        }
+        EndVisits();
+        while (spots.Count > 0) RemoveSpot(spots[spots.Count - 1]);
     }
 
     public IOrderPresentation CreatePresentation(OrderDetails order) => new Presentation(this, order);
-
-    public CoasterLesson CreateCoasterLesson(string actor)
-    {
-        coasterLesson?.Dispose();
-        return coasterLesson = new(this, actor);
-    }
-
-    public sealed class CoasterLesson : IDisposable
-    {
-        readonly CraftServingView owner;
-        readonly string actor;
-        StoryCoasterDropTarget target;
-        public RectTransform TargetRect => target != null ? (RectTransform)target.transform : null;
-
-        public CoasterLesson(CraftServingView owner, string actor)
-        {
-            this.owner = owner;
-            this.actor = actor;
-            var visual = owner.EnsureTable(actor);
-            target = visual.Coaster;
-        }
-
-        public UniTask WaitAsync(CancellationToken token) => owner.WaitForCoasterAsync(actor, token);
-
-        public void Dispose()
-        {
-            target = null;
-            if (owner.coasterLesson == this) owner.coasterLesson = null;
-        }
-    }
 
     sealed class Presentation : IOrderPresentation
     {
         readonly CraftServingView owner;
         readonly OrderDetails order;
-        GameObject zone;
-        CoasterDragItem coaster;
+        TableServeSpot spot;
+        StoryPlace place;
         bool opened;
+        bool received;
 
         public Presentation(CraftServingView owner, OrderDetails order)
         {
@@ -179,43 +144,34 @@ public class CraftServingView : MonoBehaviour
 
         public void Open(Func<CraftedDrink, bool> receive)
         {
-            bool visit = owner.tables.Contains(order.ReceiverId);
-            if (visit)
+            string actor = order.ReceiverId;
+            if (owner.tables.Contains(actor))
             {
-                var table = owner.EnsureTable(order.ReceiverId);
-                zone = table.Zone;
-                zone.GetComponent<StoryServeDropTarget>().enabled = true;
-                zone.GetComponent<StoryServeDropTarget>().Bind(drink =>
-                {
-                    if (!owner.tables.Get(order.ReceiverId).HasCoaster || !receive(drink)) return false;
-                    owner.tables.Serve(order.ReceiverId, drink);
-                    owner.RefreshDrink(order.ReceiverId);
-                    return true;
-                });
+                place = owner.EnsureStoryPlace(actor);
+                place.OpenOrders++;
+                spot = place.Spot;
             }
-            else
+            else spot = owner.CreateSpot(actor, owner.characterManager.GetCharacterPosition(actor).x);
+            spot.BindDrink(() => !received && (place == null || owner.tables.Get(actor).HasCoaster), drink =>
             {
-                zone = owner.BuildServeZone(order);
-                zone.GetComponent<StoryServeDropTarget>().Bind(receive);
-            }
+                if (!receive(drink)) return false;
+                received = true;
+                if (place != null) owner.tables.Serve(actor, drink);
+                spot.ShowDrink(drink);
+                return true;
+            });
             owner.openPresentations++;
             opened = true;
-            owner.OpenServeUi();
+            owner.serveCanvas.gameObject.SetActive(true);
         }
 
         public void Unbind()
         {
-            if (zone == null) return;
-            if (owner.tables.Contains(order.ReceiverId))
-            {
-                zone.GetComponent<StoryServeDropTarget>().Bind(null);
-                zone = null;
-                return;
-            }
-            if (coaster != null) { coaster.ReturnToTray(); coaster = null; }
-            zone.GetComponent<StoryServeDropTarget>().Bind(null);
-            Destroy(zone);
-            zone = null;
+            if (spot == null) return;
+            spot.BindDrink(null, null);
+            if (place == null) owner.RemoveSpot(spot);
+            else place.OpenOrders--;
+            spot = null;
         }
 
         public async UniTask CloseAsync()
@@ -224,109 +180,24 @@ public class CraftServingView : MonoBehaviour
             if (owner == null || !opened) return;
             opened = false;
             owner.openPresentations--;
-            if (owner.openPresentations != 0 || owner.tableVisuals.Count != 0) return;
-            // 주문 취소로 제조 오브젝트까지 비활성화하지 않는다.
-            if (owner.craftFlow != null && owner.craftFlow.IsBusy)
-                owner.closeWhenIdle = true;
-            else
-                owner.CloseUi();
+            if (owner.openPresentations != 0 || owner.storyPlaces.Count != 0) return;
+            if (owner.craftFlow.IsBusy) owner.closeWhenIdle = true;
+            else owner.CloseUi();
         }
     }
 
     void LateUpdate()
     {
-        if (closeWhenIdle && openPresentations == 0 && (craftFlow == null || !craftFlow.IsBusy))
-            CloseUi();
-    }
+        if (closeWhenIdle && openPresentations == 0 && !craftFlow.IsBusy) CloseUi();
 
-    void OnEnable() => Canvas.willRenderCanvases += UpdateServePositions;
-    void OnDisable() => Canvas.willRenderCanvases -= UpdateServePositions;
-
-    void UpdateServePositions()
-    {
-        for (int i = trackedZones.Count - 1; i >= 0; i--)
-        {
-            var tracked = trackedZones[i];
-            if (tracked.zone == null) { trackedZones.RemoveAt(i); continue; }
-            ((RectTransform)tracked.zone.transform).anchoredPosition = ResolveSeatCanvasPoint(tracked.actor);
-        }
-    }
-
-    private void OpenServeUi()
-    {
-        closeWhenIdle = false;
-        SetCraftUiActive(true);
+        bool showSupply = false;
+        foreach (var spot in spots) showSupply |= spot.Refresh(BarVisible);
+        if (supplyArrow.activeSelf != showSupply) supplyArrow.SetActive(showSupply);
     }
 
     public void CloseUi()
     {
         closeWhenIdle = false;
-        SetCraftUiActive(false);
-    }
-
-    /// <summary>
-    /// 주문자 앞에 서빙 자리를 놓는다.
-    ///
-    /// 좌석의 월드 좌표를 화면 좌표로 옮겨 캔버스 위에 놓는다 — 말풍선을 화자 머리 위에 맞추는 것과
-    /// 같은 방식이다(UIDialogueTextView.SetBubblePosition). 좌석이 화면 어디에 잡히는지는
-    /// 카메라가 정하므로 캔버스 좌표를 고정값으로 둘 수 없다.
-    /// </summary>
-    GameObject BuildServeZone(OrderDetails order)
-    {
-        if (serveCanvas == null || characterManager == null || serveZonePrefab == null)
-        {
-            throw new InvalidOperationException("serveCanvas, characterManager, serveZonePrefab 연결이 필요합니다.");
-        }
-
-        StoryServeDropTarget zone = Instantiate(serveZonePrefab, serveCanvas.transform);
-        GameObject go = zone.gameObject;
-        go.name = $"Story Serve Zone ({order.ReceiverId})";
-        RectTransform rect = (RectTransform)zone.transform;
-        rect.anchoredPosition = ResolveSeatCanvasPoint(order.ReceiverId);
-        trackedZones.Add((go, order.ReceiverId));
-
-        Image image = go.GetComponent<Image>();
-        if (image != null && !showServeZoneGuide)
-            image.color = new Color(image.color.r, image.color.g, image.color.b, 0f);
-        // 평소에는 잔 클릭을 가리지 않고, 잔을 집은 동안에만 StoryServeDropTarget이 켠다.
-        if (image != null) image.raycastTarget = false;
-
-        return go;
-    }
-
-    Vector2 ResolveSeatCanvasPoint(string actorId)
-    {
-        Vector3 world = characterManager.GetCharacterPosition(actorId) + serveZoneWorldOffset;
-        world.y = tabletopAnchor != null ? tabletopAnchor.position.y : tabletopWorldY;
-
-        Camera camera = Camera.main;
-        if (camera == null) return Vector2.zero;
-
-        Vector2 screenPoint = camera.WorldToScreenPoint(world);
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            (RectTransform)serveCanvas.transform, screenPoint,
-            serveCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : serveCanvas.worldCamera, out Vector2 localPoint);
-
-        return localPoint;
-    }
-
-    // ── 화면 ────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// 제조·서빙 화면을 켜고 끈다.
-    ///
-    /// 레시피 브라우저의 Canvas는 서비스 패널이 소유하므로 여기서는 트레이만 켜고 끈다.
-    /// </summary>
-    void SetCraftUiActive(bool active)
-    {
-        if (craftUiRoots != null)
-        {
-            foreach (var root in craftUiRoots)
-            {
-                if (root != null) root.SetActive(active);
-            }
-        }
-
+        if (serveCanvas != null) serveCanvas.gameObject.SetActive(false);
     }
 }

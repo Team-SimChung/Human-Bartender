@@ -13,6 +13,8 @@ public class CraftedDrink
 {
     /// <summary>만들어진 칵테일. 오선택으로 주문과 다른 것을 만들었더라도 이 잔의 정체성은 만든 쪽이다.</summary>
     public string CocktailId { get; }
+    /// <summary>완성 시 실제 사용한 잔. 제조 기록에 없는 경우 선택한 레시피의 잔을 사용한다.</summary>
+    public string GlassId { get; }
 
     public string DisplayName { get; }
 
@@ -40,6 +42,8 @@ public class CraftedDrink
         Judgement = judgement;
 
         CocktailId = cocktail.Id;
+        string usedGlass = session?.Actual.GlassId;
+        GlassId = string.IsNullOrEmpty(usedGlass) ? cocktail.Glass : usedGlass;
         DisplayName = string.IsNullOrEmpty(cocktail.Name.Ko) ? cocktail.Id : cocktail.Name.Ko;
         Color = ParseColor(cocktail.Color);
         Color2 = string.IsNullOrEmpty(cocktail.Color2) ? null : ParseColor(cocktail.Color2);

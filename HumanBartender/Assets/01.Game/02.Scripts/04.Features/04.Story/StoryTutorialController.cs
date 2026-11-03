@@ -38,7 +38,6 @@ public sealed class StoryTutorialController : MonoBehaviour
     [SerializeField] LessonCopy[] copy = DefaultCopy();
 
     StoryTutorialView view;
-    CraftServingView.CoasterLesson coaster;
     UniTaskCompletionSource lessonComplete;
     CancellationToken lessonToken;
     ESlotType currentSeat, originSeat;
@@ -156,7 +155,6 @@ public sealed class StoryTutorialController : MonoBehaviour
         recipes = FindInScene(recipes);
         gimmickHud = FindInScene(gimmickHud);
         recipeBrowser = FindInScene(recipeBrowser);
-        if (serving != null && recipeBrowser != null) serving.SetVisuals(recipeBrowser.Visuals);
         servicePanel = FindInScene(servicePanel);
         EnsureView();
         view.ConfigureHud(FindInScene<PlayPhaseController>(null), characters, FindInScene<GuestManager>(null),
@@ -196,11 +194,9 @@ public sealed class StoryTutorialController : MonoBehaviour
                     await lessonComplete.Task.AttachExternalCancellation(token);
                     break;
                 case "coaster":
-                    coaster?.Dispose();
-                    coaster = serving.CreateCoasterLesson(actor);
                     var (title, text) = Copy("coaster");
-                    view.ShowGuide(title, text, serving.CoasterSupply, serving.CoasterTarget, true);
-                    await coaster.WaitAsync(token);
+                    view.ShowInstruction(title, text);
+                    await serving.WaitForCoasterAsync(actor, token);
                     break;
                 default: throw new NotSupportedException("지원하지 않는 튜토리얼: " + kind);
             }
@@ -275,7 +271,6 @@ public sealed class StoryTutorialController : MonoBehaviour
     public void BeginCraftLesson(string id)
     {
         EnsureView();
-        EndCoasterLesson();
         dialogue.ClearText();
         cocktail = id;
         craftLesson = true;
@@ -415,15 +410,12 @@ public sealed class StoryTutorialController : MonoBehaviour
         ? prep.GlassId == prep.Cocktail.Glass && prep.IsBottleOpenerSelected && prep.IsSelected("beer")
         : prep.IsTargetSetupComplete;
 
-    public void EndCoasterLesson() { coaster?.Dispose(); coaster = null; }
-
     public void EndLessons()
     {
         craftLesson = false;
         ActiveLesson = null;
         if (guidedStage != null) guidedStage.TutorialCanStart = null;
         guidedStage = null;
-        EndCoasterLesson();
         if (view != null) view.Hide();
     }
 
