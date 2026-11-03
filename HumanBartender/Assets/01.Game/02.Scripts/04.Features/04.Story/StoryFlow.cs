@@ -119,6 +119,9 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         craftFlow.RefreshCraftAvailability();
     }
 
+    public bool CanAdvanceDialogue => runner != null && runner.IsPresentingLine &&
+        (craftFlow == null || (!craftFlow.IsCraftFlowActive && !craftFlow.IsAwaitingServeDecision));
+
     /// <summary>
     /// 대사 진행 입력. 대본이 돌고 있을 때만 받는다.
     ///
@@ -127,7 +130,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     public bool TryAdvance()
     {
-        if (runner == null || !runner.IsRunning) return false;
+        if (!CanAdvanceDialogue) return false;
 
         runner.OnAdvanceInput();
         return true;

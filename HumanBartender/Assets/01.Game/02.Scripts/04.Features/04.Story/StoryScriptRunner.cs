@@ -70,6 +70,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// <summary>대사를 넘기라는 입력을 기다리는 곳. 기다리는 중이 아니면 null이다.</summary>
     UniTaskCompletionSource advanceSignal;
     public bool IsWaitingForAdvance => advanceSignal != null;
+    public bool IsPresentingLine { get; private set; }
     public string CurrentDialogueId { get; private set; }
 
     /// <summary>
@@ -463,10 +464,8 @@ public class StoryScriptRunner : MonoBehaviour
             throw new InvalidOperationException($"[Story] 본문이 없는 say입니다: {step.DialogueId ?? $"seq {step.Seq}"}");
         }
 
-        await presenter.ShowSayAsync(
+        await PresentLineAsync(
             new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId, step.DisplayName), token);
-
-        await WaitForAdvanceAsync(token);
     }
 
     // ── 연출 ────────────────────────────────────────────────────────────
@@ -515,10 +514,8 @@ public class StoryScriptRunner : MonoBehaviour
         string body = step.Text?.Ko;
         if (!string.IsNullOrEmpty(body))
         {
-            await presenter.ShowSayAsync(
+            await PresentLineAsync(
                 new StorySayRequest(step.Actor, null, body, step.Actor == PlayerCharacterId, step.DisplayName), token);
-
-            await WaitForAdvanceAsync(token);
         }
 
         if (step.Arg == "free")
@@ -805,24 +802,22 @@ public class StoryScriptRunner : MonoBehaviour
     // ── 진행 입력 ───────────────────────────────────────────────────────
 
     /// <summary>
-    /// 플레이어가 대사를 넘길 때까지 기다린다.
-    ///
-    /// 타이핑을 건너뛰는 입력과 대사를 넘기는 입력을 같은 키로 받는데, 그 둘을 한 번의 누름으로
-    /// 같이 처리하면 문장이 뜨자마자 사라진다. 타이핑은 표시 계층이 이미 기다렸으므로 여기서는
-    /// 넘기는 입력만 받는다.
+    /// 한 줄을 표시하는 동안만 진행 입력을 받는다. 타이핑이 끝나면 다음 입력으로 줄을 넘긴다.
     /// </summary>
-    async UniTask WaitForAdvanceAsync(CancellationToken token)
+    async UniTask PresentLineAsync(StorySayRequest request, CancellationToken token)
     {
-        advanceSignal = new UniTaskCompletionSource();
         var prompt = presenter as IDialogueInputPrompt;
-
+        IsPresentingLine = true;
         try
         {
+            await presenter.ShowSayAsync(request, token);
+            advanceSignal = new UniTaskCompletionSource();
             prompt?.SetWaitingForInput(true);
             await advanceSignal.Task.AttachExternalCancellation(token);
         }
         finally
         {
+            IsPresentingLine = false;
             advanceSignal = null;
             prompt?.SetWaitingForInput(false);
         }
@@ -831,6 +826,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// <summary>진행 입력. 대사를 기다리는 중이 아니면 아무 일도 하지 않는다.</summary>
     public void OnAdvanceInput()
     {
+        if (!IsPresentingLine) return;
         if (advanceSignal == null)
         {
             // 타이핑 도중이면 그것부터 끝낸다.

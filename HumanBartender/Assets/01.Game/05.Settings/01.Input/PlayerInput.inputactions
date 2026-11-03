@@ -194,6 +194,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "SkipDialogue",
+                    "type": "Value",
+                    "id": "0cfadc25-0fbf-409b-a204-5de835d35cde",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "Left",
                     "type": "Button",
                     "id": "57b30e10-70fb-4bdf-9710-3ed9a05a244f",
@@ -239,6 +248,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Advance",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "489b60b6-494a-41e8-995d-a6e7deef058f",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "SkipDialogue",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
