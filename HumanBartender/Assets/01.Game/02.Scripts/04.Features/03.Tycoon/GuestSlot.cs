@@ -49,7 +49,7 @@ public class GuestSlot : MonoBehaviour
     [Tooltip("단골(카메오)이 앉을 때 그림을 붙이는 곳. 이 좌석의 캐릭터 리그를 들고 있다.")]
     [SerializeField] GuestCharacterView characterView;
 
-    [Header("말풍선 (Outside DynamicSpeechBubble 재사용, 위치는 슬롯 고정이라 트래커 없이 사용)")]
+    [Header("손님 말풍선 (캐릭터 루트의 World Space Canvas)")]
     [SerializeField] GameObject bubbleRoot;
     [SerializeField] DynamicSpeechBubble speechBubble;
 
@@ -204,7 +204,6 @@ public class GuestSlot : MonoBehaviour
 
     /// <summary>
     /// 말풍선에 텍스트를 즉시 표시한다. durationSec이 0보다 크면 그 시간 뒤 자동으로 숨긴다.
-    /// 슬롯이 고정 위치라 Outside처럼 매 프레임 화면 좌표를 추적할 필요는 없다.
     /// </summary>
     public void ShowBark(string text, float durationSec = 3f, NewTextTagDataSO tags = null,
         string cocktailName = null, bool typewriter = false)

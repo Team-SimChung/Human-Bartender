@@ -1,7 +1,6 @@
 // Editor/CoasterUISetup.cs
 // 메뉴: Tools > Tycoon > Setup Coaster UI
 
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -127,12 +126,12 @@ public static class CoasterUISetup
 
         var canvas = dropGO.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
-        canvas.worldCamera = FindSlotBubbleCamera(slot);
+        canvas.worldCamera = Camera.main;
         canvas.sortingOrder = 5;
 
         var rect = dropGO.GetComponent<RectTransform>();
         rect.localPosition = Vector3.zero;
-        rect.localScale = new Vector3(0.02f, 0.02f, 0.02f); // 기존 Bubble Canvas와 동일한 world-space UI 스케일
+        rect.localScale = new Vector3(0.02f, 0.02f, 0.02f);
         rect.sizeDelta = new Vector2(150, 150);
         rect.anchoredPosition = Vector2.zero;
 
@@ -143,14 +142,6 @@ public static class CoasterUISetup
         var dropZone = dropGO.GetComponent<CoasterDropZone>();
         SetSerializedField(dropZone, "targetSlot", slot);
         SetSerializedField(dropZone, "guestManager", guestManager);
-    }
-
-    /// <summary>GuestSlot의 private bubbleRoot 필드에서 기존 Bubble Canvas가 쓰는 카메라를 그대로 재사용한다.</summary>
-    static Camera FindSlotBubbleCamera(GuestSlot slot)
-    {
-        var field = typeof(GuestSlot).GetField("bubbleRoot", BindingFlags.NonPublic | BindingFlags.Instance);
-        var bubbleRoot = field?.GetValue(slot) as GameObject;
-        return bubbleRoot != null ? bubbleRoot.GetComponentInChildren<Canvas>()?.worldCamera : null;
     }
 
     static void SetSerializedField(Object target, string fieldName, Object value)
