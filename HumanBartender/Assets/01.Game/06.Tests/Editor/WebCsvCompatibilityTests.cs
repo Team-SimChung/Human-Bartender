@@ -43,7 +43,9 @@ public sealed class WebCsvCompatibilityTests
         Assert.That(steps.Any(step => step.Type == ENewStepType.Order && !step.IsPaid), Is.True);
         Assert.That(steps.Any(step => step.Entrance == "seated"), Is.True);
         var home = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/home"));
-        Assert.That(home.Scenes.Single(scene => scene.Id == "night2").Steps.Any(step => step.Command == OutsideStoryCommand.SharedChoice && step.WebFields == null), Is.True);
+        // 웹 24022cd에서 night2의 선택지(바 공용 선택지 ch_night2_1 참조)가 빠져, 집 대본이 바 공용 선택지를
+        // 참조하는 데이터는 더 이상 없다. 원시 웹 메타데이터가 실행 DTO에서 비워지는지만 본다.
+        Assert.That(home.Scenes.SelectMany(scene => scene.Steps).All(step => step.WebFields == null), Is.True);
     }
 
     [Test]

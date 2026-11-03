@@ -29,6 +29,8 @@ public sealed class StoryTutorialView : MonoBehaviour
     bool nearby;
 
     public BarSeatStatusView SeatHud => seatHud;
+    /// <summary>좌석 키 안내 글꼴. 씬의 좌석 표시를 배치하는 도구가 같은 글꼴을 쓰려고 읽는다.</summary>
+    public TMP_FontAsset SeatKeyFont => seatKeyFont;
     public StoryTutorialGuideGraphic Guide => guide;
     public bool IsSeatLegendVisible => legend != null && legend.activeInHierarchy;
     public RectTransform InstructionPanel => panel;
@@ -215,8 +217,6 @@ public sealed class StoryTutorialView : MonoBehaviour
         edge.gameObject.AddComponent<StoryTutorialShape>().Style(new Color(.32f, .54f, .58f), 7, 1);
         edge.SetAsFirstSibling();
         fillRect.SetAsFirstSibling();
-        seatHud = BarSeatStatusView.Create(transform, seatKeyFont != null ? seatKeyFont : heading.font);
-        seatHud.transform.SetSiblingIndex(1);
         var art = MakeRect("Tutorial Spotlight and Arrows", transform, Vector2.zero, Vector2.zero);
         art.anchorMin = Vector2.zero;
         art.anchorMax = Vector2.one;
@@ -227,9 +227,11 @@ public sealed class StoryTutorialView : MonoBehaviour
         BuildLegend();
     }
 
-    public void ConfigureHud(PlayPhaseController phases, DialogueCharacterManager characters, GuestManager guests,
-        CraftFlowController craft, CraftPrepStageHost preparation, RecipeBrowserScreen recipes) =>
-        seatHud.Configure(phases, characters, guests, craft, preparation, recipes);
+    /// <summary>
+    /// 씬의 바 좌석 표시를 빌려 온다. 좌석 표시는 바 UI 캔버스가 소유하고, 오버레이는 좌석 수업에서
+    /// 강조 대상과 키 안내로 쓰고 전면 안내 동안 숨기기만 한다.
+    /// </summary>
+    public void UseSeatHud(BarSeatStatusView hud) => seatHud = hud;
 
     public void ShowGuide(string title, string text, Transform focus, Transform destination = null,
         bool drag = false, Action onConfirm = null)

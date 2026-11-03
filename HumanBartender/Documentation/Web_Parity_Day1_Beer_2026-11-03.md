@@ -26,6 +26,7 @@
 - **점수**: 웹은 열기만 하면 100점이다. Unity는 실패 수를 결과에 담고 `CraftJudge`가 `open_penalty_per_failure`(15)만큼 깎는다(결정 사항).
 - **튜토리얼 입력 차단**: 웹은 수업 중 잘못된 선택·뒤로가기를 막는다. Unity는 0일차와 같이 안내만 한다(결정 사항).
 - **CSV의 `open_*` 값**: 웹은 `open_start_radius_px`·`open_target_radius_px`만 그리기에 쓰고, 나머지(`open_approach_sec` 1.6, `open_judge_window_px`, `open_transition_delay_sec`, `open_input_enabled_after_sec`)는 읽지 않는다. Unity도 같다.
+- **UI 규칙 예외(후속 작업)**: 병따기 화면의 글자·버튼·수업 안내는 웹 좌표를 그대로 쓰려고 `CapOpenView`가 1280×720 캔버스를 런타임에 만든다. 프로젝트 규칙(UI는 씬/프리팹에 저장, 바 UI는 960×540)과 다르므로 `NewCapGame` 프리팹에 저장하는 방식으로 옮겨야 한다. 월드 그리기(병·링 등)는 매 프레임 메시라 그대로 둔다.
 - **근사**: 웹 뚜껑 소리의 highshelf(+1.5dB) 필터는 생략했다. 링 글로우(shadowBlur 12)는 옅은 고리를 겹쳐 흉내 낸다. 화면 축소 움직임 설정(reduced motion)은 Unity에 없어 항상 꺼진 것으로 본다.
 
 ## 에디터 도구 (다시 실행해도 같은 결과)

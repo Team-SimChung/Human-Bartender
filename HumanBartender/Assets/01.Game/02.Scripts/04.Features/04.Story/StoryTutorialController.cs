@@ -167,8 +167,10 @@ public sealed class StoryTutorialController : MonoBehaviour
         recipeBrowser = FindInScene(recipeBrowser);
         servicePanel = FindInScene(servicePanel);
         EnsureView();
-        view.ConfigureHud(FindInScene<PlayPhaseController>(null), characters, FindInScene<GuestManager>(null),
-            craft, preparationHost, recipes);
+        // 좌석 표시는 Play 씬의 바 UI가 소유한다. 좌석 수업은 그것을 강조 대상으로 빌려 쓴다.
+        var seatHud = FindInScene<BarSeatStatusView>(null);
+        if (seatHud == null) throw new InvalidOperationException("[StoryTutorial] Play 씬에 바 좌석 표시(BarSeatStatusView)가 없습니다. Tools/Story/Set Up Bar Seat HUD를 실행하세요.");
+        view.UseSeatHud(seatHud);
     }
 
     T FindInScene<T>(T current) where T : Component

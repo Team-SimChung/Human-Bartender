@@ -32,6 +32,12 @@ ID 열을 빼고 값만 비교한 결과다. 반입 도구 기준으로 바뀌�
 | `outside-shop.js` | 웹 내장 예비 대사 문구 | Unity는 CSV `shop/*` 장면을 읽어 반입으로 맞춰진다. 하드코딩 문구 변경 없음 |
 | `tools/lib/shared-data-views.cjs` | 내용을 `runtime-projection.js`로 옮기고 다시 내보냄 | 웹 전용 투영이라 변경 없음. 옮겨 간 `runtime-projection.js`를 계약에 추가했다 |
 
+## 대본 변경에 따른 테스트 조정
+
+- 웹이 `night2`(집 밤 대화)를 25줄에서 13줄로 다시 썼다. 바 공용 선택지 `ch_night2_1`을 쓰던 선택 스텝이 빠졌다.
+- 그래서 집 대본이 바 공용 선택지를 참조하는 데이터가 더 이상 없다. 선택지 그룹 행(`bar_choice_groups.csv`의 `ch_night2_1`)은 남아 있지만 아무 대본도 쓰지 않는다.
+- `WebCsvCompatibilityTests.AllRuntimeDtosMapAndWebBehaviorMetadataIsRetained`는 night2의 공용 선택지를 확인하던 조건을 빼고, 집 대본 실행 DTO에서 원시 웹 메타데이터가 비워지는지만 확인한다.
+
 ## 범위 밖(후속)
 
 - 신문 읽는 남자·기신교 신도 거리 이벤트(웹 `outside-newspaper.js`, `outside-believer.js`)의 등장 조건·상호작용. 이번에는 데이터만 들어오고 Unity에서는 실행되지 않는다.
@@ -39,4 +45,8 @@ ID 열을 빼고 값만 비교한 결과다. 반입 도구 기준으로 바뀌�
 ## 반영 상태
 
 - 읽기 전용 검사: 통과(38개 묶음, CSV 48개, 바뀐 파일 6개).
-- Unity `ValidateBatch`와 `--apply`: Unity 에디터가 프로젝트를 열고 있어 배치 모드를 실행하지 못했다. 에디터를 닫은 뒤 진행한다.
+- Unity `CsvContentValidator.ValidateBatch`: 통과.
+- `--apply`: 반영 완료. `web_content_source.json`이 `24022cd` 기준으로 갱신됐다.
+- **손님 외형 덮어쓰기 해제:** `guests/guest_parts.csv`, `guest_exclusions.csv`, `system/data_sets.csv`의 Unity 판이 `24022cd`의 웹 판과 SHA-256까지 같은 것을 확인했다. 그래서 `unity_overrides` 기록을 풀었다. 이제 세 파일도 웹 커밋 내용으로 기록된다.
+  - 웹은 이 커밋부터 외형 정본을 엔진 판으로 둔다(웹 `README.md`).
+  - 앞으로 외형을 Unity에서 고치면 웹 쪽에도 같은 내용을 반영해야 다음 반입이 거부되지 않는다.
