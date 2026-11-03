@@ -16,20 +16,56 @@ public class PlayInputHandler : MonoBehaviour
     [SerializeField] private CraftPrepStageHost craftPrepStageHost;
     [SerializeField] private RepeatOrderView repeatOrder;
 
-    /// <summary>
-    /// 대사 진행 입력. 2부(Dialogue) 국면에서만 동작한다.
-    ///
-    /// 실행기가 스스로 "지금 내가 받는다"를 답하게 둔다. 대본이 돌지 않는 사이의 입력은 그냥 버린다 —
-    /// 예전에는 구형 DialogueRunner로 흘려보냈는데, 그 경로는 걷어냈다.
-    /// </summary>
+    const float SkipInterval = 0.12f;
+    bool skipHeld;
+    float skipElapsed;
+
+    bool CanUseDialogueInput => playPhaseController != null && playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)
+        && !UIDisplayOptions.IsOptionOpen && (servicePanelController == null || !servicePanelController.IsMenuOpen)
+        && (recipeScreen == null || !recipeScreen.IsOpen);
+
     public void OnAdvance(InputValue value)
     {
-        if (UIDisplayOptions.IsOptionOpen || !value.isPressed) return;
-        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
-        if (servicePanelController != null && servicePanelController.IsMenuOpen) return;
-        if (recipeScreen != null && recipeScreen.IsOpen) return;
+        if (value.isPressed && CanUseDialogueInput) storyFlow?.TryAdvance();
+    }
 
-        if (storyFlow != null) storyFlow.TryAdvance();
+    public void OnSkipDialogue(InputValue value)
+    {
+        skipHeld = isActiveAndEnabled && value.isPressed && CanUseDialogueInput;
+        skipElapsed = 0f;
+    }
+
+    void Update()
+    {
+        if (!skipHeld) return;
+        if (!CanUseDialogueInput)
+        {
+            ResetSkip();
+            return;
+        }
+        if (storyFlow == null || !storyFlow.CanAdvanceDialogue || (playCamera != null && playCamera.IsMoving)
+            || CoasterDragItem.Active != null || DrinkDragItem.Active != null || Time.timeScale == 0f)
+        {
+            skipElapsed = 0f;
+            return;
+        }
+
+        skipElapsed += Time.unscaledDeltaTime;
+        if (skipElapsed < SkipInterval) return;
+        skipElapsed = 0f;
+        storyFlow.TryAdvance();
+    }
+
+    void ResetSkip()
+    {
+        skipHeld = false;
+        skipElapsed = 0f;
+    }
+
+    void OnDisable() => ResetSkip();
+    void OnApplicationFocus(bool focused)
+    {
+        if (!focused) ResetSkip();
     }
 
     /// <summary>영업 중 또는 바 둘러보기 실습 중 왼쪽으로 한 자리 이동한다.</summary>
