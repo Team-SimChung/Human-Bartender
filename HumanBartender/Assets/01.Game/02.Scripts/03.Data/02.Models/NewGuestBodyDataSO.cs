@@ -168,7 +168,7 @@ public class NewGuestBodyDataBase
     }
 }
 
-/// <summary>StreamingAssets/json/guest_bodies.json을 보유하는 ScriptableObject.</summary>
+/// <summary>StreamingAssets/csv/guests/guest_*.csv로 조립한 guest_bodies 데이터을 보유하는 ScriptableObject.</summary>
 [CreateAssetMenu(fileName = "NewGuestBodyDataSO", menuName = "Data/New/GuestBodyDataSO")]
 public class NewGuestBodyDataSO : ScriptableObject
 {
