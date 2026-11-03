@@ -73,9 +73,9 @@ public sealed class NeighborhoodStoryEvents : IOutsideStoryEventHandler
                 choices.Add(Option("pay", "비용 건네주기 · 400원", "money >= 400 && !flag.elevator_repair_paid")); break;
             case OutsideStoryCommand.GuardChoice: choices.Add(Option("ask", "술을 찾고 있어요.")); break;
             case OutsideStoryCommand.BossFirstChoice: case OutsideStoryCommand.BossRepeatChoice:
-                choices.Add(Option("wait", "조금만 기다려주세요"));
-                choices.Add(Option("repair", "엘리베이터를 고쳤습니다.", "flag.elevator_repaired && !flag.gang_wild_dog_received && !flag.shiba_bought_wild_dog && !flag.gang_wild_dog_paid && !flag.gang_wild_dog_repair_promised"));
-                choices.Add(Option("pay", "돈을 드릴께요 · 500원", "money >= 500 && !flag.gang_wild_dog_received && !flag.shiba_bought_wild_dog && !flag.gang_wild_dog_paid && !flag.gang_wild_dog_repair_promised")); break;
+                choices.Add(Option("wait", "( 대화 그만두기 )"));
+                choices.Add(Option("repair", command == OutsideStoryCommand.BossFirstChoice ? "승강기는 이미 고쳤습니다." : "승강기 고쳤습니다.", "flag.elevator_repaired && !flag.gang_wild_dog_received && !flag.shiba_bought_wild_dog && !flag.gang_wild_dog_paid && !flag.gang_wild_dog_repair_promised"));
+                choices.Add(Option("pay", "돈으로 살게요 · 500원", "money >= 500 && !flag.gang_wild_dog_received && !flag.shiba_bought_wild_dog && !flag.gang_wild_dog_paid && !flag.gang_wild_dog_repair_promised")); break;
             default: throw new NotSupportedException("동네 선택 명령이 아닙니다: " + command);
         }
         choices.Add(Option("cancel", "취소"));

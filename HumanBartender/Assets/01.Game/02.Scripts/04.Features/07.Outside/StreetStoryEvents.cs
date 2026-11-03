@@ -39,7 +39,7 @@ public sealed class StreetStoryEvents : IOutsideStoryEventHandler
                 var thug = await run.ChooseAsync(Choices(content, "day1-corridor-thug"), token);
                 return Branch("day1-corridor-thug", thug.Id);
             case OutsideStoryCommand.BeggarChoice:
-                var beggar = await run.ChooseAsync(new[] { Option("pay", "네. 여기요 (200원을 준다.)", "money >= 200 && !flag.street_beggar_paid"),
+                var beggar = await run.ChooseAsync(new[] { Option("pay", "네, 믿을게요 · 200원", "money >= 200 && !flag.street_beggar_paid"),
                     Option("refuse", "싫어요."), Option("question", "혹시 사기꾼인가요?", "flag.street_beggar_warned") }, token);
                 if (beggar.Id == "pay") run.Effect("money -= 200; flag.street_beggar_paid = true");
                 else if (beggar.Id == "refuse") run.Effect($"flag.street_beggar_refused_day{state.CurrentDay} = true");
