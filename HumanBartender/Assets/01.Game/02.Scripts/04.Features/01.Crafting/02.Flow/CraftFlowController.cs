@@ -13,6 +13,8 @@ using VContainer;
 public class CraftFlowController : MonoBehaviour
 {
     [Inject] ISoundEffectPlayer sound;
+    [Inject] IPlayerDataWriter playerDataWriter;
+    [Inject] ICurrencyPresentation currencyPresentation;
     [Header("Scene")]
     [SerializeField] private GimmickRunner runner;
     [Tooltip("제조 결과를 보여주고 버리기/제공하기를 선택하는 화면. 비우면 완성 잔을 바로 트레이에 알린다.")]
@@ -35,6 +37,7 @@ public class CraftFlowController : MonoBehaviour
     // 실행 중 상태
     readonly List<Func<string>> blockers = new();
     CancellationTokenSource cancellation;
+    CancellationTokenSource discardCancellation;
     UniTaskCompletionSource<CraftSession> completionSource;
     NewCocktailData selected;
     bool running;
@@ -50,16 +53,18 @@ public class CraftFlowController : MonoBehaviour
     public CraftJudgement Judgement { get; private set; }
     /// <summary>현재 요청의 최종 결과. 수락 직후 보관하면 준비 중 취소도 기다릴 수 있다.</summary>
     public UniTask<CraftSession> Completion { get; private set; }
+    public UniTask DiscardCompletion { get; private set; } = UniTask.CompletedTask;
+    public bool IsResolvingDiscard { get; private set; }
     public bool IsPreparing => Current?.Phase == ECraftPhase.Preparing && !running && !finishing;
-    public bool IsBusy => running || finishing || IsPreparing;
-    public bool CanStartGimmicks => IsPreparing && Current.Actual.CanStartGimmicks && !NeedsBottleOpener;
+    public bool IsBusy => running || finishing || IsPreparing || IsResolvingDiscard;
+    public bool CanStartGimmicks => !IsResolvingDiscard && IsPreparing && Current.Actual.CanStartGimmicks && !NeedsBottleOpener;
     public bool NeedsBottleOpener => IsPreparing && RequiresBottleOpener(Current.Actual);
     public event Action<string> PreparationBlocked;
     public bool IsCraftFlowActive { get; private set; }
     public CraftedDrink PendingDrink { get; private set; }
     public bool IsAwaitingServeDecision { get; private set; }
     public event Action<CraftedDrink> DrinkReady;
-    /// <summary>재시도를 수락해 기존 잔을 폐기했을 때 표시 쪽에 알린다.</summary>
+    /// <summary>수동 폐기·재시도·자동 정리로 없어진 잔을 표시 쪽에 알린다. 차감 요청으로 사용하지 않는다.</summary>
     public event Action<CraftedDrink> DrinkDiscarded;
 
     // 외부 알림
@@ -82,12 +87,14 @@ public class CraftFlowController : MonoBehaviour
 
     void OnDisable()
     {
+        discardCancellation?.Cancel();
         CancelCurrentCraft();
         if (IsAwaitingServeDecision)
         {
-            TryDiscardPendingDrink(PendingDrink);
+            ClearPendingDrink();
             serveScreen?.Reset();
         }
+        if (IsResolvingDiscard) serveScreen?.Reset();
         SetCraftFlowActive(false);
     }
 
@@ -117,6 +124,11 @@ public class CraftFlowController : MonoBehaviour
     // UI 버튼 진입점
     public void CancelCurrentCraft()
     {
+        if (IsResolvingDiscard)
+        {
+            discardCancellation?.Cancel();
+            return;
+        }
         if (Current != null) CancelCraft(Current.JobId);
     }
 
@@ -168,8 +180,13 @@ public class CraftFlowController : MonoBehaviour
             reason = "다시 제작할 완성 잔이 없거나 이전 제조의 결과입니다.";
             return false;
         }
-        if (!TryBegin(drink.CocktailId, drink, out var session, out reason)) return false;
-        if (ReferenceEquals(Current, session) && CanStartGimmicks) StartGimmicks();
+        if (drink.Price > 0 && playerDataWriter == null)
+        {
+            reason = "폐기 비용을 반영할 플레이어 재화 데이터가 연결되지 않았습니다.";
+            return false;
+        }
+        if (!TryValidateBegin(drink.CocktailId, drink, out _, out reason)) return false;
+        StartDiscardTransition(drink, retryGimmicks: true);
         return true;
     }
 
@@ -210,13 +227,13 @@ public class CraftFlowController : MonoBehaviour
     public bool TryBegin(string cocktailId, out CraftSession session, out string reason)
         => TryBegin(cocktailId, null, out session, out reason);
 
-    bool TryBegin(string cocktailId, CraftedDrink retryDrink, out CraftSession session, out string reason)
+    bool TryValidateBegin(string cocktailId, CraftedDrink retryDrink, out NewCocktailData cocktail, out string reason)
     {
-        session = null;
+        cocktail = default;
         if (!isActiveAndEnabled) { reason = "제조 컴포넌트가 비활성 상태입니다."; return false; }
         reason = IsBusy ? "이미 제조 또는 정리가 진행 중입니다." : CraftBlockedReason(retryDrink);
         if (reason != null) return false;
-        if (cocktailData == null || !cocktailData.TryGet(cocktailId, out var cocktail))
+        if (cocktailData == null || !cocktailData.TryGet(cocktailId, out cocktail))
         {
             reason = $"'{cocktailId}' 칵테일 데이터를 찾지 못했습니다.";
             return false;
@@ -243,6 +260,13 @@ public class CraftFlowController : MonoBehaviour
             }
         }
 
+        return true;
+    }
+
+    bool TryBegin(string cocktailId, CraftedDrink retryDrink, out CraftSession session, out string reason)
+    {
+        session = null;
+        if (!TryValidateBegin(cocktailId, retryDrink, out var cocktail, out reason)) return false;
         selected = cocktail;
         Current = session = new CraftSession(cocktailId, retryDrink?.Session.OrderCocktailId);
         if (retryDrink != null)
@@ -260,15 +284,6 @@ public class CraftFlowController : MonoBehaviour
         Preparation = new CraftPreparation(selected, session.Actual);
         ShouldShowPreparation = retryDrink == null;
         Preparation.Changed += NotifyPreparationChanged;
-        if (retryDrink != null)
-        {
-            // 새 세션으로 제조 진입을 예약한 뒤 알린다. 표시 콜백이 새 제조를 중복 시작할 수 없다.
-            retryDrink.Session.Discard();
-            PendingDrink = null;
-            IsAwaitingServeDecision = false;
-            serveScreen?.Reset();
-            Notify(DrinkDiscarded, retryDrink);
-        }
         Notify(OnCraftAccepted);
         Notify(CraftBegan, session);
         if (IsPreparing) NotifyPreparationChanged();
@@ -407,6 +422,11 @@ public class CraftFlowController : MonoBehaviour
     public bool CancelCraft(string jobId)
     {
         if (Current == null || Current.JobId != jobId || !IsBusy || finishing) return false;
+        if (IsResolvingDiscard)
+        {
+            discardCancellation?.Cancel();
+            return true;
+        }
         if (running)
         {
             cancellation.Cancel();
@@ -423,7 +443,7 @@ public class CraftFlowController : MonoBehaviour
     /// <summary>해당 작업의 실제 정리와 종료 알림이 끝날 때까지 기다린다.</summary>
     public async UniTask<bool> CancelCraftAsync(string jobId)
     {
-        var completion = Completion;
+        var completion = IsResolvingDiscard ? DiscardCompletion : Completion.AsUniTask();
         if (!CancelCraft(jobId)) return false;
         await completion;
         return true;
@@ -477,7 +497,7 @@ public class CraftFlowController : MonoBehaviour
         return true;
     }
 
-    /// <summary>현재 잔을 폐기한다. 재시도가 켜져 있으면 이전 선택을 복원해 첫 기믹부터 다시 실행한다.</summary>
+    /// <summary>결과 화면의 수동 폐기. 재시도를 수락했을 때도 버린 잔의 가격을 한 번 차감한다.</summary>
     public bool TryDiscardPendingDrink(CraftedDrink drink, bool retryGimmicks = false)
     {
         if (!IsAwaitingServeDecision || drink == null || !ReferenceEquals(PendingDrink, drink) ||
@@ -489,12 +509,91 @@ public class CraftFlowController : MonoBehaviour
             Debug.LogWarning($"[CraftFlow] {reason}");
             return false;
         }
+        return TryDiscardDrink(drink);
+    }
+
+    /// <summary>버리기 버튼·드래그 폐기의 진입점. 실제로 폐기한 잔의 가격만 한 번 차감한다.</summary>
+    public bool TryDiscardDrink(CraftedDrink drink)
+    {
+        if (!isActiveAndEnabled || IsResolvingDiscard || drink == null || !ReferenceEquals(PendingDrink, drink) ||
+            drink.Session.Phase != ECraftPhase.Completed)
+            return false;
+        if (drink.Price > 0 && playerDataWriter == null)
+        {
+            Debug.LogError("[CraftFlow] 폐기 비용을 반영할 플레이어 재화 데이터가 연결되지 않았습니다.");
+            return false;
+        }
+        StartDiscardTransition(drink, retryGimmicks: false);
+        return true;
+    }
+
+    void StartDiscardTransition(CraftedDrink drink, bool retryGimmicks)
+    {
+        IsResolvingDiscard = true;
+        var transition = discardCancellation = new CancellationTokenSource();
         IsAwaitingServeDecision = false;
-        drink.Session.Discard();
         PendingDrink = null;
+        drink.Session.Discard();
+        serveScreen?.SetDecisionInteractable(false);
+        RefreshCraftAvailability();
+        DiscardCompletion = ResolveDiscardAsync(drink, retryGimmicks, transition).Preserve();
+        DiscardCompletion.Forget();
+    }
+
+    async UniTask ResolveDiscardAsync(CraftedDrink drink, bool retryGimmicks,
+                                     CancellationTokenSource transition)
+    {
+        var token = transition.Token;
+        try
+        {
+            ChargeDiscardedDrink(drink);
+            Notify(DrinkDiscarded, drink);
+            if (currencyPresentation != null)
+                await currencyPresentation.WaitForAnimationsAsync(token);
+            token.ThrowIfCancellationRequested();
+
+            // 연출이 끝난 뒤에만 결과 화면을 닫고 다음 제조를 시작한다.
+            serveScreen?.ResetIfShowing(drink);
+            IsResolvingDiscard = false;
+            if (retryGimmicks && isActiveAndEnabled)
+            {
+                if (!TryBegin(drink.CocktailId, drink, out var session, out string reason))
+                {
+                    Debug.LogWarning($"[CraftFlow] {reason}");
+                    return;
+                }
+                if (ReferenceEquals(Current, session) && CanStartGimmicks) StartGimmicks();
+            }
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        finally
+        {
+            if (ReferenceEquals(discardCancellation, transition))
+            {
+                discardCancellation = null;
+                IsResolvingDiscard = false;
+                serveScreen?.ResetIfShowing(drink);
+                RefreshCraftAvailability();
+            }
+            transition.Dispose();
+        }
+    }
+
+    // 비활성화·씬 종료 시의 자동 정리. 플레이어 폐기 비용은 청구하지 않는다.
+    void ClearPendingDrink()
+    {
+        var drink = PendingDrink;
+        IsAwaitingServeDecision = false;
+        PendingDrink = null;
+        if (drink == null) return;
+        drink.Session.Discard();
         Notify(DrinkDiscarded, drink);
         RefreshCraftAvailability();
-        return true;
+    }
+
+    void ChargeDiscardedDrink(CraftedDrink drink)
+    {
+        if (drink.Price > 0) playerDataWriter.AddMoney(-drink.Price);
     }
 
     bool RequiresBottleOpener(ActualCraft actual) => !actual.IsBottleOpenerSelected &&

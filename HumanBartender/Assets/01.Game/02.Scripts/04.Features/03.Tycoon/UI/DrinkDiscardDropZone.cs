@@ -8,6 +8,6 @@ public sealed class DrinkDiscardDropZone : MonoBehaviour, IDropHandler
     {
         var dragged = eventData.pointerDrag;
         if (dragged != null && dragged.TryGetComponent(out DrinkDragItem item))
-            item.MarkDiscarded();
+            item.Discard();
     }
 }

@@ -1,4 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +11,7 @@ using VContainer;
 /// 상단 재화(현금) 표시 패널. 재화 증감 시 CurrencyGainText 팝업을 생성해 메인 텍스트 쪽으로 날아가게 하고,
 /// 도착(병합) 시점에 실제 금액을 반영하며 텍스트에 펀치 효과를 준다.
 /// </summary>
-public class UICashPanel : MonoBehaviour
+public class UICashPanel : MonoBehaviour, ICurrencyPresentation
 {
     [Header("Main Display")]
     [SerializeField] private TMP_Text amountText;        // 메인 "191V" 텍스트
@@ -32,7 +35,7 @@ public class UICashPanel : MonoBehaviour
     [Header("Cash Line")]
     [SerializeField] private float lineHideDelay = 1f;    // 마지막 팝업 종료 후 cashLine 숨김 지연(초)
 
-    private int activeGainCount;
+    private readonly HashSet<CurrencyGainText> activePopups = new();
     private Coroutine punchRoutine;
     private Coroutine hideLineRoutine;
     [Inject] IPlayerDataReader playerData;
@@ -54,6 +57,33 @@ public class UICashPanel : MonoBehaviour
     private void OnEnable() => SyncFromModel();
     private void Start() => SyncFromModel();
 
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        punchRoutine = hideLineRoutine = null;
+        var popups = new List<CurrencyGainText>(activePopups);
+        activePopups.Clear();
+        foreach (var popup in popups)
+        {
+            if (popup == null) continue;
+            popup.gameObject.SetActive(false);
+            Destroy(popup.gameObject);
+        }
+        if (amountText != null) amountText.rectTransform.localScale = Vector3.one;
+        if (cashLine != null) cashLine.SetActive(false);
+    }
+
+    public bool IsAnimating => activePopups.Count > 0 || punchRoutine != null;
+    private bool CanAnimate => this != null && gameObject.activeInHierarchy && isActiveAndEnabled;
+
+    /// <summary>팝업의 페이드아웃과 잔액 펀치까지 기다린다. 연출이 없거나 패널이 꺼지면 즉시 끝난다.</summary>
+    public UniTask WaitForAnimationsAsync(CancellationToken cancellationToken = default)
+    {
+        if (!CanAnimate || !IsAnimating) return UniTask.CompletedTask;
+        return UniTask.WaitUntil(() => !CanAnimate || !IsAnimating,
+            cancellationToken: cancellationToken);
+    }
+
     private void SyncFromModel()
     {
         if (playerData != null) currentAmount = playerData.HasMoney();
@@ -64,7 +94,7 @@ public class UICashPanel : MonoBehaviour
     public void AddCurrency(int amount)
     {
         SyncFromModel();
-        if (amount == 0 || gainPrefab == null || gainLayer == null) return;
+        if (!CanAnimate || amount == 0 || gainPrefab == null || gainLayer == null || mergeTarget == null) return;
 
         // cashLine 표시 + 대기 중인 숨김 타이머 취소 (연속 호출 대응)
         ShowCashLine();
@@ -73,18 +103,18 @@ public class UICashPanel : MonoBehaviour
 
         // 메인 텍스트의 월드 위치를 gainLayer 로컬 좌표로 변환 → 좌표계 일치
         Vector2 target = WorldToLocal(gainLayer, mergeTarget.position, null);
-        Vector2 start = target + spawnOffset + new Vector2(0f, -stackSpacing * activeGainCount);
-        activeGainCount++;
+        Vector2 start = target + spawnOffset + new Vector2(0f, -stackSpacing * activePopups.Count);
 
         CurrencyGainText popup = Instantiate(gainPrefab, gainLayer);
+        activePopups.Add(popup);
         popup.Play(amount, suffix, start, target, () =>
         {
             SyncFromModel();
             Punch();
-            activeGainCount = Mathf.Max(0, activeGainCount - 1);
-
-            // 진행 중인 팝업이 모두 끝났을 때만 숨김 타이머 시작
-            if (activeGainCount == 0)
+        }, () =>
+        {
+            if (!activePopups.Remove(popup)) return;
+            if (activePopups.Count == 0 && CanAnimate)
                 ScheduleHideCashLine();
         });
     }
@@ -124,13 +154,14 @@ public class UICashPanel : MonoBehaviour
     /// <summary>lineHideDelay초 후 cashLine을 숨기는 코루틴을 예약한다.</summary>
     private void ScheduleHideCashLine()
     {
+        if (!CanAnimate) return;
         if (hideLineRoutine != null) StopCoroutine(hideLineRoutine);
         hideLineRoutine = StartCoroutine(HideCashLineCo());
     }
 
     private IEnumerator HideCashLineCo()
     {
-        yield return new WaitForSeconds(lineHideDelay);
+        yield return new WaitForSecondsRealtime(lineHideDelay);
 
         if (cashLine != null)
             cashLine.SetActive(false);
@@ -143,7 +174,7 @@ public class UICashPanel : MonoBehaviour
     /// <summary>금액 텍스트에 확대/축소 펀치 효과를 재생한다.</summary>
     private void Punch()
     {
-        if (amountText == null) return;
+        if (!CanAnimate || amountText == null) return;
         if (punchRoutine != null) StopCoroutine(punchRoutine);
         punchRoutine = StartCoroutine(PunchCo(amountText.rectTransform));
     }
@@ -154,9 +185,9 @@ public class UICashPanel : MonoBehaviour
         Vector3 baseScale = Vector3.one;
         float half = Mathf.Max(0.001f, punchTime * 0.5f);
         float t = 0f;
-        while (t < half) { t += Time.deltaTime; rt.localScale = Vector3.Lerp(baseScale, baseScale * punchScale, t / half); yield return null; }
+        while (t < half) { t += Time.unscaledDeltaTime; rt.localScale = Vector3.Lerp(baseScale, baseScale * punchScale, t / half); yield return null; }
         t = 0f;
-        while (t < half) { t += Time.deltaTime; rt.localScale = Vector3.Lerp(baseScale * punchScale, baseScale, t / half); yield return null; }
+        while (t < half) { t += Time.unscaledDeltaTime; rt.localScale = Vector3.Lerp(baseScale * punchScale, baseScale, t / half); yield return null; }
         rt.localScale = baseScale;
         punchRoutine = null;
     }

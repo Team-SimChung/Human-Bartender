@@ -187,8 +187,8 @@ public sealed class SaveManager
         day = ReadInt(document["current_day"], "current_day");
         money = ReadInt(document["money"], "money");
         skill = ReadInt(document["skill_amount"], "skill_amount");
-        if (money < 0 || day < 0 || !NewDataLoadManager.TryGetDayInfo(day, out _))
-            throw new InvalidDataException("저장된 일차 또는 재화 범위가 올바르지 않습니다.");
+        if (day < 0 || !NewDataLoadManager.TryGetDayInfo(day, out _))
+            throw new InvalidDataException("저장된 일차가 올바르지 않습니다.");
         if (document["affinity"] is not JObject affinityObject || document["flags"] is not JObject flagObject)
             throw new InvalidDataException("호감도 또는 플래그 형식이 올바르지 않습니다.");
         affinity = new Dictionary<string, int>(StringComparer.Ordinal);

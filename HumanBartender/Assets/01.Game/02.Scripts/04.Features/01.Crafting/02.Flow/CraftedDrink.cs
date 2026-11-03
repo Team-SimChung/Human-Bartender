@@ -16,6 +16,9 @@ public class CraftedDrink
 
     public string DisplayName { get; }
 
+    /// <summary>완성한 잔의 기본 가격. 플레이어가 폐기하면 이 금액을 차감한다.</summary>
+    public int Price { get; }
+
     /// <summary>cocktails.json의 color. 잔 그림이 아직 없어 임시로 이 색을 칠해 잔을 표시한다.</summary>
     public Color Color { get; }
 
@@ -41,6 +44,7 @@ public class CraftedDrink
 
         CocktailId = cocktail.Id;
         DisplayName = string.IsNullOrEmpty(cocktail.Name.Ko) ? cocktail.Id : cocktail.Name.Ko;
+        Price = cocktail.Price;
         Color = ParseColor(cocktail.Color);
         Color2 = string.IsNullOrEmpty(cocktail.Color2) ? null : ParseColor(cocktail.Color2);
     }
