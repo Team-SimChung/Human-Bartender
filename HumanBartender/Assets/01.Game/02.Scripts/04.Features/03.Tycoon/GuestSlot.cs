@@ -79,6 +79,7 @@ public class GuestSlot : MonoBehaviour
     public ESlotType SlotType => slotType;
     public EGuestState CurrentState { get; private set; } = EGuestState.Empty;
     public Guest CurrentGuest { get; private set; }
+    public bool IsShowingOrderLine { get; private set; }
 
     public bool IsEmpty => CurrentState == EGuestState.Empty;
 
@@ -206,11 +207,12 @@ public class GuestSlot : MonoBehaviour
     /// 말풍선에 텍스트를 즉시 표시한다. durationSec이 0보다 크면 그 시간 뒤 자동으로 숨긴다.
     /// </summary>
     public void ShowBark(string text, float durationSec = 3f, NewTextTagDataSO tags = null,
-        string cocktailName = null, bool typewriter = false)
+        string cocktailName = null, bool typewriter = false, bool orderLine = false)
     {
         bubbleCts?.Cancel();
         StopSpeaking();
         int version = ++barkVersion;
+        IsShowingOrderLine = orderLine;
 
         if (bubbleRoot != null) bubbleRoot.SetActive(true);
         if (typewriter && durationSec > 0f)
@@ -278,6 +280,7 @@ public class GuestSlot : MonoBehaviour
     public void HideBark()
     {
         ++barkVersion;
+        IsShowingOrderLine = false;
         StopSpeaking();
         bubbleCts?.Cancel();
         if (speechBubble != null) speechBubble.GetComponent<DialogueTextPlayer>()?.Stop();

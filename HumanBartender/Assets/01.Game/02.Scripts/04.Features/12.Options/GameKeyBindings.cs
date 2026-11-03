@@ -31,8 +31,8 @@ public static class GameKeyBindings
         new(GameControl.Sprint, "달리기", "Outside", "Sprint", Key.LeftShift),
         new(GameControl.Interact, "상호작용 / 야외 대화", "Outside", "Interact", Key.E),
         new(GameControl.Advance, "바 대화 진행", "Play", "Advance", Key.Space),
-        new(GameControl.PreviousSeat, "바 시점 · 왼쪽", "Play", "Left", Key.Q),
-        new(GameControl.NextSeat, "바 시점 · 오른쪽", "Play", "Right", Key.E),
+        new(GameControl.PreviousSeat, "바 시점 · 왼쪽", "Play", "Left", Key.A),
+        new(GameControl.NextSeat, "바 시점 · 오른쪽", "Play", "Right", Key.D),
         new(GameControl.ServicePanel, "서비스 메뉴", "Play", "ServicePanel", Key.Tab),
         new(GameControl.PrepPrevious, "제조 준비 · 이전", "CraftPrep", "PrepPrevious", Key.A),
         new(GameControl.PrepNext, "제조 준비 · 다음", "CraftPrep", "PrepNext", Key.D),
@@ -46,6 +46,8 @@ public static class GameKeyBindings
     };
 
     public static event Action Changed;
+    // Play/RepeatOrder는 버튼의 E 아이콘과 짝을 이루는 고정 단축키다.
+    const Key RepeatOrderKey = Key.E;
     public static string PreferenceKey(GameControl control) => "key_" + control;
     public static Binding Definition(GameControl control) => Bindings[(int)control];
     public static Key GetKey(GameControl control)
@@ -70,6 +72,11 @@ public static class GameKeyBindings
             return false;
         }
         var binding = Definition(control);
+        if (binding.Map == "Play" && key == RepeatOrderKey)
+        {
+            message = "E는 주문 되묻기에 사용하는 키입니다.";
+            return false;
+        }
         foreach (var other in Bindings)
             if (other.Control != control && other.Map == binding.Map && GetKey(other.Control) == key)
             {
@@ -88,6 +95,28 @@ public static class GameKeyBindings
         foreach (var binding in Bindings) PlayerPrefs.DeleteKey(PreferenceKey(binding.Control));
         PlayerPrefs.Save();
         Changed?.Invoke();
+    }
+
+    // 기존 Q/E 버전에서 따로 저장한 키 중 새 기본키나 되묻기와 겹치는 것만 해제한다.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void MigratePlayKeys()
+    {
+        bool changed;
+        do
+        {
+            changed = false;
+            foreach (var binding in Bindings)
+            {
+                string pref = PreferenceKey(binding.Control);
+                if (binding.Map != "Play" || !PlayerPrefs.HasKey(pref)) continue;
+                var key = GetKey(binding.Control);
+                if (key == binding.DefaultKey || (key != RepeatOrderKey &&
+                    !Array.Exists(Bindings, other => other.Map == "Play" && other.Control != binding.Control &&
+                                                     GetKey(other.Control) == key))) continue;
+                PlayerPrefs.DeleteKey(pref);
+                changed = true;
+            }
+        } while (changed);
     }
 
     public static void ApplyTo(InputActionAsset asset)

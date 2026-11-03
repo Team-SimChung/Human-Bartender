@@ -64,6 +64,7 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
 
     CancellationTokenSource resolution;
     CancellationTokenSource offset;
+    public bool IsMoving => offset != null;
     System.Action restoreResolution;
     CinemachinePixelPerfect suspendedPixelPerfect;
     void Awake() => SyncLensToPPC();

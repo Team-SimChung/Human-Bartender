@@ -27,6 +27,8 @@ public class ServicePanelController : MonoBehaviour
 
     public bool IsMenuOpen { get { return menuOpen; } }
     public Transform ToggleControl => toggleButton != null ? toggleButton.transform : null;
+    public bool CanUseGuestActions => !menuOpen && playPhaseController != null &&
+        playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) && CanOpen();
 
     public bool IsBlockingTycoonClock
     {
