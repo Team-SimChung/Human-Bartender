@@ -1,21 +1,23 @@
 # Human Bartender CSV 편집
 
 > **현재 정본: 웹 저장소의 `bar-playtest/data/shared-csv`.** 아래 Excel 설명은 이전 작업 흐름의 기록입니다.
-> `web_content_source.json`이 웹 반입 기준 커밋과 CSV 해시를 보존합니다. 일반 손님 외형은 예외적으로 아래 Unity CSV를 직접 관리합니다.
+> `web_content_source.json`이 웹 반입 기준 커밋과 CSV 해시를 보존합니다. 일반 손님 외형은 엔진 판을 웹이 정본으로 받아 함께 반입합니다(아래).
 > Unity 사본의 연결 ID는 읽기 쉬운 이름으로 바뀌어 있습니다(아래 "읽기 쉬운 ID").
 > Excel 역수입은 차단되며, 기존 `system/`과 `csv_owned_datasets.json`은 웹 정본 반영에 사용하지 않습니다.
 
 ## 웹 정본 반영
 
-### Unity에서 관리하는 일반 손님 외형
+### 일반 손님 외형
 
-`Assets/StreamingAssets/csv/guests/guest_parts.csv`와 `guest_exclusions.csv`는 현재 엔진 이미지 기준의 편집 원본입니다.
-웹의 CSV 열·부모 연결·행 형식은 유지합니다. `system/data_sets.csv`의 `guest_bodies` 해시도 조립 결과에 맞춥니다.
-`web_content_source.json`의 `files`·`web_files`·`commit`은 원래 반입 기준이며, 이 세 파일의 현재 해시는
-`unity_overrides`에 별도로 기록합니다. 이를 웹 커밋에 있던 내용으로 표시하지 않습니다.
-외형을 편집한 뒤 CSV 구조·파츠 연결·외형 생성 검사를 통과한 파일의 해시를 갱신합니다.
-웹 반입 도구는 이 로컬 편집이 있으면 게시를 거부하므로, 웹 CSV로 조용히 되돌아가지 않습니다.
-다시 웹 데이터를 반입할 때는 이 세 파일을 명시적으로 조정해야 합니다.
+`Assets/StreamingAssets/csv/guests/guest_parts.csv`·`guest_exclusions.csv`와 `system/data_sets.csv`는 엔진 이미지 기준으로 만든 판입니다.
+웹 `24022cd`부터 웹이 이 엔진 판을 정본으로 받아들여 두 저장소의 내용이 같습니다. 그래서 `unity_overrides` 기록을 풀고
+다른 CSV와 같이 웹 커밋 기준으로 반입합니다(`Documentation/CSV_Web_Alignment_2026-11-03.md`).
+
+외형을 Unity에서 다시 고쳐야 하면 둘 중 하나로 처리합니다.
+- 웹 저장소에 같은 변경을 먼저 반영하고 반입합니다.
+- 또는 고친 세 파일의 해시를 `web_content_source.json`의 `unity_overrides`에 기록합니다.
+  이 기록이 있으면 반입 도구가 게시를 거부하므로, 웹 CSV로 조용히 되돌아가지 않습니다.
+  외형을 편집한 뒤에는 CSV 구조·파츠 연결·외형 생성 검사를 통과한 파일의 해시로 기록을 갱신합니다.
 
 ### 나머지 공통 CSV 반입
 
