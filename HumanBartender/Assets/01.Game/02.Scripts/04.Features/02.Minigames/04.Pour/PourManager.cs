@@ -24,7 +24,7 @@ using VContainer;
 /// 필업(Fill-up)도 이 구현을 그대로 쓴다. 조작과 화면이 같고 큐에서의 위치만 다르다.
 /// </summary>
 public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
-                           ICraftGimmickProgress, ICraftGimmickManualEnd
+                           ICraftGimmickProgress, ICraftGimmickManualEnd, ICraftGimmickQuantityProgress
 {
     [Inject] ILoopingSoundManager loopSound;
     IAudioLoop pourSound;
@@ -880,6 +880,27 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             return $"{pouredMl:0.00} / {targetMl:0.00} ml";
         }
     }
+
+    string DisplayUnit => pourStep.TargetUnit == ENewUnit.Oz ? "oz" : "ml";
+    public string TargetValueText => drivenByRunner && pourStep.IsTargetVisible
+        ? pourStep.TargetValue.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
+        : "???";
+    public string CurrentValueText => drivenByRunner && pourStep.IsTargetVisible
+        ? PouredInTargetUnit.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
+        : "???";
+    public string IngredientName
+    {
+        get
+        {
+            if (shelfData == null || !shelfData.TryGet(pourIngredientId, out var item))
+                return pourIngredientId ?? string.Empty;
+            bool english = GameStateManager.Instance != null && GameStateManager.Instance.Language == ELanguage.En;
+            return english && !string.IsNullOrEmpty(item.Name.En) ? item.Name.En : item.Name.Ko;
+        }
+    }
+    public float TiltRatio => bottle != null ? Mathf.Clamp01(Mathf.Abs(bottle.CurrentAngle) / Mathf.Max(1f, bottle.MaxTiltAngle)) : 0f;
+    public float FlowStartRatio => bottle != null ? Mathf.Clamp01(pourStartAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 0f;
+    public float FullFlowRatio => bottle != null ? Mathf.Clamp01(pourFullOpenAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f;
 
     /// <summary>
     /// 목표에 도달했는지. 도달해도 저절로 멈추지 않고, 넘겨서 계속 따라도 켜진 채로 있다.

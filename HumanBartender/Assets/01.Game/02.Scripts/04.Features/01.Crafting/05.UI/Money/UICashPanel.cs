@@ -1,202 +1,130 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using VContainer;
 
-/// <summary>
-/// 상단 재화(현금) 표시 패널. 재화 증감 시 CurrencyGainText 팝업을 생성해 메인 텍스트 쪽으로 날아가게 하고,
-/// 도착(병합) 시점에 실제 금액을 반영하며 텍스트에 펀치 효과를 준다.
-/// </summary>
+/// <summary>웹과 같은 일시 소지금 알림. 실제 잔액은 즉시 확정하고 표시 숫자만 보간한다.</summary>
 public class UICashPanel : MonoBehaviour, ICurrencyPresentation
 {
-    [Header("Main Display")]
-    [SerializeField] private TMP_Text amountText;        // 메인 "191V" 텍스트
-    [SerializeField] private string suffix = "";        // 단위 표기
-    [SerializeField] private string numberFormat = "N0"; // "N0" => 1,234 / "0" => 1234
-    [SerializeField] private int currentAmount = 0;      // 현재 보유량
+    [Header("Currency Notice")]
+    [SerializeField] private TMP_Text amountText;
+    [SerializeField] private TMP_Text deltaText;
+    [SerializeField] private RectTransform noticeRoot;
+    [SerializeField] private CanvasGroup noticeGroup;
+    [SerializeField] private string suffix = "";
+    [SerializeField] private string numberFormat = "N0";
+    [SerializeField] private int currentAmount;
 
-    [Header("Gain Popups")]
-    [SerializeField] private Canvas canvas;              // 소속 Canvas (비우면 부모에서 자동 검색)
-    [SerializeField] private GameObject cashLine;
-    [SerializeField] private CurrencyGainText gainPrefab; // 팝업 프리팹
-    [SerializeField] private RectTransform gainLayer;     // 팝업이 생성될 컨테이너 (★ LayoutGroup 없는 빈 RectTransform)
-    [SerializeField] private RectTransform mergeTarget;   // 병합 도착점 (비우면 amountText 사용)
-    [SerializeField] private Vector2 spawnOffset = new Vector2(0f, -55f); // 도착점 기준 시작 위치(아래쪽)
-    [SerializeField] private float stackSpacing = 38f;    // 연속 획득 시 세로 간격
-
-    [Header("Punch On Merge")]
-    [SerializeField] private float punchScale = 1.12f;    // 병합 시 메인 텍스트 살짝 커지는 효과
-    [SerializeField] private float punchTime = 0.12f;
-
-    [Header("Cash Line")]
-    [SerializeField] private float lineHideDelay = 1f;    // 마지막 팝업 종료 후 cashLine 숨김 지연(초)
-
-    private readonly HashSet<CurrencyGainText> activePopups = new();
-    private Coroutine punchRoutine;
-    private Coroutine hideLineRoutine;
+    readonly CurrencyNoticeState notice = new();
     [Inject] IPlayerDataReader playerData;
-    [Inject] ISoundEffectPlayer sound;
-
-    private void Awake()
-    {
-        if (mergeTarget == null && amountText != null)
-            mergeTarget = amountText.rectTransform;
-
-        if (canvas == null)
-            canvas = GetComponentInParent<Canvas>();
-
-        // 시작 시에는 숨김 상태로
-        if (cashLine != null)
-            cashLine.SetActive(false);
-    }
-
-    private void OnEnable() => SyncFromModel();
-    private void Start() => SyncFromModel();
-
-    private void OnDisable()
-    {
-        StopAllCoroutines();
-        punchRoutine = hideLineRoutine = null;
-        var popups = new List<CurrencyGainText>(activePopups);
-        activePopups.Clear();
-        foreach (var popup in popups)
-        {
-            if (popup == null) continue;
-            popup.gameObject.SetActive(false);
-            Destroy(popup.gameObject);
-        }
-        if (amountText != null) amountText.rectTransform.localScale = Vector3.one;
-        if (cashLine != null) cashLine.SetActive(false);
-    }
-
-    public bool IsAnimating => activePopups.Count > 0 || punchRoutine != null;
-    private bool CanAnimate => this != null && gameObject.activeInHierarchy && isActiveAndEnabled;
-
-    /// <summary>팝업의 페이드아웃과 잔액 펀치까지 기다린다. 연출이 없거나 패널이 꺼지면 즉시 끝난다.</summary>
-    public UniTask WaitForAnimationsAsync(CancellationToken cancellationToken = default)
-    {
-        if (!CanAnimate || !IsAnimating) return UniTask.CompletedTask;
-        return UniTask.WaitUntil(() => !CanAnimate || !IsAnimating,
-            cancellationToken: cancellationToken);
-    }
-
-    private void SyncFromModel()
-    {
-        if (playerData != null) currentAmount = playerData.HasMoney();
-        Refresh();
-    }
-
-    /// <summary>재화 획득(+) 또는 차감(-). 팝업이 메인 텍스트에 도달하면 값이 반영된다.</summary>
-    public void AddCurrency(int amount)
-    {
-        SyncFromModel();
-        if (!CanAnimate || amount == 0 || gainPrefab == null || gainLayer == null || mergeTarget == null) return;
-
-        // cashLine 표시 + 대기 중인 숨김 타이머 취소 (연속 호출 대응)
-        ShowCashLine();
-
-        Logger.Log($"amount {amount}");
-
-        // 메인 텍스트의 월드 위치를 gainLayer 로컬 좌표로 변환 → 좌표계 일치
-        Vector2 target = WorldToLocal(gainLayer, mergeTarget.position, null);
-        Vector2 start = target + spawnOffset + new Vector2(0f, -stackSpacing * activePopups.Count);
-
-        CurrencyGainText popup = Instantiate(gainPrefab, gainLayer);
-        activePopups.Add(popup);
-        popup.Play(amount, suffix, start, target, () =>
-        {
-            SyncFromModel();
-            Punch();
-        }, () =>
-        {
-            if (!activePopups.Remove(popup)) return;
-            if (activePopups.Count == 0 && CanAnimate)
-                ScheduleHideCashLine();
-        });
-    }
-
-    /// <summary>팝업 없이 즉시 값 설정 (세이브 로드 등).</summary>
-    public void SetAmount(int amount)
-    {
-        currentAmount = playerData != null ? playerData.HasMoney() : amount;
-        Refresh();
-    }
+    IPlayerDataReader syncedPlayerData;
+    RectTransform cachedRoot;
+    TMP_Text cachedDelta;
+    Vector2 restingPosition;
+    Vector2 deltaPosition;
+    Vector3 restingScale;
 
     public int CurrentAmount => currentAmount;
+    public bool IsAnimating => CanAnimate && amountText != null && notice.Active;
+    bool CanAnimate => this != null && isActiveAndEnabled && gameObject.activeInHierarchy;
 
-    /// <summary>현재 보유량(currentAmount)을 텍스트에 반영한다.</summary>
-    private void Refresh()
+    void Awake() => notice.Reset(currentAmount);
+    void OnEnable() => SetAmount(currentAmount);
+
+    void Start()
     {
-        if (amountText != null)
-            amountText.text = currentAmount.ToString(numberFormat) + suffix;
+        // VContainer 주입은 Awake보다 늦다. 먼저 도착한 증감 연출을 중단하지 않는다.
+        if (!notice.Active) SetAmount(currentAmount);
     }
 
-    // ─────────────────────────────── Cash Line ───────────────────────────────
-
-    /// <summary>재화 변동 표시줄(cashLine)을 켜고, 예정된 숨김 타이머가 있으면 취소한다.</summary>
-    private void ShowCashLine()
+    void Update()
     {
-        // 진행 중인 숨김 타이머가 있으면 취소 (연속 호출 시 깜빡임 방지)
-        if (hideLineRoutine != null)
+        if (!notice.Active) return;
+        notice.Advance(Time.unscaledDeltaTime);
+        Refresh();
+    }
+
+    void OnDisable()
+    {
+        notice.Reset(playerData != null ? playerData.HasMoney() : notice.Balance);
+        Refresh();
+    }
+
+    /// <summary>같은 방향의 연속 증감은 합산하고, 반대 방향이면 새 알림으로 전환한다.</summary>
+    public void AddCurrency(int amount)
+    {
+        if (amount == 0) return;
+        int balance = playerData != null ? playerData.HasMoney() :
+            (int)Math.Clamp((long)notice.Balance + amount, int.MinValue, int.MaxValue);
+        if (playerData != null && !ReferenceEquals(syncedPlayerData, playerData))
         {
-            StopCoroutine(hideLineRoutine);
-            hideLineRoutine = null;
+            // 주입 직후 Start보다 먼저 온 증감도 이전 잔액부터 올바른 방향으로 센다.
+            notice.Reset((int)Math.Clamp((long)balance - amount, int.MinValue, int.MaxValue));
+            syncedPlayerData = playerData;
         }
-
-        if (cashLine != null && !cashLine.activeSelf)
-            cashLine.SetActive(true);
+        if (!CanAnimate || amountText == null)
+        {
+            SetAmount(balance);
+            return;
+        }
+        notice.Change(balance);
+        Refresh();
     }
 
-    /// <summary>lineHideDelay초 후 cashLine을 숨기는 코루틴을 예약한다.</summary>
-    private void ScheduleHideCashLine()
+    /// <summary>로드·초기화 시에는 알림을 중단하고 확정 잔액을 즉시 반영한다.</summary>
+    public void SetAmount(int amount)
     {
-        if (!CanAnimate) return;
-        if (hideLineRoutine != null) StopCoroutine(hideLineRoutine);
-        hideLineRoutine = StartCoroutine(HideCashLineCo());
+        notice.Reset(playerData != null ? playerData.HasMoney() : amount);
+        syncedPlayerData = playerData;
+        Refresh();
     }
 
-    private IEnumerator HideCashLineCo()
+    public UniTask WaitForAnimationsAsync(CancellationToken cancellationToken = default)
     {
-        yield return new WaitForSecondsRealtime(lineHideDelay);
-
-        if (cashLine != null)
-            cashLine.SetActive(false);
-
-        hideLineRoutine = null;
+        if (!IsAnimating) return UniTask.CompletedTask;
+        return UniTask.WaitUntil(() => !IsAnimating, cancellationToken: cancellationToken);
     }
 
-    // ─────────────────────────────── Punch ───────────────────────────────
-
-    /// <summary>금액 텍스트에 확대/축소 펀치 효과를 재생한다.</summary>
-    private void Punch()
+    void CaptureLayout()
     {
-        if (!CanAnimate || amountText == null) return;
-        if (punchRoutine != null) StopCoroutine(punchRoutine);
-        punchRoutine = StartCoroutine(PunchCo(amountText.rectTransform));
+        if (noticeRoot != null && cachedRoot != noticeRoot)
+        {
+            cachedRoot = noticeRoot;
+            restingPosition = noticeRoot.anchoredPosition;
+            restingScale = noticeRoot.localScale;
+        }
+        if (deltaText != null && cachedDelta != deltaText)
+        {
+            cachedDelta = deltaText;
+            deltaPosition = deltaText.rectTransform.anchoredPosition;
+        }
     }
 
-    /// <summary>rt를 punchScale까지 키웠다가 원래 크기로 되돌리는 펀치 애니메이션 코루틴.</summary>
-    private IEnumerator PunchCo(RectTransform rt)
+    void Refresh()
     {
-        Vector3 baseScale = Vector3.one;
-        float half = Mathf.Max(0.001f, punchTime * 0.5f);
-        float t = 0f;
-        while (t < half) { t += Time.unscaledDeltaTime; rt.localScale = Vector3.Lerp(baseScale, baseScale * punchScale, t / half); yield return null; }
-        t = 0f;
-        while (t < half) { t += Time.unscaledDeltaTime; rt.localScale = Vector3.Lerp(baseScale * punchScale, baseScale, t / half); yield return null; }
-        rt.localScale = baseScale;
-        punchRoutine = null;
-    }
-
-    /// <summary>월드 좌표를 area(RectTransform) 기준 로컬 좌표로 변환한다 (스크린 좌표를 경유).</summary>
-    private static Vector2 WorldToLocal(RectTransform area, Vector3 world, Camera cam)
-    {
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(cam, world);
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(area, screen, cam, out Vector2 local);
-        return local;
+        CaptureLayout();
+        currentAmount = (int)Math.Clamp(Math.Floor(notice.Displayed + .5), int.MinValue, int.MaxValue);
+        bool active = notice.Active && CanAnimate && amountText != null;
+        if (amountText != null)
+        {
+            string value = currentAmount.ToString(numberFormat);
+            amountText.text = value + suffix;
+            amountText.fontSize = Mathf.Min(31f, 250f / Mathf.Max(1, value.Length));
+            amountText.color = notice.Delta < 0 ? new Color32(255, 188, 159, 255) : new Color32(255, 229, 154, 255);
+        }
+        if (deltaText != null)
+        {
+            deltaText.text = (notice.Delta < 0 ? "−" : "+") + Math.Abs(notice.Delta).ToString(numberFormat) + suffix;
+            deltaText.color = notice.Delta < 0 ? new Color32(255, 172, 158, 255) : new Color32(255, 229, 154, 255);
+            deltaText.rectTransform.anchoredPosition = deltaPosition + Vector2.up * (float)Math.Min(12, notice.Elapsed * 7);
+        }
+        if (noticeGroup != null) noticeGroup.alpha = active ? notice.Opacity : 0f;
+        if (noticeRoot == null) return;
+        if (noticeRoot.gameObject != gameObject) noticeRoot.gameObject.SetActive(active);
+        float entrance = 1f - Mathf.Pow(1f - Mathf.Clamp01((float)notice.Elapsed / .18f), 3f);
+        noticeRoot.anchoredPosition = restingPosition + Vector2.up * (8f * (1f - entrance));
+        noticeRoot.localScale = restingScale * Mathf.Lerp(.96f, 1f, entrance);
     }
 }

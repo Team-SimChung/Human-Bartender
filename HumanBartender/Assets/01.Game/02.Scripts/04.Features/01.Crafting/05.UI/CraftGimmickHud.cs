@@ -26,7 +26,18 @@ public class CraftGimmickHud : MonoBehaviour
     [SerializeField] TMP_Text timeText;
     [Tooltip("시계 아이콘과 시간 텍스트를 함께 감추기 위한 묶음.")]
     [SerializeField] GameObject timeRoot;
-    [SerializeField] Vector2 timeInset = new Vector2(100f, 78f);
+    [SerializeField] Vector2 timeInset = new Vector2(73f, 54f);
+
+    [Header("Pour / Fill-up")]
+    [SerializeField] GameObject quantityRoot;
+    [SerializeField] TMP_Text targetValueText;
+    [SerializeField] TMP_Text currentValueText;
+    [SerializeField] GameObject ingredientRoot;
+    [SerializeField] GameObject tiltRoot;
+    [SerializeField] RectTransform tiltMarker;
+    [SerializeField] RectTransform tiltFlowRange;
+    [SerializeField] RectTransform tiltWarningRange;
+    [SerializeField] TMP_Text nextButtonLabel;
 
     [Header("O.K")]
     [Tooltip("목표에 도달했을 때 화면 가운데에서 깜빡인다. 기믹을 끝내지는 않는다.")]
@@ -39,6 +50,7 @@ public class CraftGimmickHud : MonoBehaviour
 
     ICraftGimmickProgress progress;
     ICraftGimmickManualEnd manualEnd;
+    ICraftGimmickQuantityProgress quantity;
 
     /// <summary>이번 기믹이 자기가 그리겠다고 가져간 자리. 공통은 그 자리를 비워 둔다.</summary>
     ECraftHudPart ownedByGimmick;
@@ -49,6 +61,7 @@ public class CraftGimmickHud : MonoBehaviour
     /// 가리는 건 화면뿐이고 실제 시간은 그대로 재서 기록에 남는다.
     /// </summary>
     bool hideTime;
+    bool UsesWebLayout => quantityRoot != null && targetValueText != null && currentValueText != null;
 
     void Awake()
     {
@@ -88,7 +101,9 @@ public class CraftGimmickHud : MonoBehaviour
     /// <summary>지금 진행 표시에 연결된 기믹. 튜토리얼이 안내 단계를 정할 때 읽기만 한다.</summary>
     public object CurrentGimmick { get; private set; }
     /// <summary>목표량·현재량을 보여 주는 진행 문구. 튜토리얼 강조 대상이다.</summary>
-    public Transform ProgressTarget => progressText != null && progressText.gameObject.activeInHierarchy ? progressText.transform : null;
+    public Transform ProgressTarget => quantityRoot != null && quantityRoot.activeInHierarchy
+        ? quantityRoot.transform
+        : progressText != null && progressText.gameObject.activeInHierarchy ? progressText.transform : null;
     /// <summary>기믹을 직접 끝내는 버튼(따르기 마치기 등). 튜토리얼 강조 대상이다.</summary>
     public Transform NextControl => nextButton != null && nextButton.gameObject.activeInHierarchy ? nextButton.transform : null;
 
@@ -98,6 +113,7 @@ public class CraftGimmickHud : MonoBehaviour
         CurrentGimmick = gimmick;
         progress = gimmick as ICraftGimmickProgress;
         manualEnd = gimmick as ICraftGimmickManualEnd;
+        quantity = gimmick as ICraftGimmickQuantityProgress;
         ownedByGimmick = (gimmick as ICraftGimmickOwnHud)?.OwnedParts ?? ECraftHudPart.None;
 
         // 기믹이 가져간 자리는 통째로 감춘다. 그러지 않으면 같은 정보가 두 군데 뜬다.
@@ -106,14 +122,24 @@ public class CraftGimmickHud : MonoBehaviour
         SetPartActive(timeText, ECraftHudPart.Time);
         if (timeRoot != null) timeRoot.SetActive(!Owns(ECraftHudPart.Time));
 
+        bool mixing = step.Type == ECraftGimmick.Shake || step.Type == ECraftGimmick.Stir;
+        bool quantityVisible = UsesWebLayout && quantity != null && !Owns(ECraftHudPart.Progress);
+        if (quantityRoot != null) quantityRoot.SetActive(quantityVisible);
+        if (ingredientRoot != null) ingredientRoot.SetActive(quantity != null && !Owns(ECraftHudPart.Subject));
+        if (tiltRoot != null) tiltRoot.SetActive(quantity != null);
+        if (progressText != null && (quantityVisible || mixing && UsesWebLayout)) progressText.gameObject.SetActive(false);
+        if (subjectText != null) subjectText.gameObject.SetActive((quantity != null || !UsesWebLayout) && !Owns(ECraftHudPart.Subject));
+
         if (subjectText != null)
-            subjectText.text = string.IsNullOrEmpty(step.IngredientId)
+            subjectText.text = quantity != null ? quantity.IngredientName : string.IsNullOrEmpty(step.IngredientId)
                 ? step.Type.ToString()
                 : step.IngredientId;
 
         // 끝낼 수 없는 기믹에서는 버튼 자체를 감춘다. 병따기는 성공해야만 끝나므로 여기 해당한다.
         if (nextButton != null)
-            nextButton.gameObject.SetActive(manualEnd != null && !Owns(ECraftHudPart.NextButton));
+            nextButton.gameObject.SetActive(manualEnd != null && (!mixing || !UsesWebLayout) && !Owns(ECraftHudPart.NextButton));
+        if (nextButtonLabel != null)
+            nextButtonLabel.text = quantity != null ? "따르기 마치기 →" : "다음 →";
 
         if (okMark != null) okMark.SetActive(false);
 
@@ -133,11 +159,15 @@ public class CraftGimmickHud : MonoBehaviour
         CurrentGimmick = null;
         progress = null;
         manualEnd = null;
+        quantity = null;
         ownedByGimmick = ECraftHudPart.None;
 
         if (okMark != null) okMark.SetActive(false);
         if (nextButton != null) nextButton.gameObject.SetActive(false);
         if (progressText != null) progressText.text = string.Empty;
+        if (quantityRoot != null) quantityRoot.SetActive(false);
+        if (ingredientRoot != null) ingredientRoot.SetActive(false);
+        if (tiltRoot != null) tiltRoot.SetActive(false);
     }
 
     /// <summary>제조가 끝나면 부른다. 결과 연출로 넘어가므로 표시를 모두 감춘다.</summary>
@@ -158,21 +188,53 @@ public class CraftGimmickHud : MonoBehaviour
 
     void RefreshTimeLayout()
     {
-        if (timeRoot == null || !(timeRoot.transform is RectTransform rect)
-            || !(transform is RectTransform canvasRect)) return;
-        var scaler = GetComponent<CanvasScaler>();
-        Vector2 reference = scaler != null ? scaler.referenceResolution : new Vector2(1920f, 1080f);
-        if (reference.x <= 0f || reference.y <= 0f) return;
-        float scale = Mathf.Min(canvasRect.rect.width / reference.x, canvasRect.rect.height / reference.y);
+        if (!(transform is RectTransform canvasRect)) return;
+        // 별도 개발 씬의 예전 HUD는 기존 좌표계를 유지한다. 새 참조가 연결된 HUD만 웹 배치를 쓴다.
+        if (!UsesWebLayout)
+        {
+            if (timeRoot == null || !(timeRoot.transform is RectTransform oldTimer)) return;
+            var scaler = GetComponent<CanvasScaler>();
+            Vector2 reference = scaler != null ? scaler.referenceResolution : new Vector2(1920f, 1080f);
+            if (reference.x <= 0f || reference.y <= 0f) return;
+            float oldScale = Mathf.Min(canvasRect.rect.width / reference.x, canvasRect.rect.height / reference.y);
+            if (oldScale <= 0f) return;
+            oldTimer.localScale = Vector3.one * oldScale;
+            oldTimer.anchoredPosition = -timeInset * oldScale;
+            return;
+        }
+        if (root == null || !(root.transform is RectTransform stage) || stage == canvasRect) return;
+        float scale = Mathf.Min(canvasRect.rect.width / 1280f, canvasRect.rect.height / 720f);
         if (scale <= 0f) return;
-        // 공용 HUD가 가로 기준으로 커져도 시계는 스터의 균등 배율과 같은 크기로 유지한다.
-        rect.localScale = Vector3.one * scale;
-        rect.anchoredPosition = -timeInset * scale;
+        stage.anchorMin = stage.anchorMax = stage.pivot = new Vector2(.5f, .5f);
+        stage.sizeDelta = new Vector2(1280f, 720f);
+        stage.anchoredPosition = Vector2.zero;
+        stage.localScale = Vector3.one * scale;
+        if (timeRoot != null && timeRoot.transform is RectTransform rect)
+        {
+            rect.localScale = Vector3.one;
+            rect.anchoredPosition = -timeInset;
+        }
     }
 
     void Refresh()
     {
         if (root != null && !root.activeSelf) return;
+
+        if (quantity != null)
+        {
+            if (targetValueText != null) targetValueText.text = quantity.TargetValueText;
+            if (currentValueText != null) currentValueText.text = quantity.CurrentValueText;
+            if (subjectText != null) subjectText.text = quantity.IngredientName;
+            if (tiltMarker != null)
+            {
+                Vector2 anchor = new Vector2(quantity.TiltRatio, .5f);
+                tiltMarker.anchorMin = tiltMarker.anchorMax = anchor;
+                tiltMarker.anchoredPosition = Vector2.zero;
+            }
+            SetRange(tiltFlowRange, quantity.FlowStartRatio, quantity.FullFlowRatio);
+            SetRange(tiltWarningRange, quantity.FullFlowRatio, 1f);
+        }
+        if (nextButton != null) nextButton.interactable = manualEnd != null && manualEnd.CanEndNow;
 
         if (progressText != null && !Owns(ECraftHudPart.Progress))
             progressText.text = progress != null ? progress.ProgressText : string.Empty;
@@ -186,6 +248,14 @@ public class CraftGimmickHud : MonoBehaviour
         }
 
         RefreshOkMark();
+    }
+
+    static void SetRange(RectTransform rect, float start, float end)
+    {
+        if (rect == null) return;
+        rect.anchorMin = new Vector2(Mathf.Clamp01(start), 0f);
+        rect.anchorMax = new Vector2(Mathf.Clamp01(end), 1f);
+        rect.offsetMin = rect.offsetMax = Vector2.zero;
     }
 
     /// <summary>목표에 도달해 있는 동안 깜빡인다. 도달 상태가 풀리면 곧바로 끈다.</summary>

@@ -20,6 +20,17 @@ public interface ICraftGimmickProgress
     bool ShowOkMark { get; }
 }
 
+/// <summary>따르기·필업 화면이 공통 HUD에 제공하는 표시 전용 값.</summary>
+public interface ICraftGimmickQuantityProgress
+{
+    string TargetValueText { get; }
+    string CurrentValueText { get; }
+    string IngredientName { get; }
+    float TiltRatio { get; }
+    float FlowStartRatio { get; }
+    float FullFlowRatio { get; }
+}
+
 /// <summary>
 /// 플레이어가 다음 버튼으로 직접 끝낼 수 있는 기믹. 병따기처럼 성공해야만 끝나는 기믹은
 /// 구현하지 않으며, 그때 HUD는 버튼을 감춘다.

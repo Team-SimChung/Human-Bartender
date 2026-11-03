@@ -30,6 +30,8 @@ public class StirKeyBadge : MonoBehaviour
     [SerializeField] Sprite nextSprite;
     [Tooltip("원본 픽셀을 UI 단위로 환산한다. 잘린 여백이 다른 세 상태의 실물 크기를 맞춘다.")]
     [SerializeField] float artworkScale = 0.25f;
+    [Tooltip("웹처럼 같은 크기의 키캡을 쓸 때 지정한다. 0이면 기존 원본 배율을 쓴다.")]
+    [SerializeField] Vector2 artworkSize;
 
     [Header("Idle")]
     [SerializeField] Color idleFrame = new Color(0.67f, 0.79f, 0.79f, 0.30f);
@@ -67,7 +69,8 @@ public class StirKeyBadge : MonoBehaviour
         if (frame != null && sprite != null)
         {
             frame.sprite = sprite;
-            frame.rectTransform.sizeDelta = sprite.rect.size * artworkScale;
+            frame.rectTransform.sizeDelta = artworkSize.x > 0f && artworkSize.y > 0f
+                ? artworkSize : sprite.rect.size * artworkScale;
             frame.color = Color.white;
             Color textColor = state == EState.Current ? currentText :
                 state == EState.Next ? nextText : idleText;

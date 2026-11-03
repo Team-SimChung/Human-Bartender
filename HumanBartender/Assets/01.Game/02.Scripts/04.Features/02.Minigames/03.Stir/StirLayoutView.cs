@@ -13,6 +13,7 @@ public class StirLayoutView : MonoBehaviour
     [SerializeField] RectTransform character;
     [SerializeField] RectTransform closeupViewport;
     [SerializeField] RectTransform closeupFrame;
+    [SerializeField] RectTransform closeupCharacter;
     [SerializeField] RectTransform arena;
     [SerializeField] RectTransform resultGauge;
     [SerializeField] RectTransform elapsedIcon;
@@ -20,8 +21,6 @@ public class StirLayoutView : MonoBehaviour
     [SerializeField] RectTransform startHint;
     [SerializeField] StirGaugeView gauge;
 
-    [SerializeField] float outerMargin = 18f;
-    [SerializeField] float panelGap = 16f;
     Vector2 previousSize;
 
     void OnEnable() => RefreshLayout();
@@ -42,43 +41,34 @@ public class StirLayoutView : MonoBehaviour
             playfield.offsetMin = playfield.offsetMax = Vector2.zero;
         }
 
-        float height = Mathf.Max(1f, size.y - outerMargin * 2f);
-        float leftWidth = Mathf.Min(304f, size.x * 0.32f);
-        float leftX = -size.x * 0.5f + outerMargin + leftWidth * 0.5f;
-        float rightStart = leftX + leftWidth * 0.5f + panelGap;
-        float rightWidth = Mathf.Max(1f, size.x * 0.5f - outerMargin - rightStart);
-        float rightX = rightStart + rightWidth * 0.5f;
+        // stir-resources.css의 1280×720 무대를 균등 축소한다. 원본 배경이 두 패널을 모두 포함한다.
+        float scale = Mathf.Min(size.x / 1280f, size.y / 720f);
+        PlaceWeb(leftFrame, 0, 0, 1280, 720, scale);
+        if (rightFrame != null) rightFrame.gameObject.SetActive(false);
+        if (grid != null) grid.gameObject.SetActive(false);
+        PlaceWeb(characterViewport, 34, 29, 388, 664, scale);
+        float motionScale = 664f / 550f * scale;
+        Place(character, new Vector2(-19f, 22f) * motionScale,
+            new Vector2(417f, 507f) * motionScale);
+        Place(barBackground, Vector2.zero, new Vector2(970f, 550f) * motionScale);
 
-        Place(leftFrame, new Vector2(leftX, 0f), new Vector2(leftWidth, height));
-        Place(rightFrame, new Vector2(rightX, 0f), new Vector2(rightWidth, height));
-        Place(grid, new Vector2(rightX, 0f), new Vector2(rightWidth - 16f, height - 16f));
-        Place(characterViewport, new Vector2(leftX, 0f), new Vector2(leftWidth - 16f, height - 16f));
-        float characterHeight = (height - 16f) * 0.9f;
-        Place(character, new Vector2(0f, (height - 16f) * 0.06f),
-            new Vector2(characterHeight * 417f / 507f, characterHeight));
-        Place(barBackground, Vector2.zero, new Vector2((height - 16f) * 970f / 550f, height - 16f));
-
-        float closeupHeight = Mathf.Min(243f, height * 0.48f);
-        float closeupWidth = closeupHeight * 1205f / 2029f;
-        Vector2 closeupPosition = new Vector2(leftX + leftWidth * 0.5f + 6f,
-            height * 0.5f - closeupHeight * 0.5f);
-        Place(closeupFrame, closeupPosition, new Vector2(closeupWidth, closeupHeight));
-        Place(closeupViewport, closeupPosition, new Vector2(closeupWidth - 8f, closeupHeight - 8f));
-
-        float arenaSize = Mathf.Min(310f, Mathf.Min(rightWidth - 120f, height - 160f));
-        arenaSize = Mathf.Max(1f, arenaSize);
-        Place(arena, new Vector2(rightX, 18f), new Vector2(310f, 310f));
-        if (arena != null) arena.localScale = Vector3.one * (arenaSize / 310f);
-
-        float gaugeY = -height * 0.5f + 30f;
-        Place(resultGauge, new Vector2(rightX, gaugeY), new Vector2(Mathf.Max(1f, rightWidth - 70f), 22.25f));
-        Place(startHint, new Vector2(rightX, gaugeY + 27f), new Vector2(260f, 20f));
-        float timeY = height * 0.5f - 36f;
-        float timeX = rightStart + rightWidth - 65f;
-        Place(elapsedText, new Vector2(timeX, timeY), new Vector2(65f, 30f));
-        Place(elapsedIcon, new Vector2(timeX - 47f, timeY), new Vector2(22.3f, 25f));
+        PlaceWeb(closeupFrame, 350, 0, 187, 325, scale);
+        PlaceWeb(closeupViewport, 351, 1, 185, 323, scale);
+        float closeupScale = 323f / 181f * scale;
+        Place(closeupCharacter, new Vector2(-4f, 79.5f) * closeupScale,
+            new Vector2(417f, 507f) * closeupScale);
+        Place(arena, new Vector2(210f, 14f) * scale, new Vector2(310f, 310f));
+        if (arena != null) arena.localScale = Vector3.one * (464f / 310f * scale);
+        PlaceWeb(resultGauge, 496, 632, 708, 30, scale);
+        PlaceWeb(startHint, 500, 583, 700, 28, scale);
+        PlaceWeb(elapsedIcon, 1069, 50, 43, 48, scale);
+        PlaceWeb(elapsedText, 1117, 54, 90, 40, scale);
         gauge?.RefreshLayout();
     }
+
+    static void PlaceWeb(RectTransform target, float x, float y, float width, float height, float scale)
+        => Place(target, new Vector2(x + width * .5f - 640f, 360f - y - height * .5f) * scale,
+            new Vector2(width, height) * scale);
 
     static void Place(RectTransform target, Vector2 position, Vector2 size)
     {
