@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Play(Bar) 씬 전용 입력 어댑터. 스페이스바로 대사를 진행시키고, Q/E로 카메라 슬롯(왼쪽/오른쪽)을 전환한다.
+/// Play 씬의 대화 진행, 좌석 이동, 주문 되묻기 입력을 각 기능으로 전달한다.
 /// </summary>
 public class PlayInputHandler : MonoBehaviour
 {
@@ -14,6 +14,7 @@ public class PlayInputHandler : MonoBehaviour
     [SerializeField] private ServicePanelController servicePanelController;
     [SerializeField] private RecipeBrowserScreen recipeScreen;
     [SerializeField] private CraftPrepStageHost craftPrepStageHost;
+    [SerializeField] private RepeatOrderView repeatOrder;
 
     /// <summary>
     /// 대사 진행 입력. 2부(Dialogue) 국면에서만 동작한다.
@@ -31,11 +32,16 @@ public class PlayInputHandler : MonoBehaviour
         if (storyFlow != null) storyFlow.TryAdvance();
     }
 
-    /// <summary>Q: 영업 중 또는 바 둘러보기 실습 중 왼쪽으로 한 자리 이동한다.</summary>
+    /// <summary>영업 중 또는 바 둘러보기 실습 중 왼쪽으로 한 자리 이동한다.</summary>
     public void OnLeft(InputValue value) => MoveSeat(value, -1);
 
-    /// <summary>E: 영업 중 또는 바 둘러보기 실습 중 오른쪽으로 한 자리 이동한다.</summary>
+    /// <summary>영업 중 또는 바 둘러보기 실습 중 오른쪽으로 한 자리 이동한다.</summary>
     public void OnRight(InputValue value) => MoveSeat(value, 1);
+
+    public void OnRepeatOrder(InputValue value)
+    {
+        if (value.isPressed) repeatOrder.Submit();
+    }
 
     void MoveSeat(InputValue value, int step)
     {
@@ -50,7 +56,7 @@ public class PlayInputHandler : MonoBehaviour
             return;
         }
         if (!playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
-        if (playCamera == null) return;
+        if (playCamera == null || (servicePanelController != null && !servicePanelController.CanUseGuestActions)) return;
         playCamera.MoveAdjacent(step, 0.5f);
     }
 

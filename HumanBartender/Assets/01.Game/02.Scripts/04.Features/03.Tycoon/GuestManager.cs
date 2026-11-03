@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using VContainer;
 
+public enum RepeatOrderState { Hidden, Ready, Speaking }
+
 /// <summary>
 /// 타이쿤(1부) 국면의 손님 슬롯(GuestSlot) 전체를 관리한다. 랜덤 손님(guests/random_waves.csv)과
 /// 단골 손님(guests/regular_slots.csv)을 같은 day의 seq 순서로 합쳐 대기열을 구성하고, 빈 슬롯에 배정한다.
@@ -83,6 +85,8 @@ public class GuestManager : MonoBehaviour
 
     readonly Queue<Guest> guestQueue = new();
     readonly HashSet<Guest> releasedGuests = new();
+    readonly HashSet<OrderRequest> repeatingOrders = new();
+    readonly Dictionary<GuestSlot, string> pendingWarnings = new();
     readonly Dictionary<GuestSlot, CancellationTokenSource> patienceCtsBySlot = new();
     readonly Dictionary<GuestSlot, (Guest guest, float start, float duration)> seatWaitTimes = new();
 
@@ -278,14 +282,12 @@ public class GuestManager : MonoBehaviour
 
             // 자리가 없어 기다린 시간은 지연시간에 넣지 않는다. 넣으면 자리가 나는 순간
             // 밀려 있던 손님이 한꺼번에 들어온다.
-            if (IsAllSlotsOccupied())
+            while (!TrySeatGuest(guest))
             {
                 await UniTask.WaitUntil(() => !IsAllSlotsOccupied(), cancellationToken: token);
 
                 if (!await barClock.WaitAsync(Config.ReseatDelaySec, token)) return;
             }
-
-            TrySeatGuest(guest);
         }
     }
 
@@ -592,8 +594,14 @@ public class GuestManager : MonoBehaviour
     /// <summary>비어있는 슬롯을 찾아 손님을 배정한다. 자리가 없으면 false를 반환한다.</summary>
     public bool TrySeatGuest(Guest guest)
     {
-        GuestSlot slot = slots.FirstOrDefault(s => s.IsEmpty);
-        if (slot == null) return false;
+        var emptySlots = Array.FindAll(slots, slot => slot.IsEmpty);
+        if (emptySlots.Length == 0) return false;
+
+        // 단골은 기존 좌석 순서를 따르고, 일반 손님은 선택지가 있을 때만 추첨한다.
+        int index = !guest.isRegular && emptySlots.Length > 1
+            ? UnityEngine.Random.Range(0, emptySlots.Length)
+            : 0;
+        GuestSlot slot = emptySlots[index];
 
         PrepareAppearance(guest);
 
@@ -633,6 +641,7 @@ public class GuestManager : MonoBehaviour
     /// </summary>
     public void StopPatienceTimer(GuestSlot slot)
     {
+        pendingWarnings.Remove(slot);
         seatWaitTimes.Remove(slot);
         if (!patienceCtsBySlot.Remove(slot, out var cts)) return;
 
@@ -668,16 +677,17 @@ public class GuestManager : MonoBehaviour
         float redSec = totalSec * Config.WarnRedRatio;
 
         if (!await WaitWhileSeatedAsync(slot, guest, yellowSec, token)) return;
-        ShowBark(slot, urgeBark);
+        ShowWaitWarning(slot, urgeBark);
 
         if (!await WaitWhileSeatedAsync(slot, guest, redSec - yellowSec, token)) return;
-        ShowBark(slot, finalBark);
+        ShowWaitWarning(slot, finalBark);
 
         if (!await WaitWhileSeatedAsync(slot, guest, totalSec - redSec, token)) return;
 
         const float leaveBarkDurationSec = 3f;
         ShowBark(slot, leaveBark, leaveBarkDurationSec);
         slot.MarkLeaving();
+        StopPatienceTimer(slot);
 
         // 응대하지 못하고 돌려보낸 손님이라 평판이 깎인다(settings/balance_config.csv의 leave_coaster_rep / leave_serve_rep).
         Reputation.Add(reputationDelta, $"{guest.id} {leaveBark}");
@@ -709,7 +719,7 @@ public class GuestManager : MonoBehaviour
     /// 슬롯의 말풍선에 띄운다. personality가 일치하는 대사가 없으면 voice_id가 없는(공용) 대사 중에서 고른다.
     /// 그마저 없으면 아무것도 하지 않는다.
     /// </summary>
-    public void ShowBark(GuestSlot slot, string situation, float durationSec = 3f)
+    public void ShowBark(GuestSlot slot, string situation, float durationSec = 3f, bool typewriter = false)
     {
         Guest guest = slot.CurrentGuest;
         string voiceId = guest == null ? null : guest.isRegular ? guest.characterId : guest.personality;
@@ -719,23 +729,28 @@ public class GuestManager : MonoBehaviour
         ScheduleNextIdleChatter(slot);
 
         var situationBarks = barkData.barkData.Where(b => b.Situation == situation).ToArray();
-        if (situationBarks.Length == 0) return;
-
         var candidates = situationBarks.Where(b => b.VoiceId == voiceId).ToArray();
 
         // 카메오(단골)는 공용 폴백을 쓰지 않는다(운영 명세 §6.1). 그 캐릭터의 말투가 아닌 대사를
         // 그 캐릭터가 말하면 누구인지가 흐려진다. 전용 대사가 없으면 아무 말도 하지 않는다.
-        if (candidates.Length == 0 && guest != null && guest.isRegular) return;
-
-        if (candidates.Length == 0)
+        if (candidates.Length == 0 && guest?.isRegular != true)
             candidates = situationBarks.Where(b => string.IsNullOrEmpty(b.VoiceId)).ToArray();
 
-        if (candidates.Length == 0) return;
+        bool orderLine = situation is "order" or "reorder";
+        if (candidates.Length == 0 && !orderLine) return;
+        string text = candidates.Length == 0 ? "{cocktail}" :
+            PickBarkAvoidingRepeat($"{situation}/{voiceId}", candidates).Text.Ko;
+        string cocktailName = GetCocktailName(guest?.CurrentOrder?.Details.CocktailId ?? guest?.targetCocktailId);
+        slot.ShowBark(text, durationSec, textTagData, cocktailName, typewriter, orderLine);
+    }
 
-        NewBarkData bark = PickBarkAvoidingRepeat($"{situation}/{voiceId}", candidates);
+    bool IsOrderDialoguePlaying(GuestSlot slot) =>
+        slot.IsShowingOrderLine || repeatingOrders.Contains(slot.CurrentGuest?.CurrentOrder);
 
-        string cocktailName = GetCocktailName(guest?.targetCocktailId);
-        slot.ShowBark(bark.Text.Ko, durationSec, textTagData, cocktailName);
+    void ShowWaitWarning(GuestSlot slot, string situation)
+    {
+        if (IsOrderDialoguePlaying(slot)) pendingWarnings[slot] = situation;
+        else ShowBark(slot, situation);
     }
 
     // ── 잡담 ────────────────────────────────────────────────────────────
@@ -755,7 +770,12 @@ public class GuestManager : MonoBehaviour
 
         foreach (var slot in slots)
         {
-            if (!CanChatter(slot)) continue;
+            if (!CanChatter(slot) || IsOrderDialoguePlaying(slot)) continue;
+            if (pendingWarnings.Remove(slot, out string warning))
+            {
+                ShowBark(slot, warning);
+                return;
+            }
             if (!nextIdleChatterSecBySlot.TryGetValue(slot, out float nextSec)) continue;
             if (barClock.ElapsedSec < nextSec) continue;
 
@@ -1064,18 +1084,19 @@ public class GuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 코스터가 놓였을 때 플레이어(바텐더, luna)의 ask_order 대사를 손님 자리의 말풍선이 아니라
-    /// 다이얼로그 말풍선(UIDialogueTextView.lunaSpeechBubble)에 띄운다. guests/barks.csv에서 situation=ask_order,
-    /// voice_id=luna인 대사 중 weight로 하나를 골라 표시하며, {cocktail}은 손님의 targetCocktailId로 치환된다.
+    /// 코스터를 받을 때 guests/barks.csv의 ask_order 중 루나의 대사를 골라 표시한다.
     /// </summary>
     void ShowPlayerAskOrderBark(Guest guest)
     {
         var candidates = barkData.barkData.Where(b => b.Situation == "ask_order" && b.VoiceId == PlayerCharacterId).ToArray();
         if (candidates.Length == 0) return;
 
-        string rawText = PickWeightedBark(candidates).Text.Ko;
-        string cocktailName = GetCocktailName(guest?.targetCocktailId);
+        ShowPlayerBarkAsync(PickWeightedBark(candidates).Text.Ko, guest, this.GetCancellationTokenOnDestroy()).Forget();
+    }
 
+    async UniTask ShowPlayerBarkAsync(string rawText, Guest guest, CancellationToken token)
+    {
+        string cocktailName = GetCocktailName(guest.targetCocktailId);
         var player = characterData.characterData.FirstOrDefault(c => c.Id == PlayerCharacterId);
         string speakerName = player.Id != null ? player.Name.Ko : PlayerCharacterId;
 
@@ -1086,30 +1107,62 @@ public class GuestManager : MonoBehaviour
         var typingData = new TypingData(rawText, speakerName, Vector3.zero, nameColor, isLunaSpeak: true);
 
         lunaBarkCts?.Cancel();
-        var source = new CancellationTokenSource();
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(token);
         lunaBarkCts = source;
-        HideLunaBarkAfterAsync(typingData, cocktailName, source).Forget();
-    }
-
-    /// <summary>
-    /// 타이핑이 끝난 뒤 PlayerBarkDurationSec만큼 더 보여주다가 다이얼로그 말풍선을 끈다.
-    /// 그 사이 새 ask_order 대사가 다시 뜨면(lunaBarkCts 교체) 조용히 중단한다.
-    /// </summary>
-    async UniTaskVoid HideLunaBarkAfterAsync(TypingData typingData, string cocktailName, CancellationTokenSource source)
-    {
         try
         {
             await dialogueTextView.StartType(typingData, cocktailName, source.Token);
             await UniTask.Delay(TimeSpan.FromSeconds(PlayerBarkDurationSec), cancellationToken: source.Token);
-            if (ReferenceEquals(lunaBarkCts, source))
-                dialogueTextView.lunaSpeechBubble.gameObject.SetActive(false);
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException) when (source.IsCancellationRequested) { }
         finally
         {
-            if (ReferenceEquals(lunaBarkCts, source)) lunaBarkCts = null;
-            source.Dispose();
+            if (ReferenceEquals(lunaBarkCts, source))
+            {
+                lunaBarkCts = null;
+                if (dialogueTextView != null) dialogueTextView.lunaSpeechBubble.gameObject.SetActive(false);
+            }
         }
+    }
+
+    public GuestSlot GetSeat(ESlotType seat)
+    {
+        foreach (var slot in slots)
+            if (slot.SlotType == seat) return slot;
+        return null;
+    }
+
+    public RepeatOrderState GetRepeatOrderState(GuestSlot slot)
+    {
+        if (!isActiveAndEnabled || slot == null || !slot.CanReceiveDrink || HasServeTimedOut(slot.CurrentGuest))
+            return RepeatOrderState.Hidden;
+        if (repeatingOrders.Contains(slot.CurrentGuest.CurrentOrder)) return RepeatOrderState.Speaking;
+        return slot.IsShowingOrderLine ? RepeatOrderState.Hidden : RepeatOrderState.Ready;
+    }
+
+    public void TryRepeatOrder(GuestSlot slot)
+    {
+        if (GetRepeatOrderState(slot) != RepeatOrderState.Ready || !patienceCtsBySlot.TryGetValue(slot, out var timer)) return;
+        var guest = slot.CurrentGuest;
+        var order = guest.CurrentOrder;
+        repeatingOrders.Add(order);
+        RepeatOrderAsync(slot, guest, order, timer.Token).Forget(Debug.LogException);
+    }
+
+    async UniTask RepeatOrderAsync(GuestSlot slot, Guest guest, OrderRequest order, CancellationToken token)
+    {
+        try
+        {
+            slot.HideBark();
+            await ShowPlayerBarkAsync("주문하신 메뉴가 어떤 거였죠?", guest, token);
+            if (token.IsCancellationRequested || !isActiveAndEnabled || slot.CurrentGuest?.CurrentOrder != order ||
+                !slot.CanReceiveDrink || HasServeTimedOut(guest)) return;
+
+            ShowBark(slot, "order", typewriter: true);
+            await UniTask.WaitUntil(() => !slot.IsShowingOrderLine, cancellationToken: token);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        finally { repeatingOrders.Remove(order); }
     }
 
     /// <summary>지정 슬롯의 손님 응대가 끝났을 때 호출한다. 인내 타이머를 멈추고 슬롯을 비운 뒤 TycoonFlow에 알린다.</summary>

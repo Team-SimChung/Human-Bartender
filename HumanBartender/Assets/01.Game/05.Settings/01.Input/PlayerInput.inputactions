@@ -212,6 +212,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "RepeatOrder",
+                    "type": "Button",
+                    "id": "3323f82e-f847-4304-ac8b-a2c4cddde270",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ServicePanel",
                     "type": "Button",
                     "id": "eb5e0a96-697a-49aa-972f-877be736f27a",
@@ -236,7 +245,7 @@
                 {
                     "name": "",
                     "id": "095d84d8-5e1b-4a59-be04-6b431f690545",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -247,11 +256,22 @@
                 {
                     "name": "",
                     "id": "f50ef1ee-d6eb-4cbe-8aaa-91bd56fbe4bc",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "54fd1aa1-396f-498a-8eda-f200add3bd74",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "RepeatOrder",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
