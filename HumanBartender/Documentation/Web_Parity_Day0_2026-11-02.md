@@ -30,7 +30,7 @@ Unity 사본은 반입 때 `expressions_tom_default`처럼 읽을 수 있는 이
 
 - `Tools/Story/Set Up First Commute Arrival`: OutSide 첫 출근 시작 위치·도착 지점·경계
 - `Tools/Story/Set Up New Game Opening`: Home 오프닝 오브젝트와 연결
-- `Tools/Story/Set Up Serve Zone Layout`: 서빙 자리 앵커
+- 서빙 자리 앵커는 공용 월드 프리팹 `TableServeSpot`의 `GlassAnchor`에서 조정한다.
 - `Tools/Story/Build Bar Door Transition`: 문 화면 프리팹을 다시 조립하고 연결한다(프리팹을 새로 만든다)
 
 ## 다른 작업자 변경과의 충돌 (`443211d` 이후)

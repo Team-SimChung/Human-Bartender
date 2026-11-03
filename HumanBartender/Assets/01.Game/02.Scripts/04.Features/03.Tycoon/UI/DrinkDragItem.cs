@@ -10,6 +10,7 @@ public enum DrinkRemovalReason { Served, Discarded }
 [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
 public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public static DrinkDragItem Active { get; private set; }
     [SerializeField] private Image bodyImage;
     [SerializeField] private Image secondBodyImage;
     [SerializeField] private TextMeshProUGUI nameText;
@@ -95,7 +96,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (Drink == null || consumed || released || dragging || rootCanvas == null) return;
+        if (Drink == null || consumed || released || Active != null || CoasterDragItem.Active != null || rootCanvas == null) return;
         dragging = true;
         var heldObject = new GameObject("Held Cocktail", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         heldObject.transform.SetParent(rootCanvas.transform, false);
@@ -114,7 +115,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         // 카드는 레이아웃 안에서 감추고, 칵테일 이미지만 포인터를 따라가게 한다.
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
-        StoryServeDropTarget.SetRaycastEnabledWhileDragging(true);
+        Active = this;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -143,7 +144,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         if (!dragging) return;
         dragging = false;
         ClearHeldImage();
-        StoryServeDropTarget.SetRaycastEnabledWhileDragging(false);
+        if (Active == this) Active = null;
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
         if (consumed) Release();

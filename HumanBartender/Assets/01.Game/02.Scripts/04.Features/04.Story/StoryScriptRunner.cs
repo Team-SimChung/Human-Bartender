@@ -700,10 +700,13 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         seatActors.Remove(slot);
-        if (tables != null) tables.EndVisit(step.Actor);
-        if (presenter is IStoryCharacterTransitions transition)
-            await transition.ExitAsync(slot, token);
-        else presenter.Exit(slot);
+        try
+        {
+            if (presenter is IStoryCharacterTransitions transition)
+                await transition.ExitAsync(slot, token);
+            else presenter.Exit(slot);
+        }
+        finally { if (tables != null) tables.EndVisit(step.Actor); }
 
         await ApplyFramingAsync(token);
     }
