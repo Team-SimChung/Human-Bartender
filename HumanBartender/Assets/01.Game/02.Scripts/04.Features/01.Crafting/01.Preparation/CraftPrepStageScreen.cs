@@ -347,7 +347,9 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         popupRect.anchorMax = Vector2.one;
         popupRect.offsetMin = popupRect.offsetMax = Vector2.zero;
         openerPopup.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.85f);
-        TMP_Text message = CreateLabel(openerPopup.transform, "병따기가 필요한 재료가 있습니다.\n오프너를 선택한 후 제조를 시작해 주세요.");
+        // 웹 본편 openerWarning 팝업의 제목·본문과 같다.
+        TMP_Text message = CreateLabel(openerPopup.transform,
+            "<size=125%>병따개가 필요합니다</size>\n\n병맥주를 따르려면 먼저 뚜껑을 열어야 합니다.\n도구 선반에서 병따개를 선택해 주세요.");
         ((RectTransform)message.transform).offsetMin = new Vector2(40f, 100f);
         ((RectTransform)message.transform).offsetMax = new Vector2(-40f, -40f);
         Button close = CreateButton(openerPopup.transform, "Confirm", new Vector2(0f, -100f), new Vector2(140f, 44f), "확인");

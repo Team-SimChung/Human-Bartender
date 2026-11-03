@@ -1,163 +1,84 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using TMPro;
 using UnityEngine;
-using VContainer;
 
 /// <summary>
-/// 병따기(Cap) 미니게임의 메인 매니저. IMiniGameController를 구현한다.
+/// 병따기(Cap) 미니게임의 메인 매니저. 웹 본편 병따기(gimmick-mechanics.js OPEN, open-view.js)와 같은 규칙이다.
 ///
-/// 병뚜껑 둘레에 목표 고리가 고정되어 있고, 바깥에서 조여드는 고리가 등속으로 좁혀 온다.
-/// 두 고리가 겹치는 순간(반지름 차이가 judgeWindow 이내) 입력하면 성공이다. 빗나가거나
-/// 목표를 지나쳐 버리면 실패로 치고, 잠깐 뒤 고리가 다시 바깥에서 조여든다 — 성공하거나
-/// 제한 시간이 끝날 때까지 반복된다.
+/// 두 단계를 차례로 맞춘다. 먼저 위아래로 오가는 힘 게이지를 초록 구간에서 멈추고, 이어서 바깥 원이
+/// 민트색 링에 겹치는 순간 누른다. 실패가 세 번 쌓이면 병이 깨지고 새 병으로 힘 조절부터 다시 한다.
+/// 열린 뒤에는 탄산이 다 올라올 때까지(2.05초) 기다렸다가 플레이어가 "다음"을 눌러 넘어간다.
 ///
-/// 인터페이스를 둘 구현한다. ICraftGimmick은 1부의 기믹 큐가 부르는 새 경로이고,
-/// IMiniGameController는 2부 대화에서 컷씬과 함께 돌던 기존 경로다. 조작과 판정 코드는 양쪽이 공유한다.
+/// 판정은 CapOpenRules, 그리기는 CapOpenView, 소리는 CapOpenAudio가 맡는다. 이 클래스는 셋을 잇고
+/// 기믹 큐(ICraftGimmick)와 예전 미니게임 경로(IMiniGameController)에 결과를 돌려준다.
 ///
-/// 두 경로의 차이가 하나 있다. 기믹 큐가 돌릴 때는 자체 제한시간을 쓰지 않는다 —
-/// 병따기는 성공해야만 끝나고, 시간은 한 잔 전체의 제조시간으로만 재기 때문이다.
+/// 점수만 웹과 다르다. 웹은 열기만 하면 100점이지만, Unity는 실패 수를 결과에 담아 판정기가
+/// open_penalty_per_failure만큼 깎는다(CraftJudge).
 /// </summary>
-public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICraftGimmickProgress
+public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICraftGimmickProgress,
+    ICraftGimmickManualEnd, ICraftGimmickOwnHud
 {
-    [Inject] ISoundEffectPlayer sound;
     [SerializeField] private bool isTest = false;
 
     [Header("Data")]
     [SerializeField] private CraftStationData data;
     [SerializeField] private NewCocktailDataSO cocktailDataSO;
+    [Tooltip("링 크기(open_start_radius_px, open_target_radius_px)를 읽는다. 비었거나 아직 로드 전이면 웹 기본값을 쓴다.")]
+    [SerializeField] private NewBalanceDataSO balanceData;
 
-    [Header("Ring")]
-    [Tooltip("조여드는 고리. 바깥에서 목표 고리까지 좁혀 온다.")]
-    [SerializeField] private CapRing incomingRing;
-    [Tooltip("목표 고리. 병뚜껑 둘레에 고정되어 크기가 변하지 않는다.")]
-    [SerializeField] private CapRing targetRing;
-
-    [Tooltip("고리가 시작하는 반지름(월드 단위).")]
-    [SerializeField] private float startRadius = 2.2f;
-    [Tooltip("목표 고리의 반지름. 병뚜껑 크기에 맞춰 잡는다.")]
-    [SerializeField] private float targetRadius = 0.6f;
-    [Tooltip("판정 폭. 두 고리의 반지름 차이가 이 값 이내일 때 누르면 성공이다. " +
-             "넓힐수록 쉬워지고, 좁힐수록 정확한 타이밍을 요구한다.")]
-    [SerializeField] private float judgeWindow = 0.14f;
-    [Tooltip("고리가 시작 크기에서 목표까지 조여드는 데 걸리는 시간(초). 짧을수록 어렵다.")]
-    [SerializeField] private float approachSeconds = 1.6f;
-
-    [Header("Timing")]
-    [Tooltip("실패한 뒤 고리가 다시 바깥에서 조여들기까지의 텀. 연출을 볼 시간이자, " +
-             "연타로 우연히 맞히는 걸 막는 장치다.")]
-    [SerializeField] private float failCooldown = 0.45f;
-    [Tooltip("성공 연출을 보여준 뒤 결과로 넘어가기까지의 텀.")]
-    [SerializeField] private float successCooldown = 0.9f;
-    [Tooltip("제조 제한 시간(초). 넘기면 실패로 끝난다.")]
+    [Header("Rules")]
+    [Tooltip("판정 수치. 기본값은 웹 본편과 같다.")]
+    [SerializeField] private CapOpenTuning tuning = new CapOpenTuning();
+    [Tooltip("예전 미니게임 경로에서만 쓰는 제한 시간(초). 기믹 큐가 돌릴 때는 시간 제한이 없다.")]
     [SerializeField] private float timeLimit = 25f;
-
-    [Header("Judge")]
-    [Tooltip("isTest일 때 쓸 허용 실패 횟수. 실제 모드에서는 " +
-             "CraftStationData.targetCraft_tolerance에서 환산한다.\n" +
-             "판정은 (실패 횟수 / 이 값)의 백분율이다 — 20% 이하 Perfect, 50% 이하 Normal, 초과 Failed.")]
+    [Tooltip("isTest일 때 쓸 허용 실패 횟수. 실제 모드에서는 CraftStationData.targetCraft_tolerance에서 환산한다.")]
     [SerializeField] private int testLimitFailCount = 5;
 
-    [Header("Visual")]
-    [Tooltip("병뚜껑. 성공하면 튕겨 날아가고, 실패하면 살짝 꺾인다. 비워둬도 게임은 돌아간다.")]
-    [SerializeField] private Transform capPiece;
+    [Header("Presentation")]
+    [SerializeField] private CapOpenView view;
+    [SerializeField] private CapOpenAudio openAudio;
 
-    [Header("Opener")]
-    [Tooltip("병 입구를 회전축으로 삼는 오프너 피벗. 입력할 때 들어 올린 뒤 제자리로 돌아온다.")]
-    [SerializeField] private Transform openerPivot;
-    [SerializeField, Min(0.01f)] private float openerMotionSeconds = 0.32f;
-    [SerializeField] private float openerLift = 0.12f;
-    [Tooltip("반전 전 이미지 기준 회전 각도. 좌우 반전된 오프너는 회전 방향을 자동으로 뒤집는다.")]
-    [SerializeField] private float openerAngle = -24f;
-
-    [Header("Success Effect")]
-    [SerializeField] private GameObject successEffectPrefab;
-    [Tooltip("씬에 별도로 배치한 연출이 있으면 위치·크기를 유지해 사용한다. 비워두면 프리팹을 병 입구에 생성한다.")]
-    [SerializeField] private GameObject successEffectOverride;
-    [Tooltip("뚜껑과 함께 날아가지 않는 고정된 병 입구 위치.")]
-    [SerializeField] private Transform successEffectAnchor;
-    [SerializeField, Min(0.01f)] private float successEffectScale = 0.35f;
-    [SerializeField, Min(0f)] private float successEffectEmissionSeconds = 0.3f;
-
-    Vector3 openerRestPosition;
-    Quaternion openerRestRotation;
-    SpriteRenderer openerRenderer;
-    bool openerPoseCached;
-    float openerMotionElapsed;
-    bool openerMoving;
-    GameObject successEffectInstance;
-    ParticleSystem[] successParticles;
-    float successEffectElapsed;
-    bool successEffectEmitting;
-
-    [Header("Cap Physics")]
-    [Tooltip("병뚜껑의 발사 속도(월드 단위/초). X는 가로, Y는 위쪽이다.")]
-    [SerializeField] private Vector2 capLaunchVelocity = new Vector2(2f, 6f);
-    [Tooltip("병뚜껑의 회전 속도(도/초). 음수는 시계 방향이다.")]
-    [SerializeField] private float capSpinSpeed = -540f;
-    [SerializeField, Min(0f)] private float capGravityScale = 1f;
-    private Rigidbody2D capBody;
-    [Tooltip("판정 구간에 들어왔을 때 조여드는 고리에 입힐 색. 이 신호가 없으면 " +
-             "언제 눌러야 할지 눈으로 읽기 어렵다.")]
-    [SerializeField] private Color nearColor = new Color(0.22f, 0.83f, 0.48f);
-    [SerializeField] private Color incomingColor = new Color(0.95f, 0.76f, 0.31f);
-    [SerializeField] private Color targetColor = new Color(0.5f, 0.94f, 0.92f);
-
-    [Header("UI")]
+    [Header("Legacy UI")]
+    [Tooltip("예전 미니게임 경로의 제공하기·다시하기 버튼 묶음.")]
     [SerializeField] private Canvas buttonCanvas;
-    // 재료명·시도 횟수·전체 시간은 공통 HUD가 그린다. 여기서는 판정 순간의 피드백만 맡는다 —
-    // PERFECT/FAIL은 고리 판정에 붙는 연출이라 공통 표시에 자리가 없다.
-    [Tooltip("성공·실패 판정 텍스트. 고리 근처에 뜨는 기믹 고유 연출이다.")]
-    [SerializeField] private TMP_Text judgeText;
 
     [Header("Craft Event")]
     [SerializeField] private VoidEvent craftServe;
     [SerializeField] private VoidEvent craftRetry;
 
-    /// <summary>고리 상태. 조여드는 중 → (성공/실패) 쿨다운 → 다시 조여드는 중.</summary>
-    enum Phase { Approaching, Cooldown, Finished }
+    const float DefaultStartRadius = 165f, DefaultTargetRadius = 44f;
 
-    Phase phase = Phase.Approaching;
-
-    float radius;
-    float cooldown;
+    CapOpenRules rules;
+    int heardFx;
+    bool finished, timedOut, paused;
     float elapsed;
-
-    /// <summary>시도 횟수. 1회째부터 시작한다(캡처 UI의 "시도 n회째"와 같은 뜻).</summary>
-    int attempts = 1;
     int limitFailCount;
-    bool opened;
-    bool timedOut;
+    string ingredientId = "beer";
+    string lessonText;
 
     UniTaskCompletionSource tcs;
 
-    /// <summary>실패 횟수. 판정에 넘기는 값이다 — 첫 시도에 성공하면 0이다.</summary>
-    int FailCount => attempts - 1;
+    /// <summary>지금 단계. 튜토리얼이 안내 문구를 고르는 데 쓴다.</summary>
+    public ECapOpenPhase OpenPhase => Rules.Phase;
+    /// <summary>뚜껑이 열렸는지.</summary>
+    public bool Opened => Rules.Completed;
+    /// <summary>누르기 버튼. 튜토리얼이 강조할 자리다.</summary>
+    public RectTransform PressButton => view != null ? view.PressButton : null;
+    /// <summary>"다음" 버튼. 튜토리얼이 강조할 자리다.</summary>
+    public Transform NextButton => view != null && view.NextButton != null ? view.NextButton.transform : null;
 
-    /// <summary>지금 반지름에서 고리가 조여드는 속도. 시작~목표 구간을 approachSeconds에 지나도록 잡는다.</summary>
-    float ShrinkSpeed => (startRadius - targetRadius) / Mathf.Max(0.1f, approachSeconds);
+    /// <summary>이 기믹이 끝났을 때. 튜토리얼이 병따기 수업을 마쳤다고 기록하는 데 쓴다.</summary>
+    public event System.Action Finished;
+
+    CapOpenRules Rules => rules ??= new CapOpenRules(tuning);
 
     void Awake()
     {
-        if (openerPivot != null)
-        {
-            openerRestPosition = openerPivot.localPosition;
-            openerRestRotation = openerPivot.localRotation;
-            openerRenderer = openerPivot.GetComponentInChildren<SpriteRenderer>(true);
-            openerPoseCached = true;
-        }
-        if (successEffectOverride != null) successEffectOverride.SetActive(false);
+        if (view != null) view.NextClicked += OnNextClicked;
     }
 
     void Start()
     {
-        if (capPiece != null)
-        {
-            capBody = capPiece.GetComponent<Rigidbody2D>();
-            if (capBody == null) capBody = capPiece.gameObject.AddComponent<Rigidbody2D>();
-            // 성공 전에는 병에 붙어 있고, 실패 시에는 기존 꺾임 연출을 사용한다.
-            capBody.simulated = false;
-        }
         if (isTest)
         {
             if (cocktailDataSO.TryGet(data.targetCocktailId, out NewCocktailData cocktail))
@@ -169,288 +90,106 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
         }
 
         // 기존 경로에서는 이벤트가 정한 허용치에서 환산한다. 0이면 판정에서 0으로 나누게 되므로 최소 1을 보장한다.
-        // 기믹 큐가 돌릴 때는 실패 횟수를 그대로 결과에 담고 감점은 Config가 정하므로 허용치를 쓰지 않는다.
         int tolerance = data != null ? data.targetCraft_tolerance : 0;
         limitFailCount = Mathf.Max(1, tolerance > 0 ? tolerance : testLimitFailCount);
-
-        radius = startRadius;
-        attempts = 1;
-        elapsed = 0f;
-        opened = false;
-        timedOut = false;
-        phase = Phase.Approaching;
-
-        if (targetRing != null)
-        {
-            targetRing.SetColor(targetColor);
-            targetRing.SetRadius(targetRadius);
-        }
-
-        if (incomingRing != null) incomingRing.SetColor(incomingColor);
-
-        if (judgeText != null) judgeText.text = string.Empty;
     }
 
     void Update()
     {
-        if (UIDisplayOptions.IsOptionOpen) return;
-        UpdateFeedback(Time.deltaTime);
-        if (phase == Phase.Finished) return;
+        // 일시정지하면 판정과 연출을 모두 멈추고 소리는 끊는다. 웹 core.tick과 sync가 하는 일과 같다.
+        bool nowPaused = UIDisplayOptions.IsOptionOpen;
+        if (nowPaused && !paused && openAudio != null) openAudio.StopAll();
+        paused = nowPaused;
 
-        float dt = Time.deltaTime;
-
-        elapsed += dt;
-
-        // 기믹 큐가 돌리는 동안에는 병따기에 자체 제한시간이 없다. 병뚜껑은 열림과 닫힘의 중간
-        // 상태로 제조를 이어갈 수 없어서, 성공할 때까지 계속 시도하는 게 규칙이다. 시간은 한 잔
-        // 전체의 제조시간에만 누적되고 그 초과는 마지막에 한 번 판정한다.
-        if (!drivenByRunner && elapsed >= timeLimit)
+        if (!paused && !finished)
         {
-            TimeOut();
-            return;
+            float dt = Time.deltaTime;
+            Rules.Tick(dt);
+            Rules.TickFx(dt);
+            elapsed += dt;
+
+            if (!drivenByRunner && !Rules.Completed && elapsed >= timeLimit) TimeOut();
         }
 
-        if (phase == Phase.Cooldown)
+        PlayNewFxSound();
+        if (view != null)
         {
-            cooldown -= dt;
-            if (cooldown <= 0f) EndCooldown();
+            view.SetLesson(lessonText, OpenPhase is ECapOpenPhase.Ready or ECapOpenPhase.Power or ECapOpenPhase.PowerDone);
+            view.Render(Rules, ingredientId, StartRadius, TargetRadius, paused);
         }
-        else
-        {
-            radius -= ShrinkSpeed * dt;
-
-            // 목표를 지나쳐 버리면 누를 기회를 놓친 것이므로 그대로 실패다.
-            if (radius < targetRadius - judgeWindow) Fail();
-        }
-
-        RefreshRing();
     }
 
-    // ── 판정 ────────────────────────────────────────────────────────────
+    float StartRadius => Config is { OpenStartRadiusPx: > 0f } config ? config.OpenStartRadiusPx : DefaultStartRadius;
+    float TargetRadius => Config is { OpenTargetRadiusPx: > 0f } config ? config.OpenTargetRadiusPx : DefaultTargetRadius;
+    NewBalanceConfig? Config => balanceData != null && balanceData.balanceData != null ? balanceData.balanceData.Config : null;
+
+    /// <summary>새 판정이 나온 첫 순간에만 소리를 낸다. 웹: serial이 바뀌고 age가 0.12초 미만일 때.</summary>
+    void PlayNewFxSound()
+    {
+        if (paused || !Rules.Fx.HasValue) return;
+        CapOpenFx fx = Rules.Fx.Value;
+        if (fx.Serial == heardFx) return;
+        heardFx = fx.Serial;
+        if (fx.Age < .12f && openAudio != null) openAudio.Play(fx.Success, fx.Perfect);
+    }
+
+    // ── 입력 ────────────────────────────────────────────────────────────
 
     /// <summary>CapInputHandler가 스페이스/클릭 어느 쪽이든 누른 순간에 부른다.</summary>
     public void OnPress()
     {
-        // 쿨다운 중에는 받지 않는다. 안 그러면 실패 직후 연타로 다음 고리가 시작하기도 전에 또 실패가 쌓인다.
-        if (phase != Phase.Approaching) return;
-
-        openerMotionElapsed = 0f;
-        openerMoving = openerPivot != null;
-
-        if (Mathf.Abs(radius - targetRadius) <= judgeWindow) Succeed();
-        else Fail();
+        if (paused || finished) return;
+        Rules.Press();
     }
 
-    void Succeed()
+    void OnNextClicked()
     {
-        bool perfect = FailCount <= limitFailCount * .2f;
-        sound?.PlayCue("SFX_bottle_open", pitch: perfect ? 1.16f : 1.08f);
-        sound?.PlayCue("SFX_fizz", fadeIn: .08f, fadeOut: .5f);
-        opened = true;
-        phase = Phase.Cooldown;
-        cooldown = successCooldown;
-
-        if (incomingRing != null) incomingRing.SetVisible(false);
-        if (judgeText != null) judgeText.text = "PERFECT";
-
-        PlaySuccessEffect();
-        PopCap();
+        if (CanEndNow) EndNow();
     }
 
-    void Fail()
-    {
-        attempts++;
-        phase = Phase.Cooldown;
-        cooldown = failCooldown;
+    /// <summary>
+    /// 튜토리얼 수업 문구. 비어 있으면 안내를 끈다. 웹은 1일차 tutorial_beer일 때만 이 안내를 띄운다.
+    /// </summary>
+    public void SetLesson(string text) => lessonText = text;
 
-        if (judgeText != null) judgeText.text = "FAIL";
-
-        BendCap();
-    }
-
-    void EndCooldown()
-    {
-        cooldown = 0f;
-
-        if (opened)
-        {
-            Finish();
-            return;
-        }
-
-        // 실패했으면 고리를 다시 바깥에서 시작시킨다. 시도 횟수만 남고 조건은 그대로다.
-        radius = startRadius;
-        phase = Phase.Approaching;
-
-        if (incomingRing != null) incomingRing.SetVisible(true);
-        if (judgeText != null) judgeText.text = string.Empty;
-    }
+    // ── 종료 ────────────────────────────────────────────────────────────
 
     void TimeOut()
     {
         timedOut = true;
-
-        if (judgeText != null) judgeText.text = "TIME OVER";
-        if (incomingRing != null) incomingRing.SetVisible(false);
-
         Finish();
     }
 
     void Finish()
     {
-        if (phase == Phase.Finished) return;
+        if (finished) return;
+        finished = true;
+        if (openAudio != null) openAudio.StopAll();
 
-        phase = Phase.Finished;
-
-        // 자체 제한시간을 쓰는 기존 경로에서만 표시용으로 잘라 준다. 큐가 돌릴 때는 제한이 없어서
-        // 잘라 버리면 실제로 걸린 시간이 사라진다.
+        // 자체 제한시간을 쓰는 기존 경로에서만 표시용으로 잘라 준다.
         if (!drivenByRunner) elapsed = Mathf.Min(elapsed, timeLimit);
 
         CompleteMade();
-
+        Finished?.Invoke();
         runnerCompletion?.TrySetResult();
 
-        // 실제 게임 흐름에서는 기믹 큐(GimmickRunner)가 결과를 받아 다음 스텝으로 넘긴다.
-        // 독립 테스트 씬에는 그 흐름이 없어서, 끝났다는 신호가 없으면 그냥 멈춘 것처럼 보인다.
+        // 독립 테스트 씬에는 결과를 받아 줄 흐름이 없어서, 끝났다는 신호가 없으면 그냥 멈춘 것처럼 보인다.
         if (isTest)
         {
-            string how = timedOut ? "시간 초과" : $"{attempts}회 만에 개봉";
-            Logger.Log($"[Cap] 판정 종료. {how} / 실패 {FailCount} / 허용 {limitFailCount}");
+            string how = timedOut ? "시간 초과" : $"실패 {Rules.Failures}회 뒤 개봉";
+            Logger.Log($"[Cap] 판정 종료. {how} / 허용 {limitFailCount}");
             OnNextButton();
         }
     }
 
-    // ── 표시 ────────────────────────────────────────────────────────────
-
-    void RefreshRing()
-    {
-        if (incomingRing == null) return;
-
-        incomingRing.SetRadius(radius);
-
-        // 판정 구간에 들어오면 색으로 알린다. 반지름만으로는 겹치는 순간을 눈으로 잡기 어렵다.
-        bool near = phase == Phase.Approaching && Mathf.Abs(radius - targetRadius) <= judgeWindow;
-        incomingRing.SetColor(near ? nearColor : incomingColor);
-    }
-
-    void PopCap()
-    {
-        if (capPiece == null) return;
-
-        if (capBody == null) return;
-        capBody.bodyType = RigidbodyType2D.Dynamic;
-        capBody.constraints = RigidbodyConstraints2D.None;
-        capBody.gravityScale = capGravityScale;
-        capBody.linearDamping = 0f;
-        capBody.angularDamping = 0f;
-        capBody.interpolation = RigidbodyInterpolation2D.Interpolate;
-        capBody.simulated = true;
-        capBody.position = capPiece.position;
-        capBody.rotation = capPiece.eulerAngles.z;
-        capBody.linearVelocity = capLaunchVelocity;
-        capBody.angularVelocity = capSpinSpeed;
-        capBody.WakeUp();
-    }
-
-    void BendCap()
-    {
-        if (capPiece == null) return;
-
-        capPiece.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-8f, 8f));
-    }
-
-    void UpdateFeedback(float dt)
-    {
-        if (openerMoving && openerPivot != null)
-        {
-            openerMotionElapsed += dt;
-            float progress = Mathf.Clamp01(openerMotionElapsed / Mathf.Max(0.01f, openerMotionSeconds));
-            float lift = Mathf.Sin(progress * Mathf.PI);
-            openerPivot.localPosition = openerRestPosition + Vector3.up * (openerLift * lift);
-            float direction = 1f;
-            if (openerRenderer != null)
-            {
-                // SpriteRenderer.flipX와 자식 Transform의 음수 X 스케일을 함께 반영한다.
-                Vector3 right = openerPivot.InverseTransformVector(
-                    openerRenderer.transform.TransformVector(Vector3.right));
-                if (openerRenderer.flipX) right = -right;
-                if (right.x < 0f) direction = -1f;
-            }
-            openerPivot.localRotation = openerRestRotation * Quaternion.Euler(0f, 0f, openerAngle * direction * lift);
-            if (progress >= 1f) ResetOpener();
-        }
-
-        if (!successEffectEmitting) return;
-        successEffectElapsed += dt;
-        if (successEffectElapsed < successEffectEmissionSeconds) return;
-
-        // 원본에는 반복 파티클도 있다. 짧게 분출한 뒤 이미 나온 입자만 남긴다.
-        foreach (var particle in successParticles)
-            if (particle != null) particle.Stop(false, ParticleSystemStopBehavior.StopEmitting);
-        successEffectEmitting = false;
-    }
-
-    void PlaySuccessEffect()
-    {
-        Transform anchor = successEffectAnchor != null ? successEffectAnchor : capPiece;
-        if (successEffectOverride == null && (successEffectPrefab == null || anchor == null)) return;
-
-        // 원본 프리팹의 회전과 파티클 설정을 보존하고, 실행 중인 사본만 조정한다.
-        successEffectInstance = successEffectOverride;
-        if (successEffectInstance == null)
-        {
-            successEffectInstance = Instantiate(successEffectPrefab, anchor);
-            successEffectInstance.transform.localPosition = Vector3.zero;
-            successEffectInstance.transform.localScale *= successEffectScale;
-        }
-        successEffectInstance.SetActive(true);
-        successParticles = successEffectInstance.GetComponentsInChildren<ParticleSystem>(true);
-
-        var capRenderer = capPiece != null ? capPiece.GetComponent<SpriteRenderer>() : null;
-        foreach (var particle in successParticles)
-        {
-            particle.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
-            var main = particle.main;
-            main.loop = false;
-            main.scalingMode = ParticleSystemScalingMode.Hierarchy;
-            var renderer = particle.GetComponent<ParticleSystemRenderer>();
-            if (renderer != null && capRenderer != null)
-            {
-                renderer.sortingLayerID = capRenderer.sortingLayerID;
-                renderer.sortingOrder = capRenderer.sortingOrder + 1;
-            }
-        }
-
-        foreach (var particle in successParticles)
-            particle.Play(false);
-        successEffectElapsed = 0f;
-        successEffectEmitting = true;
-    }
-
-    void ResetOpener()
-    {
-        openerMoving = false;
-        if (openerPivot == null || !openerPoseCached) return;
-        openerPivot.localPosition = openerRestPosition;
-        openerPivot.localRotation = openerRestRotation;
-    }
-
     void OnDisable()
     {
-        ResetOpener();
-        successEffectEmitting = false;
-        if (successEffectInstance != null)
-        {
-            if (successEffectInstance == successEffectOverride)
-            {
-                foreach (var particle in successParticles)
-                    if (particle != null) particle.Stop(false, ParticleSystemStopBehavior.StopEmittingAndClear);
-                successEffectInstance.SetActive(false);
-            }
-            else Destroy(successEffectInstance);
-        }
-        successEffectInstance = null;
-        successParticles = null;
+        if (openAudio != null) openAudio.StopAll();
+    }
+
+    void OnDestroy()
+    {
+        if (view != null) view.NextClicked -= OnNextClicked;
     }
 
     // ── IMiniGameController ─────────────────────────────────────────────
@@ -469,7 +208,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
             data.craftingResult.isResult = true;
 
             // 시간 초과는 무조건 실패다. 허용치를 넘기는 값을 넣어 백분율이 100%를 넘게 만든다.
-            data.craftingResult.actionFailCount = timedOut ? limitFailCount + 1 : FailCount;
+            data.craftingResult.actionFailCount = timedOut ? limitFailCount + 1 : Rules.Failures;
             data.craftingResult.limitFailCount = limitFailCount;
         }
 
@@ -499,22 +238,13 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     UniTaskCompletionSource runnerCompletion;
     CraftTimer craftTimer;
 
-    /// <summary>
-    /// 이번 제조 시도의 사정(고른 잔·도구·재료). 실행기가 PlayAsync로 넘겨준다.
-    /// 아직 그리는 데 쓰지는 않는다 — 리소스가 붙을 때 여기서 가져가면 된다.
-    /// </summary>
-    CraftContext craftContext;
-
     public async UniTask<GimmickResult> PlayAsync(GimmickStep step, CraftContext context,
                                                  CraftTimer timer, CancellationToken token)
     {
-        // 병따기는 병마다 뚜껑 모양이 다르다. 어느 병인지는 step.IngredientId가 알려 주고,
-        // 그 병이 어떤 잔 앞에 놓이는지는 context.GlassId가 알려 준다. 리소스가 나오면 여기서 가져간다.
-        craftContext = context;
-
-        // 아직 그리는 데 쓰지 않으므로, 값이 제대로 도착했는지는 이 줄로만 확인한다.
-        Debug.Log($"[Cap] 문맥 — 잔 {craftContext.GlassId ?? "없음"} / " +
-                  $"도구 {craftContext.ToolId ?? "없음"} / 재료 {string.Join(", ", craftContext.IngredientIds)}");
+        // 병 그림은 재료가 정한다. 탄산 연출도 맥주일 때만 나온다(웹 item_{재료}).
+        ingredientId = string.IsNullOrEmpty(step.IngredientId) ? ingredientId : step.IngredientId;
+        if (ingredientId != "beer")
+            Debug.LogWarning($"[Cap] '{ingredientId}' 전용 병 그림이 없어 맥주병으로 그립니다.");
 
         drivenByRunner = true;
         craftTimer = timer;
@@ -528,8 +258,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
             await runnerCompletion.Task;
         }
 
-        // 병따기는 다음 버튼이 없다. 열려야만 끝나므로 종료 방식이 하나뿐이다.
-        return GimmickResult.Open(step.IngredientId, attempts, FailCount, opened,
+        return GimmickResult.Open(step.IngredientId, Rules.Failures + 1, Rules.Failures, Rules.Completed,
                                   craftTimer != null ? craftTimer.ElapsedSec : elapsed);
     }
 
@@ -539,19 +268,33 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     }
 
     /// <summary>
-    /// 고리가 조여드는 동안에만 입력을 받는다. 성공·실패 연출을 보여주는 쿨다운 구간에서는
-    /// 눌러도 판정하지 않으므로 시간에서도 뺀다.
+    /// 병따기는 제조 시간에 넣지 않는다. 웹 본편도 병따기 동안은 한 잔의 경과 시간을 세지 않는다
+    /// (craft-flow.js: g.type !== 'open'일 때만 elapsed를 더함). 뚜껑을 따는 손놀림은 판정 실패 수로
+    /// 이미 점수에 반영되므로, 시간까지 세면 같은 실수를 두 번 깎게 된다.
     /// </summary>
-    public bool IsManualInputActive => phase == Phase.Approaching;
+    public bool IsManualInputActive => false;
 
     // ── ICraftGimmickProgress ───────────────────────────────────────────
 
-    /// <summary>몇 번째 시도인지. 병따기는 수량을 재지 않고 성공까지 걸린 횟수로 판정한다.</summary>
-    public string ProgressText => $"시도 {attempts}회째";
+    /// <summary>병따기는 단계 안내를 화면 위 가운데에 직접 그린다. 공통 진행 표시는 비워 둔다.</summary>
+    public string ProgressText => string.Empty;
 
-    /// <summary>병따기에는 도달을 알릴 목표가 없다. 열리는 순간이 곧 끝이다.</summary>
+    /// <summary>병따기에는 도달을 알릴 목표가 없다.</summary>
     public bool ShowOkMark => false;
 
-    // ICraftGimmickManualEnd는 구현하지 않는다. 병뚜껑은 열림과 닫힘의 중간 상태로 제조를 이어갈 수
-    // 없어서, 성공하기 전에 끝낼 방법이 없어야 한다. HUD는 이걸 보고 다음 버튼을 감춘다.
+    // ── ICraftGimmickManualEnd / ICraftGimmickOwnHud ───────────────────
+
+    /// <summary>뚜껑이 열리고 탄산이 다 올라온 뒤에만 끝낼 수 있다. 열리기 전에는 끝낼 방법이 없다.</summary>
+    public bool CanEndNow => !finished && Rules.CanFinish;
+
+    public void EndNow()
+    {
+        if (CanEndNow) Finish();
+    }
+
+    /// <summary>
+    /// 단계 안내와 "다음" 버튼은 웹 위치·모양 그대로 직접 그린다. 공통 다음 버튼은 끝낼 수 있는지와
+    /// 상관없이 늘 눌리는 모양이라, 탄산이 올라오는 동안 꺼져 있어야 하는 웹 동작을 낼 수 없다.
+    /// </summary>
+    public ECraftHudPart OwnedParts => ECraftHudPart.Progress | ECraftHudPart.NextButton;
 }

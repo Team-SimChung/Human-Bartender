@@ -616,6 +616,8 @@ public class StoryScriptRunner : MonoBehaviour
             serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
         currentOrder = null;
         orderResultSignal = null;
+        // 웹은 병따기 수업을 끝까지 마치면 이 기록을 남긴다. 아직 읽는 곳은 없다.
+        if (tutorial != null && tutorial.OpenLessonCompleted) conditions.ApplyRequired("flag.day1_open_taught = true");
         if (tutorial != null) tutorial.EndLessons();
         SetCraftAuthorization(false);
     }

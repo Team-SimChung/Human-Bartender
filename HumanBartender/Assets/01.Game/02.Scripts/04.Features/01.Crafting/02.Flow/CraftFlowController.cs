@@ -155,7 +155,7 @@ public class CraftFlowController : MonoBehaviour
         {
             if (NeedsBottleOpener)
             {
-                Notify(PreparationBlocked, "병따기가 필요한 재료가 있습니다. 오프너를 선택한 후 제조를 시작해 주세요.");
+                Notify(PreparationBlocked, "병맥주를 따르려면 먼저 뚜껑을 열어야 합니다. 도구 선반에서 병따개를 선택해 주세요.");
                 return;
             }
             Debug.LogWarning("[CraftFlow] 잔과 재료를 최소한 하나씩 골라야 기믹으로 넘어갈 수 있습니다.");
