@@ -616,6 +616,8 @@ public class StoryScriptRunner : MonoBehaviour
             serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
         currentOrder = null;
         orderResultSignal = null;
+        // 웹은 병따기 수업을 끝까지 마치면 이 기록을 남긴다. 아직 읽는 곳은 없다.
+        if (tutorial != null && tutorial.OpenLessonCompleted) conditions.ApplyRequired("flag.day1_open_taught = true");
         if (tutorial != null) tutorial.EndLessons();
         SetCraftAuthorization(false);
     }
@@ -666,6 +668,7 @@ public class StoryScriptRunner : MonoBehaviour
 
         await presenter.EnterAsync(step.Actor, slot, token);
         conditions.ApplyRequired($"flag.{step.Actor}_met = true");
+        walkedIn |= step.Entrance != "seated";
 
         // 다음도 enter면 지금 화면을 잡지 않는다. 두 명으로 시작하는 씬이 1인 프레임을 한 번 거치면
         // 사람이 늘지도 않은 채 화면만 다가갔다 물러난다(§10.1.1 초기 진입).
@@ -673,7 +676,19 @@ public class StoryScriptRunner : MonoBehaviour
 
         await ApplyFramingAsync(token);
         if (presenter is IStoryCharacterTransitions transition) await transition.FadeInAsync(token);
+
+        // 웹 story-flow.js: 걸어 들어온 손님이 있으면 등장 연출이 끝난 뒤 1초 쉬고 다음 대본을 낸다.
+        // 처음부터 앉아 있던(entrance=seated) 손님만 있으면 바로 이어 간다.
+        bool hold = walkedIn;
+        walkedIn = false;
+        if (hold) await UniTask.Delay(TimeSpan.FromSeconds(EnterHoldSeconds), cancellationToken: token);
     }
+
+    /// <summary>등장 뒤 첫 대사까지의 쉼(초). 웹 본편 setTransition(입장 시간 + 1)의 1초다.</summary>
+    const float EnterHoldSeconds = 1f;
+
+    /// <summary>지금 묶음으로 들어오는 enter 중 걸어 들어온 손님이 있는지.</summary>
+    bool walkedIn;
 
     async UniTask ExitAsync(NewDialogueStepData step, CancellationToken token)
     {
@@ -685,10 +700,13 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         seatActors.Remove(slot);
-        if (tables != null) tables.EndVisit(step.Actor);
-        if (presenter is IStoryCharacterTransitions transition)
-            await transition.ExitAsync(slot, token);
-        else presenter.Exit(slot);
+        try
+        {
+            if (presenter is IStoryCharacterTransitions transition)
+                await transition.ExitAsync(slot, token);
+            else presenter.Exit(slot);
+        }
+        finally { if (tables != null) tables.EndVisit(step.Actor); }
 
         await ApplyFramingAsync(token);
     }

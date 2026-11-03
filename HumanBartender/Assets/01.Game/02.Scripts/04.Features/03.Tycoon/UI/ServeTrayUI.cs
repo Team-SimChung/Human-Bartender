@@ -76,7 +76,7 @@ public class ServeTrayUI : MonoBehaviour
         DrinkDragItem item = TakeItem();
         if (item == null) return;
         item.transform.SetParent(trayRoot, false);
-        item.Initialize(drink, rootCanvas, ReturnItem);
+        item.Initialize(drink, rootCanvas, ReturnItem, RequestDiscard);
         item.name = $"Drink {drink.CocktailId}";
         item.Removed += OnItemRemoved;
         items.Add(item);
@@ -93,10 +93,12 @@ public class ServeTrayUI : MonoBehaviour
         foreach (DrinkDragItem item in items)
         {
             if (item == null || item.Drink == null) continue;
-            item.MarkDiscarded();
+            item.Discard();
             return;
         }
     }
+
+    private bool RequestDiscard(CraftedDrink drink) => craftFlow != null && craftFlow.TryDiscardDrink(drink);
 
     private void OnItemRemoved(DrinkDragItem item, DrinkRemovalReason reason)
     {

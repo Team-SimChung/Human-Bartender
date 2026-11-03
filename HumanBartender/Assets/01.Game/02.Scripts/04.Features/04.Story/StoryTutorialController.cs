@@ -38,7 +38,6 @@ public sealed class StoryTutorialController : MonoBehaviour
     [SerializeField] LessonCopy[] copy = DefaultCopy();
 
     StoryTutorialView view;
-    CraftServingView.CoasterLesson coaster;
     UniTaskCompletionSource lessonComplete;
     CancellationToken lessonToken;
     ESlotType currentSeat, originSeat;
@@ -69,14 +68,19 @@ public sealed class StoryTutorialController : MonoBehaviour
         new LessonCopy("coaster", "손님 맞이하기", "코스터를 크리스 앞으로 드래그하세요."),
         new LessonCopy("recipeOpen", "레시피 선택", "{ServicePanel} 키 또는 서비스 패널 버튼을 눌러 칵테일 레시피를 열어 주세요."),
         new LessonCopy("recipeSelect", "레시피 선택", "진토닉 레시피를 눌러 선택하세요."),
-        new LessonCopy("recipeSelectBeer", "레시피 선택", "맥주 레시피를 눌러 선택하세요."),
+        new LessonCopy("beerRecipeSelect", "레시피 선택", "맥주 레시피를 선택하세요"),
         new LessonCopy("recipeSelectGinFizz", "레시피 선택", "진피즈 레시피를 눌러 선택하세요."),
         new LessonCopy("readRecipe", "제조 준비", "좌측 상단의 레시피를 눌러 상세 정보를 확인하세요."),
         new LessonCopy("recipeRead", "제조 준비", "잔·재료·제조법 등 필요한 정보를 확인하세요."),
         new LessonCopy("recipeClose", "제조 준비", "확인이 끝났다면 레시피를 닫아 주세요."),
         new LessonCopy("glass", "제조 준비", "롱드링크잔을 선택하세요."),
-        new LessonCopy("glassBeer", "제조 준비", "맥주 레시피에 맞는 잔을 선택하세요."),
-        new LessonCopy("opener", "제조 준비", "{PrepPrev} / {PrepNext} 또는 화살표 버튼으로 도구 선반에 가서 병따개를 선택하세요."),
+        // 1일차 맥주 수업. 웹 본편 preparation-flow.js의 beer* 단계와 같은 순서·문구다.
+        new LessonCopy("beerGlass", "제조 준비", "맥주를 담을 잔을 선택하세요"),
+        new LessonCopy("beerToolNavigate", "제조 준비", "{PrepPrev} / {PrepNext} 또는 양쪽 화살표로 도구 선반으로 이동하세요."),
+        new LessonCopy("beerOpener", "제조 준비", "맥주 뚜껑을 따기 위해 병따개를 담으세요."),
+        new LessonCopy("beerFridgeNavigate", "제조 준비", "{PrepPrev} / {PrepNext} 또는 양쪽 화살표로 냉장고로 이동하세요."),
+        new LessonCopy("beerAdd", "제조 준비", "냉장고에 있는 병맥주를 담으세요"),
+        new LessonCopy("beerStart", "제조 준비", "제조 시작하기"),
         new LessonCopy("shaker", "제조 준비", "도구 선반에서 레시피에 맞는 셰이커를 선택하세요."),
         new LessonCopy("navigateGin", "제조 준비", "{PrepPrev} / {PrepNext} 또는 양쪽 화살표로 다음 선반으로 이동하세요."),
         new LessonCopy("hoverGin", "제조 준비", "재료에 마우스를 올려 이름과 설명을 확인하세요."),
@@ -86,12 +90,17 @@ public sealed class StoryTutorialController : MonoBehaviour
         new LessonCopy("navigateSoda", "제조 준비", "{PrepNext} 또는 오른쪽 화살표를 눌러 냉장고로 이동하세요."),
         new LessonCopy("hoverSoda", "제조 준비", "탄산수에 마우스를 올려 확인하세요."),
         new LessonCopy("addSoda", "제조 준비", "탄산수를 클릭해 담으세요."),
-        new LessonCopy("addBeer", "제조 준비", "냉장고에서 병맥주를 클릭해 담으세요."),
         new LessonCopy("start", "제조 준비", "이제 제조 시작을 눌러 주세요."),
         new LessonCopy("startNotReady", "제조 준비", "레시피에 맞는 잔과 재료가 모두 담겼는지 확인하세요."),
         new LessonCopy("pourTarget", "칵테일 제조", "목표량부터 확인해요. 병을 누른 채 기울여 따르세요."),
         new LessonCopy("pourCurrent", "칵테일 제조", "현재량을 확인해요. 목표량에 맞았다면 따르기를 마쳐 주세요."),
-        new LessonCopy("open", "칵테일 제조", "병뚜껑 열기 화면의 안내에 맞춰 클릭하세요."),
+        // 병따기 수업. 웹 open-view.js lesson()의 단계별 문구다. 제목은 쓰지 않는다(병따기 화면이 직접 그린다).
+        new LessonCopy("openReady", "병따기", "Space를 눌러 시작하세요. 먼저 힘 게이지의 초록 구간을 맞춘 뒤, 원 타이밍을 맞춰요."),
+        new LessonCopy("openPower", "병따기", "힘 게이지가 초록 구간에 닿으면 Space를 한 번 누르세요."),
+        new LessonCopy("openPowerDone", "병따기", "힘 조절 성공! 이제 두 원이 겹칠 때 Space를 누르세요."),
+        new LessonCopy("openRhythm", "병따기", "움직이는 원과 민트색 원이 겹칠 때 Space를 한 번 누르세요."),
+        new LessonCopy("openBroken", "병따기", "병을 다시 준비하고 있어요. 잠시 뒤 힘 조절부터 다시 시작해요."),
+        new LessonCopy("openPop", "병따기", "잘했어요. 다음을 눌러 제조를 이어가세요."),
         new LessonCopy("shake", "칵테일 제조", "쉐이킹 화면의 타이밍에 맞춰 마우스 버튼을 누르세요."),
         new LessonCopy("stir", "칵테일 제조", "스터 화면의 표시 순서에 맞춰 방향키를 누르세요."),
         new LessonCopy("gimmick", "칵테일 제조", "제조 화면의 안내에 따라 진행하세요."),
@@ -156,7 +165,6 @@ public sealed class StoryTutorialController : MonoBehaviour
         recipes = FindInScene(recipes);
         gimmickHud = FindInScene(gimmickHud);
         recipeBrowser = FindInScene(recipeBrowser);
-        if (serving != null && recipeBrowser != null) serving.SetVisuals(recipeBrowser.Visuals);
         servicePanel = FindInScene(servicePanel);
         EnsureView();
         view.ConfigureHud(FindInScene<PlayPhaseController>(null), characters, FindInScene<GuestManager>(null),
@@ -196,11 +204,9 @@ public sealed class StoryTutorialController : MonoBehaviour
                     await lessonComplete.Task.AttachExternalCancellation(token);
                     break;
                 case "coaster":
-                    coaster?.Dispose();
-                    coaster = serving.CreateCoasterLesson(actor);
                     var (title, text) = Copy("coaster");
-                    view.ShowGuide(title, text, serving.CoasterSupply, serving.CoasterTarget, true);
-                    await coaster.WaitAsync(token);
+                    view.ShowInstruction(title, text);
+                    await serving.WaitForCoasterAsync(actor, token);
                     break;
                 default: throw new NotSupportedException("지원하지 않는 튜토리얼: " + kind);
             }
@@ -275,11 +281,11 @@ public sealed class StoryTutorialController : MonoBehaviour
     public void BeginCraftLesson(string id)
     {
         EnsureView();
-        EndCoasterLesson();
         dialogue.ClearText();
         cocktail = id;
         craftLesson = true;
-        preparationStep = "readRecipe";
+        OpenLessonCompleted = false;
+        preparationStep = FirstPreparationStep;
         recipeConfirmed = false;
         displayedText = null;
         ActiveLesson = "recipeSelect";
@@ -288,7 +294,7 @@ public sealed class StoryTutorialController : MonoBehaviour
 
     void ShowRecipeSelection()
     {
-        Show(recipes.IsOpen ? Beer ? "recipeSelectBeer" : GinFizz ? "recipeSelectGinFizz" : "recipeSelect" : "recipeOpen");
+        Show(recipes.IsOpen ? Beer ? "beerRecipeSelect" : GinFizz ? "recipeSelectGinFizz" : "recipeSelect" : "recipeOpen");
         view.SetGuideTargets(GuideTarget());
     }
 
@@ -305,7 +311,25 @@ public sealed class StoryTutorialController : MonoBehaviour
         craft.IsPreparing ? preparationHost.ActiveStage?.GetTutorialTarget(StageTargetStep(preparationStep), Beer) : null;
 
     // 레시피 확인·닫기 단계는 레시피 버튼 자리(열려 있으면 닫기 버튼)를 가리킨다.
-    static string StageTargetStep(string step) => step is "recipeRead" or "recipeClose" ? "readRecipe" : step;
+    // 맥주 수업의 이동·담기 단계는 같은 자리를 가리키는 기존 단계 이름으로 바꿔 묻는다.
+    static string StageTargetStep(string step) => step switch
+    {
+        "recipeRead" or "recipeClose" => "readRecipe",
+        "beerToolNavigate" or "beerOpener" => "opener",
+        "beerFridgeNavigate" => "navigateSoda",
+        "beerAdd" => "addSoda",
+        _ => step,
+    };
+
+    /// <summary>
+    /// 준비 화면의 첫 단계. 웹 맥주 수업은 레시피 메모 확인 없이 바로 잔 고르기부터 시작한다.
+    /// </summary>
+    string FirstPreparationStep => Beer ? "glass" : "readRecipe";
+
+    /// <summary>이번 수업에서 병따기를 끝까지 마쳤는지. 서빙 때 flag.day1_open_taught를 남기는 데 쓴다.</summary>
+    public bool OpenLessonCompleted { get; private set; }
+
+    CapManager lessonCap;
 
     void Update()
     {
@@ -313,7 +337,8 @@ public sealed class StoryTutorialController : MonoBehaviour
         if (!craft.IsBusy && !craft.IsCraftFlowActive && craft.PendingDrink == null)
         {
             if (guidedStage != null) { guidedStage.TutorialCanStart = null; guidedStage = null; }
-            preparationStep = "readRecipe";
+            ReleaseLessonCap();
+            preparationStep = FirstPreparationStep;
             recipeConfirmed = false;
             ActiveLesson = "recipeSelect";
             ShowRecipeSelection();
@@ -326,7 +351,7 @@ public sealed class StoryTutorialController : MonoBehaviour
             if (guidedStage != stage)
             {
                 guidedStage = stage;
-                preparationStep = "readRecipe";
+                preparationStep = FirstPreparationStep;
                 recipeConfirmed = false;
                 stage.TutorialCanStart = () => preparationStep == "start" && IsReadyToStart(craft.Preparation);
             }
@@ -342,6 +367,7 @@ public sealed class StoryTutorialController : MonoBehaviour
             UpdateGimmick(craft.Plan.Steps[index]);
             return;
         }
+        ReleaseLessonCap();
         ActiveLesson = "serveDrink";
         Show(craft.PendingDrink != null ? GinFizz ? "serveDrinkOrder" : "serveDrink" : "serveResult");
     }
@@ -363,13 +389,56 @@ public sealed class StoryTutorialController : MonoBehaviour
             view.SetGuideTargets(poured ? gimmickHud?.NextControl ?? gimmickHud?.ProgressTarget : gimmickHud?.ProgressTarget);
             return;
         }
+        if (step.Type == ECraftGimmick.Open && Beer && gimmickHud != null && gimmickHud.CurrentGimmick is CapManager cap)
+        {
+            UpdateOpenLesson(cap);
+            return;
+        }
+        ReleaseLessonCap();
         Show(step.Type switch
         {
-            ECraftGimmick.Open => "open",
             ECraftGimmick.Shake => "shake",
             ECraftGimmick.Stir => "stir",
             _ => "gimmick",
         });
+    }
+
+    /// <summary>
+    /// 1일차 병따기 수업. 웹처럼 병따기 화면이 자기 위에 가림막과 안내를 직접 그린다 — 게이지와 링은
+    /// 기믹 카메라의 월드에 있어서, 바 화면용 안내 오버레이로는 뚫어 보여 줄 자리를 잡을 수 없다.
+    /// 여기서는 지금 단계에 맞는 문구만 골라 넘긴다.
+    /// </summary>
+    void UpdateOpenLesson(CapManager cap)
+    {
+        if (lessonCap != cap)
+        {
+            ReleaseLessonCap();
+            lessonCap = cap;
+            lessonCap.Finished += OnOpenLessonFinished;
+        }
+        view.Hide();
+        displayedText = null;
+        ActiveLesson = "open";
+
+        string key = cap.Opened ? "openPop" : cap.OpenPhase switch
+        {
+            ECapOpenPhase.Power => "openPower",
+            ECapOpenPhase.PowerDone => "openPowerDone",
+            ECapOpenPhase.Rhythm => "openRhythm",
+            ECapOpenPhase.Broken => "openBroken",
+            _ => "openReady",
+        };
+        cap.SetLesson(Copy(key).text);
+    }
+
+    void OnOpenLessonFinished() => OpenLessonCompleted = true;
+
+    void ReleaseLessonCap()
+    {
+        if (lessonCap == null) return;
+        lessonCap.Finished -= OnOpenLessonFinished;
+        lessonCap.SetLesson(null);
+        lessonCap = null;
     }
 
     void UpdatePreparation(CraftPrepStageScreen stage, CraftPreparation prep)
@@ -387,24 +456,26 @@ public sealed class StoryTutorialController : MonoBehaviour
                 else if (recipeConfirmed) preparationStep = "recipeClose";
                 break;
             case "recipeClose": if (prep.HasReadRecipeNote) preparationStep = "glass"; break;
-            case "glass": if (prep.GlassId == prep.Cocktail.Glass) preparationStep = Beer ? "opener" : GinFizz ? "shaker" : "navigateGin"; break;
-            case "opener": if (prep.IsBottleOpenerSelected) preparationStep = "navigateSoda"; break;
+            case "glass": if (prep.GlassId == prep.Cocktail.Glass) preparationStep = Beer ? "beerToolNavigate" : GinFizz ? "shaker" : "navigateGin"; break;
+            case "beerToolNavigate": if (stage.CurrentStage == CraftPrepStageScreen.Stage.Tool) preparationStep = "beerOpener"; break;
+            case "beerOpener": if (prep.IsBottleOpenerSelected) preparationStep = "beerFridgeNavigate"; break;
+            case "beerFridgeNavigate": if (stage.CurrentStage == CraftPrepStageScreen.Stage.Fridge) preparationStep = "beerAdd"; break;
+            case "beerAdd": if (prep.IsSelected("beer")) preparationStep = "start"; break;
             case "shaker": if (prep.ToolId == prep.Cocktail.TargetToolId) preparationStep = "navigateGin"; break;
             case "navigateGin": if (stage.CurrentStage == CraftPrepStageScreen.Stage.Liquor) preparationStep = "hoverGin"; break;
             case "hoverGin": if (stage.HoveredItemId == "gin") preparationStep = "addGin"; break;
             case "addGin": if (prep.IsSelected("gin")) preparationStep = GinFizz ? "navigateSoda" : "removeGin"; break;
             case "removeGin": if (!prep.IsSelected("gin")) preparationStep = "ginAgain"; break;
             case "ginAgain": if (prep.IsSelected("gin")) preparationStep = "navigateSoda"; break;
-            case "navigateSoda": if (stage.CurrentStage == CraftPrepStageScreen.Stage.Fridge) preparationStep = Beer ? "addSoda" : "hoverSoda"; break;
+            case "navigateSoda": if (stage.CurrentStage == CraftPrepStageScreen.Stage.Fridge) preparationStep = "hoverSoda"; break;
             case "hoverSoda": if (stage.HoveredItemId == "soda_water") preparationStep = "addSoda"; break;
-            case "addSoda": if (prep.IsSelected(Beer ? "beer" : "soda_water")) preparationStep = "start"; break;
+            case "addSoda": if (prep.IsSelected("soda_water")) preparationStep = "start"; break;
         }
         ActiveLesson = preparationStep;
         string key = preparationStep switch
         {
-            "glass" when Beer => "glassBeer",
-            "addSoda" when Beer => "addBeer",
-            "start" => IsReadyToStart(prep) ? "start" : "startNotReady",
+            "glass" when Beer => "beerGlass",
+            "start" => !IsReadyToStart(prep) ? "startNotReady" : Beer ? "beerStart" : "start",
             _ => preparationStep,
         };
         Show(key, preparationStep == "recipeRead" ? () => recipeConfirmed = true : null);
@@ -415,15 +486,13 @@ public sealed class StoryTutorialController : MonoBehaviour
         ? prep.GlassId == prep.Cocktail.Glass && prep.IsBottleOpenerSelected && prep.IsSelected("beer")
         : prep.IsTargetSetupComplete;
 
-    public void EndCoasterLesson() { coaster?.Dispose(); coaster = null; }
-
     public void EndLessons()
     {
         craftLesson = false;
         ActiveLesson = null;
+        ReleaseLessonCap();
         if (guidedStage != null) guidedStage.TutorialCanStart = null;
         guidedStage = null;
-        EndCoasterLesson();
         if (view != null) view.Hide();
     }
 

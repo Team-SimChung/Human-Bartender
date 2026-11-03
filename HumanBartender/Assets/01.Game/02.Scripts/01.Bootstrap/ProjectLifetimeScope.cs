@@ -37,7 +37,7 @@ public class ProjectLifetimeScope : LifetimeScope
 
         builder.RegisterComponentInHierarchy<UIDisplayOptions>();
         builder.RegisterEntryPoint<GameKeyBindingRuntime>();
-        builder.RegisterComponentInHierarchy<UICashPanel>();
+        builder.RegisterComponentInHierarchy<UICashPanel>().AsSelf().As<ICurrencyPresentation>();
         builder.RegisterEntryPoint<DisplaySettings>(Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<SceneTransitionManager>()

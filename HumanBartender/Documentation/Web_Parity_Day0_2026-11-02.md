@@ -16,7 +16,7 @@
 | 5 | 제조 튜토리얼 시작 | `craft tutorial_recipe` / `tutorial_beer` 인자를 해석하지 못해 시작되지 않던 문제를 고쳤다. 별칭 표는 `CsvGameContentRules` 한 곳에 있고, 실행기와 검증기가 같은 함수를 쓴다. | 완료 |
 | 5-1 | 바 튜토리얼 단계 | 문구를 `StoryTutorialController`의 직렬화 표(`copy`) 하나로 모았다. 레시피 열기 → 확인 → 닫기, 붓기의 목표량 → 현재량 단계를 추가했다. 키 안내는 현재 키 설정을 따른다(좌석 이동은 Unity 기본 Q/E). | 완료 |
 | 5-2 | 바 선택지 "E키나 마우스 좌클릭으로 꾹 눌러 선택" 안내 | `ChoiceHoldButton`은 있지만 안내 문구가 없다. | 남음 |
-| 5-3 | 셰이크·스터 2쪽 가이드, Day 1 병따기 수업 | 기존 한 줄 안내만 있다. | 남음 |
+| 5-3 | 셰이크·스터 2쪽 가이드, Day 1 병따기 수업 | 병따기 수업은 `Web_Parity_Day1_Beer_2026-11-03.md`에서 이식했다. 셰이크·스터는 기존 한 줄 안내만 있다. | 병따기 완료, 셰이크·스터 남음 |
 | 6 | 코스터 위 잔 위치 | `StoryServeZone.prefab`을 120×140(피벗은 책상 표면 선)으로 바꾸고 Coaster·Drink·EmptyGlass 앵커를 넣었다. 코드에서 이미지를 만들던 부분은 `StoryServeZoneLayout`으로 대체했다. 서빙 캔버스(960×540)와 바 카메라가 웹 스토리 카메라(폭 960px)와 1:1이라 웹 수치를 그대로 썼다. | 완료 (수동 확인 필요) |
 | 6-1 | 빈 잔 그림(맥주·칵테일·롱드링크) | Unity에 테이블용 빈 잔 그림이 없어 선반 잔 그림을 쓴다. | 리소스 공백 |
 
@@ -30,7 +30,7 @@ Unity 사본은 반입 때 `expressions_tom_default`처럼 읽을 수 있는 이
 
 - `Tools/Story/Set Up First Commute Arrival`: OutSide 첫 출근 시작 위치·도착 지점·경계
 - `Tools/Story/Set Up New Game Opening`: Home 오프닝 오브젝트와 연결
-- `Tools/Story/Set Up Serve Zone Layout`: 서빙 자리 앵커
+- 서빙 자리 앵커는 공용 월드 프리팹 `TableServeSpot`의 `GlassAnchor`에서 조정한다.
 - `Tools/Story/Build Bar Door Transition`: 문 화면 프리팹을 다시 조립하고 연결한다(프리팹을 새로 만든다)
 
 ## 다른 작업자 변경과의 충돌 (`443211d` 이후)

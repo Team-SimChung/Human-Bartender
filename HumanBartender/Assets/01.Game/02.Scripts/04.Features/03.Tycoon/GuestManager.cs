@@ -29,6 +29,8 @@ public class GuestManager : MonoBehaviour
     [SerializeField] NewTextTagDataSO textTagData;
     [SerializeField] NewCharacterDataSO characterData;
     [SerializeField] GuestSlot[] slots;
+    [SerializeField] CraftServingView servingView;
+    readonly Dictionary<GuestSlot, TableServeSpot> tableSpots = new();
 
     [Header("Craft")]
     [Tooltip("제조 흐름에 들어갔는지를 알려주는 곳. 제조 중에는 손님 쪽 시간을 멈춘다. 비우면 멈추지 않는다.")]
@@ -145,6 +147,9 @@ public class GuestManager : MonoBehaviour
 
     void OnDisable()
     {
+        if (servingView != null)
+            foreach (var spot in tableSpots.Values) servingView.RemoveSpot(spot);
+        tableSpots.Clear();
         if (servicePanelController != null)
             servicePanelController.OpenChanged -= OnServicePanelOpenChanged;
         lunaBarkCts?.Cancel();
@@ -606,6 +611,7 @@ public class GuestManager : MonoBehaviour
         PrepareAppearance(guest);
 
         slot.Seat(guest);
+        tableSpots.Add(slot, servingView.OpenGuestSpot(this, slot));
         SetSlotCharacter(slot, guest);
         ShowBark(slot, "call");
 
@@ -844,7 +850,7 @@ public class GuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 슬롯 앞에 코스터가 놓였을 때 호출한다(CoasterDropZone에서 드롭 판정 후 호출).
+    /// 슬롯 앞에 코스터가 놓였을 때 호출한다(TableServeSpot에서 드롭 판정 후 호출).
     /// 손님이 코스터를 기다리는 상태(CanReceiveCoaster)일 때만 인내심 타이머를 멈추고 주문 대기 상태로 전환한다.
     /// 이미 주문 대기/이탈 상태이거나 손님이 없으면 아무것도 하지 않고 false를 반환한다.
     /// </summary>
@@ -855,6 +861,7 @@ public class GuestManager : MonoBehaviour
         Logger.Log("Set Coaster");
 
         slot.MarkWaitingOrder();
+        tableSpots[slot].ShowCoaster();
 
         var token = RegisterSlotTimer(slot);
         ShowPlayerAskOrderBark(slot.CurrentGuest);
@@ -931,7 +938,7 @@ public class GuestManager : MonoBehaviour
     // ── 서빙 ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// 완성한 잔을 이 자리의 손님에게 낸다(CoasterDropZone에서 드롭 판정 후 호출).
+    /// 완성한 잔을 이 자리의 손님에게 낸다(TableServeSpot에서 드롭 판정 후 호출).
     /// 주문 대사를 말한 손님만 잔을 받는다. 받아들여지면 서빙 대기 타이머를 멈추고 반응 연출로 넘어간다.
     /// </summary>
     public bool TryServeDrink(GuestSlot slot, CraftedDrink drink)
@@ -940,6 +947,7 @@ public class GuestManager : MonoBehaviour
         var guest = slot.CurrentGuest;
         if (HasServeTimedOut(guest)) return false;
         if (!orderController.TryServe(guest.CurrentOrder.Id, drink)) return false;
+        tableSpots[slot].ShowDrink(drink);
         guest.serveDeadlineSec = 0f;
         StopPatienceTimer(slot);
         slot.MarkLeaving();
@@ -1016,6 +1024,7 @@ public class GuestManager : MonoBehaviour
         ShowBark(slot, result.OrderMatch ? "serve_thanks" : "wrong_receive", serveBarkGapSec);
         await WaitForReactionAsync(slot, guest, serveBarkGapSec, token);
         await WaitForReactionAsync(slot, guest, drinkWaitSec, token);
+        tableSpots[slot].ShowEmptyGlass();
         ShowBark(slot, result.OrderMatch ? ServeJudge.ReactSituation(result.FinalGrade) : "wrong_drink",
             serveBarkGapSec);
         await WaitForReactionAsync(slot, guest, serveBarkGapSec, token);
@@ -1170,6 +1179,7 @@ public class GuestManager : MonoBehaviour
     {
         Guest guest = slot != null ? slot.CurrentGuest : null;
         if (guest == null || !releasedGuests.Add(guest)) return;
+        if (tableSpots.Remove(slot, out var spot)) servingView.RemoveSpot(spot);
         string orderId = guest.CurrentOrder?.Id;
         StopPatienceTimer(slot);
         nextIdleChatterSecBySlot.Remove(slot);

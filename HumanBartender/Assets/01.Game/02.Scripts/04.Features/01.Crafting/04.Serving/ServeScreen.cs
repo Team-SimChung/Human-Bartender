@@ -119,21 +119,30 @@ public class ServeScreen : MonoBehaviour
         if (currentDrink == null) return;
         UpdateGrade();
         SetControlsActive(true);
-        if (Accept != null) Accept.interactable = currentDrink.CraftGrade.HasValue;
+        SetDecisionInteractable(craftFlow == null || !craftFlow.IsResolvingDiscard);
     }
 
     public void Discard()
     {
-        if (currentDrink == null || craftFlow == null) return;
-        var drink = currentDrink;
-        if (craftFlow.TryDiscardPendingDrink(drink, retryOnDiscard) && ReferenceEquals(currentDrink, drink))
-            Reset();
+        if (currentDrink == null || craftFlow == null || craftFlow.IsResolvingDiscard) return;
+        craftFlow.TryDiscardPendingDrink(currentDrink, retryOnDiscard);
     }
 
     public void Provide()
     {
-        if (currentDrink == null || craftFlow == null) return;
+        if (currentDrink == null || craftFlow == null || craftFlow.IsResolvingDiscard) return;
         if (craftFlow.TryAcceptPendingDrink(currentDrink)) Reset();
+    }
+
+    public void SetDecisionInteractable(bool interactable)
+    {
+        if (Restart != null) Restart.interactable = interactable;
+        if (Accept != null) Accept.interactable = interactable && currentDrink?.CraftGrade.HasValue == true;
+    }
+
+    public void ResetIfShowing(CraftedDrink drink)
+    {
+        if (ReferenceEquals(currentDrink, drink)) Reset();
     }
 
     public void Reset()

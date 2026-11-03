@@ -20,7 +20,7 @@ CSV 구조·명령 표기·스키마와 Cutscene Studio 본체를 유지하고 U
 | 첫 출근 도착·새 게임 오프닝 | FirstCommuteArrival / NewGameOpening | 씬 컨텍스트가 준비를 마친 뒤 실행한다. 오프닝 완료는 `flag.opening_seen`으로 기록한다. |
 | 바 출입 전환 화면 | BarDoorTransitionView (ISceneTransitionOverlay) | SceneTransitionManager가 페이드 위에 띄운다. 문구·시간은 컴포넌트, 배치는 프리팹이 소유한다. |
 | 튜토리얼 문구 | StoryTutorialController.copy | 단계 진행 규칙과 분리한 직렬화 표. 빠진 키는 기본 문구를 쓰고 경고한다. |
-| 서빙 자리 그림 배치 | StoryServeZone.prefab / StoryServeZoneLayout | 코스터·잔 위치는 프리팹 앵커가, 표시 여부는 컴포넌트가 정한다. |
+| 서빙 자리 그림 배치 | TableServeSpot.prefab / TableServeSpot | 일반 영업과 스토리가 같은 월드 프리팹을 사용한다. 잔 바닥의 위치는 GlassAnchor에서 조정한다. |
 
 웹 본편 0일차 흐름의 반영 상태는 [Web_Parity_Day0_2026-11-02.md](Web_Parity_Day0_2026-11-02.md)에 있다.
 

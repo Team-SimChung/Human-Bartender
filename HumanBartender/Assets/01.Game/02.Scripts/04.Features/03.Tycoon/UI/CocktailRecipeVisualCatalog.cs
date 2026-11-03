@@ -19,6 +19,10 @@ public sealed class CocktailRecipeVisualCatalog : ScriptableObject
     [SerializeField] private VisualEntry[] ingredientSprites;
     [Tooltip("테이블 위 완성 잔 전용 그림. 없는 종류는 기존 칵테일 그림을 사용한다.")]
     [SerializeField] private VisualEntry[] tableCocktailSprites;
+    [Tooltip("실제 사용한 잔 ID에 대응하는 테이블용 빈잔.")]
+    [SerializeField] private VisualEntry[] tableGlassSprites;
+
+    public Sprite GetTableGlassSprite(string glassId) => FindSprite(tableGlassSprites, glassId);
 
     public Sprite GetCocktailSprite(string id)
     {

@@ -10,6 +10,7 @@ public enum DrinkRemovalReason { Served, Discarded }
 [RequireComponent(typeof(RectTransform), typeof(CanvasGroup))]
 public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public static DrinkDragItem Active { get; private set; }
     [SerializeField] private Image bodyImage;
     [SerializeField] private Image secondBodyImage;
     [SerializeField] private TextMeshProUGUI nameText;
@@ -29,6 +30,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     bool dragging;
     bool released;
     Action<DrinkDragItem> release;
+    Func<CraftedDrink, bool> requestDiscard;
 
     public CraftedDrink Drink { get; private set; }
     public event Action<DrinkDragItem> Served;
@@ -40,13 +42,15 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         canvasGroup = GetComponent<CanvasGroup>();
     }
 
-    public void Initialize(CraftedDrink drink, Canvas canvas, Action<DrinkDragItem> returnToPool = null)
+    public void Initialize(CraftedDrink drink, Canvas canvas, Action<DrinkDragItem> returnToPool = null,
+                           Func<CraftedDrink, bool> discardDrink = null)
     {
         if (rect == null) rect = (RectTransform)transform;
         if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>();
         Drink = drink;
         rootCanvas = canvas;
         release = returnToPool;
+        requestDiscard = discardDrink;
         consumed = dragging = released = false;
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
@@ -92,7 +96,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (Drink == null || consumed || released || dragging || rootCanvas == null) return;
+        if (Drink == null || consumed || released || Active != null || CoasterDragItem.Active != null || rootCanvas == null) return;
         dragging = true;
         var heldObject = new GameObject("Held Cocktail", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         heldObject.transform.SetParent(rootCanvas.transform, false);
@@ -111,7 +115,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         // 카드는 레이아웃 안에서 감추고, 칵테일 이미지만 포인터를 따라가게 한다.
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
-        StoryServeDropTarget.SetRaycastEnabledWhileDragging(true);
+        Active = this;
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -140,7 +144,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         if (!dragging) return;
         dragging = false;
         ClearHeldImage();
-        StoryServeDropTarget.SetRaycastEnabledWhileDragging(false);
+        if (Active == this) Active = null;
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
         if (consumed) Release();
@@ -159,6 +163,16 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     void OnDestroy() => ClearHeldImage();
 
     public void MarkServed() => Remove(DrinkRemovalReason.Served);
+
+    /// <summary>플레이어의 폐기 요청. 비용 처리가 수락됐을 때만 표시를 치운다.</summary>
+    public void Discard()
+    {
+        if (Drink == null || consumed || released || requestDiscard == null) return;
+        var drink = Drink;
+        if (requestDiscard(drink) && ReferenceEquals(Drink, drink)) MarkDiscarded();
+    }
+
+    /// <summary>이미 확정된 폐기를 UI에 반영한다. 비용을 청구하지 않는다.</summary>
     public void MarkDiscarded() => Remove(DrinkRemovalReason.Discarded);
 
     void Remove(DrinkRemovalReason reason)
@@ -183,6 +197,7 @@ public class DrinkDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         released = true;
         var returnToPool = release;
         release = null;
+        requestDiscard = null;
         Drink = null;
         Served = null;
         Removed = null;

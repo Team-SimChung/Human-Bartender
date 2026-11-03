@@ -36,6 +36,9 @@ Play 씬의 `GuestManager > Use Temp Appearance`는 꺼 두어야 이 테이블�
 눈·눈썹처럼 분리된 조각이 있는 이미지는 바인딩된 스프라이트 사각형이 모든 조각을 포함해야 합니다.
 현재 해당 이미지의 `_0` 스프라이트는 원본 캔버스 전체를 포함하며, 기존 GUID·스프라이트 ID는 유지합니다.
 
+Unity Test Runner의 EditMode에서 `GuestAppearanceResourceTests`를 실행하면 파츠 연결·이미지 누락·금지 조합·추첨 다양성을 검사합니다.
+검사 전에는 작업 중인 씬 변경을 저장하세요. 기본 테스트 실행 과정에서 씬 저장 여부를 확인할 수 있습니다.
+
 ## 일반 손님 입 애니메이션
 
 입 후보는 남녀 각각 `mouth_1`~`mouth_3`이며, 삭제한 `mouth_4`, `mouth_5`는 후보에서 제외했습니다.
@@ -50,3 +53,5 @@ Sprite는 정지 이미지, AnimationClip은 `Guest/talk_mouth_f_1`입니다. �
 `GuestSlot`이 대사 시작·종료를 소유하고 `GuestMouthAnimation`은 연결된 클립만 재생합니다.
 즉시 표시 대사는 말풍선이 보이는 동안, 타이핑 대사는 글자 출력이 끝날 때까지 입이 움직입니다.
 숨기기·대사 교체·좌석 비우기·비활성화 시에는 정지 입으로 복원하고 로드한 클립도 손님 퇴장 시 반납합니다.
+
+`GuestMouthAnimationTests`는 남녀 6종의 주소·프레임·위치 복원과 대사 수명 연결을 검사합니다.
