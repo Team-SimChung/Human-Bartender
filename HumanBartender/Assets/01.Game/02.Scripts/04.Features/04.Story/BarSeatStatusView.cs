@@ -4,7 +4,13 @@ using UnityEngine;
 
 public enum EBarSeatSignal { Empty, Occupied, Arrival, Waiting, LeavingSoon, Departing }
 
-/// <summary>The live three-seat HUD used by both normal service and the story tutorial.</summary>
+/// <summary>
+/// 바 화면 왼쪽 아래의 좌석 세 칸 표시. 일반 영업과 스토리(튜토리얼 포함)가 함께 쓴다.
+///
+/// Play 씬의 바 UI 캔버스(Canvas_BarSeatHud)에 저장된 오브젝트다. 튜토리얼 오버레이는 이것을 빌려
+/// 강조 대상으로만 쓴다 — 오버레이 안에서 만들면 오버레이가 아직 없는 날(1부 영업만 있는 날)에는
+/// 좌석 표시가 사라진다. 배치·참조는 Tools/Story/Set Up Bar Seat HUD가 씬에 저장한다.
+/// </summary>
 public sealed class BarSeatStatusView : MonoBehaviour
 {
     static readonly ESlotType[] SeatOrder = { ESlotType.Left, ESlotType.Middle, ESlotType.Right };
@@ -14,90 +20,63 @@ public sealed class BarSeatStatusView : MonoBehaviour
     public static readonly Color WaitingColor = new(1f, .65f, .28f);
     public static readonly Color DangerColor = new(1f, .38f, .36f);
 
-    StoryTutorialShape[] dots, rings;
+    [Header("Layout")]
+    [SerializeField] RectTransform indicators;
+    [Tooltip("왼쪽·가운데·오른쪽 좌석 점.")]
+    [SerializeField] StoryTutorialShape[] dots = new StoryTutorialShape[3];
+    [Tooltip("지금 보고 있는 좌석을 두르는 링. 점과 같은 순서다.")]
+    [SerializeField] StoryTutorialShape[] rings = new StoryTutorialShape[3];
+    [Tooltip("좌석 둘러보기 수업에서만 켜지는 좌우 키 안내.")]
+    [SerializeField] RectTransform leftKey;
+    [SerializeField] RectTransform rightKey;
+
+    [Header("Scene")]
+    [SerializeField] PlayPhaseController phases;
+    [SerializeField] DialogueCharacterManager characters;
+    [SerializeField] GuestManager guests;
+    [SerializeField] CraftFlowController craft;
+    [SerializeField] CraftPrepStageHost preparation;
+    [SerializeField] RecipeBrowserScreen recipes;
+    [Tooltip("영업 중 선택 좌석의 정본. 되묻기 버튼·서빙 자리와 같은 좌석을 가리키게 한다.")]
+    [SerializeField] PlayCamera playCamera;
+    [Tooltip("영업 중 표시 조건(CanUseGuestActions). 메뉴·레시피가 열리면 숨는다.")]
+    [SerializeField] ServicePanelController servicePanel;
+
     readonly Dictionary<ESlotType, object> occupants = new();
     readonly Dictionary<ESlotType, float> arrivalAt = new();
     readonly Dictionary<ESlotType, EBarSeatSignal> signals = new();
     readonly Dictionary<ESlotType, GuestSlot> guestSlots = new();
-    PlayPhaseController phases;
-    DialogueCharacterManager characters;
-    GuestManager guests;
-    CraftFlowController craft;
-    CraftPrepStageHost preparation;
-    RecipeBrowserScreen recipes;
     bool exploring, moving;
     ESlotType current;
 
-    public RectTransform Indicators { get; private set; }
-    public RectTransform LeftKey { get; private set; }
-    public RectTransform RightKey { get; private set; }
-    public bool IsVisible => Indicators != null && Indicators.gameObject.activeInHierarchy;
+    public RectTransform Indicators => indicators;
+    public RectTransform LeftKey => leftKey;
+    public RectTransform RightKey => rightKey;
+    public bool IsVisible => indicators != null && indicators.gameObject.activeInHierarchy;
     public bool Suppressed { get; set; }
     public ESlotType SelectedSeat => current;
     public EBarSeatSignal Signal(ESlotType seat) => signals.TryGetValue(seat, out var signal) ? signal : EBarSeatSignal.Empty;
 
-    public static BarSeatStatusView Create(Transform parent, TMP_FontAsset font)
+    void Awake()
     {
-        var root = StoryTutorialView.MakeRect("Live Bar Seat HUD", parent, Vector2.zero, Vector2.zero);
-        root.anchorMin = Vector2.zero;
-        root.anchorMax = Vector2.one;
-        var view = root.gameObject.AddComponent<BarSeatStatusView>();
-        view.Indicators = StoryTutorialView.MakeRect("Seat Indicators", root, new Vector2(104, 38), new Vector2(66, 25));
-        view.Indicators.anchorMin = view.Indicators.anchorMax = Vector2.zero;
-        var frame = view.Indicators.gameObject.AddComponent<StoryTutorialShape>();
-        frame.Style(new Color(.035f, .06f, .085f, .94f), 18);
-        var border = StoryTutorialView.MakeRect("HUD Border", view.Indicators, new Vector2(104, 38), Vector2.zero)
-            .gameObject.AddComponent<StoryTutorialShape>();
-        border.Style(new Color(.31f, .52f, .57f, .8f), 18, 1);
-        view.dots = new StoryTutorialShape[3];
-        view.rings = new StoryTutorialShape[3];
-        for (int i = 0; i < 3; i++)
-        {
-            Vector2 position = new Vector2((i - 1) * 32, 0);
-            view.rings[i] = StoryTutorialView.MakeRect("Selected Seat " + SeatOrder[i], view.Indicators,
-                new Vector2(30, 30), position).gameObject.AddComponent<StoryTutorialShape>();
-            view.rings[i].Style(SelectedColor, 15, 1.5f);
-            view.dots[i] = StoryTutorialView.MakeRect("Seat " + SeatOrder[i], view.Indicators,
-                new Vector2(14, 14), position).gameObject.AddComponent<StoryTutorialShape>();
-            view.dots[i].Style(EmptyColor, 7);
-        }
-        view.LeftKey = MakeKey(root, font, "Left Seat Key", new Vector2(0, .5f), new Vector2(29, 0));
-        view.RightKey = MakeKey(root, font, "Right Seat Key", new Vector2(1, .5f), new Vector2(-29, 0));
-        view.RefreshKeyLabels();
-        GameKeyBindings.Changed += view.RefreshKeyLabels;
-        view.SetExploration(false, ESlotType.Right, false);
-        return view;
-    }
-
-    void RefreshKeyLabels()
-    {
-        LeftKey.GetComponentInChildren<TMP_Text>(true).text = "< " + GameKeyBindings.DisplayName(GameControl.PreviousSeat);
-        RightKey.GetComponentInChildren<TMP_Text>(true).text = GameKeyBindings.DisplayName(GameControl.NextSeat) + " >";
-    }
-
-    void OnDestroy() => GameKeyBindings.Changed -= RefreshKeyLabels;
-
-    static RectTransform MakeKey(Transform parent, TMP_FontAsset font, string name, Vector2 anchor, Vector2 position)
-    {
-        var key = StoryTutorialView.MakeRect(name, parent, new Vector2(48, 44), position);
-        key.anchorMin = key.anchorMax = anchor;
-        var text = StoryTutorialView.MakeText("Key", key, font, new Vector2(48, 44), Vector2.zero, 17);
-        text.color = SelectedColor;
-        return key;
-    }
-
-    public void Configure(PlayPhaseController phase, DialogueCharacterManager characterManager, GuestManager guestManager,
-        CraftFlowController craftFlow, CraftPrepStageHost prep, RecipeBrowserScreen recipeScreen)
-    {
-        phases = phase;
-        characters = characterManager;
-        guests = guestManager;
-        craft = craftFlow;
-        preparation = prep;
-        recipes = recipeScreen;
         guestSlots.Clear();
         foreach (var root in gameObject.scene.GetRootGameObjects())
         foreach (var slot in root.GetComponentsInChildren<GuestSlot>(true)) guestSlots[slot.SlotType] = slot;
+        SetExploration(false, ESlotType.Right, false);
+    }
+
+    void OnEnable()
+    {
+        GameKeyBindings.Changed += RefreshKeyLabels;
+        RefreshKeyLabels();
+    }
+
+    void OnDisable() => GameKeyBindings.Changed -= RefreshKeyLabels;
+
+    void RefreshKeyLabels()
+    {
+        if (leftKey != null) leftKey.GetComponentInChildren<TMP_Text>(true).text = "< " + GameKeyBindings.DisplayName(GameControl.PreviousSeat);
+        if (rightKey != null) rightKey.GetComponentInChildren<TMP_Text>(true).text = GameKeyBindings.DisplayName(GameControl.NextSeat) + " >";
     }
 
     public void SetExploration(bool active, ESlotType seat, bool cameraMoving)
@@ -105,25 +84,36 @@ public sealed class BarSeatStatusView : MonoBehaviour
         exploring = active;
         current = seat;
         moving = cameraMoving;
-        LeftKey.gameObject.SetActive(active);
-        RightKey.gameObject.SetActive(active);
+        leftKey.gameObject.SetActive(active);
+        rightKey.gameObject.SetActive(active);
+    }
+
+    /// <summary>
+    /// 지금 보여야 하는지. 영업 중에는 되묻기 버튼과 같은 조건(CanUseGuestActions)을 따르고, 대화 중에는
+    /// 준비·레시피 화면이 열려 있지 않을 때 보인다. 어느 쪽이든 기믹 중과 전면 안내 중에는 숨는다.
+    /// 카메라가 좌석을 옮기는 동안에는 숨기지 않는다 — 점이 이동을 보여 줘야 한다.
+    /// </summary>
+    bool ShouldShow(bool tycoon)
+    {
+        if (Suppressed || phases == null || craft != null && craft.Current?.Phase == ECraftPhase.Playing) return false;
+        if (tycoon) return servicePanel == null || servicePanel.CanUseGuestActions;
+        return phases.CurrentPhase == EPlayPhase.Dialogue &&
+            (preparation == null || !preparation.IsOpen) && (recipes == null || !recipes.IsOpen);
     }
 
     void LateUpdate()
     {
-        bool visible = !Suppressed && phases != null && (phases.CurrentPhase == EPlayPhase.Dialogue || phases.CurrentPhase == EPlayPhase.Tycoon) &&
-            (preparation == null || !preparation.IsOpen) && (recipes == null || !recipes.IsOpen) &&
-            (craft == null || craft.Current?.Phase != ECraftPhase.Playing);
-        Indicators.gameObject.SetActive(visible);
+        bool tycoon = phases != null && phases.CurrentPhase == EPlayPhase.Tycoon;
+        bool visible = ShouldShow(tycoon);
+        indicators.gameObject.SetActive(visible);
         if (!visible) return;
-        bool tycoon = phases.CurrentPhase == EPlayPhase.Tycoon;
-        if (!exploring) current = ClosestSeat(tycoon);
-        LeftKey.gameObject.SetActive(exploring);
-        RightKey.gameObject.SetActive(exploring);
+        if (!exploring) current = tycoon && playCamera != null ? playCamera.SelectedSeat : ClosestSeat();
+        leftKey.gameObject.SetActive(exploring);
+        rightKey.gameObject.SetActive(exploring);
         if (exploring)
         {
-            LeftKey.GetComponentInChildren<TMP_Text>().alpha = current == ESlotType.Left || moving ? .3f : 1f;
-            RightKey.GetComponentInChildren<TMP_Text>().alpha = current == ESlotType.Right || moving ? .3f : 1f;
+            leftKey.GetComponentInChildren<TMP_Text>().alpha = current == ESlotType.Left || moving ? .3f : 1f;
+            rightKey.GetComponentInChildren<TMP_Text>().alpha = current == ESlotType.Right || moving ? .3f : 1f;
         }
         for (int i = 0; i < 3; i++)
         {
@@ -155,17 +145,16 @@ public sealed class BarSeatStatusView : MonoBehaviour
         }
     }
 
-    ESlotType ClosestSeat(bool tycoon)
+    /// <summary>대화 중 화면 가운데에 가장 가까운 좌석. 스토리 연출은 좌석 번호가 아니라 카메라 위치로 화면을 잡는다.</summary>
+    ESlotType ClosestSeat()
     {
         float cameraX = Camera.main != null ? Camera.main.transform.position.x : 0;
         ESlotType closest = ESlotType.Middle;
         float distance = float.MaxValue;
         foreach (var seat in SeatOrder)
         {
-            float x = 0;
-            if (tycoon && guestSlots.TryGetValue(seat, out var slot)) x = slot.transform.position.x;
-            else if (characters == null) continue;
-            else if (!characters.TryGetSlotX(seat, out x))
+            if (characters == null) continue;
+            if (!characters.TryGetSlotX(seat, out float x))
             {
                 if (seat != ESlotType.Middle || !characters.TryGetSlotX(ESlotType.Left, out float left) ||
                     !characters.TryGetSlotX(ESlotType.Right, out float right)) continue;
