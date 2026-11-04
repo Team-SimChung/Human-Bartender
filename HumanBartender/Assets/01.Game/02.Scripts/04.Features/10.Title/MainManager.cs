@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
 
@@ -21,10 +22,10 @@ public class MainManager : MonoBehaviour
     public void TempStart()
     {
         // 타이틀의 새 게임 버튼은 전체 화면을 덮는다. IMGUI 이어하기 영역의 클릭은 새 게임으로 보내지 않는다.
-        var pointer = Input.mousePosition;
         if (UIDisplayOptions.IsOptionOpen) return;
-        if (titleView == null && (continueOpen || (Input.GetMouseButtonUp(0) && ContinueButton.Contains(
-                new Vector2(pointer.x, Screen.height - pointer.y))))) return;
+        var mouse = Mouse.current;
+        if (titleView == null && (continueOpen || (mouse != null && mouse.leftButton.wasReleasedThisFrame &&
+            ContinueButton.Contains(new Vector2(mouse.position.ReadValue().x, Screen.height - mouse.position.ReadValue().y))))) return;
         if (!starting) StartNewGameAsync().Forget(Debug.LogException);
     }
 
