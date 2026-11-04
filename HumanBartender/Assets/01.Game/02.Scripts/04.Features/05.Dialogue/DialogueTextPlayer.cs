@@ -11,6 +11,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     sealed class Session
     {
         public int Id;
+        public string Speaker;
         public DialogueTextCompiler.Line Line;
         public CancellationTokenSource Reveal;
         public bool Skipped;
@@ -43,6 +44,27 @@ public sealed class DialogueTextPlayer : MonoBehaviour
 
     public int CurrentSessionId => current?.Id ?? 0;
     public bool IsHolding => current != null && !current.Revealing;
+
+    public string SpeakerName => current?.Speaker ?? "";
+    public event Action<DialogueTextPlayer> LineStarted;
+    public event Action<DialogueTextPlayer> LineEnding;
+
+    /// <summary>현재 재생 중인 한 줄의 전체 본문을 TMP 해석 결과에서 읽는다. 타이핑 진행 상태는 변경하지 않는다.</summary>
+    public string ReadFullText()
+    {
+        if (current == null) return "";
+        var text = new System.Text.StringBuilder();
+        var info = bubble.textLabel.textInfo;
+        for (int i = 0; i < current.Line.Characters.Length; i++)
+        {
+            var ch = info.characterInfo[i];
+            int at = ch.index;
+            if (at >= 0 && at + 1 < current.Line.Text.Length && char.IsSurrogatePair(current.Line.Text, at))
+                text.Append(current.Line.Text, at, 2);
+            else text.Append(ch.character);
+        }
+        return text.ToString();
+    }
 
     // Presentation cues describe the revealed text; subscribers choose the response.
     public event Action ShakeSpanRevealed;
@@ -136,6 +158,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         var session = new Session
         {
             Id = ++nextId, Line = line,
+            Speaker = bubble.nameLabel != null ? bubble.nameLabel.text : "",
             ReducedMotion = settings != null && settings.ReducedMotion,
             VisibleGlyphs = new bool[line.Characters.Length]
         };
@@ -155,6 +178,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
             animator.SetVisible(instant ? line.Characters.Length : 0, Time.time, instant);
         }
         catch { Stop(); throw; }
+        LineStarted?.Invoke(this);
         return session;
     }
 
@@ -202,6 +226,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     {
         var old = current;
         if (old == null) return;
+        LineEnding?.Invoke(this);
         current = null;
         old.Reveal?.Cancel();
         old.AudioScope?.Dispose();
