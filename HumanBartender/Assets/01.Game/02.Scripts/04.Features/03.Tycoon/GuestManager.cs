@@ -17,7 +17,7 @@ public enum RepeatOrderState { Hidden, Ready, Speaking }
 /// </summary>
 public class GuestManager : MonoBehaviour
 {
-    [Inject] IPlayerDataWriter playerDataWriter;
+    [Inject] IOrderPaymentService orderPayments;
     [Inject] ISoundEffectPlayer sound;
     [SerializeField] NewBalanceDataSO configData;
     [SerializeField] NewRandomWaveDataSO randomWaveData;
@@ -113,7 +113,7 @@ public class GuestManager : MonoBehaviour
     public int QueuedGuestCount => guestQueue.Count;
 
     /// <summary>당일 매출 누계. 매출 현황 패널이 읽기용으로 쓴다.</summary>
-    public DailySales Sales => dailySales ??= new DailySales();
+    public DailySales Sales => dailySales ?? throw new InvalidOperationException("공유 DailySales가 연결되지 않았습니다.");
 
     /// <summary>
     /// 현재 바 평판. 처음 쓸 때 만든다 — 시작값이 settings/balance_config.csv에서 오는데 Awake 시점에는 아직 로딩 전일 수 있다.
@@ -242,7 +242,7 @@ public class GuestManager : MonoBehaviour
         int day = GameStateManager.Instance.CurrentDay;
         guestQueue.Clear();
         releasedGuests.Clear();
-        Sales.Reset(); // 하루가 새로 시작되므로 매출 누계도 비운다.
+        // 장부는 PlayPhaseController가 오프닝 전에 한 번 초기화한다.
 
         var randomGuests = randomWaveData.randomWaveData
             .Where(wave => wave.Day == day)
@@ -1192,7 +1192,7 @@ public class GuestManager : MonoBehaviour
         if (guest.settlements.Count > 0)
         {
             int sessionTotal = guest.SessionTotal;
-            playerDataWriter.AddMoney(sessionTotal);
+            orderPayments.Pay(guest.settlements);
 
             Logger.Log($"[Settle] {guest.id} 주문 세션 종료 — {guest.settlements.Count}회차 합계 " +
                        $"{sessionTotal} (당일 누계 {Sales.Total}, PlayerData 반영 완료)");

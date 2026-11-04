@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 [RequireComponent(typeof(Camera))]
 public class ResolutionZoomTest : MonoBehaviour
@@ -15,7 +16,7 @@ public class ResolutionZoomTest : MonoBehaviour
     public AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Test Input")]
-    public KeyCode toggleKey = KeyCode.Space;
+    public Key toggleKey = Key.Space;
 
     private Camera cam;
     private bool isAtTarget = false;
@@ -35,7 +36,7 @@ public class ResolutionZoomTest : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(toggleKey))
+        if (toggleKey != Key.None && Keyboard.current?[toggleKey].wasPressedThisFrame == true)
             Toggle();
     }
 

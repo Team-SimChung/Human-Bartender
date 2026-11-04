@@ -8,4 +8,5 @@ public enum EPlayPhase
     BarOpen = 1,
     Tycoon = 2,
     Dialogue = 3,
+    Settlement = 4,
 }
