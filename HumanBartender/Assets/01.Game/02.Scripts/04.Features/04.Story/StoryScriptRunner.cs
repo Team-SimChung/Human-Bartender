@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// 2부 대본을 씬 단위로 실행한다(2부 운영 명세 §4·§6).
@@ -19,6 +20,7 @@ using UnityEngine;
 /// </summary>
 public class StoryScriptRunner : MonoBehaviour
 {
+    [Inject] IOrderPaymentService orderPayments;
     [SerializeField] private RecipeBrowserScreen recipeScreen;
     [SerializeField] private StoryTutorialController tutorial;
     CraftServingView tables;
@@ -609,6 +611,7 @@ public class StoryScriptRunner : MonoBehaviour
         if (result.State == OrderState.Cancelled) throw new OperationCanceledException("주문이 취소되었습니다.");
         if (!result.Completed) throw new InvalidOperationException(result.Error ?? "서빙 처리에 실패했습니다.");
         var serve = result.Serve;
+        orderPayments.Pay(new[] { serve.Settlement });
         conditions.Result = new StoryResultContext(serve.CraftGrade, serve.FinalGrade,
             serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
         currentOrder = null;

@@ -167,6 +167,14 @@ public class ServicePanelController : MonoBehaviour
         SetMenuOpen(false);
     }
 
+    /// <summary>정산 등 바 조작이 끝나는 국면에서 열린 하위 화면까지 닫는다.</summary>
+    public void CloseAllScreens()
+    {
+        if (historyScreen != null) historyScreen.Close();
+        if (recipeScreen != null) recipeScreen.Close();
+        Close();
+    }
+
     private void SetMenuOpen(bool next)
     {
         if (menuOpen == next) return;

@@ -17,9 +17,12 @@ public class PlayPhaseController : MonoBehaviour
     [SerializeField] StoryFlow storyFlow;
     [SerializeField] OrderRequestController orderController;
     [SerializeField] CraftFlowController craftFlow;
+    [SerializeField] SettlementScreen settlementScreen;
+    [SerializeField] ServicePanelController servicePanel;
 
     [Inject] IGameProgressionService progression;
-    [Inject] PlayerSettlement settlement;
+    [Inject] DaySettlementService settlement;
+    [Inject] BarSessionCheckpoint checkpoint;
     [Inject] IConditionUtil conditions;
 
     [Header("국면별 화면")]
@@ -119,6 +122,10 @@ public class PlayPhaseController : MonoBehaviour
                 "하루 진행 서비스가 연결되지 않았습니다.");
             return new PlayPhaseRunRequest(rejectedResult);
         }
+
+        if (settlementScreen == null || settlement == null || checkpoint == null)
+            return new PlayPhaseRunRequest(new PlayPhaseRunResult(
+                PlayPhaseRunOutcome.Rejected, 0, "영업 정산 화면 또는 서비스가 연결되지 않았습니다."));
 
         long operationId = ++nextOperationId;
         currentOperationId = operationId;
@@ -225,6 +232,7 @@ public class PlayPhaseController : MonoBehaviour
                 entry.Outcome == GameProgressionOutcome.Rejected)
             {
                 GameStateManager.Instance.CurrentDay = testDay;
+                GameStateManager.Instance.GameFlow = EGameFlow.Bar;
                 Debug.LogWarning($"[PlayPhase] 명시적 Test Day {testDay}로 Play 씬을 직접 실행합니다.");
             }
             else
@@ -234,7 +242,12 @@ public class PlayPhaseController : MonoBehaviour
 
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
-            settlement?.Init();
+            settlementScreen.ValidateReferences();
+            int day = GameStateManager.Instance.CurrentDay;
+            if (!NewDataLoadManager.TryGetDayInfo(day, out var dayInfo))
+                throw new InvalidOperationException($"Day {day}의 유지비 데이터가 없습니다.");
+            settlement.BeginDay(day, dayInfo.UpkeepGold);
+            checkpoint.Capture();
 
             BeginPhase(EPlayPhase.Dialogue);
             await storyFlow.RunOpeningAsync(cancellationToken);
@@ -259,6 +272,13 @@ public class PlayPhaseController : MonoBehaviour
             BeginPhase(EPlayPhase.Dialogue);
             await RunPhaseAsync(storyFlow, cancellationToken);
             EndCurrentPhase();
+
+            if (!await RunSettlementAsync(cancellationToken))
+            {
+                // 재시작된 Play 씬의 컨트롤러가 새로운 영업을 소유한다.
+                State = PlayPhaseRunState.Completed;
+                return new PlayPhaseRunResult(PlayPhaseRunOutcome.Succeeded, operationId);
+            }
 
             conditions.ApplyRequired($"flag.day{GameStateManager.Instance.CurrentDay}_bar_completed = true");
             departurePending = true;
@@ -303,6 +323,41 @@ public class PlayPhaseController : MonoBehaviour
             }
         }
     }
+
+    async UniTask<bool> RunSettlementAsync(CancellationToken cancellationToken)
+    {
+        CurrentPhase = EPlayPhase.Settlement;
+        State = PlayPhaseRunState.AwaitingSettlement;
+        servicePanel?.CloseAllScreens();
+        craftFlow?.AddCraftBlocker(DescribeSettlementBlock);
+        string error = null;
+        try
+        {
+            while (true)
+            {
+                var action = await settlementScreen.WaitForActionAsync(settlement.Preview(), cancellationToken, error);
+                if (action == SettlementAction.Confirm)
+                {
+                    if (settlement.TryConfirm()) return true;
+                    error = "소지금이 변경되었습니다. 정산 내용을 다시 확인해 주세요.";
+                    continue;
+                }
+
+                var result = await checkpoint.RestartAsync(progression, cancellationToken);
+                if (result.Succeeded) return false;
+                cancellationToken.ThrowIfCancellationRequested();
+                Debug.LogWarning("[Settlement] 영업 재시작 실패: " + result.Message);
+                error = "다시 시작하지 못했습니다. 버튼을 눌러 다시 시도해 주세요.";
+            }
+        }
+        finally
+        {
+            if (settlementScreen != null) settlementScreen.Hide();
+            if (craftFlow != null) craftFlow.RemoveCraftBlocker(DescribeSettlementBlock);
+        }
+    }
+
+    string DescribeSettlementBlock() => "영업 정산 중에는 제조할 수 없습니다.";
 
     async UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken)
     {

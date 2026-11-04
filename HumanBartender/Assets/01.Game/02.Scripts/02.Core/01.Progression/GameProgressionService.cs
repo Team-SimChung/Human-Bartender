@@ -45,6 +45,8 @@ public interface IGameProgressionService
 {
     UniTask<GameProgressionResult> WaitForBarEntryAsync(CancellationToken cancellationToken = default);
     UniTask<GameProgressionResult> CompleteBarAsync(CancellationToken cancellationToken = default);
+    UniTask<GameProgressionResult> RestartBarAsync(Action applyOpening, Action restoreCurrent,
+        CancellationToken cancellationToken = default);
     UniTask<GameProgressionResult> EnterAsync(GameProgressionDestination destination,
         CancellationToken cancellationToken = default);
     UniTask<GameProgressionResult> SleepAsync(Action refreshConditions,
@@ -113,6 +115,66 @@ public sealed class GameProgressionService : IGameProgressionService
     {
         return MoveAsync("Play", "OutSide", EGameFlow.Bar, EGameFlow.CommuteOut, cancellationToken,
             SceneTransitionStyle.BarExit);
+    }
+
+    /// <summary>같은 일차의 바를 다시 연다. 새 씬은 입장 완료를 기다리고, 로드 전 실패는 현재 상태로 복구한다.</summary>
+    public async UniTask<GameProgressionResult> RestartBarAsync(Action applyOpening, Action restoreCurrent,
+        CancellationToken cancellationToken = default)
+    {
+        if (isRunning || sceneTransitions.IsBusy)
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "다른 진행 작업이 실행 중입니다.");
+        var source = SceneManager.GetActiveScene();
+        if (source.name != "Play" || gameState.GameFlow != EGameFlow.Bar ||
+            applyOpening == null || restoreCurrent == null)
+            return new GameProgressionResult(GameProgressionOutcome.Rejected, "바 영업 시작 상태가 필요합니다.");
+        if (cancellationToken.IsCancellationRequested)
+            return new GameProgressionResult(GameProgressionOutcome.Canceled);
+
+        isRunning = true;
+        bool previousEntry = hasBarEntry;
+        bool previousReturned = homeReturned;
+        var previousCompletion = barEntryCompletion;
+        UniTaskCompletionSource<GameProgressionResult> entry = null;
+        bool applied = false;
+        GameProgressionResult outcome = default;
+        try
+        {
+            var request = sceneTransitions.RequestLoadScene("Play", cancellationToken: cancellationToken);
+            if (!request.Accepted) return outcome = ConvertSceneResult(await request.Completion);
+            hasBarEntry = true;
+            homeReturned = false;
+            barEntryCompletion = entry = new UniTaskCompletionSource<GameProgressionResult>();
+            applied = true;
+            applyOpening();
+            var result = await request.Completion;
+            if (!result.Succeeded && !result.SceneActivated && SceneManager.GetActiveScene().handle == source.handle)
+            {
+                applied = false;
+                restoreCurrent();
+                hasBarEntry = previousEntry;
+                homeReturned = previousReturned;
+                barEntryCompletion = previousCompletion;
+            }
+            return outcome = ConvertSceneResult(result);
+        }
+        catch (Exception error)
+        {
+            // 같은 이름의 새 Play 씬을 이전 씬으로 착각하지 않도록 handle을 비교한다.
+            if (applied && SceneManager.GetActiveScene().handle == source.handle)
+            {
+                restoreCurrent();
+                hasBarEntry = previousEntry;
+                homeReturned = previousReturned;
+                barEntryCompletion = previousCompletion;
+            }
+            return outcome = new GameProgressionResult(error is OperationCanceledException
+                ? GameProgressionOutcome.Canceled : GameProgressionOutcome.Failed, error.Message, error);
+        }
+        finally
+        {
+            isRunning = false;
+            entry?.TrySetResult(outcome);
+        }
     }
 
     public async UniTask<GameProgressionResult> StartNewGameAsync(Action initializeRuntime,
