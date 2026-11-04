@@ -49,6 +49,8 @@ public class SphParticle : MonoBehaviour
     public Vector2 smoothedVelocity;
 
     internal bool insideContainer;
+    internal bool volumeReceived;
+    internal bool volumeCanJoin;
     internal int solverIndex;
     internal float densityLambda;
     internal float neighbourWeight;
@@ -68,6 +70,8 @@ public class SphParticle : MonoBehaviour
         force = Vector2.zero;
         exitedBottle = false;
         insideContainer = false;
+        volumeReceived = false;
+        volumeCanJoin = false;
         renderImpact = Vector4.zero;
         incomingVelocity = Vector2.zero;
         impactCooldown = 0f;
@@ -78,6 +82,8 @@ public class SphParticle : MonoBehaviour
 
     public void Deactivate()
     {
+        volumeReceived = false;
+        volumeCanJoin = false;
         gameObject.SetActive(false);
     }
 

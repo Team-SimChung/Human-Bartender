@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity.Profiling;
 using UnityEngine;
 using VContainer;
 
@@ -16,10 +17,8 @@ using VContainer;
 /// 인터페이스를 둘 구현한다. ICraftGimmick은 1부의 기믹 큐가 부르는 새 경로이고,
 /// IMiniGameController는 2부 대화에서 컷씬과 함께 돌던 기존 경로다. 조작과 액체 표현은 양쪽이 공유한다.
 ///
-/// 투입량을 재는 방식이 다르다. 기존 경로는 잔 영역에 들어온 파티클 개수를 셌지만, 기믹 큐가
-/// 돌릴 때는 방출률(ml/초) × 기울인 시간으로 쌓아 레시피의 oz와 같은 단위로 만든다. 파티클은
-/// 눈에 보이는 줄기일 뿐이라 프레임과 물리 설정에 따라 개수가 흔들리는데, 그 흔들림이 점수에
-/// 섞이면 안 되기 때문이다. 이 화면에는 잔을 그리지도 않는다.
+/// 수량은 잔 바닥 또는 이미 담긴 액체에 도착한 입자로 잰다. 기믹 큐는 입자당 ml를 목표 단위로
+/// 환산하고, 기존 경로는 입자 수를 쓴다. 공중의 물줄기는 제외하고 넘친 액체는 수량에서 뺀다.
 ///
 /// 필업(Fill-up)도 이 구현을 그대로 쓴다. 조작과 화면이 같고 큐에서의 위치만 다르다.
 /// </summary>
@@ -140,8 +139,10 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private GradientRatioController gageBar;
 
     [Header("Pour Settings")]
-    [Tooltip("목표 수량에 누적되는 속도 배율. 0.25면 기존의 1/4 속도로 숫자가 찬다. 액체 파티클 방출량은 바꾸지 않는다.")]
+    [Tooltip("실제 기믹에서 입자를 내보내는 유량 배율. 도착한 입자의 용량에는 다시 곱하지 않는다.")]
     [SerializeField, Range(0.01f, 1f)] private float quantityAccumulateMultiplier = 0.25f;
+    [Tooltip("따르기 마치기 후 공중의 액체가 잔에 도착하도록 기다릴 최대 시간. 이 시간은 제조시간에 포함하지 않는다.")]
+    [SerializeField, Min(0f)] private float finishSettleSeconds = 1.5f;
     [Tooltip("isTest일 때 목표 파티클 개수로 사용. 실제 모드에서도 recipe 기반 목표 연결 전까지는 임시로 이 값을 쓴다.")]
     [SerializeField] private int testTargetParticleCount = 60;
     [SerializeField] private int testToleranceCount = 15;
@@ -169,6 +170,13 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     float emitAccumulator;
     float visualCapacityMl;
     float particleVolumeMl;
+    SphVolumeTracker volumeTracker;
+    int volumeStep;
+    bool finishRequested;
+    float finishSettleElapsed;
+    static readonly ProfilerMarker SimulationMarker = new ProfilerMarker("Pour.Simulation");
+    static readonly ProfilerMarker VolumeMarker = new ProfilerMarker("Pour.MeasureRetainedVolume");
+    static readonly ProfilerMarker AudioMarker = new ProfilerMarker("Pour.StartPourAudio");
 
     /// <summary>병목 통로의 반너비(병 로컬). spacing에서 유도되므로 Start에서 한 번만 잡는다.</summary>
     float neckHalfWidth;
@@ -192,8 +200,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             data.targetCraft_tolerance = testToleranceCount;
         }
 
-        // 파티클 개수 목표는 기존 경로에서만 쓴다. 기믹 큐가 돌릴 때는 레시피의 oz를 그대로 목표로 삼고,
-        // 파티클은 눈에 보이는 줄기 역할만 한다.
+        // 기존 경로는 입자 개수, 기믹 큐는 입자 용량을 레시피의 단위로 환산한 양을 목표로 쓴다.
         targetParticleCount = testTargetParticleCount;
 
         int tolerance = data != null ? data.targetCraft_tolerance : 0;
@@ -203,6 +210,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         pouredMl = 0f;
 
         isFinished = false;
+        finishRequested = false;
+        finishSettleElapsed = 0f;
+        volumeStep = 0;
         glassParticleCount = 0;
         remainingInBottle = bottleParticleCount;
 
@@ -241,12 +251,13 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         simulation.SynchronizeTransforms = false;
 
         CreatePool();
+        volumeTracker = new SphVolumeTracker(Mathf.Max(1, maxLiveParticles));
         CalibrateRestDensity();
         ConfigureVolume();
+        liquidRenderer.ReserveParticles(Mathf.Max(1, maxLiveParticles));
         CreateTargetHeightMarker();
 
-        // 이 게이지는 파티클 개수를 기준으로 그린다. 큐가 돌릴 때는 투입량을 방출량으로 재기 때문에
-        // 눈금이 실제 수량과 어긋난다 — 공통 표시가 정확한 수치를 보여주므로 여기서는 감춘다.
+        // 기존 입자 수 게이지 대신 기믹 큐에서는 공통 HUD에 레시피 단위의 현재량을 표시한다.
         if (drivenByRunner)
         {
             if (gageBar != null) gageBar.gameObject.SetActive(false);
@@ -359,17 +370,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// </summary>
     void EmitFromNeck(float dt)
     {
+        if (!IsManualInputActive || audioCancelled) return;
         float flow01 = FlowRate01();
         float volumeRate = mlPerSecondAtFullFlow * flow01 * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
 
-        // 투입량은 파티클 개수가 아니라 "얼마나 오래, 얼마나 세게 기울였는가"로 쌓는다.
-        // 파티클은 눈에 보이는 줄기일 뿐이라 프레임이나 물리 설정에 따라 개수가 흔들리는데,
-        // 방출률 × 시간은 그런 것에 흔들리지 않고 레시피의 oz 단위로 바로 환산된다.
-        // 이 함수가 물리와 같은 고정 시간축(fixedStep)에서 돌기 때문에 프레임이 튀어도 값이 안 변한다.
-        if (flow01 > 0f && (unlimitedLiquid || remainingInBottle > 0))
-            pouredMl += volumeRate * dt;
-
-        if (flow01 <= 0f || (!unlimitedLiquid && remainingInBottle <= 0))
+        if (flow01 <= 0f || (drivenByRunner && volumeRate <= 0f) || (!unlimitedLiquid && remainingInBottle <= 0))
         {
             emitAccumulator = 0f;
             return;
@@ -458,19 +463,26 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         StepSimulation();
         liquidRenderer.UpdateBlobs(simulation.ActiveParticles);
 
-        bool flowing = isPlay && !isFinished && !audioCancelled && audioFocused && !audioPaused &&
+        bool flowing = IsManualInputActive && !audioCancelled && audioFocused && !audioPaused &&
             Time.deltaTime > 0f && bottle != null && FlowRate01() > 0f &&
             (unlimitedLiquid || remainingInBottle > 0);
         if (flowing)
         {
-            pourSound ??= loopSound.StartLoop("SFX_pour");
+            if (pourSound == null)
+            {
+                using (AudioMarker.Auto()) pourSound = loopSound.StartLoop("SFX_pour");
+            }
             pourSound?.SetGain(GameAudioRules.PourGain(FlowRate01()));
         }
         else StopPourSound();
 
         if (!isPlay) return;
 
-        glassParticleCount = CountParticlesInGlass();
+        if (finishRequested)
+        {
+            TryCompletePour();
+            return;
+        }
 
         // 기믹 큐가 돌릴 때는 목표를 넘겨도 저절로 끝나지 않는다. 초과한 양까지 결과에 담고,
         // 끝내는 시점은 플레이어가 정한다 — 목표 도달은 알려 주기만 하는 신호다.
@@ -500,8 +512,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         while (simulationAccumulator >= fixedStep && steps < maxStepsPerFrame)
         {
             EmitFromNeck(fixedStep);
-            simulation.Tick(fixedStep);
+            using (SimulationMarker.Auto()) simulation.Tick(fixedStep);
             RecycleSpilledParticles();
+            // 120Hz 물리 중 두 스텝마다 측정한다. 이웃 탐색을 새로 하지 않고 SPH 목록을 재사용한다.
+            if (++volumeStep >= 2)
+            {
+                volumeStep = 0;
+                MeasureRetainedVolume();
+            }
+            if (finishRequested) finishSettleElapsed += fixedStep;
 
             simulationAccumulator -= fixedStep;
             steps++;
@@ -553,25 +572,28 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── 판정 ────────────────────────────────────────────────────────────
 
-    int CountParticlesInGlass()
+    void MeasureRetainedVolume()
     {
-        int count = 0;
-
-        foreach (var p in live)
+        using (VolumeMarker.Auto())
         {
-            Vector3 local = glassCenter.InverseTransformPoint(p.pos);
-            if (Mathf.Abs(local.x) <= glassInteriorHalfExtents.x && Mathf.Abs(local.y) <= glassInteriorHalfExtents.y)
-                count++;
+            volumeTracker.Measure(simulation.ActiveParticles, glassBoundary, Spacing);
+            glassParticleCount = volumeTracker.ReceivedCount;
+            pouredMl = glassParticleCount * particleVolumeMl;
         }
-
-        return count;
     }
 
     /// <summary>플레이어가 스스로 따르기를 멈추고 결과를 확정할 때(별도 UI 버튼 등에서) 호출.</summary>
     public void FinishPour()
     {
-        if (!isPlay || isFinished) return;
+        if (!IsManualInputActive) return;
+        finishRequested = true;
+        finishSettleElapsed = 0f;
+        bottle.EndDrag();
+        StopPourSound();
+    }
 
+    void CompletePour()
+    {
         isFinished = true;
         isPlay = false;
         StopPourSound();
@@ -587,6 +609,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             Logger.Log($"[Pour] 판정 종료. 잔에 담긴 파티클 {glassParticleCount} / 목표 {targetParticleCount}(±{toleranceCount})");
             OnNextButton();
         }
+    }
+
+    void TryCompletePour()
+    {
+        if (!finishRequested || isFinished) return;
+        if (finishSettleElapsed < finishSettleSeconds &&
+            (finishSettleElapsed < 0.12f || volumeTracker.PendingCount > 0)) return;
+        MeasureRetainedVolume();
+        CompletePour();
     }
 
     Color GetLiquidColor()
@@ -678,7 +709,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>기울기를 끝까지 눕혔을 때의 방출률(ml/초). balance.json에서 읽는다.</summary>
     float mlPerSecondAtFullFlow;
 
-    /// <summary>지금까지 병에서 나온 양(ml). 기울인 세기 × 시간으로 쌓인다.</summary>
+    /// <summary>실제로 도착해 잔 안에 남아 있는 입자의 총 용량(ml).</summary>
     float pouredMl;
 
     /// <summary>결과 기록과 목표 도달 판정에 사용할, 목표 단위로 환산한 투입량.</summary>
@@ -857,7 +888,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>
     /// 병을 기울일 수 있는 동안. 따르기는 시작 대기나 연출 구간이 없어서 화면에 떠 있는 내내 해당한다.
     /// </summary>
-    public bool IsManualInputActive => isPlay && !isFinished;
+    public bool IsManualInputActive => isPlay && !isFinished && !finishRequested;
 
     // ── ICraftGimmickProgress ───────────────────────────────────────────
 
@@ -911,9 +942,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── ICraftGimmickManualEnd ──────────────────────────────────────────
 
-    public bool CanEndNow => isPlay && !isFinished;
+    public bool CanEndNow => IsManualInputActive;
 
-    /// <summary>지금까지 따른 양으로 확정한다. 모자라든 넘치든 그 시점 값이 결과다.</summary>
+    /// <summary>출수를 막고 남은 물줄기를 정리한 다음 실제 담긴 양으로 확정한다.</summary>
     public void EndNow()
     {
         FinishPour();

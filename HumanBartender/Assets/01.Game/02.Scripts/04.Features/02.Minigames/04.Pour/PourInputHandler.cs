@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -14,10 +15,19 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
     bool routedInput;
     bool pressHeld;
     Pointer dragPointer;
-    readonly List<RaycastResult> uiHits = new List<RaycastResult>();
+    Camera pointerCamera;
+    PourManager manager;
+    EventSystem pointerEvents;
+    PointerEventData pointerEventData;
+    readonly List<RaycastResult> uiHits = new List<RaycastResult>(32);
+    static readonly ProfilerMarker PressMarker = new ProfilerMarker("Pour.PointerPress");
+    static readonly ProfilerMarker DragMarker = new ProfilerMarker("Pour.PointerDrag");
+
+    void Awake() => manager = GetComponentInParent<PourManager>();
 
     void OnEnable()
     {
+        pointerCamera = null;
         SynchronizePress();
     }
 
@@ -31,6 +41,7 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
     public void OnPointerInput(bool pressed)
     {
         if (!isActiveAndEnabled || pressHeld == pressed) return;
+        using var marker = PressMarker.Auto();
         pressHeld = pressed;
 
         if (!pressed)
@@ -41,6 +52,7 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
 
         Pointer pointer = Pointer.current;
         if (bottle == null || !bottle.isActiveAndEnabled || pointer == null ||
+            (manager != null && !manager.IsManualInputActive) ||
             IsOverControl(pointer) || !TryGetPointerPosition(pointer, out Vector3 worldPosition, true)) return;
         dragPointer = pointer;
         bottle.BeginDrag(worldPosition);
@@ -56,6 +68,7 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
         }
 
         if (dragPointer == null) return;
+        using var marker = DragMarker.Auto();
         if (!dragPointer.added || !dragPointer.press.isPressed || bottle == null || !bottle.isActiveAndEnabled)
         {
             EndDrag();
@@ -71,8 +84,15 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
     {
         EventSystem events = EventSystem.current;
         if (events == null) return false;
+        if (pointerEventData == null || pointerEvents != events)
+        {
+            pointerEvents = events;
+            pointerEventData = new PointerEventData(events);
+        }
+        pointerEventData.Reset();
+        pointerEventData.position = pointer.position.ReadValue();
         uiHits.Clear();
-        events.RaycastAll(new PointerEventData(events) { position = pointer.position.ReadValue() }, uiHits);
+        events.RaycastAll(pointerEventData, uiHits);
         foreach (RaycastResult hit in uiHits)
         {
             if (hit.gameObject.GetComponentInParent<Selectable>() != null) return true;
@@ -83,7 +103,8 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
     bool TryGetPointerPosition(Pointer pointer, out Vector3 position, bool requireInsideViewport = false)
     {
         position = default;
-        Camera camera = CraftGimmickStage.Find(this);
+        if (pointerCamera == null) pointerCamera = CraftGimmickStage.Find(this);
+        Camera camera = pointerCamera;
         if (camera == null) return false;
         Vector2 screen = pointer.position.ReadValue();
         if (requireInsideViewport && !camera.pixelRect.Contains(screen)) return false;
@@ -92,6 +113,8 @@ public class PourInputHandler : MonoBehaviour, ICraftPointerInput
         position = ray.GetPoint(distance);
         return true;
     }
+
+    void OnTransformParentChanged() => pointerCamera = null;
 
     void EndDrag()
     {
