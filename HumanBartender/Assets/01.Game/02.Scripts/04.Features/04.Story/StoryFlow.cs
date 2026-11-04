@@ -23,6 +23,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
     [SerializeField] private OrderRequestController orderController;
     [SerializeField] private CraftFlowController craftFlow;
+    [SerializeField] private ServicePanelController servicePanel;
 
     [Inject] IBgmPlayer soundManager;
 
@@ -120,7 +121,11 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     }
 
     public bool CanAdvanceDialogue => runner != null && runner.IsPresentingLine &&
+        (servicePanel == null || !servicePanel.BlocksBarInput) &&
         (craftFlow == null || (!craftFlow.IsCraftFlowActive && !craftFlow.IsAwaitingServeDecision));
+
+    /// <summary>화면 클릭도 키보드와 같은 대화 진행 조건을 사용한다.</summary>
+    public void OnAdvanceInput() => TryAdvance();
 
     /// <summary>
     /// 대사 진행 입력. 대본이 돌고 있을 때만 받는다.

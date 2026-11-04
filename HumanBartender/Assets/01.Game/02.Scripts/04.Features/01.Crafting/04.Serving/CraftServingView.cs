@@ -38,7 +38,7 @@ public class CraftServingView : MonoBehaviour
     bool BarVisible => serveCanvas.isActiveAndEnabled && !craftFlow.IsCraftFlowActive &&
         !craftFlow.IsAwaitingServeDecision;
     bool CanInteract() => BarVisible && !playCamera.IsMoving && !recipes.IsOpen &&
-        !servicePanel.IsMenuOpen && !UIDisplayOptions.IsOptionOpen;
+        !servicePanel.BlocksBarInput && !UIDisplayOptions.IsOptionOpen;
 
     TableServeSpot CreateSpot(string guest, float worldX)
     {

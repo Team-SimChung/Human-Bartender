@@ -21,7 +21,7 @@ public class PlayInputHandler : MonoBehaviour
     float skipElapsed;
 
     bool CanUseDialogueInput => playPhaseController != null && playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)
-        && !UIDisplayOptions.IsOptionOpen && (servicePanelController == null || !servicePanelController.IsMenuOpen)
+        && !UIDisplayOptions.IsOptionOpen && (servicePanelController == null || !servicePanelController.BlocksBarInput)
         && (recipeScreen == null || !recipeScreen.IsOpen);
 
     public void OnAdvance(InputValue value)
@@ -86,7 +86,7 @@ public class PlayInputHandler : MonoBehaviour
         if (!value.isPressed || playPhaseController == null) return;
         if (playPhaseController.CanReceiveInput(EPlayPhase.Dialogue))
         {
-            if (servicePanelController != null && servicePanelController.IsMenuOpen) return;
+            if (servicePanelController != null && servicePanelController.BlocksBarInput) return;
             if (recipeScreen != null && recipeScreen.IsOpen) return;
             storyFlow?.TryMoveTutorialSeat(step);
             return;
