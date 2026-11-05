@@ -41,10 +41,14 @@ public sealed class VerticalCameraImpulse : CinemachineExtension, ICameraImpulse
             return;
         }
 
-        // A short held hit, a one-quarter-strength counter hit, then an abrupt return.
-        // Absolute time keeps repeated Cinemachine evaluations in the same frame identical.
+        state.PositionCorrection += Vector3.up * SampleOffset(elapsed, duration, amplitude);
+    }
+
+    // A short held hit, a one-quarter-strength counter hit, then an abrupt return.
+    internal static float SampleOffset(float elapsed, float duration, float amplitude)
+    {
+        if (elapsed < 0f || elapsed >= duration) return 0f;
         float t = elapsed / duration;
-        float offset = t < 0.3f ? amplitude : t < 0.65f ? -amplitude * 0.25f : 0f;
-        state.PositionCorrection += Vector3.up * offset;
+        return t < 0.3f ? amplitude : t < 0.65f ? -amplitude * 0.25f : 0f;
     }
 }

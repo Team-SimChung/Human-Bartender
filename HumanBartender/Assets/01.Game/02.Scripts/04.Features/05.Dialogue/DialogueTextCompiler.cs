@@ -12,6 +12,7 @@ public static class DialogueTextCompiler
         public float SpeedSeconds;
         public bool Shake, Wave, Pop;
         public float ShakeAmp, ShakeHz, WaveAmp, WaveHz, WavePhase, PopPeak, PopDuration;
+        public bool HasShake => Shake && ShakeAmp > 0f && ShakeHz > 0f;
     }
 
     public sealed class Line

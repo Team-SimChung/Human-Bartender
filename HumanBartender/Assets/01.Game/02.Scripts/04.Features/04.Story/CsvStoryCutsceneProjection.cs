@@ -49,8 +49,12 @@ public sealed class CsvStoryCutsceneProjection : IDisposable
                 clip.BubbleScreenHeight = 0;
                 clip.UseBubbleLayout = true;
                 clip.BubbleWidth = 820;
+                if (clip.Text.Contains('<') && DialogueTextCompiler.TryCompile(clip.Text, null,
+                        DialoguePresentationSettings.Shared, null, 1f / clip.CharactersPerSecond, out var compiled, out _) &&
+                    compiled.Text != clip.Text)
+                    clip.ProjectedDialogue = compiled;
                 timed.start = at;
-                timed.duration = Math.Max(.15, clip.Text.Length / 35.0);
+                timed.duration = Math.Max(.15, (clip.ProjectedDialogue?.Text ?? clip.Text).Length / (double)clip.CharactersPerSecond);
                 at = timed.end;
             }
             Sequence.Timeline.fixedDuration = at;

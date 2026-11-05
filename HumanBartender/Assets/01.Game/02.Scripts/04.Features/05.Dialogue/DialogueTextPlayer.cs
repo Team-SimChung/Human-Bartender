@@ -188,7 +188,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         for (int i = first; i < end; i++)
         {
             var style = session.Line.Characters[i];
-            if (!style.Shake || style.ShakeAmp <= 0f || style.ShakeHz <= 0f)
+            if (!style.HasShake)
             {
                 session.ShakeSpanNotified = false;
                 continue;
