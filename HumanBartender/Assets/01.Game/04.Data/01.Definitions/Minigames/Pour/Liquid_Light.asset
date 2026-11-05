@@ -27,6 +27,138 @@ MonoBehaviour:
     viscosity: 0.12
     velocitySmoothing: 0.2
     maxVelocity: 4.5
+  targetHeightByFillRatio:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1.0903158
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.02507874
+      value: 0.027343748
+      inSlope: 1.0903158
+      outSlope: 0
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.05015748
+      value: 0.027343748
+      inSlope: -0
+      outSlope: 1.4018347
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.10031496
+      value: 0.09765625
+      inSlope: 1.4018347
+      outSlope: 0.93455666
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.15047243
+      value: 0.14453125
+      inSlope: 0.93455666
+      outSlope: 1.0903158
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.20062992
+      value: 0.19921875
+      inSlope: 1.0903158
+      outSlope: 1.090316
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.30094486
+      value: 0.30859375
+      inSlope: 1.090316
+      outSlope: 1.0903158
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.40125984
+      value: 0.41796875
+      inSlope: 1.0903158
+      outSlope: 1.0903164
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.50157475
+      value: 0.52734375
+      inSlope: 1.0903164
+      outSlope: 1.012436
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.6018897
+      value: 0.62890625
+      inSlope: 1.012436
+      outSlope: 1.0903158
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.7022047
+      value: 0.73828125
+      inSlope: 1.0903158
+      outSlope: 1.0383959
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8000118
+      value: 0.83984375
+      inSlope: 1.0383959
+      outSlope: 1.0124366
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.9003267
+      value: 0.94140625
+      inSlope: 1.0124366
+      outSlope: 1.0124372
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1.0423192
+      inSlope: 1.0124372
+      outSlope: 0
+      tangentMode: 69
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   blobRadiusScale: 1.8
   threshold: 0.5
   edgeSmoothness: 0.08

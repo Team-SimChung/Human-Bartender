@@ -39,6 +39,15 @@ public class LiquidProfile : ScriptableObject
     [Header("물성")]
     public SphConfig physics = new SphConfig();
 
+    [Header("고정 목표 높이")]
+    [Tooltip("실제 출수 후 안정된 액체 표면으로 미리 측정한 곡선. X=목표량/잔 용량, Y=잔 내부 높이 비율. 시작 시에만 사용한다.")]
+    [SerializeField] AnimationCurve targetHeightByFillRatio = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+
+    public float TargetHeightRatio(float fillRatio) =>
+        targetHeightByFillRatio != null && targetHeightByFillRatio.length >= 2
+            ? targetHeightByFillRatio.Evaluate(fillRatio)
+            : fillRatio;
+
     [Header("질감 (렌더)")]
     [Tooltip("블롭 반지름을 파티클 간격의 몇 배로 잡을지. 키우면 매끈하고 두툼해지지만 뭉툭해진다.\n" +
              "threshold와 짝이다 — 인접 파티클 사이 필드값이 threshold를 넘어야 액체 덩어리로 보이고, " +

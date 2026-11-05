@@ -178,6 +178,7 @@ flow = Clamp01(InverseLerp(95°, 110°, 현재각도))
 ```
 
 - 방출과 물리는 1/120초 스텝으로 진행하며 프레임당 최대 4스텝이다. 수량은 두 물리 스텝마다(60Hz) SPH 이웃 목록과 미리 확보한 탐색 버퍼를 재사용해 측정한다.
+- 목표선은 수량과 같은 입자당 ml·잔 용량으로 목표 비율을 구한 뒤, `LiquidProfile.targetHeightByFillRatio`의 사전 실측 곡선을 적용해 시작 시 한 번 계산하고 고정한다. Light 곡선은 실제 병 출수 후 액체 본체 수면으로 측정했다. 액체 수면·현재량 변화에 따른 실시간 보정은 껐다. 예전 `targetHeightScale`·`targetHeightOffset` 설정은 제거했다.
 - 병 그림은 재료 ID로 찾고 액체 색은 선반 데이터에서 읽는다. 잔은 현재 프리팹의 고정 리소스를 사용한다.
 - HUD는 레시피 단위 oz/ml로 목표량과 현재량을 분리해서 표시한다. 정답 재료가 아니면 두 값은 `???`로 가린다.
 - 목표 도달은 표시 신호이며 자동 종료 조건이 아니다. 마치기를 누르면 출수와 추가 입력을 막고 남은 물줄기를 정리한다. 최소 0.12초 후 도착 대기 입자가 없으면 확정하며, 물리 정리 시간 상한은 프리팹의 `finishSettleSeconds`(현재 1.5초)다. 이 구간에는 `IsManualInputActive=false`이므로 제조시간을 더하지 않는다.
@@ -186,6 +187,8 @@ flow = Clamp01(InverseLerp(95°, 110°, 현재각도))
 표현 코드: [SphLiquidRenderer.cs](../Assets/01.Game/02.Scripts/04.Features/02.Minigames/04.Pour/SphLiquidRenderer.cs), `Sph/SphSimulation.cs`, `LiquidProfile.cs`, `LiquidAppearance.cs`, `BottleSilhouette.cs`.
 
 도착 판정·수량 계산과 병 조작 프레임 드랍 분석: [Pour_Accounting_Performance_2026-11-04.md](Pour_Accounting_Performance_2026-11-04.md).
+
+목표선과 실제 액체 표면 정렬: [Pour_Target_Height_2026-11-05.md](Pour_Target_Height_2026-11-05.md).
 
 ### 4.3 본편 셰이크 — ShakingManagerNew
 

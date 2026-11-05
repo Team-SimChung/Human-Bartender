@@ -93,16 +93,12 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [Header("Glass Volume")]
     [Tooltip("기믹 화면의 잔 전체에 해당하는 ml. 목표량과 무관한 고정 표시 용량.")]
     [SerializeField, Min(1f)] private float glassCapacityMl = 300f;
-    [Tooltip("선택한 잔 ID가 mug일 때 사용할 표시 용량. 맥주 12oz와 거품 여유를 포함한다.")]
+    [Tooltip("선택한 잔 ID가 weizen(바이젠잔)일 때 사용할 표시 용량. 맥주 12oz와 거품 여유를 포함한다.")]
     [SerializeField, Min(1f)] private float mugCapacityMl = 450f;
     [Tooltip("SPH 입자 한 개의 안정된 면적 / spacing². 수량과 입자 방출이 같은 환산을 사용한다.")]
     [SerializeField, Range(0.5f, 2f)] private float particleAreaScale = 0.98f;
     [Header("Target Height")]
     [SerializeField] private bool showTargetHeight = true;
-    [Tooltip("SPH 간격으로 추정한 액체 높이의 보정 배율.")]
-    [SerializeField, Min(0.01f)] private float targetHeightScale = 1f;
-    [Tooltip("목표선에 공통으로 더할 높이(잔 로컬 단위). 양수면 높이고 음수면 낮춘다.")]
-    [SerializeField] private float targetHeightOffset = 0.03f;
     [SerializeField, Min(0.001f)] private float targetMarkerSize = 0.08f;
     [SerializeField, Min(0f)] private float targetMarkerGap = 0.04f;
     [SerializeField] private bool showTargetHeightDashedLine = true;
@@ -111,6 +107,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField, Min(0.001f)] private float targetDashThickness = 0.008f;
     private Mesh targetHeightMesh;
     private Material targetHeightMaterial;
+    Transform targetHeightMarker;
+    float targetMarkerParticles;
 
     [Header("Liquid (SPH)")]
     [SerializeField] private SphLiquidRenderer liquidRenderer;
@@ -807,29 +805,22 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         if (!showTargetHeight || glassCenter == null ||
             (drivenByRunner && !pourStep.IsTargetVisible)) return;
 
-        float targetParticles = targetParticleCount;
+        targetMarkerParticles = targetParticleCount;
         if (drivenByRunner)
         {
             float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
             float targetMl = pourStep.TargetValue.Value / Mathf.Max(0.0001f, mlPerUnit);
             if (particleVolumeMl <= 0f) return;
-            targetParticles = targetMl / particleVolumeMl;
+            targetMarkerParticles = targetMl / particleVolumeMl;
         }
 
-        // 2D 액체에서 파티클 한 개의 면적을 spacing²로 추정한다.
-        Vector3 glassScale = glassCenter.lossyScale;
-        float width = 2f * glassInteriorHalfExtents.x * Mathf.Abs(glassScale.x);
-        float areaScale = drivenByRunner ? particleAreaScale : 1f;
-        float worldHeight = targetParticles * Spacing * Spacing * areaScale * targetHeightScale / Mathf.Max(0.0001f, width);
-        float localHeight = worldHeight / Mathf.Max(0.0001f, Mathf.Abs(glassScale.y));
-        float y = -glassInteriorHalfExtents.y + localHeight + targetHeightOffset;
-        if (y > glassInteriorHalfExtents.y)
+        if (targetMarkerParticles * particleVolumeMl > visualCapacityMl)
             Debug.LogWarning("[Pour] 목표량의 예상 높이가 잔보다 높습니다. 목표선은 잔 상단에 표시합니다.", this);
-        y = Mathf.Clamp(y, -glassInteriorHalfExtents.y, glassInteriorHalfExtents.y);
 
         var marker = new GameObject("Target Liquid Height", typeof(MeshFilter), typeof(MeshRenderer));
         marker.transform.SetParent(glassCenter, false);
-        marker.transform.localPosition = new Vector3(glassInteriorHalfExtents.x + targetMarkerGap, y, 0f);
+        targetHeightMarker = marker.transform;
+        targetHeightMarker.localPosition = new Vector3(glassInteriorHalfExtents.x + targetMarkerGap, CalculateTargetHeight(), 0f);
         targetHeightMesh = new Mesh { name = "Target Height Marker" };
         var vertices = new List<Vector3> {
             Vector3.zero,
@@ -876,6 +867,14 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         SpriteRenderer glassRenderer = glassCenter.GetComponentInParent<SpriteRenderer>();
         if (glassRenderer != null) renderer.sortingLayerID = glassRenderer.sortingLayerID;
         renderer.sortingOrder = glassRenderer != null ? glassRenderer.sortingOrder + 1 : 20;
+    }
+
+    float CalculateTargetHeight()
+    {
+        float fillRatio = targetMarkerParticles * particleVolumeMl / Mathf.Max(1f, visualCapacityMl);
+        float heightRatio = liquidProfile.TargetHeightRatio(fillRatio);
+        return Mathf.Clamp(-glassInteriorHalfExtents.y + glassInteriorHalfExtents.y * 2f * heightRatio,
+            -glassInteriorHalfExtents.y, glassInteriorHalfExtents.y);
     }
 
     void OnDestroy()
