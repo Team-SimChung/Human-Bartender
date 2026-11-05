@@ -372,8 +372,6 @@ MonoBehaviour:
   mugCapacityMl: 450
   particleAreaScale: 0.98
   showTargetHeight: 1
-  targetHeightScale: 1
-  targetHeightOffset: 0.03
   targetMarkerSize: 0.08
   targetMarkerGap: 0.1
   showTargetHeightDashedLine: 1
@@ -390,6 +388,7 @@ MonoBehaviour:
   buttonCanvas: {fileID: 4896236295880935853}
   gageBar: {fileID: 4168697912332456186}
   quantityAccumulateMultiplier: 0.25
+  finishSettleSeconds: 1.5
   testTargetParticleCount: 60
   testToleranceCount: 15
   craftServe: {fileID: 0}

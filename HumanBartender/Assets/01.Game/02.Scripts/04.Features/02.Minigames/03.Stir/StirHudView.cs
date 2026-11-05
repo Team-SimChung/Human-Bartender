@@ -33,6 +33,7 @@ public class StirHudView : MonoBehaviour
     [Header("Overlay")]
     [Tooltip("시작 대기 카드. 첫 W 입력에 꺼진다.")]
     [SerializeField] GameObject startOverlay;
+    [SerializeField] GameObject startHint;
     [SerializeField] TMP_Text judgeText;
 
     /// <summary>
@@ -94,7 +95,8 @@ public class StirHudView : MonoBehaviour
 
     public void SetStartOverlay(bool visible)
     {
-        if (startOverlay != null) startOverlay.SetActive(visible);
+        if (startOverlay != null) startOverlay.SetActive(visible && startHint == null);
+        if (startHint != null) startHint.SetActive(visible);
     }
 
     public void SetJudge(string message)

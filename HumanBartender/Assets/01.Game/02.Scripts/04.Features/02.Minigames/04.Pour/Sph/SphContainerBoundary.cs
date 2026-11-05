@@ -11,6 +11,7 @@ public readonly struct SphContainerBoundary
     readonly float height;
     readonly float innerWidth;
     readonly float floor;
+    readonly float scaleY;
 
     public SphContainerBoundary(Transform container, Vector2 halfExtents, float radius)
     {
@@ -21,7 +22,7 @@ public readonly struct SphContainerBoundary
         Vector2 worldX = toWorld.MultiplyVector(Vector3.right);
         Vector2 worldY = toWorld.MultiplyVector(Vector3.up);
         float scaleX = Mathf.Max(worldX.magnitude, 0.0001f);
-        float scaleY = Mathf.Max(worldY.magnitude, 0.0001f);
+        scaleY = Mathf.Max(worldY.magnitude, 0.0001f);
         xAxis = worldX / scaleX;
         yAxis = worldY / scaleY;
         innerWidth = Mathf.Max(0f, width - radius / scaleX);
@@ -30,6 +31,21 @@ public readonly struct SphContainerBoundary
 
     public static void Constrain(SphParticle particle, Transform container, Vector2 halfExtents, float radius)
         => new SphContainerBoundary(container, halfExtents, radius).Constrain(particle);
+
+    /// <summary>최종 위치가 잔 내부인지와 바닥으로부터의 월드 거리를 함께 구한다.</summary>
+    public bool TryGetContainedHeight(Vector2 position, out float heightAboveFloor)
+    {
+        Vector3 local = toLocal.MultiplyPoint3x4(position);
+        heightAboveFloor = (local.y - floor) * scaleY;
+        return Mathf.Abs(local.x) <= width && local.y >= -height && local.y <= height;
+    }
+
+    /// <summary>입구 위의 물줄기 또는 잔 안에서 아직 도착하지 않은 입자만 종료 대기 대상으로 삼는다.</summary>
+    public bool CouldStillBeReceived(Vector2 position)
+    {
+        Vector3 local = toLocal.MultiplyPoint3x4(position);
+        return local.y > height || (Mathf.Abs(local.x) <= width && local.y >= -height);
+    }
 
     public void Constrain(SphParticle particle)
     {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -45,6 +46,9 @@ public class SphLiquidRenderer : MonoBehaviour
     static readonly int FieldId = Shader.PropertyToID("_FieldTex");
     static readonly int EffectsId = Shader.PropertyToID("_EffectsTex");
     static readonly int SurfaceId = Shader.PropertyToID("_SurfaceTex");
+    static readonly ProfilerMarker UploadMarker = new ProfilerMarker("Pour.UploadParticles");
+    static readonly ProfilerMarker BufferMarker = new ProfilerMarker("Pour.AllocateParticleBuffer");
+    static readonly ProfilerMarker RenderMarker = new ProfilerMarker("Pour.BuildRenderCommands");
 
     void Awake() => CreateResources();
 
@@ -138,16 +142,10 @@ public class SphLiquidRenderer : MonoBehaviour
 
     public void UpdateBlobs(IReadOnlyList<SphParticle> particles)
     {
+        using var marker = UploadMarker.Auto();
         particleCount = particles.Count;
         if (!initialized || !isActiveAndEnabled || splatMaterial == null || particleCount == 0) return;
-        if (particleBuffer == null || particleCount > capacity)
-        {
-            particleBuffer?.Dispose();
-            capacity = Mathf.Max(256, Mathf.NextPowerOfTwo(particleCount));
-            upload = new GpuParticle[capacity];
-            particleBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, 32);
-            splatMaterial.SetBuffer(ParticlesId, particleBuffer);
-        }
+        ReserveParticles(particleCount);
         for (int i = 0; i < particleCount; i++)
         {
             var p = particles[i];
@@ -157,6 +155,18 @@ public class SphLiquidRenderer : MonoBehaviour
             p.renderImpact = Vector4.zero;
         }
         particleBuffer.SetData(upload, 0, 0, particleCount);
+    }
+
+    /// <summary>게임 시작 시 최대 입자 수를 예약해 첫 출수 및 용량 경계에서 GPU 버퍼를 다시 만들지 않는다.</summary>
+    public void ReserveParticles(int count)
+    {
+        if (splatMaterial == null || (particleBuffer != null && count <= capacity)) return;
+        using var marker = BufferMarker.Auto();
+        particleBuffer?.Dispose();
+        capacity = Mathf.Max(256, Mathf.NextPowerOfTwo(count));
+        upload = new GpuParticle[capacity];
+        particleBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, capacity, 32);
+        splatMaterial.SetBuffer(ParticlesId, particleBuffer);
     }
 
     Camera ResolveCamera() => targetCamera != null ? targetCamera : Camera.main;
@@ -190,6 +200,7 @@ public class SphLiquidRenderer : MonoBehaviour
 
     CommandBuffer BuildCommands(Camera camera, float dt)
     {
+        using var marker = RenderMarker.Auto();
         EnsureTargets(camera);
         commands.Clear();
         if (clearHistory)

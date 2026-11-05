@@ -1,8 +1,10 @@
 # 새 쉐이킹 씬 연결과 데이터 흐름
 
+현재 본편을 포함한 전체 연결·동작 안내는 [현재 기믹 시스템 문서](../HumanBartender/Documentation/Gimmick_System_Current.md)를 참고한다. 이 문서는 준비된 A/D 리듬 구현을 다루며, 본편 Shake는 현재 `NewShakingMinigame`에 연결되어 있다.
+
 ## 씬과 프리팹
 
-- 테스트 씬: `HumanBartender/Assets/03.Dev/01.Scenes/01.Minigames/NewShaking.unity`
+- 테스트 씬: `HumanBartender/Assets/02.Dev/01.Scenes/01.Minigames/NewShaking.unity`
 - 실행 프리팹: `HumanBartender/Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/01.Shake/RhythmShakingMinigame.prefab`
 - 제어 컴포넌트: 루트의 `ShakingRhythmManager`
 
