@@ -2557,7 +2557,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &724227593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3649,6 +3649,7 @@ GameObject:
   - component: {fileID: 1183900666}
   - component: {fileID: 1183900670}
   - component: {fileID: 1183900665}
+  - component: {fileID: 1183900671}
   - component: {fileID: 1183900669}
   - component: {fileID: 1183900668}
   - component: {fileID: 1183900667}
@@ -3685,7 +3686,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3832,6 +3833,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.26, y: 0.87}
   m_EdgeRadius: 0
+--- !u!114 &1183900671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183900664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1183900665}
+  fadeSpeed: 8
 --- !u!1 &1238596389
 GameObject:
   m_ObjectHideFlags: 0
@@ -4076,9 +4091,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.125
-    width: 1
-    height: 0.75000006
+    y: 0
+    width: 0.9996779
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
