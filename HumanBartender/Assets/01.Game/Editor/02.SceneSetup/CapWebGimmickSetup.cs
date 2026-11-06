@@ -65,6 +65,7 @@ public static class CapWebGimmickSetup
             Set(manager, "openAudio", audio);
             Set(manager, "balanceData", balance);
 
+            new CapUiAuthoring(view).Build();
             PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             Debug.Log("[CapSetup] NewCapGame을 웹 병따기 화면으로 갱신했습니다.");
         }

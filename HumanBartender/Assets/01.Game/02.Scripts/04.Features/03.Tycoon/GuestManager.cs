@@ -128,7 +128,6 @@ public class GuestManager : MonoBehaviour
         if (servicePanelController != null)
         {
             servicePanelController.OpenChanged += OnServicePanelOpenChanged;
-            RefreshClockPause();
         }
         if (appearanceLoads.IsCancellationRequested)
         {
@@ -137,12 +136,14 @@ public class GuestManager : MonoBehaviour
         }
         if (craftFlow == null)
         {
+            RefreshClockPause();
             Debug.LogWarning("[Guest] craftFlow가 비어 있어 제조 중에도 손님 대기 시간이 계속 흐릅니다.");
             return;
         }
 
         craftFlow.CraftFlowActiveChanged += OnCraftFlowActiveChanged;
         craftFlow.AddCraftBlocker(DescribeNoOrderBlock);
+        RefreshClockPause();
     }
 
     void OnDisable()
@@ -195,7 +196,7 @@ public class GuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 제조 흐름에 들어가면 손님 쪽 시간을 멈추고, 나오면 멈추기 직전 남은 시간부터 다시 흘린다.
+    /// 재료 선택부터 결과 화면의 제공하기를 누를 때까지 멈추고, 바에 돌아오면 남은 시간부터 이어 센다.
     /// settings/balance_config.csv의 craft_pause_start = cocktail_menu_enter / craft_pause_end = return_to_table_after_serve_choice.
     /// </summary>
     void OnCraftFlowActiveChanged(bool craftFlowActive)

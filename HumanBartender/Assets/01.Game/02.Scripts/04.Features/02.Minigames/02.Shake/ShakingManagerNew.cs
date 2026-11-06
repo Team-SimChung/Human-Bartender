@@ -111,7 +111,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         failJudge = 0;
         hasStarted = false;
         endedManually = false;
-        attemptGauge?.ResetAll();
+        attemptGauge?.Configure(totalJudge);
         isPlay = true;
     }
 

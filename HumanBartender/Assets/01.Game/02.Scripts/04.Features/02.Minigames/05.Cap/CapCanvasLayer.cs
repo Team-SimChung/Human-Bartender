@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 2D 캔버스 변환 행렬. HTML 캔버스의 setTransform(a, b, c, d, e, f)과 같은 뜻이다 —
@@ -37,64 +38,25 @@ public struct CapAffine2D
     public Vector2 Apply(float x, float y) => new Vector2(a * x + c * y + e, b * x + d * y + f);
 }
 
-/// <summary>
-/// 웹 캔버스 그리기 한 겹. 매 프레임 비우고 다시 채워 메시 하나로 그린다.
-///
-/// 정점은 웹 캔버스 픽셀 좌표 그대로다. 부모(CapOpenView의 무대)가 y를 뒤집고 카메라 크기에 맞춰
-/// 줄여 주므로, 여기서는 웹 코드의 숫자를 바꾸지 않고 쓴다. 한 겹은 텍스처 하나만 쓴다 —
-/// 그리는 순서가 웹과 같아야 해서, 텍스처가 바뀌는 지점마다 겹을 나눈다.
-/// </summary>
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public sealed class CapCanvasLayer : MonoBehaviour
+/// <summary>연출 메시를 편집 가능한 RectTransform 안에 그린다. 위치와 크기는 프리팹 값을 유지한다.</summary>
+[RequireComponent(typeof(CanvasRenderer))]
+public sealed class CapCanvasLayer : MaskableGraphic
 {
-    static Texture2D white;
+    [SerializeField] Texture texture;
+    [SerializeField] Vector2 drawingOrigin;
+    [SerializeField] Vector2 referenceSize = new Vector2(1280f, 720f);
+    public override Texture mainTexture => texture != null ? texture : Texture2D.whiteTexture;
 
     readonly List<Vector3> vertices = new();
     readonly List<Vector2> uvs = new();
     readonly List<Color32> colors = new();
     readonly List<int> triangles = new();
 
-    Mesh mesh;
-    Material material;
-    Texture texture;
-
-    /// <summary>한 겹을 만든다. texture가 null이면 단색 도형만 그리는 겹이다.</summary>
-    public static CapCanvasLayer Create(Transform parent, string name, Texture texture, int sortingOrder, int sortingLayerId)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
-        var layer = go.AddComponent<CapCanvasLayer>();
-        layer.Init(texture, sortingOrder, sortingLayerId);
-        return layer;
-    }
-
-    void Init(Texture source, int sortingOrder, int sortingLayerId)
-    {
-        if (white == null)
-        {
-            white = new Texture2D(1, 1, TextureFormat.RGBA32, false) { name = "CapWhite", hideFlags = HideFlags.HideAndDontSave };
-            white.SetPixel(0, 0, Color.white);
-            white.Apply();
-        }
-
-        texture = source != null ? source : white;
-        mesh = new Mesh { name = name };
-        mesh.MarkDynamic();
-        GetComponent<MeshFilter>().sharedMesh = mesh;
-
-        // Sprites/Default는 정점 색을 그대로 곱하고 양면을 그린다. 무대가 y를 뒤집어도 사라지지 않는다.
-        material = new Material(Shader.Find("Sprites/Default")) { mainTexture = texture };
-        var renderer = GetComponent<MeshRenderer>();
-        renderer.sharedMaterial = material;
-        renderer.sortingLayerID = sortingLayerId;
-        renderer.sortingOrder = sortingOrder;
-    }
-
-    /// <summary>텍스처를 바꾼다. 실시간으로 다시 그리는 탄산 텍스처처럼 크기가 정해진 뒤에 붙는 경우에 쓴다.</summary>
     public void SetTexture(Texture source)
     {
-        texture = source != null ? source : white;
-        if (material != null) material.mainTexture = texture;
+        if (texture == source) return;
+        texture = source;
+        SetMaterialDirty();
     }
 
     public void Clear()
@@ -102,14 +64,21 @@ public sealed class CapCanvasLayer : MonoBehaviour
         vertices.Clear(); uvs.Clear(); colors.Clear(); triangles.Clear();
     }
 
-    public void Apply()
+    public void Apply() => SetVerticesDirty();
+
+    protected override void OnPopulateMesh(VertexHelper helper)
     {
-        mesh.Clear();
-        mesh.SetVertices(vertices);
-        mesh.SetUVs(0, uvs);
-        mesh.SetColors(colors);
-        mesh.SetTriangles(triangles, 0);
-        mesh.RecalculateBounds();
+        helper.Clear();
+        Rect rect = rectTransform.rect;
+        for (int i = 0; i < vertices.Count; i++)
+        {
+            Vector3 point = vertices[i];
+            point.x = rect.xMin + (point.x - drawingOrigin.x) * rect.width / Mathf.Max(.001f, referenceSize.x);
+            point.y = rect.yMax - (point.y - drawingOrigin.y) * rect.height / Mathf.Max(.001f, referenceSize.y);
+            helper.AddVert(point, colors[i] * color, uvs[i]);
+        }
+        for (int i = 0; i < triangles.Count; i += 3)
+            helper.AddTriangle(triangles[i], triangles[i + 1], triangles[i + 2]);
     }
 
     /// <summary>
@@ -118,7 +87,7 @@ public sealed class CapCanvasLayer : MonoBehaviour
     public void Image(CapAffine2D m, float sx, float sy, float sw, float sh,
                       float dx, float dy, float dw, float dh, float alpha = 1f)
     {
-        float tw = texture.width, th = texture.height;
+        float tw = mainTexture.width, th = mainTexture.height;
         // 텍스처는 아래에서 위로 저장되므로 원본의 y를 뒤집어 읽는다.
         float u0 = sx / tw, u1 = (sx + sw) / tw;
         float v0 = 1f - sy / th, v1 = 1f - (sy + sh) / th;
@@ -232,9 +201,4 @@ public sealed class CapCanvasLayer : MonoBehaviour
         triangles.Add(start); triangles.Add(start + 2); triangles.Add(start + 3);
     }
 
-    void OnDestroy()
-    {
-        if (mesh != null) Destroy(mesh);
-        if (material != null) Destroy(material);
-    }
 }

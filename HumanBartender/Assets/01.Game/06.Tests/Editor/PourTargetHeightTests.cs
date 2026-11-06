@@ -33,6 +33,9 @@ public sealed class PourTargetHeightTests
         var glassObject = new GameObject("Glass");
         glassObject.transform.SetParent(root.transform, false);
         glass = glassObject.transform;
+        var guide = new GameObject("Authored Target Height");
+        guide.transform.SetParent(glass, false);
+        Set("targetHeightMarker", guide.transform);
         var light = AssetDatabase.LoadAssetAtPath<LiquidProfile>("Assets/01.Game/04.Data/01.Definitions/Minigames/Pour/Liquid_Light.asset");
         profile = light != null ? Object.Instantiate(light) : ScriptableObject.CreateInstance<LiquidProfile>();
         owned.Add(profile);
@@ -105,11 +108,11 @@ public sealed class PourTargetHeightTests
     }
 
     [Test]
-    public void HiddenRecipeTargetDoesNotCreateHeightGuide()
+    public void HiddenRecipeTargetHidesAuthoredHeightGuide()
     {
         Configure(90f, ENewUnit.Ml, false, visible: false);
         Call("CreateTargetHeightMarker");
-        Assert.That(Get<Transform>("targetHeightMarker"), Is.Null);
+        Assert.That(Get<Transform>("targetHeightMarker").gameObject.activeSelf, Is.False);
     }
 
     [TestCase(30f, ENewUnit.Ml, false, 1f, 1f)]

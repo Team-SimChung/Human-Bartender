@@ -1,6 +1,6 @@
 # 현재 기믹 시스템 — 작동 원리·연결·코드 안내
 
-확인일: 2026-11-03. 현재 작업 트리의 C# 코드, `Play.unity`의 직렬화 참조, 실행 프리팹과 CSV를 기준으로 작성했다. 커밋 전 UI 수정도 포함한다.
+확인일: 2026-11-06. 현재 작업 트리의 C# 코드, `Play.unity`의 직렬화 참조, 실행 프리팹과 CSV를 기준으로 작성했다. UI는 씬·프리팹에 저장하고 편집한 배치를 실행 중 유지하도록 변경했다. 실제 편집 위치는 [기믹 UI 편집 안내](Gimmick_UI_Editing.md)를 참고한다.
 
 ## 1. 먼저 알아둘 실제 연결
 
@@ -120,14 +120,25 @@ PlayerInput / CraftGimmick 액션 맵
 | --- | --- |
 | `ICraftGimmickProgress` | 일반 진행 문자열과 목표 도달 표시 |
 | `ICraftGimmickQuantityProgress` | 분리된 목표량·현재량, 번역된 재료 이름, 기울기·유량 범위 |
+| `ICraftGimmickHudProvider` | 기믹 프리팹 안에 저장된 전용 HUD. 공통 표시·시계·튜토리얼 대상을 전달 |
 | `ICraftGimmickManualEnd` | 현재 종료 가능 여부와 `EndNow()` |
 | `ICraftGimmickOwnHud` | 기믹 자체 UI가 맡은 항목. 공통 HUD는 해당 항목을 숨김 |
 
 이 계약들은 [ICraftGimmickProgress.cs](../Assets/01.Game/02.Scripts/04.Features/01.Crafting/02.Flow/ICraftGimmickProgress.cs)와 [ECraftHudPart.cs](../Assets/01.Game/02.Scripts/04.Features/01.Crafting/05.UI/ECraftHudPart.cs)에 있다.
 
-새 Play HUD는 1280×720을 기준으로 균등 배율을 적용한다. 따르기·필업은 수량/재료/기울기/종료 버튼을 쓰며, 셰이크·스터는 중복 진행 문자열과 공통 다음 버튼을 숨긴다. 병따기는 진행 안내와 다음 버튼을 자체 UI가 맡는다.
+HUD의 위치·크기와 화면 크기 대응은 저장된 RectTransform과 Canvas Scaler가 담당한다. `CraftGimmickHud`는 타이머나 Panel을 매 프레임 재배치하지 않는다. 수량 패널이 연결된 HUD의 따르기·필업은 수량/재료/기울기/종료 버튼을 쓰며, 셰이크·스터는 중복 진행 문자열과 공통 다음 버튼을 숨긴다. 병따기는 진행 안내와 다음 버튼을 자체 UI가 맡는다.
 
 `ProgressTarget`과 `NextControl`은 튜토리얼이 강조 대상을 찾는 접근점이다. 새 수량 패널을 연결하면 `ProgressTarget`은 수량 패널 전체를 가리킨다.
+
+따르기·필업의 새 UI는 `NewPourGame/Pour HUD/Panel`에 저장되어 프리팹에서 직접 편집한다. `PourManager.GimmickHud`가 제공한 전용 HUD에 공통 HUD가 같은 제조 시계와 입력 대상을 전달하며, 따르기 중 공통 Panel은 숨긴다. 프리팹 모드에는 병·잔과 함께 월드 공간에 배치하고 제조 시작 시 화면 공간으로 표시한다. 자식 RectTransform을 매 프레임 재배치하지 않는다. 옛 Gauge/Button Canvas는 비활성 상태다.
+
+### 제조 중 손님 타이머
+
+손님 전용 `BarOperationClock`은 **재료 선택 → 기믹 진행 → 결과 연출·결과 화면 → 제공하기 버튼 클릭** 구간 동안 정지한다. `CraftFlowController.IsCraftFlowActive`를 결과 화면에서도 유지하고, `TryAcceptPendingDrink()`가 제공을 수락할 때 해제한다. 손님에게 완성 잔을 가져가는 동안에는 대기 시간이 다시 흐른다.
+
+취소·실패는 제조 정리가 끝나면 재개한다. 버리기는 차감 연출과 결과 화면 정리가 끝나면 재개하고, 다시 만들기는 다음 제조로 넘어가는 동안 정지를 유지한다. 결과 화면이 없는 실행 경로는 제조 완료 시 재개한다. `GuestManager`가 제조 도중 활성화되더라도 현재 제조 상태를 읽어 즉시 정지한다.
+
+칵테일 제조 점수에 쓰는 `CraftTimer`는 별도 시계로, 조작 가능한 기믹 시간을 기존대로 측정한다. 손님 시계를 재개할 때 정지해 있던 시간을 몰아서 차감하지 않는다.
 
 ## 4. 기믹별 작동 원리
 

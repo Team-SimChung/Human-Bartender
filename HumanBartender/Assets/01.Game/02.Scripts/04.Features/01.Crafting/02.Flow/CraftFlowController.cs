@@ -60,6 +60,7 @@ public class CraftFlowController : MonoBehaviour
     public bool CanStartGimmicks => !IsResolvingDiscard && IsPreparing && Current.Actual.CanStartGimmicks && !NeedsBottleOpener;
     public bool NeedsBottleOpener => IsPreparing && RequiresBottleOpener(Current.Actual);
     public event Action<string> PreparationBlocked;
+    /// <summary>재료 선택부터 결과 화면의 제공 또는 폐기 처리 완료까지 이어지는 제조 화면 상태.</summary>
     public bool IsCraftFlowActive { get; private set; }
     public CraftedDrink PendingDrink { get; private set; }
     public bool IsAwaitingServeDecision { get; private set; }
@@ -468,7 +469,7 @@ public class CraftFlowController : MonoBehaviour
             }
             Notify(CraftCompleted, session, Judgement);
         }
-        SetCraftFlowActive(false);
+        SetCraftFlowActive(IsAwaitingServeDecision || IsResolvingDiscard);
         if (session.Phase == ECraftPhase.Failed)
             Debug.LogWarning($"[CraftFlow] 제조 실패 ({session.JobId}): {session.FailureReason}");
         Notify(CraftEnded, session);
@@ -492,6 +493,7 @@ public class CraftFlowController : MonoBehaviour
             drink.Session.Phase != ECraftPhase.Completed || !drink.CraftGrade.HasValue)
             return false;
         IsAwaitingServeDecision = false;
+        SetCraftFlowActive(false);
         Notify(DrinkReady, drink);
         RefreshCraftAvailability();
         return true;
@@ -573,6 +575,7 @@ public class CraftFlowController : MonoBehaviour
                 discardCancellation = null;
                 IsResolvingDiscard = false;
                 serveScreen?.ResetIfShowing(drink);
+                SetCraftFlowActive(isActiveAndEnabled && (IsPreparing || running || IsAwaitingServeDecision));
                 RefreshCraftAvailability();
             }
             transition.Dispose();

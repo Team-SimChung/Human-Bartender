@@ -23,7 +23,8 @@ using VContainer;
 /// 필업(Fill-up)도 이 구현을 그대로 쓴다. 조작과 화면이 같고 큐에서의 위치만 다르다.
 /// </summary>
 public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
-                           ICraftGimmickProgress, ICraftGimmickManualEnd, ICraftGimmickQuantityProgress
+                           ICraftGimmickProgress, ICraftGimmickManualEnd, ICraftGimmickQuantityProgress,
+                           ICraftGimmickHudProvider
 {
     [Inject] ILoopingSoundManager loopSound;
     IAudioLoop pourSound;
@@ -99,15 +100,16 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField, Range(0.5f, 2f)] private float particleAreaScale = 0.98f;
     [Header("Target Height")]
     [SerializeField] private bool showTargetHeight = true;
-    [SerializeField, Min(0.001f)] private float targetMarkerSize = 0.08f;
-    [SerializeField, Min(0f)] private float targetMarkerGap = 0.04f;
-    [SerializeField] private bool showTargetHeightDashedLine = true;
-    [SerializeField, Min(0.001f)] private float targetDashLength = 0.06f;
-    [SerializeField, Min(0.001f)] private float targetDashGap = 0.035f;
-    [SerializeField, Min(0.001f)] private float targetDashThickness = 0.008f;
-    private Mesh targetHeightMesh;
-    private Material targetHeightMaterial;
-    Transform targetHeightMarker;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetMarkerSize = 0.08f;
+    [HideInInspector, SerializeField, Min(0f)] private float targetMarkerGap = 0.04f;
+    [HideInInspector, SerializeField] private bool showTargetHeightDashedLine = true;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetDashLength = 0.06f;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetDashGap = 0.035f;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetDashThickness = 0.008f;
+    [Tooltip("시작할 때 목표 높이만 적용하는 피벗. 자식 Marker Layout에서 위치·크기·색을 조절한다.")]
+    [SerializeField] Transform targetHeightMarker;
+    [Tooltip("프리팹의 Bottle Art Layout 아래 배치한 재료 스프라이트. 부모에서 공통 위치와 배율을 조절한다.")]
+    [SerializeField] SpriteRenderer ingredientBottle;
     float targetMarkerParticles;
 
     [Header("Liquid (SPH)")]
@@ -133,6 +135,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private float gridPadding = 3f;
 
     [Header("UI")]
+    [Tooltip("이 프리팹에서 직접 편집하는 따르기 HUD. 제조 시계와 튜토리얼 연결은 공통 HUD가 전달한다.")]
+    [SerializeField] CraftGimmickHud gimmickHud;
+    public CraftGimmickHud GimmickHud => gimmickHud;
     [SerializeField] private Canvas buttonCanvas;
     [SerializeField] private GradientRatioController gageBar;
 
@@ -185,6 +190,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     float Spacing => liquidProfile.physics.spacing;
 
     UniTaskCompletionSource tcs;
+    CraftTimer standaloneTimer;
 
     void Start()
     {
@@ -255,18 +261,25 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         liquidRenderer.ReserveParticles(Mathf.Max(1, maxLiveParticles));
         CreateTargetHeightMarker();
 
-        // 기존 입자 수 게이지 대신 기믹 큐에서는 공통 HUD에 레시피 단위의 현재량을 표시한다.
-        if (drivenByRunner)
+        // 새 프리팹은 저장된 전용 HUD를 쓴다. 전용 HUD가 없는 기존 개발 씬만 입자 수 게이지를 쓴다.
+        if (drivenByRunner || gimmickHud != null)
         {
             if (gageBar != null) gageBar.gameObject.SetActive(false);
         }
-        else
+        else if (gageBar != null)
         {
             gageBar.UpdateValues(targetParticleCount + toleranceCount,
                                  targetParticleCount - toleranceCount, toleranceCount * 2f, 0f);
         }
 
         isPlay = true;
+        if (!drivenByRunner && gimmickHud != null)
+        {
+            standaloneTimer = new CraftTimer();
+            standaloneTimer.Start();
+            gimmickHud.BeginCraft(standaloneTimer, 0f, false);
+            gimmickHud.BindGimmick(new GimmickStep(ECraftGimmick.Pour, testBottleId), this);
+        }
     }
 
     Vector2 ComputeGridMin()
@@ -455,6 +468,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void Update()
     {
+        if (IsManualInputActive) standaloneTimer?.Tick(Time.deltaTime);
         // 물리는 판정이 끝난 뒤에도 계속 돌린다. 여기서 멈춰버리면 공중에 있던 액체가 그대로 얼어붙어
         // 물리 버그처럼 보인다 — 판정만 멈추고 액체는 잔으로 마저 떨어지게 둔다.
         // 방출은 StepSimulation 안에서 물리와 같은 시간축으로 돈다(아래 주석 참고).
@@ -679,7 +693,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     public void OnNextButton()
     {
-        buttonCanvas.gameObject.SetActive(true);
+        if (gimmickHud == null && buttonCanvas != null) buttonCanvas.gameObject.SetActive(true);
     }
 
     public void Serve()
@@ -768,6 +782,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     bool ApplyIngredientBottle()
     {
+        if (ingredientBottle != null) ingredientBottle.gameObject.SetActive(false);
         if ((!drivenByRunner && !useTestBottleId) || bottle == null || bottle.BottleVisual == null) return false;
         string bottleId = useTestBottleId ? testBottleId : pourIngredientId;
         Sprite sprite = bottleVisuals != null ? bottleVisuals.GetIngredientSprite(bottleId) : null;
@@ -778,11 +793,14 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
 
         Transform parent = bottle.BottleVisual;
-        var visual = new GameObject("Ingredient Bottle", typeof(SpriteRenderer));
-        visual.transform.SetParent(parent, false);
-        var renderer = visual.GetComponent<SpriteRenderer>();
-        renderer.sprite = sprite;
-        renderer.sortingOrder = 10;
+        if (ingredientBottle == null)
+        {
+            Debug.LogError("[Pour] 프리팹의 Ingredient Bottle 렌더러를 연결해 주세요.", this);
+            return false;
+        }
+        Transform visual = ingredientBottle.transform;
+        ingredientBottle.sprite = sprite;
+        ingredientBottle.gameObject.SetActive(true);
 
         // 서로 다른 PPU와 피벗을 가진 병도 기존 입구 위치에 맞춘다.
         Vector3 size = sprite.bounds.size;
@@ -793,8 +811,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             bottleInteriorHalfExtents.x * 2f * sx / Mathf.Max(0.0001f, size.x),
             bottleInteriorHalfExtents.y * 2f * sy / Mathf.Max(0.0001f, size.y));
         Vector3 scale = new Vector3(worldScale / sx, worldScale / sy, 1f);
-        visual.transform.localScale = scale;
-        visual.transform.localPosition = new Vector3(
+        visual.localScale = scale;
+        visual.localPosition = new Vector3(
             -sprite.bounds.center.x * scale.x,
             bottleInteriorHalfExtents.y - sprite.bounds.max.y * scale.y, 0f);
         return true;
@@ -802,6 +820,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void CreateTargetHeightMarker()
     {
+        if (targetHeightMarker == null) return;
+        targetHeightMarker.gameObject.SetActive(false);
         if (!showTargetHeight || glassCenter == null ||
             (drivenByRunner && !pourStep.IsTargetVisible)) return;
 
@@ -817,56 +837,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         if (targetMarkerParticles * particleVolumeMl > visualCapacityMl)
             Debug.LogWarning("[Pour] 목표량의 예상 높이가 잔보다 높습니다. 목표선은 잔 상단에 표시합니다.", this);
 
-        var marker = new GameObject("Target Liquid Height", typeof(MeshFilter), typeof(MeshRenderer));
-        marker.transform.SetParent(glassCenter, false);
-        targetHeightMarker = marker.transform;
-        targetHeightMarker.localPosition = new Vector3(glassInteriorHalfExtents.x + targetMarkerGap, CalculateTargetHeight(), 0f);
-        targetHeightMesh = new Mesh { name = "Target Height Marker" };
-        var vertices = new List<Vector3> {
-            Vector3.zero,
-            new Vector3(targetMarkerSize, targetMarkerSize * 0.5f, 0f),
-            new Vector3(targetMarkerSize, -targetMarkerSize * 0.5f, 0f)
-        };
-        var triangles = new List<int> { 0, 1, 2 };
-        if (showTargetHeightDashedLine)
-        {
-            float originX = glassInteriorHalfExtents.x + targetMarkerGap;
-            float dashLength = Mathf.Max(0.001f, targetDashLength);
-            float step = dashLength + Mathf.Max(0.001f, targetDashGap);
-            float halfThickness = Mathf.Max(0.001f, targetDashThickness) * 0.5f;
-            for (float x = -glassInteriorHalfExtents.x; x < glassInteriorHalfExtents.x; x += step)
-            {
-                float left = x - originX;
-                float right = Mathf.Min(x + dashLength, glassInteriorHalfExtents.x) - originX;
-                int index = vertices.Count;
-                vertices.Add(new Vector3(left, -halfThickness, 0f));
-                vertices.Add(new Vector3(left, halfThickness, 0f));
-                vertices.Add(new Vector3(right, halfThickness, 0f));
-                vertices.Add(new Vector3(right, -halfThickness, 0f));
-                triangles.AddRange(new[] { index, index + 1, index + 2, index, index + 2, index + 3 });
-            }
-        }
-        targetHeightMesh.SetVertices(vertices);
-        targetHeightMesh.SetTriangles(triangles, 0);
-        Color markerColor = GetLiquidColor();
-        markerColor.a = 1f;
-        var colors = new List<Color>(vertices.Count);
-        var uv = new List<Vector2>(vertices.Count);
-        for (int i = 0; i < vertices.Count; i++)
-        {
-            colors.Add(markerColor);
-            uv.Add(Vector2.zero);
-        }
-        targetHeightMesh.SetColors(colors);
-        targetHeightMesh.SetUVs(0, uv);
-        targetHeightMesh.RecalculateBounds();
-        marker.GetComponent<MeshFilter>().sharedMesh = targetHeightMesh;
-        var renderer = marker.GetComponent<MeshRenderer>();
-        targetHeightMaterial = new Material(Shader.Find("Sprites/Default"));
-        renderer.sharedMaterial = targetHeightMaterial;
-        SpriteRenderer glassRenderer = glassCenter.GetComponentInParent<SpriteRenderer>();
-        if (glassRenderer != null) renderer.sortingLayerID = glassRenderer.sortingLayerID;
-        renderer.sortingOrder = glassRenderer != null ? glassRenderer.sortingOrder + 1 : 20;
+        // 숫자에 따른 높이만 한 번 적용한다. 화살표·점선의 배치는 자식 오브젝트에 저장된다.
+        Vector3 position = targetHeightMarker.localPosition;
+        position.y = CalculateTargetHeight();
+        targetHeightMarker.localPosition = position;
+        targetHeightMarker.gameObject.SetActive(true);
     }
 
     float CalculateTargetHeight()
@@ -880,8 +855,6 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     void OnDestroy()
     {
         StopPourSound();
-        if (targetHeightMesh != null) Destroy(targetHeightMesh);
-        if (targetHeightMaterial != null) Destroy(targetHeightMaterial);
     }
 
     /// <summary>
@@ -912,18 +885,21 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
 
     string DisplayUnit => pourStep.TargetUnit == ENewUnit.Oz ? "oz" : "ml";
-    public string TargetValueText => drivenByRunner && pourStep.IsTargetVisible
-        ? pourStep.TargetValue.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
-        : "???";
-    public string CurrentValueText => drivenByRunner && pourStep.IsTargetVisible
+    public string TargetValueText => !drivenByRunner
+        ? (targetParticleCount * particleVolumeMl).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " ml"
+        : pourStep.IsTargetVisible
+            ? pourStep.TargetValue.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
+            : "???";
+    public string CurrentValueText => !drivenByRunner || pourStep.IsTargetVisible
         ? PouredInTargetUnit.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
         : "???";
     public string IngredientName
     {
         get
         {
-            if (shelfData == null || !shelfData.TryGet(pourIngredientId, out var item))
-                return pourIngredientId ?? string.Empty;
+            string ingredientId = drivenByRunner ? pourIngredientId : useTestBottleId ? testBottleId : pourIngredientId;
+            if (string.IsNullOrEmpty(ingredientId) || shelfData == null || !shelfData.TryGet(ingredientId, out var item))
+                return ingredientId ?? string.Empty;
             bool english = GameStateManager.Instance != null && GameStateManager.Instance.Language == ELanguage.En;
             return english && !string.IsNullOrEmpty(item.Name.En) ? item.Name.En : item.Name.Ko;
         }

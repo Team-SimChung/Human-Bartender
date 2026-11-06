@@ -173,11 +173,32 @@ function commonHud(file) {
     const progress=file.get(file.id(hud,'progressText'));file.place(file.rect(file.go(progress)),26,28,320,60);file.set(progress,'m_fontSize',28);file.set(progress,'m_RaycastTarget',0);
     const ok=file.get(file.id(hud,'okMark'));file.place(file.rect(ok),712,166,240,50);const okText=file.component(ok,textGuid);if(okText){file.set(okText,'m_text','PERFECT');file.set(okText,'m_fontSize',32);file.set(okText,'m_fontSizeBase',32);file.set(okText,'m_fontColor',color('b6fff0'));file.set(okText,'m_RaycastTarget',0);}
     for(const [key,id] of Object.entries({quantityRoot:q.go.id,targetValueText:target.graphic.id,currentValueText:current.graphic.id,ingredientRoot:ingredient.go.id,tiltRoot:tilt.go.id,tiltMarker:marker.rect.id,tiltFlowRange:range.rect.id,tiltWarningRange:warning.rect.id,nextButtonLabel:label.id}))file.set(hud,key,ref(id));
-    file.set(hud,'timeInset',vector(73,54));
+}
+
+// The live HUD is authored once; subsequent repairs retain hand-edited positions.
+function repairCommonHud(file) {
+    const hud = file.script('CraftGimmickHud'); assert(hud);
+    const fields = ['quantityRoot', 'targetValueText', 'currentValueText', 'ingredientRoot',
+        'tiltRoot', 'tiltMarker', 'tiltFlowRange', 'tiltWarningRange', 'nextButtonLabel'];
+    const missing = fields.some(key => !file.id(hud, key) || file.id(hud, key) === '0');
+    if (missing) commonHud(file);
+    for (const key of fields) assert(file.get(file.id(hud, key)), `Missing HUD binding: ${key}`);
+    // A saved screen-space Canvas can contain Unity-driven scale values (including zero).
+    // Once authored, preserve those values and the designer's Canvas Scaler settings.
+    if (!missing) return;
+    const hudGo = file.go(hud);
+    const canvasRect = file.rect(hudGo);
+    const scaler = file.component(hudGo, '0cd44c1031e13a943bb63640046fad76');
+    assert(scaler, 'Gimmick HUD requires its own Canvas Scaler.');
+    file.set(canvasRect, 'm_LocalScale', '{x: 1, y: 1, z: 1}');
+    file.set(scaler, 'm_UiScaleMode', 1);
+    file.set(scaler, 'm_ReferenceResolution', vector(1280, 720));
+    file.set(scaler, 'm_ScreenMatchMode', 1);
 }
 
 function stir(file) {
     const layout=file.script('StirLayoutView');assert(layout);
+    if(file.field(layout,'authoredLayout')==='1')return;
     const at=(key,x,y,w,h)=>file.center(file.get(file.id(layout,key)),(x+w/2-640)*.75,(360-y-h/2)*.75,w*.75,h*.75);
     at('leftFrame',0,0,1280,720);at('characterViewport',34,29,388,664);at('closeupFrame',350,0,187,325);at('closeupViewport',351,1,185,323);at('resultGauge',496,632,708,30);at('elapsedIcon',1069,50,43,48);at('elapsedText',1117,54,90,40);at('startHint',500,583,700,28);
     for(const key of ['rightFrame','grid'])file.set(file.go(file.get(file.id(layout,key))),'m_IsActive',0);
@@ -215,8 +236,10 @@ function shake(file) {
     const layers=file.children(board).filter(id=>id!==content.rect.id);file.setChildren(board,[...layers,content.rect.id]);
 }
 
-const targets = [
-    ['Assets/01.Game/01.Scenes/Play.unity',commonHud],
+const targets = process.argv.includes('--hud-only') ? [
+    ['Assets/01.Game/01.Scenes/Play.unity',repairCommonHud],
+] : [
+    ['Assets/01.Game/01.Scenes/Play.unity',repairCommonHud],
     ['Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/02.Stir/NewStirGame.prefab',stir],
     ['Assets/02.Dev/01.Scenes/01.Minigames/Stir.unity',stir],
     ['Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/01.Shake/RhythmShakingMinigame.prefab',shake],

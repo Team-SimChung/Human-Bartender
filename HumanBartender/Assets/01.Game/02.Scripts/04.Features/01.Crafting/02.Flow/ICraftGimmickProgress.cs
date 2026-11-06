@@ -31,6 +31,12 @@ public interface ICraftGimmickQuantityProgress
     float FullFlowRatio { get; }
 }
 
+/// <summary>프리팹에 저장한 전용 HUD. 공통 HUD가 같은 제조 시계와 튜토리얼 대상을 연결한다.</summary>
+public interface ICraftGimmickHudProvider
+{
+    CraftGimmickHud GimmickHud { get; }
+}
+
 /// <summary>
 /// 플레이어가 다음 버튼으로 직접 끝낼 수 있는 기믹. 병따기처럼 성공해야만 끝나는 기믹은
 /// 구현하지 않으며, 그때 HUD는 버튼을 감춘다.

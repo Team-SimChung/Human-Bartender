@@ -17,7 +17,7 @@ public class StirGaugeView : MonoBehaviour
     [SerializeField, Min(0f)] float gap = 2f;
 
     [Header("Next Segment")]
-    [SerializeField] StirGaugeOutline nextOutline;
+    [SerializeField] StirGaugeOutline[] nextOutlines;
     int nextSegment = -1;
     int configuredCount;
 
@@ -30,22 +30,11 @@ public class StirGaugeView : MonoBehaviour
 
     public void Configure(int count)
     {
-        // 이전 프로토타입처럼 색만 쓰는 화면은 기존 배치를 유지한다.
-        if (successSprite == null || failSprite == null) return;
         count = Mathf.Max(1, count);
-        int previousCount = segments?.Length ?? 0;
-        if (previousCount < count)
+        if (segments == null || segments.Length < count)
         {
-            System.Array.Resize(ref segments, count);
-            for (int i = previousCount; i < count; i++)
-            {
-                var go = new GameObject($"Segment {i}", typeof(RectTransform),
-                    typeof(CanvasRenderer), typeof(Image));
-                go.layer = gameObject.layer;
-                go.transform.SetParent(transform, false);
-                segments[i] = go.GetComponent<Image>();
-                segments[i].raycastTarget = false;
-            }
+            Debug.LogError($"[StirGauge] 프리팹의 Segments에 최소 {count}개의 칸을 배치해 주세요.", this);
+            return;
         }
 
         configuredCount = count;
@@ -55,13 +44,16 @@ public class StirGaugeView : MonoBehaviour
             if (segment == null) continue;
             segment.gameObject.SetActive(i < count);
             if (i >= count) continue;
-            segment.sprite = successSprite;
-            segment.type = Image.Type.Simple;
+            if (successSprite != null)
+            {
+                segment.sprite = successSprite;
+                segment.type = Image.Type.Simple;
+            }
         }
-        RefreshLayout();
         ResetAll();
     }
 
+#if UNITY_EDITOR
     /// <summary>창 크기 변경 시 기존 판정 결과를 유지한 채 칸의 위치와 크기만 조정한다.</summary>
     public void RefreshLayout()
     {
@@ -83,6 +75,8 @@ public class StirGaugeView : MonoBehaviour
             rect.localRotation = Quaternion.identity;
         }
     }
+
+#endif
 
     public void ResetAll()
     {
@@ -115,36 +109,11 @@ public class StirGaugeView : MonoBehaviour
     /// <summary>다음 판정 칸을 강조한다. -1 또는 범위 밖이면 강조를 끈다.</summary>
     public void SetNextSegment(int index)
     {
-        bool visible = segments != null && index >= 0 && index < segments.Length
-            && segments[index] != null;
-        if (!visible)
-        {
-            if (nextOutline != null) nextOutline.gameObject.SetActive(false);
-            nextSegment = -1;
-            return;
-        }
-
-        if (nextOutline == null)
-        {
-            var go = new GameObject("Next Segment Outline", typeof(RectTransform),
-                typeof(CanvasRenderer), typeof(StirGaugeOutline));
-            go.layer = gameObject.layer;
-            nextOutline = go.GetComponent<StirGaugeOutline>();
-            nextOutline.color = new Color(0.25f, 0.72f, 1f, 0.95f);
-            nextOutline.raycastTarget = false;
-        }
-
-        if (nextSegment == index && nextOutline.gameObject.activeSelf) return;
+        if (nextOutlines == null) return;
+        for (int i = 0; i < nextOutlines.Length; i++)
+            if (nextOutlines[i] != null)
+                nextOutlines[i].gameObject.SetActive(i == index && segments != null && i < segments.Length
+                    && segments[i] != null && segments[i].gameObject.activeSelf);
         nextSegment = index;
-        RectTransform rect = nextOutline.rectTransform;
-        rect.SetParent(segments[index].transform, false);
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-        rect.localScale = Vector3.one;
-        rect.localRotation = Quaternion.identity;
-        rect.SetAsLastSibling();
-        nextOutline.gameObject.SetActive(true);
     }
 }

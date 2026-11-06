@@ -1,7 +1,7 @@
 using UnityEngine;
 
-/// <summary>화면 크기에 맞춰 두 패널과 조작 영역을 배치한다. 개별 아트의 종횡비는 유지한다.</summary>
-[ExecuteAlways, DisallowMultipleComponent, RequireComponent(typeof(RectTransform))]
+/// <summary>명시적으로 실행할 때만 기본 배치를 복구하는 에디터 도구. 실행 중 배치를 변경하지 않는다.</summary>
+[DisallowMultipleComponent, RequireComponent(typeof(RectTransform))]
 public class StirLayoutView : MonoBehaviour
 {
     [SerializeField] RectTransform playfield;
@@ -20,20 +20,12 @@ public class StirLayoutView : MonoBehaviour
     [SerializeField] RectTransform elapsedText;
     [SerializeField] RectTransform startHint;
     [SerializeField] StirGaugeView gauge;
+    [SerializeField, HideInInspector] bool authoredLayout;
 
-    Vector2 previousSize;
-
-    void OnEnable() => RefreshLayout();
-    void LateUpdate()
-    {
-        if (((RectTransform)transform).rect.size != previousSize) RefreshLayout();
-    }
-
+#if UNITY_EDITOR
+    [ContextMenu("Reset To Web Layout (Editor Only)")]
     public void RefreshLayout()
     {
-        Vector2 size = ((RectTransform)transform).rect.size;
-        if (size.x <= 0f || size.y <= 0f) return;
-        previousSize = size;
         if (playfield != null)
         {
             playfield.anchorMin = Vector2.zero;
@@ -42,7 +34,7 @@ public class StirLayoutView : MonoBehaviour
         }
 
         // stir-resources.css의 1280×720 무대를 균등 축소한다. 원본 배경이 두 패널을 모두 포함한다.
-        float scale = Mathf.Min(size.x / 1280f, size.y / 720f);
+        const float scale = 1f;
         PlaceWeb(leftFrame, 0, 0, 1280, 720, scale);
         if (rightFrame != null) rightFrame.gameObject.SetActive(false);
         if (grid != null) grid.gameObject.SetActive(false);
@@ -79,4 +71,5 @@ public class StirLayoutView : MonoBehaviour
         target.localScale = Vector3.one;
         target.localRotation = Quaternion.identity;
     }
+#endif
 }
