@@ -16,6 +16,9 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
     [SerializeField] TMP_FontAsset focusedFont;
     Selectable selectable;
     bool hovered, selected, animating;
+    // 마우스로 누르면 Selectable이 이 버튼을 EventSystem 선택으로 잡는다. 마우스 강조는 호버가 맡으므로
+    // 그 선택은 강조로 치지 않는다(웹 :focus-visible과 같음). 꺼졌다 다시 켜져도 남은 선택을 구분하려고 유지한다.
+    bool selectedByPointer;
     bool lastFocus;
     double startedAt;
 
@@ -24,7 +27,8 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
         selectable = GetComponent<Selectable>();
         if (label != null) label.OnPreRenderText += Distort;
         if (holdButton != null) holdButton.HoldingChanged += OnHoldingChanged;
-        selected = EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
+        // 이전 선택지에서 마우스로 누른 칸이 같은 자리에 다시 켜지면, 남아 있는 선택 때문에 강조가 고정되지 않게 한다.
+        selected = !selectedByPointer && EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
         RefreshFocus();
     }
 
@@ -47,8 +51,14 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
 
     public void OnPointerEnter(PointerEventData data) { hovered = true; RefreshFocus(true); }
     public void OnPointerExit(PointerEventData data) { hovered = false; RefreshFocus(); }
-    public void OnSelect(BaseEventData data) { selected = true; RefreshFocus(true); }
-    public void OnDeselect(BaseEventData data) { selected = false; RefreshFocus(); }
+    public void OnSelect(BaseEventData data)
+    {
+        selectedByPointer = data is PointerEventData;
+        selected = !selectedByPointer;
+        RefreshFocus(true);
+    }
+
+    public void OnDeselect(BaseEventData data) { selected = selectedByPointer = false; RefreshFocus(); }
 
     void RefreshFocus(bool entered = false)
     {
