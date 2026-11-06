@@ -56,7 +56,7 @@ namespace HumanBartender.CutsceneStudio
             label.color = new Color(FiniteClamp(color.r, 1, 0, 1), FiniteClamp(color.g, 1, 0, 1),
                 FiniteClamp(color.b, 1, 0, 1), FiniteClamp(color.a, 1, 0, 1));
             label.alignment = clip.UseDialogueStyle ? Alignment(clip.DialogueAlignment) : TextAlignmentOptions.MidlineLeft;
-            string text = clip.Text ?? string.Empty;
+            string text = clip.ProjectedDialogue?.Text ?? clip.Text ?? string.Empty;
             if (label.text != text) label.text = text;
 
             float width = clip.UseBubbleLayout ? Width(clip.BubbleWidth) : DefaultWidth;

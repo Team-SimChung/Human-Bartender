@@ -20,6 +20,11 @@ namespace HumanBartender.CutsceneStudio
         private StudioDialoguePresentation dialoguePresentation;
         private StudioDialoguePrefabPresentation prefabDialogue;
         private StudioBackgroundPresentation backgroundPresentation;
+        private StudioClip projectedDialogueClip;
+        private DialogueTextAnimator dialogueAnimator;
+        private readonly List<float> dialogueShakeStarts = new();
+        private const float DialogueShakeDuration = .11f;
+        private const float DialogueShakeAmplitude = 4f;
         private bool usingPrefabDialogue;
         private readonly Dictionary<string, Image> actors = new();
         internal bool RevealDialogue { get; set; }
@@ -62,6 +67,9 @@ namespace HumanBartender.CutsceneStudio
             bubbleVisibility = null;
             dialogue = null;
             dialoguePresentation = null;
+            projectedDialogueClip = null;
+            dialogueAnimator = null;
+            dialogueShakeStarts.Clear();
             prefabDialogue = null; backgroundPresentation = null; usingPrefabDialogue = false;
             builtSequence = null;
             RevealDialogue = false;
@@ -190,6 +198,12 @@ namespace HumanBartender.CutsceneStudio
             }
             world.anchoredPosition = -center * zoom + shake;
             world.localScale = Vector3.one * zoom;
+            frame.anchoredPosition = Vector2.zero;
+            if (projectedDialogueClip != null && projectedDialogueClip != line?.Asset)
+            {
+                dialogueAnimator.Clear();
+                projectedDialogueClip = null;
+            }
             if (line.HasValue)
                 ApplyDialogue(line.Value, time, center, zoom, revealDialogue);
             if (!usingPrefabDialogue) prefabDialogue?.StopWaiting();
@@ -315,6 +329,8 @@ namespace HumanBartender.CutsceneStudio
             {
                 bubble.gameObject.SetActive(true);
                 dialoguePresentation.Apply(clip, Sequence.Font);
+                if (clip.ProjectedDialogue != null && dialogue.font != null)
+                    ApplyProjectedDialogue(clip, visible, (float)(time - entry.Clip.start), reveal);
             }
             var position = new Vector2(0, clip.BubbleScreenHeight);
             if (TryGetActor(clip.ActorId, out var speaker))
@@ -327,6 +343,48 @@ namespace HumanBartender.CutsceneStudio
             if (usingPrefabDialogue) prefabDialogue.Visibility.alpha = pose.Opacity;
             else bubbleVisibility.alpha = pose.Opacity;
             Dialogue.maxVisibleCharacters = visible;
+        }
+
+        private void ApplyProjectedDialogue(StudioClip clip, int visible, float elapsed, bool reveal)
+        {
+            var line = clip.ProjectedDialogue;
+            if (projectedDialogueClip != clip)
+            {
+                dialogue.maxVisibleCharacters = int.MaxValue;
+                dialogue.ForceMeshUpdate();
+                line.Bind(dialogue.textInfo);
+                bool reducedMotion = DialoguePresentationSettings.Shared?.ReducedMotion == true;
+                if (dialogueAnimator == null)
+                    dialogueAnimator = frame.gameObject.AddComponent<DialogueTextAnimator>();
+                dialogueAnimator.Bind(dialogue, line, reducedMotion);
+                projectedDialogueClip = clip;
+                dialogueShakeStarts.Clear();
+                if (!reducedMotion)
+                {
+                    bool spanStarted = false;
+                    float lastStart = -DialogueShakeDuration;
+                    for (int i = 0; i < line.Characters.Length; i++)
+                    {
+                        if (!line.Characters[i].HasShake) { spanStarted = false; continue; }
+                        var glyph = dialogue.textInfo.characterInfo[i];
+                        if (spanStarted || !glyph.isVisible || glyph.elementType != TMP_TextElementType.Character) continue;
+                        spanStarted = true;
+                        float start = (i + 1) / clip.CharactersPerSecond;
+                        if (start < lastStart + DialogueShakeDuration) continue;
+                        dialogueShakeStarts.Add(start);
+                        lastStart = start;
+                    }
+                }
+            }
+
+            dialogueAnimator.SetVisible(visible, Time.time, reveal);
+            if (reveal) return;
+            foreach (float start in dialogueShakeStarts)
+            {
+                if (start > elapsed) break;
+                float offset = VerticalCameraImpulse.SampleOffset(elapsed - start, DialogueShakeDuration, DialogueShakeAmplitude);
+                frame.anchoredPosition = Vector2.up * offset;
+            }
         }
 
         public void FitTo(Vector2 size)

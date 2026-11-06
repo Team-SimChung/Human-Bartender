@@ -221,6 +221,8 @@ namespace HumanBartender.CutsceneStudio
             internal set { text = value; }
         }
 
+        internal DialogueTextCompiler.Line ProjectedDialogue { get; set; }
+
         [Tooltip("비워두면 기존 시퀀스에 저장된 기본 글꼴을 사용합니다.")]
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Font")]
         private TMPro.TMP_FontAsset font;

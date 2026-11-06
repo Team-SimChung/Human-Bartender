@@ -1,6 +1,7 @@
 using System.Linq;
 using HumanBartender.CutsceneStudio;
 using NUnit.Framework;
+using UnityEngine;
 
 public sealed class CsvStoryMemoryTests
 {
@@ -33,5 +34,37 @@ public sealed class CsvStoryMemoryTests
     {
         var data = new CsvStoryTestContent();
         Assert.That(data.GetSceneSteps("ending").Any(step => step.MemoryKey == "terraceMemory3"), Is.True);
+    }
+
+    [Test]
+    public void ProjectedMemoryShakesWhenTheFirstTaggedGlyphAppears()
+    {
+        var row = new NewDialogueStepData
+        {
+            Type = ENewStepType.Say,
+            Text = new LocalizedText { Ko = "A <shake>B</shake> <wave>C</wave> continues." }
+        };
+        using var projection = new CsvStoryCutsceneProjection("memory", new[] { row }, ELanguage.Ko);
+        var host = new GameObject("Memory Test", typeof(RectTransform), typeof(Canvas), typeof(StudioStage));
+        var stage = host.GetComponent<StudioStage>();
+        try
+        {
+            stage.Build(projection.Sequence);
+            var entry = StudioEvaluation.Clips(projection.Sequence).Single();
+            const string displayed = "A B C continues.";
+            Assert.That(stage.Dialogue.text, Is.EqualTo(displayed));
+            Assert.That(entry.Clip.duration, Is.EqualTo(displayed.Length / 35.0).Within(.0001));
+
+            stage.Evaluate(2.5 / 35);
+            Assert.That(stage.Frame.anchoredPosition.y, Is.Zero);
+            stage.Evaluate(3.5 / 35);
+            Assert.That(stage.Dialogue.maxVisibleCharacters, Is.EqualTo(3));
+            Assert.That(stage.Frame.anchoredPosition.y, Is.GreaterThan(0));
+            stage.Evaluate(3.5 / 35, revealDialogue: true);
+            Assert.That(stage.Frame.anchoredPosition.y, Is.Zero);
+            stage.Evaluate(8 / 35.0);
+            Assert.That(stage.Frame.anchoredPosition.y, Is.Zero);
+        }
+        finally { Object.DestroyImmediate(host); }
     }
 }
