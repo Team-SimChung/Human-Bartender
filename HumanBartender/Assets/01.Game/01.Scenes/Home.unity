@@ -720,6 +720,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 22096240}
+  - {fileID: 289449518}
   m_Father: {fileID: 391182537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &155609260
@@ -742,7 +743,7 @@ MonoBehaviour:
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: 8}
   inspectionImage: {fileID: 0}
-  highlight: {fileID: 0}
+  highlight: {fileID: 289449520}
   cutsceneSequence: {fileID: 11400000, guid: 6de9c43b92de8a64da4b9d43ef0fcf80, type: 2}
   timelines:
   - id: tv_news_d0
@@ -975,8 +976,9 @@ GameObject:
   m_Component:
   - component: {fileID: 289449518}
   - component: {fileID: 289449519}
+  - component: {fileID: 289449520}
   m_Layer: 0
-  m_Name: IntractObjects_TV
+  m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -991,11 +993,11 @@ Transform:
   m_GameObject: {fileID: 289449517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.212, y: -0.376, z: 0}
+  m_LocalPosition: {x: -0.008, y: 0.324, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 967024373}
+  m_Father: {fileID: 155609259}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &289449519
 SpriteRenderer:
@@ -1023,7 +1025,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1056,6 +1058,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &289449520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289449517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 289449519}
+  fadeSpeed: 8
 --- !u!1 &319687450
 GameObject:
   m_ObjectHideFlags: 0
@@ -1084,11 +1100,12 @@ Transform:
   m_GameObject: {fileID: 319687450}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.54, y: -0.5, z: 0}
-  m_LocalScale: {x: 1.18, y: 1, z: 1}
+  m_LocalPosition: {x: 2.557, y: -0.53, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 370526636}
+  m_Children:
+  - {fileID: 2030127652}
+  m_Father: {fileID: 391182537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &319687453
 MonoBehaviour:
@@ -1122,7 +1139,7 @@ MonoBehaviour:
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: 8}
   inspectionImage: {fileID: 0}
-  highlight: {fileID: 0}
+  highlight: {fileID: 2030127653}
   cutsceneSequence: {fileID: 0}
   timelines: []
   optionalTimelineIds:
@@ -1142,8 +1159,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionContent
   sourceId: home_sofa
-  useSpotPosition: 1
-  controlObjectVisibility: 1
+  useSpotPosition: 0
+  controlObjectVisibility: 0
 --- !u!1 &353232589
 GameObject:
   m_ObjectHideFlags: 0
@@ -1260,8 +1277,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 319687451}
+  m_Children: []
   m_Father: {fileID: 391182537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &391182536
@@ -1294,6 +1310,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 155609259}
+  - {fileID: 319687451}
   - {fileID: 630451091}
   - {fileID: 1081217489}
   - {fileID: 1082670580}
@@ -3018,8 +3035,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2030127652}
-  - {fileID: 289449518}
   - {fileID: 463204426}
   m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5578,8 +5593,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2030127652}
   - component: {fileID: 2030127651}
+  - component: {fileID: 2030127653}
   m_Layer: 0
-  m_Name: IntractObjects_Bedding
+  m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5611,7 +5627,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5634,7 +5650,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 61cdcfeef31531440a08f354396b6d19, type: 3}
+  m_Sprite: {fileID: -6411887296382938443, guid: b0e211a274c68004c80becd0f7d76d7b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -5653,12 +5669,26 @@ Transform:
   m_GameObject: {fileID: 2030127650}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.622, y: -0.682, z: 0}
+  m_LocalPosition: {x: 0.018, y: -0.157, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 967024373}
+  m_Father: {fileID: 319687451}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2030127653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2030127650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 2030127651}
+  fadeSpeed: 8
 --- !u!1 &2058149159
 GameObject:
   m_ObjectHideFlags: 0
