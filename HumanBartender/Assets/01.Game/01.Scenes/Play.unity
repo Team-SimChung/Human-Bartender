@@ -3907,7 +3907,7 @@ RectTransform:
   m_Father: {fileID: 1180137919}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -10526,7 +10526,7 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
+    width: 0.9999105
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -12972,7 +12972,7 @@ MonoBehaviour:
   storyOnlyObjects:
   - {fileID: 664356993}
   skipTycoonForTest: 0
-  testDay: 1
+  testDay: -1
 --- !u!1 &958751542
 GameObject:
   m_ObjectHideFlags: 0
@@ -23240,7 +23240,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1680243119
 RectTransform:
   m_ObjectHideFlags: 0
@@ -24837,7 +24837,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1807083184
 RectTransform:
   m_ObjectHideFlags: 0
