@@ -15,8 +15,9 @@ public static class GimmickUiPreview
     }
 
     public static void ExportPour() => Capture("03.Pour/NewPourGame.prefab", "pour-prefab-editor");
+    public static void ExportCapReady() => Capture("04.Cap/NewCapGame.prefab", "cap-ready", startCap: false);
 
-    static void Capture(string path, string name)
+    static void Capture(string path, string name, bool startCap = true)
     {
         var root = PrefabUtility.LoadPrefabContents(GimmickUiPrefabSetup.Folder + "/" + path);
         var cameraObject = new GameObject("UI Verification Camera", typeof(Camera));
@@ -52,7 +53,8 @@ public static class GimmickUiPreview
             var cap = root.GetComponentInChildren<CapOpenView>(true);
             if (cap != null)
             {
-                var rules = new CapOpenRules(); rules.Press();
+                var rules = new CapOpenRules();
+                if (startCap) rules.Press();
                 cap.Render(rules, "beer", 165f, 44f, false);
             }
             if (pour)

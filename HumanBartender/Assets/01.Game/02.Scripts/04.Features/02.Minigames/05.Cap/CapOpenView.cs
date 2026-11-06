@@ -191,7 +191,7 @@ public sealed class CapOpenView : MonoBehaviour
             }
         }
 
-        bool gauge = rules.Phase is ECapOpenPhase.Power or ECapOpenPhase.PowerDone;
+        bool gauge = rules.Phase is ECapOpenPhase.Ready or ECapOpenPhase.Power or ECapOpenPhase.PowerDone;
         if (gauge)
         {
             const float x = 400f, y = 240f, h = 250f;

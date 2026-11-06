@@ -71,6 +71,8 @@
 
 버튼과 안내문에 자동 Layout Group / Content Size Fitter가 없으므로 자식도 직접 배치할 수 있다. 힘 게이지와 원은 고정된 RectTransform 안에서 판정 값에 따른 모양만 다시 그린다. 뚜껑 비행·실패 흔들림·화살표의 작은 움직임은 계속 재생된다.
 
+왼쪽 힘 게이지는 기믹 진입 직후 시작 대기 중에도 표시한다. 시작 입력 전에는 표시가 정지해 있고, 시작하면 기존처럼 왕복한다. 타이밍 링 단계로 넘어가면 힘 게이지는 숨긴다.
+
 ## 스터
 
 프리팹: `Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/02.Stir/NewStirGame.prefab`
