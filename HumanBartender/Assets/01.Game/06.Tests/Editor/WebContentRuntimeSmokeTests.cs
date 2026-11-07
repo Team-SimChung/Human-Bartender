@@ -48,8 +48,11 @@ public sealed class WebContentRuntimeSmokeTests
         var home = Object.FindFirstObjectByType<WorldInteractionSceneContext>();
         Assert.That(home.IsReady, Is.True, home.InitializationError);
         var homeCat = WorldInteractionTarget.InScene(home.gameObject.scene).Single(target => target.StorySceneId == "neighborhood-homeCat");
-        Assert.That(homeCat.GetComponent<WorldStoryActors>(), Is.Not.Null);
-        Assert.That(homeCat.GetComponent<WorldStoryActors>().Speakers.Resolve("boobi"), Is.Not.Null);
+        Assert.That(homeCat.GetComponent<WorldStoryActors>(), Is.Null);
+        Assert.That(homeCat.Participant, Is.InstanceOf<NpcInteraction>());
+        Assert.That(homeCat.GetComponentsInChildren<NpcActor>(true).Length, Is.EqualTo(2));
+        Assert.That(homeCat.GetComponent<WorldDialogueSpeakers>().Resolve("boobi"), Is.Not.Null);
+        Assert.That(homeCat.GetComponent<WorldDialogueSpeakers>().Resolve("chris"), Is.Not.Null);
         var content = root.Container.Resolve<IStoryContentSource>();
         Assert.That(content.GetCutsceneSteps("johnny").Length, Is.GreaterThan(1));
         done = false;
@@ -60,7 +63,12 @@ public sealed class WebContentRuntimeSmokeTests
         Assert.That(SceneManager.GetActiveScene().name, Is.EqualTo("OutSide"));
         foreach (var target in WorldInteractionTarget.InScene(SceneManager.GetActiveScene()))
             if (OutsideStorySceneRules.IsNativeEntry(target.StorySceneId))
-                Assert.That(target.GetComponent<WorldStoryActors>(), Is.Not.Null, target.StorySceneId);
+            {
+                Assert.That(target.Participant, Is.TypeOf<NpcInteraction>(), target.StorySceneId);
+                Assert.That(target.GetComponent<WorldStoryActors>(), Is.Null, target.StorySceneId);
+                Assert.That(target.GetComponentsInChildren<NpcActor>(true), Is.Not.Empty, target.StorySceneId);
+                Assert.That(target.GetComponent<WorldDialogueSpeakers>(), Is.Not.Null, target.StorySceneId);
+            }
         done = false;
         progression.EnterAsync(GameProgressionDestination.Bar).ContinueWith(Complete).Forget();
         until = Time.realtimeSinceStartup + 30;

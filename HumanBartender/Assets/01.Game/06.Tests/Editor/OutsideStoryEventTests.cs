@@ -64,6 +64,7 @@ public sealed class OutsideStoryEventTests
         try
         {
             var conditions = new ConditionUtil(GameStateManager.Instance, player, player).CreateExecutionScope();
+            if (command == OutsideStoryCommand.RepairElevator) conditions.ApplyRequired("flag.elevator_repair_paid = true");
             var run = new OutsideStoryExecution(conditions, PickFirst, null);
             Assert.Throws<InvalidOperationException>(() => new NeighborhoodStoryEvents(null)
                 .ExecuteAsync(command, null, run, CancellationToken.None).GetAwaiter().GetResult());
@@ -81,6 +82,7 @@ public sealed class OutsideStoryEventTests
         try
         {
             var conditions = new ConditionUtil(GameStateManager.Instance, player, player).CreateExecutionScope();
+            conditions.ApplyRequired("flag.elevator_repair_paid = true");
             var cancelled = new OutsideStoryExecution(conditions, PickFirst, (cutscene, token) =>
             { cancellation.Cancel(); return UniTask.CompletedTask; });
             var handler = new NeighborhoodStoryEvents(null);

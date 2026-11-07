@@ -20,7 +20,7 @@ enum FadeDirection
 /// 페이드와 Unity 씬 작업을 하나의 수명으로 조정하는 전환 서비스.
 /// 요청 하나가 페이드 아웃부터 씬 작업, 페이드 인, 입력 복구까지 소유한다.
 /// </summary>
-public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, ISceneFadeService
+public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, ISceneFadeService, IPresentedSceneTransitionService
 {
     public static SceneTransitionManager Instance { get; private set; }
     private static bool suppressStartupFade;
@@ -137,12 +137,20 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             cancellationToken);
     }
 
+    public SceneTransitionRequest RequestPresentedScene(string sceneName, SceneTransitionPresentation presentation,
+        CancellationToken cancellationToken = default)
+    {
+        if (presentation == null) throw new ArgumentNullException(nameof(presentation));
+        return RequestSceneOperation(sceneName, LoadSceneMode.Single, SceneOperationKind.Load, cancellationToken,
+            SceneTransitionStyle.Fade, presentation);
+    }
+
     SceneTransitionRequest RequestSceneOperation(
         string sceneName,
         LoadSceneMode sceneMode,
         SceneOperationKind operationKind,
         CancellationToken cancellationToken,
-        SceneTransitionStyle style = SceneTransitionStyle.Fade)
+        SceneTransitionStyle style = SceneTransitionStyle.Fade, SceneTransitionPresentation presentation = null)
     {
         if (cancellationToken.IsCancellationRequested)
         {
@@ -200,7 +208,7 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
 
         ISceneTransitionOverlay overlay = style != SceneTransitionStyle.Fade ? barDoorOverlay : null;
         return new SceneTransitionRequest(true,
-            RunSceneOperationAsync(operationId, sceneName, sceneMode, operationKind, cancellationToken, style, overlay));
+            RunSceneOperationAsync(operationId, sceneName, sceneMode, operationKind, cancellationToken, style, overlay, presentation));
     }
 
     public async UniTask<SceneTransitionResult> LoadSceneAsync(
@@ -249,7 +257,7 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         SceneOperationKind operationKind,
         CancellationToken cancellationToken,
         SceneTransitionStyle style,
-        ISceneTransitionOverlay overlay)
+        ISceneTransitionOverlay overlay, SceneTransitionPresentation presentation)
     {
         float restoreAlpha = fadeCanvasGroup.alpha;
         bool nativeOperationStarted = false;
@@ -261,9 +269,18 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
                 cancellationToken, this.GetCancellationTokenOnDestroy());
 
             coordinator.TrySetState(operationId, SceneTransitionState.FadingOut);
-            await FadeCoreAsync(1f, fadeDuration, beforeNative.Token);
+            await FadeCoreAsync(1f, presentation?.FadeOutDuration ?? fadeDuration, beforeNative.Token);
             beforeNative.Token.ThrowIfCancellationRequested();
             if (overlay != null) await overlay.ShowAsync(style, beforeNative.Token);
+            float blackStarted = Time.unscaledTime;
+            if (presentation != null)
+            {
+                if (presentation.DelayBeforeLoad > 0)
+                    await UniTask.Delay(TimeSpan.FromSeconds(presentation.DelayBeforeLoad), ignoreTimeScale: true,
+                        cancellationToken: beforeNative.Token);
+                beforeNative.Token.ThrowIfCancellationRequested();
+                presentation.BeforeLoad?.Invoke();
+            }
 
             // Unity의 씬 작업은 시작 후 취소할 수 없다. 이 지점부터는 호출자 취소를 성공으로 가장하지
             // 않고, 실제 씬 작업과 화면 복구가 끝날 때까지 기다린 뒤 최종 결과를 반환한다.
@@ -285,14 +302,23 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             await sceneOperation;
             sceneActivated = true;
 
+            if (presentation != null)
+            {
+                if (presentation.BeforeReveal != null) await presentation.BeforeReveal();
+                float remainingBlack = presentation.MinimumBlackDuration - (Time.unscaledTime - blackStarted);
+                if (remainingBlack > 0)
+                    await UniTask.Delay(TimeSpan.FromSeconds(remainingBlack), ignoreTimeScale: true,
+                        cancellationToken: CancellationToken.None);
+            }
+
             // 새 씬이 준비된 뒤 전환 화면이 남은 연출(최소 표시 시간·문 열림)을 마치고, 페이드 인과 함께 걷힌다.
             if (overlay != null) await overlay.FinishAsync(CancellationToken.None);
             coordinator.TrySetState(operationId, SceneTransitionState.FadingIn);
             if (overlay != null)
-                await UniTask.WhenAll(FadeCoreAsync(0f, fadeDuration, CancellationToken.None),
+                await UniTask.WhenAll(FadeCoreAsync(0f, presentation?.FadeInDuration ?? fadeDuration, CancellationToken.None),
                     overlay.HideAsync(CancellationToken.None));
             else
-                await FadeCoreAsync(0f, fadeDuration, CancellationToken.None);
+                await FadeCoreAsync(0f, presentation?.FadeInDuration ?? fadeDuration, CancellationToken.None);
             return new SceneTransitionResult(SceneTransitionOutcome.Succeeded, sceneName);
         }
         catch (OperationCanceledException) when (!nativeOperationStarted)

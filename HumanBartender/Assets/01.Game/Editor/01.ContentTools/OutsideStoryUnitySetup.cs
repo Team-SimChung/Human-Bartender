@@ -116,6 +116,8 @@ public static class OutsideStoryUnitySetup
 
     static void AddActors(WorldInteractionTarget target, Role[] roles)
     {
+        // 이전이 끝난 NPC는 자신의 이동·Animator를 사용한다. 예전 Sprite 제어자를 다시 붙이지 않는다.
+        if (target.Participant != null) return;
         if (target.GetComponent<WorldStoryActors>() is { } existing)
         {
             UpgradeGeneratedAnchors(existing, roles);

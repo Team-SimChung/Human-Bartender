@@ -18,12 +18,14 @@ public static class StoryCsvCompiler
         return new NewDayScriptBase
         {
             Place = source.Place, Day = source.Day, Choices = source.Choices,
-            Scenes = (source.Scenes ?? Array.Empty<NewScriptSceneData>()).Select(scene =>
-            {
-                scene.Steps = (scene.Steps ?? Array.Empty<NewDialogueStepData>()).Select(Compile).ToArray();
-                return scene;
-            }).ToArray()
+            Scenes = (source.Scenes ?? Array.Empty<NewScriptSceneData>()).Select(CompileBarScene).ToArray()
         };
+    }
+
+    private static NewScriptSceneData CompileBarScene(NewScriptSceneData scene)
+    {
+        scene.Steps = (scene.Steps ?? Array.Empty<NewDialogueStepData>()).Select(Compile).ToArray();
+        return scene;
     }
 
     public static NewDialogueStepData Compile(NewDialogueStepData step)
@@ -38,34 +40,44 @@ public static class StoryCsvCompiler
 
     public static NewStreetData Compile(NewStreetData source)
     {
-        source.Scenes = (source.Scenes ?? Array.Empty<NewSceneData>()).Select(scene =>
-        {
-            scene.Steps = Compile(scene.Steps);
-            return scene;
-        }).ToArray();
+        source.Scenes = (source.Scenes ?? Array.Empty<NewSceneData>()).Select(CompileWorldScene).ToArray();
         return source;
     }
 
-    static Step[] Compile(Step[] source) => (source ?? Array.Empty<Step>()).Select(step =>
+    private static NewSceneData CompileWorldScene(NewSceneData scene)
+    {
+        scene.Steps = Compile(scene.Steps);
+        return scene;
+    }
+
+    private static Step[] Compile(Step[] source) => (source ?? Array.Empty<Step>()).Select(CompileStep).ToArray();
+
+    private static Step CompileStep(Step step)
     {
         string kind = Field(step, "type");
+        // 새 공통 연출 명령은 기존 웹 메타데이터와 CSV type/arg 양쪽에서 작성할 수 있다.
+        if (string.IsNullOrEmpty(kind) && step.Type == "npc-sequence") kind = step.Type;
         step.CutsceneAfter = Field(step, "cinemaAfter") ?? step.CutsceneAfter;
         step.MemoryKey = Field(step, "memoryKey") ?? step.MemoryKey;
         if (kind == "choice" && step.Options?.Length > 0) { }
         else if (!string.IsNullOrEmpty(kind) && kind != "say" && kind != "timeline" && kind != "effect")
         {
             step.Command = Parse(kind, Field(step, "stage"), Field(step, "action"));
+            if (step.Command == OutsideStoryCommand.NpcSequence && string.IsNullOrWhiteSpace(step.Arg))
+                throw new InvalidOperationException("npc-sequence의 arg에 Inspector 연출 ID를 지정하세요.");
             step.Type = "event";
         }
-        if (step.Options != null) step.Options = step.Options.Select(option =>
-        {
-            if (option.ResultSteps != null) option.ResultSteps = Compile(option.ResultSteps);
-            return option;
-        }).ToArray();
+        if (step.Options != null) step.Options = step.Options.Select(CompileOption).ToArray();
         // 실행기는 원시 웹 메타데이터를 읽을 수 없다. 원본 CSV와 catalog의 조립 결과는 유지한다.
         step.WebFields = null;
         return step;
-    }).ToArray();
+    }
+
+    private static NewStreetOptionData CompileOption(NewStreetOptionData option)
+    {
+        if (option.ResultSteps != null) option.ResultSteps = Compile(option.ResultSteps);
+        return option;
+    }
 
     public static OutsideStoryCommand Parse(string kind, string stage, string action) => (kind, stage, action) switch
     {
@@ -102,9 +114,10 @@ public static class StoryCsvCompiler
         ("thug-action", _, "punch") => OutsideStoryCommand.ThugPunch,
         ("thug-action", _, "depart") => OutsideStoryCommand.ThugDepart,
         ("story_cue", _, _) => OutsideStoryCommand.DoorCue,
+        ("npc-sequence", _, _) => OutsideStoryCommand.NpcSequence,
         _ => throw new NotSupportedException("지원하지 않는 사건 CSV 명령: " + kind + "/" + stage + "/" + action)
     };
 
-    static string Field(Step step, string key) => step.WebFields != null && step.WebFields.TryGetValue(key, out var value)
+    private static string Field(Step step, string key) => step.WebFields != null && step.WebFields.TryGetValue(key, out var value)
         ? Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture) : null;
 }

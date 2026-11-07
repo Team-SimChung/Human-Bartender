@@ -58,7 +58,8 @@ public class DialogueRunner : MonoBehaviour
 
     public async UniTask<StoryExecutionResult> PlayOutsideAsync(Step[] steps, CancellationToken token = default,
         Func<string, string, CancellationToken, UniTask<bool>> playTimeline = null, bool autoAdvance = false,
-        Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction = null)
+        Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction = null,
+        Func<string, CancellationToken, UniTask> playNpcSequence = null, bool continueTravel = false)
     {
         if (active != null) return Failed("A dialogue is already running.");
         if (!Alive(presenter) || conditionUtil == null) return Failed("Dialogue presenter or conditions are missing.");
@@ -66,7 +67,8 @@ public class DialogueRunner : MonoBehaviour
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source,
             PlayTimeline=playTimeline, AutoAdvance=autoAdvance };
-        run.Events = new OutsideStoryExecution(run.Conditions, (options, ct) => ChooseAsync(options, run), playWorldAction);
+        run.Events = new OutsideStoryExecution(run.Conditions, (options, ct) => ChooseAsync(options, run), playWorldAction,
+            playNpcSequence, continueTravel);
         active = run;
         using var dialogueAudio = GameAudioContext.Dialogue(run.Presenter.GetPlayMode() == EActivationMode.Proximity);
         var result = new StoryExecutionResult(StoryExecutionStatus.Completed);
@@ -74,7 +76,8 @@ public class DialogueRunner : MonoBehaviour
         {
             await ExecuteAsync(steps, run, 0);
             source.Token.ThrowIfCancellationRequested();
-            result = new StoryExecutionResult(StoryExecutionStatus.Completed, destination: run.Events.Destination);
+            result = new StoryExecutionResult(StoryExecutionStatus.Completed, destination: run.Events.Destination,
+                continuation: run.Events.Continuation);
         }
         catch (OperationCanceledException) { result = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
         catch (Exception e) { result = Failed(e.Message); }
@@ -128,8 +131,9 @@ public class DialogueRunner : MonoBehaviour
         // seq가 없는 기존 결과 스텝은 CSV source_order 순서를 유지함.
         var ordered = steps.All(s => s.Seq == 0) ? steps : steps.OrderBy(s => s.Seq).ToArray();
         if (ordered.Where(s=>s.Seq != 0).GroupBy(s=>s.Seq).Any(g=>g.Count()>1)) throw new InvalidOperationException("Duplicate street step seq.");
-        foreach (var step in ordered)
+        for (int index = 0; index < ordered.Length; index++)
         {
+            var step = ordered[index];
             token.ThrowIfCancellationRequested();
             if (run.Presenter is IDialogueAutomaticPlayback automatic)
                 await automatic.WaitUntilReadyAsync(token);
@@ -141,6 +145,11 @@ public class DialogueRunner : MonoBehaviour
                 var replacement = await storyEvents.ExecuteAsync(step.Command, step.Arg, run.Events, token);
                 token.ThrowIfCancellationRequested();
                 run.Conditions.ApplyRequired(step.Effects);
+                if (run.Events.ContinueAfterTravel)
+                {
+                    run.Events.CaptureContinuation(ordered.Skip(index + 1).ToArray());
+                    return;
+                }
                 if (replacement != null)
                 {
                     // 실행용 순서만 복사본에서 조정한다. 로더가 공개한 원본 배열을 수정하지 않는다.

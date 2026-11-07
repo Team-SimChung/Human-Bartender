@@ -21,6 +21,10 @@ public sealed class WorldInteractionController : MonoBehaviour
     [Inject] private IGameProgressionService progression;
     [Inject] private ISoundEffectPlayer sound;
     private WorldStoryActors sessionActors;
+    private IWorldInteractionParticipant sessionParticipant;
+    private WorldDialogueSpeakers sessionSpeakersOverride;
+    private WorldDialogueSpeakers SessionSpeakers => sessionSpeakersOverride != null ? sessionSpeakersOverride :
+        activeTarget != null ? activeTarget.GetComponent<WorldDialogueSpeakers>() : null;
     private readonly HashSet<string> notifiedEvents = new(StringComparer.Ordinal);
     private readonly Dictionary<string, NewSceneData> stories = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> targetCounts = new(StringComparer.Ordinal);
@@ -33,6 +37,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     private WorldInteractionTarget focused;
     private WorldInteractionTarget activeTarget;
     private CancellationTokenSource session;
+    private InteractionStateLease continuationLease;
     private bool ready;
     private bool handingOff;
     private int lastInputFrame = -1;
@@ -145,17 +150,20 @@ public sealed class WorldInteractionController : MonoBehaviour
     {
         story = default;
         if (target == null || !target.isActiveAndEnabled || target.gameObject.scene != gameObject.scene) return false;
+        if (target.Participant is { } participant && !participant.CanInteract) return false;
         string id = target.RegistryKey;
         if (target.Content != null)
         {
-            if (!target.Content.TryResolve(target.InteractionRadius, out story)) return false;
+            if (!target.Content.TryResolve(out story)) return false;
+            target.ApplyStartSettings(ref story);
+            if (target.StartMode == WorldInteractionStartMode.ScriptOnly) return false;
         }
         else
         {
             if (string.IsNullOrWhiteSpace(target.StorySceneId) || !stories.TryGetValue(target.StorySceneId, out story))
             { ReportOnce("CSV scene을 찾을 수 없습니다: " + target.StorySceneId); return false; }
             var state = GameStateManager.Instance;
-            if (OutsideStorySceneRules.IsNativeEntry(story.Id)) story.Radius = target.InteractionRadius;
+            target.ApplyStartSettings(ref story);
             if (!OutsideStorySceneRules.IsAvailable(story.Id, state.CurrentDay, state.GameFlow, conditions) || !Eligible(story)) return false;
             story = OutsideStorySceneRules.ResolveEntry(story, state.CurrentDay, conditions, storyContent);
         }
@@ -200,10 +208,13 @@ public sealed class WorldInteractionController : MonoBehaviour
     }
 
     private bool SessionAvailable => activeTarget != null && activeTarget.isActiveAndEnabled &&
-        view != null && view.isActiveAndEnabled;
+        view != null && view.isActiveAndEnabled &&
+        (sessionParticipant == null || sessionParticipant is MonoBehaviour participant && participant != null && participant.isActiveAndEnabled);
 
-    private bool CanStartSession => ready && view != null && view.isActiveAndEnabled && !IsRunning &&
+    private bool CanAcquireSession => ready && view != null && view.isActiveAndEnabled && !IsRunning &&
         !runner.IsRunning && !UIDisplayOptions.IsOptionOpen && player.State == EInteractorState.None;
+    private bool CanStartSession => CanAcquireSession &&
+        !(progression is IGameProgressionContinuationService continuation && continuation.IsContinuingDialogue);
 
     private void RefreshFocus()
     {
@@ -232,6 +243,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     {
         foreach (var target in WorldInteractionTarget.InScene(gameObject.scene))
         {
+            if (target.Participant != null) continue; // 새 NPC의 출현은 대화 가능 여부와 독립적이다.
             var actors = target.GetComponent<WorldStoryActors>();
             if (actors != null) actors.RefreshVisibility(TryResolve(target, out _), conditions);
         }
@@ -287,18 +299,30 @@ public sealed class WorldInteractionController : MonoBehaviour
         session = source;
         activeTarget = target;
         var lease = InteractionStateLease.Acquire(player);
+        WorldDialogueTravelSettings.Snapshot? travel = null;
         try
         {
+            var travelSettings = target.GetComponent<WorldDialogueTravelSettings>();
+            if (travelSettings != null && travelSettings.enabled) travel = travelSettings.Capture();
             player.PrepareWorldInteraction();
-            sessionActors = target.GetComponent<WorldStoryActors>();
+            sessionParticipant = target.Participant;
+            sessionParticipant?.BeginInteraction();
+            if (sessionParticipant is IWorldInteractionPreparationParticipant preparation)
+                await preparation.PrepareInteractionAsync(source.Token);
+            sessionActors = sessionParticipant == null ? target.GetComponent<WorldStoryActors>() : null;
             sessionActors?.BeginSession();
             SetFocus(null);
             if (story.StartMode == ENewSceneTrigger.Auto && notifiedEvents.Add(story.Id))
                 await popups.Popup(PopupType.EventOccurred, "");
             source.Token.ThrowIfCancellationRequested();
             LastResult = await ExecuteOutputAsync(target, story, source.Token);
-            if (target.Content != null) sceneContext.CompleteDialogue(story.Id, LastResult);
-            if (LastResult.Completed && !string.IsNullOrEmpty(story.CompletionFlag))
+            if (LastResult.Completed && LastResult.Continuation == null && sessionParticipant != null)
+            {
+                view.EndScene();
+                await sessionParticipant.CompleteInteractionAsync(source.Token);
+            }
+            if (LastResult.Continuation == null && target.Content != null) sceneContext.CompleteDialogue(story.Id, LastResult);
+            if (LastResult.Completed && LastResult.Continuation == null && !string.IsNullOrEmpty(story.CompletionFlag))
                 conditions.ApplyRequired("flag." + story.CompletionFlag + " = true");
             if (LastResult.Status == StoryExecutionStatus.Failed) Debug.LogError("[WorldInteraction] " + LastResult.Error, this);
         }
@@ -312,9 +336,19 @@ public sealed class WorldInteractionController : MonoBehaviour
         {
             try
             {
-                sessionActors?.EndSession();
-                sessionActors = null;
-                if (view != null) view.EndScene();
+                try
+                {
+                    if (sessionParticipant is MonoBehaviour participant && participant != null)
+                        sessionParticipant.EndInteraction();
+                }
+                finally
+                {
+                    sessionParticipant = null;
+                    sessionActors?.EndSession();
+                    sessionActors = null;
+                    sessionSpeakersOverride = null;
+                    if (view != null) view.EndScene();
+                }
             }
             finally
             {
@@ -334,13 +368,114 @@ public sealed class WorldInteractionController : MonoBehaviour
             handingOff = true;
             try
             {
-                var moved = await progression.EnterAsync(LastResult.Destination.Value, CancellationToken.None);
-                if (!moved.Succeeded) LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, moved.Message);
+                if (LastResult.Continuation != null)
+                {
+                    if (!travel.HasValue || progression is not IGameProgressionContinuationService continuationService)
+                        throw new InvalidOperationException("대화 장소 이동 설정이 연결되지 않았습니다.");
+                    LastResult = await continuationService.ContinueDialogueAsync(LastResult.Destination.Value,
+                        LastResult.Continuation, travel.Value, CancellationToken.None);
+                    if (LastResult.Completed && !string.IsNullOrEmpty(story.CompletionFlag))
+                        conditions.ApplyRequired("flag." + story.CompletionFlag + " = true");
+                }
+                else
+                {
+                    var moved = await progression.EnterAsync(LastResult.Destination.Value, CancellationToken.None);
+                    if (!moved.Succeeded) LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, moved.Message);
+                }
             }
             catch (Exception error) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, error.Message); }
             finally { handingOff = false; }
         }
         return LastResult;
+    }
+
+    internal async UniTask PrepareSceneContinuationAsync(WorldDialogueTravelSettings.Snapshot settings)
+    {
+        if (!CanAcquireSession) throw new InvalidOperationException("도착한 씬에서 대화를 이어 갈 수 없습니다.");
+        var target = WorldInteractionTarget.InScene(gameObject.scene)
+            .SingleOrDefault(value => value.StorySceneId == settings.DestinationTargetId);
+        if (target == null || !target.isActiveAndEnabled)
+            throw new InvalidOperationException("도착한 씬의 대화 대상이 없습니다: " + settings.DestinationTargetId);
+        session = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        activeTarget = target;
+        handingOff = true;
+        try
+        {
+            continuationLease = InteractionStateLease.Acquire(player);
+            player.PrepareWorldInteraction();
+            var position = player.transform.position;
+            player.transform.position = new Vector3(settings.PlayerPosition.x, settings.PlayerPosition.y, position.z);
+            player.GetComponent<PlayerMovement2D>()?.Face(settings.FaceRight);
+            SetFocus(null);
+            sessionParticipant = target.Participant;
+            sessionParticipant?.BeginInteraction();
+            if (sessionParticipant is IWorldInteractionPreparationParticipant preparation)
+                await preparation.PrepareInteractionAsync(session.Token);
+            sessionActors = sessionParticipant == null ? target.GetComponent<WorldStoryActors>() : null;
+            sessionActors?.BeginSession();
+        }
+        catch { ReleaseSceneContinuation(); throw; }
+    }
+
+    internal async UniTask<StoryExecutionResult> PlaySceneContinuationAsync(Step[] steps)
+    {
+        if (session == null || continuationLease == null)
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "이어질 대화가 준비되지 않았습니다.");
+        handingOff = false;
+        var token = session.Token;
+        try
+        {
+            token.ThrowIfCancellationRequested();
+            view.Begin(activeTarget, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
+            runner.Bind(view);
+            LastResult = steps == null || steps.Length == 0 ? new StoryExecutionResult(StoryExecutionStatus.Completed) :
+                await runner.PlayOutsideAsync(steps, token, PlayTimelineAsync,
+                    playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync);
+            if (LastResult.Completed && sessionParticipant != null)
+            {
+                view.EndScene();
+                await sessionParticipant.CompleteInteractionAsync(token);
+            }
+            return LastResult;
+        }
+        catch (OperationCanceledException) { return LastResult = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
+        catch (Exception error) { return LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, error.Message); }
+        finally { ReleaseSceneContinuation(); }
+    }
+
+    internal void ReleaseSceneContinuation()
+    {
+        if (continuationLease == null) return;
+        var lease = continuationLease;
+        continuationLease = null;
+        var source = session;
+        session = null;
+        try
+        {
+            if (sessionParticipant is MonoBehaviour participant && participant != null) sessionParticipant.EndInteraction();
+        }
+        finally
+        {
+            sessionParticipant = null;
+            try
+            {
+                try { sessionActors?.EndSession(); }
+                finally
+                {
+                    sessionActors = null;
+                    sessionSpeakersOverride = null;
+                    if (view != null) view.EndScene();
+                }
+            }
+            finally
+            {
+                activeTarget = null;
+                handingOff = false;
+                source?.Dispose();
+                lease.Dispose();
+                if (sceneContext != null && sceneContext.IsReady) sceneContext.RefreshContents();
+            }
+        }
     }
 
     private async UniTask<StoryExecutionResult> ExecuteOutputAsync(WorldInteractionTarget target, NewSceneData story, CancellationToken token)
@@ -358,9 +493,12 @@ public sealed class WorldInteractionController : MonoBehaviour
                 break;
             case WorldInteractionOutput.Image:
             case WorldInteractionOutput.SpeechBubble:
-                view.Begin(target, player.transform, speakers: sessionActors?.Speakers);
+                view.Begin(target, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
                 runner.Bind(view);
-                return await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync, playWorldAction: PlayWorldActionAsync);
+                var travel = target.GetComponent<WorldDialogueTravelSettings>();
+                return await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
+                    playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync,
+                    continueTravel: travel != null && travel.enabled);
             default:
                 throw new NotSupportedException("지원하지 않는 상호작용 출력: " + target.Output);
         }
@@ -414,22 +552,37 @@ public sealed class WorldInteractionController : MonoBehaviour
             {
                 if (homeTerrace != null && homeTerrace.IsActive)
                     view.Begin(target, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);
-                else if (player != null) view.Begin(target, player.transform, speakers: sessionActors?.Speakers);
+                else if (player != null) view.Begin(target, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
             }
         }
     }
 
     private UniTask PlayWorldActionAsync(OutsideStoryWorldAction action, CancellationToken token)
     {
+        if (sessionParticipant != null) return sessionParticipant.PlayWorldActionAsync(action, token);
+        if (action == OutsideStoryWorldAction.DoorCue)
+        {
+            token.ThrowIfCancellationRequested();
+            sound.PlaySE("SFX_door_open_close");
+            return UniTask.CompletedTask;
+        }
         if (sessionActors == null) throw new InvalidOperationException("사건 대상에 WorldStoryActors를 연결하세요: " + action);
         return sessionActors.PlayAsync(action, player.transform, sound, token);
     }
 
+    private UniTask PlayNpcSequenceAsync(string sequenceId, CancellationToken token)
+    {
+        if (sessionParticipant is IWorldInteractionSequenceParticipant participant)
+            return participant.PlaySequenceAsync(sequenceId, token);
+        throw new InvalidOperationException("사건 대상에 NPC 연출 목록을 연결하세요: " + sequenceId);
+    }
+
     private async UniTask<StoryExecutionResult> PlayAutomaticDialogueAsync(Step[] steps, Transform anchor, CancellationToken token)
     {
-        view.Begin(activeTarget, player.transform, anchor, true, sessionActors?.Speakers);
+        view.Begin(activeTarget, player.transform, anchor, true, sessionActors?.Speakers ?? SessionSpeakers);
         runner.Bind(view);
-        return await runner.PlayOutsideAsync(steps, token, PlayTimelineAsync, autoAdvance: true, playWorldAction: PlayWorldActionAsync);
+        return await runner.PlayOutsideAsync(steps, token, PlayTimelineAsync, autoAdvance: true,
+            playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync);
     }
 
     private async UniTask PlayNightAsync(CancellationToken token)
@@ -443,26 +596,45 @@ public sealed class WorldInteractionController : MonoBehaviour
             if (conditions.CheckRequired("flag.boobi_adopted && !flag.boobi_rest_seen"))
             {
                 var previous = sessionActors;
+                var previousParticipant = sessionParticipant;
+                var previousSpeakers = sessionSpeakersOverride;
                 var cat = WorldInteractionTarget.InScene(gameObject.scene).Single(target => target.StorySceneId == "neighborhood-homeCat");
-                var restActors = cat.GetComponent<WorldStoryActors>();
-                if (restActors == null) throw new InvalidOperationException("집 안 부비의 월드 화자를 연결하세요.");
-                restActors.BeginSession();
-                sessionActors = restActors;
+                var restParticipant = cat.Participant;
+                var restSpeakers = cat.GetComponent<WorldDialogueSpeakers>();
+                if (restParticipant == null || restSpeakers == null)
+                    throw new InvalidOperationException("집 안 부비의 NPC Interaction과 월드 화자를 연결하세요.");
+                restParticipant.BeginInteraction();
+                sessionActors = null;
+                sessionParticipant = restParticipant;
+                sessionSpeakersOverride = restSpeakers;
                 try
                 {
-                    view.Begin(activeTarget, player.transform, speakers: restActors.Speakers);
+                    if (restParticipant is IWorldInteractionPreparationParticipant preparation)
+                        await preparation.PrepareInteractionAsync(token);
+                    view.Begin(activeTarget, player.transform, speakers: restSpeakers);
                     runner.Bind(view);
                     var rest = await runner.PlayOutsideAsync(storyContent.GetSceneSteps("neighborhood-rest"), token,
-                        PlayTimelineAsync, playWorldAction: PlayWorldActionAsync);
+                        PlayTimelineAsync, playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync);
                     if (rest.Status == StoryExecutionStatus.Cancelled) throw new OperationCanceledException(token);
                     if (!rest.Completed) throw new InvalidOperationException(rest.Error);
+                    await restParticipant.CompleteInteractionAsync(token);
+                    token.ThrowIfCancellationRequested();
                     conditions.ApplyRequired("flag.boobi_rest_seen = true");
                 }
-                finally { restActors.EndSession(); sessionActors = previous; }
+                finally
+                {
+                    try { restParticipant.EndInteraction(); }
+                    finally
+                    {
+                        sessionActors = previous;
+                        sessionParticipant = previousParticipant;
+                        sessionSpeakersOverride = previousSpeakers;
+                    }
+                }
             }
             foreach (var story in stories.Values.OrderBy(StoryOrder))
             {
-                if (story.StartMode != ENewSceneTrigger.Manual ||
+                if (OutsideStorySceneRules.IsNativeEntry(story.Id) || story.StartMode != ENewSceneTrigger.Manual ||
                     !WorldInteractionSceneRules.IsEligible(story, gameObject.scene.name, state.CurrentDay, state.GameFlow, conditions)) continue;
                 bool terraceStory = homeTerrace != null && homeTerrace.ContainsStory(story.Id);
                 view.EndScene();
@@ -471,7 +643,8 @@ public sealed class WorldInteractionController : MonoBehaviour
                 if (terraceStory) view.Begin(activeTarget, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);
                 else view.Begin(activeTarget, player.transform, player.transform, speakers: sessionActors?.Speakers);
                 runner.Bind(view);
-                var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync, playWorldAction: PlayWorldActionAsync);
+                var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
+                    playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync);
                 if (result.Status == StoryExecutionStatus.Cancelled) throw new OperationCanceledException(token);
                 if (!result.Completed) throw new InvalidOperationException(result.Error);
                 if (!string.IsNullOrEmpty(story.CompletionFlag)) conditions.ApplyRequired("flag." + story.CompletionFlag + " = true");

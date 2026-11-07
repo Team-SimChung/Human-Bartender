@@ -8,12 +8,29 @@ public readonly struct StoryExecutionResult
     public string Error { get; }
     public bool Completed => Status == StoryExecutionStatus.Completed;
     public GameProgressionDestination? Destination { get; }
+    public StorySceneContinuation Continuation { get; }
 
-    public StoryExecutionResult(StoryExecutionStatus status, string error = null, GameProgressionDestination? destination = null)
+    public StoryExecutionResult(StoryExecutionStatus status, string error = null, GameProgressionDestination? destination = null,
+        StorySceneContinuation continuation = null)
     {
         Status = status;
         Error = error;
         Destination = status == StoryExecutionStatus.Completed ? destination : null;
+        Continuation = status == StoryExecutionStatus.Completed && destination.HasValue ? continuation : null;
+    }
+}
+
+/// <summary>씬 이동 직후에 이어 읽을 대본. 원본 CSV 배열과 진행 저장 형식은 변경하지 않는다.</summary>
+public sealed class StorySceneContinuation
+{
+    public Step[] Steps { get; }
+    public string DepartureEffects { get; }
+    public string RollbackEffects { get; }
+    public StorySceneContinuation(Step[] steps, string departureEffects = null, string rollbackEffects = null)
+    {
+        Steps = steps == null ? Array.Empty<Step>() : (Step[])steps.Clone();
+        DepartureEffects = departureEffects;
+        RollbackEffects = rollbackEffects;
     }
 }
 

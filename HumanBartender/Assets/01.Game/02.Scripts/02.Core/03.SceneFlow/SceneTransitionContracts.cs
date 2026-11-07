@@ -105,3 +105,30 @@ public interface ISceneTransitionService
         CancellationToken cancellationToken = default, SceneTransitionStyle style = SceneTransitionStyle.Fade);
     SceneTransitionRequest RequestUnloadScene(string sceneName, CancellationToken cancellationToken = default);
 }
+
+/// <summary>대화 도중 장소가 바뀔 때만 사용한다. 기존 기본 전환 시간은 변경하지 않는다.</summary>
+public sealed class SceneTransitionPresentation
+{
+    public float FadeOutDuration { get; }
+    public float DelayBeforeLoad { get; }
+    public float MinimumBlackDuration { get; }
+    public float FadeInDuration { get; }
+    public Action BeforeLoad { get; }
+    public Func<UniTask> BeforeReveal { get; }
+    public SceneTransitionPresentation(float fadeOut, float delayBeforeLoad, float minimumBlack, float fadeIn,
+        Action beforeLoad = null, Func<UniTask> beforeReveal = null)
+    {
+        if (!Valid(fadeOut) || !Valid(delayBeforeLoad) || !Valid(minimumBlack) || !Valid(fadeIn))
+            throw new ArgumentOutOfRangeException(nameof(fadeOut), "화면 전환 시간은 유한한 0 이상이어야 합니다.");
+        FadeOutDuration = fadeOut; DelayBeforeLoad = delayBeforeLoad;
+        MinimumBlackDuration = minimumBlack; FadeInDuration = fadeIn;
+        BeforeLoad = beforeLoad; BeforeReveal = beforeReveal;
+    }
+    private static bool Valid(float value) => float.IsFinite(value) && value >= 0;
+}
+
+public interface IPresentedSceneTransitionService
+{
+    SceneTransitionRequest RequestPresentedScene(string sceneName, SceneTransitionPresentation presentation,
+        CancellationToken cancellationToken = default);
+}

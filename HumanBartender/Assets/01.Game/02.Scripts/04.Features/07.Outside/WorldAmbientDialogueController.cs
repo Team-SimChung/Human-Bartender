@@ -87,6 +87,8 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
 
     internal static void ValidateScript(WorldInteractionTarget target, NewSceneData story, Transform player)
     {
+        if (target.Participant != null)
+            throw new InvalidOperationException("NPC 연출이 연결된 대상은 직접 상호작용 또는 범위 진입 시 자동 시작을 사용하세요. 주변 대화는 대사 전용입니다: " + target.name);
         if (target.Output != WorldInteractionOutput.SpeechBubble)
             throw new InvalidOperationException("접근 자동 대화의 Output은 SpeechBubble이어야 함: " + target.name);
         if (story.Steps == null || story.Steps.Length == 0) throw new InvalidOperationException("자동 대화의 대본이 비어 있음.");

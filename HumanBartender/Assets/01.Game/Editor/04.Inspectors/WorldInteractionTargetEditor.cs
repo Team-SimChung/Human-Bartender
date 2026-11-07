@@ -9,11 +9,12 @@ public sealed class WorldInteractionTargetEditor : Editor
         serializedObject.Update();
         Draw("content");
         if (serializedObject.FindProperty("content").objectReferenceValue == null) Draw("storySceneId");
-        else
-        {
-            Draw("interactionRadius");
-            EditorGUILayout.HelpBox("CSV activation_mode가 proximity면 E 입력 없이 자동 대화를 진행함. 여러 화자는 같은 오브젝트의 WorldDialogueSpeakers에 actor와 기준점을 연결함.", MessageType.Info);
-        }
+        Draw("startMode");
+        Draw("interactionRadius");
+        if (serializedObject.FindProperty("content").objectReferenceValue != null) Draw("contentStartOverrides");
+        EditorGUILayout.HelpBox("시작 방식과 범위는 여기서 설정합니다. 날짜·출퇴근·등장 조건·완료 기록은 기존 CSV를 따릅니다. Scene 뷰의 청록색 원이 시작 범위입니다.", MessageType.Info);
+        if (((WorldInteractionTarget)target).Participant != null && HasAmbientStart())
+            EditorGUILayout.HelpBox("NPC 연출이 연결된 대상은 직접 상호작용 또는 범위 진입 시 자동 시작을 사용하세요. 주변 대화는 대사 전용이며 NPC 동작 목록을 실행하지 않습니다.", MessageType.Error);
         Draw("interactionLabel");
         Draw("output");
         Draw("highlight");
@@ -31,6 +32,17 @@ public sealed class WorldInteractionTargetEditor : Editor
         }
         EditorGUILayout.HelpBox("CSV timeline 단계의 arg를 Timelines의 ID와 연결합니다. 날짜·재시청 조건은 CSV에서 관리합니다.", MessageType.Info);
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private bool HasAmbientStart()
+    {
+        if ((WorldInteractionStartMode)serializedObject.FindProperty("startMode").enumValueIndex == WorldInteractionStartMode.Ambient) return true;
+        if (serializedObject.FindProperty("content").objectReferenceValue == null) return false;
+        var overrides = serializedObject.FindProperty("contentStartOverrides");
+        for (int i = 0; i < overrides.arraySize; i++)
+            if ((WorldInteractionStartMode)overrides.GetArrayElementAtIndex(i).FindPropertyRelative("startMode").enumValueIndex == WorldInteractionStartMode.Ambient)
+                return true;
+        return false;
     }
 
     private void DrawAction()

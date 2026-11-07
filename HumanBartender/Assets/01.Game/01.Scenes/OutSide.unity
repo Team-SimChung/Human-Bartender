@@ -379,7 +379,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: 
   content: {fileID: 18732694}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
   output: 0
   speechAnchor: {fileID: 0}
@@ -639,7 +642,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 8004748407389988518, guid: 0f1673b910a1f4b14b7113ef2ae68d5e, type: 3}
+  m_Sprite: {fileID: -3230580220742655051, guid: 58e7766ccf01445668b04b97e9b876a4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -875,8 +878,9 @@ GameObject:
   m_Component:
   - component: {fileID: 89322231}
   - component: {fileID: 89322230}
-  - component: {fileID: 89322233}
   - component: {fileID: 89322232}
+  - component: {fileID: 89322233}
+  - component: {fileID: 89322234}
   m_Layer: 0
   m_Name: neighborhood-reveal
   m_TagString: Untagged
@@ -898,7 +902,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: neighborhood-reveal
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.4
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uACE0\uC591\uC774"
   output: 0
   speechAnchor: {fileID: 0}
@@ -924,6 +931,7 @@ Transform:
   m_Children:
   - {fileID: 1343346871}
   - {fileID: 954953858}
+  - {fileID: 1161729619}
   m_Father: {fileID: 1596800306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &89322232
@@ -956,20 +964,395 @@ MonoBehaviour:
   m_GameObject: {fileID: 89322229}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: boobi
-    Root: {fileID: 1343346871}
-    Renderer: {fileID: 1795489895}
-    VisibleOutsideSession: 1
-  - Id: neighbor
-    Root: {fileID: 954953858}
-    Renderer: {fileID: 52136532}
-    VisibleOutsideSession: 0
-  speakers: {fileID: 89322232}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1343346872}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: flag.boobi_revealed
+  additionalActors:
+  - actor: {fileID: 954953859}
+    visibleOutsideSession: 0
+    presenceCondition: 
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences:
+  - id: reveal
+    trigger: 1
+    worldAction: 2
+    requiredCondition: 
+    actions:
+    - kind: 12
+      performer: {fileID: 1343346872}
+      positionOrigin: 2
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 89322231}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 9
+      performer: {fileID: 1343346872}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 3
+      performer: {fileID: 1343346872}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: RevealEyes
+      returnState: Idle
+      duration: 0.55
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 17
+      performer: {fileID: 1343346872}
+      positionOrigin: 1
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.9
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 4
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: feed
+    trigger: 1
+    worldAction: 4
+    requiredCondition: 
+    actions:
+    - kind: 9
+      performer: {fileID: 1343346872}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 3
+      performer: {fileID: 1343346872}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Feed
+      returnState: Idle
+      duration: 1.5
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: pet
+    trigger: 1
+    worldAction: 3
+    requiredCondition: 
+    actions:
+    - kind: 9
+      performer: {fileID: 1343346872}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 3
+      performer: {fileID: 1343346872}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Pet
+      returnState: Idle
+      duration: 1.6
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: adopt
+    trigger: 1
+    worldAction: 1
+    requiredCondition: 
+    actions:
+    - kind: 4
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: neighbor-enter
+    trigger: 1
+    worldAction: 5
+    requiredCondition: 
+    actions:
+    - kind: 9
+      performer: {fileID: 954953859}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 11
+      performer: {fileID: 954953859}
+      positionOrigin: 2
+      movementEase: 0
+      horizontalOnly: 1
+      target: {fileID: 1343346871}
+      distance: 0.65
+      offset: {x: 0.8, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0.24
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: neighbor-exit
+    trigger: 1
+    worldAction: 6
+    requiredCondition: 
+    actions:
+    - kind: 16
+      performer: {fileID: 954953859}
+      positionOrigin: 1
+      movementEase: 0
+      horizontalOnly: 1
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0.24
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.4
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 1161729620}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: '!flag.boobi_box_shaken && !flag.boobi_revealed'
+    completionFlag: boobi_box_shaken
+--- !u!114 &89322234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89322229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 250b1d48cbe54810a7a40cc4b149c33a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldDialogueTravelSettings
+  playerPosition: {x: 2.02, y: -0.7}
+  faceRight: 1
+  fadeOutDuration: 0.35
+  delayBeforeLoad: 0.05
+  minimumBlackDuration: 0.35
+  fadeInDuration: 0.45
+  destinationTargetId: neighborhood-homeCat
 --- !u!1 &91833976
 GameObject:
   m_ObjectHideFlags: 0
@@ -1297,12 +1680,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 119463678}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1300979782}
+  m_Father: {fileID: 2130020362}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &119463680
 SpriteRenderer:
@@ -2100,9 +2483,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 205911620}
+  - component: {fileID: 205911623}
+  - component: {fileID: 205911624}
+  - component: {fileID: 205911625}
   - component: {fileID: 205911619}
-  - component: {fileID: 205911622}
   - component: {fileID: 205911621}
+  - component: {fileID: 205911626}
   m_Layer: 0
   m_Name: neighborhood-repairGreeting
   m_TagString: Untagged
@@ -2124,7 +2510,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: neighborhood-repairGreeting
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.4
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC218\uB9AC\uACF5"
   output: 0
   speechAnchor: {fileID: 0}
@@ -2148,7 +2537,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 845586735}
+  - {fileID: 399975684}
+  - {fileID: 1912816579}
   m_Father: {fileID: 1596800306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &205911621
@@ -2168,7 +2558,7 @@ MonoBehaviour:
     anchor: {fileID: 1912816579}
     placement: 0
     bubbleOffset: {x: 0, y: 0}
---- !u!114 &205911622
+--- !u!114 &205911623
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2177,16 +2567,216 @@ MonoBehaviour:
   m_GameObject: {fileID: 205911618}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: repair
-    Root: {fileID: 845586735}
-    Renderer: {fileID: 399975685}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 205911621}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 205911624}
+  animator: {fileID: 205911625}
+  spriteRenderer: {fileID: 399975685}
+  artworkFacesRight: 0
+  idleFacing: 1
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &205911624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 205911618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &205911625
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 205911618}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5c96c0b18b0d67c4ea3b760c527e9ab1, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &205911626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 205911618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 205911623}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 1
+  restorePoseAfterInteraction: 0
+  useStoryPresence: 0
+  minimumDay: 1
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: '!flag.elevator_repaired'
+  committedCondition: flag.elevator_repaired
+  sequences:
+  - id: repair
+    trigger: 1
+    worldAction: 0
+    requiredCondition: flag.elevator_repair_paid
+    actions:
+    - kind: 5
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 4
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 1.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 6
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.45
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: repair-complete
+    trigger: 2
+    worldAction: 0
+    requiredCondition: flag.elevator_repaired
+    actions:
+    - kind: 8
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: "\uC5D8\uB9AC\uBCA0\uC774\uD130 \uC218\uB9AC"
+    - kind: 15
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.525, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.5
+      walkDuration: 1.1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
 --- !u!1 &233162668
 GameObject:
   m_ObjectHideFlags: 0
@@ -2573,8 +3163,8 @@ GameObject:
   m_Component:
   - component: {fileID: 285198838}
   - component: {fileID: 285198839}
-  - component: {fileID: 285198841}
   - component: {fileID: 285198840}
+  - component: {fileID: 285198841}
   m_Layer: 0
   m_Name: shiba-shop-revisit
   m_TagString: Untagged
@@ -2612,7 +3202,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: shiba-shop-revisit
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC2DCBAR \xB7 \uC7AC\uB8CC \uAD6C\uB9E4"
   output: 0
   speechAnchor: {fileID: 0}
@@ -2649,16 +3242,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 285198837}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: shiba
-    Root: {fileID: 1175323578}
-    Renderer: {fileID: 1057413647}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 285198840}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1175323579}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 2
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences: []
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
 --- !u!1 &287416264
 GameObject:
   m_ObjectHideFlags: 0
@@ -2715,12 +3323,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 345436428}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1591737169}
+  m_Father: {fileID: 1238390148}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &345436430
 SpriteRenderer:
@@ -3407,12 +4015,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399975683}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 845586735}
+  m_Father: {fileID: 205911620}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &399975685
 SpriteRenderer:
@@ -3900,6 +4508,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 407001252}
+  - component: {fileID: 407001255}
+  - component: {fileID: 407001254}
+  - component: {fileID: 407001253}
   m_Layer: 0
   m_Name: "Story actor \xB7 gangmate"
   m_TagString: Untagged
@@ -3924,6 +4535,61 @@ Transform:
   - {fileID: 987652366}
   m_Father: {fileID: 1083289475}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &407001253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407001251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 407001254}
+  animator: {fileID: 407001255}
+  spriteRenderer: {fileID: 973190735}
+  artworkFacesRight: 0
+  idleFacing: 2
+  idleFacingTarget: {fileID: 943330568}
+  facePlayerDuringDialogue: 1
+--- !u!114 &407001254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407001251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &407001255
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407001251}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 65b6041f0304e7140b2f466dbd3f5ad9, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &410970451
 GameObject:
   m_ObjectHideFlags: 0
@@ -4005,7 +4671,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 8004748407389988518, guid: 0f1673b910a1f4b14b7113ef2ae68d5e, type: 3}
+  m_Sprite: {fileID: -3230580220742655051, guid: 58e7766ccf01445668b04b97e9b876a4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -4250,12 +4916,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 428915524}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.35000038, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1591737169}
+  m_Father: {fileID: 1238390148}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &429785303
 GameObject:
@@ -5310,6 +5976,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 577419843}
+  - component: {fileID: 577419846}
+  - component: {fileID: 577419845}
+  - component: {fileID: 577419844}
   m_Layer: 0
   m_Name: "Story actor \xB7 dealer"
   m_TagString: Untagged
@@ -5334,6 +6003,61 @@ Transform:
   - {fileID: 287416265}
   m_Father: {fileID: 955315942}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &577419844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577419842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 577419845}
+  animator: {fileID: 577419846}
+  spriteRenderer: {fileID: 410970453}
+  artworkFacesRight: 0
+  idleFacing: 2
+  idleFacingTarget: {fileID: 2095055570}
+  facePlayerDuringDialogue: 0
+--- !u!114 &577419845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577419842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &577419846
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577419842}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 71e48ae329b9ea24d85b950b8862da4a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &618668253
 GameObject:
   m_ObjectHideFlags: 0
@@ -5621,7 +6345,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1327083235594375433, guid: c318ea44034c3466680e7d51908bac22, type: 3}
+  m_Sprite: {fileID: 1842851473143111439, guid: c318ea44034c3466680e7d51908bac22, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -6904,7 +7628,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storySceneId: outside_interaction_choice_example
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
   output: 1
   speechAnchor: {fileID: 1412544336}
@@ -7340,39 +8067,6 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   - {x: 0.5, y: 0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
---- !u!1 &845586734
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 845586735}
-  m_Layer: 0
-  m_Name: "Story actor \xB7 repair"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &845586735
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 845586734}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 399975684}
-  - {fileID: 1912816579}
-  m_Father: {fileID: 205911620}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &851895853
 GameObject:
   m_ObjectHideFlags: 0
@@ -7678,7 +8372,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: 
   content: {fileID: 868482191}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uD1F4\uADFC"
   output: 3
   speechAnchor: {fileID: 0}
@@ -7714,8 +8411,9 @@ GameObject:
   m_Component:
   - component: {fileID: 871589866}
   - component: {fileID: 871589867}
-  - component: {fileID: 871589869}
   - component: {fileID: 871589868}
+  - component: {fileID: 871589869}
+  - component: {fileID: 871589870}
   m_Layer: 0
   m_Name: commute3
   m_TagString: Untagged
@@ -7753,7 +8451,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: commute3
   content: {fileID: 0}
+  startMode: 1
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0BC\uD638 \xB7 \uCD9C\uADFC\uAE38"
   output: 0
   speechAnchor: {fileID: 0}
@@ -7790,16 +8491,174 @@ MonoBehaviour:
   m_GameObject: {fileID: 871589865}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: samho
-    Root: {fileID: 1236541003}
-    Renderer: {fileID: 1225768650}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 871589868}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1236541004}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences:
+  - id: web-dialogue-start
+    trigger: 3
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 1236541003}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 18
+      performer: {fileID: 0}
+      positionOrigin: 2
+      movementEase: 1
+      horizontalOnly: 1
+      target: {fileID: 1236541003}
+      distance: 0.65
+      offset: {x: 0.78, y: 0}
+      offsetMode: 1
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 1
+      clampPlayerLeft: 0
+      cameraWithMovement: 1
+      cameraMidpoint: 1
+      cameraOffset: {x: 0, y: 0.7}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.65
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 1236541003}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: web-dialogue-finish
+    trigger: 2
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 15
+      performer: {fileID: 1236541004}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.845, y: 0}
+      offsetMode: 2
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.3
+      walkDuration: 1
+      fadeEase: 1
+      text: 
+    - kind: 23
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.4
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &871589870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871589865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed361c205b9449b488fa3166ddcb38d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSceneStaging
+  sceneCamera: {fileID: 0}
 --- !u!1 &872018023
 GameObject:
   m_ObjectHideFlags: 0
@@ -8076,6 +8935,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 893287208}
+  - component: {fileID: 893287211}
+  - component: {fileID: 893287210}
+  - component: {fileID: 893287209}
   m_Layer: 0
   m_Name: "Story actor \xB7 samho"
   m_TagString: Untagged
@@ -8100,6 +8962,61 @@ Transform:
   - {fileID: 2087651199}
   m_Father: {fileID: 1858017923}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &893287209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893287207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 893287210}
+  animator: {fileID: 893287211}
+  spriteRenderer: {fileID: 637985114}
+  artworkFacesRight: 0
+  idleFacing: 1
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &893287210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893287207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &893287211
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893287207}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a4ba7e2bb5644df4b893b0894fe65d56, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &896252730
 GameObject:
   m_ObjectHideFlags: 0
@@ -8629,7 +9546,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: 
   content: {fileID: 917009663}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uCD9C\uADFC"
   output: 3
   speechAnchor: {fileID: 0}
@@ -8709,6 +9629,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 938534315}
+  - component: {fileID: 938534318}
+  - component: {fileID: 938534317}
+  - component: {fileID: 938534316}
   m_Layer: 0
   m_Name: "Story actor \xB7 thug"
   m_TagString: Untagged
@@ -8733,6 +9656,61 @@ Transform:
   - {fileID: 1506454035}
   m_Father: {fileID: 1639230068}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &938534316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938534314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 938534317}
+  animator: {fileID: 938534318}
+  spriteRenderer: {fileID: 1213701204}
+  artworkFacesRight: 0
+  idleFacing: 1
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &938534317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938534314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &938534318
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938534314}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a791581a4a2c33542a7c2f10d66c1d5d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &943330567
 GameObject:
   m_ObjectHideFlags: 0
@@ -8742,6 +9720,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 943330568}
+  - component: {fileID: 943330571}
+  - component: {fileID: 943330570}
+  - component: {fileID: 943330569}
   m_Layer: 0
   m_Name: "Story actor \xB7 boss"
   m_TagString: Untagged
@@ -8766,6 +9747,61 @@ Transform:
   - {fileID: 815445375}
   m_Father: {fileID: 1083289475}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &943330569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 943330567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 943330570}
+  animator: {fileID: 943330571}
+  spriteRenderer: {fileID: 1050468970}
+  artworkFacesRight: 0
+  idleFacing: 2
+  idleFacingTarget: {fileID: 407001252}
+  facePlayerDuringDialogue: 1
+--- !u!114 &943330570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 943330567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &943330571
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 943330567}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e7216961b865ad74db5a7da73eb58640, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &944276661
 GameObject:
   m_ObjectHideFlags: 0
@@ -8872,6 +9908,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 954953858}
+  - component: {fileID: 954953861}
+  - component: {fileID: 954953860}
+  - component: {fileID: 954953859}
   m_Layer: 0
   m_Name: "Story actor \xB7 neighbor"
   m_TagString: Untagged
@@ -8896,6 +9935,61 @@ Transform:
   - {fileID: 1171577570}
   m_Father: {fileID: 89322231}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &954953859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954953857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 954953860}
+  animator: {fileID: 954953861}
+  spriteRenderer: {fileID: 52136532}
+  artworkFacesRight: 0
+  idleFacing: 1
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &954953860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954953857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &954953861
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954953857}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a8e10850d67860c48b286ba2ee489bf7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &955315941
 GameObject:
   m_ObjectHideFlags: 0
@@ -8906,8 +10000,9 @@ GameObject:
   m_Component:
   - component: {fileID: 955315942}
   - component: {fileID: 955315943}
-  - component: {fileID: 955315945}
   - component: {fileID: 955315944}
+  - component: {fileID: 955315945}
+  - component: {fileID: 955315946}
   m_Layer: 0
   m_Name: day3-samho-contract
   m_TagString: Untagged
@@ -8946,7 +10041,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: day3-samho-contract
   content: {fileID: 0}
+  startMode: 1
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0BC\uD638 \xB7 \uACC4\uC57D \uC885\uB8CC"
   output: 0
   speechAnchor: {fileID: 0}
@@ -9003,20 +10101,264 @@ MonoBehaviour:
   m_GameObject: {fileID: 955315941}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: samho
-    Root: {fileID: 2095055570}
-    Renderer: {fileID: 1904043829}
-    VisibleOutsideSession: 1
-  - Id: dealer
-    Root: {fileID: 577419843}
-    Renderer: {fileID: 410970453}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 955315944}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 2095055571}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors:
+  - actor: {fileID: 577419844}
+    visibleOutsideSession: 1
+    presenceCondition: 
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences:
+  - id: samho-approach
+    trigger: 1
+    worldAction: 10
+    requiredCondition: 
+    actions:
+    - kind: 11
+      performer: {fileID: 2095055571}
+      positionOrigin: 2
+      movementEase: 1
+      horizontalOnly: 1
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: -0.75, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 1
+      cameraMidpoint: 1
+      cameraOffset: {x: 0, y: 0.65}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.95
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 2
+      performer: {fileID: 2095055571}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: dealer-exit
+    trigger: 1
+    worldAction: 11
+    requiredCondition: 
+    actions:
+    - kind: 15
+      performer: {fileID: 577419844}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: -0.845, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.3
+      walkDuration: 1
+      fadeEase: 1
+      text: 
+  - id: samho-exit
+    trigger: 1
+    worldAction: 12
+    requiredCondition: 
+    actions:
+    - kind: 15
+      performer: {fileID: 2095055571}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.845, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.3
+      walkDuration: 1
+      fadeEase: 1
+      text: 
+  - id: web-dialogue-start
+    trigger: 3
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 2095055570}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 18
+      performer: {fileID: 0}
+      positionOrigin: 2
+      movementEase: 1
+      horizontalOnly: 1
+      target: {fileID: 2095055570}
+      distance: 0.65
+      offset: {x: 1, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 1
+      clampPlayerLeft: 0
+      cameraWithMovement: 1
+      cameraMidpoint: 0
+      cameraOffset: {x: 0.2, y: 0.65}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.65
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 2095055570}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: web-dialogue-finish
+    trigger: 2
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 23
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.4
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &955315946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 955315941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed361c205b9449b488fa3166ddcb38d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSceneStaging
+  sceneCamera: {fileID: 0}
 --- !u!1 &955902021
 GameObject:
   m_ObjectHideFlags: 0
@@ -10237,6 +11579,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1048255342}
+  - component: {fileID: 1048255345}
+  - component: {fileID: 1048255344}
+  - component: {fileID: 1048255343}
   m_Layer: 0
   m_Name: "Story actor \xB7 samho"
   m_TagString: Untagged
@@ -10261,6 +11606,61 @@ Transform:
   - {fileID: 1727686115}
   m_Father: {fileID: 1571663305}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1048255343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048255341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1048255344}
+  animator: {fileID: 1048255345}
+  spriteRenderer: {fileID: 2082788083}
+  artworkFacesRight: 0
+  idleFacing: 2
+  idleFacingTarget: {fileID: 1254479168}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1048255344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048255341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1048255345
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048255341}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f11ad9080e1294748b915b351744722c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1050468968
 GameObject:
   m_ObjectHideFlags: 0
@@ -10540,7 +11940,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1034777722972887523, guid: b5620af1d12eb4b9aa4153c9ea917ca8, type: 3}
+  m_Sprite: {fileID: 2032504093169874291, guid: b5620af1d12eb4b9aa4153c9ea917ca8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -10855,8 +12255,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1083289475}
   - component: {fileID: 1083289474}
-  - component: {fileID: 1083289477}
   - component: {fileID: 1083289476}
+  - component: {fileID: 1083289477}
   m_Layer: 0
   m_Name: neighborhood-bossIntro
   m_TagString: Untagged
@@ -10878,7 +12278,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: neighborhood-bossIntro
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.4
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uAC31\uB2E8 \uB450\uBAA9"
   output: 0
   speechAnchor: {fileID: 0}
@@ -10936,20 +12339,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 1083289473}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: boss
-    Root: {fileID: 943330568}
-    Renderer: {fileID: 1050468970}
-    VisibleOutsideSession: 1
-  - Id: gangmate
-    Root: {fileID: 407001252}
-    Renderer: {fileID: 973190735}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 1083289476}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 943330569}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors:
+  - actor: {fileID: 407001253}
+    visibleOutsideSession: 1
+    presenceCondition: 
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 0
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 1
+  presenceCondition: 
+  committedCondition: 
+  sequences: []
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
 --- !u!1 &1092545685
 GameObject:
   m_ObjectHideFlags: 0
@@ -11188,6 +12605,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1105638792}
+  - component: {fileID: 1105638795}
+  - component: {fileID: 1105638794}
+  - component: {fileID: 1105638793}
   m_Layer: 0
   m_Name: "Story actor \xB7 shiba"
   m_TagString: Untagged
@@ -11212,6 +12632,61 @@ Transform:
   - {fileID: 2093212577}
   m_Father: {fileID: 1233293952}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1105638793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105638791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1105638794}
+  animator: {fileID: 1105638795}
+  spriteRenderer: {fileID: 2100228961}
+  artworkFacesRight: 0
+  idleFacing: 0
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1105638794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105638791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1105638795
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105638791}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6e927ee60984efa4db3519557b60941a, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1115988873
 GameObject:
   m_ObjectHideFlags: 0
@@ -11915,6 +13390,120 @@ MonoBehaviour:
   - {x: 0.5, y: -0.5, z: 0}
   - {x: 0.5, y: 0.5, z: 0}
   - {x: -0.5, y: 0.5, z: 0}
+--- !u!1 &1161729618
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1161729619}
+  - component: {fileID: 1161729621}
+  - component: {fileID: 1161729620}
+  m_Layer: 0
+  m_Name: Box animation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1161729619
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161729618}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 89322231}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1161729620
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161729618}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 8f2eba07ece937a43a5c5208ed51583d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!212 &1161729621
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161729618}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 1950817317
+  m_SortingLayer: 12
+  m_SortingOrder: 4
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 1480698652783419826, guid: c065a48dcff14624bb1f7261558d2fcd, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1.28, y: 1.28}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &1171577569
 GameObject:
   m_ObjectHideFlags: 0
@@ -11955,6 +13544,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1175323578}
+  - component: {fileID: 1175323581}
+  - component: {fileID: 1175323580}
+  - component: {fileID: 1175323579}
   m_Layer: 0
   m_Name: "Story actor \xB7 shiba"
   m_TagString: Untagged
@@ -11979,6 +13571,61 @@ Transform:
   - {fileID: 1550192819}
   m_Father: {fileID: 285198838}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1175323579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175323577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1175323580}
+  animator: {fileID: 1175323581}
+  spriteRenderer: {fileID: 1057413647}
+  artworkFacesRight: 0
+  idleFacing: 0
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1175323580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175323577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1175323581
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175323577}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d0b994ab7417b3c48bdbbec98a7000e3, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1175785863
 GameObject:
   m_ObjectHideFlags: 0
@@ -12943,7 +14590,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1327083235594375433, guid: c318ea44034c3466680e7d51908bac22, type: 3}
+  m_Sprite: {fileID: 1842851473143111439, guid: c318ea44034c3466680e7d51908bac22, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -13054,8 +14701,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1233293952}
   - component: {fileID: 1233293953}
-  - component: {fileID: 1233293955}
   - component: {fileID: 1233293954}
+  - component: {fileID: 1233293955}
   m_Layer: 0
   m_Name: shiba-shop
   m_TagString: Untagged
@@ -13093,7 +14740,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: shiba-shop
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC2DCBAR \xB7 \uC7AC\uB8CC \uAD6C\uB9E4"
   output: 0
   speechAnchor: {fileID: 0}
@@ -13130,16 +14780,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 1233293951}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: shiba
-    Root: {fileID: 1105638792}
-    Renderer: {fileID: 2100228961}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 1233293954}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1105638793}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 2
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences: []
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
 --- !u!1 &1236541002
 GameObject:
   m_ObjectHideFlags: 0
@@ -13149,6 +14814,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1236541003}
+  - component: {fileID: 1236541006}
+  - component: {fileID: 1236541005}
+  - component: {fileID: 1236541004}
   m_Layer: 0
   m_Name: "Story actor \xB7 samho"
   m_TagString: Untagged
@@ -13173,6 +14841,61 @@ Transform:
   - {fileID: 1799654224}
   m_Father: {fileID: 871589866}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1236541004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236541002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1236541005}
+  animator: {fileID: 1236541006}
+  spriteRenderer: {fileID: 1225768650}
+  artworkFacesRight: 0
+  idleFacing: 1
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1236541005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236541002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1236541006
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236541002}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: cb64e4246a432d44ebe0ed22dc7a7175, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1238390147
 GameObject:
   m_ObjectHideFlags: 0
@@ -13182,9 +14905,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1238390148}
+  - component: {fileID: 1238390152}
+  - component: {fileID: 1238390153}
+  - component: {fileID: 1238390154}
   - component: {fileID: 1238390149}
-  - component: {fileID: 1238390151}
   - component: {fileID: 1238390150}
+  - component: {fileID: 1238390155}
+  - component: {fileID: 1238390156}
   m_Layer: 0
   m_Name: day1-corridor-thug
   m_TagString: Untagged
@@ -13205,7 +14932,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1591737169}
+  - {fileID: 345436429}
+  - {fileID: 428915525}
   m_Father: {fileID: 1596800306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1238390149
@@ -13222,7 +14950,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: day1-corridor-thug
   content: {fileID: 0}
-  interactionRadius: 1.5
+  startMode: 1
+  interactionRadius: 2
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uBD88\uB7C9\uBC30 \xB7 \uC785\uC8FC \uBE44\uC6A9"
   output: 0
   speechAnchor: {fileID: 0}
@@ -13262,7 +14993,7 @@ MonoBehaviour:
     anchor: {fileID: 428915525}
     placement: 0
     bubbleOffset: {x: 0, y: 0}
---- !u!114 &1238390151
+--- !u!114 &1238390152
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -13271,16 +15002,335 @@ MonoBehaviour:
   m_GameObject: {fileID: 1238390147}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: thug
-    Root: {fileID: 1591737169}
-    Renderer: {fileID: 345436430}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 1238390150}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1238390153}
+  animator: {fileID: 1238390154}
+  spriteRenderer: {fileID: 345436430}
+  artworkFacesRight: 0
+  idleFacing: 1
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1238390153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238390147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 2
+  facingRight: 1
+--- !u!95 &1238390154
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238390147}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 909795e246d027c438fc0ceb1dedfd0f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1238390155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238390147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1238390152}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 1
+  restorePoseAfterInteraction: 0
+  useStoryPresence: 1
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences:
+  - id: punch
+    trigger: 1
+    worldAction: 13
+    requiredCondition: 
+    actions:
+    - kind: 2
+      performer: {fileID: 1238390152}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 11
+      performer: {fileID: 1238390152}
+      positionOrigin: 2
+      movementEase: 0
+      horizontalOnly: 1
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.33, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 1
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.65
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 12
+      performer: {fileID: 1238390152}
+      positionOrigin: 2
+      movementEase: 0
+      horizontalOnly: 1
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.23, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 11
+      performer: {fileID: 1238390152}
+      positionOrigin: 2
+      movementEase: 0
+      horizontalOnly: 1
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.63, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 1
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.8
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 4
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.2
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: depart
+    trigger: 1
+    worldAction: 14
+    requiredCondition: 
+    actions:
+    - kind: 15
+      performer: {fileID: 1238390152}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.845, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.3
+      walkDuration: 1
+      fadeEase: 1
+      text: 
+  - id: web-dialogue-start
+    trigger: 3
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 1238390148}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 21
+      performer: {fileID: 0}
+      positionOrigin: 2
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 406932928}
+      distance: 0.65
+      offset: {x: 0.4, y: 0.65}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.65
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: web-dialogue-finish
+    trigger: 2
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 23
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.4
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &1238390156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238390147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed361c205b9449b488fa3166ddcb38d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSceneStaging
+  sceneCamera: {fileID: 0}
 --- !u!1 &1245340163
 GameObject:
   m_ObjectHideFlags: 0
@@ -13442,6 +15492,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1254479168}
+  - component: {fileID: 1254479171}
+  - component: {fileID: 1254479170}
+  - component: {fileID: 1254479169}
   m_Layer: 0
   m_Name: "Story actor \xB7 dealer"
   m_TagString: Untagged
@@ -13466,6 +15519,61 @@ Transform:
   - {fileID: 1816094988}
   m_Father: {fileID: 1571663305}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1254479169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254479167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1254479170}
+  animator: {fileID: 1254479171}
+  spriteRenderer: {fileID: 65286576}
+  artworkFacesRight: 0
+  idleFacing: 2
+  idleFacingTarget: {fileID: 1048255342}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1254479170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254479167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1254479171
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1254479167}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 22359fd8548dd2a48869fc050dc581aa, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1268683207
 GameObject:
   m_ObjectHideFlags: 0
@@ -13482,7 +15590,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1268683208
 Transform:
   m_ObjectHideFlags: 0
@@ -13939,39 +16047,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &1300979781
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1300979782}
-  m_Layer: 0
-  m_Name: "Story actor \xB7 guard"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1300979782
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1300979781}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 119463679}
-  - {fileID: 1317077274}
-  m_Father: {fileID: 2130020362}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1302879790
 GameObject:
   m_ObjectHideFlags: 0
@@ -14071,7 +16146,7 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.9999105
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -14368,12 +16443,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1317077273}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1300979782}
+  m_Father: {fileID: 2130020362}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1317283582
 GameObject:
@@ -14797,6 +16872,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1343346871}
+  - component: {fileID: 1343346874}
+  - component: {fileID: 1343346873}
+  - component: {fileID: 1343346872}
   m_Layer: 0
   m_Name: "Story actor \xB7 boobi"
   m_TagString: Untagged
@@ -14821,6 +16899,61 @@ Transform:
   - {fileID: 57693077}
   m_Father: {fileID: 89322231}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1343346872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343346870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1343346873}
+  animator: {fileID: 1343346874}
+  spriteRenderer: {fileID: 1795489895}
+  artworkFacesRight: 1
+  idleFacing: 0
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1343346873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343346870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1343346874
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343346870}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 583394b742dbe5841833facdf5a57e3d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1352621509
 GameObject:
   m_ObjectHideFlags: 0
@@ -14905,6 +17038,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1362504851}
+  - component: {fileID: 1362504854}
+  - component: {fileID: 1362504853}
+  - component: {fileID: 1362504852}
   m_Layer: 0
   m_Name: "Story actor \xB7 thug"
   m_TagString: Untagged
@@ -14929,6 +17065,61 @@ Transform:
   - {fileID: 1775704101}
   m_Father: {fileID: 1372032623}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1362504852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362504850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1362504853}
+  animator: {fileID: 1362504854}
+  spriteRenderer: {fileID: 1570378282}
+  artworkFacesRight: 0
+  idleFacing: 1
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1362504853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362504850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1362504854
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362504850}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e44ef4ade5db1224989c11a1bf80ffa7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1366372511
 GameObject:
   m_ObjectHideFlags: 0
@@ -15017,8 +17208,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1372032623}
   - component: {fileID: 1372032624}
-  - component: {fileID: 1372032626}
   - component: {fileID: 1372032625}
+  - component: {fileID: 1372032626}
   m_Layer: 0
   m_Name: day2-thug-information
   m_TagString: Untagged
@@ -15056,7 +17247,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: day2-thug-information
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uBD88\uB7C9\uBC30 \xB7 \uC815\uBCF4 \uAD6C\uB9E4"
   output: 0
   speechAnchor: {fileID: 0}
@@ -15105,16 +17299,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 1372032622}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: thug
-    Root: {fileID: 1362504851}
-    Renderer: {fileID: 1570378282}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 1372032625}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1362504852}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences: []
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
 --- !u!1 &1376432765
 GameObject:
   m_ObjectHideFlags: 0
@@ -16643,8 +18852,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1571663305}
   - component: {fileID: 1571663306}
-  - component: {fileID: 1571663308}
   - component: {fileID: 1571663307}
+  - component: {fileID: 1571663308}
+  - component: {fileID: 1571663309}
   m_Layer: 0
   m_Name: outside_day1_samho_smuggler
   m_TagString: Untagged
@@ -16683,7 +18893,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: outside_day1_samho_smuggler
   content: {fileID: 0}
+  startMode: 1
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0BC\uD638\uC640 \uBC00\uC218\uC5C5\uC790"
   output: 0
   speechAnchor: {fileID: 0}
@@ -16740,20 +18953,129 @@ MonoBehaviour:
   m_GameObject: {fileID: 1571663304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: samho
-    Root: {fileID: 1048255342}
-    Renderer: {fileID: 2082788083}
-    VisibleOutsideSession: 1
-  - Id: dealer
-    Root: {fileID: 1254479168}
-    Renderer: {fileID: 65286576}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 1571663307}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1048255343}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors:
+  - actor: {fileID: 1254479169}
+    visibleOutsideSession: 1
+    presenceCondition: 
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 0
+  minimumDay: 1
+  maximumDay: 1
+  presencePhase: 2
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences:
+  - id: web-dialogue-start
+    trigger: 3
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 1048255342}
+      distance: 0.65
+      offset: {x: 1, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 21
+      performer: {fileID: 0}
+      positionOrigin: 3
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 4, y: -0.05}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 1
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.65
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: web-dialogue-finish
+    trigger: 2
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 23
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.4
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &1571663309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571663304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed361c205b9449b488fa3166ddcb38d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSceneStaging
+  sceneCamera: {fileID: 0}
 --- !u!1 &1582674270
 GameObject:
   m_ObjectHideFlags: 0
@@ -16952,7 +19274,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: outside_elevator
   content: {fileID: 0}
-  interactionRadius: 1.5
+  startMode: 0
+  interactionRadius: 1.2
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uD0D1\uC2B9"
   output: 3
   speechAnchor: {fileID: 1095731499}
@@ -17052,39 +19377,6 @@ Transform:
   - {fileID: 1092545686}
   - {fileID: 1961424091}
   m_Father: {fileID: 754981091}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1591737168
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1591737169}
-  m_Layer: 0
-  m_Name: "Story actor \xB7 thug"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1591737169
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1591737168}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 345436429}
-  - {fileID: 428915525}
-  m_Father: {fileID: 1238390148}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1592945109
 GameObject:
@@ -17503,7 +19795,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: 
   content: {fileID: 1617999578}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
   output: 0
   speechAnchor: {fileID: 0}
@@ -17623,8 +19918,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1639230068}
   - component: {fileID: 1639230069}
-  - component: {fileID: 1639230071}
   - component: {fileID: 1639230070}
+  - component: {fileID: 1639230071}
+  - component: {fileID: 1639230072}
   m_Layer: 0
   m_Name: day2-corridor-thug
   m_TagString: Untagged
@@ -17662,7 +19958,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: day2-corridor-thug
   content: {fileID: 0}
-  interactionRadius: 1.5
+  startMode: 1
+  interactionRadius: 2
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uBD88\uB7C9\uBC30 \uC7AC\uD68C"
   output: 0
   speechAnchor: {fileID: 0}
@@ -17711,16 +20010,150 @@ MonoBehaviour:
   m_GameObject: {fileID: 1639230067}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: thug
-    Root: {fileID: 938534315}
-    Renderer: {fileID: 1213701204}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 1639230070}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 938534316}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences:
+  - id: web-dialogue-start
+    trigger: 3
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 938534315}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 18
+      performer: {fileID: 0}
+      positionOrigin: 2
+      movementEase: 1
+      horizontalOnly: 1
+      target: {fileID: 938534315}
+      distance: 0.65
+      offset: {x: -0.55, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 1
+      clampPlayerLeft: 1
+      cameraWithMovement: 1
+      cameraMidpoint: 1
+      cameraOffset: {x: 0, y: 0.65}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.65
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 938534315}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: web-dialogue-finish
+    trigger: 2
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 23
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.4
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &1639230072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639230067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed361c205b9449b488fa3166ddcb38d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSceneStaging
+  sceneCamera: {fileID: 0}
 --- !u!1 &1640816511
 GameObject:
   m_ObjectHideFlags: 0
@@ -18390,6 +20823,10 @@ GameObject:
   - component: {fileID: 1699909097}
   - component: {fileID: 1699909099}
   - component: {fileID: 1699909100}
+  - component: {fileID: 1699909104}
+  - component: {fileID: 1699909103}
+  - component: {fileID: 1699909102}
+  - component: {fileID: 1699909101}
   m_Layer: 9
   m_Name: Bubi
   m_TagString: Untagged
@@ -18545,7 +20982,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: 
   content: {fileID: 1699909098}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
   output: 0
   speechAnchor: {fileID: 0}
@@ -18624,6 +21064,95 @@ MonoBehaviour:
   rimGlowWidth: 1
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
+--- !u!114 &1699909101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699909091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 1699909102}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 1
+  restorePoseAfterInteraction: 0
+  useStoryPresence: 0
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences: []
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &1699909102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699909091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 1699909103}
+  animator: {fileID: 1699909104}
+  spriteRenderer: {fileID: 1699909095}
+  artworkFacesRight: 1
+  idleFacing: 0
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &1699909103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699909091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &1699909104
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699909091}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0c2e02410ef55014aa5bc2ae3edb09aa, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1714253944
 GameObject:
   m_ObjectHideFlags: 0
@@ -19200,7 +21729,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5986868820742579314, guid: 594b1a2af569043738bf3ce2478ddae8, type: 3}
+  m_Sprite: {fileID: -8381659573352531839, guid: c065a48dcff14624bb1f7261558d2fcd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -19726,8 +22255,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1858017923}
   - component: {fileID: 1858017924}
-  - component: {fileID: 1858017926}
   - component: {fileID: 1858017925}
+  - component: {fileID: 1858017926}
+  - component: {fileID: 1858017927}
   m_Layer: 0
   m_Name: commute2
   m_TagString: Untagged
@@ -19765,7 +22295,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: commute2
   content: {fileID: 0}
+  startMode: 1
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0BC\uD638 \xB7 \uCD9C\uADFC\uAE38"
   output: 0
   speechAnchor: {fileID: 0}
@@ -19802,16 +22335,179 @@ MonoBehaviour:
   m_GameObject: {fileID: 1858017922}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: samho
-    Root: {fileID: 893287208}
-    Renderer: {fileID: 637985114}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 1858017925}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 893287209}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 0
+  restorePoseAfterInteraction: 1
+  useStoryPresence: 1
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences:
+  - id: samho-depart
+    trigger: 1
+    worldAction: 9
+    requiredCondition: 
+    actions:
+    - kind: 15
+      performer: {fileID: 893287209}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0.845, y: 0}
+      offsetMode: 2
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.3
+      walkDuration: 1
+      fadeEase: 1
+      text: 
+  - id: web-dialogue-start
+    trigger: 3
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 893287208}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 18
+      performer: {fileID: 0}
+      positionOrigin: 2
+      movementEase: 1
+      horizontalOnly: 1
+      target: {fileID: 893287208}
+      distance: 0.65
+      offset: {x: 0.78, y: 0}
+      offsetMode: 1
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 1
+      clampPlayerLeft: 0
+      cameraWithMovement: 1
+      cameraMidpoint: 1
+      cameraOffset: {x: 0, y: 0.7}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.65
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+    - kind: 20
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 893287208}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.35
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  - id: web-dialogue-finish
+    trigger: 2
+    worldAction: 0
+    requiredCondition: 
+    actions:
+    - kind: 23
+      performer: {fileID: 0}
+      positionOrigin: 0
+      movementEase: 0
+      horizontalOnly: 0
+      target: {fileID: 0}
+      distance: 0.65
+      offset: {x: 0, y: 0}
+      offsetMode: 0
+      unitsPerSecond: 0
+      arcHeight: 0.55
+      keepFacing: 0
+      clampPlayerLeft: 0
+      cameraWithMovement: 0
+      cameraMidpoint: 0
+      cameraOffset: {x: 0, y: 0}
+      cameraWidth: 4.8
+      fadeInTogether: 0
+      stateName: Punch
+      returnState: Idle
+      duration: 0.4
+      walkDuration: 1
+      fadeEase: 0
+      text: 
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &1858017927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1858017922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed361c205b9449b488fa3166ddcb38d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcSceneStaging
+  sceneCamera: {fileID: 0}
 --- !u!1 &1858158789
 GameObject:
   m_ObjectHideFlags: 0
@@ -20829,7 +23525,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1327083235594375433, guid: c318ea44034c3466680e7d51908bac22, type: 3}
+  m_Sprite: {fileID: 1842851473143111439, guid: c318ea44034c3466680e7d51908bac22, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -21001,12 +23697,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1912816578}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 845586735}
+  m_Father: {fileID: 205911620}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1913906404
 GameObject:
@@ -22601,6 +25297,9 @@ GameObject:
   - component: {fileID: 2074752863}
   - component: {fileID: 2074752865}
   - component: {fileID: 2074752866}
+  - component: {fileID: 2074752869}
+  - component: {fileID: 2074752868}
+  - component: {fileID: 2074752867}
   m_Layer: 9
   m_Name: shiba
   m_TagString: Untagged
@@ -22706,7 +25405,7 @@ Animator:
   m_GameObject: {fileID: 2074752855}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f68825b53315d8d43872f7ee2e809ef3, type: 2}
+  m_Controller: {fileID: 9100000, guid: 2fb14b56ee01de746b46c12b07948f1b, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -22778,7 +25477,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: 
   content: {fileID: 2074752864}
+  startMode: 0
   interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
   output: 0
   speechAnchor: {fileID: 0}
@@ -22857,6 +25559,73 @@ MonoBehaviour:
   rimGlowWidth: 1
   rimFullInfluence: 0.6
   transitionSeconds: 0.3
+--- !u!114 &2074752867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2074752855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 2074752868}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 1
+  restorePoseAfterInteraction: 0
+  useStoryPresence: 0
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 0
+  presenceCondition: 
+  committedCondition: 
+  sequences: []
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &2074752868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2074752855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 2074752869}
+  animator: {fileID: 2074752861}
+  spriteRenderer: {fileID: 2074752860}
+  artworkFacesRight: 1
+  idleFacing: 0
+  idleFacingTarget: {fileID: 0}
+  facePlayerDuringDialogue: 0
+--- !u!114 &2074752869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2074752855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
 --- !u!1 &2076432159
 GameObject:
   m_ObjectHideFlags: 0
@@ -22969,7 +25738,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1327083235594375433, guid: c318ea44034c3466680e7d51908bac22, type: 3}
+  m_Sprite: {fileID: 1842851473143111439, guid: c318ea44034c3466680e7d51908bac22, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -23134,6 +25903,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2095055570}
+  - component: {fileID: 2095055573}
+  - component: {fileID: 2095055572}
+  - component: {fileID: 2095055571}
   m_Layer: 0
   m_Name: "Story actor \xB7 samho"
   m_TagString: Untagged
@@ -23158,6 +25930,61 @@ Transform:
   - {fileID: 2076432160}
   m_Father: {fileID: 955315942}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2095055571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095055569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 2095055572}
+  animator: {fileID: 2095055573}
+  spriteRenderer: {fileID: 1904043829}
+  artworkFacesRight: 0
+  idleFacing: 2
+  idleFacingTarget: {fileID: 577419843}
+  facePlayerDuringDialogue: 0
+--- !u!114 &2095055572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095055569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &2095055573
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095055569}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f2180351839b9a74eacf3322a14d59db, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2100228959
 GameObject:
   m_ObjectHideFlags: 0
@@ -23239,7 +26066,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1034777722972887523, guid: b5620af1d12eb4b9aa4153c9ea917ca8, type: 3}
+  m_Sprite: {fileID: 2032504093169874291, guid: b5620af1d12eb4b9aa4153c9ea917ca8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -23410,8 +26237,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2130020362}
   - component: {fileID: 2130020361}
-  - component: {fileID: 2130020364}
   - component: {fileID: 2130020363}
+  - component: {fileID: 2130020367}
+  - component: {fileID: 2130020366}
+  - component: {fileID: 2130020365}
+  - component: {fileID: 2130020364}
   m_Layer: 0
   m_Name: neighborhood-guardBlocked
   m_TagString: Untagged
@@ -23433,7 +26263,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
   storySceneId: neighborhood-guardBlocked
   content: {fileID: 0}
+  startMode: 0
   interactionRadius: 1.4
+  contentStartOverrides: []
+  startSettingsVersion: 1
   interactionLabel: "\uACBD\uBE44\uC6D0"
   output: 0
   speechAnchor: {fileID: 0}
@@ -23457,7 +26290,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1300979782}
+  - {fileID: 119463679}
+  - {fileID: 1317077274}
   m_Father: {fileID: 1596800306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2130020363
@@ -23486,16 +26320,86 @@ MonoBehaviour:
   m_GameObject: {fileID: 2130020360}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cce07c262eebc394e817b96b0479a1ed, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d4fbe4ee748462db8b7ba13a9b11914, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldStoryActors
-  actors:
-  - Id: guard
-    Root: {fileID: 1300979782}
-    Renderer: {fileID: 119463680}
-    VisibleOutsideSession: 1
-  speakers: {fileID: 2130020363}
-  moveDuration: 0.65
+  m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
+  actor: {fileID: 2130020365}
+  actorVisibleOutsideSession: 1
+  actorPresenceCondition: 
+  additionalActors: []
+  requireVisibleActorToInteract: 1
+  restorePoseAfterInteraction: 0
+  useStoryPresence: 0
+  minimumDay: 0
+  maximumDay: -1
+  presencePhase: 0
+  minimumDayStartsOnReturn: 1
+  presenceCondition: 
+  committedCondition: 
+  sequences: []
+  proximityAnimation:
+    animator: {fileID: 0}
+    stateName: Shake
+    returnState: Idle
+    duration: 0.9
+    radius: 0.85
+    when: 
+    completionFlag: 
+--- !u!114 &2130020365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130020360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46053f3c967e4d6a989a6cef780ce41c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcActor
+  movement: {fileID: 2130020366}
+  animator: {fileID: 2130020367}
+  spriteRenderer: {fileID: 119463680}
+  artworkFacesRight: 0
+  idleFacing: 2
+  idleFacingTarget: {fileID: 943330568}
+  facePlayerDuringDialogue: 1
+--- !u!114 &2130020366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130020360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92855aa9b3940b48e6c104cf6f15512, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcMovement2D
+  moveSpeed: 1.2
+  facingRight: 1
+--- !u!95 &2130020367
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130020360}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f76435cf5a3f90346b34ea1bcb847a89, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2131282332
 GameObject:
   m_ObjectHideFlags: 0

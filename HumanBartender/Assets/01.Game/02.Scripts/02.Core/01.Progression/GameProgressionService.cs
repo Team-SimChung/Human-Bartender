@@ -56,7 +56,15 @@ public interface IGameProgressionService
 /// <summary>
 /// 일차와 출퇴근 문맥을 변경하는 운영 경계. 씬 이동과 수면 연출은 기존 서비스에 위임한다.
 /// </summary>
-public sealed class GameProgressionService : IGameProgressionService
+public interface IGameProgressionContinuationService
+{
+    bool IsContinuingDialogue { get; }
+    UniTask<StoryExecutionResult> ContinueDialogueAsync(GameProgressionDestination destination,
+        StorySceneContinuation continuation, WorldDialogueTravelSettings.Snapshot presentation,
+        CancellationToken cancellationToken = default);
+}
+
+public sealed class GameProgressionService : IGameProgressionService, IGameProgressionContinuationService
 {
     readonly GameStateManager gameState;
     readonly ISceneTransitionService sceneTransitions;
@@ -65,6 +73,7 @@ public sealed class GameProgressionService : IGameProgressionService
     bool isRunning;
     bool homeReturned;
     bool manualSaveRunning;
+    public bool IsContinuingDialogue { get; private set; }
     UniTaskCompletionSource<GameProgressionResult> barEntryCompletion;
     bool hasBarEntry;
 
@@ -372,6 +381,88 @@ public sealed class GameProgressionService : IGameProgressionService
             default:
                 return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
                     "알 수 없는 이동 요청입니다."));
+        }
+    }
+
+    public async UniTask<StoryExecutionResult> ContinueDialogueAsync(GameProgressionDestination destination,
+        StorySceneContinuation continuation, WorldDialogueTravelSettings.Snapshot presentation,
+        CancellationToken cancellationToken = default)
+    {
+        if (isRunning || sceneTransitions.IsBusy)
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "다른 진행 작업이 실행 중입니다.");
+        if (destination != GameProgressionDestination.HomeVisit || SceneManager.GetActiveScene().name != "OutSide" ||
+            (gameState.GameFlow != EGameFlow.CommuteIn && gameState.GameFlow != EGameFlow.CommuteOut))
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "현재 위치에서 대화를 이어 갈 수 없는 이동입니다.");
+        if (continuation == null || sceneTransitions is not IPresentedSceneTransitionService presented)
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "대화 장소 이동 서비스가 연결되지 않았습니다.");
+        presentation.Validate();
+        if (cancellationToken.IsCancellationRequested) return new StoryExecutionResult(StoryExecutionStatus.Cancelled);
+
+        var sourceScene = SceneManager.GetActiveScene();
+        var sourceContext = FindSceneContext(sourceScene.name);
+        InteractionStateLease sourceLease = null;
+        WorldInteractionController receiver = null;
+        bool committed = false;
+        isRunning = true;
+        IsContinuingDialogue = true;
+        try
+        {
+            if (sourceContext?.Player != null)
+            {
+                sourceLease = InteractionStateLease.Acquire(sourceContext.Player);
+                sourceContext.Player.PrepareWorldInteraction();
+            }
+            var timing = new SceneTransitionPresentation(presentation.FadeOutDuration, presentation.DelayBeforeLoad,
+                presentation.MinimumBlackDuration, presentation.FadeInDuration,
+                beforeLoad: () =>
+                {
+                    committed = true;
+                    if (!string.IsNullOrWhiteSpace(continuation.DepartureEffects))
+                        conditions.ApplyRequired(continuation.DepartureEffects);
+                },
+                beforeReveal: async () =>
+                {
+                    if (!await WaitForHomeReadyAsync()) throw new InvalidOperationException("Home의 필수 준비에 실패했습니다.");
+                    receiver = WorldInteractionController.ForScene(SceneManager.GetActiveScene());
+                    float deadline = Time.realtimeSinceStartup + 10;
+                    while (receiver != null && !receiver.IsReady && Time.realtimeSinceStartup < deadline)
+                        await UniTask.Yield();
+                    if (receiver == null || !receiver.IsReady)
+                        throw new InvalidOperationException("도착한 씬의 대화 준비에 실패했습니다.");
+                    await receiver.PrepareSceneContinuationAsync(presentation);
+                });
+            var request = presented.RequestPresentedScene("Home", timing, cancellationToken);
+            var result = await request.Completion;
+            if (!result.Succeeded)
+            {
+                if (!result.SceneActivated && committed && SceneManager.GetActiveScene().handle == sourceScene.handle)
+                {
+                    conditions.ApplyRequired(continuation.RollbackEffects);
+                    committed = false;
+                }
+                if (result.SceneActivated) FindSceneContext("Home")?.ReportArrivalFailure(result.Message);
+                return new StoryExecutionResult(result.Outcome == SceneTransitionOutcome.Canceled
+                    ? StoryExecutionStatus.Cancelled : StoryExecutionStatus.Failed, result.Message);
+            }
+            homeReturned = true;
+            // 원래 씬은 이미 파괴됐다. 이후 입력과 취소는 도착한 컨트롤러의 세션이 소유한다.
+            return await receiver.PlaySceneContinuationAsync(continuation.Steps);
+        }
+        catch (Exception error)
+        {
+            if (committed && SceneManager.GetActiveScene().handle == sourceScene.handle)
+                conditions.ApplyRequired(continuation.RollbackEffects);
+            return new StoryExecutionResult(error is OperationCanceledException
+                ? StoryExecutionStatus.Cancelled : StoryExecutionStatus.Failed, error.Message);
+        }
+        finally
+        {
+            try { if (receiver != null) receiver.ReleaseSceneContinuation(); }
+            finally
+            {
+                try { sourceLease?.Dispose(); }
+                finally { isRunning = false; IsContinuingDialogue = false; }
+            }
         }
     }
 

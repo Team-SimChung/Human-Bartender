@@ -59,7 +59,10 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
                     content.Initialize(this);
                 }
                 foreach (var target in root.GetComponentsInChildren<WorldInteractionTarget>(true))
+                {
                     if (target.Action is MonoBehaviour action) resolver.Inject(action);
+                    if (target.Participant is MonoBehaviour participant) resolver.Inject(participant);
+                }
             }
             RefreshContents();
             var state = GameStateManager.Instance;
