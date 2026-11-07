@@ -841,7 +841,7 @@ GameObject:
   - component: {fileID: 63993583}
   - component: {fileID: 63993582}
   m_Layer: 5
-  m_Name: Key
+  m_Name: PrevSeatKeyText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -864,7 +864,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 36, y: 33}
+  m_SizeDelta: {x: 36, y: 32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &63993582
 MonoBehaviour:
@@ -913,7 +913,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12.75
+  m_fontSize: 13
   m_fontSizeBase: 12.75
   m_fontWeight: 400
   m_enableAutoSizing: 0
@@ -1611,8 +1611,9 @@ GameObject:
   m_Component:
   - component: {fileID: 104232781}
   - component: {fileID: 104232782}
+  - component: {fileID: 104232783}
   m_Layer: 5
-  m_Name: Bar Seat HUD
+  m_Name: BarSeatHudRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1663,6 +1664,25 @@ MonoBehaviour:
   - {fileID: 1430664831}
   leftKey: {fileID: 2092105074}
   rightKey: {fileID: 503012910}
+  leftKeyLabel: {fileID: 63993582}
+  rightKeyLabel: {fileID: 746083823}
+--- !u!114 &104232783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 104232780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 021e98274ffd4fa991f412c3182baebc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BarSeatHudPresenter
+  view: {fileID: 104232782}
+  guestSlots:
+  - {fileID: 2088916800}
+  - {fileID: 701374761}
+  - {fileID: 1603532184}
   phases: {fileID: 957151669}
   characters: {fileID: 1147809952}
   guests: {fileID: 673860024}
@@ -1971,7 +1991,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 12
   m_TargetDisplay: 0
 --- !u!114 &120230301
 MonoBehaviour:
@@ -3705,7 +3725,7 @@ GameObject:
   - component: {fileID: 276968446}
   - component: {fileID: 276968445}
   m_Layer: 5
-  m_Name: Selected Seat Left
+  m_Name: SeatLeftRing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3723,12 +3743,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1795135888}
+  m_Father: {fileID: 2119956475}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -24, y: 0}
-  m_SizeDelta: {x: 22.5, y: 22.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 22, y: 22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &276968445
 MonoBehaviour:
@@ -3739,9 +3759,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 276968443}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.79, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
@@ -3750,8 +3770,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 11.25
-  border: 1.125
+  m_Sprite: {fileID: 21300000, guid: 48742f1b50914b29a35f60dc5e3854cf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &276968446
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4074,7 +4102,7 @@ GameObject:
   - component: {fileID: 311101498}
   - component: {fileID: 311101497}
   m_Layer: 5
-  m_Name: Seat Right
+  m_Name: SeatRightDot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4092,12 +4120,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1795135888}
+  m_Father: {fileID: 1916039957}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 24, y: 0}
-  m_SizeDelta: {x: 10.5, y: 10.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &311101497
 MonoBehaviour:
@@ -4108,9 +4136,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 311101495}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.29, g: 0.31, b: 0.33, a: 1}
   m_RaycastTarget: 0
@@ -4119,8 +4147,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 5.25
-  border: 0
+  m_Sprite: {fileID: 21300000, guid: cb5474ac7f0e4533a99ec9aad7583519, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &311101498
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5060,6 +5096,43 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &387088283
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 387088284}
+  m_Layer: 5
+  m_Name: SeatMiddle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &387088284
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387088283}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1041460112}
+  - {fileID: 1428249904}
+  m_Father: {fileID: 1173803955}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 22, y: 22}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &398081476
 GameObject:
   m_ObjectHideFlags: 0
@@ -6569,7 +6642,7 @@ GameObject:
   m_Component:
   - component: {fileID: 503012910}
   m_Layer: 5
-  m_Name: Right Seat Key
+  m_Name: NextSeatKey
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6592,8 +6665,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -21.75, y: 0}
-  m_SizeDelta: {x: 36, y: 33}
+  m_AnchoredPosition: {x: -22, y: 0}
+  m_SizeDelta: {x: 36, y: 32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &508739350
 GameObject:
@@ -9663,7 +9736,7 @@ GameObject:
   - component: {fileID: 746083824}
   - component: {fileID: 746083823}
   m_Layer: 5
-  m_Name: Key
+  m_Name: NextSeatKeyText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9686,7 +9759,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 36, y: 33}
+  m_SizeDelta: {x: 36, y: 32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &746083823
 MonoBehaviour:
@@ -9735,7 +9808,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12.75
+  m_fontSize: 13
   m_fontSizeBase: 12.75
   m_fontWeight: 400
   m_enableAutoSizing: 0
@@ -10525,9 +10598,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
-    width: 1
-    height: 1
+    y: 0.118187785
+    width: 0.6535058
+    height: 0.7091267
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -14732,7 +14805,7 @@ GameObject:
   - component: {fileID: 1041460114}
   - component: {fileID: 1041460113}
   m_Layer: 5
-  m_Name: Selected Seat Middle
+  m_Name: SeatMiddleRing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14750,12 +14823,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1795135888}
+  m_Father: {fileID: 387088284}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 22.5, y: 22.5}
+  m_SizeDelta: {x: 22, y: 22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1041460113
 MonoBehaviour:
@@ -14766,9 +14839,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1041460111}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.79, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
@@ -14777,8 +14850,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 11.25
-  border: 1.125
+  m_Sprite: {fileID: 21300000, guid: 48742f1b50914b29a35f60dc5e3854cf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1041460114
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16412,6 +16493,71 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1173803954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1173803955}
+  - component: {fileID: 1173803956}
+  m_Layer: 5
+  m_Name: Seats
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1173803955
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173803954}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2119956475}
+  - {fileID: 387088284}
+  - {fileID: 1916039957}
+  m_Father: {fileID: 1795135888}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1173803956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173803954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_Spacing: 2
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &1180137918
 GameObject:
   m_ObjectHideFlags: 0
@@ -18819,7 +18965,7 @@ GameObject:
   - component: {fileID: 1335221476}
   - component: {fileID: 1335221475}
   m_Layer: 5
-  m_Name: HUD Border
+  m_Name: SeatFrameBorder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18842,7 +18988,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 78, y: 28.5}
+  m_SizeDelta: {x: 78, y: 28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1335221475
 MonoBehaviour:
@@ -18853,9 +18999,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1335221473}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.31, g: 0.52, b: 0.57, a: 0.8}
   m_RaycastTarget: 0
@@ -18864,8 +19010,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 13.5
-  border: 0.75
+  m_Sprite: {fileID: 21300000, guid: 64b130dadf5442638cb06ba2936231be, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1335221476
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -19767,7 +19921,7 @@ GameObject:
   - component: {fileID: 1428249906}
   - component: {fileID: 1428249905}
   m_Layer: 5
-  m_Name: Seat Middle
+  m_Name: SeatMiddleDot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19785,12 +19939,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1795135888}
+  m_Father: {fileID: 387088284}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 10.5, y: 10.5}
+  m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1428249905
 MonoBehaviour:
@@ -19801,9 +19955,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1428249903}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.29, g: 0.31, b: 0.33, a: 1}
   m_RaycastTarget: 0
@@ -19812,8 +19966,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 5.25
-  border: 0
+  m_Sprite: {fileID: 21300000, guid: cb5474ac7f0e4533a99ec9aad7583519, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1428249906
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -19834,7 +19996,7 @@ GameObject:
   - component: {fileID: 1430664832}
   - component: {fileID: 1430664831}
   m_Layer: 5
-  m_Name: Selected Seat Right
+  m_Name: SeatRightRing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19852,12 +20014,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1795135888}
+  m_Father: {fileID: 1916039957}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 24, y: 0}
-  m_SizeDelta: {x: 22.5, y: 22.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 22, y: 22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1430664831
 MonoBehaviour:
@@ -19868,9 +20030,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1430664829}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.79, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
@@ -19879,8 +20041,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 11.25
-  border: 1.125
+  m_Sprite: {fileID: 21300000, guid: 48742f1b50914b29a35f60dc5e3854cf, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1430664832
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -24642,7 +24812,7 @@ GameObject:
   - component: {fileID: 1795135890}
   - component: {fileID: 1795135889}
   m_Layer: 5
-  m_Name: Seat Indicators
+  m_Name: SeatIndicators
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24661,18 +24831,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1335221474}
-  - {fileID: 276968444}
-  - {fileID: 1955792587}
-  - {fileID: 1041460112}
-  - {fileID: 1428249904}
-  - {fileID: 1430664830}
-  - {fileID: 311101496}
+  - {fileID: 1173803955}
   m_Father: {fileID: 104232781}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 49.5, y: 18.75}
-  m_SizeDelta: {x: 78, y: 28.5}
+  m_AnchoredPosition: {x: 50, y: 19}
+  m_SizeDelta: {x: 78, y: 28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1795135889
 MonoBehaviour:
@@ -24683,9 +24848,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1795135887}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.035, g: 0.06, b: 0.085, a: 0.94}
   m_RaycastTarget: 0
@@ -24694,8 +24859,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 13.5
-  border: 0
+  m_Sprite: {fileID: 21300000, guid: 6fceb26e29cd42c1ba1cd9e788f80efe, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1795135890
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -26756,6 +26929,43 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915994892}
   m_CullTransparentMesh: 1
+--- !u!1 &1916039956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1916039957}
+  m_Layer: 5
+  m_Name: SeatRight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1916039957
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916039956}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1430664830}
+  - {fileID: 311101496}
+  m_Father: {fileID: 1173803955}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 22, y: 22}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1921032725
 GameObject:
   m_ObjectHideFlags: 0
@@ -27410,7 +27620,7 @@ GameObject:
   - component: {fileID: 1955792589}
   - component: {fileID: 1955792588}
   m_Layer: 5
-  m_Name: Seat Left
+  m_Name: SeatLeftDot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27428,12 +27638,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1795135888}
+  m_Father: {fileID: 2119956475}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -24, y: 0}
-  m_SizeDelta: {x: 10.5, y: 10.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 10, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1955792588
 MonoBehaviour:
@@ -27444,9 +27654,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1955792586}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1199b91390084be793f932dac235b196, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StoryTutorialShape
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.29, g: 0.31, b: 0.33, a: 1}
   m_RaycastTarget: 0
@@ -27455,8 +27665,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  radius: 5.25
-  border: 0
+  m_Sprite: {fileID: 21300000, guid: cb5474ac7f0e4533a99ec9aad7583519, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1955792589
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -31457,7 +31675,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2092105074}
   m_Layer: 5
-  m_Name: Left Seat Key
+  m_Name: PrevSeatKey
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31480,8 +31698,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 21.75, y: 0}
-  m_SizeDelta: {x: 36, y: 33}
+  m_AnchoredPosition: {x: 22, y: 0}
+  m_SizeDelta: {x: 36, y: 32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2098874043
 GameObject:
@@ -31696,6 +31914,43 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 600, guid: c7db01d0ef964544a4c8bbe4ae16c2e3, type: 3}
   m_PrefabInstance: {fileID: 2106000000}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2119956474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2119956475}
+  m_Layer: 5
+  m_Name: SeatLeft
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2119956475
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2119956474}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 276968444}
+  - {fileID: 1955792587}
+  m_Father: {fileID: 1173803955}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 22, y: 22}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2121811932
 GameObject:
   m_ObjectHideFlags: 0
