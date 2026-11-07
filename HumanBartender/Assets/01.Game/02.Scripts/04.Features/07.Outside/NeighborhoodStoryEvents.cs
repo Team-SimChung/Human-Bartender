@@ -34,6 +34,8 @@ public sealed class NeighborhoodStoryEvents : IOutsideStoryEventHandler
                 return null;
             case OutsideStoryCommand.RepairElevator:
                 if (run.Flag("elevator_repaired")) return null;
+                if (!run.Flag("elevator_repair_paid"))
+                    throw new InvalidOperationException("돈이나 부품을 전달하기 전에는 수리를 완료할 수 없습니다.");
                 await run.PlayAsync(OutsideStoryWorldAction.RepairElevator, token);
                 run.Effect("flag.elevator_repaired = true"); return null;
             case OutsideStoryCommand.RevealCat:
@@ -41,10 +43,22 @@ public sealed class NeighborhoodStoryEvents : IOutsideStoryEventHandler
                 await run.PlayAsync(OutsideStoryWorldAction.RevealCat, token);
                 run.Effect("flag.boobi_revealed = true"); return null;
             case OutsideStoryCommand.AdoptCat:
-                if (!run.Flag("boobi_adopted"))
+                bool wasAdopted = run.Flag("boobi_adopted");
+                bool wasPending = run.Flag("boobi_feeding_pending");
+                if (!wasAdopted)
                 {
                     await run.PlayAsync(OutsideStoryWorldAction.AdoptCat, token);
-                    run.Effect("flag.boobi_adopted = true; flag.boobi_feeding_pending = false");
+                    if (!run.SupportsSceneContinuation)
+                        run.Effect("flag.boobi_adopted = true; flag.boobi_feeding_pending = false");
+                }
+                if (run.SupportsSceneContinuation)
+                {
+                    // 표시 전환이 암전 중 성공해야 입양 상태를 기록한다. 원래 대본의 뒷부분은 새 씬에서 읽는다.
+                    run.RequestTravelAndContinue(GameProgressionDestination.HomeVisit,
+                        "flag.boobi_adopted = true; flag.boobi_feeding_pending = false",
+                        "flag.boobi_adopted = " + (wasAdopted ? "true" : "false") +
+                        "; flag.boobi_feeding_pending = " + (wasPending ? "true" : "false"));
+                    return null;
                 }
                 // UI·입력 lease·씬 CTS 정리 후 Controller가 전역 진행 서비스에 인계한다.
                 run.RequestTravel(GameProgressionDestination.HomeVisit); return null;

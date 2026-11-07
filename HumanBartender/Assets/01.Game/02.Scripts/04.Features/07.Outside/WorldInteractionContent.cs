@@ -15,7 +15,6 @@ public sealed class WorldInteractionContent : MonoBehaviour
     public NewInteractPointData? Definition { get; private set; }
     public NewSceneData? Dialogue { get; private set; }
     public bool IsAvailable { get; private set; }
-    public bool IsProximity => Definition.HasValue && Definition.Value.ActivationMode == EActivationMode.Proximity;
 
     internal void Initialize(WorldInteractionSceneContext value) => context = value;
 
@@ -57,15 +56,14 @@ public sealed class WorldInteractionContent : MonoBehaviour
         return null;
     }
 
-    internal bool TryResolve(float radius, out NewSceneData story)
+    internal bool TryResolve(out NewSceneData story)
     {
         story = default;
         if (!IsAvailable || !Definition.HasValue) return false;
         story = Dialogue ?? new NewSceneData { Id = Definition.Value.Id };
         story.RuntimeScene = gameObject.scene.name;
         story.Route = "both";
-        story.Radius = radius;
-        story.StartMode = IsProximity ? ENewSceneTrigger.Auto : ENewSceneTrigger.Interact;
+        // 시작 방식과 범위는 호출자가 WorldInteractionTarget의 Inspector 설정을 적용한다.
         return true;
     }
 

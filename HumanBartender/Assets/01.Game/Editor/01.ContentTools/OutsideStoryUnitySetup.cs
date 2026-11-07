@@ -36,13 +36,21 @@ public static class OutsideStoryUnitySetup
     {
         var scene = EditorSceneManager.OpenScene("Assets/01.Game/01.Scenes/" + name + ".unity", OpenSceneMode.Single);
         var targets = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<WorldInteractionTarget>(true)).ToArray();
+        Transform storyEvents = null;
+        if (name == "OutSide")
+        {
+            var gameplay = scene.GetRootGameObjects().SingleOrDefault(root => root.name == "04.Gameplay");
+            storyEvents = gameplay != null ? gameplay.transform.Find("InteractionObjects/StoryEvents") : null;
+            if (storyEvents == null) throw new InvalidOperationException("OutSide의 04.Gameplay/InteractionObjects/StoryEvents가 없습니다.");
+        }
         foreach (var entry in entries)
         {
             var found = targets.Where(target => target.StorySceneId == entry.id).ToArray();
             if (found.Length > 1) throw new InvalidOperationException("중복 사건 대상: " + entry.id);
             if (found.Length == 1) continue; // 기존 Inspector 편집과 컷신 연결은 보존한다.
-            var go = new GameObject(entry.label + " · " + entry.id);
+            var go = new GameObject(entry.id);
             SceneManager.MoveGameObjectToScene(go, scene);
+            if (storyEvents != null) go.transform.SetParent(storyEvents, false);
             go.transform.position = new Vector3(entry.position.x, entry.position.y, 0);
             go.AddComponent<WorldInteractionTarget>().ConfigureStory(entry.id, 1.4f, entry.label);
         }
@@ -108,6 +116,8 @@ public static class OutsideStoryUnitySetup
 
     static void AddActors(WorldInteractionTarget target, Role[] roles)
     {
+        // 이전이 끝난 NPC는 자신의 이동·Animator를 사용한다. 예전 Sprite 제어자를 다시 붙이지 않는다.
+        if (target.Participant != null) return;
         if (target.GetComponent<WorldStoryActors>() is { } existing)
         {
             UpgradeGeneratedAnchors(existing, roles);
@@ -126,10 +136,11 @@ public static class OutsideStoryUnitySetup
             go.transform.position = target.transform.position + (Vector3)role.Offset;
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = sprites[0];
-            renderer.sortingOrder = 100;
+            renderer.sortingLayerName = "Character";
+            renderer.sortingOrder = 5;
             renderer.enabled = role.Visible;
-            float height = role.Id == "boobi" ? .55f : 1.7f;
-            go.transform.localScale = Vector3.one * (height / Mathf.Max(.01f, renderer.sprite.bounds.size.y));
+            // 원본 Sprite의 PPU와 캐릭터 비율을 유지한다. 이후 크기와 위치는 씬에서 조정한다.
+            go.transform.localScale = Vector3.one;
             views.Add(new WorldStoryActors.Actor { Id = role.Id, Root = go.transform, Renderer = renderer, VisibleOutsideSession = role.Visible });
             bindings.Add((role.Id, go.transform));
             foreach (string alias in role.Aliases) bindings.Add((alias, go.transform));

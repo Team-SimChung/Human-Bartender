@@ -15,16 +15,24 @@ public sealed class OutsideStoryExecution
 {
     public IConditionUtil Conditions { get; }
     public GameProgressionDestination? Destination { get; private set; }
-    readonly Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> choose;
-    readonly Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction;
+    public bool SupportsSceneContinuation { get; }
+    internal bool ContinueAfterTravel { get; private set; }
+    internal StorySceneContinuation Continuation { get; private set; }
+    private string departureEffects, rollbackEffects;
+    private readonly Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> choose;
+    private readonly Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction;
+    private readonly Func<string, CancellationToken, UniTask> playNpcSequence;
 
     public OutsideStoryExecution(IConditionUtil conditions,
         Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> choose,
-        Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction)
+        Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction,
+        Func<string, CancellationToken, UniTask> playNpcSequence = null, bool supportsSceneContinuation = false)
     {
         Conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
         this.choose = choose ?? throw new ArgumentNullException(nameof(choose));
         this.playWorldAction = playWorldAction;
+        this.playNpcSequence = playNpcSequence;
+        SupportsSceneContinuation = supportsSceneContinuation;
     }
 
     public bool Flag(string key) => Conditions.CheckRequired("flag." + key);
@@ -34,6 +42,16 @@ public sealed class OutsideStoryExecution
         if (Destination.HasValue && Destination != destination) throw new InvalidOperationException("대화의 이동 요청이 중복되었습니다.");
         Destination = destination;
     }
+    public void RequestTravelAndContinue(GameProgressionDestination destination, string effects, string rollback)
+    {
+        if (!SupportsSceneContinuation) throw new InvalidOperationException("대화의 씬 이동 이어읽기가 연결되지 않았습니다.");
+        RequestTravel(destination);
+        ContinueAfterTravel = true;
+        departureEffects = effects;
+        rollbackEffects = rollback;
+    }
+    internal void CaptureContinuation(Step[] steps) =>
+        Continuation = new StorySceneContinuation(steps, departureEffects, rollbackEffects);
     public async UniTask<NewStreetOptionData> ChooseAsync(NewStreetOptionData[] options, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
@@ -49,6 +67,15 @@ public sealed class OutsideStoryExecution
         token.ThrowIfCancellationRequested();
         if (playWorldAction == null) throw new InvalidOperationException("사건의 월드 행동 담당자가 연결되지 않았습니다: " + cutscene);
         await playWorldAction(cutscene, token);
+        token.ThrowIfCancellationRequested();
+    }
+
+    public async UniTask PlayNpcSequenceAsync(string sequenceId, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (string.IsNullOrWhiteSpace(sequenceId)) throw new ArgumentException("NPC 연출 이름이 비어 있습니다.", nameof(sequenceId));
+        if (playNpcSequence == null) throw new InvalidOperationException("사건의 NPC 연출 담당자가 연결되지 않았습니다: " + sequenceId);
+        await playNpcSequence(sequenceId, token);
         token.ThrowIfCancellationRequested();
     }
 }
@@ -68,7 +95,7 @@ public interface IOutsideStoryEventHandler
 /// <summary>DI에 등록된 담당자를 선택한다. 선택 UI, 보상 규칙, 컷신 수명을 소유하지 않는다.</summary>
 public sealed class OutsideStoryEvents : IOutsideStoryEvents
 {
-    readonly IOutsideStoryEventHandler[] handlers;
+    private readonly IOutsideStoryEventHandler[] handlers;
     public OutsideStoryEvents(IEnumerable<IOutsideStoryEventHandler> handlers) => this.handlers = handlers.ToArray();
     public UniTask<Step[]> ExecuteAsync(OutsideStoryCommand command, string argument, OutsideStoryExecution execution, CancellationToken token)
     {

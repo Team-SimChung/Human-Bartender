@@ -7,13 +7,14 @@ using static OutsideStorySteps;
 /// <summary>거리 사건과 공통 선택지를 처리한다. 대본은 로더의 단일 원본에서 조회한다.</summary>
 public sealed class StreetStoryEvents : IOutsideStoryEventHandler
 {
-    readonly IStoryContentSource content;
-    readonly GameStateManager state;
+    private readonly IStoryContentSource content;
+    private readonly GameStateManager state;
     public StreetStoryEvents(IStoryContentSource content, GameStateManager state) { this.content = content; this.state = state; }
     public bool Handles(OutsideStoryCommand command) => command is OutsideStoryCommand.SharedChoice or OutsideStoryCommand.WardrobeChoice
         or OutsideStoryCommand.ThugChoice or OutsideStoryCommand.BeggarChoice or OutsideStoryCommand.SamhoDepart
         or OutsideStoryCommand.NotionApproach or OutsideStoryCommand.NotionDealerExit or OutsideStoryCommand.NotionSamhoExit
-        or OutsideStoryCommand.ThugPunch or OutsideStoryCommand.ThugDepart or OutsideStoryCommand.DoorCue;
+        or OutsideStoryCommand.ThugPunch or OutsideStoryCommand.ThugDepart or OutsideStoryCommand.DoorCue
+        or OutsideStoryCommand.NpcSequence;
 
     public async UniTask<Step[]> ExecuteAsync(OutsideStoryCommand command, string argument, OutsideStoryExecution run, CancellationToken token)
     {
@@ -51,11 +52,12 @@ public sealed class StreetStoryEvents : IOutsideStoryEventHandler
             case OutsideStoryCommand.ThugPunch: await run.PlayAsync(OutsideStoryWorldAction.ThugPunch, token); return null;
             case OutsideStoryCommand.ThugDepart: await run.PlayAsync(OutsideStoryWorldAction.ThugDepart, token); return null;
             case OutsideStoryCommand.DoorCue: await run.PlayAsync(OutsideStoryWorldAction.DoorCue, token); return null;
+            case OutsideStoryCommand.NpcSequence: await run.PlayNpcSequenceAsync(argument, token); return null;
             default: throw new NotSupportedException("거리 명령이 아닙니다: " + command);
         }
     }
 
-    Step[] Branch(string sceneId, string optionId)
+    private Step[] Branch(string sceneId, string optionId)
     {
         foreach (var step in content.GetSceneSteps(sceneId))
             foreach (var option in step.Options ?? Array.Empty<NewStreetOptionData>())

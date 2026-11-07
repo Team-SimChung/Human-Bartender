@@ -33,6 +33,9 @@ public static class OutsideStorySceneRules
     };
     public static bool IsNativeEntry(string id) => RuntimeScene(id) != null;
 
+    public static bool IsRepairmanPresent(int day, IConditionUtil conditions) =>
+        day >= 1 && !conditions.CheckRequired("flag.elevator_repaired");
+
     public static bool TryBind(NewSceneData source, string runtimeScene, out NewSceneData bound)
     {
         bound = source;
@@ -41,7 +44,6 @@ public static class OutsideStorySceneRules
         bound.RuntimeScene = scene;
         bound.Route = "both";
         bound.Day = null;
-        bound.StartMode = ENewSceneTrigger.Interact;
         return true;
     }
 
@@ -52,7 +54,7 @@ public static class OutsideStorySceneRules
         switch (id)
         {
             case "neighborhood-reveal": return After(2) && !Flag("boobi_adopted");
-            case "neighborhood-repairGreeting": return After(1) && !Flag("elevator_repaired");
+            case "neighborhood-repairGreeting": return IsRepairmanPresent(day, conditions);
             case "neighborhood-guardBlocked": return (day > 0 || flow == EGameFlow.CommuteOut) && !Flag("gang_pass_granted");
             case "neighborhood-bossIntro": return After(2) && Flag("gang_pass_granted");
             case "neighborhood-homeCat": return Flag("boobi_adopted");

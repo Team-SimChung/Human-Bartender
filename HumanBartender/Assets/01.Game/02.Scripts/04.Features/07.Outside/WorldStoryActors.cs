@@ -144,9 +144,6 @@ public sealed class WorldStoryActors : MonoBehaviour
                     chris.Renderer.enabled = true;
                     await MoveAsync(chris, Home(chris), ct);
                     break;
-                case OutsideStoryWorldAction.RepairElevator:
-                    await PulseAsync(Require("repair").Root, .2f, ct);
-                    break;
                 case OutsideStoryWorldAction.SamhoDepart:
                 case OutsideStoryWorldAction.NotionSamhoExit:
                     await DepartAsync(Require("samho"), Home(Require("samho")) + Vector3.right * 2, ct);
@@ -157,15 +154,6 @@ public sealed class WorldStoryActors : MonoBehaviour
                     break;
                 case OutsideStoryWorldAction.NotionDealerExit:
                     await DepartAsync(Require("dealer"), Home(Require("dealer")) + Vector3.right * 2, ct);
-                    break;
-                case OutsideStoryWorldAction.ThugPunch:
-                    if (player == null) throw new InvalidOperationException("타격 표현의 플레이어가 없습니다.");
-                    var thug = Require("thug"); var before = thug.Root.position;
-                    await MoveAsync(thug, Vector3.Lerp(before, player.position, .55f), ct);
-                    await MoveAsync(thug, before, ct);
-                    break;
-                case OutsideStoryWorldAction.ThugDepart:
-                    await DepartAsync(Require("thug"), Home(Require("thug")) + Vector3.right * 2, ct);
                     break;
                 case OutsideStoryWorldAction.DoorCue:
                     if (sound == null) throw new InvalidOperationException("문 효과음 서비스가 없습니다.");

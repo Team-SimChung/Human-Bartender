@@ -67,8 +67,107 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     public bool IsMoving => offset != null;
     System.Action restoreResolution;
     CinemachinePixelPerfect suspendedPixelPerfect;
+    FrameOverride frameOverride;
     void Awake() => SyncLensToPPC();
-    void OnDisable() { CancelResolution(); offset?.Cancel(); ResumePixelPerfectCorrection(); }
+    void OnDisable() { frameOverride?.Dispose(); CancelResolution(); offset?.Cancel(); ResumePixelPerfectCorrection(); }
+
+    /// <summary>대화 연출이 카메라 구도를 잠시 소유한다. Dispose하면 추적 대상·렌즈·픽셀 설정을 복구한다.</summary>
+    public FrameOverride BeginFrameOverride()
+    {
+        EnsureCamera();
+        if (cameraAnchor == null) throw new System.InvalidOperationException("Camera anchor is missing.");
+        if (frameOverride != null) throw new System.InvalidOperationException("Another scene presentation owns this camera.");
+        offset?.Cancel();
+        CancelResolution();
+        ResumePixelPerfectCorrection();
+        return frameOverride = new FrameOverride(this);
+    }
+
+    /// <summary>씬에 배치된 카메라의 기존 추적 구도를 보존하는 일시적 소유권.</summary>
+    public sealed class FrameOverride : System.IDisposable
+    {
+        readonly CameraControllerNew owner;
+        readonly Transform parent;
+        readonly Vector3 localPosition, localScale, worldPosition;
+        readonly Quaternion localRotation;
+        readonly LensSettings lens;
+        readonly bool pixelEnabled, correctionEnabled;
+        readonly CinemachinePixelPerfect correction;
+        readonly CinemachinePositionComposer composer;
+        readonly float aspect;
+        bool disposed;
+
+        internal FrameOverride(CameraControllerNew value)
+        {
+            owner = value;
+            var anchor = owner.cameraAnchor;
+            parent = anchor.parent;
+            localPosition = anchor.localPosition;
+            localRotation = anchor.localRotation;
+            localScale = anchor.localScale;
+            worldPosition = anchor.position;
+            lens = owner.vcam.Lens;
+            pixelEnabled = owner.pixelPerfectCamera.enabled;
+            correction = owner.vcam.GetComponent<CinemachinePixelPerfect>();
+            correctionEnabled = correction != null && correction.enabled;
+            composer = owner.vcam.GetComponent<CinemachinePositionComposer>();
+            aspect = owner.mainCamera != null && owner.mainCamera.aspect > 0 ? owner.mainCamera.aspect : 16f / 9f;
+            anchor.SetParent(null, true);
+            // The render target is unchanged; only the lens is animated while its automatic correction is suspended.
+            owner.pixelPerfectCamera.enabled = false;
+            if (correction != null) correction.enabled = false;
+        }
+
+        Vector3 TargetOffset => composer != null ? owner.cameraAnchor.rotation * composer.TargetOffset : Vector3.zero;
+        public Vector3 Center => owner.cameraAnchor.position + TargetOffset;
+        public float Width => owner.vcam.Lens.OrthographicSize * 2 * aspect;
+        public Vector3 FollowCenter => (parent != null ? parent.TransformPoint(localPosition) : worldPosition) + TargetOffset;
+        public float FollowWidth => lens.OrthographicSize * 2 * aspect;
+        public bool IsValid => !disposed && owner != null && owner.cameraAnchor != null && owner.vcam != null;
+
+        public Vector3 Confine(Vector3 center, float width)
+        {
+            if (owner.confiner == null || owner.confiner.BoundingShape2D == null) return center;
+            // Home and OutSide use rectangular confiners; Cinemachine still performs the final shape confinement.
+            var bounds = owner.confiner.BoundingShape2D.bounds;
+            float halfWidth = width * .5f, halfHeight = halfWidth / aspect;
+            center.x = bounds.size.x <= width ? bounds.center.x : Mathf.Clamp(center.x, bounds.min.x + halfWidth, bounds.max.x - halfWidth);
+            center.y = bounds.size.y <= halfHeight * 2 ? bounds.center.y : Mathf.Clamp(center.y, bounds.min.y + halfHeight, bounds.max.y - halfHeight);
+            return center;
+        }
+
+        public void SetFrame(Vector3 center, float width)
+        {
+            if (!IsValid) throw new System.InvalidOperationException("The camera presentation has ended.");
+            if (!float.IsFinite(width) || width <= 0 || !float.IsFinite(center.x) || !float.IsFinite(center.y))
+                throw new System.ArgumentOutOfRangeException(nameof(width));
+            center.z = Center.z;
+            owner.cameraAnchor.position = center - TargetOffset;
+            var next = owner.vcam.Lens;
+            next.OrthographicSize = width / (2 * aspect);
+            owner.vcam.Lens = next;
+            owner.InvalidateConfinerLensCache();
+        }
+
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            if (owner == null) return;
+            if (owner.cameraAnchor != null)
+            {
+                owner.cameraAnchor.SetParent(parent, false);
+                owner.cameraAnchor.localPosition = parent != null ? localPosition : worldPosition;
+                owner.cameraAnchor.localRotation = localRotation;
+                owner.cameraAnchor.localScale = localScale;
+            }
+            if (owner.vcam != null) owner.vcam.Lens = lens;
+            if (owner.pixelPerfectCamera != null) owner.pixelPerfectCamera.enabled = pixelEnabled;
+            if (correction != null) correction.enabled = correctionEnabled;
+            owner.InvalidateConfinerLensCache();
+            if (ReferenceEquals(owner.frameOverride, this)) owner.frameOverride = null;
+        }
+    }
 
     public void FollowTarget(Transform target, Vector3 localOffset = default)
     {
