@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bbe1f0368816964896af33fd3a513ab, type: 3}
+  m_Name: tl_johnny_memory
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioSequence
+  id: tl_johnny_memory
+  displayName: 2일차 · 조니의 기억
+  timeline: {fileID: 11400000, guid: 7c4f7f978b4af4a08bb78da899072021, type: 2}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  actors:
+  - id: bar_far
+    name: bar_far
+    sprite: {fileID: -3396037765602777072, guid: 2d9120cb1937740ec939988a27b8cf14, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 2041, y: 792}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: bar_mid
+    name: bar_mid
+    sprite: {fileID: 6822431694217442930, guid: 42b72c41bf5614d99893fcc25f1c95f5, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 2041, y: 792}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 1
+    clipControlled: 1
+  - id: bar_front
+    name: bar_front
+    sprite: {fileID: 701195814973605559, guid: 256694140814540af9f17cdb67aeb3b2, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 2041, y: 792}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 3
+    clipControlled: 1
+  - id: coaster
+    name: 코스터
+    sprite: {fileID: 21300000, guid: d4eac0b3d057947cb8586c0a678058cc, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 83, y: 27}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 10
+    clipControlled: 1
+  - id: tom_body
+    name: 톰 idle · 몸통
+    sprite: {fileID: 1468488641687874286, guid: 17465e80c31fa4b02b40d65cfbb51895, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 360, y: 334}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 4
+    clipControlled: 1
+  - id: tom_upper_face
+    name: 톰 idle · 머리
+    sprite: {fileID: 1082140170995370419, guid: 2276de534951c47c9bd094c3885c8203, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 360, y: 334}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 5
+    clipControlled: 1
+  - id: tom_lower_face
+    name: 톰 idle · 입
+    sprite: {fileID: 1887964376982510251, guid: a2dedb59878884b3aa2827a391c91739, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 360, y: 334}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 6
+    clipControlled: 1
+  - id: tom_eyes
+    name: 톰 idle · 눈
+    sprite: {fileID: 1818663456220711778, guid: 0d2ce73f41ecd41afaea524351b74a8d, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 360, y: 334}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 7
+    clipControlled: 1
+  - id: tom_eyebrows
+    name: 톰 idle · 눈썹
+    sprite: {fileID: 1525055271671482914, guid: 7210f5bd1d66541c1856225fb7726427, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 360, y: 334}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 8
+    clipControlled: 1
+  allowSkip: 0

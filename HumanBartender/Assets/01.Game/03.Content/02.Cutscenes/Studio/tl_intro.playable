@@ -1,0 +1,524 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4852515453733592276
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 약속해줘, 루나. 포기하지 않겠다고.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 24
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-639957713669499493
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 마지막 부탁 · 자동 진행
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 2
+    m_ClipIn: 0
+    m_Asset: {fileID: -4852515453733592276}
+    m_Duration: 3.5999999999999996
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -639957713669499493}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 1. 약속해줘, 루나. 포기하지 않겠다고.
+  - m_Version: 1
+    m_Start: 5.6
+    m_ClipIn: 0
+    m_Asset: {fileID: 7110672857937787050}
+    m_Duration: 3.200000000000001
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -639957713669499493}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 2. 잘 지내야 해. 알겠지?
+  - m_Version: 1
+    m_Start: 8.8
+    m_ClipIn: 0
+    m_Asset: {fileID: 2094534111486739844}
+    m_Duration: 3.0
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -639957713669499493}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 3. ...■■■ ■■.
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: 2
+  studioDisplayOrders: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
+  m_Name: tl_intro
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.TimelineAsset
+  m_Version: 0
+  m_Tracks:
+  - {fileID: -639957713669499493}
+  m_FixedDuration: 11.8
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 1
+  m_MarkerTrack: {fileID: 0}
+--- !u!114 &2094534111486739844
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: '...■■■ ■■.'
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 24
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &7110672857937787050
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 잘 지내야 해. 알겠지?
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 24
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
