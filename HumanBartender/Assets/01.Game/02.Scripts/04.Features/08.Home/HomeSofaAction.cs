@@ -9,12 +9,16 @@ using VContainer;
 public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWorldInteractionSavePolicy, IWorldInteractionCancellationPolicy
 {
     private const int SlotsPerPage = 2;
+    [Header("루나 수면·기상 연출")]
+    [SerializeField, Tooltip("잠드는 연출을 마친 뒤 야간 대화로 넘어가고, 다음 날 홈 화면에서 역순 클립으로 일어납니다.")]
+    private HomeSleepAnimation sleepAnimation = new();
     [Inject] private IGameProgressionService progression;
     [Inject] private SaveManager saves;
+    [Inject] private ISceneFadeService sceneFades;
     private bool running;
     private bool sleeping;
     private CancellationTokenSource execution;
-    public bool CanExecute => isActiveAndEnabled && !running && progression != null && saves != null;
+    public bool CanExecute => isActiveAndEnabled && !running && progression != null && saves != null && sceneFades != null;
     public bool CanSave => running && !sleeping;
     public bool CanCancel => !sleeping;
 
@@ -54,6 +58,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
         finally { running = sleeping = false; execution = null; }
     }
 
+    private void Awake() => sleepAnimation?.HideVisual();
     private void OnDisable() => execution?.Cancel();
 
     private async UniTask SaveAsync(WorldInteractionActionContext context, CancellationToken token)
@@ -103,19 +108,27 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
         var playerTransform = context.Player?.Transform;
         var originalPosition = playerTransform != null ? playerTransform.position : Vector3.zero;
         int previousDay = GameStateManager.Instance.CurrentDay;
+        bool morningPrepared = false;
         try
         {
             if (context.PlayNight == null) throw new InvalidOperationException("집 대화 실행기가 없습니다.");
             GameProgressionResult result;
             try
             {
+                if (sleepAnimation == null) throw new InvalidOperationException("[HomeSleep] 소파의 수면 연출 설정이 없습니다.");
+                // 수면 클립과 잠든 자세를 보여준 뒤에만 테라스·야간 화면으로 전환한다.
+                await sleepAnimation.SleepAsync(sceneFades, token);
                 await context.PlayNight(token);
                 result = await progression.SleepAsync(() =>
                 {
                     context.RefreshConditions?.Invoke();
                     var state = GameStateManager.Instance;
                     if (state.CurrentDay > previousDay && state.GameFlow == EGameFlow.CommuteIn)
+                    {
                         context.PrepareMorning?.Invoke();
+                        sleepAnimation.PrepareWakeUp();
+                        morningPrepared = true;
+                    }
                     else if (playerTransform != null) playerTransform.position = originalPosition;
                 }, token);
             }
@@ -125,18 +138,24 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
                 if (context.FinishNight != null) await context.FinishNight(CancellationToken.None);
             }
             token.ThrowIfCancellationRequested();
-            if (result.Succeeded) return true;
+            if (result.Succeeded)
+            {
+                if (morningPrepared) await sleepAnimation.WakeUpAsync(sceneFades, token);
+                return true;
+            }
+            sleepAnimation.Restore();
             await ShowMessageAsync(context, result.Message ?? Localize("지금은 잠들 수 없습니다.", "You cannot sleep right now."), token);
             return false;
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception error)
         {
+            sleepAnimation?.Restore();
             Debug.LogException(error, this);
             await ShowMessageAsync(context, error.Message, token);
             return false;
         }
-        finally { sleeping = false; }
+        finally { sleepAnimation?.Restore(); sleeping = false; }
     }
 
     private static async UniTask ShowMessageAsync(WorldInteractionActionContext context, string message, CancellationToken token)
