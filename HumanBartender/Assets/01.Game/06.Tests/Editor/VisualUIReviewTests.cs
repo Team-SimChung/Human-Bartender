@@ -183,9 +183,12 @@ public sealed class VisualUIReviewTests
             foreach (string field in new[] { "newGameButton", "continueButton", "settingsButton", "quitButton", "closeSlotsButton" }) Assert.That(Ref<Button>(view, field), Is.Not.Null, field);
             var data = new SerializedObject(view);
             Assert.That(data.FindProperty("slotButtons").arraySize, Is.EqualTo(SaveManager.SlotCount));
-            var logo = view.GetComponentInChildren<TitleLogoGlitch>(true);
-            Assert.That(logo.GetComponent<Image>().sprite, Is.Not.Null);
-            Assert.That(view.GetComponentInParent<Canvas>().GetComponentsInChildren<TitleLogoGlitch>(true).Length, Is.EqualTo(1));
+            var logo = view.GetComponentsInChildren<Image>(true).Single(image => image.name == "Project LUNA");
+            Assert.That(logo.sprite, Is.Not.Null);
+            // 띠 밀기와 RGB 분리를 머티리얼 하나가 맡는다. 예전 TitleLogoGlitch 자리에 Missing Script가 남으면 안 된다.
+            Assert.That(AssetDatabase.GetAssetPath(logo.material), Is.EqualTo(VisualUISetup.TitleLogoGlitchMaterialPath), "로고에 글리치 머티리얼이 있어야 합니다.");
+            Assert.That(logo.GetComponents<MonoBehaviour>(), Has.None.Null, "로고에 Missing Script 컴포넌트가 남아 있습니다.");
+            Assert.That(logo.material.shader.name, Is.EqualTo("Custom/TitleGlitchPanel"));
             var first = Ref<Button>(view, "newGameButton");
             var focusEvent = new BaseEventData(EventSystem.current); first.OnSelect(focusEvent);
             var fx = first.GetComponent<UIChoiceGlitch>();

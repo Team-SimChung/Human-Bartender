@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64cd9a2fb3ed91544904e998aae6aeea, type: 3}
+  m_Name: ChoiceGlitchSettings
+  m_EditorClassIdentifier: Assembly-CSharp::UIChoiceGlitchSettings
+  duration: 0.3
+  frameRate: 60
+  activeFrames: 15
+  restEvery: 6
+  jitter: 0.75
+  tintA: {r: 0.39607844, g: 0.96862745, b: 1, a: 1}
+  tintB: {r: 0.9019608, g: 0.6509804, b: 0.8392157, a: 1}
+  textGlitchMaterial: {fileID: 2100000, guid: 99e6fbb04ddbf094f8180cff0f21ca3d, type: 2}

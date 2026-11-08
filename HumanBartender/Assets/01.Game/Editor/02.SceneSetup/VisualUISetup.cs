@@ -31,6 +31,16 @@ public static class VisualUISetup
     {
         var so = new SerializedObject(owner); so.FindProperty(key).objectReferenceValue = value; so.ApplyModifiedPropertiesWithoutUndo();
     }
+    public const string TitleLogoGlitchMaterialPath = "Assets/01.Game/03.Content/06.Shared/02.Materials/M_TitleGlitchPanel.mat";
+    public const string ChoiceGlitchSettingsPath ="Assets/01.Game/04.Data/01.Definitions/UI/ChoiceGlitchSettings.asset";
+    // 에셋은 Unity에서 Create 메뉴로 만든다. 셋업은 연결만 하고, 사람이 이미 연결한 값은 덮어쓰지 않는다.
+    static void WireGlitchSettings(UIChoiceGlitch fx)
+    {
+        if (Get<UIChoiceGlitchSettings>(fx, "settings") != null) return;
+        var settings = AssetDatabase.LoadAssetAtPath<UIChoiceGlitchSettings>(ChoiceGlitchSettingsPath);
+        if (settings == null) { Debug.LogWarning("[VisualUISetup] " + ChoiceGlitchSettingsPath + " 가 없어 글리치 기본값으로 둡니다."); return; }
+        Set(fx, "settings", settings);
+    }
     static void SetArray(Object owner, string key, Object[] values)
     {
         var so = new SerializedObject(owner); var p = so.FindProperty(key); p.arraySize = values.Length;
@@ -258,7 +268,7 @@ public static class VisualUISetup
             label.rectTransform.offsetMin = new Vector2(24, 4); label.rectTransform.offsetMax = new Vector2(-24, -4);
             if (root.GetComponent<ChoiceFrameMesh>() == null) root.AddComponent<ChoiceFrameMesh>();
             var fx = root.GetComponent<UIChoiceGlitch>() ?? root.AddComponent<UIChoiceGlitch>();
-            Set(fx, "label", label); Set(fx, "holdButton", hold);
+            Set(fx, "label", label); Set(fx, "holdButton", hold); WireGlitchSettings(fx);
             var colors = new SerializedObject(fx);
             colors.FindProperty("restingColor").colorValue = Hex("bfc0c1");
             colors.FindProperty("focusedColor").colorValue = Hex("54dfea");
@@ -368,7 +378,12 @@ public static class VisualUISetup
         composition.anchorMin = composition.anchorMax = new Vector2(.5f, .5f); composition.pivot = new Vector2(.5f, .5f); composition.anchoredPosition = Vector2.zero;
         Image("Dot pattern", composition, 0, 0, 1280, 720, Color.white, Sprite("02.Title/01.Sprites/PTN_Dot.png"));
         var logo = Image("Project LUNA", composition, 46, 44, 447, 220, Color.white, Sprite("02.Title/01.Sprites/IMG_logo.png"));
-        logo.preserveAspect = true; logo.gameObject.AddComponent<TitleLogoGlitch>();
+        // 로고 글리치(가로 띠 밀기 + RGB 분리·노이즈)는 머티리얼(Custom/TitleGlitchPanel) 하나가 _Time으로 혼자 돈다.
+        // 머티리얼은 Unity에서 만든다.
+        logo.preserveAspect = true;
+        var logoGlitch = AssetDatabase.LoadAssetAtPath<Material>(TitleLogoGlitchMaterialPath);
+        if (logoGlitch != null) logo.material = logoGlitch;
+        else Debug.LogWarning("[VisualUISetup] " + TitleLogoGlitchMaterialPath + " 가 없어 로고를 기본 머티리얼로 둡니다.");
         var view = composition.gameObject.AddComponent<TitleMenuView>(); Set(view, "manager", manager); Set(manager, "titleView", view);
         string[] names = { "새 게임", "이어하기", "설정", "종료" };
         string[] fields = { "newGameButton", "continueButton", "settingsButton", "quitButton" };
@@ -380,7 +395,7 @@ public static class VisualUISetup
             var states = button.spriteState; states.highlightedSprite = states.pressedSprite = states.selectedSprite = Sprite("02.Title/01.Sprites/BTN_Enable.png"); button.spriteState = states;
             var label = button.GetComponentInChildren<TMP_Text>(); Position(label.rectTransform, 36, 0, 258, 66); label.fontSize = 17; label.color = Hex("4d91a5"); label.alignment = TextAlignmentOptions.MidlineLeft;
             var decoration = Image("Focus marker", button.transform, -24, 4, 16, 59, Color.white, Sprite("02.Title/01.Sprites/IMG_Deco_button.png")); decoration.gameObject.SetActive(false);
-            var fx = button.gameObject.AddComponent<UIChoiceGlitch>(); Set(fx, "label", label); Set(fx, "focusDecoration", decoration.gameObject);
+            var fx = button.gameObject.AddComponent<UIChoiceGlitch>(); Set(fx, "label", label); Set(fx, "focusDecoration", decoration.gameObject); WireGlitchSettings(fx);
             Set(view, fields[i], button);
         }
         Text("Menu index", composition, "004", 90, 628, 45, 16, 8, Hex("456b83"));
