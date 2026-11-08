@@ -103,3 +103,31 @@ SeatIndicators          왼쪽 아래 · 78×28 · Image(Sliced 프레임)   ←
 ## 남은 예외
 
 - 병따기 화면(`CapOpenView`)의 글자·버튼·수업 안내는 아직 런타임 생성·1280×720이다. 같은 규칙에 맞추는 일은 별도 작업으로 남긴다(`Web_Parity_Day1_Beer_2026-11-03.md`).
+
+## 2026-11-08 저장된 구형 HUD 복구
+
+현재 저장된 Play 씬은 위 11-07 코드 분리와 맞지 않는다. `BarSeatStatusView`에 삭제된 씬 참조 필드가 남아 있고,
+`BarSeatHudPresenter`는 없으며, 점·링은 여전히 `StoryTutorialShape`다. 새 View가 요구하는 `Image[]`와 키 글자 연결도 맞지 않는다.
+기존 EditMode 결과에서 `BarSeatHudTests`의 Presenter 연결·스프라이트·좌석 줄 구조 검사 3개가 실패했다.
+이는 재료 해금이나 CSV 반입과 별개인 씬 마이그레이션 누락이다.
+
+`Tools/Human Bartender/UI/Repair Bar Seat HUD` 메뉴로 현재 열린 씬의 기존 HUD를 복구한다.
+
+- 기존 점·링·배경 오브젝트를 유지하고, 구형 Shape만 기존 `SeatHud` 스프라이트를 쓰는 Image로 바꾼다.
+- Presenter와 씬 시스템, 왼쪽·가운데·오른쪽 손님 좌석, 좌우 키 글자를 연결한다.
+- `Seats` 줄이 없을 때만 22 크기의 좌석 칸과 간격 2인 Horizontal Layout Group을 추가한다.
+- 이미 연결된 시스템 참조, 스프라이트, 기존 `Seats` 배치와 HUD 위치는 재실행해도 보존한다.
+- Undo를 지원하고 Play 모드 실행을 거부한다. 씬을 자동 저장하거나 다른 씬으로 전환하지 않는다.
+- 재료 선반·CSV·해금 화면은 이번 복구에서 변경하지 않는다.
+
+사용 순서: Play 모드 종료 → Play 씬에서 메뉴 실행 → Inspector/화면 확인 → 씬 저장 → EditMode에서
+`BarSeatHudTests`, `BarSeatSignalRulesTests` 실행 → 실제 플레이에서 손님 점 색과 선택 링, 좌석 이동, 튜토리얼 키 안내 확인.
+
+새 회귀 검사 2개는 저장된 씬의 preview 사본을 사용한다. 복구 후 참조·색·선택 링·키 표시 변경과,
+재실행 시 오브젝트 중복 없이 사용자 간격·위치·색을 보존하는지 검사한다.
+Unity 6000.3.14f1의 기존 컴파일 응답 파일과 Roslyn으로 복구 코드 및 테스트 컴파일은 확인했다.
+사용자가 메뉴 실행·씬 저장·Test Runner 실행 완료를 알렸다. Editor.log에서 복구 메뉴 실행과 Unity 자체 컴파일 성공을 확인했다.
+저장된 Play 씬에서 Presenter 활성화와 시스템 참조 9개, 좌석 순서(Left/Middle/Right), 점·링 Image 6개 및 스프라이트,
+좌우 키 글자 연결을 별도로 대조했다. Test Runner의 개별 성공/실패 결과 파일과 실제 플레이 화면은 직접 확인하지 않았으므로
+테스트 통과 개수나 게임 실행 검증 완료로 보고하지 않는다.
+이번 씬 저장에는 이전에 에디터에 있던 DailyUnlocks 작업도 함께 기록됐다. 이 복구 메뉴는 그 화면을 수정하지 않는다.

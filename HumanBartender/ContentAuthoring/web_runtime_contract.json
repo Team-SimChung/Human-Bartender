@@ -1,21 +1,24 @@
 {
-  "reviewed_commit": "24022cdec49a23200d5500a3e8deef931267206d",
+  "reviewed_commit": "e026c0eeec5060cc81c1704b05af59d3b7c2b15f",
   "rule": "Native Unity handlers must be reviewed when these web execution contracts change.",
   "files": {
     "bar-playtest/src/features/outside/events/outside-shop.js": "e24ed2e7dfc7b9d6059cf99df93a8f150636ba54",
-    "bar-playtest/src/features/outside/events/outside-neighborhood.js": "3de388531da29645e395d6e876dbaccd16955865",
-    "bar-playtest/src/features/outside/events/outside-thug.js": "42b1161394cae60312b7f0849d4173657070c003",
+    "bar-playtest/src/features/outside/events/outside-neighborhood.js": "66fd7a2be89690a13e7bed4842cc467cd14696cc",
+    "bar-playtest/src/features/outside/events/outside-thug.js": "1bf11c763a5050e30fd379cc2a7f37ce69bdebf5",
     "bar-playtest/src/features/outside/events/outside-beggar.js": "013eceef9549165e0ccdd203b2844dd58b5dc6c2",
-    "bar-playtest/src/features/outside/events/outside-events.js": "a8c0610490557f0877a06a9a2ae18504818fcf72",
-    "bar-playtest/src/features/outside/events/outside-samho-commute.js": "987c0b6b112d74bb8edde8cda125e321cdd7a4a2",
-    "bar-playtest/src/features/story/story-flow.js": "7639db0c0244012d15270c3fd47394e58de3f08e",
+    "bar-playtest/src/features/outside/events/outside-events.js": "a800fe983030686f46f996cbcbdf7ae2f731272d",
+    "bar-playtest/src/features/outside/events/outside-samho-commute.js": "f5f32f5581d6dfb8491cc957b6881490c753e927",
+    "bar-playtest/src/features/story/story-flow.js": "a70d1d7d3be222ebca30ab22a8ce989e287594e6",
     "bar-playtest/src/features/campaign/campaign.js": "b82b309e0f644bee29bc08a4020915e8cd90713b",
-    "bar-playtest/src/features/campaign/day-flow.js": "9e752e4778eaf23d4800f7e25351f6a680cb7583",
-    "bar-playtest/src/features/campaign/campaign-engine.js": "4aa7dcd7cbde358e6da8ddd8054d97e6dc6a489a",
-    "bar-playtest/src/features/campaign/cinema-flow.js": "0db67124a69f18addcae908083f9956149b93828",
+    "bar-playtest/src/features/campaign/day-flow.js": "929e50abf5becd18903e8f9bb719da91ff038068",
+    "bar-playtest/src/features/campaign/campaign-engine.js": "a8450653dd14c1aac5690b71a563ecc628a07c38",
+    "bar-playtest/src/features/campaign/cinema-flow.js": "1b94159ddbbeeee7d3de90a1b7f1160b99dbc135",
     "bar-playtest/src/core/story-conditions.js": "7f2f3854abba3b83bb226d344c2301c758467d66",
     "bar-playtest/src/shared/data/csv-catalog.js": "15f0858d76567a7b481805589c416545e14f283f",
-    "bar-playtest/src/shared/data/runtime-projection.js": "ef1839b379ed813e61e858cdbb5d050e416f5770",
-    "tools/lib/shared-data-views.cjs": "dd1db859ab137b994710cec03b99613be6f24d1b"
+    "bar-playtest/src/shared/data/runtime-projection.js": "a54ee7d29107f5004a9773079d76817432ba8fc1",
+    "tools/lib/shared-data-views.cjs": "dd1db859ab137b994710cec03b99613be6f24d1b",
+    "bar-playtest/src/features/outside/events/neighborhood-choice-rules.js": "7a29d72ddd401164b2c07f850d3160c43636f7ee",
+    "bar-playtest/src/shared/data/outside-story-compiler.js": "4f141c9b0128d38d7904a3a443cc8ddb42a34a09",
+    "bar-playtest/src/features/outside/events/outside-tv.js": "9aed9906048ffed3e5e427882bb4021d481d4b30"
   }
 }
