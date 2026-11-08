@@ -161,7 +161,8 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
             {
                 if (slot == null) continue;
                 if (shelfData == null || !shelfData.TryGet(slot.ItemId, out NewShelfItemData item) ||
-                    item.UnlockDay > GameStateManager.Instance.CurrentDay)
+                    !(craftFlow != null ? craftFlow.IsShelfItemAvailable(item) :
+                        CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay)))
                 {
                     slot.SetUnavailable();
                     continue;
@@ -230,6 +231,9 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     public void ToggleItem(string id, Stage stage)
     {
         if (preparation == null) return;
+        if (shelfData == null || !shelfData.TryGet(id, out var item) ||
+            !(craftFlow != null ? craftFlow.IsShelfItemAvailable(item) :
+                CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay))) return;
         if (stage == Stage.Glass) preparation.ToggleGlass(id);
         else if (stage == Stage.Tool) preparation.ToggleTool(id);
         else preparation.ToggleIngredient(id);

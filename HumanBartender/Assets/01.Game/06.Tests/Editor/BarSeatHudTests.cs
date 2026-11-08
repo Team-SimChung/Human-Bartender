@@ -42,6 +42,69 @@ public sealed class BarSeatHudTests
         owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
 
     [Test]
+    public void RepairConnectsPresenterAndRestoresLiveSeatRendering()
+    {
+        // 현재 열린 씬과 저장 파일을 건드리지 않고, 저장된 구형 HUD도 복구할 수 있는지 확인한다.
+        var scene = EditorSceneManager.OpenPreviewScene(ScenePath);
+        try
+        {
+            var hud = Find<BarSeatStatusView>(scene);
+            BarSeatHudRepair.Repair(hud);
+            var presenter = hud.GetComponent<BarSeatHudPresenter>();
+            Assert.That(presenter, Is.Not.Null);
+            Assert.That(Field(presenter, "view"), Is.SameAs(hud));
+            foreach (string name in new[] { "phases", "characters", "guests", "craft", "preparation", "recipes", "playCamera", "servicePanel" })
+                Assert.That((Object)Field(presenter, name) != null, Is.True, name);
+            var slots = (GuestSlot[])Field(presenter, "guestSlots");
+            Assert.That(slots.Select(s => s.SlotType), Is.EqualTo(new[] { ESlotType.Left, ESlotType.Middle, ESlotType.Right }));
+            Assert.That(hud.GetComponentsInChildren<StoryTutorialShape>(true), Is.Empty);
+            Assert.That(hud.Indicators.Find("Seats").childCount, Is.EqualTo(3));
+            Assert.That((Object)Field(hud, "leftKeyLabel") != null, Is.True);
+            Assert.That((Object)Field(hud, "rightKeyLabel") != null, Is.True);
+
+            // 복구된 Image 연결로 실제 색과 선택 링이 바뀌어야 한다.
+            hud.SetSeat(0, EBarSeatSignal.Empty, false, 10);
+            hud.SetSeat(1, EBarSeatSignal.Occupied, true, 10);
+            hud.SetSeat(2, EBarSeatSignal.Waiting, false, 10);
+            var dots = (Image[])Field(hud, "dots");
+            var rings = (Image[])Field(hud, "rings");
+            Assert.That(dots.Select(d => d.color), Is.EqualTo(new[] { BarSeatStatusView.EmptyColor, BarSeatStatusView.SelectedColor, BarSeatStatusView.WaitingColor }));
+            Assert.That(rings.Select(r => r.gameObject.activeSelf), Is.EqualTo(new[] { false, true, false }));
+            hud.SetExploration(true, ESlotType.Middle, false);
+            Assert.That(hud.LeftKey.gameObject.activeSelf && hud.RightKey.gameObject.activeSelf, Is.True);
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [Test]
+    public void RepairCanRunAgainWithoutReplacingEditedLayoutOrReferences()
+    {
+        var scene = EditorSceneManager.OpenPreviewScene(ScenePath);
+        try
+        {
+            var hud = Find<BarSeatStatusView>(scene);
+            BarSeatHudRepair.Repair(hud);
+            var presenter = hud.GetComponent<BarSeatHudPresenter>();
+            var layout = hud.Indicators.Find("Seats").GetComponent<HorizontalLayoutGroup>();
+            var dots = (Image[])Field(hud, "dots");
+            int count = hud.GetComponentsInChildren<Transform>(true).Length;
+            layout.spacing = 5;
+            dots[0].color = Color.magenta;
+            var position = hud.Indicators.anchoredPosition + new Vector2(3, 7);
+            hud.Indicators.anchoredPosition = position;
+            BarSeatHudRepair.Repair(hud);
+            Assert.That(hud.GetComponents<BarSeatHudPresenter>(), Has.Length.EqualTo(1));
+            Assert.That(hud.GetComponent<BarSeatHudPresenter>(), Is.SameAs(presenter));
+            Assert.That(hud.GetComponentsInChildren<Transform>(true).Length, Is.EqualTo(count));
+            Assert.That(layout.spacing, Is.EqualTo(5));
+            Assert.That(hud.Indicators.anchoredPosition, Is.EqualTo(position));
+            Assert.That((Image[])Field(hud, "dots"), Is.EqualTo(dots));
+            Assert.That(dots[0].color, Is.EqualTo(Color.magenta));
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [Test]
     public void SeatHudSceneReferencesAreWired()
     {
         var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);

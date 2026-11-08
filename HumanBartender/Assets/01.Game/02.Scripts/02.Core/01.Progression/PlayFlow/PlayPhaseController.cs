@@ -18,6 +18,8 @@ public class PlayPhaseController : MonoBehaviour
     [SerializeField] OrderRequestController orderController;
     [SerializeField] CraftFlowController craftFlow;
     [SerializeField] SettlementScreen settlementScreen;
+    [Tooltip("일차 시작 때 새로 쓸 수 있게 된 재료·칵테일을 소개하는 화면. Canvas_DailyUnlocks.")]
+    [SerializeField] DailyUnlocksScreen dailyUnlocksScreen;
     [SerializeField] ServicePanelController servicePanel;
 
     [Inject] IGameProgressionService progression;
@@ -243,11 +245,16 @@ public class PlayPhaseController : MonoBehaviour
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             settlementScreen.ValidateReferences();
+            if (dailyUnlocksScreen == null)
+                throw new InvalidOperationException("[DailyUnlocks] Setup Daily Unlocks 메뉴로 안내 화면을 연결해 주세요.");
+            dailyUnlocksScreen.ValidateReferences();
             int day = GameStateManager.Instance.CurrentDay;
             if (!NewDataLoadManager.TryGetDayInfo(day, out var dayInfo))
                 throw new InvalidOperationException($"Day {day}의 유지비 데이터가 없습니다.");
             settlement.BeginDay(day, dayInfo.UpkeepGold);
             checkpoint.Capture();
+
+            await RunDailyUnlocksAsync(day, cancellationToken);
 
             BeginPhase(EPlayPhase.Dialogue);
             await storyFlow.RunOpeningAsync(cancellationToken);
@@ -322,6 +329,15 @@ public class PlayPhaseController : MonoBehaviour
                 currentOperationId = 0;
             }
         }
+    }
+
+    async UniTask RunDailyUnlocksAsync(int day, CancellationToken cancellationToken)
+    {
+        if (day <= 0) return;
+        var unlocks = DailyUnlockQuery.Collect(day, NewDataLoadManager.StoryShelfItems, NewDataLoadManager.StoryCocktails);
+        if (unlocks.IsEmpty) return;
+        try { await dailyUnlocksScreen.ShowAsync(day, unlocks, cancellationToken); }
+        finally { if (dailyUnlocksScreen != null) dailyUnlocksScreen.Hide(); }
     }
 
     async UniTask<bool> RunSettlementAsync(CancellationToken cancellationToken)

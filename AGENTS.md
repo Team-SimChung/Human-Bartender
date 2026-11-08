@@ -23,7 +23,7 @@
 
 - **캔버스**: 기능 하나에 하나, 이름은 `Canvas_기능명`. 화면에 붙으면 Screen Space Overlay, 월드 물체를 따라가면 World Space(Scale 약 0.02).
 - **바(Play) 화면 Overlay 캔버스**: Canvas Scaler Scale With Screen Size, **960×540, Match 0**, Layer UI. 1280×720이나 1920×1080 기준으로 새로 만들지 않습니다.
-- **Play 씬 Sort Order**: Dialogue 8, Coaster_Tray 9, ServicePanel·말풍선 10, RecipeBrowser 11, BarSeatHud 12, DialogueHistory 13, Settlement 14, Gimmick HUD 100, Serve 103, Pause 105, Tutorial 4000. 새 캔버스는 위아래 이웃 사이의 빈 번호를 씁니다.
+- **Play 씬 Sort Order**: Dialogue 8, Coaster_Tray 9, ServicePanel·BarSeatHud·말풍선 10, RecipeBrowser 11, DailyUnlocks 12, DialogueHistory 13, Settlement 14, Gimmick HUD 100, Serve 103, Pause 105, Tutorial 4000. 새 캔버스는 위아래 이웃 사이의 빈 번호를 씁니다.
 - **EventSystem**은 씬에 하나만 둡니다.
 - **켜고 끄기**: 화면 스크립트는 항상 켜져 있는 캔버스에 붙이고, 그 아래 `XxxRoot` 하나만 `SetActive`로 켜고 끕니다.
 - **배치 패턴**:

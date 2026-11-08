@@ -27,6 +27,8 @@ public readonly struct GimmickStep
     /// 실제 투입량은 안에서 정상적으로 쌓여 결과에 남는다.
     /// </summary>
     public readonly bool IsRecipeIngredient;
+    /// <summary>CSV add 동작. 선택한 정량을 기록하고 별도 파우더 미니게임은 띄우지 않는다.</summary>
+    public readonly bool IsImmediateAddition;
 
     public bool HasTarget => TargetValue.HasValue && TargetValue.Value > 0f;
 
@@ -35,13 +37,14 @@ public readonly struct GimmickStep
 
     public GimmickStep(ECraftGimmick type, string ingredientId,
                        float? targetValue = null, ENewUnit? targetUnit = null,
-                       bool isRecipeIngredient = false)
+                       bool isRecipeIngredient = false, bool isImmediateAddition = false)
     {
         Type = type;
         IngredientId = ingredientId;
         TargetValue = targetValue;
         TargetUnit = targetUnit;
         IsRecipeIngredient = isRecipeIngredient;
+        IsImmediateAddition = isImmediateAddition;
     }
 
     public override string ToString()

@@ -280,6 +280,7 @@ public class StoryScriptRunner : MonoBehaviour
                 // 선택지의 effects는 고른 항목의 것을 이미 적용했다. 스텝 자체의 effects는 그다음이다.
                 token.ThrowIfCancellationRequested();
                 conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
+                await CheckRecipeUnlockAsync(scene.Day, token);
 
                 if (target != null) return (false, target);
 
@@ -295,9 +296,18 @@ public class StoryScriptRunner : MonoBehaviour
             // 씬과 seq를 합친 것을 표로 쓴다.
             token.ThrowIfCancellationRequested();
             conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
+            await CheckRecipeUnlockAsync(scene.Day, token);
         }
 
         return (false, null);
+    }
+
+    async UniTask CheckRecipeUnlockAsync(int day, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (!CampaignStoryRules.TryUnlockJohnnyRecipe(day, conditions)) return;
+        if (popupService != null)
+            await popupService.Popup(PopupType.EventOccurred, "새 레시피: 올드 패션드\n와일드 독 · 비터스 · 각설탕을 사용할 수 있습니다.");
     }
 
     bool TryFindScene(string sceneId, out NewScriptSceneData found)
