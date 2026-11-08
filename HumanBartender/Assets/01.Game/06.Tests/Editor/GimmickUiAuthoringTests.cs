@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using TMPro;
@@ -13,6 +14,35 @@ public sealed class GimmickUiAuthoringTests
 {
     const string Folder = "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/";
     const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    [Test]
+    public void PourBackgroundStaysOutsideOverlayHudAndBehindBottleGlassAndLiquid()
+    {
+        WithPrefab("03.Pour/NewPourGame.prefab", root =>
+        {
+            var background = root.GetComponentsInChildren<MinigameBackground>(true).Single();
+            var renderer = background.GetComponent<SpriteRenderer>();
+            Assert.That(renderer.sprite, Is.Not.Null);
+            Assert.That(background.GetComponentInParent<Canvas>(), Is.Null,
+                "HUD가 Overlay로 전환돼도 배경이 병·잔 위에 그려지면 안 됩니다.");
+            foreach (var other in root.GetComponentsInChildren<SpriteRenderer>(true).Where(value => value != renderer))
+            {
+                Assert.That(renderer.sortingLayerID, Is.EqualTo(other.sortingLayerID));
+                Assert.That(renderer.sortingOrder, Is.LessThan(other.sortingOrder), other.name);
+            }
+            var liquid = root.GetComponentInChildren<SphLiquidRenderer>(true);
+            using var data = new SerializedObject(liquid);
+            Assert.That(renderer.sortingOrder, Is.LessThan(data.FindProperty("sortingOrder").intValue));
+            var originalImage = background.GetComponent<Image>();
+            Assert.That(originalImage.enabled, Is.False);
+            Assert.That(originalImage.raycastTarget, Is.False);
+            int count = root.GetComponentsInChildren<Transform>(true).Length;
+            var position = background.transform.localPosition;
+            PourHudPrefabSetup.MoveBackgroundBehindGimmick(root);
+            Assert.That(root.GetComponentsInChildren<Transform>(true).Length, Is.EqualTo(count));
+            Assert.That(background.transform.localPosition, Is.EqualTo(position));
+        });
+    }
 
     static T Ref<T>(Object owner, string name) where T : Object =>
         (T)new SerializedObject(owner).FindProperty(name).objectReferenceValue;

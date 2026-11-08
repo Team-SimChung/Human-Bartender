@@ -8,7 +8,6 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
-using VContainer.Diagnostics;
 using VContainer.Unity;
 using Object = UnityEngine.Object;
 
@@ -103,36 +102,7 @@ internal static class HomeInteractionTestSession
 
     internal static void ReplaceTestServices(IContainerBuilder builder, PlayerDataSO player,
         Func<IObjectResolver, SaveManager> createSaves)
-    {
-        // 동일 구현의 Singleton을 추가하면 VContainer가 컬렉션 등록 중 충돌한다.
-        // 새 등록을 별도 빌더에서 구성한 뒤 기존 슬롯 자체를 교체한다.
-        var replacements = new ContainerBuilder();
-        var playerRegistration = replacements.RegisterInstance(player).AsSelf().As<IPlayerDataReader>().As<IPlayerDataWriter>();
-        var savesRegistration = replacements.Register(createSaves, Lifetime.Singleton);
-        ReplaceRegistration(builder, typeof(PlayerDataSO), playerRegistration);
-        ReplaceRegistration(builder, typeof(SaveManager), savesRegistration);
-        if (builder.Diagnostics != null)
-        {
-            // 교체 전 등록 기록이 남으면 Diagnostics가 Build되지 않은 항목을 읽는다.
-            builder.Diagnostics.Clear();
-            for (int i = 0; i < builder.Count; i++)
-                builder.Diagnostics.TraceRegister(new RegisterInfo(builder[i]));
-        }
-    }
-
-    private static void ReplaceRegistration(IContainerBuilder builder, Type service, RegistrationBuilder replacement)
-    {
-        int index = -1;
-        for (int i = 0; i < builder.Count; i++)
-        {
-            var registration = builder[i].Build();
-            if (registration.ImplementationType != service && registration.InterfaceTypes?.Contains(service) != true) continue;
-            if (index >= 0) throw new InvalidOperationException("[HomeTest] 교체할 서비스가 중복 등록되어 있습니다: " + service.Name);
-            index = i;
-        }
-        if (index < 0) throw new InvalidOperationException("[HomeTest] 교체할 기존 서비스를 찾을 수 없습니다: " + service.Name);
-        builder[index] = replacement;
-    }
+        => EditorPlayTestServices.Replace(builder, player, createSaves);
 
     private static void OnPlayModeChanged(PlayModeStateChange change)
     {

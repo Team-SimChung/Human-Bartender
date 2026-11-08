@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -13,17 +14,72 @@ public static class PourHudPrefabSetup
     public const string PrefabPath = GimmickUiPrefabSetup.Folder + "/03.Pour/NewPourGame.prefab";
     const string PlayPath = "Assets/01.Game/01.Scenes/Play.unity";
 
-    [MenuItem("Tools/Crafting/Save Pour HUD In Prefab")]
+    [MenuItem("Tools/Crafting/Save Pour HUD In Prefab %&b")]
     public static void Run()
     {
         var root = PrefabUtility.LoadPrefabContents(PrefabPath);
         try
         {
             Attach(root);
+            MoveBackgroundBehindGimmick(root);
             PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             AssetDatabase.SaveAssets();
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+
+    internal static void MoveBackgroundBehindGimmick(GameObject root)
+    {
+        var image = root.GetComponentsInChildren<Image>(true).SingleOrDefault(value =>
+            value.enabled && string.Equals(value.name, "BackGround", StringComparison.OrdinalIgnoreCase) &&
+            value.GetComponent<MinigameBackground>() == null);
+        if (image == null) return;
+        if (image.sprite == null)
+        {
+            Debug.LogWarning("[PourHUD] BackGround의 Sprite가 없어 배경 정렬을 변경하지 않았습니다.");
+            return;
+        }
+        var manager = root.GetComponentInChildren<PourManager>(true);
+        if (manager == null) throw new InvalidOperationException("[PourHUD] PourManager가 없습니다.");
+
+        var corners = new Vector3[4];
+        image.rectTransform.GetWorldCorners(corners);
+        float width = Vector3.Distance(corners[0], corners[3]);
+        float height = Vector3.Distance(corners[0], corners[1]);
+        var sprite = image.sprite;
+        var color = image.color;
+        var background = image.gameObject;
+        Undo.SetTransformParent(background.transform, root.transform, "Move pour background outside HUD");
+        Undo.RecordObject(background.transform, "Keep pour background size");
+        background.transform.position = manager.transform.position;
+        background.transform.localRotation = Quaternion.identity;
+        var parentScale = root.transform.lossyScale;
+        background.transform.localScale = new Vector3(
+            width / Mathf.Max(.0001f, sprite.bounds.size.x * Mathf.Abs(parentScale.x)),
+            height / Mathf.Max(.0001f, sprite.bounds.size.y * Mathf.Abs(parentScale.y)), 1);
+
+        var renderer = background.GetComponent<SpriteRenderer>();
+        if (renderer == null) renderer = Undo.AddComponent<SpriteRenderer>(background);
+        Undo.RecordObject(renderer, "Set pour background sorting");
+        renderer.sprite = sprite;
+        renderer.color = color;
+        renderer.sortingLayerID = 0;
+        renderer.sortingOrder = -10;
+        // 이미 쓰고 있는 셰이크 배경의 URP 머티리얼을 공유한다. 새 에셋은 만들지 않는다.
+        var shake = AssetDatabase.LoadAssetAtPath<GameObject>(GimmickUiPrefabSetup.Folder + "/01.Shake/NewShakingMinigame.prefab");
+        var source = shake != null ? shake.GetComponentInChildren<MinigameBackground>(true) : null;
+        if (source != null) renderer.sharedMaterial = source.GetComponent<SpriteRenderer>().sharedMaterial;
+        if (background.GetComponent<MinigameBackground>() == null) Undo.AddComponent<MinigameBackground>(background);
+
+        // 원본 Image 설정은 보존하고 표시·입력만 끈다. 실행 시 HUD가 Overlay로 바뀌어도 배경은 월드에 남는다.
+        Undo.RecordObject(image, "Disable pour background overlay");
+        image.raycastTarget = false;
+        image.enabled = false;
+        EditorUtility.SetDirty(background);
+        EditorUtility.SetDirty(renderer);
+        EditorUtility.SetDirty(image);
+        EditorSceneManager.MarkSceneDirty(root.scene);
+        Debug.Log("[PourHUD] BackGround를 HUD 밖으로 옮기고 월드 배경(-10)과 카메라 크기 맞춤을 연결했습니다.");
     }
 
     internal static void Attach(GameObject root)
