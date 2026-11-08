@@ -35,7 +35,7 @@ public sealed class HomeTerracePresentation : MonoBehaviour
     public void PrepareMorning(Player player)
     {
         if (player == null || wakeUpSpawn == null)
-            throw new InvalidOperationException("[HomeTerrace] Home의 다음 날 침대 시작 위치를 연결하세요.");
+            throw new InvalidOperationException("[HomeTerrace] Home의 다음 날 소파 앞 기상 위치를 연결하세요.");
         player.PrepareWorldInteraction();
         player.transform.position = wakeUpSpawn.position;
         RestoreCamera();

@@ -122,7 +122,7 @@ internal static class HomeInteractionTestScenarios
             1, EGameFlow.CommuteOut, "home_sofa", new[] { "neighborhood-rest" },
             flags: Flags("boobi_adopted", "workshop_seen", "home_night1_seen")),
         new HomeInteractionTestScenario("sofa-menu", "소파 · 저장 / 취소 / 수면",
-            "야간 이야기가 완료된 귀가 상태입니다. 저장 슬롯 페이지·취소와 다음 날 수면을 바로 확인합니다. 부비는 입양 전이라 숨겨집니다.",
+            "야간 이야기가 완료된 귀가 상태입니다. 저장 슬롯 페이지·취소, 소파에서 잠들기와 다음 날 역재생 기상을 바로 확인합니다. 부비는 입양 전이라 숨겨집니다.",
             1, EGameFlow.CommuteOut, "home_sofa", flags: Flags("workshop_seen", "home_night1_seen"))
     });
 
