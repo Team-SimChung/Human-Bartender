@@ -39,6 +39,9 @@ public class OutsideCamera : MonoBehaviour
     [SerializeField] OutsideCameraOption[] cameraOptions = System.Array.Empty<OutsideCameraOption>();
     [SerializeField] CameraControllerNew cameraZoom;
 
+    [Header("빠른 이동")]
+    [SerializeField] private PixelPerfectParallax parallax;
+
 
     private Dictionary<EOutsideCameraMode, OutsideCameraOption> _cameraMap;
     
@@ -63,6 +66,18 @@ public class OutsideCamera : MonoBehaviour
         if (!_cameraMap.TryGetValue((EOutsideCameraMode)n, out var option))
             throw new System.ArgumentOutOfRangeException(nameof(n));
         ExcuteCameraOption(option);
+    }
+
+    /// <summary>빠른 이동 중 기존 플레이어 추적 구도를 적용하고 배경이 순간 이동량을 누적하지 않게 한다.</summary>
+    public void SnapToFollow()
+    {
+        EnsureOptions();
+        if (!_cameraMap.TryGetValue(EOutsideCameraMode.Follow, out var option) || cameraZoom == null)
+            throw new System.InvalidOperationException("빠른 이동에 필요한 플레이어 추적 카메라 설정이 없습니다.");
+
+        cameraZoom.SnapToFollow(option.cameraParent, option.cameraOffset,
+            option.isChangeResolution ? option.targetResolution : (ECameraZoomType?)null);
+        if (parallax != null) parallax.NotifyCameraTeleport();
     }
 
     /// <summary>추적 대상 부모 전환, 오프셋 전환, 해상도 전환을 순서대로(또는 조건에 따라 순서 바꿔) 실행한다.</summary>
