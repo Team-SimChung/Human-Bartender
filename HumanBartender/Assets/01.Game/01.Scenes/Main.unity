@@ -2720,7 +2720,6 @@ GameObject:
   - component: {fileID: 1427298824}
   - component: {fileID: 1427298827}
   - component: {fileID: 1427298826}
-  - component: {fileID: 1427298825}
   m_Layer: 5
   m_Name: Project LUNA
   m_TagString: Untagged
@@ -2747,20 +2746,6 @@ RectTransform:
   m_AnchoredPosition: {x: 46, y: -44}
   m_SizeDelta: {x: 447, y: 220}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1427298825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1427298823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7291cedd95d2434e920be1d1da1f9356, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TitleLogoGlitch
-  period: 2.86
-  displacement: 14
 --- !u!114 &1427298826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2773,7 +2758,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 135d01816f67aed4fb8c8aab84c527d3, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}

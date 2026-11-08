@@ -31,7 +31,8 @@ public static class VisualUISetup
     {
         var so = new SerializedObject(owner); so.FindProperty(key).objectReferenceValue = value; so.ApplyModifiedPropertiesWithoutUndo();
     }
-    public const string ChoiceGlitchSettingsPath = "Assets/01.Game/04.Data/01.Definitions/UI/ChoiceGlitchSettings.asset";
+    public const string TitleLogoGlitchMaterialPath = "Assets/01.Game/03.Content/06.Shared/02.Materials/M_TitleGlitchPanel.mat";
+    public const string ChoiceGlitchSettingsPath ="Assets/01.Game/04.Data/01.Definitions/UI/ChoiceGlitchSettings.asset";
     // 에셋은 Unity에서 Create 메뉴로 만든다. 셋업은 연결만 하고, 사람이 이미 연결한 값은 덮어쓰지 않는다.
     static void WireGlitchSettings(UIChoiceGlitch fx)
     {
@@ -377,7 +378,12 @@ public static class VisualUISetup
         composition.anchorMin = composition.anchorMax = new Vector2(.5f, .5f); composition.pivot = new Vector2(.5f, .5f); composition.anchoredPosition = Vector2.zero;
         Image("Dot pattern", composition, 0, 0, 1280, 720, Color.white, Sprite("02.Title/01.Sprites/PTN_Dot.png"));
         var logo = Image("Project LUNA", composition, 46, 44, 447, 220, Color.white, Sprite("02.Title/01.Sprites/IMG_logo.png"));
-        logo.preserveAspect = true; logo.gameObject.AddComponent<TitleLogoGlitch>();
+        // 로고 글리치(가로 띠 밀기 + RGB 분리·노이즈)는 머티리얼(Custom/TitleGlitchPanel) 하나가 _Time으로 혼자 돈다.
+        // 머티리얼은 Unity에서 만든다.
+        logo.preserveAspect = true;
+        var logoGlitch = AssetDatabase.LoadAssetAtPath<Material>(TitleLogoGlitchMaterialPath);
+        if (logoGlitch != null) logo.material = logoGlitch;
+        else Debug.LogWarning("[VisualUISetup] " + TitleLogoGlitchMaterialPath + " 가 없어 로고를 기본 머티리얼로 둡니다.");
         var view = composition.gameObject.AddComponent<TitleMenuView>(); Set(view, "manager", manager); Set(manager, "titleView", view);
         string[] names = { "새 게임", "이어하기", "설정", "종료" };
         string[] fields = { "newGameButton", "continueButton", "settingsButton", "quitButton" };
