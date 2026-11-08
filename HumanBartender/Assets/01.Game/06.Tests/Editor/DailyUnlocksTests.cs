@@ -55,14 +55,22 @@ public sealed class DailyUnlocksTests
     }
 
     [Test]
-    public void DayOneMatchesTheRetainedUnityCsv()
+    public void DayOneMatchesCurrentWebCsv()
     {
         var csv = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
         var result = DailyUnlockQuery.Collect(1, csv.Read<NewShelfItemData[]>("shelf_items"), csv.Read<NewCocktailData[]>("cocktails"));
-        // #116은 기존 대사 효과를 보존하기 위해 웹 e026c0e 전체 반입을 보류했다.
-        // 현재 Unity CSV에는 ginger_ale와 moscow_mule이 남아 있다.
-        Assert.That(result.Ingredients.Select(i => i.Id), Is.EqualTo(new[] { "beer", "tequila", "vodka", "rum", "orange_juice", "cola", "dry_vermouth", "ginger_ale" }));
-        Assert.That(result.Cocktails.Select(i => i.Id), Is.EqualTo(new[] { "bottle_beer", "screwdriver", "tequila_sunrise", "dry_martini", "moscow_mule" }));
+        Assert.That(result.Ingredients.Select(i => i.Id), Is.EqualTo(new[] { "beer", "tequila", "vodka", "rum", "orange_juice", "cola", "dry_vermouth" }));
+        Assert.That(result.Cocktails.Select(i => i.Id), Is.EqualTo(new[] { "bottle_beer", "screwdriver", "tequila_sunrise", "dry_martini" }));
+    }
+
+    [TestCase(2, 10, 6)]
+    [TestCase(3, 0, 0)]
+    public void LaterDaysMatchWebAndExcludeConditionalUnlocks(int day, int ingredientCount, int cocktailCount)
+    {
+        var csv = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
+        var result = DailyUnlockQuery.Collect(day, csv.Read<NewShelfItemData[]>("shelf_items"), csv.Read<NewCocktailData[]>("cocktails"));
+        Assert.That(result.Ingredients.Count, Is.EqualTo(ingredientCount));
+        Assert.That(result.Cocktails.Count, Is.EqualTo(cocktailCount));
     }
 
     [Test]

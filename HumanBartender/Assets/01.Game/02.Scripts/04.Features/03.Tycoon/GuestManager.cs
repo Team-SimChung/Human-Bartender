@@ -19,6 +19,7 @@ public class GuestManager : MonoBehaviour
 {
     [Inject] IOrderPaymentService orderPayments;
     [Inject] ISoundEffectPlayer sound;
+    [Inject] IConditionUtil conditions;
     [SerializeField] NewBalanceDataSO configData;
     [SerializeField] NewRandomWaveDataSO randomWaveData;
     [SerializeField] NewRegularSlotDataSO regularSlotData;
@@ -566,7 +567,7 @@ public class GuestManager : MonoBehaviour
         {
             foreach (NewCocktailData cocktail in cocktailData.cocktailData)
             {
-                if (CocktailUnlockPolicy.IsUnlocked(cocktail, day)) candidates.Add(cocktail);
+                if (CocktailUnlockPolicy.IsUnlocked(cocktail, day, conditions)) candidates.Add(cocktail);
             }
         }
 

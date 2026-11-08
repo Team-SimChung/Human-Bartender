@@ -97,6 +97,9 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
                                               CraftTimer timer, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
+        if (step.IsImmediateAddition)
+            return GimmickResult.Quantity(step.Type, step.IngredientId, step.TargetValue, step.TargetUnit,
+                step.TargetValue ?? 0, ECraftEndType.AutoTarget, timer.ElapsedSec);
         GameObject prefab = ResolvePrefab(step.Type);
 
         if (prefab == null)
