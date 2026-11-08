@@ -10,10 +10,10 @@ using UnityEngine;
 public sealed class WebCsvCompatibilityTests
 {
     /// <summary>
-    /// Unity CSV는 반입 도구가 게시한 그대로여야 한다. 읽기 쉬운 ID로 게시했다면 같은 커밋의 웹 원본 해시도 함께 기록된다.
+    /// 실제 게시 해시를 검사한다. 부분 반입·Unity 효과 보존본을 웹 원본과 동일하다고 취급하지 않는다.
     /// </summary>
     [Test]
-    public void PublishedFilesAreExactlyThePinnedWebSnapshot()
+    public void PublishedFilesMatchRecordedSnapshotsAndProtectedOverrides()
     {
         string project = Path.GetDirectoryName(Application.dataPath);
         var manifest = JObject.Parse(File.ReadAllText(Path.Combine(project, "ContentAuthoring/web_content_source.json")));
@@ -30,6 +30,46 @@ public sealed class WebCsvCompatibilityTests
             string hash = BitConverter.ToString(sha.ComputeHash(File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, "csv", file.Name)))).Replace("-", "").ToLowerInvariant();
             Assert.That(hash, Is.EqualTo((string)file.Value), file.Name);
         }
+        foreach (var file in ((JObject)manifest["unity_overrides"] ?? new JObject()).Properties())
+            Assert.That((string)manifest["files"][file.Name], Is.EqualTo((string)file.Value), file.Name);
+    }
+
+    [Test]
+    public void PartialDialogueImportRecordsItsReviewAndKeepsFullImportProtected()
+    {
+        string authoring = Path.Combine(Path.GetDirectoryName(Application.dataPath), "ContentAuthoring");
+        var manifest = JObject.Parse(File.ReadAllText(Path.Combine(authoring, "web_content_source.json")));
+        var entry = ((JArray)manifest["partial_imports"]).Single(row =>
+            (string)row["scope"] == "existing_production_dialogue");
+        Assert.That((string)entry["commit"], Is.EqualTo("d9a34746761bc3a0f3a67bcd04cdf737d9884d70"));
+        Assert.That(entry["files"].Values<string>(), Is.EquivalentTo(new[]
+            { "story/steps.csv", "story/bar_choices.csv", "story/street_choices.csv" }));
+        using var sha = SHA256.Create();
+        string reviewHash = BitConverter.ToString(sha.ComputeHash(File.ReadAllBytes(
+            Path.Combine(authoring, (string)entry["review"])))).Replace("-", "").ToLowerInvariant();
+        Assert.That(reviewHash, Is.EqualTo((string)entry["review_sha256"]));
+        Assert.That((string)manifest["unity_overrides"]["story/steps.csv"],
+            Is.EqualTo((string)manifest["files"]["story/steps.csv"]));
+        Assert.That((string)manifest["web_files"]["story/steps.csv"],
+            Is.Not.EqualTo((string)manifest["files"]["story/steps.csv"]));
+    }
+
+    [Test]
+    public void RevisedCommuteKeepsSamhosEffectOnHisBoastAndDepartsBeforeLunasReply()
+    {
+        var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
+        var street = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/street"));
+        var steps = street.Scenes.Single(scene => scene.Id == "commute2").Steps;
+        Assert.That(steps.Select(step => step.Seq), Is.EqualTo(Enumerable.Range(1, 26)));
+        Assert.That(steps[21].Actor, Is.EqualTo("samho"));
+        Assert.That(steps[21].Text.Ko, Does.Contain("<pop peak=1.15>애니멀 소속이 될 몸이지.</pop>"));
+        Assert.That(steps[21].Text.En, Does.Contain("<pop peak=1.15>"));
+        Assert.That(steps[24].Command, Is.EqualTo(OutsideStoryCommand.SamhoDepart));
+        Assert.That(steps[25].Actor, Is.EqualTo("luna"));
+        Assert.That(steps[25].Text.Ko, Is.EqualTo("... 서비스?"));
+        var trade = street.Scenes.Single(scene => scene.Id == "outside_day1_samho_smuggler").Steps;
+        Assert.That(trade[2].Text.Ko, Does.Contain("<fx=emphasis>대금을 치를 방법이 없는</fx>"));
+        Assert.That(trade[3].Text.Ko, Does.Not.Contain("<fx"));
     }
 
     [Test]

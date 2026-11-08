@@ -1,5 +1,69 @@
 # 웹 CSV 반입 검토: `24022cd` → `e026c0e` (반입 보류)
 
+## 후속 작업: 기존 연결 장면의 대사만 부분 반영
+
+아래 본문은 최초 전체 반입 보류 당시 이력이다. 이후 제조 CSV 4파일은 `e79626eb`에서 부분 반입됐고,
+사용자 요청으로 이번에는 웹 `d9a34746761bc3a0f3a67bcd04cdf737d9884d70`의 기존 본편 대사만 반영한다.
+Unity 기준은 `9caaa424`다. UI 구조 정리(고정 UI·주변 말풍선·CanvasGroup·메뉴 크기·배치 숫자)는 제외한다.
+
+반영 대상은 `story/steps.csv`, `story/bar_choices.csv`, `story/street_choices.csv` 세 파일이다.
+본편 bar day0~3 / street / home의 기존 부모 장면만 반영하고 CSV의 연결 메타데이터와 씬은 유지한다.
+
+| 변경 | 수 |
+|---|---:|
+| 기존 steps 행의 한국어 본문 필드 | 122 (say 120, choice 질문 2) |
+| 기존 steps 행의 영어 본문 필드 | 623 |
+| 영어 바 선택지 문구 | 12 |
+| 한국어 거리 선택지 문구 | 1 |
+| 화자 변경 | 17 |
+| 추가 / 삭제 say 행 | 3 / 4 |
+
+새 대사 3행은 신문 퀴즈 질문, 3일차 삼호 출근 대사의 루나 답변, 코라테크 정보 대사의 감사 인사다.
+삭제 4행은 재작성된 `commute2` 안에서 합쳐지거나 다른 행으로 옮겨진 대사다.
+현재 카탈로그는 38개 데이터셋을 유지하며 steps는 1673행에서 1672행으로 바뀐다.
+
+효과 보존:
+
+- 기존 한국어 79개·영어 78개 필드의 연출 태그를 보존한다. 일반 서식 태그까지 포함해 보호 검사하는 필드는 183개다.
+- 본문이 함께 바뀐 KO 5/EN 61개 필드는 `ContentAuthoring/dialogue_merge_review.json`에 적용 구간을 기록했다.
+- 삼호 자기소개 pop은 재사용된 `_25` ID의 루나에게 붙이지 않고 새 자기소개 `_22`에 옮겼다.
+- 밀수업자 대금 압박 강조는 해당 내용이 옮겨간 3행에 적용했다. 4행의 새 의뢰 요청에 잘못 붙이지 않았다.
+- 새 영어 번역의 대응 어구에 기존 연출을 적용하고, 웹의 색상/주문 태그도 보존했다.
+- 웹 영어 칸 자체에 한국어 또는 이전 번역이 남은 곳은 임의로 새 번역하지 않았다.
+
+유지/보류:
+
+- Home/OutSide/Play 씬, 프리팹, 런타임 UI 및 캐릭터 스크립트는 변경하지 않는다.
+- 주변 대화 5그룹·TV 2방송의 데이터셋 이동과 상호작용 연결은 보류한다. 기존 ambient 행도 유지한다.
+- 삼호 drunk 지정 4곳은 현재 default를 유지한다. 이미지/Addressables/SO는 변경하지 않는다.
+- QA99 변경, 미사용 자판기 삭제, 일반 손님 주문 4행은 제외한다.
+- 제조 4파일, 리소스 보정표, ID map, 반입 실행 계약 파일은 유지한다.
+
+반입 보호: 웹 Git blob을 직접 읽고 기존 실행 계약을 대조한 뒤 최종 병합 스테이지에 Unity DTO 검사를 수행한다.
+현재 파일·manifest·영수증 해시를 확인하고 세 파일과 manifest만 게시한다. `files`와 `web_files`는 구분하며,
+`partial_imports`와 `unity_overrides`에 이번 부분 반영을 명시한다. 일반 전체 반입 보호는 계속 유지한다.
+
+부분 반영 완료. 변경 전 `WebCsvCompatibilityTests`는 4개 중 3개 통과, 1개 실패였고
+실패는 기존 대사 효과로 인한 `story/steps.csv` manifest 해시 불일치였다.
+
+- Python 반입기·부분 병합 검사: 18개 통과. 효과 이동, 범위 밖 파일 보존, 기존 CSV 서식,
+  검토되지 않은 변경 거부, 오래된 영수증 거부, 게시 실패 시 복구를 확인했다.
+- 최종 병합 스테이지의 Unity DTO 검사 성공. 게시된 CSV 48개의 바이트 해시가 영수증 및 manifest와 일치한다.
+- 게시 후 Unity 6000.3.14f1 EditMode 관련 검사: 29개 통과, 실패/건너뜀 0개.
+  `WebCsvCompatibilityTests`, `OutsideStoryEventTests`, `NpcSequenceCommandTests`,
+  `SceneDialogueContinuationTests`, `CsvStoryMemoryTests`를 실행했다.
+- 나머지 CSV 45개는 게시 전과 바이트 단위로 동일하다. 씬·프리팹·런타임 스크립트 변경은 없다.
+- 기존 CRLF CSV 형식을 유지했다. `git -c core.whitespace=cr-at-eol diff --check` 통과.
+- 실제 Game 화면 및 0~3일차 전체 플레이는 확인하지 않았다. 전체 프로젝트 테스트를 재실행한 결과가 아니다.
+
+최종 해시와 검증 범위: `CSV_Dialogue_Partial_2026-11-08.validation.json`.
+
+작업 완료 후 일회성 부분 반입 스크립트와 전용 Python 테스트를 삭제했다.
+위 Python 18개 통과는 삭제 전 실행 이력이다. 효과 검토표와 Unity 회귀 테스트는 유지한다.
+
+이전 설명 정정: 현재 OutSide에는 2일차 불량배·정보 대상과 네이티브 사건 처리가 있다.
+아래 표의 “네이티브 구현 없음”은 최초 조사 오류이며 이번 작업의 근거로 사용하지 않는다.
+
 기준: `junseo874/junseo874.github.io` `e026c0eeec5060cc81c1704b05af59d3b7c2b15f`("칵테일 재료 데이터 수정").
 절차: `ContentAuthoring/README.md`의 실행 계약 검토 → 읽기 전용 검사 → Unity 타입·참조 검사 → 반영 → EditMode 검사.
 

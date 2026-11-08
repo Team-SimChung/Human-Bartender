@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-08",
+  "status": "published",
+  "proof_level": "TestVerified",
+  "web_commit": "d9a34746761bc3a0f3a67bcd04cdf737d9884d70",
+  "unity_review_base": "9caaa4245bfbb72626bf44f7127abbdb11445009",
+  "scope": "Existing production dialogue and choices only; UI, scenes, prefabs and new interaction wiring excluded.",
+  "changed_csv": {
+    "story/bar_choices.csv": {
+      "before_sha256": "732955c9019bd116a430a8150d8cab43f116da0ff637f20e71efd3c1e40909bf",
+      "after_sha256": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374"
+    },
+    "story/steps.csv": {
+      "before_sha256": "17cd79b99edb515cdd4bb5d1a64d2ebc88d5780531aad8d2181a9e79b62ad2f5",
+      "after_sha256": "1146593e3a6637f9d4e1ef50dc0c5b2d1a3f71d870e21731c633fe8f27558b1b"
+    },
+    "story/street_choices.csv": {
+      "before_sha256": "8058b835ec7d4ec8cbbe23538117eea4bd2cdbbc34c1b28202ea438527a26064",
+      "after_sha256": "81b23fe3b4032a81d74e87a52454d048352b3b037de63363ae2138bf33c3c3b5"
+    }
+  },
+  "unchanged_csv_count": 45,
+  "preserved_text_effect_fields": {
+    "ko": 79,
+    "en": 78,
+    "including_formatting": 183
+  },
+  "review_sha256": "182fb03a8ea2ea7ed6147110d81bc5810f9c2003cafaa8feb16748850c059c4e",
+  "checks": {
+    "published_csv_matches_unity_receipt_and_manifest": true,
+    "no_scene_prefab_or_runtime_script_diff": true,
+    "python_tests": {
+      "command": "python -B -m unittest test_import_web_content test_sync_existing_dialogue",
+      "passed": 18,
+      "failed": 0,
+      "status": "Historical result before removal of the one-off dialogue script and its dedicated tests."
+    },
+    "unity_dto_validation": {
+      "success": true,
+      "csv_count": 48,
+      "receipt_sha256": "31be452a02a04350643b43265118a20cb6c0b0740de40e2649962b05116adade"
+    },
+    "unity_editmode_tests": {
+      "result": "Passed",
+      "total": "29",
+      "passed": "29",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "18.5611358"
+    },
+    "unity_test_filter": "WebCsvCompatibilityTests;OutsideStoryEventTests;NpcSequenceCommandTests;SceneDialogueContinuationTests;CsvStoryMemoryTests",
+    "unity_test_result_path": "C:\\Users\\sster\\AppData\\Local\\Temp\\hb-dialogue-sync\\published-tests.xml",
+    "unity_test_result_sha256": "35bf6a6131e5d542d03462f50dfe5d97b8f342a8c5f9227dbfbd9ef8069644d9",
+    "diff_whitespace": "git -c core.whitespace=cr-at-eol diff --check passed; existing CRLF CSV format retained"
+  },
+  "limits": [
+    "No manual Game-view or full day 0-3 playthrough verification.",
+    "Existing ambient and TV wiring retained; new web connections deferred.",
+    "Four Samho drunk expression changes deferred; existing default retained.",
+    "This was a focused test run, not a full project suite."
+  ]
+}

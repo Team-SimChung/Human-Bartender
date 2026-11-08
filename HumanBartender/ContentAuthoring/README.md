@@ -7,6 +7,26 @@
 
 ## 웹 정본 반영
 
+### 기존 연결 장면의 대사만 부분 반입 (2026-11-08)
+
+웹 `d9a3474`에서 기존 본편 장면의 `story/steps.csv`, `bar_choices.csv`, `street_choices.csv`만
+부분 반입했다. 일회성 반입 스크립트와 전용 Python 테스트는 작업 완료 후 삭제했다.
+`dialogue_merge_review.json`은 효과 적용 구간과 반입 출처를 검증하는 기록으로 유지한다.
+UI/씬/리소스는 수정하지 않았다. 주변 대화 7장면의 데이터셋 이동·새 연결, QA/미사용 장면,
+삼호 `drunk` 표정 지정 4곳은 기존 Unity 값을 유지했다.
+
+- 효과를 제외한 본문·화자·순서는 웹 원문을 사용한다. 본문이 바뀐 효과 필드 66개는 검토표의 구간에 적용한다.
+- 삼호 자기소개 효과는 `steps_commute2_25`에서 `_22`로, 밀수업자의 대금 압박 효과는 4행에서 3행으로 옮긴다.
+- 입력 CSV 해시, 고정 Git 원본, 실행 계약, 최종 병합본에 대한 Unity 영수증을 모두 확인한다.
+- 기존 BOM·줄바꿈·따옴표 형식을 유지하며, 예상하지 않은 입력 변경은 중단한다.
+- 새 대사 변경은 새 기준과 효과 검토가 필요하다.
+
+`web_content_source.json`의 `files`는 실제 게시 바이트이며, `web_files`는 웹 원본 바이트다.
+파일별 출처는 `partial_imports`에서 그 파일을 포함한 마지막 기록을 우선한다. 최상위 `commit`은 기본 반입본이다.
+`unity_overrides`는 효과/보류 항목을 보존한 세 파일을 보호하므로 일반 전체 반입은 계속 거부한다.
+이를 해제하거나 원본 해시와 게시 해시를 같게 만들어 우회하지 않는다. 자세한 반영/검증 기록은
+`Documentation/CSV_Web_Alignment_2026-11-08.md`를 참고한다.
+
 ### 일반 손님 외형
 
 `Assets/StreamingAssets/csv/guests/guest_parts.csv`·`guest_exclusions.csv`와 `system/data_sets.csv`는 엔진 이미지 기준으로 만든 판입니다.

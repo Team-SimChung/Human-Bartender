@@ -40,10 +40,10 @@
     "guests/regular_slots.csv": "80a6c4042ccdc534664d167bea866f7d2cd98e25726a57850214e66c3d6152ae",
     "story/script_files.csv": "d06a0c83a49cf9f19148aea642c20481ca48bb4181d47ede50a02a4b2d70cd27",
     "story/scenes.csv": "b226ab4c7305f91fc6aa545eeb31b540bc6b67fca27cc4b9022925bdad78d190",
-    "story/steps.csv": "39db3294e70935c2129d4dcaf9a144f33a5d39cd15d2683dce4a1f66ecd3fc2e",
+    "story/steps.csv": "1146593e3a6637f9d4e1ef50dc0c5b2d1a3f71d870e21731c633fe8f27558b1b",
     "story/bar_choice_groups.csv": "6878863d636a09166446ef1c86284060543ee1d223812a3a495cb98880485e83",
-    "story/bar_choices.csv": "732955c9019bd116a430a8150d8cab43f116da0ff637f20e71efd3c1e40909bf",
-    "story/street_choices.csv": "8058b835ec7d4ec8cbbe23538117eea4bd2cdbbc34c1b28202ea438527a26064",
+    "story/bar_choices.csv": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374",
+    "story/street_choices.csv": "81b23fe3b4032a81d74e87a52454d048352b3b037de63363ae2138bf33c3c3b5",
     "craft/shelf_items.csv": "2f794b3bab333e1c02bb96f322ad63ae1e417160d09763c7a469c81355b7ba8b",
     "interaction/spots.csv": "50b73d2d4ecf5f85fb3492dd600da938c70ce122f3d63e5ec30abe1f9c29fd5b",
     "craft/tastes.csv": "06fdec938731b80c5b4b914f48e264017d4e2b7cc695fb4939e13237a5137252",
@@ -91,10 +91,10 @@
     "guests/regular_slots.csv": "80a6c4042ccdc534664d167bea866f7d2cd98e25726a57850214e66c3d6152ae",
     "story/script_files.csv": "d06a0c83a49cf9f19148aea642c20481ca48bb4181d47ede50a02a4b2d70cd27",
     "story/scenes.csv": "b226ab4c7305f91fc6aa545eeb31b540bc6b67fca27cc4b9022925bdad78d190",
-    "story/steps.csv": "39db3294e70935c2129d4dcaf9a144f33a5d39cd15d2683dce4a1f66ecd3fc2e",
+    "story/steps.csv": "517b7c93057ad08673e6c6df0448d899953fec8aef31ba00bcf8fdfdbbd9e5a5",
     "story/bar_choice_groups.csv": "6878863d636a09166446ef1c86284060543ee1d223812a3a495cb98880485e83",
-    "story/bar_choices.csv": "732955c9019bd116a430a8150d8cab43f116da0ff637f20e71efd3c1e40909bf",
-    "story/street_choices.csv": "8058b835ec7d4ec8cbbe23538117eea4bd2cdbbc34c1b28202ea438527a26064",
+    "story/bar_choices.csv": "318866c12b9e48157b45ad1048df96fe5abe2b4376b1ce63c8a03fe7caf62e9b",
+    "story/street_choices.csv": "cdf43298909161f5f28676c6a9c5e70d4a96168d7eda82471a874a7b03aa3cc9",
     "craft/shelf_items.csv": "2f794b3bab333e1c02bb96f322ad63ae1e417160d09763c7a469c81355b7ba8b",
     "interaction/spots.csv": "50b73d2d4ecf5f85fb3492dd600da938c70ce122f3d63e5ec30abe1f9c29fd5b",
     "craft/tastes.csv": "06fdec938731b80c5b4b914f48e264017d4e2b7cc695fb4939e13237a5137252",
@@ -114,6 +114,23 @@
         "craft/shelf_items.csv"
       ],
       "reason": "Web-current crafting only; preserve Unity-authored story effects. Other files remain at the base commit."
+    },
+    {
+      "commit": "d9a34746761bc3a0f3a67bcd04cdf737d9884d70",
+      "files": [
+        "story/steps.csv",
+        "story/bar_choices.csv",
+        "story/street_choices.csv"
+      ],
+      "scope": "existing_production_dialogue",
+      "reason": "Existing scenes only; preserve Unity text effects, ambient wiring, QA and Samho expression bindings.",
+      "review": "dialogue_merge_review.json",
+      "review_sha256": "182fb03a8ea2ea7ed6147110d81bc5810f9c2003cafaa8feb16748850c059c4e"
     }
-  ]
+  ],
+  "unity_overrides": {
+    "story/steps.csv": "1146593e3a6637f9d4e1ef50dc0c5b2d1a3f71d870e21731c633fe8f27558b1b",
+    "story/bar_choices.csv": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374",
+    "story/street_choices.csv": "81b23fe3b4032a81d74e87a52454d048352b3b037de63363ae2138bf33c3c3b5"
+  }
 }
