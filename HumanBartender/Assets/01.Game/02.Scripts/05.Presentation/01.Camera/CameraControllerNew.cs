@@ -186,6 +186,27 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
         offset?.Cancel();
         if (cameraAnchor != null) cameraAnchor.localPosition = value;
     }
+
+    /// <summary>암전 중 추적 구도를 즉시 적용하고 다음 카메라 갱신에서 이전 위치의 보간을 건너뛴다.</summary>
+    public void SnapToFollow(Transform target, Vector3 localOffset, ECameraZoomType? zoomType = null)
+    {
+        EnsureCamera();
+        if (cameraAnchor == null || target == null)
+            throw new System.InvalidOperationException("순간 이동에 필요한 카메라 기준점과 추적 대상이 없습니다.");
+        if (frameOverride != null)
+            throw new System.InvalidOperationException("다른 연출이 카메라를 사용하는 동안에는 순간 이동할 수 없습니다.");
+
+        FollowTarget(target);
+        SetFollowOffset(localOffset);
+        if (zoomType.HasValue) ActionZoom(zoomType.Value);
+        else CancelResolution();
+
+        // 위치 합성과 경계 보정이 출발 층의 이력을 사용하지 않도록 초기화한다.
+        vcam.PreviousStateIsValid = false;
+        if (mainCamera != null && mainCamera.TryGetComponent<CinemachineBrain>(out var brain))
+            brain.ResetState();
+    }
+
     public void TransitionFollowOffset(Vector3 targetOffset, float duration = 1f, AnimationCurve curve = null) =>
         TransitionFollowOffsetAsync(targetOffset, duration, curve).Forget(Report);
     public async UniTask TransitionFollowOffsetAsync(Vector3 targetOffset, float duration = 1f,

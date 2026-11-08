@@ -6855,6 +6855,7 @@ MonoBehaviour:
     isChangeResolution: 1
     targetResolution: 3
   cameraZoom: {fileID: 720587702}
+  parallax: {fileID: 828715987}
 --- !u!114 &720587701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15211,7 +15212,7 @@ MonoBehaviour:
       horizontalOnly: 0
       target: {fileID: 0}
       distance: 0.65
-      offset: {x: 0.845, y: 0}
+      offset: {x: 1, y: 0}
       offsetMode: 0
       unitsPerSecond: 0
       arcHeight: 0.55
@@ -16147,7 +16148,7 @@ Camera:
     x: 0
     y: 0
     width: 1
-    height: 1
+    height: 0.99922365
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -19200,6 +19201,11 @@ MonoBehaviour:
   duration: 12
   delayDuration: 2.5
   ease: 1
+  outsideCamera: {fileID: 720587700}
+  fastFadeOutDuration: 0.35
+  fastBeforeMoveDelay: 0.05
+  fastAfterMoveDelay: 0.3
+  fastFadeInDuration: 0.45
 --- !u!114 &1582674274
 MonoBehaviour:
   m_ObjectHideFlags: 0
