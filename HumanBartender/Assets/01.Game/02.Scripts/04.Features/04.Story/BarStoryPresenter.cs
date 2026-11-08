@@ -233,21 +233,22 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
             return -1;
         }
 
-        // 고를 수 없는 칸에는 문구 대신 잠긴 이유를 적는다 — 무엇을 골랐어야 하는지가 아니라
-        // 왜 못 고르는지가 지금 필요한 정보다.
+        // 원문과 사유를 함께 전달해 확정할 때만 사유로 바꾸고, 포커스 이동 때 원문으로 복원한다.
         var texts = new List<string>(options.Count);
         var selectable = new List<bool>(options.Count);
+        var reasons = new List<string>(options.Count);
 
         foreach (var option in options)
         {
-            texts.Add(option.IsSelectable ? option.Text : option.LockReason ?? option.Text);
+            texts.Add(option.Text);
             selectable.Add(option.IsSelectable);
+            reasons.Add(option.LockReason);
         }
 
         var completion = new UniTaskCompletionSource<int>();
 
         var callback = new ChoiceCompletionCallback(completion);
-        choiceView.ShowChoice(texts, selectable, callback.Complete);
+        choiceView.ShowChoice(texts, selectable, callback.Complete, reasons);
 
         try
         {

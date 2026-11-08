@@ -70,6 +70,10 @@ public sealed class RepairmanRuntimeSmokeTests
         while ((controller.IsRunning || context.Player.State != EInteractorState.None) &&
             Time.realtimeSinceStartup < deadline)
         {
+            // 불가 선택지도 포커스를 받으므로 자동 진행은 실행 가능한 항목으로 이동한다.
+            if (controller.View.IsChoosing && !controller.View.Choices.IsRevealing &&
+                controller.View.Choices.Rows.Any(row => row.IsFocused && !row.CanExecute))
+                controller.View.MoveChoice(1);
             if (controller.IsRunning) controller.TryHandleInput();
             yield return null;
         }

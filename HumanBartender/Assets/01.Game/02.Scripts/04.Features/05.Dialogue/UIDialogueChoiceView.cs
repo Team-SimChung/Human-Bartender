@@ -11,9 +11,9 @@ public class UIDialogueChoiceView : MonoBehaviour
 {
     [SerializeField] private GameObject choicesPanel;
     [SerializeField] private List<ChoicePanel> choicePanels = new();
-    [Inject] ISoundEffectPlayer sound;
+    [Inject] private ISoundEffectPlayer sound;
 
-    void ConfigureHover(ChoicePanel panel)
+    private void ConfigureHover(ChoicePanel panel)
     {
         var button = panel.GetButton();
         if (!button.TryGetComponent<UISelectionAudio>(out var feedback))
@@ -21,7 +21,7 @@ public class UIDialogueChoiceView : MonoBehaviour
         feedback.Configure(sound, DialoguePresentationSettings.Shared?.ChoiceHoverSoundKey);
     }
 
-    void PlayConfirm()
+    private void PlayConfirm()
     {
         string key = DialoguePresentationSettings.Shared?.ChoiceConfirmSoundKey;
         if (!string.IsNullOrWhiteSpace(key)) sound?.PlaySE(key);
@@ -36,16 +36,6 @@ public class UIDialogueChoiceView : MonoBehaviour
     public ELanguage CurrentLanguage => GameStateManager.Instance != null
         ? GameStateManager.Instance.Language
         : ELanguage.Ko;
-
-    void Start()
-    {
-
-    }
-
-    void Update()
-    {
-
-    }
 
     /// <summary>
     /// [신규] Step 기반 아웃사이드 선택지(NewStreetOptionData[]) 패널 표시 및 이벤트 등록
@@ -80,41 +70,27 @@ public class UIDialogueChoiceView : MonoBehaviour
             // LocalizedText? 또는 Texts? 타입 파싱 처리
             string optionText = GetText(option.Text);
 
-            int num = i;
-            choicePanels[visibleIndex].SetPanelText(optionText);
-
-            var button = choicePanels[visibleIndex].GetButton();
-            ConfigureHover(choicePanels[visibleIndex]);
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() =>
-            {
-                var selected = option;
-                PlayConfirm();
-                CloseChoices();
-                onSelected?.Invoke(selected);
-            });
-
-            choicePanels[visibleIndex].SetActive(true);
+            var choicePanel = choicePanels[visibleIndex];
+            ConfigureHover(choicePanel);
+            choicePanel.Bind(optionText, option.Selectable != false, Reason(GetText(option.LockReason)),
+                () => SelectOutsideChoice(option, onSelected), Focus);
+            choicePanel.SetActive(true);
             visibleIndex++;
         }
     }
 
     /// <summary>
-    /// 선택지를 띄우되 고를 수 없는 항목을 감추지 않고 비활성으로 남긴다.
-    ///
-    /// 조건에 걸린 항목을 감추지 않고 회색으로 남긴다. 2부 대본은 그것을
-    /// 회색으로 두고 왜 못 고르는지를 대신 보여 준다(2부 운영 명세 §12.4). 무엇을 놓쳤는지 보이지
-    /// 않으면 조건이 없는 것과 같기 때문이다.
-    ///
-    /// 조건 판정은 하지 않는다. 부르는 쪽이 이미 끝낸 결과(selectable)와 대신 적을 문구(texts)만 받는다 —
-    /// 판정 방식이 서로 다르고(등급 기반 vs when DSL) 그 차이를 이 뷰가 알 이유가 없다.
+    /// 원문과 조건 판정 결과를 표시한다. 불가 항목도 가리킬 수 있으며, 확정하면 사유만 표시한다.
     /// </summary>
-    /// <param name="texts">칸에 적을 문구. 고를 수 없는 칸에는 그 이유를 넣어 보낸다.</param>
-    /// <param name="selectable">칸을 누를 수 있는지. texts와 같은 길이여야 한다.</param>
+    /// <param name="texts">조건 충족 여부와 관계없이 원래 선택지 문구를 받는다.</param>
+    /// <param name="selectable">실제 결과를 실행할 수 있는지. texts와 같은 길이여야 한다.</param>
     /// <param name="onSelected">고른 칸의 자리 번호를 받는다.</param>
-    public void ShowChoice(IReadOnlyList<string> texts, IReadOnlyList<bool> selectable, Action<int> onSelected)
+    /// <param name="lockReasons">CSV에서 읽은 실행 불가 사유. 비어 있으면 공통 문구를 쓴다.</param>
+    public void ShowChoice(IReadOnlyList<string> texts, IReadOnlyList<bool> selectable, Action<int> onSelected,
+        IReadOnlyList<string> lockReasons = null)
     {
-        if (texts == null || selectable == null || texts.Count != selectable.Count)
+        if (texts == null || selectable == null || texts.Count != selectable.Count ||
+            (lockReasons != null && lockReasons.Count != texts.Count))
         {
             Debug.LogError("[ChoiceView] 문구와 선택 가능 여부의 개수가 다릅니다.");
             return;
@@ -122,12 +98,11 @@ public class UIDialogueChoiceView : MonoBehaviour
 
         if (texts.Count > choicePanels.Count && choicePanels.Count > 1)
         {
-            ShowChoicePage(texts, selectable, onSelected, 0);
+            ShowChoicePage(texts, selectable, lockReasons, onSelected, 0);
             return;
         }
 
-        // ResetPanel은 문구와 리스너만 지운다. interactable은 그대로 남아서, 여기서 회색으로 둔 칸이
-        // 다음에 다른 경로(ShowChoice/ShowOutsideChoice)로 열릴 때까지 눌리지 않는 채로 남는다.
+        // 재사용하는 항목의 거부 상태·홀드 진행·콜백을 함께 정리한다.
         for (int i = 0; i < choicePanels.Count; i++)
         {
             choicePanels[i].ResetPanel();
@@ -143,28 +118,18 @@ public class UIDialogueChoiceView : MonoBehaviour
         {
             ChoicePanel panel = choicePanels[i];
 
-            panel.SetPanelText(texts[i]);
             ConfigureHover(panel);
-            panel.SetActive(true);
-
-            // 비활성 칸은 보이되 눌리지 않는다. 회색 처리는 Button이 하는 색 전이에 맡긴다.
-            panel.GetButton().interactable = selectable[i];
-
-            if (!selectable[i]) continue;
-
             int index = i;
-            panel.GetButton().onClick.AddListener(() =>
-            {
-                PlayConfirm();
-                CloseChoices();
-                onSelected?.Invoke(index);
-            });
+            panel.Bind(texts[i], selectable[i], Reason(lockReasons?[i]),
+                () => SelectChoice(index, onSelected), Focus);
+            panel.SetActive(true);
         }
 
         choicesPanel.SetActive(true);
     }
 
-    void ShowChoicePage(IReadOnlyList<string> texts, IReadOnlyList<bool> selectable, Action<int> onSelected, int page)
+    private void ShowChoicePage(IReadOnlyList<string> texts, IReadOnlyList<bool> selectable,
+        IReadOnlyList<string> lockReasons, Action<int> onSelected, int page)
     {
         int size = choicePanels.Count - 1;
         int pageCount = (texts.Count + size - 1) / size;
@@ -172,14 +137,75 @@ public class UIDialogueChoiceView : MonoBehaviour
         int count = Mathf.Min(size, texts.Count - start);
         var labels = new List<string>();
         var enabled = new List<bool>();
-        for (int i=0; i<count; i++) { labels.Add(texts[start+i]); enabled.Add(selectable[start+i]); }
+        var reasons = new List<string>();
+        for (int i = 0; i < count; i++)
+        {
+            labels.Add(texts[start + i]);
+            enabled.Add(selectable[start + i]);
+            reasons.Add(lockReasons?[start + i]);
+        }
         labels.Add($"다음 선택지 ▶ ({(page + 1) % pageCount + 1}/{pageCount})");
         enabled.Add(true);
-        ShowChoice(labels, enabled, picked =>
+        reasons.Add(null);
+        var selection = new PageSelection(this, texts, selectable, lockReasons, onSelected, page, start, count, pageCount);
+        ShowChoice(labels, enabled, selection.Select, reasons);
+    }
+
+    private void Focus(ChoicePanel selectedPanel)
+    {
+        foreach (var item in choicePanels)
+            if (item != selectedPanel) item.RestoreRejection();
+    }
+
+    private string Reason(string reason) => !string.IsNullOrWhiteSpace(reason) ? reason
+        : CurrentLanguage == ELanguage.En ? "Unavailable." : "선택할 수 없습니다.";
+
+    private void SelectChoice(int index, Action<int> onSelected)
+    {
+        PlayConfirm();
+        CloseChoices();
+        onSelected?.Invoke(index);
+    }
+
+    private void SelectOutsideChoice(NewStreetOptionData option, Action<NewStreetOptionData> onSelected)
+    {
+        PlayConfirm();
+        CloseChoices();
+        onSelected?.Invoke(option);
+    }
+
+    /// <summary>페이지 이동용 항목은 선택 결과 번호에 섞지 않고 원래 선택지 번호를 전달한다.</summary>
+    private sealed class PageSelection
+    {
+        private readonly UIDialogueChoiceView owner;
+        private readonly IReadOnlyList<string> texts;
+        private readonly IReadOnlyList<bool> selectable;
+        private readonly IReadOnlyList<string> reasons;
+        private readonly Action<int> selected;
+        private readonly int page;
+        private readonly int start;
+        private readonly int count;
+        private readonly int pageCount;
+
+        public PageSelection(UIDialogueChoiceView owner, IReadOnlyList<string> texts, IReadOnlyList<bool> selectable,
+            IReadOnlyList<string> reasons, Action<int> selected, int page, int start, int count, int pageCount)
         {
-            if (picked == count) ShowChoicePage(texts, selectable, onSelected, (page + 1) % pageCount);
-            else onSelected?.Invoke(start + picked);
-        });
+            this.owner = owner;
+            this.texts = texts;
+            this.selectable = selectable;
+            this.reasons = reasons;
+            this.selected = selected;
+            this.page = page;
+            this.start = start;
+            this.count = count;
+            this.pageCount = pageCount;
+        }
+
+        public void Select(int index)
+        {
+            if (index == count) owner.ShowChoicePage(texts, selectable, reasons, selected, (page + 1) % pageCount);
+            else selected?.Invoke(start + index);
+        }
     }
 
     /// <summary>선택지를 닫고 칸을 비운다.</summary>
