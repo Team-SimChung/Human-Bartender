@@ -139,4 +139,80 @@ public sealed class ChoiceGlitchSettingsTests
         }
         finally { Object.DestroyImmediate(go); Object.DestroyImmediate(settings); }
     }
+
+    [Test]
+    public void RejectionGlitchRestoresMaterialWithoutChangingTheReasonOrItsColor()
+    {
+        var root = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(ChoicePrefabPath));
+        var effect = new ChoiceTextGlitch();
+        try
+        {
+            var previous = root.GetComponent<UIChoiceGlitch>();
+            previous.enabled = false;
+            var label = (TMPro.TMP_Text)new SerializedObject(previous).FindProperty("label").objectReferenceValue;
+            var settings = AssetDatabase.LoadAssetAtPath<UIChoiceGlitchSettings>(VisualUISetup.ChoiceGlitchSettingsPath);
+            root.GetComponent<UnityEngine.UI.Button>().interactable = false;
+            label.text = "돈이 부족합니다.";
+            label.color = new Color32(38, 8, 12, 255);
+            Material original = label.fontSharedMaterial;
+            Color originalColor = label.color;
+
+            effect.Play(label, settings);
+            effect.Sample(label, settings, .08);
+            Assert.That(effect.IsPlaying, Is.True, "거부 연출의 재생은 버튼 활성 여부와 분리되어야 합니다.");
+            Assert.That(label.fontSharedMaterial.shader.name, Is.EqualTo("Custom/TMPGlitch"));
+            Assert.That(label.fontSharedMaterial.mainTexture, Is.EqualTo(original.mainTexture));
+            Assert.That(label.fontSharedMaterial.GetFloat("_GlitchStrength"), Is.EqualTo(1));
+            Assert.That(label.text, Is.EqualTo("돈이 부족합니다."));
+            Assert.That(label.color, Is.EqualTo(originalColor), "거부 글자색은 선택지 UI가 소유합니다.");
+
+            typeof(ChoiceTextGlitch).GetField("startedAt", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(effect, Time.unscaledTimeAsDouble - settings.Duration - .01);
+            effect.Tick();
+            Assert.That(effect.IsPlaying, Is.False);
+            Assert.That(label.fontSharedMaterial, Is.SameAs(original));
+            Assert.That(label.text, Is.EqualTo("돈이 부족합니다."), "짧은 효과가 끝나도 사유는 남아야 합니다.");
+            Assert.That(label.color, Is.EqualTo(originalColor));
+        }
+        finally
+        {
+            effect.Dispose();
+            Object.DestroyImmediate(root);
+        }
+    }
+
+    [Test]
+    public void RepeatedRejectionRestartsAndHiddenTextReleasesItsMaterial()
+    {
+        var root = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(ChoicePrefabPath));
+        var effect = new ChoiceTextGlitch();
+        try
+        {
+            var previous = root.GetComponent<UIChoiceGlitch>();
+            previous.enabled = false;
+            var label = (TMPro.TMP_Text)new SerializedObject(previous).FindProperty("label").objectReferenceValue;
+            var settings = AssetDatabase.LoadAssetAtPath<UIChoiceGlitchSettings>(VisualUISetup.ChoiceGlitchSettingsPath);
+            Material original = label.fontSharedMaterial;
+            label.text = "돈이 부족합니다.";
+            effect.Play(label, settings);
+            effect.Sample(label, settings, .08);
+            label.text = "기어 부품이 없습니다.";
+            effect.Play(label, settings);
+            Assert.That(effect.IsPlaying, Is.True);
+            Assert.That(label.fontSharedMaterial.GetFloat("_GlitchFrame"), Is.EqualTo(0));
+            Assert.That(label.text, Is.EqualTo("기어 부품이 없습니다."));
+
+            label.gameObject.SetActive(false);
+            effect.Tick();
+            Assert.That(effect.IsPlaying, Is.False);
+            Assert.That(label.fontSharedMaterial, Is.SameAs(original));
+            effect.Stop();
+            Assert.That(label.fontSharedMaterial, Is.SameAs(original));
+        }
+        finally
+        {
+            effect.Dispose();
+            Object.DestroyImmediate(root);
+        }
+    }
 }

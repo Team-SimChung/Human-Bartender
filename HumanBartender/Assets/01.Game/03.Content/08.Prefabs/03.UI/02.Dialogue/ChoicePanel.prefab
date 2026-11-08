@@ -375,6 +375,11 @@ MonoBehaviour:
   panelTMPText: {fileID: 1877282640503180806}
   panelText: {fileID: 8725972865697846801}
   button: {fileID: 5094702394093089404}
+  background: {fileID: 164291861022453093}
+  normalBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+  rejectedBackgroundColor: {r: 0.9372549, g: 0.2, b: 0.2509804, a: 1}
+  rejectedTextColor: {r: 0.14901961, g: 0.03137255, b: 0.04705882, a: 1}
+  rejectionGlitchSettings: {fileID: 11400000, guid: 35f172c4179ddc644b93dbe4d77095b1, type: 2}
 --- !u!114 &6330884062951609736
 MonoBehaviour:
   m_ObjectHideFlags: 0

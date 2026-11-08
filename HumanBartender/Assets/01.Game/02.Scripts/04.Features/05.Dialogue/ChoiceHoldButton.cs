@@ -25,6 +25,14 @@ public sealed class ChoiceHoldButton : Button
     private bool pointerInside;
     private PointerEventData hoverPointer;
     private ButtonControl submitControl;
+    private bool holdRequired = true;
+
+    /// <summary>조건 미충족 항목은 홀드 진행 없이 확정 시 거부 표시를 요청한다.</summary>
+    public void SetHoldRequired(bool required)
+    {
+        CancelHold(true);
+        holdRequired = required;
+    }
 
     protected override void OnEnable()
     {
@@ -46,6 +54,7 @@ public sealed class ChoiceHoldButton : Button
         if (eventData.button == PointerEventData.InputButton.Left && CanHold()) pointerInside = true;
         base.OnPointerDown(eventData);
         if (eventData.button != PointerEventData.InputButton.Left || holding || !CanHold()) return;
+        if (!holdRequired) { onClick.Invoke(); return; }
         heldPointerId = eventData.pointerId;
         BeginHold();
     }
@@ -88,6 +97,7 @@ public sealed class ChoiceHoldButton : Button
     public override void OnSubmit(BaseEventData eventData)
     {
         if (holding || !CanHold()) return;
+        if (!holdRequired) { onClick.Invoke(); return; }
         var module = eventData.currentInputModule as InputSystemUIInputModule;
         var control = module?.submit?.action?.activeControl as ButtonControl;
         if (control == null || !control.isPressed) return;

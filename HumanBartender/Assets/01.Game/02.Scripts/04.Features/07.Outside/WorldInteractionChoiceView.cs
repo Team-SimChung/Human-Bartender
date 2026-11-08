@@ -84,8 +84,8 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
         bool fitWidthToText = false)
     {
         Hide();
-        if (values == null || values.Length == 0 || !values.Any(option => option.Selectable != false))
-            throw new InvalidOperationException("표시할 선택 가능한 항목이 없습니다.");
+        if (values == null || values.Length == 0)
+            throw new InvalidOperationException("표시할 선택지가 없습니다.");
         if (values.Length > MaximumChoices)
             throw new InvalidOperationException($"외부·홈 상호작용 선택지는 최대 {MaximumChoices}개입니다. 현재 {values.Length}개입니다.");
         if (!IsConfigured) throw new InvalidOperationException(ConfigurationError);
@@ -150,11 +150,11 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
             var row = rows[i];
             if (!row.IsConfigured) throw new InvalidOperationException(row.ConfigurationError);
             row.name = "Choice_" + options[index].Id;
-            // 항목 내부 레이아웃은 잠금 사유를, 목록 레이아웃은 항목 위치를 담당함.
+            // 원문과 사유 중 긴 문구를 기준으로 같은 항목 폭을 확보한다.
             row.Rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, widths[index]);
             row.Bind(labels[index], options[index].Selectable != false,
                 () => SelectChoice(index, version), () => Focus(index), lockReasons[index]);
-            // 목록에서 높이를 읽기 전에 잠금 사유의 레이아웃을 계산함.
+            // 목록에서 높이를 읽기 전에 글자 칸의 레이아웃을 계산한다.
             LayoutRebuilder.ForceRebuildLayoutImmediate(row.Rect);
         }
         itemsRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, listWidth);
@@ -173,7 +173,12 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
     {
         if (!IsOpen || IsRevealing || revision != version || Time.frameCount == openedFrame) return;
         var option = options[index];
-        if (option.Selectable == false) return;
+        Focus(index);
+        if (option.Selectable == false)
+        {
+            rows[index].Reject();
+            return;
+        }
         var callback = selected;
         // 다음 선택창이 열리기 전에 이전 콜백을 무효화함.
         Hide();
@@ -195,6 +200,8 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
     private void Focus(int index)
     {
         if (!IsOpen || index < 0 || index >= visibleRows || !rows[index].CanSelect) return;
+        // 같은 행의 마우스·키보드 포커스 알림이 거부 표시를 초기화하지 않게 한다.
+        if (selectedRow == index) return;
         bool first = selectedRow < 0;
         if (!first) rows[selectedRow].SetFocused(false);
         selectedRow = index;
