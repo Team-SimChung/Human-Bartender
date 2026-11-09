@@ -1,6 +1,7 @@
 # 기믹 바로 플레이
 
 Unity 메뉴 **Tools > Human Bartender > Tests > Gimmick Play Lab**에서 엽니다.
+홈·거리의 상호작용 지점은 창 위쪽의 **게임 내 상호작용 지점 테스트 열기** 또는 [게임 상호작용 지점 테스트](Game_Interaction_Test_Lab.md)에서 확인합니다.
 
 ## 간단 테스트 · 4종 연속
 

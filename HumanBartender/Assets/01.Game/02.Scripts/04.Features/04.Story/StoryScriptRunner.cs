@@ -18,7 +18,7 @@ using VContainer;
 ///
 /// 지금은 say·enter·exit·choice·order·craft·serve·timeline을 실행하고 나머지 스텝은 기록만 남긴다.
 /// </summary>
-public class StoryScriptRunner : MonoBehaviour
+public partial class StoryScriptRunner : MonoBehaviour
 {
     [Inject] IOrderPaymentService orderPayments;
     [SerializeField] private RecipeBrowserScreen recipeScreen;
@@ -121,21 +121,27 @@ public class StoryScriptRunner : MonoBehaviour
         try
         {
             token.ThrowIfCancellationRequested();
-            var cursor = new StorySceneCursor(script, conditions, phase);
-            if (!cursor.IsEmpty)
+#if UNITY_EDITOR
+            if (testStart != null) await RunFromTestDialogueAsync(token);
+            else
+#endif
             {
-                bool initialFramingDone = false;
-                while (cursor.TryTakeNext(out NewScriptSceneData scene))
+                var cursor = new StorySceneCursor(script, conditions, phase);
+                if (!cursor.IsEmpty)
                 {
-                    token.ThrowIfCancellationRequested();
-                    if (!initialFramingDone && TryGetFirstExecutableStep(scene, out ENewStepType firstStep))
+                    bool initialFramingDone = false;
+                    while (cursor.TryTakeNext(out NewScriptSceneData scene))
                     {
-                        // 첫 동작이 입장이면 그 입장의 프레임을 바로 잡는다. 빈 좌석 프레임을
-                        // 먼저 재생하면 첫 손님 앞에서 카메라가 물러났다가 다시 다가온다.
-                        if (firstStep != ENewStepType.Enter) await ApplyFramingAsync(token);
-                        initialFramingDone = true;
+                        token.ThrowIfCancellationRequested();
+                        if (!initialFramingDone && TryGetFirstExecutableStep(scene, out ENewStepType firstStep))
+                        {
+                            // 첫 동작이 입장이면 그 입장의 프레임을 바로 잡는다. 빈 좌석 프레임을
+                            // 먼저 재생하면 첫 손님 앞에서 카메라가 물러났다가 다시 다가온다.
+                            if (firstStep != ENewStepType.Enter) await ApplyFramingAsync(token);
+                            initialFramingDone = true;
+                        }
+                        if (await PlayFromAsync(scene, token)) break;
                     }
-                    if (await PlayFromAsync(scene, token)) break;
                 }
             }
             token.ThrowIfCancellationRequested();

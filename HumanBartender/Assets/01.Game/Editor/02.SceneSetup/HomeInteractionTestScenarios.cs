@@ -15,11 +15,13 @@ internal sealed class HomeInteractionTestScenario
     internal EGameFlow Flow { get; }
     internal bool Opening { get; }
     internal string FocusId { get; }
+    internal string RuntimeScene { get; }
+    internal bool IsWorldTest => RuntimeScene == "OutSide" || Id.StartsWith(WorldInteractionTestCatalog.ScenarioPrefix, StringComparison.Ordinal);
     internal string[] ExpectedStories { get; }
 
     internal HomeInteractionTestScenario(string id, string name, string description, int day,
         EGameFlow flow, string focusId, string[] expectedStories = null, bool opening = false,
-        IReadOnlyDictionary<string, bool> flags = null)
+        IReadOnlyDictionary<string, bool> flags = null, string runtimeScene = "Home")
     {
         Id = id;
         Name = name;
@@ -27,6 +29,7 @@ internal sealed class HomeInteractionTestScenario
         Day = day;
         Flow = flow;
         FocusId = focusId;
+        RuntimeScene = runtimeScene;
         ExpectedStories = expectedStories ?? Array.Empty<string>();
         Opening = opening;
         flagOverrides = flags ?? new Dictionary<string, bool>();
@@ -126,8 +129,15 @@ internal static class HomeInteractionTestScenarios
             1, EGameFlow.CommuteOut, "home_sofa", flags: Flags("workshop_seen", "home_night1_seen"))
     });
 
-    internal static HomeInteractionTestScenario Find(string id) => All.FirstOrDefault(value => value.Id == id)
-        ?? throw new KeyNotFoundException("[Home Test] 시작 상황을 찾을 수 없습니다: " + id);
+    internal static HomeInteractionTestScenario Find(string id) =>
+        id != null && id.StartsWith(BarDialogueTestCatalog.Prefix, StringComparison.Ordinal)
+            ? BarDialogueTestCatalog.Parse(id)
+            : id != null && id.StartsWith(OutsideInteractionTestScenarios.Prefix, StringComparison.Ordinal)
+            ? OutsideInteractionTestScenarios.Find(id)
+            : id != null && id.StartsWith(WorldInteractionTestCatalog.ScenarioPrefix, StringComparison.Ordinal)
+            ? WorldInteractionTestCatalog.ParseScenario(id)
+            : All.FirstOrDefault(value => value.Id == id)
+                ?? throw new KeyNotFoundException("[Home Test] 시작 상황을 찾을 수 없습니다: " + id);
 
     private static IReadOnlyDictionary<string, bool> Flags(params string[] enabled)
     {
