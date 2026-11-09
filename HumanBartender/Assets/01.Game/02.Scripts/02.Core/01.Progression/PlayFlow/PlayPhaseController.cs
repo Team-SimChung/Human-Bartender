@@ -375,12 +375,15 @@ public class PlayPhaseController : MonoBehaviour
 
     string DescribeSettlementBlock() => "영업 정산 중에는 제조할 수 없습니다.";
 
-    async UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken)
+    UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken) =>
+        RunPhaseWorkAsync(flow.RunAsync, cancellationToken);
+
+    async UniTask RunPhaseWorkAsync(Func<CancellationToken, UniTask> run, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            await flow.RunAsync(cancellationToken);
+            await run(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         }
         finally
@@ -394,6 +397,45 @@ public class PlayPhaseController : MonoBehaviour
             orderController?.CloseIdleView();
         }
     }
+
+#if UNITY_EDITOR
+    internal async UniTask<StoryExecutionResult> RunDialogueForTestAsync(string sceneId, int stepSeq,
+        ENewGrade grade, bool orderMatch, CancellationToken token)
+    {
+        if (IsRunning || storyFlow == null)
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "[BarTest] 바 대사 실행 준비가 되지 않았습니다.");
+        long operationId = ++nextOperationId;
+        currentOperationId = operationId;
+        try
+        {
+            await NewDataLoadManager.WaitUntilLoadedAsync(token);
+            int day = GameStateManager.Instance.CurrentDay;
+            if (!NewDataLoadManager.TryGetDayInfo(day, out var info)) throw new InvalidOperationException("[BarTest] 일차 데이터가 없습니다.");
+            settlement.BeginDay(day, info.UpkeepGold);
+            BeginPhase(EPlayPhase.Dialogue);
+            await RunPhaseWorkAsync(ct => storyFlow.RunFromDialogueForTestAsync(sceneId, stepSeq, grade, orderMatch, ct), token);
+            State = PlayPhaseRunState.Completed;
+            return new StoryExecutionResult(StoryExecutionStatus.Completed);
+        }
+        catch (OperationCanceledException)
+        {
+            State = PlayPhaseRunState.Canceled;
+            return new StoryExecutionResult(StoryExecutionStatus.Cancelled);
+        }
+        catch (Exception error)
+        {
+            State = PlayPhaseRunState.Failed;
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, error.Message);
+        }
+        finally
+        {
+            var finalState = State;
+            EndCurrentPhase();
+            State = finalState;
+            currentOperationId = 0;
+        }
+    }
+#endif
 
     void BeginPhase(EPlayPhase phase)
     {

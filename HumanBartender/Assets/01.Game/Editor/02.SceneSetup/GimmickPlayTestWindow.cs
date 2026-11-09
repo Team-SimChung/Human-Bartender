@@ -48,6 +48,9 @@ internal sealed class GimmickPlayTestWindow : EditorWindow
     {
         scroll = EditorGUILayout.BeginScrollView(scroll);
         EditorGUILayout.LabelField("기믹 바로 플레이", EditorStyles.boldLabel);
+        if (GUILayout.Button("게임 내 상호작용 지점 테스트 열기"))
+            EditorApplication.ExecuteMenuItem(WorldInteractionTestCatalog.MenuPath);
+        if (GUILayout.Button("바 내부 · 대사를 골라 시작")) EditorApplication.ExecuteMenuItem(BarDialogueTestCatalog.MenuPath);
         EditorGUILayout.HelpBox("실제 Play 씬의 실행기·프리팹·HUD·입력을 사용합니다. " +
             "영업과 대사 시작은 건너뛰고 선택한 기믹 또는 칵테일 한 잔을 실행합니다. " +
             "플레이어는 복사본을 사용하며 저장 슬롯은 Library/GimmickPlayTests에 분리합니다.", MessageType.Info);

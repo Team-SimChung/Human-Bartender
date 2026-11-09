@@ -9,8 +9,8 @@ using VContainer;
 public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWorldInteractionSavePolicy, IWorldInteractionCancellationPolicy
 {
     private const int SlotsPerPage = 2;
-    [Header("루나 수면·기상 연출")]
-    [SerializeField, Tooltip("잠드는 연출을 마친 뒤 야간 대화로 넘어가고, 다음 날 홈 화면에서 역순 클립으로 일어납니다.")]
+    [Header("루나 기상 연출")]
+    [SerializeField, Tooltip("다음 날 홈 화면에서 역순 클립으로 일어난 뒤, 짧은 페이드로 서 있는 루나를 표시합니다.")]
     private HomeSleepAnimation sleepAnimation = new();
     [Inject] private IGameProgressionService progression;
     [Inject] private SaveManager saves;
@@ -116,8 +116,9 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
             try
             {
                 if (sleepAnimation == null) throw new InvalidOperationException("[HomeSleep] 소파의 수면 연출 설정이 없습니다.");
-                // 수면 클립과 잠든 자세를 보여준 뒤에만 테라스·야간 화면으로 전환한다.
-                await sleepAnimation.SleepAsync(sceneFades, token);
+                // 표시 상태만 보관하고 바로 테라스·야간 흐름으로 넘어간다.
+                token.ThrowIfCancellationRequested();
+                sleepAnimation.BeginSleep();
                 await context.PlayNight(token);
                 result = await progression.SleepAsync(() =>
                 {

@@ -63,6 +63,11 @@ public sealed class WorldInteractionController : MonoBehaviour
 
     public bool IsRunning => session != null || handingOff;
     public bool IsReady => ready;
+#if UNITY_EDITOR
+    // 대본 직접 테스트 중 기본 위치의 자동 사건·주변 대사가 먼저 시작하는 것을 막는다.
+    internal bool SuppressDetectionForTest { get; set; }
+    private bool testScriptOutput;
+#endif
     public bool CanSave => !handingOff && (!IsRunning || activeTarget != null && activeTarget.Action is IWorldInteractionSavePolicy policy && policy.CanSave);
     public bool CanCancel => !handingOff && (activeTarget == null || activeTarget.Action is not IWorldInteractionCancellationPolicy policy || policy.CanCancel);
     public WorldInteractionTarget FocusedTarget => focused;
@@ -184,6 +189,9 @@ public sealed class WorldInteractionController : MonoBehaviour
         if (!IsRunning)
         {
             RefreshStoryActors();
+#if UNITY_EDITOR
+            if (SuppressDetectionForTest) { SetFocus(null); return; }
+#endif
             RefreshFocus();
             return;
         }
@@ -294,6 +302,58 @@ public sealed class WorldInteractionController : MonoBehaviour
         if (target == null || target.IsAmbient || !CanStartSession ||
             !TryResolve(target, out var story) || Vector2.Distance(player.transform.position, target.transform.position) > story.Radius)
             return new StoryExecutionResult(StoryExecutionStatus.Failed, "현재 상호작용할 수 없습니다.");
+        return await PlayResolvedAsync(target, story, token => ExecuteOutputAsync(target, story, token));
+    }
+
+#if UNITY_EDITOR
+    /// <summary>격리된 에디터 테스트에서만 호출한다. 대본 진입 조건을 생략하고 실제 세션·연출·정리를 사용한다.</summary>
+    internal UniTask<StoryExecutionResult> PlayScriptForTestAsync(WorldInteractionTarget target, string scriptId)
+    {
+        if (target == null || !target.isActiveAndEnabled || target.gameObject.scene != gameObject.scene || !CanStartSession ||
+            target.Participant is { CanInteract: false })
+            return UniTask.FromResult(new StoryExecutionResult(StoryExecutionStatus.Failed,
+                "현재 지점의 연출을 시작할 수 없습니다. 날짜·플래그로 지점과 NPC를 먼저 등장시키세요."));
+        var data = gameObject.scene.name == "Home" ? NewDataLoadManager.HomeStory : NewDataLoadManager.StreetStory;
+        var matches = (data.Scenes ?? Array.Empty<NewSceneData>()).Where(value => value.Id == scriptId).ToArray();
+        if (matches.Length != 1 || matches[0].Steps == null || matches[0].Steps.Length == 0)
+            return UniTask.FromResult(new StoryExecutionResult(StoryExecutionStatus.Failed,
+                "현재 씬의 실행 가능한 대본 ID를 선택하세요: " + scriptId));
+        var story = matches[0];
+        story.StartMode = ENewSceneTrigger.Interact;
+        return PlayResolvedAsync(target, story, token => PlayTestScriptOutputAsync(target, story, token));
+    }
+
+    private async UniTask<StoryExecutionResult> PlayTestScriptOutputAsync(WorldInteractionTarget target,
+        NewSceneData story, CancellationToken token)
+    {
+        bool terrace = homeTerrace != null && homeTerrace.ContainsStory(story.Id);
+        testScriptOutput = true;
+        try
+        {
+            if (terrace) await homeTerrace.EnterAsync(sceneFades, token);
+            view.Begin(target, terrace ? homeTerrace.LunaAnchor : player.transform,
+                speakers: terrace ? homeTerrace.Speakers : sessionActors?.Speakers ?? SessionSpeakers);
+            runner.Bind(view);
+            var travel = target.GetComponent<WorldDialogueTravelSettings>();
+            return await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
+                playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync,
+                continueTravel: travel != null && travel.enabled);
+        }
+        finally
+        {
+            try
+            {
+                if (view != null) view.EndScene();
+                if (terrace && homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, CancellationToken.None);
+            }
+            finally { testScriptOutput = false; }
+        }
+    }
+#endif
+
+    private async UniTask<StoryExecutionResult> PlayResolvedAsync(WorldInteractionTarget target, NewSceneData story,
+        Func<CancellationToken, UniTask<StoryExecutionResult>> execute)
+    {
         using var source = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
         lastInputFrame = Time.frameCount;
         session = source;
@@ -315,7 +375,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             if (story.StartMode == ENewSceneTrigger.Auto && notifiedEvents.Add(story.Id))
                 await popups.Popup(PopupType.EventOccurred, "");
             source.Token.ThrowIfCancellationRequested();
-            LastResult = await ExecuteOutputAsync(target, story, source.Token);
+            LastResult = await execute(source.Token);
             if (LastResult.Completed && LastResult.Continuation == null && sessionParticipant != null)
             {
                 view.EndScene();
@@ -548,7 +608,11 @@ public sealed class WorldInteractionController : MonoBehaviour
         }
         finally
         {
-            if (target != null && view != null && !token.IsCancellationRequested && target.Output != WorldInteractionOutput.Cutscene)
+            bool restoreDialogue = target != null && target.Output != WorldInteractionOutput.Cutscene;
+#if UNITY_EDITOR
+            restoreDialogue |= testScriptOutput;
+#endif
+            if (target != null && view != null && !token.IsCancellationRequested && restoreDialogue)
             {
                 if (homeTerrace != null && homeTerrace.IsActive)
                     view.Begin(target, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);

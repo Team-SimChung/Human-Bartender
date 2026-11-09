@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 internal sealed class HomeInteractionTestWindow : EditorWindow
 {
     [SerializeField] private int selectedScenario = 1;
+    [SerializeField] private bool outside;
     [SerializeField] private Vector2 scroll;
     [SerializeField] private bool showFlags;
     private string lastResult;
@@ -16,7 +17,17 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
     [MenuItem("Tools/Human Bartender/Tests/Home Interaction Lab")]
     private static void Open()
     {
-        var window = GetWindow<HomeInteractionTestWindow>("Home 상호작용 테스트");
+        OpenScene(false);
+    }
+
+    [MenuItem(OutsideInteractionTestScenarios.MenuPath)]
+    private static void OpenOutside() => OpenScene(true);
+
+    private static void OpenScene(bool outside)
+    {
+        var window = GetWindow<HomeInteractionTestWindow>("홈·외부 상호작용 테스트");
+        if (window.outside != outside) window.selectedScenario = 0;
+        window.outside = outside;
         window.minSize = new Vector2(520, 600);
         window.Show();
     }
@@ -26,8 +37,13 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
     private void OnGUI()
     {
         scroll = EditorGUILayout.BeginScrollView(scroll);
-        EditorGUILayout.LabelField("Home 상호작용 테스트", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("저장된 Home 씬·CSV·카메라·상호작용을 사용합니다. 작업 중인 씬 변경은 먼저 저장하세요. " +
+        EditorGUILayout.LabelField("홈·외부 상호작용 테스트", EditorStyles.boldLabel);
+        bool nextOutside = GUILayout.Toolbar(outside ? 1 : 0, new[] { "홈 상호작용", "외부 상호작용" }) == 1;
+        if (nextOutside != outside) { outside = nextOutside; selectedScenario = 0; }
+        if (GUILayout.Button("게임 전체 상호작용 지점 테스트 열기"))
+            EditorApplication.ExecuteMenuItem(WorldInteractionTestCatalog.MenuPath);
+        if (GUILayout.Button("바 내부 · 대사를 골라 시작")) EditorApplication.ExecuteMenuItem(BarDialogueTestCatalog.MenuPath);
+        EditorGUILayout.HelpBox("저장된 Home·OutSide 씬·CSV·카메라·상호작용을 사용합니다. 작업 중인 씬 변경은 먼저 저장하세요. " +
             "상황을 다시 불러오면 완료 기록과 배치도 초기화됩니다. " +
             "테스트용 플레이어 복사본과 별도 저장 슬롯을 사용합니다.", MessageType.Info);
 
@@ -43,7 +59,7 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
         }
 
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox("현재 씬에 연결된 대상: 현관문, 소파, TV, 부비.\n" +
+        EditorGUILayout.HelpBox(outside ? OutsideInteractionTestScenarios.CoverageNote : "현재 씬에 연결된 대상: 현관문, 소파, TV, 부비.\n" +
             "침대(home-bed)·옷장(home-wardrobe / home-wardrobe-pressed)은 CSV 대본만 있고 씬 대상이 없습니다. " +
             "테라스 이야기는 소파의 수면으로 확인합니다.", MessageType.Info);
         EditorGUILayout.EndScrollView();
@@ -51,7 +67,7 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
 
     private void DrawScenario()
     {
-        var scenarios = HomeInteractionTestScenarios.All;
+        var scenarios = outside ? OutsideInteractionTestScenarios.All : HomeInteractionTestScenarios.All;
         selectedScenario = Mathf.Clamp(selectedScenario, 0, scenarios.Count - 1);
         selectedScenario = EditorGUILayout.Popup("준비할 상황", selectedScenario,
             scenarios.Select(value => value.Name).ToArray());
@@ -93,9 +109,10 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
         EditorGUILayout.LabelField("현재 실행 상태", EditorStyles.boldLabel);
         EditorGUILayout.LabelField("씬 / 일차 / 국면", $"{SceneManager.GetActiveScene().name} / Day {state.CurrentDay} / {PhaseName(state.GameFlow)}");
         if (player != null) EditorGUILayout.LabelField("소지금", player.HasMoney().ToString());
-        if (context == null || context.gameObject.scene.name != "Home" || controller == null || !context.IsReady || !controller.IsReady)
+        string expectedScene = outside ? "OutSide" : "Home";
+        if (context == null || context.gameObject.scene.name != expectedScene || controller == null || !context.IsReady || !controller.IsReady)
         {
-            EditorGUILayout.LabelField("Home 준비 중이거나 다른 씬으로 이동했습니다. 상황을 다시 불러와 계속 확인할 수 있습니다.",
+            EditorGUILayout.LabelField(expectedScene + " 준비 중이거나 다른 씬으로 이동했습니다. 상황을 다시 불러와 계속 확인할 수 있습니다.",
                 EditorStyles.wordWrappedLabel);
             return;
         }
@@ -123,18 +140,21 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
         foreach (var target in WorldInteractionTarget.InScene(context.gameObject.scene).OrderBy(TargetId))
             DrawTarget(target, controller, idle);
 
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("TV 첫 시청 / 재시청", EditorStyles.boldLabel);
-        bool watched = player != null && player.CheckFlag($"tv_news_d{state.CurrentDay}_seen");
-        EditorGUILayout.LabelField("오늘의 시청 기록", watched ? "이미 봄 — 재시청 선택지 확인" : "아직 안 봄 — 최초 방송 확인");
-        using (new EditorGUI.DisabledScope(!idle || player == null))
-        using (new EditorGUILayout.HorizontalScope())
+        if (!outside)
         {
-            if (GUILayout.Button("처음 보는 상태로")) SetTelevisionWatched(false);
-            if (GUILayout.Button("이미 본 상태로")) SetTelevisionWatched(true);
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("TV 첫 시청 / 재시청", EditorStyles.boldLabel);
+            bool watched = player != null && player.CheckFlag($"tv_news_d{state.CurrentDay}_seen");
+            EditorGUILayout.LabelField("오늘의 시청 기록", watched ? "이미 봄 — 재시청 선택지 확인" : "아직 안 봄 — 최초 방송 확인");
+            using (new EditorGUI.DisabledScope(!idle || player == null))
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("처음 보는 상태로")) SetTelevisionWatched(false);
+                if (GUILayout.Button("이미 본 상태로")) SetTelevisionWatched(true);
+            }
+            if (state.CurrentDay == 1 && state.GameFlow == EGameFlow.CommuteIn)
+                EditorGUILayout.LabelField("Day 1 출근은 주변 자동 방송입니다. 재시청 선택지는 퇴근 상황에서 확인하세요.", EditorStyles.wordWrappedMiniLabel);
         }
-        if (state.CurrentDay == 1 && state.GameFlow == EGameFlow.CommuteIn)
-            EditorGUILayout.LabelField("Day 1 출근은 주변 자동 방송입니다. 재시청 선택지는 퇴근 상황에서 확인하세요.", EditorStyles.wordWrappedMiniLabel);
 
         if (player != null)
         {

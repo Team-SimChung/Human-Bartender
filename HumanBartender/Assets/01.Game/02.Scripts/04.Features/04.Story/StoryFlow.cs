@@ -48,6 +48,25 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         GameStateManager.Instance.CurrentDay >= 1 && GameStateManager.Instance.CurrentDay <= 3
             ? RunPhaseAsync(ENewScenePhase.BarOpen, cancellationToken) : UniTask.CompletedTask;
 
+#if UNITY_EDITOR
+    private string testSceneId;
+    private int testStepSeq;
+    private ENewGrade testGrade;
+    private bool testOrderMatch;
+
+    internal async UniTask RunFromDialogueForTestAsync(string sceneId, int stepSeq, ENewGrade grade,
+        bool orderMatch, CancellationToken token)
+    {
+        if (runner.IsRunning || testSceneId != null) throw new InvalidOperationException("[BarTest] 대사 테스트가 진행 중입니다.");
+        testSceneId = sceneId;
+        testStepSeq = stepSeq;
+        testGrade = grade;
+        testOrderMatch = orderMatch;
+        try { await RunPhaseAsync(ENewScenePhase.Bar, token); }
+        finally { testSceneId = null; }
+    }
+#endif
+
     async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken)
     {
         int day = GameStateManager.Instance.CurrentDay;
@@ -93,7 +112,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         StoryExecutionResult result;
         try
         {
-            result = await runner.RunAsync(script, linked.Token, phase);
+#if UNITY_EDITOR
+            if (testSceneId != null)
+                result = await runner.RunFromDialogueForTestAsync(script, testSceneId, testStepSeq, testGrade, testOrderMatch, linked.Token);
+            else
+#endif
+                result = await runner.RunAsync(script, linked.Token, phase);
         }
         finally
         {

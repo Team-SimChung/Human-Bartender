@@ -32,6 +32,9 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
 
     public bool IsRunning => sessions.Count > 0;
     public bool IsPaused => !isActiveAndEnabled || context == null || !context.IsReady ||
+#if UNITY_EDITOR
+        foreground != null && foreground.SuppressDetectionForTest ||
+#endif
         UIDisplayOptions.IsOptionOpen || foreground == null || foreground.IsRunning ||
         context.Runner.IsRunning || context.Player.State != EInteractorState.None;
     internal int CompletedCount { get; private set; }
@@ -52,6 +55,9 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
     {
         if (foreground == null) foreground = GetComponent<WorldInteractionController>();
         if (foreground == null || !foreground.IsReady || context == null || !context.IsReady) return;
+#if UNITY_EDITOR
+        if (foreground.SuppressDetectionForTest) return;
+#endif
         cancelledSessions.Clear();
         foreach (var pair in sessions)
             if (pair.Key == null || !pair.Key.isActiveAndEnabled || pair.Value.Rule != RuleKey(pair.Key))
