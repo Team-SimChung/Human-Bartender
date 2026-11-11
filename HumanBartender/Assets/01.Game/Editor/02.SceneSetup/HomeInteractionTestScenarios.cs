@@ -64,11 +64,11 @@ internal sealed class HomeInteractionTestScenario
     }
 }
 
-/// <summary>홈 씬에 실제 연결된 현관·소파·TV·부비의 수동 검증 목록.</summary>
+/// <summary>홈 씬에 실제 연결된 생활 오브젝트·부비의 수동 검증 목록.</summary>
 internal static class HomeInteractionTestScenarios
 {
-    internal const string CoverageNote = "홈 씬의 실제 대상: 현관, 소파, TV, 부비. " +
-        "침대·옷장 대본은 CSV에만 있고 대상 연결이 없으며, 테라스 문은 예약 위치입니다. " +
+    internal const string CoverageNote = "홈 씬의 실제 대상: 현관, 소파, TV, 부비, 침대, 옷장, 책. " +
+        "침대는 혼잣말, 옷장은 대사·누른다/취소, 책은 표지·설명을 확인합니다. 테라스 문은 예약 위치입니다. " +
         "테라스는 소파의 수면으로 실행합니다. TV 재시청은 당일 시청 플래그를 바꿔 확인합니다.";
 
     internal static IReadOnlyList<HomeInteractionTestScenario> All { get; } = Array.AsReadOnly(new[]
@@ -124,6 +124,18 @@ internal static class HomeInteractionTestScenarios
             "1일차 야간 이야기는 완료한 상태입니다. 소파 수면에서 부비·크리스 휴식 대화와 등장·퇴장만 분리해 확인합니다.",
             1, EGameFlow.CommuteOut, "home_sofa", new[] { "neighborhood-rest" },
             flags: Flags("boobi_adopted", "workshop_seen", "home_night1_seen")),
+        new HomeInteractionTestScenario("bed-inspection", "침대 · 혼잣말 / 반복",
+            "침대 앞에서 E로 기존 혼잣말을 읽고 종료한 뒤 다시 조사합니다. 가까운 옷장·현관과 대상 선택도 확인합니다.",
+            0, EGameFlow.CommuteIn, "home_bed", new[] { "home-bed" }),
+        new HomeInteractionTestScenario("wardrobe-inspection", "옷장 · 대사 / 누른다 / 취소",
+            "버튼 설명을 읽은 뒤 누른다·취소를 각각 확인합니다. 누르면 기존 미제작 안내 대사로 이어집니다.",
+            1, EGameFlow.CommuteIn, "home_wardrobe", new[] { "home-wardrobe", "home-wardrobe-pressed" }),
+        new HomeInteractionTestScenario("book-inspection", "책 · 표지 / 설명 / 닫기",
+            "책 표지 비율과 하단 설명을 확인합니다. E·Esc·나가기 버튼으로 닫은 뒤 이동과 반복 조사를 확인합니다.",
+            2, EGameFlow.CommuteIn, "home_book", new[] { "home-book" }),
+        new HomeInteractionTestScenario("room-inspection-night", "집 안 조사 · 퇴근 후",
+            "퇴근 상태에서도 침대·옷장·책을 반복 조사하고, 책 옆 소파 메뉴로 정상 복귀하는지 확인합니다.",
+            2, EGameFlow.CommuteOut, "home_book", new[] { "home-bed", "home-wardrobe", "home-book" }),
         new HomeInteractionTestScenario("sofa-menu", "소파 · 저장 / 취소 / 수면",
             "야간 이야기가 완료된 귀가 상태입니다. 저장 슬롯 페이지·취소, 소파에서 잠들기와 다음 날 역재생 기상을 바로 확인합니다. 부비는 입양 전이라 숨겨집니다.",
             1, EGameFlow.CommuteOut, "home_sofa", flags: Flags("workshop_seen", "home_night1_seen"))
