@@ -4,6 +4,16 @@ using System.Linq;
 /// <summary>웹 CSV 표현을 로드 경계에서 Unity 명령으로 변환한다. 실행과 플레이어 상태 변경은 하지 않는다.</summary>
 public static class StoryCsvCompiler
 {
+    /// <summary>집의 사건과 기존 ambient CSV의 집 방송을 같은 조회 경로에 공개한다.</summary>
+    public static NewStreetData CompileHome(CsvContentCatalog catalog)
+    {
+        var home = catalog.Read<NewStreetData>("script/home");
+        var ambient = catalog.Read<NewStreetData>("script/ambient");
+        home.Scenes = (home.Scenes ?? Array.Empty<NewSceneData>()).Concat(
+            (ambient.Scenes ?? Array.Empty<NewSceneData>()).Where(scene => scene.Phase == ENewScenePhase.Home)).ToArray();
+        return Compile(home);
+    }
+
     public static readonly string[] RequiredScenes =
     {
         "day1-corridor-thug", "home-wardrobe-pressed", "shiba-allowance", "shared-shop-quizIntro", "shared-shop-lesson",

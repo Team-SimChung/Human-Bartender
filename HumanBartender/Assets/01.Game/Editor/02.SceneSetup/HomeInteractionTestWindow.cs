@@ -144,15 +144,14 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("TV 첫 시청 / 재시청", EditorStyles.boldLabel);
             bool watched = player != null && player.CheckFlag($"tv_news_d{state.CurrentDay}_seen");
-            EditorGUILayout.LabelField("오늘의 시청 기록", watched ? "이미 봄 — 재시청 선택지 확인" : "아직 안 봄 — 최초 방송 확인");
+            EditorGUILayout.LabelField("오늘의 시청 기록", watched ? "이미 봄 — 같은 메뉴에서 다시 시청" : "아직 안 봄 — 준비된 방송 시청");
             using (new EditorGUI.DisabledScope(!idle || player == null))
             using (new EditorGUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("처음 보는 상태로")) SetTelevisionWatched(false);
                 if (GUILayout.Button("이미 본 상태로")) SetTelevisionWatched(true);
             }
-            if (state.CurrentDay == 1 && state.GameFlow == EGameFlow.CommuteIn)
-                EditorGUILayout.LabelField("Day 1 출근은 주변 자동 방송입니다. 재시청 선택지는 퇴근 상황에서 확인하세요.", EditorStyles.wordWrappedMiniLabel);
+
         }
 
         if (player != null)
@@ -220,7 +219,7 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
     {
         "home_exit_door" => "현관문 — 출근 / 외부 이동",
         "home_sofa" => "소파 — 저장 / 취소 / 수면 / 테라스",
-        "home_tv" => "TV — 날짜별 방송 / 재시청 / 접근 자동 방송",
+        "home_tv" => "TV — 전원 / 본다·끈다·취소 / 주변 방송",
         "neighborhood-homeCat" => "부비 — 쓰다듬기 / 취소",
         _ => target.name
     };

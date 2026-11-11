@@ -39,6 +39,14 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
         context.Runner.IsRunning || context.Player.State != EInteractorState.None;
     internal int CompletedCount { get; private set; }
 
+    /// <summary>전원 재조작 후 같은 범위 안에서도 방송을 처음부터 다시 들을 수 있게 한다.</summary>
+    public void Restart(WorldInteractionTarget target)
+    {
+        if (target == null) return;
+        if (sessions.TryGetValue(target, out var session)) session.Cancellation.Cancel();
+        if (entries.TryGetValue(target, out var entry)) entry.Reset();
+    }
+
     public bool IsRunningFor(WorldInteractionContent content)
     {
         foreach (var target in sessions.Keys)

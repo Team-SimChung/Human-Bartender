@@ -154,7 +154,7 @@ public sealed class HomeInteractionTestEnvironmentTests
     [Test]
     public void ExpectedStoriesExistAndManualNightStoriesRemainEligible()
     {
-        var stories = StoryCsvCompiler.Compile(LoadCatalog().Read<NewStreetData>("script/home")).Scenes
+        var stories = StoryCsvCompiler.CompileHome(LoadCatalog()).Scenes
             .ToDictionary(story => story.Id, StringComparer.Ordinal);
         foreach (var scenario in HomeInteractionTestScenarios.All)
         {
