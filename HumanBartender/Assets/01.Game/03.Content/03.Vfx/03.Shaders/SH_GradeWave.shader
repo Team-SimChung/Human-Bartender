@@ -12,6 +12,14 @@ Shader "Custom/VFX/SH_GradeWave"
         [ToggleUI] _PixelSnap ("도트 격자에 맞추기", Float) = 1
         _Extent ("그리는 영역 크기 (가로, 세로)", Vector) = (9.6, 2, 0, 0)
         _BeamFadeEnd ("빛줄기(Beam)가 완전히 사라지는 시간 (초, 0.3초부터 옅어짐)", Range(0.6, 3)) = 1.9
+
+        [Header(Prism)]
+        _Prism ("프리즘 양 (0이면 끔, 가운데는 흰빛 그대로 두고 바깥에 섞임)", Range(0, 1)) = 0
+        _PrismHue ("프리즘 팔레트 시작 위치 (롤 프리즘 순환: 0 연보라, 0.25 분홍, 0.5 하늘, 0.75 민트)", Range(0, 1)) = 0.75
+        _PrismSpread ("그리는 영역 왼쪽 끝에서 오른쪽 끝까지 바뀌는 색상 폭", Range(0, 2)) = 0.75
+        _PrismCore ("가운데에도 섞이는 프리즘 양 (0이면 가운데는 흰빛, 1이면 가운데까지 다 섞임)", Range(0, 1)) = 0
+        _PrismReach ("무지개가 다 섞이는 거리 (가로, 세로 유닛)", Vector) = (3.2, 0.5, 0, 0)
+        _BlendAlpha ("덮는 정도 (0 = 가산 빛, 1 = 어두운 색도 보이게 보통 알파로 덮기)", Range(0, 1)) = 0
     }
 
     SubShader
@@ -47,7 +55,30 @@ Shader "Custom/VFX/SH_GradeWave"
                 float _PixelSize;
                 float _PixelSnap;
                 float _BeamFadeEnd;
+                float _BlendAlpha;
+                float4 _PrismReach;
+                float _Prism;
+                float _PrismHue;
+                float _PrismSpread;
+                float _PrismCore;
             CBUFFER_END
+
+            // 흰빛에 무지개 색을 amount만큼 섞고 휘도를 1로 맞춘다 (곱해도 밝기는 그대로, 색만 바뀜).
+            float3 PrismTint(float hue, float amount)
+            {
+                // 롤 프리즘 팔레트 (선형값, 노란 끼 없음): 연보라 -> 분홍 -> 하늘 -> 민트 -> 다시 연보라. hue는 이 순환 위의 위치다.
+                const float3 keys[4] =
+                {
+                    float3(0.552, 0.402, 1.000), float3(1.000, 0.342, 0.672), float3(0.305, 0.617, 1.000), float3(0.352, 0.922, 0.672)
+                };
+                float x = frac(hue) * 4.0;
+                int i0 = min((int)floor(x), 3);
+                int i1 = i0 == 3 ? 0 : i0 + 1;
+                float f = smoothstep(0.0, 1.0, x - floor(x));
+                float3 prism = lerp(keys[i0], keys[i1], f);
+                float3 mixColor = lerp(float3(1.0, 1.0, 1.0), prism, saturate(amount));
+                return mixColor / max(dot(mixColor, float3(0.2126, 0.7152, 0.0722)), 0.001);
+            }
 
             struct Attributes
             {
@@ -244,7 +275,16 @@ Shader "Custom/VFX/SH_GradeWave"
                 else if (layer == 4) light = Sparks(p, t, px);
                 float3 color = (_Tint.rgb * light.x + _CoreColor.rgb * light.y) * input.color.rgb;
                 color *= _Intensity * input.color.a * _Tint.a;
-                return float4(color, 0.0);
+                if (_Prism > 0.0)
+                {
+                    // 가운데는 흰빛 그대로, 바깥(빛줄기 양끝, 멀리 튄 파편)으로 갈수록 무지개가 섞인다.
+                    float edge = saturate(length(p / max(_PrismReach.xy, float2(0.01, 0.01))));
+                    float hue = _PrismHue + p.x / max(_Extent.x, 0.001) * _PrismSpread;
+                    color *= PrismTint(hue, _Prism * lerp(_PrismCore, 1.0, edge));
+                }
+                // _BlendAlpha 1이면 빛의 세기만큼 화면을 덮는다 (검은 연기처럼 어두운 색도 보인다). 0이면 예전처럼 가산.
+                float cover = saturate(max(light.x, light.y) * _Intensity * input.color.a * _Tint.a) * _BlendAlpha;
+                return float4(color, cover);
             }
             ENDHLSL
         }

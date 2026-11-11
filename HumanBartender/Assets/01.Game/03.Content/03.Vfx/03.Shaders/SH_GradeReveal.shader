@@ -7,6 +7,7 @@
 // 알파 처리 방식은 _AlphaShrinks로 고른다. 켜면(기본) 알파를 모양에 먼저 곱해 바깥 단계부터 사라지는 도트식 페이드가 되고(알파를 낮추면 크기가 줄어 보임),
 // 끄면 모양과 단계는 그대로 두고 알파는 투명도로만 쓴다. 머티리얼 _Color의 알파는 언제나 투명도로만 곱해진다.
 // 혼합은 미리 곱한 알파(One, OneMinusSrcAlpha)다. _BlendAlpha 0이면 가산(빛), 1이면 보통 알파(화면을 어둡게 덮기)로 그린다.
+// _Prism을 올리면 가운데는 흰빛 그대로 두고 가장자리로 갈수록 롤 프리즘 색(연보라·분홍·하늘·민트)이 섞인다. 색상은 쿼드 가로를 따라 흐르고 밝기는 그대로다. 0이면 예전과 똑같다.
 Shader "Custom/VFX/SH_GradeReveal"
 {
     Properties
@@ -32,6 +33,12 @@ Shader "Custom/VFX/SH_GradeReveal"
         [Header(Pixel Art)]
         _PixelSize ("도트 크기 (유닛, PPU 100이면 0.01)", Float) = 0.01
         [ToggleUI] _PixelSnap ("도트 격자에 맞추기", Float) = 1
+
+        [Header(Prism)]
+        _Prism ("프리즘 양 (0이면 끔, 가운데는 흰빛 그대로 두고 가장자리에 섞임)", Range(0, 1)) = 0
+        _PrismHue ("프리즘 팔레트 시작 위치 (롤 프리즘 순환: 0 연보라, 0.25 분홍, 0.5 하늘, 0.75 민트)", Range(0, 1)) = 0.75
+        _PrismSpread ("쿼드 왼쪽 끝에서 오른쪽 끝까지 바뀌는 색상 폭", Range(0, 2)) = 0.7
+        _PrismCore ("가운데에도 섞이는 프리즘 양 (0이면 가운데는 흰빛, 1이면 가운데까지 다 섞임)", Range(0, 1)) = 0
     }
 
     SubShader
@@ -82,6 +89,10 @@ Shader "Custom/VFX/SH_GradeReveal"
                 float _RaySharpness;
                 float _PixelSize;
                 float _PixelSnap;
+                float _Prism;
+                float _PrismHue;
+                float _PrismSpread;
+                float _PrismCore;
             CBUFFER_END
 
             struct Attributes
@@ -98,6 +109,23 @@ Shader "Custom/VFX/SH_GradeReveal"
                 float2 uv : TEXCOORD0;
                 float2 positionWS : TEXCOORD1;
             };
+
+            // 흰빛에 무지개 색을 amount만큼 섞고 휘도를 1로 맞춘다 (곱해도 밝기는 그대로, 색만 바뀜).
+            float3 PrismTint(float hue, float amount)
+            {
+                // 롤 프리즘 팔레트 (선형값, 노란 끼 없음): 연보라 -> 분홍 -> 하늘 -> 민트 -> 다시 연보라. hue는 이 순환 위의 위치다.
+                const float3 keys[4] =
+                {
+                    float3(0.552, 0.402, 1.000), float3(1.000, 0.342, 0.672), float3(0.305, 0.617, 1.000), float3(0.352, 0.922, 0.672)
+                };
+                float x = frac(hue) * 4.0;
+                int i0 = min((int)floor(x), 3);
+                int i1 = i0 == 3 ? 0 : i0 + 1;
+                float f = smoothstep(0.0, 1.0, x - floor(x));
+                float3 prism = lerp(keys[i0], keys[i1], f);
+                float3 mixColor = lerp(float3(1.0, 1.0, 1.0), prism, saturate(amount));
+                return mixColor / max(dot(mixColor, float3(0.2126, 0.7152, 0.0722)), 0.001);
+            }
 
             float Hash11(float p)
             {
@@ -273,6 +301,11 @@ Shader "Custom/VFX/SH_GradeReveal"
                 float opacity = _Color.a * (alphaShrinks ? 1.0 : input.color.a);
                 float strength = s * opacity;
                 half3 rgb = lerp(tint, _CoreColor.rgb * input.color.rgb, core) * (strength * _Intensity);
+                if (_Prism > 0.0)
+                {
+                    // 가운데(q=0)는 흰빛 그대로, 쿼드 가장자리로 갈수록 프리즘 색이 섞이고 색상은 가로를 따라 흐른다.
+                    rgb *= (half3)PrismTint(_PrismHue + q.x * 0.5 * _PrismSpread, _Prism * lerp(_PrismCore, 1.0, saturate(length(q))));
+                }
                 return half4(rgb, strength * _BlendAlpha);
             }
             ENDHLSL
