@@ -617,7 +617,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1479166666}
-  m_Father: {fileID: 2000715059}
+  m_Father: {fileID: 637079066}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1039,8 +1039,11 @@ GameObject:
   m_Component:
   - component: {fileID: 288712110}
   - component: {fileID: 288712111}
+  - component: {fileID: 288712114}
+  - component: {fileID: 288712113}
+  - component: {fileID: 288712112}
   m_Layer: 0
-  m_Name: ForeFore_Object_Book_0
+  m_Name: ForeFore_Object_Book
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1087,7 +1090,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1120,6 +1123,63 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &288712112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 288712109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c62a35bee00e4a48bc61174e0b037694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
+  storySceneId: 
+  content: {fileID: 288712114}
+  startMode: 0
+  interactionRadius: 0.55
+  contentStartOverrides: []
+  startSettingsVersion: 1
+  interactionLabel: "\uCC45 \uC0B4\uD3B4\uBCF4\uAE30"
+  output: 1
+  speechAnchor: {fileID: 0}
+  bubbleOffset: {x: 0, y: 8}
+  inspectionImage: {fileID: 1422056935891482770, guid: 0f07203fa4c9f2049afe82922dfb2b01, type: 3}
+  highlight: {fileID: 288712113}
+  cutsceneSequence: {fileID: 0}
+  timelines: []
+  optionalTimelineIds: []
+  action: {fileID: 0}
+--- !u!114 &288712113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 288712109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 288712111}
+  fadeSpeed: 8
+--- !u!114 &288712114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 288712109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15262b802278409c966da57c1121a88f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionContent
+  sourceId: home_book
+  useSpotPosition: 0
+  controlObjectVisibility: 0
 --- !u!1 &289449517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,7 +1416,7 @@ Transform:
   m_GameObject: {fileID: 353232589}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2299,6 +2359,7 @@ Transform:
   - {fileID: 463204426}
   - {fileID: 1144763784}
   - {fileID: 220094233}
+  - {fileID: 139308183}
   - {fileID: 1300846249}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3364,7 +3425,7 @@ Transform:
   m_GameObject: {fileID: 803327634}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.7, z: 0}
+  m_LocalPosition: {x: 1.18, y: -0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3965,7 +4026,7 @@ Transform:
   m_GameObject: {fileID: 1156371339}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.04, z: -1}
+  m_LocalPosition: {x: 0.05, y: 0.03, z: 0}
   m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5311,6 +5372,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1698050108}
   - component: {fileID: 1698050109}
+  - component: {fileID: 1698050112}
+  - component: {fileID: 1698050111}
+  - component: {fileID: 1698050110}
   m_Layer: 0
   m_Name: IntractObjects_Closet
   m_TagString: Untagged
@@ -5359,7 +5423,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5392,6 +5456,63 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1698050110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698050107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c62a35bee00e4a48bc61174e0b037694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
+  storySceneId: 
+  content: {fileID: 1698050112}
+  startMode: 0
+  interactionRadius: 0.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
+  interactionLabel: "\uC637\uC7A5 \uC0B4\uD3B4\uBCF4\uAE30"
+  output: 0
+  speechAnchor: {fileID: 0}
+  bubbleOffset: {x: 0, y: 8}
+  inspectionImage: {fileID: 0}
+  highlight: {fileID: 1698050111}
+  cutsceneSequence: {fileID: 0}
+  timelines: []
+  optionalTimelineIds: []
+  action: {fileID: 0}
+--- !u!114 &1698050111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698050107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1698050109}
+  fadeSpeed: 8
+--- !u!114 &1698050112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698050107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15262b802278409c966da57c1121a88f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionContent
+  sourceId: home_wardrobe
+  useSpotPosition: 0
+  controlObjectVisibility: 0
 --- !u!1 &1737397161
 GameObject:
   m_ObjectHideFlags: 0
@@ -5634,6 +5755,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1853872485}
   - component: {fileID: 1853872486}
+  - component: {fileID: 1853872489}
+  - component: {fileID: 1853872488}
+  - component: {fileID: 1853872487}
   m_Layer: 0
   m_Name: IntractObjects_Bed
   m_TagString: Untagged
@@ -5682,7 +5806,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5715,6 +5839,63 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1853872487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853872484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c62a35bee00e4a48bc61174e0b037694, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
+  storySceneId: 
+  content: {fileID: 1853872489}
+  startMode: 0
+  interactionRadius: 0.55
+  contentStartOverrides: []
+  startSettingsVersion: 1
+  interactionLabel: "\uCE68\uB300 \uC0B4\uD3B4\uBCF4\uAE30"
+  output: 0
+  speechAnchor: {fileID: 0}
+  bubbleOffset: {x: 0, y: 8}
+  inspectionImage: {fileID: 0}
+  highlight: {fileID: 1853872488}
+  cutsceneSequence: {fileID: 0}
+  timelines: []
+  optionalTimelineIds: []
+  action: {fileID: 0}
+--- !u!114 &1853872488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853872484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1853872486}
+  fadeSpeed: 8
+--- !u!114 &1853872489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853872484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15262b802278409c966da57c1121a88f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionContent
+  sourceId: home_bed
+  useSpotPosition: 0
+  controlObjectVisibility: 0
 --- !u!1 &1859902312
 GameObject:
   m_ObjectHideFlags: 0
@@ -6176,7 +6357,7 @@ Transform:
   m_GameObject: {fileID: 1937147498}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.9, y: 0.6, z: 0}
+  m_LocalPosition: {x: -2.28, y: 0.365, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6362,7 +6543,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 10
+  m_SortingOrder: 15
   m_TargetDisplay: 0
 --- !u!224 &1978158279
 RectTransform:
@@ -6415,7 +6596,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1978158279}
-  - {fileID: 139308183}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2030127650
@@ -6861,7 +7041,7 @@ Transform:
   m_GameObject: {fileID: 7000000001}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.7, z: 0}
+  m_LocalPosition: {x: 1.18, y: -0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

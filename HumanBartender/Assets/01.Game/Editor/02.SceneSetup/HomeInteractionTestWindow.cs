@@ -59,9 +59,8 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
         }
 
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox(outside ? OutsideInteractionTestScenarios.CoverageNote : "현재 씬에 연결된 대상: 현관문, 소파, TV, 부비.\n" +
-            "침대(home-bed)·옷장(home-wardrobe / home-wardrobe-pressed)은 CSV 대본만 있고 씬 대상이 없습니다. " +
-            "테라스 이야기는 소파의 수면으로 확인합니다.", MessageType.Info);
+        EditorGUILayout.HelpBox(outside ? OutsideInteractionTestScenarios.CoverageNote : HomeInteractionTestScenarios.CoverageNote,
+            MessageType.Info);
         EditorGUILayout.EndScrollView();
     }
 
