@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using HumanBartender.CutsceneStudio;
 
 /// <summary>접근 감지와 입력은 공통 시스템에 맡기고 오브젝트의 동작을 실행함.</summary>
 public interface IWorldInteractionAction
@@ -31,12 +32,16 @@ public readonly struct WorldInteractionActionContext
     public readonly Func<NewStreetOptionData[], string, CancellationToken, UniTask<NewStreetOptionData>> ChooseMenu;
     public readonly Action PrepareMorning;
     public readonly Func<CancellationToken, UniTask> FinishNight;
+    public readonly Func<StudioSequence, CancellationToken, UniTask> PlayStudio;
+    public readonly Func<string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> ChooseOutsideChoices;
 
     public WorldInteractionActionContext(IInteractor player,
         Func<Step[], Transform, CancellationToken, UniTask<StoryExecutionResult>> playAutomaticDialogue,
         Func<CancellationToken, UniTask> playNight = null, Action refreshConditions = null,
         Func<NewStreetOptionData[], string, CancellationToken, UniTask<NewStreetOptionData>> chooseMenu = null,
-        Action prepareMorning = null, Func<CancellationToken, UniTask> finishNight = null)
+        Action prepareMorning = null, Func<CancellationToken, UniTask> finishNight = null,
+        Func<StudioSequence, CancellationToken, UniTask> playStudio = null,
+        Func<string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> chooseOutsideChoices = null)
     {
         Player = player;
         PlayAutomaticDialogue = playAutomaticDialogue;
@@ -45,5 +50,7 @@ public readonly struct WorldInteractionActionContext
         ChooseMenu = chooseMenu;
         PrepareMorning = prepareMorning;
         FinishNight = finishNight;
+        PlayStudio = playStudio;
+        ChooseOutsideChoices = chooseOutsideChoices;
     }
 }

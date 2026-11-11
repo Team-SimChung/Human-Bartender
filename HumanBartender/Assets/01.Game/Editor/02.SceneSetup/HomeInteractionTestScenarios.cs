@@ -69,7 +69,7 @@ internal static class HomeInteractionTestScenarios
 {
     internal const string CoverageNote = "홈 씬의 실제 대상: 현관, 소파, TV, 부비, 침대, 옷장, 책. " +
         "침대는 혼잣말, 옷장은 대사·누른다/취소, 책은 표지·설명을 확인합니다. 테라스 문은 예약 위치입니다. " +
-        "테라스는 소파의 수면으로 실행합니다. TV 재시청은 당일 시청 플래그를 바꿔 확인합니다.";
+        "테라스는 소파의 수면으로 실행합니다. TV는 본다·끈다·취소와 전원을 확인합니다. 준비되지 않은 방송은 선택지에서 안내합니다.";
 
     internal static IReadOnlyList<HomeInteractionTestScenario> All { get; } = Array.AsReadOnly(new[]
     {
@@ -78,16 +78,19 @@ internal static class HomeInteractionTestScenarios
             0, EGameFlow.CommuteIn, "home_exit_door", opening: true),
         new HomeInteractionTestScenario("morning-day0", "0일차 · 출근 / TV",
             "오프닝을 생략한 출근 상태입니다. 현관과 당일 TV의 최초 시청·재시청을 확인합니다.",
-            0, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_cutscene" }),
-        new HomeInteractionTestScenario("morning-day1", "1일차 · TV 자동 방송",
-            "TV 범위에 접근하면 자동 방송이 실행됩니다. 이 상황은 수동 TV보다 자동 방송 정의가 우선합니다.",
-            1, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_morning" }),
+            0, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_menu" }),
+        new HomeInteractionTestScenario("morning-day1", "1일차 · TV 전원과 주변 방송",
+            "TV를 켜고 취소하면 기존 뉴스가 이동을 허용하며 재생됩니다. 본다는 미등록 안내를 표시하고 끈다는 화면과 방송을 중단합니다.",
+            1, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_menu", "outside_day1_tv_news2" }),
         new HomeInteractionTestScenario("morning-day2", "2일차 · 출근 / TV",
-            "현관과 2일차 TV를 확인합니다. 시청 상태를 바꾸면 다시 본다·보지 않는다 선택지를 확인할 수 있습니다.",
-            2, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_cutscene" }),
+            "현관과 2일차 TV를 확인합니다. 시청 기록과 관계없이 같은 세 선택지가 나오고 미준비 방송은 거부되는지 확인합니다.",
+            2, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_menu" }),
         new HomeInteractionTestScenario("morning-day3", "3일차 · 출근 / TV",
-            "현관과 3일차 TV를 확인합니다. TV 최초 시청 및 재시청 분기를 반복할 수 있습니다.",
-            3, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_cutscene" }),
+            "현관과 3일차 TV를 확인합니다. TV 전원과 미준비 방송 안내를 반복 확인합니다.",
+            3, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_menu" }),
+        new HomeInteractionTestScenario("tv-news-day0", "0일차 · 퇴근 TV 뉴스",
+            "TV를 켜고 취소하여 기존 화재 뉴스를 듣고 이동합니다. 끈다는 화면과 대사를 중단합니다.",
+            0, EGameFlow.CommuteOut, "home_tv_broadcast", new[] { "outside_day0_tv_news1" }),
         new HomeInteractionTestScenario("night-day0", "0일차 · 테라스와 다음 날",
             "소파에서 수면을 고르면 night0와 회상을 재생한 뒤 1일차 아침으로 돌아갑니다. 퇴근 TV도 수동 시청할 수 있습니다.",
             0, EGameFlow.CommuteOut, "home_sofa", new[] { "night0" }),

@@ -12,7 +12,7 @@ internal sealed class CsvStoryTestContent : IStoryContentSource
     {
         var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
         street = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/street"));
-        home = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/home"));
+        home = StoryCsvCompiler.CompileHome(catalog);
         memories = StoryCsvCompiler.Compile(catalog.Read<NewDayScriptBase>("script/cutscene"));
         bars = Enumerable.Range(0, 4).Select(day => StoryCsvCompiler.Compile(catalog.Read<NewDayScriptBase>("script/bar/day" + day))).ToArray();
     }

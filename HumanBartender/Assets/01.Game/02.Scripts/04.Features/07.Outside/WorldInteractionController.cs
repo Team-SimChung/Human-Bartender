@@ -538,6 +538,14 @@ public sealed class WorldInteractionController : MonoBehaviour
         }
     }
 
+    private async UniTask PlayPreparedStudioAsync(HumanBartender.CutsceneStudio.StudioSequence sequence, CancellationToken token)
+    {
+        view.EndScene();
+        if (cutscenePlayer == null) cutscenePlayer = GetComponent<WorldInteractionCutscenePlayer>();
+        if (cutscenePlayer == null) cutscenePlayer = gameObject.AddComponent<WorldInteractionCutscenePlayer>();
+        await cutscenePlayer.PlayAsync(sequence, token);
+    }
+
     private async UniTask<StoryExecutionResult> ExecuteOutputAsync(WorldInteractionTarget target, NewSceneData story, CancellationToken token)
     {
         switch (target.Output)
@@ -548,7 +556,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             case WorldInteractionOutput.Action:
                 var context = new WorldInteractionActionContext(player, PlayAutomaticDialogueAsync,
                     PlayNightAsync, sceneContext.RefreshContents, ChooseMenuAsync,
-                    () => homeTerrace?.PrepareMorning(player), FinishNightAsync);
+                    () => homeTerrace?.PrepareMorning(player), FinishNightAsync, PlayPreparedStudioAsync, ChooseOutsideChoicesAsync);
                 await target.Action.ExecuteAsync(context, token);
                 break;
             case WorldInteractionOutput.Image:
@@ -570,6 +578,38 @@ public sealed class WorldInteractionController : MonoBehaviour
     {
         view.Begin(activeTarget, player.transform, player.transform);
         return view.ChooseMenuAsync(options, message, token);
+    }
+
+    // Action의 선택지도 일반 대화와 같은 표시·좌우 배치·거부 연출을 사용한다.
+    private async UniTask<NewStreetOptionData> ChooseOutsideChoicesAsync(string sceneId,
+        Func<string, bool> canSelect, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var options = PrepareOutsideChoices(storyContent, conditions, sceneId, canSelect);
+        view.Begin(activeTarget, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
+        try
+        {
+            var completion = new UniTaskCompletionSource<NewStreetOptionData>();
+            view.ShowOutsideChoices(options, option => completion.TrySetResult(option));
+            var selected = await completion.Task.AttachExternalCancellation(token);
+            token.ThrowIfCancellationRequested();
+            if (!options.Contains(selected) || selected.Selectable != true ||
+                !conditions.CheckRequired(selected.When) || canSelect?.Invoke(selected.Id) == false)
+                throw new InvalidOperationException("[WorldInteraction] 선택할 수 없는 동작 선택지입니다.");
+            return selected;
+        }
+        finally { view.EndScene(); }
+    }
+
+    internal static NewStreetOptionData[] PrepareOutsideChoices(IStoryContentSource content, IConditionUtil conditions,
+        string sceneId, Func<string, bool> canSelect)
+    {
+        var options = OutsideStorySteps.Choices(content, sceneId).OrderBy(option => option.Seq).ToArray();
+        for (int i = 0; i < options.Length; i++)
+            options[i].Selectable = conditions.CheckRequired(options[i].When) && canSelect?.Invoke(options[i].Id) != false;
+        if (!options.Any(option => option.Selectable == true))
+            throw new InvalidOperationException("[WorldInteraction] 선택 가능한 동작 선택지가 없습니다: " + sceneId);
+        return options;
     }
 
     private UniTask<bool> PlayTimelineAsync(string id, string memoryKey, CancellationToken token) => PlayStudioAsync(id, memoryKey, token);

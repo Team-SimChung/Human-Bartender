@@ -1832,3 +1832,4 @@ shared_newspaper_intro,1,goto,,,,,,,,,shared-newspaper-wrong,script/street,nativ
 shared_newspaper_intro,1,goto,,,,,,,,,shared-newspaper-right,script/street,native_street_choices_newspaper_right_1,street_choices_newspaper_right,result_steps,0,steps_format_60,,,,,,,,,,,,,,,,,,
 home_wardrobe,1,say,luna,,기능을 알 수 없는 버튼이 보인다.,\E,,,,,,script/home,shared_home_wardrobe_prompt,shared_home_wardrobe,steps,0,steps_format_67,,,,,,say,,actor|text,,,,,,,,,,
 home_book,1,say,luna,,즐거운 학문 - 프리드리히 니체,\E,,,,,,script/home,shared_home_book_description,shared_home_book,steps,0,steps_format_67,,,,,,say,,actor|text,,,,,,,,,,
+home_tv_menu,1,choice,luna,\N,,,\N,\N,\N,wait,,script/home,steps_home_tv_menu_1,scenes_home_tv_menu,steps,0,steps_format_36,\N,,,,,,,,,,,,,,,,,
