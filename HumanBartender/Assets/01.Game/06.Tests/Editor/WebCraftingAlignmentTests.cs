@@ -10,6 +10,43 @@ using Object = UnityEngine.Object;
 public sealed class WebCraftingAlignmentTests
 {
     static CsvContentCatalog Csv() => CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
+
+    [Test]
+    public void GeneralGuestFixedOrdersMatchWeb()
+    {
+        // Web d9a3474 guests/random_waves.csv (2026-11-08). Order is entry order, not seat.
+        var waves = Csv().Read<NewRandomWaveData[]>("random_waves").Where(w => w.Day is >= 0 and <= 3)
+            .OrderBy(w => w.Day).ThenBy(w => w.Seq).Select(w => $"{w.Day}/{w.Seq}:{w.Order}");
+        Assert.That(waves, Is.EqualTo(new[]
+            { "1/1:tequila_sunrise", "1/2:screwdriver", "2/1:whiskey_sour", "2/2:champagne" }));
+    }
+
+    [Test]
+    public void EveryGuestOrderableCocktailIsCraftableThatDay()
+    {
+        var data = Csv();
+        var cocktails = data.Read<NewCocktailData[]>("cocktails");
+        var items = data.Read<NewShelfItemData[]>("shelf_items").ToDictionary(i => i.Id);
+        var waves = data.Read<NewRandomWaveData[]>("random_waves");
+        for (int day = 0; day <= 3; day++)
+        {
+            // Random orders pick from unlocked cocktails; fixed wave orders are added on top.
+            var orderable = cocktails.Where(c => CocktailUnlockPolicy.IsUnlocked(c, day)).Select(c => c.Id)
+                .Concat(waves.Where(w => w.Day == day && !string.IsNullOrEmpty(w.Order)).Select(w => w.Order)).Distinct();
+            foreach (string id in orderable)
+            {
+                var cocktail = cocktails.Single(c => c.Id == id);
+                Assert.That(cocktail.Recipe, Is.Not.Empty, $"Day {day} {id} 레시피");
+                var needs = cocktail.Recipe.Where(s => s.IsSelectable).Select(s => s.Ingredient)
+                    .Append(cocktail.Glass).Append(cocktail.TargetToolId).Where(n => !string.IsNullOrEmpty(n));
+                foreach (string need in needs)
+                {
+                    Assert.That(items.ContainsKey(need), Is.True, $"Day {day} {id}: 선반에 {need} 없음");
+                    Assert.That(CraftShelf.IsAvailable(items[need], day), Is.True, $"Day {day} {id}: {need} 아직 잠김");
+                }
+            }
+        }
+    }
     static CraftPrepShelfSlot[] Slots(CraftPrepStageScreen screen) =>
         (CraftPrepShelfSlot[])typeof(CraftPrepStageScreen).GetField("slots", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(screen);
 

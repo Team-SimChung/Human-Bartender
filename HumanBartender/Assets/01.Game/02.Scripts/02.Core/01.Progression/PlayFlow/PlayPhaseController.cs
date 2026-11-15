@@ -236,6 +236,13 @@ public class PlayPhaseController : MonoBehaviour
                 GameStateManager.Instance.CurrentDay = testDay;
                 GameStateManager.Instance.GameFlow = EGameFlow.Bar;
                 Debug.LogWarning($"[PlayPhase] 명시적 Test Day {testDay}로 Play 씬을 직접 실행합니다.");
+                // 정상 진행이면 3일차 바 입장 전에 채워지는 조건. 없으면 올드 패션드 해금과 톰 주문이 막힌다.
+                if (testDay >= 3)
+                {
+                    var seeded = CampaignStoryRules.SeedJohnnyPrerequisites(conditions);
+                    if (seeded.Count > 0)
+                        Debug.LogWarning("[PlayPhase] Test Day 3 이상: 전날 조건을 대신 채웠습니다 — " + string.Join(", ", seeded));
+                }
             }
             else
 #endif
