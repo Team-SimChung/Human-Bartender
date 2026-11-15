@@ -629,7 +629,7 @@ public partial class StoryScriptRunner : MonoBehaviour
         var serve = result.Serve;
         orderPayments.Pay(new[] { serve.Settlement });
         conditions.Result = new StoryResultContext(serve.CraftGrade, serve.FinalGrade,
-            serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
+            serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId, serve.ServedCocktail);
         currentOrder = null;
         orderResultSignal = null;
         // 웹은 병따기 수업을 끝까지 마치면 이 기록을 남긴다. 아직 읽는 곳은 없다.

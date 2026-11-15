@@ -36,7 +36,14 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
         window.Show();
     }
 
-    private void OnEnable() => Reload();
+    private void OnEnable()
+    {
+        // 레이아웃 복원 중에는 미리보기 씬을 열지 않고 에디터 초기화가 끝난 뒤 목록을 읽는다.
+        EditorApplication.delayCall -= Reload;
+        EditorApplication.delayCall += Reload;
+    }
+
+    private void OnDisable() => EditorApplication.delayCall -= Reload;
     private void OnInspectorUpdate() => Repaint();
 
     private void Reload()
