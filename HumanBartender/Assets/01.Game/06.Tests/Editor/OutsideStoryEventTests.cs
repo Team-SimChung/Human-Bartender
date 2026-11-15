@@ -185,4 +185,104 @@ public sealed class OutsideStoryEventTests
         Assert.That(compiled.Scenes[0].Steps[0].Command, Is.EqualTo(OutsideStoryCommand.RepairElevator));
         Assert.Throws<NotSupportedException>(() => StoryCsvCompiler.Parse("neighborhood-action", null, "unknown"));
     }
+
+    // ── 시바견 상점 남은 상품·판매 종료 (웹 outside-shop.js) ──
+
+    static void WithShop(int day, int money, string flags, Action<PlayerDataSO, IConditionUtil> body)
+    {
+        var player = ScriptableObject.CreateInstance<PlayerDataSO>();
+        int previousDay = GameStateManager.Instance.CurrentDay;
+        try
+        {
+            GameStateManager.Instance.CurrentDay = day;
+            player.SetMoney(money);
+            var conditions = new ConditionUtil(GameStateManager.Instance, player, player).CreateExecutionScope();
+            if (!string.IsNullOrEmpty(flags)) conditions.ApplyRequired(flags);
+            body(player, conditions);
+        }
+        finally
+        {
+            GameStateManager.Instance.CurrentDay = previousDay;
+            UnityEngine.Object.DestroyImmediate(player);
+        }
+    }
+
+    [TestCase(1, "", true, TestName = "Day1 bitters left")]
+    [TestCase(1, "flag.shiba_bought_bitters = true", false, TestName = "Day1 bitters bought, tuna not yet sold")]
+    [TestCase(2, "flag.shiba_bought_bitters = true", true, TestName = "Day2 tuna left")]
+    [TestCase(2, "flag.shiba_bought_bitters = true; flag.shiba_bought_tuna_can = true", false, TestName = "Day2 both bought")]
+    [TestCase(2, "flag.shiba_bought_bitters = true; flag.boobi_adopted = true", false, TestName = "Day2 tuna not sold after adoption")]
+    public void ShopStockMatchesTheWebRule(int day, string flags, bool expected) =>
+        WithShop(day, 0, flags, (_, conditions) => Assert.That(ShopStoryEvents.HasStock(day, conditions), Is.EqualTo(expected)));
+
+    [Test]
+    public void SoldOutShopEndsWithTheWebLineInsteadOfTheGreeting()
+    {
+        WithShop(2, 1000, "flag.shiba_shop_met = true; flag.shiba_bought_bitters = true; flag.shiba_bought_tuna_can = true", (_, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var bound = new NewSceneData { Id = "shiba-shop-revisit", Steps = content.GetSceneSteps("shiba-shop-revisit") };
+            var entry = OutsideStorySceneRules.ResolveEntry(bound, 2, conditions, content);
+            Assert.That(entry.Steps.Select(s => s.Command), Is.EqualTo(new[] { OutsideStoryCommand.ShopSoldOut }));
+
+            var run = new OutsideStoryExecution(conditions, PickFirst, null);
+            var lines = new ShopStoryEvents(null, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopSoldOut, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(lines.Single().Actor, Is.EqualTo("shiba"));
+            Assert.That(lines.Single().Text.Ko, Is.EqualTo("이제 팔 거 없어. 꺼져, 시바."));
+        });
+    }
+
+    [Test]
+    public void ShopWithStockKeepsTheAuthoredGreeting()
+    {
+        WithShop(2, 1000, "flag.shiba_shop_met = true; flag.shiba_bought_bitters = true", (_, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var authored = content.GetSceneSteps("shiba-shop-revisit");
+            var entry = OutsideStorySceneRules.ResolveEntry(new NewSceneData { Id = "shiba-shop-revisit", Steps = authored }, 2, conditions, content);
+            Assert.That(entry.Steps, Is.SameAs(authored));
+        });
+    }
+
+    [Test]
+    public void PendingOldFashionedLessonComesBeforeTheSoldOutLine()
+    {
+        WithShop(2, 0, "flag.shiba_shop_met = true; flag.shiba_bought_bitters = true; flag.shiba_bought_tuna_can = true; " +
+                       "flag.gang_wild_dog_received = true", (player, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var entry = OutsideStorySceneRules.ResolveEntry(new NewSceneData { Id = "shiba-shop-revisit" }, 2, conditions, content);
+            Assert.That(entry.Steps.Single().Command, Is.EqualTo(OutsideStoryCommand.ShopOpen));
+            var run = new OutsideStoryExecution(conditions, PickFirst, null);
+            var lesson = new ShopStoryEvents(player, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopOpen, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(lesson.Last().Command, Is.EqualTo(OutsideStoryCommand.ShopQuiz));
+        });
+    }
+
+    [Test]
+    public void OpeningAnEmptyShopEndsBeforeTheAllowanceOffer()
+    {
+        WithShop(2, 0, "flag.shiba_bought_bitters = true; flag.shiba_bought_tuna_can = true", (player, conditions) =>
+        {
+            var run = new OutsideStoryExecution(conditions, PickFirst, null);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, new CsvStoryTestContent())
+                .ExecuteAsync(OutsideStoryCommand.ShopOpen, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(steps.Single().Text.Ko, Is.EqualTo(ShopStoryEvents.SoldOutLine));
+        });
+    }
+
+    [Test]
+    public void AllowanceIsOfferedAfterBuyingBittersWhileTunaIsLeftLikeTheWeb()
+    {
+        WithShop(2, 0, "flag.shiba_bought_bitters = true", (player, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var run = new OutsideStoryExecution(conditions, PickFirst, null);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopOpen, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(steps, Is.EqualTo(content.GetSceneSteps("shiba-allowance")));
+        });
+    }
 }

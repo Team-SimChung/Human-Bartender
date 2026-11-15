@@ -88,6 +88,20 @@ public enum SceneTransitionStyle
 /// 페이드로 화면이 가려진 동안 그 위에 띄우는 전환 화면. 씬 작업 전에 나타나고, 씬 작업이 끝나면
 /// 자기 연출(최소 표시 시간·문 열림 등)을 마친 뒤 페이드 인과 함께 사라진다.
 /// </summary>
+/// <summary>취침 뒤 명언·Day 숫자 전환. 준비 시점까지 덮은 뒤, 일차 변경·씬 로드가 끝나면 공개한다.</summary>
+public interface IDayTransitionPresenter
+{
+    UniTask PlayToPrepareAsync(int from, int to, CancellationToken cancellationToken);
+    UniTask FinishAsync(CancellationToken cancellationToken);
+    void HideImmediate();
+}
+
+/// <summary>전역 전환 서비스가 일차 전환 화면을 갖고 있으면 노출한다. 없으면 null이고 예전 페이드를 쓴다.</summary>
+public interface IDayTransitionSource
+{
+    IDayTransitionPresenter DayTransition { get; }
+}
+
 public interface ISceneTransitionOverlay
 {
     UniTask ShowAsync(SceneTransitionStyle style, CancellationToken cancellationToken);
