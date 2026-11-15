@@ -36,7 +36,7 @@
     "interaction/dialogue_flows.csv": "1c7206c589a01191edcb108456922bab0290bff51162cd7c011b568e605f0e1e",
     "craft/order_rules.csv": "bbebcea6e8cfab61ff560097ecf0253ea9d9e50474ba9a5224045dc2835fd35b",
     "guests/personalities.csv": "a4964a886c2c62096a92478aaa4db742104a429bcd2e77fc0ced4ca4fcd26e91",
-    "guests/random_waves.csv": "f414f57577f703e67eeaf792c9df76e85c1fe815f490e85624f451e0d7ed37cd",
+    "guests/random_waves.csv": "6ee769accd4feecd8425ff4b403bbb356caddede7a7b0a745fd68dc140a13e4e",
     "guests/regular_slots.csv": "80a6c4042ccdc534664d167bea866f7d2cd98e25726a57850214e66c3d6152ae",
     "story/script_files.csv": "d06a0c83a49cf9f19148aea642c20481ca48bb4181d47ede50a02a4b2d70cd27",
     "story/scenes.csv": "b226ab4c7305f91fc6aa545eeb31b540bc6b67fca27cc4b9022925bdad78d190",
@@ -87,7 +87,7 @@
     "interaction/dialogue_flows.csv": "1c7206c589a01191edcb108456922bab0290bff51162cd7c011b568e605f0e1e",
     "craft/order_rules.csv": "bbebcea6e8cfab61ff560097ecf0253ea9d9e50474ba9a5224045dc2835fd35b",
     "guests/personalities.csv": "a4964a886c2c62096a92478aaa4db742104a429bcd2e77fc0ced4ca4fcd26e91",
-    "guests/random_waves.csv": "f414f57577f703e67eeaf792c9df76e85c1fe815f490e85624f451e0d7ed37cd",
+    "guests/random_waves.csv": "6ee769accd4feecd8425ff4b403bbb356caddede7a7b0a745fd68dc140a13e4e",
     "guests/regular_slots.csv": "80a6c4042ccdc534664d167bea866f7d2cd98e25726a57850214e66c3d6152ae",
     "story/script_files.csv": "d06a0c83a49cf9f19148aea642c20481ca48bb4181d47ede50a02a4b2d70cd27",
     "story/scenes.csv": "b226ab4c7305f91fc6aa545eeb31b540bc6b67fca27cc4b9022925bdad78d190",
@@ -126,6 +126,13 @@
       "reason": "Existing scenes only; preserve Unity text effects, ambient wiring, QA and Samho expression bindings.",
       "review": "dialogue_merge_review.json",
       "review_sha256": "182fb03a8ea2ea7ed6147110d81bc5810f9c2003cafaa8feb16748850c059c4e"
+    },
+    {
+      "commit": "d9a34746761bc3a0f3a67bcd04cdf737d9884d70",
+      "files": [
+        "guests/random_waves.csv"
+      ],
+      "reason": "Web-current general guest fixed orders (2026-11-08: day 1 tequila_sunrise/screwdriver, day 2 whiskey_sour/champagne). Readable IDs already match; only the order column changed."
     }
   ],
   "unity_overrides": {

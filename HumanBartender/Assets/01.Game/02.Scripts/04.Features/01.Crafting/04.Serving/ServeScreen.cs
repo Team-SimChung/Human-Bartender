@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -29,7 +30,28 @@ public class ServeScreen : MonoBehaviour
 
     [SerializeField] private GameObject BG;
 
+    [Header("전용 클립이 없는 칵테일")]
+    [Tooltip("클립이 없는 칵테일의 완성 그림을 띄우는 Image. BG 아래 drink 바로 뒤에 둡니다. 웹 serve-fallback과 같은 연출입니다.")]
+    [SerializeField] private Image fallbackDrinkImage;
+    [Tooltip("클립이 스프라이트를 바꾸는 drink Image. 정지 그림을 보일 때는 끕니다.")]
+    [SerializeField] private Image animatedDrinkImage;
+    [Tooltip("칵테일 ID → 완성 그림(01.Finished) 카탈로그.")]
+    [SerializeField] private CocktailRecipeVisualCatalog visuals;
+    [Tooltip("정지 그림 등장 시간(초). 끝나면 등급과 버튼을 보입니다. 웹 1.5초.")]
+    [Min(0)] [SerializeField] private float fallbackDuration = 1.5f;
+    [Tooltip("등장 시작 크기 비율. 1까지 커집니다. 웹 0.72.")]
+    [Range(0, 1)] [SerializeField] private float fallbackStartScale = .72f;
+    [Tooltip("등장 시작 불투명도. 1까지 진해집니다. 웹 0.2.")]
+    [Range(0, 1)] [SerializeField] private float fallbackStartAlpha = .2f;
+    [Tooltip("등장하는 동안 아래로 내려오는 거리(px). 웹 80px × 0.75.")]
+    [SerializeField] private float fallbackDropY = 60f;
+
+    // 정지 그림 참조가 없는 기존 씬·테스트에서만 쓰는 대체 클립.
     private const string FallbackId = "cosmopolitan";
+    private Sequence fallbackSequence;
+    private Vector2 fallbackHome;
+    private bool fallbackHomeKnown;
+    private bool showingFallback;
     private PlayableGraph servingGraph;
     private AnimationClipPlayable servingPlayable;
     private float animationDuration;
@@ -51,6 +73,8 @@ public class ServeScreen : MonoBehaviour
         Reset();
     }
 
+    bool CanShowStill => fallbackDrinkImage != null && animatedDrinkImage != null && visuals != null;
+
     public void Play(CraftedDrink drink)
     {
         TryPlay(drink);
@@ -65,6 +89,14 @@ public class ServeScreen : MonoBehaviour
         }
 
         Initialize();
+        AnimationClip clip = FindAnimation(drink.CocktailId);
+        if (clip == null && CanShowStill)
+        {
+            BeginShow(drink);
+            PlayStill(drink.CocktailId);
+            return true;
+        }
+
         if (animator == null) animator = GetComponent<Animator>();
         if (animator == null)
         {
@@ -72,19 +104,20 @@ public class ServeScreen : MonoBehaviour
             return false;
         }
 
-        AnimationClip clip = FindAnimation(drink.CocktailId) ?? FindAnimation(FallbackId);
+        if (clip == null)
+        {
+            Debug.LogError($"[ServeScreen] '{drink.CocktailId}' 전용 클립이 없고 정지 그림도 연결되지 않아 '{FallbackId}' 클립으로 대신합니다. " +
+                           "Setup Serve Fallback Drink 메뉴를 실행하세요.", this);
+            clip = FindAnimation(FallbackId);
+        }
         if (clip == null)
         {
             Debug.LogError($"[ServeScreen] '{drink.CocktailId}' 또는 '{FallbackId}' 클립을 등록해 주세요.", this);
             return false;
         }
 
-        gameObject.SetActive(true);
-        if (BG != null) BG.SetActive(true);
-        SetControlsActive(false);
-        StopAnimation();
-        currentDrink = drink;
-        UpdateGrade();
+        BeginShow(drink);
+        if (animatedDrinkImage != null) animatedDrinkImage.enabled = true;
 
         // UI Image의 스프라이트 곡선은 Legacy 변환 없이 Animator에 재생한다.
         animator.enabled = true;
@@ -100,6 +133,82 @@ public class ServeScreen : MonoBehaviour
         servingGraph.Play();
         servingGraph.Evaluate(0f);
         return true;
+    }
+
+    private void BeginShow(CraftedDrink drink)
+    {
+        gameObject.SetActive(true);
+        if (BG != null) BG.SetActive(true);
+        SetControlsActive(false);
+        StopAnimation();
+        currentDrink = drink;
+        UpdateGrade();
+    }
+
+    // 웹 serve-fallback: 완성 그림이 작고 흐린 상태에서 커지며 내려온 뒤 등급·버튼을 보인다.
+    private void PlayStill(string cocktailId)
+    {
+        Sprite sprite = visuals.GetCocktailSprite(cocktailId);
+        if (sprite == null) Debug.LogWarning($"[ServeScreen] '{cocktailId}'의 완성 그림이 카탈로그에 없어 그림 없이 진행합니다.", this);
+        animatedDrinkImage.enabled = false;
+        fallbackDrinkImage.sprite = sprite;
+        fallbackDrinkImage.enabled = sprite != null;
+        fallbackDrinkImage.gameObject.SetActive(true);
+        showingFallback = true;
+
+        RectTransform rect = fallbackDrinkImage.rectTransform;
+        // 씬에 저장된 자리를 기준으로 삼는다. 연출이 끝나거나 닫히면 이 자리로 되돌린다.
+        if (!fallbackHomeKnown)
+        {
+            fallbackHome = rect.anchoredPosition;
+            fallbackHomeKnown = true;
+        }
+        rect.anchoredPosition = fallbackHome;
+        rect.localScale = Vector3.one * fallbackStartScale;
+        SetFallbackAlpha(fallbackStartAlpha);
+        if (fallbackDuration <= 0f || !Application.isPlaying)
+        {
+            FinishStill();
+            return;
+        }
+
+        fallbackSequence = DOTween.Sequence()
+            .Join(rect.DOAnchorPosY(fallbackHome.y - fallbackDropY, fallbackDuration).SetEase(Ease.Linear))
+            .Join(rect.DOScale(1f, fallbackDuration).SetEase(Ease.Linear))
+            .Join(fallbackDrinkImage.DOFade(1f, fallbackDuration).SetEase(Ease.Linear))
+            .OnComplete(FinishStill);
+    }
+
+    private void FinishStill()
+    {
+        fallbackSequence = null;
+        RectTransform rect = fallbackDrinkImage.rectTransform;
+        rect.anchoredPosition = fallbackHome + Vector2.down * fallbackDropY;
+        rect.localScale = Vector3.one;
+        SetFallbackAlpha(1f);
+        animationCompleted = true;
+        Apply();
+    }
+
+    private void SetFallbackAlpha(float alpha)
+    {
+        Color color = fallbackDrinkImage.color;
+        color.a = alpha;
+        fallbackDrinkImage.color = color;
+    }
+
+    private void HideStill()
+    {
+        fallbackSequence?.Kill();
+        fallbackSequence = null;
+        if (!showingFallback || fallbackDrinkImage == null) return;
+        showingFallback = false;
+        RectTransform rect = fallbackDrinkImage.rectTransform;
+        rect.anchoredPosition = fallbackHome;
+        rect.localScale = Vector3.one;
+        SetFallbackAlpha(1f);
+        fallbackDrinkImage.gameObject.SetActive(false);
+        if (animatedDrinkImage != null) animatedDrinkImage.enabled = true;
     }
 
     private void Update()
@@ -190,6 +299,7 @@ public class ServeScreen : MonoBehaviour
 
     private void StopAnimation()
     {
+        HideStill();
         if (servingGraph.IsValid()) servingGraph.Destroy();
         servingPlayable = default;
         animationCompleted = false;

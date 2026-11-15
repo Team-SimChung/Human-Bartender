@@ -14,25 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CocktailRecipeVisualCatalog
   cocktailSprites:
   - id: gin_tonic
-    sprite: {fileID: -4721488967516972130, guid: db32f565d095f44e7a1c66f65b82c2a0, type: 3}
+    sprite: {fileID: 21300000, guid: 1b308c37e3ee24c7b98173812e8ee57c, type: 3}
   - id: gin_fizz
-    sprite: {fileID: 2184442971917871591, guid: b78a45cbe54134b90a02f088619fb9f2, type: 3}
+    sprite: {fileID: 21300000, guid: 104b4944d0cac4844bd9bb1e3bdc2083, type: 3}
   - id: bottle_beer
-    sprite: {fileID: 8985615465264998892, guid: 76e67e9af969e41a7adf5ed7f7d5d775, type: 3}
+    sprite: {fileID: 21300000, guid: f183352de23ac4fbbbfa7bb80d1fc2b2, type: 3}
   - id: red_wine
-    sprite: {fileID: -1930045292157732048, guid: ade0d467a9f1249e086e0a775dd4a62c, type: 3}
+    sprite: {fileID: -4332920403236912123, guid: c6f2aa1e2a0745389cb244720e9c7b74, type: 3}
   - id: champagne
-    sprite: {fileID: 2797543790052609566, guid: 78e2bc3e207894068be142e81563dba5, type: 3}
+    sprite: {fileID: -6598911714335181622, guid: 8f4ac10125f649689391e32058d45752, type: 3}
   - id: screwdriver
-    sprite: {fileID: -3929283984652635666, guid: b13a2d1d1ce9645ddb4605718fe5dc50, type: 3}
+    sprite: {fileID: 21300000, guid: a10393a961f65495a95ba51fcf916629, type: 3}
   - id: tequila_sunrise
-    sprite: {fileID: -4691340655720559281, guid: 3c6cb5ee76111411a8ac12e02f5f1122, type: 3}
+    sprite: {fileID: 21300000, guid: 51abbb1a5b54d46e79fffc4e561425f3, type: 3}
   - id: long_island
     sprite: {fileID: 5193329379622164155, guid: 77af5e408d4aa47ebb02bf553f7079e8, type: 3}
   - id: whiskey_sour
-    sprite: {fileID: 1819630434391892922, guid: 245968844c0ec4eddaf78945468a6ccb, type: 3}
+    sprite: {fileID: 168864315198506839, guid: 368c3c896cba4eb48d646477068ba61f, type: 3}
   - id: dry_martini
-    sprite: {fileID: 6292735765798157382, guid: 645592d814090448c9aace243ebae0bc, type: 3}
+    sprite: {fileID: 21300000, guid: 9e83956705ecd4214ad873d4e690766f, type: 3}
   - id: bacardi
     sprite: {fileID: 6292760641717537658, guid: 20994a3039b9e43a78ef74deb78aa01b, type: 3}
   - id: cosmopolitan
@@ -40,9 +40,9 @@ MonoBehaviour:
   - id: kahlua_milk
     sprite: {fileID: 1451483225390947010, guid: a8527b8013d1d4ca6bcdfcdb4c4beede, type: 3}
   - id: godfather
-    sprite: {fileID: -5175942246145493706, guid: 2d20bbfb5692efa49a8446afdffc40ee, type: 3}
+    sprite: {fileID: 4840884731406530324, guid: f06348a91e2040a188ad17de2e912a51, type: 3}
   - id: johnny_old_fashioned
-    sprite: {fileID: -5175942246145493706, guid: 2d20bbfb5692efa49a8446afdffc40ee, type: 3}
+    sprite: {fileID: -8139625160767193875, guid: b8270a9d1c694a6f8628f28686dba239, type: 3}
   ingredientSprites:
   - id: long_drink
     sprite: {fileID: 6380718701440112990, guid: 5c519d9626f274a08bf1de861d87f5fd, type: 3}
@@ -101,9 +101,11 @@ MonoBehaviour:
   - id: amaretto
     sprite: {fileID: 21300000, guid: 4c926ef440db59d4ba4da35e0f3a08ad, type: 3}
   - id: wild_dog
-    sprite: {fileID: -8667724621286151671, guid: 8efb32d0160404406a08b9632cbb1f12, type: 3}
+    sprite: {fileID: -4548868133971977060, guid: 324a93e30ce14c90b277b928952b93d6, type: 3}
   - id: bitters
-    sprite: {fileID: 21300000, guid: 08f178556f55e654dbc230eba296bad5, type: 3}
+    sprite: {fileID: -2752527434221553882, guid: e2ff991e16994b8c80899af02892cadd, type: 3}
+  - id: sugar_cube
+    sprite: {fileID: 1990938788674978555, guid: 5572d26a5bc84bcf9bf7f09bd5b890b4, type: 3}
   tableCocktailSprites:
   - id: gin_tonic
     sprite: {fileID: 21300000, guid: eabab1a2514da47f3b411d2c12936b30, type: 3}
@@ -119,6 +121,16 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: ef08938122e0845ccae8929239d5a72a, type: 3}
   - id: cosmopolitan
     sprite: {fileID: 21300000, guid: e0ca343736900459e8bda88cdce2795d, type: 3}
+  - id: red_wine
+    sprite: {fileID: 21300000, guid: a9966e7fee0e486fbc389f600564b22e, type: 3}
+  - id: champagne
+    sprite: {fileID: 21300000, guid: cd02a5568e9a4067a179813eef4a6e20, type: 3}
+  - id: whiskey_sour
+    sprite: {fileID: 21300000, guid: 4691a28d169c41bbb54428c03299fc31, type: 3}
+  - id: godfather
+    sprite: {fileID: 21300000, guid: 20164dc99f6444fca9ff6ed29ff91c6e, type: 3}
+  - id: johnny_old_fashioned
+    sprite: {fileID: 21300000, guid: c350142bcf5f4deeac2dbc2a3e4d32d3, type: 3}
   tableGlassSprites:
   - id: weizen
     sprite: {fileID: 6067333682832215987, guid: 9c0b44421f41f4fb38b12ed6010a88ee, type: 3}

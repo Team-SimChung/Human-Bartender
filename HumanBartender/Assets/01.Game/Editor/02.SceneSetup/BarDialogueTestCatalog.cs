@@ -39,12 +39,9 @@ internal static class BarDialogueTestCatalog
     {
         if (day < 0 || day > 3) throw new ArgumentOutOfRangeException(nameof(day), "[BarTest] 0~3일차를 선택하세요.");
         // 실제 3일차 진입에 필요한 전날 재료·기억 조건. 각설탕 수령은 대본의 앞 단계에서 준비한다.
-        var flags = day == 3 ? new Dictionary<string, bool>(StringComparer.Ordinal)
-        {
-            ["gang_wild_dog_received"] = true,
-            ["shiba_bought_bitters"] = true,
-            ["campaign_observation"] = true
-        } : null;
+        var flags = day == 3
+            ? CampaignStoryRules.JohnnyPrerequisiteFlags.ToDictionary(flag => flag, _ => true, StringComparer.Ordinal)
+            : null;
         return new HomeInteractionTestScenario(Prefix + day, "바 내부 대사", "선택한 대사부터 실제 바 대본을 진행합니다.",
             day, EGameFlow.Bar, null, flags: flags, runtimeScene: "Play");
     }

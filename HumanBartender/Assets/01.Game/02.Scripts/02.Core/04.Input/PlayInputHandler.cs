@@ -15,14 +15,18 @@ public class PlayInputHandler : MonoBehaviour
     [SerializeField] private RecipeBrowserScreen recipeScreen;
     [SerializeField] private CraftPrepStageHost craftPrepStageHost;
     [SerializeField] private RepeatOrderView repeatOrder;
+    [Tooltip("히든 레시피 해금 창. 열려 있는 동안 바 입력을 받지 않습니다.")]
+    [SerializeField] private HiddenRecipeUnlockScreen hiddenRecipeScreen;
 
     const float SkipInterval = 0.12f;
     bool skipHeld;
     float skipElapsed;
 
+    bool HiddenRecipeOpen => hiddenRecipeScreen != null && hiddenRecipeScreen.IsOpen;
+
     bool CanUseDialogueInput => playPhaseController != null && playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)
         && !UIDisplayOptions.IsOptionOpen && (servicePanelController == null || !servicePanelController.BlocksBarInput)
-        && (recipeScreen == null || !recipeScreen.IsOpen);
+        && (recipeScreen == null || !recipeScreen.IsOpen) && !HiddenRecipeOpen;
 
     public void OnAdvance(InputValue value)
     {
@@ -76,12 +80,12 @@ public class PlayInputHandler : MonoBehaviour
 
     public void OnRepeatOrder(InputValue value)
     {
-        if (value.isPressed) repeatOrder.Submit();
+        if (value.isPressed && !HiddenRecipeOpen) repeatOrder.Submit();
     }
 
     void MoveSeat(InputValue value, int step)
     {
-        if (UIDisplayOptions.IsOptionOpen) return;
+        if (UIDisplayOptions.IsOptionOpen || HiddenRecipeOpen) return;
         // SendMessages also forwards key release; move only on the press.
         if (!value.isPressed || playPhaseController == null) return;
         if (playPhaseController.CanReceiveInput(EPlayPhase.Dialogue))
@@ -98,7 +102,7 @@ public class PlayInputHandler : MonoBehaviour
 
     public void OnServicePanel(InputValue value)
     {
-        if (UIDisplayOptions.IsOptionOpen) return;
+        if (UIDisplayOptions.IsOptionOpen || HiddenRecipeOpen) return;
         if (!value.isPressed || playPhaseController == null ||
             !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) && !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
         if (servicePanelController == null) return;
