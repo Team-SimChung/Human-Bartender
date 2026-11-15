@@ -36,7 +36,8 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
     private bool isTop;
     private bool fastTravelling;
     public bool CanExecute => isActiveAndEnabled && execution == null;
-    public bool CanCancel => !fastTravelling;
+    public bool CanCancel => !IsMoving;
+    public bool CanOpenOptionsWhenCancellationBlocked => IsMoving && !fastTravelling;
     public bool IsMoving => movement != null;
     public bool IsTop => isTop;
 

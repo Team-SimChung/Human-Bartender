@@ -21,6 +21,8 @@ public interface IWorldInteractionSavePolicy
 public interface IWorldInteractionCancellationPolicy
 {
     public bool CanCancel { get; }
+    // 취소를 막는 동안 설정창을 허용할 동작만 재정의한다. 취침·암전 등은 ESC를 소비한다.
+    public bool CanOpenOptionsWhenCancellationBlocked => false;
 }
 
 public readonly struct WorldInteractionActionContext

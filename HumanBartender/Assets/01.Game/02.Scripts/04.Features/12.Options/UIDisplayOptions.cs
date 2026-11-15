@@ -41,7 +41,12 @@ public class UIDisplayOptions : MonoBehaviour
 
     static UIDisplayOptions activeOptions;
     GameObject previousSelection;
-    int lastEscapeFrame = -1;
+    static int lastEscapeFrame = -1;
+    // 설정창을 닫은 뒤 실행되는 월드 Update에도 같은 ESC가 전달되지 않게 한다.
+    internal static bool EscapeHandledThisFrame => lastEscapeFrame == Time.frameCount;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetEscapeHandling() => lastEscapeFrame = -1;
     public static void ShowActive() { if (activeOptions != null) activeOptions.Show(); }
     public void Show()
     {

@@ -40,6 +40,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     private InteractionStateLease continuationLease;
     private bool ready;
     private bool handingOff;
+    private bool sessionStartedAutomatically;
     private int lastInputFrame = -1;
     private static int escapeConsumedFrame = -1;
 
@@ -54,6 +55,9 @@ public sealed class WorldInteractionController : MonoBehaviour
         foreach (var controller in FindObjectsByType<WorldInteractionController>(FindObjectsSortMode.None))
         {
             if (!controller.isActiveAndEnabled || !controller.IsRunning) continue;
+            // 씬 전환은 항상 소비한다. 설정창을 허용할 때만 소비 기록을 남기지 않는다.
+            if (!controller.handingOff && !controller.CanCancel && controller.CanOpenOptionsWhenCancellationBlocked)
+                return false;
             escapeConsumedFrame = Time.frameCount;
             controller.RequestCancel();
             return true;
@@ -69,7 +73,13 @@ public sealed class WorldInteractionController : MonoBehaviour
     private bool testScriptOutput;
 #endif
     public bool CanSave => !handingOff && (!IsRunning || activeTarget != null && activeTarget.Action is IWorldInteractionSavePolicy policy && policy.CanSave);
-    public bool CanCancel => !handingOff && (activeTarget == null || activeTarget.Action is not IWorldInteractionCancellationPolicy policy || policy.CanCancel);
+    public bool CanCancel => !handingOff && !sessionStartedAutomatically &&
+        (activeTarget == null || activeTarget.Action is not IWorldInteractionCancellationPolicy policy || policy.CanCancel);
+    // 자동 사건이어도 취침·빠른 이동처럼 동작 자체가 막은 구간은 그 정책을 우선한다.
+    private bool CanOpenOptionsWhenCancellationBlocked =>
+        activeTarget != null && activeTarget.Action is IWorldInteractionCancellationPolicy { CanCancel: false } policy
+            ? policy.CanOpenOptionsWhenCancellationBlocked
+            : sessionStartedAutomatically;
     public WorldInteractionTarget FocusedTarget => focused;
     internal WorldInteractionTarget ActiveTarget => activeTarget;
     internal WorldInteractionView View => view;
@@ -197,7 +207,8 @@ public sealed class WorldInteractionController : MonoBehaviour
         }
         if (WorldInteractionInput.EscapePressed)
         {
-            TryCancelForEscape();
+            if (!UIDisplayOptions.IsOptionOpen && !UIDisplayOptions.EscapeHandledThisFrame)
+                TryCancelForEscape();
             return;
         }
         if (!SessionAvailable)
@@ -358,6 +369,8 @@ public sealed class WorldInteractionController : MonoBehaviour
         lastInputFrame = Time.frameCount;
         session = source;
         activeTarget = target;
+        // CSV와 Inspector를 해석한 최종 시작 방식을 이 세션이 끝날 때까지 유지한다.
+        sessionStartedAutomatically = story.StartMode == ENewSceneTrigger.Auto;
         var lease = InteractionStateLease.Acquire(player);
         WorldDialogueTravelSettings.Snapshot? travel = null;
         try
@@ -414,6 +427,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             {
                 activeTarget = null;
                 session = null;
+                sessionStartedAutomatically = false;
                 lease.Dispose();
                 if (sceneContext != null && sceneContext.IsReady)
                 {
