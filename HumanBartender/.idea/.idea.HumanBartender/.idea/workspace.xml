@@ -12,6 +12,16 @@
   <component name="ChangeListManager">
     <list default="true" id="6e78d257-6d5e-4902-9480-b68a8df1a954" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.HumanBartender/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.HumanBartender/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/01.Scenes/Home.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/01.Scenes/Home.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/01.Scenes/Play.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/01.Scenes/Play.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/02.Scripts/04.Features/05.Dialogue/DialogueRunner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/02.Scripts/04.Features/05.Dialogue/DialogueRunner.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldInteractionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldInteractionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/02.Scripts/04.Features/08.Home/HomeTerracePresentation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/02.Scripts/04.Features/08.Home/HomeTerracePresentation.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/03.Content/01.ArtResources/01.Characters/02.Outside/05.StreetNPC/01.Idle/Crow_idle.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/03.Content/01.ArtResources/01.Characters/02.Outside/05.StreetNPC/01.Idle/Crow_idle.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/03.Content/01.ArtResources/01.Characters/02.Outside/05.StreetNPC/01.Idle/Pigeon_idle.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/03.Content/01.ArtResources/01.Characters/02.Outside/05.StreetNPC/01.Idle/Pigeon_idle.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/01.Game/06.Tests/Editor/HomeTerracePresentationTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/01.Game/06.Tests/Editor/HomeTerracePresentationTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/AddressableAssetsData/AddressableAssetSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/AddressableAssetsData/AddressableAssetSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +55,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "117-Home-Direction-Add",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -56,7 +66,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Unity 에디터에 연결.Attach to Unity Editor">
+  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="유닛 테스트(배치 모드)" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.14f1\Editor\Unity.exe" />
       <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath &quot;C:\Users\hanrc\OneDrive\Documents\Unity Projects\Human-Bartender\HumanBartender&quot; -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
@@ -109,12 +119,10 @@
     </configuration>
     <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false">
       <option name="allowRunningInParallel" value="false" />
+      <option name="coreClr" value="false" />
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
-      <option name="runtimes">
-        <list />
-      </option>
       <option name="selectedOptions">
         <list />
       </option>
@@ -122,12 +130,10 @@
     </configuration>
     <configuration name="Unity 에디터에 연결" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false">
       <option name="allowRunningInParallel" value="false" />
+      <option name="coreClr" value="false" />
       <option name="listenPortForConnections" value="false" />
       <option name="pid" />
       <option name="projectPathOnTarget" />
-      <option name="runtimes">
-        <list />
-      </option>
       <option name="selectedOptions">
         <list />
       </option>
@@ -153,6 +159,7 @@
   </component>
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
   <component name="UnityProjectDiscoverer">
+    <option name="hasUnityReference" value="true" />
     <option name="unityProject" value="true" />
     <option name="unityProjectFolder" value="true" />
   </component>

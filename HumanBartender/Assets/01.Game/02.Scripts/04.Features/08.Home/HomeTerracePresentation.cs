@@ -24,12 +24,47 @@ public sealed class HomeTerracePresentation : MonoBehaviour
     [SerializeField, Min(0), Tooltip("화면이 밝아진 뒤 이동할 시간(초)입니다. 0이면 즉시 도착합니다.")] private float entranceDuration = 3f;
     [SerializeField, Tooltip("진입 이동의 가속·감속 곡선입니다.")] private Ease entranceEase = Ease.InOutSine;
     [SerializeField, Tooltip("진입 이동을 마친 뒤 재생할 테라스 이야기 ID입니다.")] private string[] storyIds = { "night0", "night1", "night2", "ending" };
+    [Header("테라스 이용 중 활성화")]
+    [SerializeField, Tooltip("까마귀·비둘기가 들어 있는 TerraceBirdsGroup입니다. 테라스를 비추기 전에 켜고 복귀·취소 시 끕니다. 이 컴포넌트 자체를 포함하지 않는 자식 그룹을 연결하세요.")]
+    private GameObject terraceBirdsRoot;
+    [Header("대본 스텝 연출")]
+    [SerializeField, Tooltip("씬에 배치한 새 도착 연출입니다. 날짜별 스텝은 각 컴포넌트의 Inspector에서 설정합니다.")]
+    private TerraceBirdArrival[] birdArrivals = Array.Empty<TerraceBirdArrival>();
     private bool previousCameraEnabled;
     public bool IsActive { get; private set; }
     public WorldDialogueSpeakers Speakers => speakers;
     public Transform LunaAnchor => lunaAnchor;
 
+    private void Awake() => SetTerraceBirdsActive(false);
+
+    private void SetTerraceBirdsActive(bool active)
+    {
+        if (terraceBirdsRoot != null) terraceBirdsRoot.SetActive(active);
+    }
+
     public bool ContainsStory(string id) => Array.IndexOf(storyIds ?? Array.Empty<string>(), id) >= 0;
+    public int StoryDayCount => storyIds?.Length ?? 0;
+    public string GetStoryIdForDay(int day) => day >= 0 && day < StoryDayCount ? storyIds[day] : null;
+
+    public void BeginStory(string id, int day)
+    {
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.PrepareForDay(ContainsStory(id) ? day : -1);
+        SyncBirdsWithForeground();
+    }
+
+    public void OnStepStarted(Step step)
+    {
+        if (!IsActive) return;
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.TryStartAtStep(step.Seq);
+    }
+
+    private void ResetBirds()
+    {
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.ResetArrival();
+    }
 
     /// <summary>취침 페이드의 검은 화면에서 다음 날 위치와 실내 카메라를 준비함.</summary>
     public void PrepareMorning(Player player)
@@ -41,20 +76,28 @@ public sealed class HomeTerracePresentation : MonoBehaviour
         RestoreCamera();
     }
 
-    public async UniTask EnterAsync(ISceneFadeService fades, CancellationToken token)
+    public async UniTask EnterAsync(ISceneFadeService fades, CancellationToken token, string storyId = null, int day = -1)
     {
         token.ThrowIfCancellationRequested();
-        if (IsActive) return;
+        if (IsActive)
+        {
+            SetTerraceBirdsActive(true);
+            if (storyId != null) BeginStory(storyId, day);
+            return;
+        }
         if (terraceCamera == null || cameraBrain == null || speakers == null || lunaAnchor == null || terraceForeground == null || fades == null)
             throw new InvalidOperationException("[HomeTerrace] 테라스 카메라·화자 기준점·Terrace·페이드 서비스를 연결하세요.");
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         token = lifetime.Token;
         previousCameraEnabled = terraceCamera.enabled;
+        ResetBirds();
         await fades.FadeOutAsync(fadeDuration, token);
         try
         {
             IsActive = true;
             SetForegroundX(entranceStartX);
+            SetTerraceBirdsActive(true);
+            if (storyId != null) BeginStory(storyId, day);
             terraceCamera.PreviousStateIsValid = false;
             terraceCamera.enabled = true;
             cameraBrain.ResetState(); // 검은 화면에서 즉시 전환하고 기본 카메라 블렌드는 유지함.
@@ -62,7 +105,7 @@ public sealed class HomeTerracePresentation : MonoBehaviour
             await fades.FadeInAsync(fadeDuration, token);
             if (entranceDuration > 0)
                 await terraceForeground.DOLocalMoveX(entranceEndX, entranceDuration)
-                    .SetEase(entranceEase).SetUpdate(true)
+                    .SetEase(entranceEase).SetUpdate(true).OnUpdate(SyncBirdsWithForeground)
                     .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
             token.ThrowIfCancellationRequested();
             SetForegroundX(entranceEndX);
@@ -76,7 +119,12 @@ public sealed class HomeTerracePresentation : MonoBehaviour
 
     public async UniTask ExitAsync(ISceneFadeService fades, CancellationToken token)
     {
-        if (!IsActive) return;
+        ResetBirds();
+        if (!IsActive)
+        {
+            SetTerraceBirdsActive(false);
+            return;
+        }
         try { await fades.FadeOutAsync(fadeDuration, token); }
         finally
         {
@@ -89,6 +137,8 @@ public sealed class HomeTerracePresentation : MonoBehaviour
 
     private void RestoreCamera()
     {
+        ResetBirds();
+        SetTerraceBirdsActive(false);
         if (!IsActive) return;
         SetForegroundX(entranceEndX);
         if (terraceCamera != null) terraceCamera.enabled = previousCameraEnabled;
@@ -102,6 +152,21 @@ public sealed class HomeTerracePresentation : MonoBehaviour
         var position = terraceForeground.localPosition;
         position.x = x;
         terraceForeground.localPosition = position;
+        SyncBirdsWithForeground();
+    }
+
+    private void SyncBirdsWithForeground()
+    {
+        if (terraceForeground == null) return;
+        var offset = Vector3.right * (terraceForeground.localPosition.x - entranceEndX);
+        if (terraceForeground.parent != null) offset = terraceForeground.parent.TransformVector(offset);
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.SyncTerraceEntrance(terraceForeground, offset);
+    }
+
+    private void OnDisable()
+    {
+        if (Application.isPlaying) RestoreCamera();
     }
 
     private void OnDestroy() => RestoreCamera();
