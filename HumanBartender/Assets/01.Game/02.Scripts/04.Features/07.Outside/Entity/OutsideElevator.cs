@@ -36,7 +36,8 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
     private bool isTop;
     private bool fastTravelling;
     public bool CanExecute => isActiveAndEnabled && execution == null;
-    public bool CanCancel => !fastTravelling;
+    public bool CanCancel => !IsMoving;
+    public bool BlocksEscape => fastTravelling;
     public bool IsMoving => movement != null;
     public bool IsTop => isTop;
 
@@ -115,7 +116,7 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         {
             Id = "ride", Text = new Texts { Ko = isTop ? "내려간다" : "올라간다", En = isTop ? "Go down" : "Go up" }
         };
-        var cancel = new NewStreetOptionData { Id = "cancel", Text = new Texts { Ko = "취소", En = "Cancel" } };
+        var cancel = new NewStreetOptionData { Id = "cancel", Text = new Texts { Ko = "취소", En = "Cancel" }, IsCancel = true };
         return IsRepaired()
             ? new[] { new NewStreetOptionData { Id = "fast", Text = new Texts { Ko = "빠른 이동", En = "Fast travel" } }, normal, cancel }
             : new[] { normal, cancel };

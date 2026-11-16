@@ -17,6 +17,8 @@ public class ShakingStrikeNode : MonoBehaviour
     [SerializeField] float curBpm = 60;
 
     double startDspTime;
+    double pausedAt;
+    bool paused;
     float beatDuration;
 
     int[] targetSequence = { 0, 1, 2, 3, 2, 1 };
@@ -37,11 +39,21 @@ public class ShakingStrikeNode : MonoBehaviour
 
     int lastSeqIndex = -1;
 
-    public void Handle()
-    {
-        if (!isStart) return;
+    public void Handle() => HandleAt(AudioSettings.dspTime);
 
-        elapsed = AudioSettings.dspTime - startDspTime;
+    internal void SetPaused(bool value, double now)
+    {
+        if (paused == value) return;
+        paused = value;
+        if (value) pausedAt = now;
+        else startDspTime += now - pausedAt;
+    }
+
+    internal void HandleAt(double now)
+    {
+        if (!isStart || paused) return;
+
+        elapsed = now - startDspTime;
         if (elapsed < 0)
         {
             transform.position = targetPostions[targetSequence[0]];
@@ -78,6 +90,7 @@ public class ShakingStrikeNode : MonoBehaviour
     public void InitToStart(Vector3[] line, float bpm)
     {
         lastSeqIndex = -1;
+        paused = false;
         curBpm = bpm;
         targetPostions = line;
 

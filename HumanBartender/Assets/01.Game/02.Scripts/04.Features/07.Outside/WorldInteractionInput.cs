@@ -5,8 +5,8 @@ internal static class WorldInteractionInput
 {
     internal static bool EscapePressed => Keyboard.current?.escapeKey.wasPressedThisFrame == true;
     internal static bool CancelPressed => Gamepad.current?.buttonEast.wasPressedThisFrame == true;
-    internal static bool AdvancePressed => GameKeyBindings.WasPressed(GameControl.Interact) ||
-        Keyboard.current?.enterKey.wasPressedThisFrame == true || Gamepad.current?.buttonSouth.wasPressedThisFrame == true;
+    internal static bool AdvancePressed => DialogueAdvanceInput.PressedKey(includeInteraction: true) != null ||
+        Gamepad.current?.buttonSouth.wasPressedThisFrame == true;
 
     internal static int ReadChoiceDirection()
     {

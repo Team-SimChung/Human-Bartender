@@ -15,6 +15,24 @@ public sealed class ChoiceHoldButton : Button
 
     public bool IsHolding => holding;
     public event System.Action<bool> HoldingChanged;
+    // 사용하는 화면이 입력 허용과 중복 방지를 결정한다. 버튼은 바깥 화면을 직접 참조하지 않는다.
+    public System.Func<bool> InputAllowed { get; set; }
+    public System.Func<bool> AcceptKeyboardInput { get; set; }
+    public System.Action<AxisEventData> MoveRequested { get; set; }
+    private bool? managedFocus;
+
+    public void SetManagedFocus(bool focused)
+    {
+        managedFocus = focused;
+        if (!focused) CancelHold(true);
+        DoStateTransition(currentSelectionState, true);
+    }
+
+    public override void OnMove(AxisEventData eventData)
+    {
+        if (MoveRequested != null) MoveRequested(eventData);
+        else base.OnMove(eventData);
+    }
 
     private bool holding;
     private int heldPointerId;
@@ -24,7 +42,7 @@ public sealed class ChoiceHoldButton : Button
     private float displayedProgress;
     private bool pointerInside;
     private PointerEventData hoverPointer;
-    private ButtonControl submitControl;
+    private System.Func<bool> submitHeld;
     private bool holdRequired = true;
 
     /// <summary>조건 미충족 항목은 홀드 진행 없이 확정 시 거부 표시를 요청한다.</summary>
@@ -63,7 +81,7 @@ public sealed class ChoiceHoldButton : Button
     {
         base.OnPointerUp(eventData);
         if (eventData.button == PointerEventData.InputButton.Left &&
-            eventData.pointerId == heldPointerId && submitControl == null)
+            eventData.pointerId == heldPointerId && submitHeld == null)
             CancelHold();
     }
 
@@ -79,12 +97,14 @@ public sealed class ChoiceHoldButton : Button
         if (hoverPointer == eventData) hoverPointer = null;
         pointerInside = false;
         base.OnPointerExit(eventData);
-        if (eventData.pointerId == heldPointerId && submitControl == null)
+        if (eventData.pointerId == heldPointerId && submitHeld == null)
             CancelHold();
     }
 
     protected override void DoStateTransition(SelectionState state, bool instant)
     {
+        if (managedFocus.HasValue && state != SelectionState.Disabled)
+            state = managedFocus.Value ? SelectionState.Highlighted : SelectionState.Normal;
         // 마우스로 선택된 상태에서도 커서가 안에 있으면 호버 외형을 유지한다.
         // 논리적인 선택은 유지하여 키보드·게임패드 이동을 방해하지 않는다.
         if (state == SelectionState.Selected && pointerInside) state = SelectionState.Highlighted;
@@ -96,13 +116,22 @@ public sealed class ChoiceHoldButton : Button
 
     public override void OnSubmit(BaseEventData eventData)
     {
-        if (holding || !CanHold()) return;
-        if (!holdRequired) { onClick.Invoke(); return; }
         var module = eventData.currentInputModule as InputSystemUIInputModule;
         var control = module?.submit?.action?.activeControl as ButtonControl;
-        if (control == null || !control.isPressed) return;
-        submitControl = control;
+        TryBeginSubmit(control);
+    }
+
+    public bool TryBeginSubmit(ButtonControl control) =>
+        control != null && TryBeginSubmit(() => control.isPressed);
+
+    internal bool TryBeginSubmit(System.Func<bool> isPressed)
+    {
+        if (holding || !CanHold() || isPressed == null || !isPressed()) return false;
+        if (AcceptKeyboardInput?.Invoke() == false) return false;
+        if (!holdRequired) { onClick.Invoke(); return true; }
+        submitHeld = isPressed;
         BeginHold();
+        return true;
     }
 
     public override void OnDeselect(BaseEventData eventData)
@@ -111,22 +140,25 @@ public sealed class ChoiceHoldButton : Button
         base.OnDeselect(eventData);
     }
 
-    private bool CanHold() => IsActive() && IsInteractable();
+    private bool CanHold() => IsActive() && IsInteractable() && InputAllowed?.Invoke() != false;
 
     private void BeginHold()
     {
         holding = true;
         HoldingChanged?.Invoke(true);
-        holdStartProgress = displayedProgress;
+        // 한 번 놓은 키의 잔여 표시를 다시 누르기의 유지 시간에 더하지 않는다.
+        holdStartProgress = 0f;
+        SetProgress(0f);
         holdStartedAt = Time.unscaledTimeAsDouble;
         lastProgressUpdateTime = holdStartedAt;
         if (holdProgressRoot != null) holdProgressRoot.SetActive(true);
     }
 
-    private void Update()
+    private void Update() => Tick(Time.unscaledTimeAsDouble);
+
+    internal void Tick(double now)
     {
         if (!holding && displayedProgress <= 0f) return;
-        double now = Time.unscaledTimeAsDouble;
         float delta = Mathf.Max(0f, (float)(now - lastProgressUpdateTime));
         lastProgressUpdateTime = now;
         float resetSpeed = 1f / Mathf.Max(0.01f, resetDuration);
@@ -141,7 +173,7 @@ public sealed class ChoiceHoldButton : Button
             CancelHold(true);
             return;
         }
-        if (submitControl != null && !submitControl.isPressed)
+        if (submitHeld != null && !submitHeld())
         {
             CancelHold();
             return;
@@ -162,7 +194,7 @@ public sealed class ChoiceHoldButton : Button
         bool wasHolding = holding;
         holding = false;
         if (wasHolding) HoldingChanged?.Invoke(false);
-        submitControl = null;
+        submitHeld = null;
         lastProgressUpdateTime = Time.unscaledTimeAsDouble;
         if (immediately || displayedProgress <= 0f)
         {

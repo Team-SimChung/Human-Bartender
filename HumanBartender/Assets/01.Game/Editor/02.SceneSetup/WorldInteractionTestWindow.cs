@@ -190,7 +190,7 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
                 if (GUILayout.Button("이전 선택")) controller.View.MoveChoice(-1);
                 if (GUILayout.Button("다음 선택")) controller.View.MoveChoice(1);
             }
-            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !controller.IsRunning || !controller.CanCancel))
+            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !controller.CanStopForTest))
                 if (GUILayout.Button("상호작용 취소")) HomeInteractionTestSession.Cancel();
         }
         bool idle = !HomeInteractionTestSession.IsBusy && !controller.IsRunning && !context.Runner.IsRunning &&

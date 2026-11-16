@@ -77,7 +77,12 @@ public static class StoryCsvCompiler
                 throw new InvalidOperationException("npc-sequence의 arg에 Inspector 연출 ID를 지정하세요.");
             step.Type = "event";
         }
-        if (step.Options != null) step.Options = step.Options.Select(CompileOption).ToArray();
+        if (step.Options != null)
+        {
+            if (step.Options.Count(option => option.IsCancel == true) > 1)
+                throw new InvalidOperationException("[Story] 한 선택지 묶음에 취소 표시는 하나만 지정할 수 있습니다.");
+            step.Options = step.Options.Select(CompileOption).ToArray();
+        }
         // 실행기는 원시 웹 메타데이터를 읽을 수 없다. 원본 CSV와 catalog의 조립 결과는 유지한다.
         step.WebFields = null;
         return step;

@@ -38,7 +38,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
                 {
                     Option("sleep", "수면", "Sleep"),
                     Option("save", "저장", "Save"),
-                    Option("cancel", "취소", "Cancel")
+                    Option("cancel", "취소", "Cancel", isCancel: true)
                 }, null, token);
                 switch (selected.Id)
                 {
@@ -75,7 +75,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
             {
                 var confirmation = await context.ChooseMenu(new[]
                 {
-                    Option("overwrite", "덮어쓰기", "Overwrite"), Option("back", "취소", "Cancel")
+                    Option("overwrite", "덮어쓰기", "Overwrite"), Option("back", "취소", "Cancel", isCancel: true)
                 }, Localize($"{slot}번 슬롯의 저장 내용을 덮어쓸까요?", $"Overwrite the save in slot {slot}?"), token);
                 if (confirmation.Id != "overwrite") continue;
             }
@@ -98,7 +98,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
         }
         if (SaveManager.SlotCount > SlotsPerPage)
             options.Add(Option("next", "다음 슬롯", "Next slots"));
-        options.Add(Option("back", "뒤로", "Back"));
+        options.Add(Option("back", "뒤로", "Back", isCancel: true));
         return options.ToArray();
     }
 
@@ -164,7 +164,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
         await context.ChooseMenu(new[] { Option("ok", "확인", "OK") }, message, token);
     }
 
-    private static NewStreetOptionData Option(string id, string ko, string en) =>
-        new() { Id = id, Text = new Texts { Ko = ko, En = en } };
+    private static NewStreetOptionData Option(string id, string ko, string en, bool isCancel = false) =>
+        new() { Id = id, Text = new Texts { Ko = ko, En = en }, IsCancel = isCancel };
     private static string Localize(string ko, string en) => GameStateManager.Instance.Language == ELanguage.En ? en : ko;
 }
