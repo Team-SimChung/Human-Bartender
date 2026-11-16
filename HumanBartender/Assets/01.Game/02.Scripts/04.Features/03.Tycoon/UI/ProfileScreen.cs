@@ -51,7 +51,7 @@ public sealed class ProfileScreen : MonoBehaviour
     ProfileCardView selectedCard;
     EPlayPhase openedPhase;
     ELanguage language;
-    float previousTimeScale;
+    IDisposable pauseHandle;
     Tween fade;
     public bool IsOpen { get; private set; }
     public bool IsDetailOpen => IsOpen && detailRoot.activeSelf;
@@ -85,9 +85,8 @@ public sealed class ProfileScreen : MonoBehaviour
     {
         if (IsOpen || !CanOpen || UIDisplayOptions.IsOptionOpen) return;
         openedPhase = playPhase.CurrentPhase;
-        previousTimeScale = Time.timeScale;
+        pauseHandle = GamePause.Acquire();
         IsOpen = true;
-        Time.timeScale = 0;
         detailRoot.SetActive(false);
         listGroup.interactable = listGroup.blocksRaycasts = true;
         selectedCard = null;
@@ -202,9 +201,10 @@ public sealed class ProfileScreen : MonoBehaviour
     {
         fade?.Kill();
         fade = null;
+        pauseHandle?.Dispose();
+        pauseHandle = null;
         if (!IsOpen) return;
         IsOpen = false;
-        Time.timeScale = previousTimeScale;
         listScroll.StopMovement();
         detailScroll.StopMovement();
         detailRoot.SetActive(false);

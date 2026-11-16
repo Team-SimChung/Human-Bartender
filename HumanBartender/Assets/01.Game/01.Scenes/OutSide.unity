@@ -7579,8 +7579,8 @@ GameObject:
   - component: {fileID: 809348808}
   - component: {fileID: 809348807}
   m_Layer: 9
-  m_Name: ImageExample
-  m_TagString: EditorOnly
+  m_Name: outside_shiba_wanted_inspect
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7599,7 +7599,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1412544336}
-  m_Father: {fileID: 740190000000000002}
+  m_Father: {fileID: 854879301}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &809348807
 MonoBehaviour:
@@ -7627,13 +7627,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c62a35bee00e4a48bc61174e0b037694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  storySceneId: outside_interaction_choice_example
+  storySceneId: outside_shiba_wanted_inspect
   content: {fileID: 0}
   startMode: 0
   interactionRadius: 1.5
   contentStartOverrides: []
   startSettingsVersion: 1
-  interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
+  interactionLabel: "\uBCF4\uAE30"
   output: 1
   speechAnchor: {fileID: 1412544336}
   bubbleOffset: {x: 0, y: -15}
@@ -8188,6 +8188,7 @@ Transform:
   - {fileID: 792483999}
   - {fileID: 1905454067}
   - {fileID: 1074330137}
+  - {fileID: 809348806}
   m_Father: {fileID: 740190000000000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &868482183
@@ -16147,7 +16148,7 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.99959886
+    width: 0.99979913
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -26665,7 +26666,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 809348806}
   - {fileID: 740190000000000022}
   - {fileID: 1081217489}
   - {fileID: 1038123104}

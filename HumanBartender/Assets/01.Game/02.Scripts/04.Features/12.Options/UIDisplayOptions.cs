@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -41,6 +42,7 @@ public class UIDisplayOptions : MonoBehaviour
 
     static UIDisplayOptions activeOptions;
     GameObject previousSelection;
+    IDisposable pauseHandle;
     static int lastEscapeFrame = -1;
     // 설정창을 닫은 뒤 실행되는 월드 Update에도 같은 ESC가 전달되지 않게 한다.
     internal static bool EscapeHandledThisFrame => lastEscapeFrame == Time.frameCount;
@@ -50,15 +52,18 @@ public class UIDisplayOptions : MonoBehaviour
     public static void ShowActive() { if (activeOptions != null) activeOptions.Show(); }
     public void Show()
     {
-        if (optionUI == null || optionUI.activeSelf) return;
+        if (!isActiveAndEnabled || optionUI == null || optionUI.activeSelf) return;
         previousSelection = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
         SyncUIFromCurrentSettings();
         SyncAudioSliders();
+        pauseHandle = GamePause.Acquire();
         optionUI.SetActive(true);
         optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshValues();
     }
     public void Hide()
     {
+        pauseHandle?.Dispose();
+        pauseHandle = null;
         if (optionUI != null) optionUI.SetActive(false);
         if (EventSystem.current != null && previousSelection != null && previousSelection.activeInHierarchy)
             EventSystem.current.SetSelectedGameObject(previousSelection);
@@ -130,6 +135,7 @@ public class UIDisplayOptions : MonoBehaviour
 
     private void OnDisable()
     {
+        Hide();
         if (activeOptions == this) activeOptions = null;
     }
 
