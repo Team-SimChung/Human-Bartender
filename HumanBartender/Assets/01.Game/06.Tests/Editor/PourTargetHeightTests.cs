@@ -148,6 +148,70 @@ public sealed class PourTargetHeightTests
         Assert.That(Get<Transform>("targetHeightMarker").localPosition.y, Is.EqualTo(initialY));
     }
 
+    [Test]
+    public void StreamWidthControlNarrowsAirborneParticlesWithoutChangingLengthOrContainedLiquid()
+    {
+        Configure(90f, ENewUnit.Ml, false);
+        var renderRoot = new GameObject("Stream Width Render");
+        owned.Add(renderRoot);
+        var camera = renderRoot.AddComponent<Camera>();
+        camera.orthographic = true;
+        camera.orthographicSize = 2.5f;
+        camera.transform.position = new Vector3(0f, 0f, -10f);
+        var output = new RenderTexture(1024, 1024, 0);
+        owned.Add(output);
+        output.Create();
+        camera.targetTexture = output;
+        var renderer = renderRoot.AddComponent<SphLiquidRenderer>();
+        var settings = new SerializedObject(renderer);
+        settings.FindProperty("fieldResolutionScale").floatValue = 1f;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        renderer.SetContainer(glass, HalfExtents);
+        renderer.SetTargetCamera(camera);
+        renderer.Init(profile, Color.yellow);
+        var particle = Particle(Vector2.zero);
+        particle.velocity = Vector2.down * 1.6f;
+        Vector2Int ReadShape(float scale, bool inside, bool received = false)
+        {
+            typeof(SphParticle).GetField("insideContainer", Private).SetValue(particle, inside);
+            typeof(SphParticle).GetField("volumeReceived", Private).SetValue(particle, received);
+            renderer.SetAirborneWidthScale(scale);
+            renderer.UpdateBlobs(new[] { particle });
+            var build = typeof(SphLiquidRenderer).GetMethod("BuildCommands", Private);
+            Graphics.ExecuteCommandBuffer((CommandBuffer)build.Invoke(renderer, new object[] { camera, 1f / 60f }));
+            var field = (RenderTexture)typeof(SphLiquidRenderer).GetField("fieldTexture", Private).GetValue(renderer);
+            return new Vector2Int(ReadSpan(field, true), ReadSpan(field, false));
+        }
+        Vector2Int normal = ReadShape(1f, false);
+        Vector2Int narrow = ReadShape(.7f, false);
+        Assert.That(normal.x, Is.GreaterThan(0));
+        Assert.That(narrow.x, Is.GreaterThan(0).And.LessThan(normal.x * .85f));
+        Assert.That(narrow.y, Is.EqualTo(normal.y).Within(2), "물줄기의 축 방향 연결 길이를 유지한다.");
+        Assert.That(ReadShape(.7f, true), Is.EqualTo(narrow),
+            "잔 안으로 들어왔어도 아직 담기지 않은 유입 줄기는 가는 두께를 유지한다.");
+        Vector2Int contained = ReadShape(1f, true, true);
+        Assert.That(ReadShape(.7f, true, true), Is.EqualTo(contained), "실제로 담긴 액체의 크기는 유지한다.");
+    }
+
+    int ReadSpan(RenderTexture field, bool horizontal)
+    {
+        var pixels = new Texture2D(horizontal ? field.width : 1, horizontal ? 1 : field.height,
+            TextureFormat.RGBAFloat, false, true);
+        owned.Add(pixels);
+        var previous = RenderTexture.active;
+        try
+        {
+            RenderTexture.active = field;
+            pixels.ReadPixels(horizontal ? new Rect(0f, field.height / 2, field.width, 1f)
+                : new Rect(field.width / 2, 0f, 1f, field.height), 0, 0);
+            pixels.Apply();
+        }
+        finally { RenderTexture.active = previous; }
+        int count = 0;
+        foreach (Color pixel in pixels.GetPixels()) if (pixel.r >= profile.threshold) count++;
+        return count;
+    }
+
     [TestCase(30f, ENewUnit.Ml, false, 1f, 1f)]
     [TestCase(90f, ENewUnit.Ml, false, 1f, 1f)]
     [TestCase(12f, ENewUnit.Oz, true, 1f, 1f)]
