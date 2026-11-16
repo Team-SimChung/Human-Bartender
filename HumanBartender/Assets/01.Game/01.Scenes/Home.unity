@@ -2142,7 +2142,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e76faac5ab58488493b3ae32c85c3521, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RandomIdleAnimation
 --- !u!1 &450239511
 GameObject:
@@ -4619,7 +4619,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1197103562
 Transform:
   m_ObjectHideFlags: 0
@@ -5733,7 +5733,7 @@ Transform:
   m_GameObject: {fileID: 1642909158}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.69, y: -3.8750002, z: 0}
+  m_LocalPosition: {x: 0.78, y: -5.63, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6784,11 +6784,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3000414325261664843, guid: d7292318d94b5ec438ce7e258284a490, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.63100016
+      value: 2.411
       objectReference: {fileID: 0}
     - target: {fileID: 3000414325261664843, guid: d7292318d94b5ec438ce7e258284a490, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.18899998
+      value: -0.531
       objectReference: {fileID: 0}
     - target: {fileID: 3000414325261664843, guid: d7292318d94b5ec438ce7e258284a490, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6824,11 +6824,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4471250528852277882, guid: d7292318d94b5ec438ce7e258284a490, type: 3}
       propertyPath: clip
-      value:
+      value: 
       objectReference: {fileID: 8300000, guid: bb037b7a569564ce1b5a6a1e2c429ff5, type: 3}
     - target: {fileID: 4471250528852277882, guid: d7292318d94b5ec438ce7e258284a490, type: 3}
       propertyPath: listener
-      value:
+      value: 
       objectReference: {fileID: 398070675}
     - target: {fileID: 4471250528852277882, guid: d7292318d94b5ec438ce7e258284a490, type: 3}
       propertyPath: days.Array.size
@@ -6881,7 +6881,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c95ef9593c34b62b3ed4a784b84fc37, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DistanceAmbientAudio
 --- !u!1 &1937147498
 GameObject:

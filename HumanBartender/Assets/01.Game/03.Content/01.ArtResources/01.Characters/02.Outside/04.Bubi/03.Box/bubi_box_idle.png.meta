@@ -124,12 +124,12 @@ TextureImporter:
       name: bubi_box_idle_0
       rect:
         serializedVersion: 2
-        x: 53
-        y: 24
-        width: 21
-        height: 26
+        x: 0
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -146,12 +146,12 @@ TextureImporter:
       name: bubi_box_idle_1
       rect:
         serializedVersion: 2
-        x: 182
-        y: 24
-        width: 21
-        height: 26
+        x: 129
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -168,12 +168,12 @@ TextureImporter:
       name: bubi_box_idle_2
       rect:
         serializedVersion: 2
-        x: 311
-        y: 24
-        width: 21
-        height: 27
+        x: 258
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -190,12 +190,12 @@ TextureImporter:
       name: bubi_box_idle_3
       rect:
         serializedVersion: 2
-        x: 440
-        y: 24
-        width: 21
-        height: 27
+        x: 387
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -212,12 +212,12 @@ TextureImporter:
       name: bubi_box_idle_4
       rect:
         serializedVersion: 2
-        x: 569
-        y: 24
-        width: 21
-        height: 27
+        x: 516
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -234,12 +234,12 @@ TextureImporter:
       name: bubi_box_idle_5
       rect:
         serializedVersion: 2
-        x: 698
-        y: 24
-        width: 21
-        height: 27
+        x: 645
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -256,12 +256,12 @@ TextureImporter:
       name: bubi_box_idle_6
       rect:
         serializedVersion: 2
-        x: 828
-        y: 24
-        width: 20
-        height: 26
+        x: 774
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -278,12 +278,12 @@ TextureImporter:
       name: bubi_box_idle_7
       rect:
         serializedVersion: 2
-        x: 956
-        y: 24
-        width: 21
-        height: 26
+        x: 903
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -300,7 +300,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 04bb1f94b6824654d9e15c886f7804bf
     internalID: 0
     vertices: []
     indices: 
@@ -308,7 +308,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":1.0},"gridSpriteSize":{"x":129.0,"y":138.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       bubi_box_idle_0: -7352205425088972467
       bubi_box_idle_1: -1639491458839252263
