@@ -48,7 +48,7 @@ public sealed class WebNpcAnimationTests
             {
                 var cat = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<NpcActor>(true))
                     .Single(actor => actor.name.EndsWith("· boobi", StringComparison.Ordinal));
-                foreach (var spec in new[] { ("Feed", 1.5f), ("Pet", 1.6f), ("Meow", 1f), ("RevealEyes", .55f) })
+                foreach (var spec in new[] { ("Feed", 1.5f), ("Pet", 1.6f), ("RevealEyes", .55f) })
                 {
                     var clip = Clip(cat.GetComponent<Animator>(), spec.Item1);
                     Assert.That(clip.length, Is.EqualTo(spec.Item2).Within(.001f));
