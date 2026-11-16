@@ -19,8 +19,7 @@ namespace HumanBartender.CutsceneStudio
         public bool IsPlaying { get; private set; }
         public bool IsWaiting => clock.Waiting.HasValue;
         public double CurrentTime => clock.Time;
-        // Interaction sessions own E/Esc so cancellation and completion cannot race.
-        // Existing standalone and bar playback keep their original keyboard handling.
+        // 상호작용 재생기는 대사 진행만 전달한다. Space 유지 스킵은 모든 재생 경로에서 공통 처리한다.
         public bool HandleKeyboardInput { get; set; } = true;
 
         private readonly StudioClock clock = new();
@@ -70,6 +69,7 @@ namespace HumanBartender.CutsceneStudio
             Sequence = sequence;
             skip = advance = false;
             int startedFrame = Time.frameCount;
+            CutsceneSkipScreen skipScreen = null;
             clock.Seek(0);
             try
             {
@@ -77,11 +77,22 @@ namespace HumanBartender.CutsceneStudio
                 using var gameplay = new StudioGameplayScope(PauseGameplay);
                 using var audio = new StudioAudioPlayback(gameObject, AudioOutputSettings.Shared);
                 var director = CreatePresentation(sequence, out var canvas);
+                if (sequence.AllowSkip)
+                {
+                    skipScreen = FindFirstObjectByType<CutsceneSkipScreen>();
+                    if (skipScreen != null) skipScreen.Begin(Skip);
+                    else Debug.LogWarning("[CutsceneSkip] 공용 부트스트랩의 Canvas_CutsceneSkip 연결을 확인하세요.", this);
+                }
                 double last = Time.realtimeSinceStartupAsDouble;
                 while (!skip && !clock.Finished)
                 {
                     source.Token.ThrowIfCancellationRequested();
                     double now = Time.realtimeSinceStartupAsDouble;
+                    // ESC로 설정창을 닫은 프레임도 새 유지 입력으로 사용하지 않는다.
+                    if (Time.frameCount != startedFrame)
+                        skipScreen?.Tick(UIDisplayOptions.IsOptionOpen || UIDisplayOptions.EscapeHandledThisFrame ||
+                            Keyboard.current?.escapeKey.wasPressedThisFrame == true);
+                    if (skip) break;
                     if (UIDisplayOptions.IsOptionOpen)
                     {
                         audio.Evaluate(sequence, clock.Time, true);
@@ -100,8 +111,6 @@ namespace HumanBartender.CutsceneStudio
                         advance = false;
                     }
 
-                    if (HandleKeyboardInput && sequence.AllowSkip && Keyboard.current?.escapeKey.wasPressedThisFrame == true)
-                        break;
                     clock.Tick(sequence, waiting ? 0 : now - last, true);
                     if (clock.Finished)
                         break;
@@ -116,6 +125,9 @@ namespace HumanBartender.CutsceneStudio
             }
             finally
             {
+                skipScreen?.End();
+                // 스킵·자연 종료 모두 뒤의 대사/선택지가 같은 프레임의 입력을 재사용하지 않게 한다.
+                DialogueAdvanceInput.TryConsume();
                 if (canvasObject != null)
                 {
                     canvasObject.SetActive(false);
