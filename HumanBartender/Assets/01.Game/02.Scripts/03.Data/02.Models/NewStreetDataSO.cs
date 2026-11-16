@@ -21,6 +21,8 @@ public struct NewStreetOptionData
     [JsonProperty("seq")] public int Seq;
     [JsonProperty("text")] public Texts Text;
     [JsonProperty("when")] public string When;
+    /// <summary>true인 선택지만 ESC·패드 취소로 선택한다. CSV 빈 값은 취소 표시 없음이다.</summary>
+    [JsonProperty("is_cancel")] public bool? IsCancel;
 
     /// <summary>고를 수 없을 때 보여줄 이유. 화면에 그대로 나오는 문구라 언어별로 들어 있다. 고를 수 있으면 null이다.</summary>
     [JsonProperty("lock_reason")] public Texts LockReason;

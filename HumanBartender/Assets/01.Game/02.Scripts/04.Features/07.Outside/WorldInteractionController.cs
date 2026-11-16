@@ -40,7 +40,6 @@ public sealed class WorldInteractionController : MonoBehaviour
     private InteractionStateLease continuationLease;
     private bool ready;
     private bool handingOff;
-    private bool sessionStartedAutomatically;
     private int lastInputFrame = -1;
     private static int escapeConsumedFrame = -1;
 
@@ -55,11 +54,10 @@ public sealed class WorldInteractionController : MonoBehaviour
         foreach (var controller in FindObjectsByType<WorldInteractionController>(FindObjectsSortMode.None))
         {
             if (!controller.isActiveAndEnabled || !controller.IsRunning) continue;
-            // 씬 전환은 항상 소비한다. 설정창을 허용할 때만 소비 기록을 남기지 않는다.
-            if (!controller.handingOff && !controller.CanCancel && controller.CanOpenOptionsWhenCancellationBlocked)
-                return false;
+            if (!controller.HandlesCancelInput) return false;
+            // 선택 콜백이 다음 대사·선택창을 즉시 열어도 같은 ESC가 다시 전달되지 않는다.
             escapeConsumedFrame = Time.frameCount;
-            controller.RequestCancel();
+            controller.HandleCancelInput();
             return true;
         }
         return false;
@@ -71,15 +69,15 @@ public sealed class WorldInteractionController : MonoBehaviour
     // 대본 직접 테스트 중 기본 위치의 자동 사건·주변 대사가 먼저 시작하는 것을 막는다.
     internal bool SuppressDetectionForTest { get; set; }
     private bool testScriptOutput;
+    // 테스트 중지는 선택지 선택과 별개다. 이동·취침·씬 전환의 기존 정리 제한은 유지한다.
+    public bool CanStopForTest => IsRunning && !handingOff &&
+        (activeTarget == null || activeTarget.Action is not IWorldInteractionCancellationPolicy policy || policy.CanCancel);
 #endif
     public bool CanSave => !handingOff && (!IsRunning || activeTarget != null && activeTarget.Action is IWorldInteractionSavePolicy policy && policy.CanSave);
-    public bool CanCancel => !handingOff && !sessionStartedAutomatically &&
-        (activeTarget == null || activeTarget.Action is not IWorldInteractionCancellationPolicy policy || policy.CanCancel);
-    // 자동 사건이어도 취침·빠른 이동처럼 동작 자체가 막은 구간은 그 정책을 우선한다.
-    private bool CanOpenOptionsWhenCancellationBlocked =>
-        activeTarget != null && activeTarget.Action is IWorldInteractionCancellationPolicy { CanCancel: false } policy
-            ? policy.CanOpenOptionsWhenCancellationBlocked
-            : sessionStartedAutomatically;
+    private bool BlocksEscape => handingOff ||
+        activeTarget != null && activeTarget.Action is IWorldInteractionCancellationPolicy { BlocksEscape: true };
+    private bool HandlesCancelInput => BlocksEscape || view != null &&
+        (view.IsChoosing ? view.Choices.HandlesCancelInput : view.IsImageVisible);
     public WorldInteractionTarget FocusedTarget => focused;
     internal WorldInteractionTarget ActiveTarget => activeTarget;
     internal WorldInteractionView View => view;
@@ -115,7 +113,7 @@ public sealed class WorldInteractionController : MonoBehaviour
                 if (OutsideStorySceneRules.IsNativeEntry(story.Id) && !OwnsStory(story.Id))
                     throw new InvalidOperationException("Unity 씬에 사건 대상을 배치하세요: " + story.Id);
             }
-            view.Initialize(HandleInput, RequestCancel, () => playerData.HasMoney());
+            view.Initialize(HandleInput, RequestCancel, () => playerData.HasMoney(), Cancel);
             foreach (var target in WorldInteractionTarget.InScene(gameObject.scene))
             {
                 if (target.Content == null && target.StorySceneId == "bd-vendor" && !stories.ContainsKey("bd-vendor"))
@@ -216,12 +214,12 @@ public sealed class WorldInteractionController : MonoBehaviour
             Cancel();
             return;
         }
+        if (UIDisplayOptions.IsOptionOpen || UIDisplayOptions.EscapeHandledThisFrame) return;
         if (WorldInteractionInput.CancelPressed)
         {
             RequestCancel();
             return;
         }
-        if (UIDisplayOptions.IsOptionOpen) return;
         view.MoveChoice(WorldInteractionInput.ReadChoiceDirection());
         if (WorldInteractionInput.AdvancePressed) TryHandleInput();
     }
@@ -305,7 +303,19 @@ public sealed class WorldInteractionController : MonoBehaviour
     }
 
     private void HandleInput() => TryHandleInput();
-    private void RequestCancel() { if (CanCancel) Cancel(); }
+    // 패드 B와 이미지 나가기 버튼은 설정창을 열지 않는다.
+    private void RequestCancel()
+    {
+        if (UIDisplayOptions.IsOptionOpen || UIDisplayOptions.EscapeHandledThisFrame) return;
+        HandleCancelInput();
+    }
+
+    private void HandleCancelInput()
+    {
+        if (!IsRunning || BlocksEscape || view == null) return;
+        if (view.IsChoosing) view.Choices.SelectCancelChoice();
+        else if (view.IsImageVisible) Cancel();
+    }
     public void Cancel() => session?.Cancel();
 
     public async UniTask<StoryExecutionResult> PlayAsync(WorldInteractionTarget target)
@@ -369,8 +379,6 @@ public sealed class WorldInteractionController : MonoBehaviour
         lastInputFrame = Time.frameCount;
         session = source;
         activeTarget = target;
-        // CSV와 Inspector를 해석한 최종 시작 방식을 이 세션이 끝날 때까지 유지한다.
-        sessionStartedAutomatically = story.StartMode == ENewSceneTrigger.Auto;
         var lease = InteractionStateLease.Acquire(player);
         WorldDialogueTravelSettings.Snapshot? travel = null;
         try
@@ -427,7 +435,6 @@ public sealed class WorldInteractionController : MonoBehaviour
             {
                 activeTarget = null;
                 session = null;
-                sessionStartedAutomatically = false;
                 lease.Dispose();
                 if (sceneContext != null && sceneContext.IsReady)
                 {

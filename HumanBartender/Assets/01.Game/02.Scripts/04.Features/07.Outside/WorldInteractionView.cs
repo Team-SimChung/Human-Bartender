@@ -66,10 +66,11 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         catch { Destroy(instance.gameObject); throw; }
     }
 
-    public void Initialize(Action onAdvance, Action onClose, Func<int> moneyReader = null)
+    public void Initialize(Action onAdvance, Action onClose, Func<int> moneyReader = null, Action onDisabled = null)
     {
         if (built) return;
-        cancelSession = onClose;
+        // 화면 비활성화는 사용자 취소 선택이 아니라 세션 정리다.
+        cancelSession = onDisabled ?? onClose;
         readMoney = moneyReader;
         if (bubblePrefab == null) throw new InvalidOperationException("InteractionLayer의 Bubble Prefab이 없습니다.");
         if (imageViewerPrefab == null || !imageViewerPrefab.IsConfigured)

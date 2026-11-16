@@ -127,7 +127,7 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
                 if (GUILayout.Button("이전 선택", GUILayout.Width(80))) controller.View.MoveChoice(-1);
                 if (GUILayout.Button("다음 선택", GUILayout.Width(80))) controller.View.MoveChoice(1);
             }
-            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !running || !controller.CanCancel))
+            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !running || !controller.CanStopForTest))
                 if (GUILayout.Button("상호작용 취소", GUILayout.Width(100))) HomeInteractionTestSession.Cancel();
         }
         EditorGUILayout.LabelField("Game 창에서도 기존 이동·상호작용 키와 선택지를 그대로 사용할 수 있습니다.", EditorStyles.wordWrappedMiniLabel);

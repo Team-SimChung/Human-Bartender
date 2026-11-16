@@ -122,9 +122,9 @@ internal static class OutsideStorySteps
     }
     internal static Step Command(OutsideStoryCommand command) => new() { Type = "event", Command = command };
     internal static Step Effect(string effects) => new() { Type = "effect", Effects = effects };
-    internal static NewStreetOptionData Option(string id, string text, string when = null) => new()
+    internal static NewStreetOptionData Option(string id, string text, string when = null, bool isCancel = false) => new()
     {
-        Id = id, Text = new Texts { Ko = text, En = text }, When = when,
+        Id = id, Text = new Texts { Ko = text, En = text }, When = when, IsCancel = isCancel,
         LockReason = new Texts { Ko = "조건이 충족되지 않았습니다." }
     };
 }
