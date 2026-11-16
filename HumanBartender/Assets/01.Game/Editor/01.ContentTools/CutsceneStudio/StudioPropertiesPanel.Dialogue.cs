@@ -51,6 +51,17 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             ClipField(section, data, "Font");
             ClipField(section, data, "CharactersPerSecond");
+            var estimate = new Label();
+            section.Add(estimate);
+            void RefreshTiming() => estimate.text = $"타이핑 완료: {StudioDialogueTiming.For(host.Selected, host.Sequence).Duration:F3}초";
+            refreshFields.Add(RefreshTiming); RefreshTiming();
+            var fit = StudioGUI.ActionButton("이 대사 길이 맞추기", () =>
+            {
+                var timed = host.FindSelected();
+                if (timed != null && StudioPropertyEditing.FitDialogue(host.Sequence, timed)) host.Changed();
+            }, "fit-dialogue-duration");
+            fit.SetEnabled(!host.Playing); section.Add(fit);
+            Note(section, "문장부호 휴식을 포함합니다. 뒤 클립은 이동하지 않으며 Undo로 되돌릴 수 있습니다.");
             var settings = new VisualElement { name = "dialogue-style-settings" };
             ClipField(section, data, "UseDialogueStyle", changed: Refresh);
             section.Add(settings);

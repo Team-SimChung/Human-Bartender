@@ -316,7 +316,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             {
                 text = "입력 대기",
                 name = "dialogue-wait",
-                tooltip = "대사 끝에서 E / Enter 입력을 기다립니다."
+                tooltip = "문장부호 휴식을 포함한 타이핑 완료 후 대기합니다. 첫 입력은 전체 표시, 다음 입력은 클립 끝으로 이동합니다."
             };
             row.Wait.RegisterValueChangedCallback(ChangeInputWait);
             actions.Add(row.Wait);

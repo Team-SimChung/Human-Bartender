@@ -30,6 +30,9 @@ public sealed class WorldInteractionStartOverride
 [Serializable]
 public sealed class WorldInteractionTimelineBinding
 {
+    [SerializeField, Tooltip("비어 있으면 기본 호출에만, 지정하면 같은 memoryKey에만 연결합니다.")]
+    private string memoryKey;
+    public string MemoryKey => memoryKey;
     [SerializeField] private string id;
     [SerializeField] private StudioSequence sequence;
     public string Id => id;
@@ -170,7 +173,9 @@ public sealed class WorldInteractionTarget : MonoBehaviour
         return false;
     }
 
-    public bool TryResolveTimeline(string id, out StudioSequence result)
+    public bool TryResolveTimeline(string id, out StudioSequence result) => TryResolveTimeline(id, null, out result);
+
+    public bool TryResolveTimeline(string id, string memoryKey, out StudioSequence result)
     {
         result = null;
         var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -178,11 +183,11 @@ public sealed class WorldInteractionTarget : MonoBehaviour
         {
             if (binding == null || string.IsNullOrWhiteSpace(binding.Id) || binding.Sequence == null)
                 throw new InvalidOperationException("Timeline 목록의 ID와 StudioSequence를 연결하세요: " + name);
-            if (!ids.Add(binding.Id)) throw new InvalidOperationException("중복된 Timeline ID: " + binding.Id);
-            if (binding.Id == id) result = binding.Sequence;
+            if (!ids.Add(binding.Id + "\n" + (binding.MemoryKey ?? ""))) throw new InvalidOperationException("중복된 Timeline ID: " + binding.Id);
+            if (binding.Id == id && (binding.MemoryKey ?? "") == (memoryKey ?? "")) result = binding.Sequence;
         }
         if (result != null) return true;
-        if (cutsceneSequence != null && (string.IsNullOrEmpty(id) || cutsceneSequence.Id == id)) result = cutsceneSequence;
+        if (string.IsNullOrEmpty(memoryKey) && cutsceneSequence != null && (string.IsNullOrEmpty(id) || cutsceneSequence.Id == id)) result = cutsceneSequence;
         return result != null;
     }
 

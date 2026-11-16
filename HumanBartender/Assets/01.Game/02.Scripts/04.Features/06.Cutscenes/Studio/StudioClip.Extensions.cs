@@ -4,6 +4,8 @@ namespace HumanBartender.CutsceneStudio
 {
     public sealed partial class StudioClip
     {
+        [System.NonSerialized] internal StudioDialogueTiming TimingCache;
+        [System.NonSerialized] internal object TimingSignature;
         [SerializeField] private GameObject dialoguePrefab;
         public GameObject DialoguePrefab { get => dialoguePrefab; internal set => dialoguePrefab = value; }
 

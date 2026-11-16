@@ -60,7 +60,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 case StudioPropertiesSection.DialoguePlayback:
                     ClipField(section, data, "WaitForInput");
                     if (host.Selected.WaitForInput)
-                        Note(section, "대사가 끝나면 E / Enter 입력으로 진행합니다.");
+                        Note(section, "타이핑 중 첫 입력은 전체 표시, 다음 입력은 클립 끝으로 이동합니다. 자동 진행 대사에서는 입력해도 전체 표시하지 않습니다.");
                     break;
                 case StudioPropertiesSection.Effect:
                     ClipField(section, data, "Effect");

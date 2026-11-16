@@ -24,7 +24,7 @@ namespace HumanBartender.CutsceneStudio
             StudioEvaluation.Clips(sequence, false).Any();
 
         /// <summary>미등록·누락·미완성 방송은 선택 불가로 표시한다. 재생 전에 리소스를 검증한다.</summary>
-        public static async UniTask<PreparedSequence> PrepareAsync(string id, CancellationToken token)
+        public static async UniTask<PreparedSequence> PrepareAsync(string id, CancellationToken token, string memoryKey = null)
         {
             AsyncOperationHandle<StudioCatalog>? catalog = null;
             AsyncOperationHandle<StudioSequence>? sequence = null;
@@ -32,7 +32,7 @@ namespace HumanBartender.CutsceneStudio
             {
                 catalog = await ResourceLoader.TryLoadAsync<StudioCatalog>(StudioCatalog.Address, token);
                 token.ThrowIfCancellationRequested();
-                var entry = catalog?.Result.Find(id);
+                var entry = catalog?.Result.Find(id, memoryKey);
                 if (entry == null || string.IsNullOrWhiteSpace(entry.ResourceKey)) return null;
                 sequence = await ResourceLoader.TryLoadAsync<StudioSequence>(entry.ResourceKey, token);
                 token.ThrowIfCancellationRequested();
@@ -60,7 +60,7 @@ namespace HumanBartender.CutsceneStudio
             }
         }
 
-        public static async UniTask<bool> TryPlayAsync(MonoBehaviour host, string id, CancellationToken token)
+        public static async UniTask<bool> TryPlayAsync(MonoBehaviour host, string id, CancellationToken token, string memoryKey = null)
         {
             var catalogHandle = await ResourceLoader.TryLoadAsync<StudioCatalog>(StudioCatalog.Address, token);
             try
@@ -68,7 +68,7 @@ namespace HumanBartender.CutsceneStudio
                 token.ThrowIfCancellationRequested();
                 if (!catalogHandle.HasValue)
                     return false;
-                var entry = catalogHandle.Value.Result.Find(id);
+                var entry = catalogHandle.Value.Result.Find(id, memoryKey);
                 if (entry == null)
                     return false;
                 var sequenceHandle = await ResourceLoader.TryLoadAsync<StudioSequence>(entry.ResourceKey, token);

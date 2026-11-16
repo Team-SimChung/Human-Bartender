@@ -80,7 +80,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             if (!previewToolFocus || e.control || e.command || e.alt || previewDragAxis >= 0)
                 return false;
             // 입력 대기 중 E는 회전 도구 전환보다 재생 진행에 우선 사용함.
-            if (e.keyCode == KeyCode.E && host.Clock.Waiting.HasValue)
+            if (e.keyCode == KeyCode.E && host.Clock.CanAdvance)
                 return false;
             int tool = e.keyCode == KeyCode.W ? 0 : e.keyCode == KeyCode.E ? 1 : e.keyCode == KeyCode.R ? 2 : -1;
             if (tool < 0)
@@ -252,6 +252,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             var frame = StudioEvaluation.Fit(output);
             host.HandleLibraryDrop(frame, false);
             PrepareCurrentKeys();
+            host.Preview.Stage.PlaybackClock = host.Clock;
             host.Preview.Stage.Evaluate(host.Clock.DisplayTime, host.Clock.Waiting.HasValue, CurrentKeys.PreviewValue);
             DrawPreviewTransform(frame);
             foreach (var actor in host.Sequence.Actors.OrderByDescending(SelectActorsOrderByDescending))
@@ -371,7 +372,10 @@ namespace HumanBartender.CutsceneStudio.Editor
             float height = width / ratio;
             var output = new Rect(available.center.x - width / 2, available.center.y - height / 2, width, height);
             if (Event.current.type == EventType.Repaint && width > 0 && height > 0)
+            {
+                host.Preview.Stage.PlaybackClock = host.Clock;
                 GUI.DrawTexture(output, host.Preview.Draw(new Rect(0, 0, width, height), host.Clock.DisplayTime, host.Clock.Waiting.HasValue, CurrentKeys.PreviewValue), ScaleMode.StretchToFill, false);
+            }
             DrawPreviewInteraction(output);
             DrawPreviewPlayback(area);
             void SelectResolution(int index)
@@ -526,8 +530,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 host.TogglePlay();
             if (GUI.Button(new Rect(109, y, 25, 22), "›"))
                 host.Seek(host.Clock.Time + StudioTiming.FrameDuration(host.Sequence));
-            GUI.Label(new Rect(140, y, 155, 22), host.Clock.Time.ToString("F2") + " / " + host.Sequence.Duration.ToString("F2") + "s");
-            if (host.Clock.Waiting.HasValue && GUI.Button(new Rect(300, y, 55, 22), "E 다음"))
+            GUI.Label(new Rect(140, y, 155, 22), new GUIContent(host.Clock.Time.ToString("F2") + " / " + host.Sequence.Duration.ToString("F2") + "s", "직접 탐색은 입력 대기 시간이 없는 기준으로 표시됩니다."));
+            if (host.Clock.CanAdvance && GUI.Button(new Rect(300, y, 55, 22), "E 다음"))
                 host.Clock.Advance();
         }
 

@@ -86,6 +86,9 @@ namespace HumanBartender.CutsceneStudio
     /// <summary>컷씬 원본과 Unity Timeline의 연결을 저장함.</summary>
     public sealed class StudioSequence : ScriptableObject
     {
+        [SerializeField, Header("타이핑 리듬")]
+        private StudioTypingRhythm typingRhythm = new();
+        public StudioTypingRhythm TypingRhythm => typingRhythm ?? StudioTypingRhythm.Default;
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Id")]
         private string id = "cutscene";
         public string Id

@@ -10,6 +10,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         private StudioSequence sequence;
         [SerializeField]
         private string[] issues = System.Array.Empty<string>();
+        private string[] warnings = System.Array.Empty<string>();
         private Vector2 scroll;
         internal static void Open(EditorWindow owner, StudioSequence sequence)
         {
@@ -28,6 +29,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             {
                 "검사할 시퀀스가 없습니다."
             };
+            warnings = sequence != null ? StudioSequenceWarnings.Collect(sequence).ToArray() : System.Array.Empty<string>();
             Repaint();
         }
 
@@ -42,7 +44,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
             EditorGUI.DrawRect(new Rect(0, 0, position.width, 38), new Color(.20f, .20f, .20f));
             EditorGUI.DrawRect(new Rect(0, 37, position.width, 1), new Color(.10f, .10f, .10f));
-            GUI.Label(new Rect(16, 9, position.width - 32, 22), $"시퀀스 검사 / {issues.Length}건", EditorStyles.boldLabel);
+            GUI.Label(new Rect(16, 9, position.width - 32, 22), $"시퀀스 검사 / 오류 {issues.Length} · 참고 {warnings.Length}", EditorStyles.boldLabel);
             GUILayout.BeginArea(new Rect(16, 52, position.width - 32, position.height - 102));
             scroll = EditorGUILayout.BeginScrollView(scroll);
             if (issues.Length == 0)
@@ -50,10 +52,11 @@ namespace HumanBartender.CutsceneStudio.Editor
             else
                 for (int i = 0; i < issues.Length; i++)
                 {
-                    EditorGUILayout.HelpBox($"{i + 1}. {issues[i]}", MessageType.Warning);
+                    EditorGUILayout.HelpBox($"{i + 1}. {issues[i]}", MessageType.Error);
                     GUILayout.Space(5);
                 }
 
+            foreach (string warning in warnings) EditorGUILayout.HelpBox("참고 (재생 가능): " + warning, MessageType.Warning);
             EditorGUILayout.EndScrollView();
             GUILayout.EndArea();
             if (GUI.Button(new Rect(position.width - 196, position.height - 36, 92, 24), "다시 검사"))

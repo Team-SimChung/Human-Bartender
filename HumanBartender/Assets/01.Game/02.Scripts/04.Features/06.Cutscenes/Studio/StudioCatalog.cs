@@ -17,6 +17,10 @@ namespace HumanBartender.CutsceneStudio
             internal set { id = value; }
         }
 
+        [SerializeField, Tooltip("비어 있으면 memoryKey 없는 호출에만 사용합니다. 지정하면 정확히 같은 구분값에만 사용합니다.")]
+        private string memoryKey;
+        public string MemoryKey { get => memoryKey; internal set => memoryKey = value; }
+
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("ResourceKey")]
         private string resourceKey;
         public string ResourceKey
@@ -53,14 +57,14 @@ namespace HumanBartender.CutsceneStudio
             get { return sequences; }
         }
 
-        public StudioCatalogEntry Find(string id)
+        public StudioCatalogEntry Find(string id, string memoryKey = null)
         {
             StudioCatalogEntry result = null;
             foreach (var sequence in Sequences)
-                if (sequence != null && sequence.Id == id)
+                if (sequence != null && sequence.Id == id && (sequence.MemoryKey ?? "") == (memoryKey ?? ""))
                 {
                     if (result != null)
-                        throw new InvalidOperationException("Duplicate Cutscene Studio ID: " + id);
+                        throw new InvalidOperationException("[CutsceneStudio] 중복된 호출 ID / memoryKey: " + id + " / " + memoryKey);
                     result = sequence;
                 }
 

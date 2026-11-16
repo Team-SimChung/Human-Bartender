@@ -210,7 +210,13 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             var section = Section("시퀀스 설정", "settings");
             var data = PanelBinding(host.Sequence);
-            BoundField(section, data, "Id", "게임 호출 ID");
+            BoundField(section, data, "Id", "제작 파일 ID");
+            section.Add(StudioGUI.ActionButton("호출 ID / memoryKey 연결", () => StudioBindingWindow.Open(host.Sequence), "studio-bindings"));
+            var rhythm = new UnityEditor.UIElements.PropertyField(StudioSerializedFields.Find(data, "TypingRhythm"), "타이핑 리듬");
+            rhythm.Bind(data);
+            rhythm.RegisterValueChangeCallback(_ => host.Changed());
+            section.Add(rhythm);
+            Note(section, "직접 탐색은 입력 대기 시간이 없는 기준으로 표시됩니다.");
             BoundField(section, data, "BackgroundColor", "배경 색상");
             BoundField(section, data, "AllowSkip", "길게 눌러 스킵 허용");
             var duration = new DoubleField("전체 길이 (초)") { name = "sequence-duration", isDelayed = true };

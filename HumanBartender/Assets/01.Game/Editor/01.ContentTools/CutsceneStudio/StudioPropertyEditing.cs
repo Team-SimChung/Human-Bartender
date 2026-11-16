@@ -26,6 +26,14 @@ namespace HumanBartender.CutsceneStudio.Editor
             return true;
         }
 
+        internal static bool FitDialogue(StudioSequence sequence, TimelineClip clip)
+        {
+            if (clip?.asset is not StudioClip data || data.Kind != StudioKind.Dialogue) return false;
+            bool changed = SetTiming(sequence, clip, clip.start, StudioDialogueTiming.For(data, sequence).Duration);
+            if (changed) { EditorUtility.SetDirty(clip.GetParentTrack()); EditorUtility.SetDirty(sequence.Timeline); }
+            return changed;
+        }
+
         internal static bool UsesSourceTiming(StudioClip clip) => clip.Frames != null
             && clip.FrameTimes != null && clip.Frames.Length == clip.FrameTimes.Length && clip.AnimationLength > 0;
 
