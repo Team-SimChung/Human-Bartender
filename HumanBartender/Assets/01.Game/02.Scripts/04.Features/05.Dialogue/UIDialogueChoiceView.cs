@@ -1,21 +1,51 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.Controls;
 using VContainer;
 
 /// <summary>
 /// 선택지 UI 패널들을 관리한다. 조건 판정은 부르는 쪽이 끝내고 넘긴다 —
 /// 2부는 when DSL(IConditionUtil)로, 실외는 스텝의 options를 그대로 그린다.
 /// </summary>
-public class UIDialogueChoiceView : MonoBehaviour
+public class UIDialogueChoiceView : MonoBehaviour, IMoveHandler
 {
     [SerializeField] private GameObject choicesPanel;
     [SerializeField] private List<ChoicePanel> choicePanels = new();
     [Inject] private ISoundEffectPlayer sound;
+    private ChoicePanel focusedPanel;
+    private bool pointerFocus;
+    private int openedFrame = -1;
+    public bool IsOpen => choicesPanel != null && choicesPanel.activeInHierarchy;
+    private bool CanReceiveInput => IsOpen && !UIDisplayOptions.IsOptionOpen && !GamePause.IsPaused &&
+        !HumanBartender.CutsceneStudio.StudioPlayer.HasActivePlayback;
+
+    private void LateUpdate() => RestoreNavigationFocus();
+
+    internal void RestoreNavigationFocus(bool fromDialogueBackground = false)
+    {
+        var events = EventSystem.current;
+        if (!CanReceiveInput || events == null || events.alreadySelecting ||
+            (!fromDialogueBackground && events.currentSelectedGameObject != null)) return;
+        // 배경의 좌/우 클릭은 UI 입력 모듈에서 선택을 비운다. 포인터 처리가 끝난 뒤
+        // 기존 선택 또는 첫 방향 입력을 받을 화면만 복구하고, 다른 UI의 선택은 건드리지 않는다.
+        if (focusedPanel != null && focusedPanel.gameObject.activeInHierarchy && focusedPanel.GetButton().IsInteractable())
+            Focus(focusedPanel, pointerFocus);
+        else ClearFocus();
+    }
 
     private void ConfigureHover(ChoicePanel panel)
     {
         var button = panel.GetButton();
+        if (button is ChoiceHoldButton hold)
+        {
+            hold.InputAllowed = () => CanReceiveInput;
+            hold.AcceptKeyboardInput = () => focusedPanel == panel && AcceptKeyboardInput();
+            hold.MoveRequested = OnMove;
+        }
+        panel.PointerExited = OnPointerExit;
+        panel.SetManagedFocus(false);
         if (!button.TryGetComponent<UISelectionAudio>(out var feedback))
             feedback = button.gameObject.AddComponent<UISelectionAudio>();
         feedback.Configure(sound, DialoguePresentationSettings.Shared?.ChoiceHoverSoundKey);
@@ -43,6 +73,8 @@ public class UIDialogueChoiceView : MonoBehaviour
     public void ShowOutsideChoice(NewStreetOptionData[] options, Action<NewStreetOptionData> onSelected)
     {
         if (options == null || options.Length == 0) return;
+        openedFrame = Time.frameCount;
+        focusedPanel = null;
 
         Debug.Log("아웃사이드 선택지 UI 표시 중...");
 
@@ -77,6 +109,7 @@ public class UIDialogueChoiceView : MonoBehaviour
             choicePanel.SetActive(true);
             visibleIndex++;
         }
+        ClearFocus();
     }
 
     /// <summary>
@@ -101,6 +134,8 @@ public class UIDialogueChoiceView : MonoBehaviour
             ShowChoicePage(texts, selectable, lockReasons, onSelected, 0);
             return;
         }
+        openedFrame = Time.frameCount;
+        focusedPanel = null;
 
         // 재사용하는 항목의 거부 상태·홀드 진행·콜백을 함께 정리한다.
         for (int i = 0; i < choicePanels.Count; i++)
@@ -126,6 +161,33 @@ public class UIDialogueChoiceView : MonoBehaviour
         }
 
         choicesPanel.SetActive(true);
+        ClearFocus();
+    }
+
+    private void ClearFocus()
+    {
+        focusedPanel = null;
+        pointerFocus = false;
+        foreach (var panel in choicePanels) panel.SetManagedFocus(false);
+        // 버튼이 아닌 화면이 첫 이동 입력만 받는다. Enter는 아무 선택지도 확정하지 않는다.
+        EventSystem.current?.SetSelectedGameObject(gameObject);
+    }
+
+    public void OnMove(AxisEventData eventData)
+    {
+        eventData.Use(); // 자동 Navigation으로 다른 UI에 빠져나가지 않는다.
+        if (!CanReceiveInput || (eventData.moveDir != MoveDirection.Up && eventData.moveDir != MoveDirection.Down)) return;
+        var visible = choicePanels.FindAll(panel => panel != null && panel.gameObject.activeInHierarchy && panel.GetButton().IsInteractable());
+        if (visible.Count == 0) return;
+        int index = visible.IndexOf(focusedPanel);
+        index = index < 0 ? 0 : (index + (eventData.moveDir == MoveDirection.Up ? visible.Count - 1 : 1)) % visible.Count;
+        pointerFocus = false;
+        Focus(visible[index], false);
+    }
+
+    private void OnPointerExit(ChoicePanel panel)
+    {
+        if (pointerFocus && focusedPanel == panel) ClearFocus();
     }
 
     private void ShowChoicePage(IReadOnlyList<string> texts, IReadOnlyList<bool> selectable,
@@ -153,8 +215,35 @@ public class UIDialogueChoiceView : MonoBehaviour
 
     private void Focus(ChoicePanel selectedPanel)
     {
+        Focus(selectedPanel, selectedPanel.FocusedByPointer);
+    }
+
+    private void Focus(ChoicePanel selectedPanel, bool byPointer)
+    {
+        if (!CanReceiveInput) return;
+        focusedPanel = selectedPanel;
+        pointerFocus = byPointer;
+        // 마우스가 가리킨 행과 Submit의 대상이 같아야 E/Space/Enter가 같은 선택지를 고른다.
+        var events = EventSystem.current;
+        var target = selectedPanel.GetButton().gameObject;
+        if (events != null && !events.alreadySelecting && events.currentSelectedGameObject != target)
+            events.SetSelectedGameObject(target, byPointer ? new PointerEventData(events) : new BaseEventData(events));
         foreach (var item in choicePanels)
+        {
+            item.SetManagedFocus(item == selectedPanel);
             if (item != selectedPanel) item.RestoreRejection();
+        }
+    }
+
+    private bool AcceptKeyboardInput() => CanReceiveInput && Time.frameCount != openedFrame &&
+        DialogueAdvanceInput.TryConsume();
+
+    public bool TryBeginKeyboardConfirm(ButtonControl control)
+    {
+        if (!CanReceiveInput || Time.frameCount == openedFrame) return false;
+        var target = focusedPanel;
+        if (target == null || !target.gameObject.activeInHierarchy || target.GetButton() is not ChoiceHoldButton button) return false;
+        return button.TryBeginSubmit(control);
     }
 
     private string Reason(string reason) => !string.IsNullOrWhiteSpace(reason) ? reason
@@ -162,6 +251,7 @@ public class UIDialogueChoiceView : MonoBehaviour
 
     private void SelectChoice(int index, Action<int> onSelected)
     {
+        if (Application.IsPlaying(gameObject)) DialogueAdvanceInput.TryConsume();
         PlayConfirm();
         CloseChoices();
         onSelected?.Invoke(index);
@@ -169,6 +259,7 @@ public class UIDialogueChoiceView : MonoBehaviour
 
     private void SelectOutsideChoice(NewStreetOptionData option, Action<NewStreetOptionData> onSelected)
     {
+        if (Application.IsPlaying(gameObject)) DialogueAdvanceInput.TryConsume();
         PlayConfirm();
         CloseChoices();
         onSelected?.Invoke(option);
@@ -211,6 +302,11 @@ public class UIDialogueChoiceView : MonoBehaviour
     /// <summary>선택지를 닫고 칸을 비운다.</summary>
     public void CloseChoices()
     {
+        var events = EventSystem.current;
+        var selected = events != null ? events.currentSelectedGameObject : null;
+        if (selected != null && (selected == gameObject || (choicesPanel != null && selected.transform.IsChildOf(choicesPanel.transform))))
+            events.SetSelectedGameObject(null);
+        focusedPanel = null;
         if (choicesPanel != null) choicesPanel.SetActive(false);
         curOutsideOptions = null;
         foreach (var panel in choicePanels)

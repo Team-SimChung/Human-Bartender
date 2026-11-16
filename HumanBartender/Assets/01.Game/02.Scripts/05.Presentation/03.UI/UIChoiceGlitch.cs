@@ -35,7 +35,16 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
     // 마우스 선택은 호버가 강조를 맡는다. 다시 열린 선택지에 이전 클릭의 강조가 남지 않게 구분한다.
     private bool selectedByPointer;
     private bool lastFocus;
+    private bool? managedFocus;
     private double startedAt;
+
+    public void SetManagedFocus(bool focused)
+    {
+        managedFocus = focused;
+        RefreshFocus();
+    }
+
+    private bool IsFocused => (managedFocus ?? (hovered || selected)) && selectable != null && selectable.IsInteractable();
 
     public bool HasExternalFeedback { get; private set; }
 
@@ -106,7 +115,7 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
 
     private void RefreshFocus(bool entered = false)
     {
-        bool focus = (hovered || selected) && selectable != null && selectable.IsInteractable();
+        bool focus = IsFocused;
         lastFocus = focus;
         if (focusDecoration != null) focusDecoration.SetActive(focus);
         if (HasExternalFeedback) return;
@@ -132,7 +141,7 @@ public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPoint
 
     private void LateUpdate()
     {
-        bool focus = (hovered || selected) && selectable != null && selectable.IsInteractable();
+        bool focus = IsFocused;
         if (focus != lastFocus) RefreshFocus();
         if (HasExternalFeedback) return;
         if (!animating || label == null) return;

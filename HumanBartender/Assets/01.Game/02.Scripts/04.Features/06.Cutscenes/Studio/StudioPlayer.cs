@@ -30,6 +30,7 @@ namespace HumanBartender.CutsceneStudio
         private bool skip;
         private bool advance;
         private static StudioPlayer activePlayer;
+        public static bool HasActivePlayback => activePlayer != null && activePlayer.IsPlaying;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetPlaybackOwner() => activePlayer = null;
         private void Awake()
@@ -68,6 +69,7 @@ namespace HumanBartender.CutsceneStudio
             activePlayer = this;
             Sequence = sequence;
             skip = advance = false;
+            int startedFrame = Time.frameCount;
             clock.Seek(0);
             try
             {
@@ -88,8 +90,11 @@ namespace HumanBartender.CutsceneStudio
                         continue;
                     }
                     bool waiting = clock.Waiting.HasValue;
-                    if (advance || HandleKeyboardInput && (GameKeyBindings.WasPressed(GameControl.Interact) || Keyboard.current?.enterKey.wasPressedThisFrame == true))
+                    bool keyPressed = HandleKeyboardInput && Time.frameCount != startedFrame &&
+                        !DialogueAdvanceInput.ConsumedThisFrame && DialogueAdvanceInput.PressedKey(includeInteraction: true) != null;
+                    if (advance || keyPressed)
                     {
+                        DialogueAdvanceInput.TryConsume();
                         if (waiting)
                             clock.Advance();
                         advance = false;

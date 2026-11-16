@@ -370,6 +370,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ShakePress",
+                    "type": "PassThrough",
+                    "id": "495ef731-d96d-4dbe-aa25-b156bc2f6101",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "CapPress",
                     "type": "Button",
                     "id": "801e5217-e75d-54ed-90ca-ae4ecef145d0",
@@ -424,6 +433,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "PointerPress",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2805b241-5167-4667-a683-9f2a9ab1f012",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ShakePress",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

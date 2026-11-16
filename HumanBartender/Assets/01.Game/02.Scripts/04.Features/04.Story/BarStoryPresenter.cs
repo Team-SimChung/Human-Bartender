@@ -16,6 +16,11 @@ using VContainer;
 /// </summary>
 public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueVisibility, IStoryCharacterTransitions, IDialogueInputPrompt, IDialogueInputFeedback
 {
+    public bool IsChoosing => choiceView != null && choiceView.IsOpen;
+    public bool TryBeginChoiceHold(UnityEngine.InputSystem.Controls.ButtonControl control) =>
+        choiceView != null && choiceView.TryBeginKeyboardConfirm(control);
+    public void RestoreChoiceNavigation() => choiceView?.RestoreNavigationFocus(fromDialogueBackground: true);
+
     readonly HashSet<string> textOnlyActors = new();
     readonly HashSet<ESlotType> enteringSlots = new();
     private sealed class ChoiceCompletionCallback

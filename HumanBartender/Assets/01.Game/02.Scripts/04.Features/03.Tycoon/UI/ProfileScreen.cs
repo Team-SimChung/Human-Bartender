@@ -99,7 +99,7 @@ public sealed class ProfileScreen : MonoBehaviour
         fade?.Kill();
         rootGroup.alpha = 0;
         fade = rootGroup.DOFade(1, fadeDuration).SetUpdate(true);
-        EventSystem.current?.SetSelectedGameObject(closeButton.gameObject);
+        EventSystem.current?.SetSelectedGameObject(gameObject);
         OpenChanged?.Invoke();
     }
 
@@ -147,7 +147,7 @@ public sealed class ProfileScreen : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(detailScroll.content);
         detailScroll.StopMovement();
         detailScroll.verticalNormalizedPosition = 1;
-        EventSystem.current?.SetSelectedGameObject(detailCloseButton.gameObject);
+        EventSystem.current?.SetSelectedGameObject(gameObject);
     }
 
     void RenderDetail(ProfileCardView card)

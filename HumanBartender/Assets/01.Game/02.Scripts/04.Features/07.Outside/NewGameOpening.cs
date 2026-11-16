@@ -22,15 +22,13 @@ public sealed class NewGameOpening : MonoBehaviour
         public string Footer;
         [Tooltip("이 시간 동안은 진행 입력을 받지 않는다. 직전 키 입력으로 바로 넘어가지 않게 한다.")]
         [Min(0)] public float InputLockSeconds;
-        [Tooltip("켜면 스페이스바로도 넘긴다. 끄면 상호작용 키(E)만 받는다.")]
-        public bool AcceptAdvanceKey;
         [Tooltip("뒤 화면을 가리는 정도. 1이면 완전히 가린다.")]
         [Range(0, 1)] public float ShadeAlpha = .72f;
 
-        public GuidePage(string title, string body, string footer, float inputLock, bool acceptAdvance, float shade)
+        public GuidePage(string title, string body, string footer, float inputLock, float shade)
         {
             Title = title; Body = body; Footer = footer;
-            InputLockSeconds = inputLock; AcceptAdvanceKey = acceptAdvance; ShadeAlpha = shade;
+            InputLockSeconds = inputLock; ShadeAlpha = shade;
         }
     }
 
@@ -45,14 +43,14 @@ public sealed class NewGameOpening : MonoBehaviour
 
     [SerializeField] private GuidePage playGuide = new("플레이 안내",
         "이 게임은 인물들과의 대화를 중심으로 이야기가 진행됩니다.\n대화는 E키 또는 스페이스바로 넘길 수 있습니다.",
-        "E / SPACE", 1f, true, 1f);
+        "E / SPACE", 1f, 1f);
 
     [SerializeField] private GuidePage[] controlsPages =
     {
         new("이동 · 달리기", "A와 D를 눌러 이동합니다.\nShift를 누른 채 이동하면 달립니다.",
-            "1 / 2 · E키를 눌러 진행", 2f, false, .72f),
+            "1 / 2 · E키를 눌러 진행", 2f, .72f),
         new("상호작용", "E키를 눌러 오브젝트나 다른 인물들과 상호작용할 수 있습니다.",
-            "2 / 2 · E키를 눌러 진행", .3f, false, .72f),
+            "2 / 2 · E키를 눌러 진행", .3f, .72f),
     };
 
     [Tooltip("안내가 끝난 뒤 띄우는 새 목표.")]
@@ -95,8 +93,8 @@ public sealed class NewGameOpening : MonoBehaviour
 
     static UniTask ShowAsync(StoryTutorialView view, GuidePage page, CancellationToken token) =>
         view.ShowPageAsync(page.Title, page.Body, page.Footer, page.ShadeAlpha, page.InputLockSeconds,
-            () => GameKeyBindings.WasPressed(GameControl.Interact) ||
-                  page.AcceptAdvanceKey && GameKeyBindings.WasPressed(GameControl.Advance), token);
+            () => !UIDisplayOptions.IsOptionOpen &&
+                  DialogueAdvanceInput.PressedKey(includeInteraction: true) != null, token);
 
     private void OnValidate()
     {

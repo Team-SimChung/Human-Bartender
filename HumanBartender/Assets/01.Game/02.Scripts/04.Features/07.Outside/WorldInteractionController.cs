@@ -283,6 +283,8 @@ public sealed class WorldInteractionController : MonoBehaviour
         if (!ready) return false;
         if (handingOff) return true;
         if (UIDisplayOptions.IsOptionOpen) return true;
+        // 컷씬을 진행·종료한 입력이 같은 프레임의 다음 대사로 이어지지 않게 한다.
+        if (DialogueAdvanceInput.ConsumedThisFrame) return true;
         if (IsRunning)
         {
             if (lastInputFrame != Time.frameCount)
