@@ -56,6 +56,7 @@ public sealed class PourerBreakawayTests
         var group = Ref<CanvasGroup>(pourer, "feedbackRoot");
         var text = Ref<TMP_Text>(pourer, "feedbackText");
         Assert.That(group.transform.IsChildOf(manager.GimmickHud.transform), Is.True);
+        pourer.ResetState(); // 편집용 미리보기 상태와 관계없이 재생 초기화 때 숨겨져야 한다.
         Assert.That(group.gameObject.activeSelf, Is.False);
         Assert.That(group.blocksRaycasts || group.interactable || text.raycastTarget || text.enableAutoSizing || text.richText, Is.False);
         Assert.That(text.text, Is.EqualTo("펑!"));

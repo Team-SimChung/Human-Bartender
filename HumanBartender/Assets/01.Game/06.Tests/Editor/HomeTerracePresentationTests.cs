@@ -87,6 +87,14 @@ public sealed class HomeTerracePresentationTests
         var output = new GameObject("Camera", typeof(Camera), typeof(CinemachineBrain));
         camera = new GameObject("CM_Terrace", typeof(CinemachineCamera)).GetComponent<CinemachineCamera>();
         camera.enabled = false;
+        var audioHost = new GameObject("IndoorAmbienceTest", typeof(AudioSource), typeof(DistanceAmbientAudio));
+        audioHost.transform.SetParent(host.transform, false);
+        var ambience = audioHost.GetComponent<DistanceAmbientAudio>();
+        using (var audioData = new SerializedObject(ambience))
+        {
+            audioData.FindProperty("source").objectReferenceValue = audioHost.GetComponent<AudioSource>();
+            audioData.ApplyModifiedPropertiesWithoutUndo();
+        }
         using var data = new SerializedObject(presentation);
         data.FindProperty("terraceCamera").objectReferenceValue = camera;
         data.FindProperty("cameraBrain").objectReferenceValue = output.GetComponent<CinemachineBrain>();
@@ -94,6 +102,9 @@ public sealed class HomeTerracePresentationTests
         data.FindProperty("lunaAnchor").objectReferenceValue = luna;
         data.FindProperty("terraceForeground").objectReferenceValue = foreground;
         data.FindProperty("fadeDuration").floatValue = 0;
+        var indoorSounds = data.FindProperty("indoorAmbience");
+        indoorSounds.arraySize = 1;
+        indoorSounds.GetArrayElementAtIndex(0).objectReferenceValue = ambience;
         data.ApplyModifiedPropertiesWithoutUndo();
         return presentation;
     }
@@ -300,6 +311,7 @@ public sealed class HomeTerracePresentationTests
         yield return WaitUntil(() => finished, "A fresh entrance did not finish.");
         Assert.That(failure, Is.Null);
         Assert.That(presentation.IsActive, Is.True);
+        Assert.That(presentation.GetComponentInChildren<DistanceAmbientAudio>().PlaybackAllowed, Is.False);
         Assert.That(foreground.localPosition, Is.EqualTo(new Vector3(0, 2, 3)));
         AssertCarriedHierarchy();
 
@@ -307,6 +319,7 @@ public sealed class HomeTerracePresentationTests
         yield return WaitUntil(() => finished, "Exit did not restore the indoor camera.");
         Assert.That(failure, Is.Null);
         Assert.That(presentation.IsActive, Is.False);
+        Assert.That(presentation.GetComponentInChildren<DistanceAmbientAudio>().PlaybackAllowed, Is.True);
         Assert.That(camera.enabled, Is.False);
         Assert.That(birds.activeSelf, Is.False);
         Assert.That(crow.CurrentStartFrame, Is.Zero);

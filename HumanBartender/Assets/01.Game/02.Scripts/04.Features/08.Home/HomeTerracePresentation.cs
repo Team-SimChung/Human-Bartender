@@ -30,12 +30,25 @@ public sealed class HomeTerracePresentation : MonoBehaviour
     [Header("대본 스텝 연출")]
     [SerializeField, Tooltip("씬에 배치한 새 도착 연출입니다. 날짜별 스텝은 각 컴포넌트의 Inspector에서 설정합니다.")]
     private TerraceBirdArrival[] birdArrivals = Array.Empty<TerraceBirdArrival>();
+    [Header("실내 환경음")]
+    [SerializeField, Tooltip("실내에서만 들리는 거리 환경음. 테라스 진입 시 줄이고 실내 복귀 시 다시 재생한다.")]
+    private DistanceAmbientAudio[] indoorAmbience = Array.Empty<DistanceAmbientAudio>();
     private bool previousCameraEnabled;
     public bool IsActive { get; private set; }
     public WorldDialogueSpeakers Speakers => speakers;
     public Transform LunaAnchor => lunaAnchor;
 
-    private void Awake() => SetTerraceBirdsActive(false);
+    private void Awake()
+    {
+        SetTerraceBirdsActive(false);
+        SetIndoorAmbienceAllowed(true);
+    }
+
+    private void SetIndoorAmbienceAllowed(bool allowed)
+    {
+        foreach (var ambience in indoorAmbience)
+            if (ambience != null) ambience.SetPlaybackAllowed(allowed);
+    }
 
     private void SetTerraceBirdsActive(bool active)
     {
@@ -81,6 +94,7 @@ public sealed class HomeTerracePresentation : MonoBehaviour
         token.ThrowIfCancellationRequested();
         if (IsActive)
         {
+            SetIndoorAmbienceAllowed(false);
             SetTerraceBirdsActive(true);
             if (storyId != null) BeginStory(storyId, day);
             return;
@@ -95,6 +109,7 @@ public sealed class HomeTerracePresentation : MonoBehaviour
         try
         {
             IsActive = true;
+            SetIndoorAmbienceAllowed(false);
             SetForegroundX(entranceStartX);
             SetTerraceBirdsActive(true);
             if (storyId != null) BeginStory(storyId, day);
@@ -137,6 +152,7 @@ public sealed class HomeTerracePresentation : MonoBehaviour
 
     private void RestoreCamera()
     {
+        SetIndoorAmbienceAllowed(true);
         ResetBirds();
         SetTerraceBirdsActive(false);
         if (!IsActive) return;
