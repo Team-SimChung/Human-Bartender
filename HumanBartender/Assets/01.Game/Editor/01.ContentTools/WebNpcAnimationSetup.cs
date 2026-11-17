@@ -35,7 +35,12 @@ public static class WebNpcAnimationSetup
                 foreach (var actor in target.GetComponentsInChildren<NpcActor>(true))
                 {
                     string role = actor.name.Contains("·") ? actor.name.Split('·').Last().Trim() : "";
-                    if (role == "boobi") { ConfigureCat(actor, frames); continue; }
+                    if (role == "boobi")
+                    {
+                        ConfigureCat(actor, frames);
+                        BubiStoryAnimationSetup.Apply(actor);
+                        continue;
+                    }
                     var definition = HumanDefinition(target.StorySceneId, role);
                     if (definition.path != null) ConfigureHuman(actor, target.StorySceneId, role, definition.path, definition.frames, definition.rate);
                 }

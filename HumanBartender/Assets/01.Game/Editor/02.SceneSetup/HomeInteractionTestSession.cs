@@ -254,7 +254,7 @@ internal static class HomeInteractionTestSession
             var current = Controller;
             if (current != null && current.IsRunning)
             {
-                if (!current.CanCancel) throw new InvalidOperationException("[HomeTest] 취침 연출이 끝난 뒤 시나리오를 바꾸세요.");
+                if (!current.CanStopForTest) throw new InvalidOperationException("[HomeTest] 이동·취침·씬 전환이 끝난 뒤 시나리오를 바꾸세요.");
                 current.Cancel();
                 await WaitUntilAsync(() => current == null || !current.IsRunning, "기존 상호작용 정리", token);
             }
@@ -371,7 +371,7 @@ internal static class HomeInteractionTestSession
 
     public static void Cancel()
     {
-        if (IsActive && Controller != null && Controller.CanCancel) Controller.Cancel();
+        if (IsActive && Controller != null && Controller.CanStopForTest) Controller.Cancel();
     }
 
     public static async UniTask<StoryExecutionResult> PlayScriptAsync(WorldInteractionTarget target, string scriptId)

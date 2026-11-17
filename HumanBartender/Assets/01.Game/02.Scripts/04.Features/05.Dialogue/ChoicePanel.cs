@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// 대화 선택지 항목 하나를 나타내는 UI 패널.
 /// 선택지 텍스트 설정, 패널 활성화/비활성화, 버튼 이벤트 초기화 기능을 제공한다.
 /// </summary>
-public class ChoicePanel : MonoBehaviour, IPointerEnterHandler, ISelectHandler
+public class ChoicePanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler
 {
     [SerializeField] private GameObject panel;
     [SerializeField] private TextMeshProUGUI panelTMPText;
@@ -24,6 +24,8 @@ public class ChoicePanel : MonoBehaviour, IPointerEnterHandler, ISelectHandler
     private readonly ChoiceTextGlitch rejectionGlitch = new ChoiceTextGlitch();
     private Action selected;
     private Action<ChoicePanel> focused;
+    public Action<ChoicePanel> PointerExited { get; set; }
+    internal bool FocusedByPointer { get; private set; }
     private string originalText;
     private string rejectionReason;
     private bool canExecute;
@@ -99,8 +101,23 @@ public class ChoicePanel : MonoBehaviour, IPointerEnterHandler, ISelectHandler
         ownsExternalFeedback = false;
     }
 
-    public void OnPointerEnter(PointerEventData eventData) => focused?.Invoke(this);
-    public void OnSelect(BaseEventData eventData) => focused?.Invoke(this);
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        FocusedByPointer = true;
+        focused?.Invoke(this);
+    }
+    public void OnPointerExit(PointerEventData eventData) => PointerExited?.Invoke(this);
+    public void OnSelect(BaseEventData eventData)
+    {
+        FocusedByPointer = eventData is PointerEventData;
+        focused?.Invoke(this);
+    }
+
+    public void SetManagedFocus(bool active)
+    {
+        if (button is ChoiceHoldButton hold) hold.SetManagedFocus(active);
+        GetComponent<UIChoiceGlitch>()?.SetManagedFocus(active);
+    }
 
     private void LateUpdate() => rejectionGlitch.Tick();
     private void OnDisable() => RestoreRejection();

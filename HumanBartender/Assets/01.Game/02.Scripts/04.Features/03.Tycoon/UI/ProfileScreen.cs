@@ -51,7 +51,7 @@ public sealed class ProfileScreen : MonoBehaviour
     ProfileCardView selectedCard;
     EPlayPhase openedPhase;
     ELanguage language;
-    float previousTimeScale;
+    IDisposable pauseHandle;
     Tween fade;
     public bool IsOpen { get; private set; }
     public bool IsDetailOpen => IsOpen && detailRoot.activeSelf;
@@ -85,9 +85,8 @@ public sealed class ProfileScreen : MonoBehaviour
     {
         if (IsOpen || !CanOpen || UIDisplayOptions.IsOptionOpen) return;
         openedPhase = playPhase.CurrentPhase;
-        previousTimeScale = Time.timeScale;
+        pauseHandle = GamePause.Acquire();
         IsOpen = true;
-        Time.timeScale = 0;
         detailRoot.SetActive(false);
         listGroup.interactable = listGroup.blocksRaycasts = true;
         selectedCard = null;
@@ -100,7 +99,7 @@ public sealed class ProfileScreen : MonoBehaviour
         fade?.Kill();
         rootGroup.alpha = 0;
         fade = rootGroup.DOFade(1, fadeDuration).SetUpdate(true);
-        EventSystem.current?.SetSelectedGameObject(closeButton.gameObject);
+        EventSystem.current?.SetSelectedGameObject(gameObject);
         OpenChanged?.Invoke();
     }
 
@@ -148,7 +147,7 @@ public sealed class ProfileScreen : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(detailScroll.content);
         detailScroll.StopMovement();
         detailScroll.verticalNormalizedPosition = 1;
-        EventSystem.current?.SetSelectedGameObject(detailCloseButton.gameObject);
+        EventSystem.current?.SetSelectedGameObject(gameObject);
     }
 
     void RenderDetail(ProfileCardView card)
@@ -202,9 +201,10 @@ public sealed class ProfileScreen : MonoBehaviour
     {
         fade?.Kill();
         fade = null;
+        pauseHandle?.Dispose();
+        pauseHandle = null;
         if (!IsOpen) return;
         IsOpen = false;
-        Time.timeScale = previousTimeScale;
         listScroll.StopMovement();
         detailScroll.StopMovement();
         detailRoot.SetActive(false);

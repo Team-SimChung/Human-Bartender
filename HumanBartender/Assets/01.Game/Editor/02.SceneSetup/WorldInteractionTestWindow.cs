@@ -36,7 +36,14 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
         window.Show();
     }
 
-    private void OnEnable() => Reload();
+    private void OnEnable()
+    {
+        // 레이아웃 복원 중에는 미리보기 씬을 열지 않고 에디터 초기화가 끝난 뒤 목록을 읽는다.
+        EditorApplication.delayCall -= Reload;
+        EditorApplication.delayCall += Reload;
+    }
+
+    private void OnDisable() => EditorApplication.delayCall -= Reload;
     private void OnInspectorUpdate() => Repaint();
 
     private void Reload()
@@ -190,7 +197,7 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
                 if (GUILayout.Button("이전 선택")) controller.View.MoveChoice(-1);
                 if (GUILayout.Button("다음 선택")) controller.View.MoveChoice(1);
             }
-            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !controller.IsRunning || !controller.CanCancel))
+            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !controller.CanStopForTest))
                 if (GUILayout.Button("상호작용 취소")) HomeInteractionTestSession.Cancel();
         }
         bool idle = !HomeInteractionTestSession.IsBusy && !controller.IsRunning && !context.Runner.IsRunning &&

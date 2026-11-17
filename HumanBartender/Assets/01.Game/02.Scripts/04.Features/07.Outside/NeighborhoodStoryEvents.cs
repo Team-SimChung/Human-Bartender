@@ -92,7 +92,7 @@ public sealed class NeighborhoodStoryEvents : IOutsideStoryEventHandler
                 choices.Add(Option("pay", "돈으로 살게요 · 500원", "money >= 500 && !flag.gang_wild_dog_received && !flag.shiba_bought_wild_dog && !flag.gang_wild_dog_paid && !flag.gang_wild_dog_repair_promised")); break;
             default: throw new NotSupportedException("동네 선택 명령이 아닙니다: " + command);
         }
-        choices.Add(Option("cancel", "취소"));
+        choices.Add(Option("cancel", "취소", isCancel: true));
         var selected = await run.ChooseAsync(choices.ToArray(), token);
         string id = selected.Id;
         if (id == "cancel") return Array.Empty<Step>();

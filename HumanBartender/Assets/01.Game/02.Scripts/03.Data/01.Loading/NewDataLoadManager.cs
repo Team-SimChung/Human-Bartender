@@ -98,6 +98,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
     public static NewCharacterData[] StoryCharacters { get; private set; }
     public static NewCocktailData[] StoryCocktails { get; private set; }
     public static NewShelfItemData[] StoryShelfItems { get; private set; }
+    public static NewTasteData[] StoryTastes { get; private set; }
     NewDayScriptBase cutsceneScript;
     public NewDialogueStepData[] GetCutsceneSteps(string id)
     {
@@ -166,6 +167,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         _barScriptCache.Clear();
         loadedDays = null;
         StreetStory = default; HomeStory = default; StoryCocktails = null; StoryCharacters = null; StoryShelfItems = null;
+        StoryTastes = null;
     }
 
     /// <summary>
@@ -298,6 +300,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         HomeStory = homeStory; StreetStory = streetData.newStreetData;
         StoryCharacters = characterData.characterData; StoryCocktails = cocktailData.cocktailData;
         StoryShelfItems = shelfItemData.shelfItemData;
+        StoryTastes = tasteData.tasteData;
         _barScriptCache.Clear();
         foreach (var pair in barScripts) _barScriptCache.Add(pair.Key, pair.Value);
         // Content lookups are rebuilt before a scene can register its runtime anchors.

@@ -124,12 +124,12 @@ TextureImporter:
       name: bubi_box_shaking_0
       rect:
         serializedVersion: 2
-        x: 51
-        y: 23
-        width: 27
-        height: 31
+        x: 0
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -146,12 +146,12 @@ TextureImporter:
       name: bubi_box_shaking_1
       rect:
         serializedVersion: 2
-        x: 175
-        y: 23
-        width: 32
-        height: 31
+        x: 129
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -168,12 +168,12 @@ TextureImporter:
       name: bubi_box_shaking_2
       rect:
         serializedVersion: 2
-        x: 305
-        y: 23
-        width: 31
-        height: 34
+        x: 258
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -190,12 +190,12 @@ TextureImporter:
       name: bubi_box_shaking_3
       rect:
         serializedVersion: 2
-        x: 439
-        y: 22
-        width: 30
-        height: 34
+        x: 387
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -212,12 +212,12 @@ TextureImporter:
       name: bubi_box_shaking_4
       rect:
         serializedVersion: 2
-        x: 566
-        y: 24
-        width: 28
-        height: 31
+        x: 516
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -234,12 +234,12 @@ TextureImporter:
       name: bubi_box_shaking_5
       rect:
         serializedVersion: 2
-        x: 696
-        y: 23
-        width: 27
-        height: 31
+        x: 645
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -256,12 +256,12 @@ TextureImporter:
       name: bubi_box_shaking_6
       rect:
         serializedVersion: 2
-        x: 825
-        y: 23
-        width: 28
-        height: 32
+        x: 774
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -278,12 +278,12 @@ TextureImporter:
       name: bubi_box_shaking_7
       rect:
         serializedVersion: 2
-        x: 954
-        y: 23
-        width: 27
-        height: 31
+        x: 903
+        y: 0
+        width: 129
+        height: 138
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -300,7 +300,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 04c7d8b6d78630840a4d94b585202179
     internalID: 0
     vertices: []
     indices: 
@@ -308,7 +308,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":1.0},"gridSpriteSize":{"x":129.0,"y":138.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       bubi_box_shaking_0: -7612851221316572020
       bubi_box_shaking_1: 7648536821836133063

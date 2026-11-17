@@ -59,6 +59,9 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
     internal IReadOnlyList<WorldInteractionChoiceItem> Rows => rows;
     public bool IsOpen => selected != null && isActiveAndEnabled;
     public bool IsRevealing => IsOpen && revealElapsed < revealDuration;
+    // 펼침/열린 프레임도 입력을 소비한다. 선택 콜백 전에 컨트롤러가 소비 프레임을 기록한다.
+    public bool HandlesCancelInput => IsOpen && (IsRevealing || Time.frameCount == openedFrame ||
+        options.Any(option => option.IsCancel == true));
     internal RectTransform RevealViewport => revealViewport;
     internal RectTransform SelectionCursor => selectionCursor;
     internal TMP_Text MoneyLabel => moneyLabel;
@@ -88,6 +91,8 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
             throw new InvalidOperationException("표시할 선택지가 없습니다.");
         if (values.Length > MaximumChoices)
             throw new InvalidOperationException($"외부·홈 상호작용 선택지는 최대 {MaximumChoices}개입니다. 현재 {values.Length}개입니다.");
+        if (values.Count(option => option.IsCancel == true) > 1)
+            throw new InvalidOperationException("[WorldInteraction] 한 선택지 묶음에 취소 표시는 하나만 지정할 수 있습니다.");
         if (!IsConfigured) throw new InvalidOperationException(ConfigurationError);
         options = values.ToArray();
         selected = callback ?? throw new ArgumentNullException(nameof(callback));
@@ -195,6 +200,13 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
     {
         if (IsOpen && !IsRevealing && selectedRow >= 0 && Time.frameCount != openedFrame)
             rows[selectedRow].Confirm();
+    }
+
+    public void SelectCancelChoice()
+    {
+        if (!IsOpen) return;
+        int index = Array.FindIndex(options, option => option.IsCancel == true);
+        if (index >= 0) SelectChoice(index, revision);
     }
 
     private void Focus(int index)

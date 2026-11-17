@@ -450,7 +450,7 @@ public static class VisualUISetup
             // 컴포넌트/fileID/UnityEvent를 유지한 채 기존 위젯을 새 레이아웃으로 옮긴다.
             foreach (var widget in new Component[] { bgm, se, toggle, dropdown }) widget.transform.SetParent(controller.transform, false);
             ClearChildren(overlay.transform);
-            var canvas = controller.GetComponent<Canvas>(); canvas.sortingOrder = 105;
+            var canvas = controller.GetComponent<Canvas>(); canvas.sortingOrder = 210;
             var scaler = controller.GetComponent<CanvasScaler>(); scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             controller.transform.localScale = Vector3.one;
             var overlayRect = (RectTransform)overlay.transform; Stretch(overlayRect);

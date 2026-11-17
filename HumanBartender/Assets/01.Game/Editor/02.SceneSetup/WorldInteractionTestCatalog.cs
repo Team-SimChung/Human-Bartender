@@ -78,8 +78,12 @@ internal static class WorldInteractionTestCatalog
             "실제 게임 지점을 날짜·출퇴근 조건으로 확인합니다.", day, flow, null, runtimeScene: parts[1]);
     }
 
-    internal static NewInteractPointData[] LoadDefinitions() => CsvDataReader.LoadDirectory(
-        Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder)).Read<NewInteractPointData[]>("interact_points");
+    internal static NewInteractPointData[] LoadDefinitions()
+    {
+        var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
+        return catalog.Read<NewInteractPointData[]>("interact_points_home")
+            .Concat(catalog.Read<NewInteractPointData[]>("interact_points_outside")).ToArray();
+    }
 
     internal static NewSceneData[] LoadScripts(string sceneName)
     {

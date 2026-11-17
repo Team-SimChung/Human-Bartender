@@ -516,7 +516,7 @@ public sealed class NpcActorTests
         Assert.That(actor.IsVisible, Is.True);
         Assert.That(actor.IsBusy, Is.False);
         Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"), Is.True);
-        Assert.That(renderer.sprite.name, Does.StartWith("Idle_"));
+        Assert.That(renderer.sprite.name, Does.StartWith("bubi_sleep_"));
         for (int frame = 0; frame < 4; frame++) { yield return null; AssertFixedPose(); }
 
         string pet = legacyAliases ? "PulsePet" : "Pet";
@@ -535,7 +535,7 @@ public sealed class NpcActorTests
         Assert.That(failure, Is.Null);
         Assert.That(petSprites.Count, Is.GreaterThan(1), "Pet must play the web relaxed face and heart frames.");
         Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"), Is.True);
-        Assert.That(renderer.sprite.name, Does.StartWith("Idle_"));
+        Assert.That(renderer.sprite.name, Does.StartWith("bubi_sleep_"));
         for (int frame = 0; frame < 4; frame++) { yield return null; AssertFixedPose(); }
 
         if (legacyAliases)
@@ -548,7 +548,7 @@ public sealed class NpcActorTests
             yield return WaitForOperation();
             Assert.That(failure, Is.Null);
             Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"), Is.True);
-            Assert.That(renderer.sprite.name, Does.StartWith("Idle_"));
+            Assert.That(renderer.sprite.name, Does.StartWith("bubi_sleep_"));
             for (int frame = 0; frame < 4; frame++) { yield return null; AssertFixedPose(); }
         }
         Object.Destroy(actor.gameObject);

@@ -144,12 +144,26 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         craftFlow.RefreshCraftAvailability();
     }
 
-    public bool CanAdvanceDialogue => runner != null && runner.IsPresentingLine &&
+    public bool IsChoosing => presenter is BarStoryPresenter bar && bar.IsChoosing;
+    public bool TryBeginChoiceHold(UnityEngine.InputSystem.Controls.ButtonControl control) =>
+        presenter is BarStoryPresenter bar && bar.TryBeginChoiceHold(control);
+
+    public bool CanAdvanceDialogue => runner != null && runner.IsPresentingLine && !IsChoosing &&
+        !UIDisplayOptions.IsOptionOpen && !GamePause.IsPaused && !HumanBartender.CutsceneStudio.StudioPlayer.HasActivePlayback &&
         (servicePanel == null || !servicePanel.BlocksBarInput) &&
         (craftFlow == null || (!craftFlow.IsCraftFlowActive && !craftFlow.IsAwaitingServeDecision));
 
     /// <summary>화면 클릭도 키보드와 같은 대화 진행 조건을 사용한다.</summary>
-    public void OnAdvanceInput() => TryAdvance();
+    public void OnAdvanceInput()
+    {
+        // 선택지 밖의 투명 대사 버튼을 클릭해도, 다음 방향 입력은 선택지로 전달한다.
+        if (presenter is BarStoryPresenter bar && bar.IsChoosing)
+        {
+            if (servicePanel == null || !servicePanel.BlocksBarInput) bar.RestoreChoiceNavigation();
+            return;
+        }
+        TryAdvance();
+    }
 
     /// <summary>
     /// 대사 진행 입력. 대본이 돌고 있을 때만 받는다.
@@ -159,7 +173,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     public bool TryAdvance()
     {
-        if (!CanAdvanceDialogue) return false;
+        if (!CanAdvanceDialogue || !DialogueAdvanceInput.TryConsume()) return false;
 
         runner.OnAdvanceInput();
         return true;

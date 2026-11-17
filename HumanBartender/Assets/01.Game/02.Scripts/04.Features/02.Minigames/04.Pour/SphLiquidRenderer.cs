@@ -41,6 +41,7 @@ public class SphLiquidRenderer : MonoBehaviour
     int renderedFrame = -1;
     Vector3 previousContainerPosition;
     float effectTime;
+    float airborneWidthScale = 1f;
 
     static readonly int ParticlesId = Shader.PropertyToID("_Particles");
     static readonly int FieldId = Shader.PropertyToID("_FieldTex");
@@ -62,6 +63,7 @@ public class SphLiquidRenderer : MonoBehaviour
 
     void OnDisable()
     {
+        airborneWidthScale = 1f;
         RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
         if (compositeRenderer != null) compositeRenderer.enabled = false;
         ReleaseTargets();
@@ -140,6 +142,9 @@ public class SphLiquidRenderer : MonoBehaviour
         renderedFrame = -1;
     }
 
+    /// <summary>잔에 담기기 전 유입 입자의 가로 렌더 두께를 조절한다. 잔 안에서 낙하 중인 입자에도 적용한다.</summary>
+    public void SetAirborneWidthScale(float scale) => airborneWidthScale = Mathf.Clamp(scale, 0.1f, 1f);
+
     public void UpdateBlobs(IReadOnlyList<SphParticle> particles)
     {
         using var marker = UploadMarker.Auto();
@@ -151,7 +156,8 @@ public class SphLiquidRenderer : MonoBehaviour
             var p = particles[i];
             upload[i].positionVelocity = new Vector4(p.pos.x, p.pos.y, p.velocity.x, p.velocity.y);
             upload[i].impact = p.renderImpact;
-            upload[i].impact.w = p.insideContainer ? 1f : 0f;
+            // 잔 내부로 진입했어도 낙하 중이면 아직 물줄기다. 실제 수량으로 받은 입자만 원래 두께로 그린다.
+            upload[i].impact.w = p.insideContainer && p.volumeReceived ? 1f : 0f;
             p.renderImpact = Vector4.zero;
         }
         particleBuffer.SetData(upload, 0, 0, particleCount);
@@ -258,7 +264,7 @@ public class SphLiquidRenderer : MonoBehaviour
         splatMaterial.SetMatrix("_WorldToScreen", worldToScreen);
         splatMaterial.SetVector("_BlobShape", new Vector4(profile.physics.spacing * profile.blobRadiusScale,
             profile.stretchPerSpeed, profile.maxStretch, profile.streamThinning));
-        splatMaterial.SetVector("_ImpactShape", new Vector4(appearance.cloudSpread, profile.airborneWidth, 0f, 0f));
+        splatMaterial.SetVector("_ImpactShape", new Vector4(appearance.cloudSpread, profile.airborneWidth, airborneWidthScale, 0f));
         commands.SetRenderTarget(fieldTexture);
         commands.ClearRenderTarget(false, true, Color.clear);
         if (particleCount > 0 && particleBuffer != null)

@@ -17,10 +17,12 @@ public interface IWorldInteractionSavePolicy
     public bool CanSave { get; }
 }
 
-/// <summary>취침처럼 끝까지 진행해야 하는 동작의 사용자 취소를 제한함.</summary>
+/// <summary>동작의 강제 중지 가능 여부와 ESC·패드 취소를 무시할 구간을 제공함.</summary>
 public interface IWorldInteractionCancellationPolicy
 {
     public bool CanCancel { get; }
+    // 기본적으로 중지 불가 구간은 입력도 무시한다. 일반 엘리베이터 이동은 설정창을 허용한다.
+    public bool BlocksEscape => !CanCancel;
 }
 
 public readonly struct WorldInteractionActionContext
