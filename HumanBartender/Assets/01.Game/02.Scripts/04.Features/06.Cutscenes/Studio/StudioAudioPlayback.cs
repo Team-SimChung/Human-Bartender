@@ -9,6 +9,7 @@ namespace HumanBartender.CutsceneStudio
     {
         private readonly GameObject owner;
         private readonly AudioOutputSettings output;
+        private readonly StudioTypingAudio typing;
         private sealed class Voice
         {
             internal AudioSource Source;
@@ -27,12 +28,14 @@ namespace HumanBartender.CutsceneStudio
         {
             this.owner = owner;
             this.output = output != null ? output : throw new ArgumentNullException(nameof(output));
+            typing = new StudioTypingAudio(owner, this.output);
         }
 
         internal void Evaluate(StudioSequence sequence, double time, bool waiting, StudioClock clock = null, bool paused = false)
         {
             active.Clear();
             StudioEvaluation.CollectClips(sequence, entries);
+            typing.Evaluate(sequence, entries, time, clock, paused);
             foreach (var entry in entries)
             {
                 var clip = entry.Asset;
@@ -116,6 +119,7 @@ namespace HumanBartender.CutsceneStudio
 
         public void Dispose()
         {
+            typing.Dispose();
             foreach (var voice in voices.Values)
                 Release(voice.Source);
             voices.Clear();

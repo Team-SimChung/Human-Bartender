@@ -202,6 +202,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 title.SetValueWithoutNotify(visual ? host.Sequence.FindActor(host.Selected.ActorId)?.Name ?? clip.displayName : clip.displayName);
                 start.SetValueWithoutNotify(clip.start);
                 duration.SetValueWithoutNotify(clip.duration);
+                duration.SetEnabled(!host.Playing && (host.Selected.Kind != StudioKind.Dialogue || host.Selected.DialogueLengthMode == StudioDialogueLengthMode.Manual));
                 end.SetValueWithoutNotify(clip.end.ToString("0.###"));
             }
         }
@@ -212,10 +213,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             var data = PanelBinding(host.Sequence);
             BoundField(section, data, "Id", "제작 파일 ID");
             section.Add(StudioGUI.ActionButton("호출 ID / memoryKey 연결", () => StudioBindingWindow.Open(host.Sequence), "studio-bindings"));
-            var rhythm = new UnityEditor.UIElements.PropertyField(StudioSerializedFields.Find(data, "TypingRhythm"), "타이핑 리듬");
-            rhythm.Bind(data);
-            rhythm.RegisterValueChangeCallback(_ => host.Changed());
-            section.Add(rhythm);
+            BuildTypingRhythm(section);
+            BuildTypingAudio(section, data, true);
             Note(section, "직접 탐색은 입력 대기 시간이 없는 기준으로 표시됩니다.");
             BoundField(section, data, "BackgroundColor", "배경 색상");
             BoundField(section, data, "AllowSkip", "길게 눌러 스킵 허용");
@@ -325,12 +324,15 @@ namespace HumanBartender.CutsceneStudio.Editor
             if (validationUI == null || host.Sequence == null)
                 return;
             validationUI.Clear();
+            if (!string.IsNullOrEmpty(dialogueTimingNotice))
+                validationUI.Add(new HelpBox("최근 시간 변경: " + dialogueTimingNotice, HelpBoxMessageType.Warning));
             foreach (string issue in host.Sequence.Validate())
                 validationUI.Add(new HelpBox(issue, HelpBoxMessageType.Warning));
         }
 
         internal void ResetForSequence()
         {
+            dialogueTimingNotice = "";
             currentKeys.Reset();
             inspectorIdentity = null;
             scrollKey = null;

@@ -86,6 +86,9 @@ namespace HumanBartender.CutsceneStudio
     /// <summary>컷씬 원본과 Unity Timeline의 연결을 저장함.</summary>
     public sealed class StudioSequence : ScriptableObject
     {
+        [SerializeField, Header("타이핑 효과음"), Tooltip("대사별 직접 지정이 없으면 이 설정을 사용합니다. 기존 제작 파일은 무음입니다.")]
+        private StudioTypingAudioSettings typingAudio = new();
+        public StudioTypingAudioSettings TypingAudio => typingAudio;
         [SerializeField, Header("타이핑 리듬")]
         private StudioTypingRhythm typingRhythm = new();
         public StudioTypingRhythm TypingRhythm => typingRhythm ?? StudioTypingRhythm.Default;

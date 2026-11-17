@@ -303,7 +303,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             row.Text = new TextField
             {
                 name = "dialogue-text",
-                multiline = true
+                multiline = true,
+                isDelayed = true
             };
             row.Text.verticalScrollerVisibility = ScrollerVisibility.Auto;
             row.Text.AddToClassList("studio-dialogue-text");
@@ -422,9 +423,10 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             if (entry.Asset == null || host.Sequence == null)
                 return;
-            Undo.RecordObject(entry.Asset, operation);
-            edit(entry.Asset);
-            host.Changed();
+            if (host.Playing) return;
+            bool changed = StudioDialogueEditing.Edit(host.Sequence, entry.Asset, () => edit(entry.Asset), operation, out var notice);
+            if (changed) host.Changed();
+            if (!string.IsNullOrEmpty(notice)) host.Window.ShowNotification(new GUIContent(notice));
         }
 
 

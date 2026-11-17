@@ -24,10 +24,17 @@ namespace HumanBartender.CutsceneStudio
     {
         private static readonly Regex Tag = new(@"^/?(?:b|i|u|s|color|size|font|material|align|alpha|voffset|cspace|mspace|indent|line-indent|line-height|margin|mark|nobr|page|pos|rotate|space|style|sub|sup|width|link|lowercase|uppercase|smallcaps|font-weight|gradient|sprite|br|noparse)(?:[ =/]|$)", RegexOptions.IgnoreCase);
         private readonly double[] times;
+        private readonly string[] characters;
         public double Duration { get; }
         public int Count => times.Length;
         internal double At(int index) => index < times.Length ? times[index] : Duration;
-        private StudioDialogueTiming(double[] values, double duration) { times = values; Duration = duration; }
+        private StudioDialogueTiming(double[] values, string[] glyphs, double duration) { times = values; characters = glyphs; Duration = duration; }
+        internal bool HasAudibleCharacter(int from, int to, StudioTypingAudioSettings settings)
+        {
+            for (int i = Math.Max(0, from); i < Math.Min(to, characters.Length); i++)
+                if (settings.Accepts(characters[i])) return true;
+            return false;
+        }
 
         public int Visible(double elapsed)
         {
@@ -96,7 +103,7 @@ namespace HumanBartender.CutsceneStudio
                 else if (last.Length == 1 && (rhythm.ExtraPunctuation ?? "").Contains(last)) at += extra;
             }
             if (line != null) foreach (var wait in line.SourceWaits) if (wait.Key > previousSource) at += wait.Value;
-            return new StudioDialogueTiming(result, at);
+            return new StudioDialogueTiming(result, chars.ConvertAll(c => c.text).ToArray(), at);
         }
     }
 }

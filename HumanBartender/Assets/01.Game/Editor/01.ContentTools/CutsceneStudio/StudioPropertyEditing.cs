@@ -29,9 +29,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         internal static bool FitDialogue(StudioSequence sequence, TimelineClip clip)
         {
             if (clip?.asset is not StudioClip data || data.Kind != StudioKind.Dialogue) return false;
-            bool changed = SetTiming(sequence, clip, clip.start, StudioDialogueTiming.For(data, sequence).Duration);
-            if (changed) { EditorUtility.SetDirty(clip.GetParentTrack()); EditorUtility.SetDirty(sequence.Timeline); }
-            return changed;
+            return StudioDialogueEditing.Edit(sequence, data, null, "이 대사 길이 맞추기", out _, fitOnly: true);
         }
 
         internal static bool UsesSourceTiming(StudioClip clip) => clip.Frames != null

@@ -18,6 +18,8 @@ namespace HumanBartender.CutsceneStudio
         public double DialogueElapsed { get; private set; }
         public bool Finished { get; private set; }
         public int Revision { get; private set; }
+        // 음원 위치를 바꾸는 탐색과 구분한다. 전체 표시 입력에서는 타이핑 효과음을 몰아 재생하지 않는다.
+        internal int RevealRevision { get; private set; }
         public bool IsHolding => Waiting.HasValue || Dialogue.HasValue && Time >= Dialogue.Value.Clip.end - Epsilon;
         public bool CanAdvance => Waiting.HasValue || Dialogue.HasValue;
         public bool IsSuppressed(StudioClip clip) => suppressed.Contains(clip);
@@ -57,6 +59,7 @@ namespace HumanBartender.CutsceneStudio
             }
             else if (Dialogue.HasValue)
             {
+                RevealRevision++;
                 DialogueElapsed = StudioDialogueTiming.For(Dialogue.Value.Asset, sequence).Duration;
                 Waiting = Dialogue;
             }

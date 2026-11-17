@@ -116,6 +116,9 @@ namespace HumanBartender.CutsceneStudio.Editor
                     Add("BubbleWidth", "말풍선 폭");
                     Add("BubblePadding", "안쪽 여백");
                     Add("CharactersPerSecond", "초당 글자 수");
+                    Add("DialogueLengthMode", "길이 조정");
+                    Add("TypingAudioMode", "타이핑 효과음");
+                    if (clip.TypingAudioMode == StudioTypingAudioMode.Custom) Add("TypingAudio", "직접 지정 효과음");
                     Add("BubbleOffset", "말풍선 높이");
                     Add("WaitForInput", "타이핑 완료 후 입력 대기");
                     Add("Curve", "키 사이 보간 곡선");
