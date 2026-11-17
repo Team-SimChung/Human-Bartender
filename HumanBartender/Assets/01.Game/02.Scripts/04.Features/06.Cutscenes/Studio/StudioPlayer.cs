@@ -62,6 +62,10 @@ namespace HumanBartender.CutsceneStudio
             var issues = sequence.Validate();
             if (issues.Count > 0)
                 throw new InvalidOperationException(string.Join("\n", issues));
+            var visualWarnings = StudioSequenceWarnings.CollectMissingVisuals(sequence);
+            if (visualWarnings.Count > 0)
+                Debug.LogWarning("[CutsceneStudio] 시각 리소스 누락 · 대사 재생은 계속합니다: " + sequence.Id + "\n" +
+                    string.Join("\n", visualWarnings), sequence);
             using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
             run = source;
             IsPlaying = true;
@@ -71,6 +75,7 @@ namespace HumanBartender.CutsceneStudio
             int startedFrame = Time.frameCount;
             CutsceneSkipScreen skipScreen = null;
             clock.Seek(0);
+            clock.Tick(sequence, 0, true);
             try
             {
                 source.Token.ThrowIfCancellationRequested();
@@ -95,29 +100,29 @@ namespace HumanBartender.CutsceneStudio
                     if (skip) break;
                     if (UIDisplayOptions.IsOptionOpen)
                     {
-                        audio.Evaluate(sequence, clock.Time, true);
+                        audio.Evaluate(sequence, clock.DisplayTime, true, clock, paused: true);
                         last = now;
                         await UniTask.Yield(PlayerLoopTiming.Update, source.Token);
                         continue;
                     }
-                    bool waiting = clock.Waiting.HasValue;
                     bool keyPressed = HandleKeyboardInput && Time.frameCount != startedFrame &&
                         !DialogueAdvanceInput.ConsumedThisFrame && DialogueAdvanceInput.PressedKey(includeInteraction: true) != null;
-                    if (advance || keyPressed)
+                    bool advanceThisFrame = advance || keyPressed;
+                    bool acceptedInput = advanceThisFrame && clock.CanAdvance;
+                    if (advanceThisFrame)
                     {
                         DialogueAdvanceInput.TryConsume();
-                        if (waiting)
-                            clock.Advance();
+                        clock.Advance();
                         advance = false;
                     }
 
-                    clock.Tick(sequence, waiting ? 0 : now - last, true);
+                    clock.Tick(sequence, acceptedInput ? 0 : now - last, true);
                     if (clock.Finished)
                         break;
                     last = now;
                     stage.FitTo(canvas.pixelRect.size);
                     EvaluatePresentation(director);
-                    audio.Evaluate(sequence, clock.Time, clock.Waiting.HasValue);
+                    audio.Evaluate(sequence, clock.DisplayTime, clock.IsHolding, clock);
                     await UniTask.Yield(PlayerLoopTiming.Update, source.Token);
                 }
 
@@ -169,6 +174,7 @@ namespace HumanBartender.CutsceneStudio
 
         private void EvaluatePresentation(PlayableDirector director)
         {
+            stage.PlaybackClock = clock;
             stage.RevealDialogue = clock.Waiting.HasValue;
             int previous = stage.EvaluationVersion;
             director.time = clock.DisplayTime;

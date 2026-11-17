@@ -101,6 +101,7 @@ namespace HumanBartender.CutsceneStudio.Editor
     }
     internal interface IStudioDialogueHost : IStudioPanelHost
     {
+        bool Playing { get; }
         StudioViewState ViewState { get; }
         void Changed(bool rebuild = false);
         void DeleteClip();

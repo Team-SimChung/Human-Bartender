@@ -643,7 +643,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         var target = activeTarget;
         if (target == null) throw new InvalidOperationException("컷씬 상호작용 대상이 사라졌습니다.");
         // Inspector의 명시적 연결을 우선하고, 나머지는 기존 StudioCatalog에서 조회한다.
-        bool local = target.TryResolveTimeline(id, out var sequence);
+        bool local = target.TryResolveTimeline(id, memoryKey, out var sequence);
         view.EndScene();
         if (cutscenePlayer == null)
             cutscenePlayer = GetComponent<WorldInteractionCutscenePlayer>() ?? gameObject.AddComponent<WorldInteractionCutscenePlayer>();
@@ -653,7 +653,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             if (local) { await cutscenePlayer.PlayAsync(sequence, token); played = true; }
             else
             {
-                played = await cutscenePlayer.TryPlayAsync(id, token);
+                played = await cutscenePlayer.TryPlayAsync(id, token, memoryKey);
                 if (!played && CsvStoryCutsceneProjection.TryGetSource(id, memoryKey, out var sourceId))
                 {
                     using var projection = new CsvStoryCutsceneProjection(id, storyContent.GetCutsceneSteps(sourceId), GameStateManager.Instance.Language);

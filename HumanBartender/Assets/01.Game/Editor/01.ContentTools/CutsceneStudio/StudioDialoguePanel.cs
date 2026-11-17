@@ -142,7 +142,11 @@ namespace HumanBartender.CutsceneStudio.Editor
 
             void UnbindDialogueRow(VisualElement element, int _)
             {
-                ((DialogueRow)element.userData).Entry = default;
+                var row = (DialogueRow)element.userData;
+                // 재활용될 행의 초안은 이전 클립에 확정하고 포커스를 넘긴다.
+                StudioDelayedInput.CommitFocused(row.Root);
+                row.Text.Blur();
+                row.Entry = default;
             }
 
             void BindNavigationItem(VisualElement element, int index)
@@ -303,7 +307,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             row.Text = new TextField
             {
                 name = "dialogue-text",
-                multiline = true
+                multiline = true,
+                isDelayed = true
             };
             row.Text.verticalScrollerVisibility = ScrollerVisibility.Auto;
             row.Text.AddToClassList("studio-dialogue-text");
@@ -316,7 +321,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             {
                 text = "입력 대기",
                 name = "dialogue-wait",
-                tooltip = "대사 끝에서 E / Enter 입력을 기다립니다."
+                tooltip = "문장부호 휴식을 포함한 타이핑 완료 후 대기합니다. 첫 입력은 전체 표시, 다음 입력은 클립 끝으로 이동합니다."
             };
             row.Wait.RegisterValueChangedCallback(ChangeInputWait);
             actions.Add(row.Wait);
@@ -407,8 +412,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             if (!ids.SequenceEqual(row.Speaker.choices))
                 row.Speaker.choices = ids;
             row.Speaker.SetValueWithoutNotify(data.ActorId ?? "");
-            var focused = Window.rootVisualElement.focusController?.focusedElement as VisualElement;
-            if (focused != row.Text && !row.Text.Contains(focused))
+            if (StudioDelayedInput.FocusedTextField(row.Root) != row.Text)
                 row.Text.SetValueWithoutNotify(data.Text ?? "");
             row.Wait.SetValueWithoutNotify(data.WaitForInput);
             string GetActorId(StudioActor a)
@@ -422,9 +426,10 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             if (entry.Asset == null || host.Sequence == null)
                 return;
-            Undo.RecordObject(entry.Asset, operation);
-            edit(entry.Asset);
-            host.Changed();
+            if (host.Playing) return;
+            bool changed = StudioDialogueEditing.Edit(host.Sequence, entry.Asset, () => edit(entry.Asset), operation, out var notice);
+            if (changed) host.Changed();
+            if (!string.IsNullOrEmpty(notice)) host.Window.ShowNotification(new GUIContent(notice));
         }
 
 

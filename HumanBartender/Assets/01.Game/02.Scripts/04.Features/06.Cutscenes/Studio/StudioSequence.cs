@@ -86,6 +86,12 @@ namespace HumanBartender.CutsceneStudio
     /// <summary>컷씬 원본과 Unity Timeline의 연결을 저장함.</summary>
     public sealed class StudioSequence : ScriptableObject
     {
+        [SerializeField, Header("타이핑 효과음"), Tooltip("대사별 직접 지정이 없으면 이 설정을 사용합니다. 기존 제작 파일은 무음입니다.")]
+        private StudioTypingAudioSettings typingAudio = new();
+        public StudioTypingAudioSettings TypingAudio => typingAudio;
+        [SerializeField, Header("타이핑 리듬")]
+        private StudioTypingRhythm typingRhythm = new();
+        public StudioTypingRhythm TypingRhythm => typingRhythm ?? StudioTypingRhythm.Default;
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Id")]
         private string id = "cutscene";
         public string Id
@@ -200,10 +206,7 @@ namespace HumanBartender.CutsceneStudio
                 var c = entry.Asset;
                 if (entry.Clip.duration <= 0)
                     errors.Add(entry.Clip.displayName + ": 길이를 확인하세요.");
-                if (StudioEvaluation.UsesActor(c) && !ids.Contains(c.ActorId))
-                    errors.Add(entry.Clip.displayName + ": 연결된 캐릭터가 없습니다.");
-                if (c.Kind == StudioKind.Camera && !string.IsNullOrEmpty(c.CameraTargetId) && !ids.Contains(c.CameraTargetId))
-                    errors.Add(entry.Clip.displayName + ": 카메라가 따라갈 오브젝트가 없습니다.");
+                // 그림·화자 연결 누락은 StudioSequenceWarnings에서 안내한다. 대사 재생은 허용한다.
                 if (c.Kind == StudioKind.Dialogue && c.DialoguePrefab != null && !StudioDialoguePrefabPresentation.IsCompatible(c.DialoguePrefab))
                     errors.Add(entry.Clip.displayName + ": 말풍선 프리팹의 DynamicSpeechBubble / 본문 TMP 연결을 확인하세요.");
                 if (c.Kind == StudioKind.Audio && c.Sound == null)

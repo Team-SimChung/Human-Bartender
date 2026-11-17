@@ -37,17 +37,34 @@ namespace HumanBartender.CutsceneStudio.Editor
             var catalog = FindCatalog(true);
             string key = "cutscene-studio/" + sequence.Id;
             var entry = RegisterAddress(sequence, key);
-            for (int i = catalog.Sequences.Count - 1; i >= 0; i--)
-            {
-                var existing = catalog.Sequences[i];
-                if (existing == null || existing.Id == sequence.Id || existing.ResourceKey == entry)
-                    catalog.Sequences.RemoveAt(i);
-            }
-
-            catalog.Sequences.Add(new StudioCatalogEntry { Id = sequence.Id, ResourceKey = key });
+            UpdateRegistration(catalog, sequence.Id, null, key, entry);
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssetIfDirty(catalog);
             RegisterAddress(catalog, StudioCatalog.Address);
+        }
+
+        internal static void UpdateRegistration(StudioCatalog catalog, string id, string memoryKey, string key, string previousKey = null)
+        {
+            for (int i = catalog.Sequences.Count - 1; i >= 0; i--)
+            {
+                var existing = catalog.Sequences[i];
+                if (existing == null) { catalog.Sequences.RemoveAt(i); continue; }
+                if (!string.IsNullOrEmpty(previousKey) && existing.ResourceKey == previousKey) existing.ResourceKey = key;
+                if (existing.Id == id && (existing.MemoryKey ?? "") == (memoryKey ?? "")) catalog.Sequences.RemoveAt(i);
+            }
+
+            catalog.Sequences.Add(new StudioCatalogEntry { Id = id, MemoryKey = memoryKey, ResourceKey = key });
+        }
+
+        internal static void RegisterBinding(string id, string memoryKey, StudioSequence sequence)
+        {
+            if (string.IsNullOrWhiteSpace(id) || sequence == null) throw new ArgumentException("[CutsceneStudio] 호출 ID와 제작 파일을 지정하세요.");
+            Register(sequence);
+            var catalog = FindCatalog(false);
+            Undo.RecordObject(catalog, "컷씬 호출 연결");
+            UpdateRegistration(catalog, id.Trim(), memoryKey ?? "", "cutscene-studio/" + sequence.Id);
+            EditorUtility.SetDirty(catalog);
+            AssetDatabase.SaveAssetIfDirty(catalog);
         }
 
         private static string RegisterAddress(UnityEngine.Object asset, string key)
