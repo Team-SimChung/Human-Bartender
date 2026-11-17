@@ -16,6 +16,58 @@ public sealed class RandomIdleAnimationTests
     UnityEngine.Random.State previousRandomState;
     bool changedGlobals;
 
+    [UnityTest]
+    public IEnumerator FixedIntervalMeasuresReplayStartsAndRestoresAnimatorOnStop()
+    {
+        previousScenes = EditorSceneManager.GetSceneManagerSetup();
+        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        yield return new EnterPlayMode();
+        yield return VerifyFixedInterval();
+    }
+
+    private IEnumerator VerifyFixedInterval()
+    {
+        previousTimeScale = Time.timeScale;
+        previousRandomState = UnityEngine.Random.state;
+        changedGlobals = true;
+        Time.timeScale = 1;
+        var parent = new GameObject("Fixed interval test");
+        parent.SetActive(false);
+        var crow = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath), parent.transform);
+        var playback = crow.GetComponent<RandomIdleAnimation>();
+        var animator = crow.GetComponent<Animator>();
+        animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        using (var data = new SerializedObject(playback))
+        {
+            data.FindProperty("playOnEnable").boolValue = false;
+            data.FindProperty("minimumStartFrame").intValue = 1;
+            data.FindProperty("maximumStartFrame").intValue = 1;
+            data.FindProperty("minimumWaitSeconds").floatValue = 5;
+            data.FindProperty("maximumWaitSeconds").floatValue = 5;
+            data.FindProperty("repeatIntervalSeconds").floatValue = .4f;
+            data.ApplyModifiedPropertiesWithoutUndo();
+        }
+        animator.speed = 20;
+        parent.SetActive(true);
+        yield return null;
+        yield return null;
+        float lastStart = Time.time;
+        playback.Play();
+        for (int i = 0; i < 3; i++)
+        {
+            yield return WaitUntil(() => playback.IsWaiting, "The fixed cycle did not reach its wait.");
+            Assert.That(playback.CurrentWaitSeconds, Is.InRange(0, .4f));
+            yield return WaitUntil(() => !playback.IsWaiting, "The fixed cycle did not restart.");
+            Assert.That(Time.time - lastStart, Is.InRange(.39f, .55f), "재생 시간까지 포함한 시작 간격이어야 한다.");
+            Assert.That(playback.CurrentStartFrame, Is.EqualTo(1));
+            lastStart = Time.time;
+        }
+        playback.Stop();
+        Assert.That(playback.IsRunning, Is.False);
+        Assert.That(animator.speed, Is.EqualTo(20));
+        Object.Destroy(parent);
+    }
+
     [UnityTearDown]
     public IEnumerator RestoreEditor()
     {

@@ -41,6 +41,19 @@ public sealed class NpcActor : MonoBehaviour
     public bool IsBusy => action != null;
     public bool IsVisible => visible;
 
+    internal void PlayIdleState(string stateName)
+    {
+        ValidateActionStart();
+        // 비활성 상태에서 다시 켜진 Animator가 진입 상태를 먼저 초기화하도록 한다.
+        if (animator.isActiveAndEnabled) animator.Update(0);
+        int state = ResolveState(stateName);
+        if (state == 0)
+            throw new InvalidOperationException("[NPC] 대기 Animator 상태를 확인하세요: " + stateName);
+        animator.SetFloat(SpeedParameter, 0);
+        animator.Play(state, 0, 0);
+        if (animator.isActiveAndEnabled) animator.Update(0);
+    }
+
     /// <summary>연출 시작 자세. 표시 여부와 게임 진행 상태는 포함하지 않는다.</summary>
     public readonly struct PoseSnapshot
     {

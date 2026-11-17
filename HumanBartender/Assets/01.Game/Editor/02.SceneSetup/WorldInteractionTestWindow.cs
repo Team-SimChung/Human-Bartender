@@ -21,6 +21,9 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
     [SerializeField] private string flagSearch = "";
     [SerializeField] private string customFlag = "";
     [SerializeField] private int money = 1000;
+    [SerializeField] private string preparationGroup;
+    [SerializeField] private string preparationId;
+    [SerializeField] private bool showPreparationFlags;
     [SerializeField] private WorldInteractionTestCatalog.Point[] points = Array.Empty<WorldInteractionTestCatalog.Point>();
     private NewInteractPointData[] definitions = Array.Empty<NewInteractPointData>();
     private string[] flagNames = Array.Empty<string>();
@@ -80,6 +83,7 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
             if (GUILayout.Button("바 내부 대사 선택")) EditorApplication.ExecuteMenuItem(BarDialogueTestCatalog.MenuPath);
         }
         DrawSetup();
+        DrawPreparations();
         EditorGUILayout.HelpBox(HomeInteractionTestSession.Status, MessageType.None);
         if (!string.IsNullOrEmpty(error)) EditorGUILayout.HelpBox(error, MessageType.Error);
         if (EditorApplication.isPlaying && HomeInteractionTestSession.IsActive) DrawRuntime();
@@ -167,6 +171,55 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
         return selectedScriptId;
     }
 
+    private void DrawPreparations()
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("조건별 상황 준비", EditorStyles.boldLabel);
+        var preparations = WorldInteractionTestPreparationCatalog.All
+            .Where(value => value.Scenario.RuntimeScene == WorldInteractionTestCatalog.Scenes[sceneIndex]).ToArray();
+        var groups = preparations.Select(value => value.Group).Distinct().ToArray();
+        int groupIndex = Math.Max(0, Array.IndexOf(groups, preparationGroup));
+        groupIndex = EditorGUILayout.Popup("조건 종류", groupIndex, groups);
+        preparationGroup = groups[groupIndex];
+        var choices = preparations.Where(value => value.Group == preparationGroup).ToArray();
+        int index = Math.Max(0, Array.FindIndex(choices, value => value.Scenario.Id == preparationId));
+        index = EditorGUILayout.Popup("준비할 상황", index, choices.Select(value => value.Scenario.Name).ToArray());
+        var choice = choices[index];
+        var scenario = choice.Scenario;
+        preparationId = scenario.Id;
+        EditorGUILayout.HelpBox(scenario.Description, MessageType.Info);
+        EditorGUILayout.LabelField($"{scenario.RuntimeScene} · {scenario.Day}일차 · {(scenario.Flow == EGameFlow.CommuteIn ? "출근" : "퇴근")} · {scenario.Money}원 · {scenario.FocusId}", EditorStyles.wordWrappedMiniLabel);
+        if (!choice.TargetAvailable) EditorGUILayout.LabelField("대상이 숨겨지는 완료 상태를 검사하는 상황입니다.", EditorStyles.wordWrappedMiniLabel);
+        showPreparationFlags = EditorGUILayout.Foldout(showPreparationFlags, "적용할 플래그 보기 (체크 해제 = false)", true);
+        if (showPreparationFlags)
+            using (new EditorGUI.DisabledScope(true))
+                foreach (var pair in scenario.FlagOverrides.OrderBy(value => value.Key)) EditorGUILayout.ToggleLeft(pair.Key, pair.Value);
+        bool playing = EditorApplication.isPlayingOrWillChangePlaymode;
+        bool ownSession = HomeInteractionTestSession.IsActive && EditorApplication.isPlaying;
+        var context = HomeInteractionTestSession.Context;
+        var controller = HomeInteractionTestSession.Controller;
+        bool idle = ownSession && !HomeInteractionTestSession.IsBusy &&
+            (controller == null || !controller.IsRunning) && (context == null || !context.IsReady || !context.Runner.IsRunning);
+        var state = GameStateManager.Instance;
+        bool sameContext = context != null && context.IsReady && controller != null && controller.IsReady &&
+            context.Player.State == EInteractorState.None && context.gameObject.scene.name == scenario.RuntimeScene &&
+            state.CurrentDay == scenario.Day && state.GameFlow == scenario.Flow;
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            using (new EditorGUI.DisabledScope(playing))
+                if (GUILayout.Button("이 상황으로 테스트 시작")) Try(() => HomeInteractionTestSession.Start(scenario.Id));
+            using (new EditorGUI.DisabledScope(!idle))
+                if (GUILayout.Button("상황 다시 준비"))
+                {
+                    error = null;
+                    HomeInteractionTestSession.LoadScenarioAsync(scenario.Id).Forget(Report);
+                }
+            using (new EditorGUI.DisabledScope(!idle || !sameContext))
+                if (GUILayout.Button("조건만 적용")) Try(() => HomeInteractionTestSession.ApplyPreparation(scenario.Id));
+        }
+        EditorGUILayout.LabelField("상황 다시 준비: 격리 진행을 초기화하고 날짜·위치까지 재설정. 조건만 적용: 같은 씬·일차·국면에서 표시한 돈·플래그만 변경.", EditorStyles.wordWrappedMiniLabel);
+    }
+
     private void DrawRuntime()
     {
         var context = HomeInteractionTestSession.Context;
@@ -222,6 +275,19 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
                 : target.StartMode == WorldInteractionStartMode.ScriptOnly ? "다른 사건에서만 호출"
                 : available ? "실행 가능" : "현재 날짜·국면·플래그·완료 기록 또는 대상 상태로 실행 불가";
             EditorGUILayout.LabelField($"{reason} · {target.StartMode} · 반경 {target.InteractionRadius:0.##}", EditorStyles.wordWrappedMiniLabel);
+            string closed = WorldInteractionTestPreparationCatalog.ClosedReason(target.gameObject.scene.name, WorldInteractionTestCatalog.Key(target));
+            if (closed != null) EditorGUILayout.HelpBox(closed, MessageType.Info);
+            string requirement = WorldInteractionTestPreparationCatalog.NativeEntryRequirement(WorldInteractionTestCatalog.Key(target));
+            if (requirement != null) EditorGUILayout.LabelField("등장 조건: " + requirement, EditorStyles.wordWrappedMiniLabel);
+            var preparations = WorldInteractionTestPreparationCatalog.ForTarget(target.gameObject.scene.name, WorldInteractionTestCatalog.Key(target)).ToArray();
+            if (preparations.Length > 0 && GUILayout.Button($"관련 조건 준비 선택 ({preparations.Length}가지)"))
+            {
+                var first = preparations[0];
+                sceneIndex = Array.IndexOf(WorldInteractionTestCatalog.Scenes, first.Scenario.RuntimeScene);
+                preparationGroup = first.Group;
+                preparationId = first.Scenario.Id;
+                scroll = Vector2.zero;
+            }
             if (available) DrawStory(story);
             else if (target.Content?.Dialogue is { } dialogue) DrawStory(dialogue);
             else if (target.Content == null)
@@ -266,6 +332,12 @@ internal sealed class WorldInteractionTestWindow : EditorWindow
                 money = EditorGUILayout.IntField("변경할 소지금", money);
                 if (GUILayout.Button("적용", GUILayout.Width(60))) Try(() => HomeInteractionTestSession.SetMoney(money));
             }
+            EditorGUILayout.LabelField("참치캔", player.CheckFlag("shiba_bought_tuna_can") ? "보유 중" : "없음");
+            if (GUILayout.Button("부비용 참치캔 준비")) Try(() =>
+            {
+                HomeInteractionTestSession.SetFlag("shiba_bought_tuna_can", true);
+                HomeInteractionTestSession.SetFlag("boobi_feeding_pending", false);
+            });
             showFlags = EditorGUILayout.Foldout(showFlags, "플래그 수정 (CSV 조건 + 현재 플레이어)", true);
             if (!showFlags) return;
             flagSearch = EditorGUILayout.TextField("플래그 검색", flagSearch);

@@ -88,7 +88,7 @@ public sealed class WorldInteractionTestEnvironmentTests
         try
         {
             var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
-            var definitions = catalog.Read<NewInteractPointData[]>("interact_points");
+            var definitions = WorldInteractionTestCatalog.LoadDefinitions();
             var stories = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/street")).Scenes;
             var targets = WorldInteractionTestCatalog.Targets(preview);
             foreach (var scenario in OutsideInteractionTestScenarios.All)

@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 
-/// <summary>전담 Animator의 비반복 상태를 랜덤 프레임부터 재생하고, 끝에서 랜덤 대기 후 반복한다.</summary>
+/// <summary>전담 Animator의 비반복 상태를 랜덤 대기 또는 고정 시작 간격으로 반복한다.</summary>
 [MovedFrom(true, sourceNamespace: "", sourceAssembly: "Assembly-CSharp", sourceClassName: "CrowIdleAnimation")]
 [AddComponentMenu("Human Bartender/Animation/Random Idle Animation")]
 [DisallowMultipleComponent, RequireComponent(typeof(Animator))]
@@ -22,6 +22,10 @@ public sealed class RandomIdleAnimation : MonoBehaviour
     [SerializeField, Min(0), Tooltip("마지막 프레임을 유지하는 최소 시간입니다. 게임 일시정지 중에는 대기도 멈춥니다.")] private float minimumWaitSeconds = 1;
     [SerializeField, Min(0), Tooltip("마지막 프레임을 유지하는 최대 시간입니다.")] private float maximumWaitSeconds = 3;
 
+    [Header("고정 재생 간격 · 선택 사항")]
+    [SerializeField, Min(0), Tooltip("0이면 기존 랜덤 대기를 사용합니다. 양수이면 재생 시작부터 다음 재생 시작까지의 간격입니다. 일시정지 중에는 멈춥니다.")]
+    private float repeatIntervalSeconds;
+
     private Coroutine repetition;
     private float originalSpeed;
     private bool controlsAnimator;
@@ -37,6 +41,7 @@ public sealed class RandomIdleAnimation : MonoBehaviour
         maximumStartFrame = Mathf.Max(minimumStartFrame, maximumStartFrame);
         minimumWaitSeconds = Mathf.Max(0, minimumWaitSeconds);
         maximumWaitSeconds = Mathf.Max(minimumWaitSeconds, maximumWaitSeconds);
+        repeatIntervalSeconds = Mathf.Max(0, repeatIntervalSeconds);
     }
 
     private void Reset() => animator = GetComponent<Animator>();
@@ -68,6 +73,7 @@ public sealed class RandomIdleAnimation : MonoBehaviour
         int frameCount = Mathf.Max(1, Mathf.RoundToInt(idleClip.length * idleClip.frameRate));
         while (true)
         {
+            float cycleStart = Time.time;
             int first = Mathf.Clamp(minimumStartFrame, 1, frameCount);
             int last = Mathf.Clamp(maximumStartFrame, first, frameCount);
             CurrentStartFrame = Random.Range(first, last + 1);
@@ -83,7 +89,9 @@ public sealed class RandomIdleAnimation : MonoBehaviour
             animator.speed = 0;
             IsWaiting = true;
             float minimum = Mathf.Max(0, minimumWaitSeconds);
-            CurrentWaitSeconds = Random.Range(minimum, Mathf.Max(minimum, maximumWaitSeconds));
+            CurrentWaitSeconds = repeatIntervalSeconds > 0
+                ? Mathf.Max(0, repeatIntervalSeconds - (Time.time - cycleStart))
+                : Random.Range(minimum, Mathf.Max(minimum, maximumWaitSeconds));
             yield return new WaitForSeconds(CurrentWaitSeconds);
         }
     }

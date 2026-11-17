@@ -144,7 +144,7 @@ Transform:
   m_GameObject: {fileID: 19341215}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.65, z: 0}
+  m_LocalPosition: {x: 0.25, y: 0.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1683,7 +1683,7 @@ Transform:
   m_GameObject: {fileID: 398070673}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.627, y: -0.7, z: 0}
+  m_LocalPosition: {x: -2.63, y: -0.704, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2527,6 +2527,7 @@ GameObject:
   m_Component:
   - component: {fileID: 638972481}
   - component: {fileID: 638972482}
+  - component: {fileID: 638972483}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -2575,7 +2576,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2596,7 +2597,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5986868820742579314, guid: 8ce2b8a7112d0420eaa2898112d1b30f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -2608,6 +2609,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &638972483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 638972480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 638972482}
+  fadeSpeed: 8
 --- !u!1 &720587697
 GameObject:
   m_ObjectHideFlags: 0
@@ -2957,7 +2972,7 @@ MonoBehaviour:
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: 8}
   inspectionImage: {fileID: 0}
-  highlight: {fileID: 0}
+  highlight: {fileID: 638972483}
   cutsceneSequence: {fileID: 0}
   timelines: []
   optionalTimelineIds: []
@@ -3130,7 +3145,7 @@ MonoBehaviour:
       cameraOffset: {x: 0, y: 0}
       cameraWidth: 4.8
       fadeInTogether: 0
-      stateName: Meow
+      stateName: Pet
       returnState: Idle
       duration: 1
       walkDuration: 1
@@ -4121,7 +4136,6 @@ MonoBehaviour:
       \uC788\uC2B5\uB2C8\uB2E4."
     Footer: E / SPACE
     InputLockSeconds: 1
-    AcceptAdvanceKey: 1
     ShadeAlpha: 1
   controlsPages:
   - Title: "\uC774\uB3D9 \xB7 \uB2EC\uB9AC\uAE30"
@@ -4129,14 +4143,12 @@ MonoBehaviour:
       \uB204\uB978 \uCC44 \uC774\uB3D9\uD558\uBA74 \uB2EC\uB9BD\uB2C8\uB2E4."
     Footer: "1 / 2 \xB7 E\uD0A4\uB97C \uB20C\uB7EC \uC9C4\uD589"
     InputLockSeconds: 2
-    AcceptAdvanceKey: 0
     ShadeAlpha: 0.72
   - Title: "\uC0C1\uD638\uC791\uC6A9"
     Body: "E\uD0A4\uB97C \uB20C\uB7EC \uC624\uBE0C\uC81D\uD2B8\uB098 \uB2E4\uB978
       \uC778\uBB3C\uB4E4\uACFC \uC0C1\uD638\uC791\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     Footer: "2 / 2 \xB7 E\uD0A4\uB97C \uB20C\uB7EC \uC9C4\uD589"
     InputLockSeconds: 0.3
-    AcceptAdvanceKey: 0
     ShadeAlpha: 0.72
   firstObjective: "\uCCAB \uCD9C\uADFC\uD558\uAE30!"
 --- !u!4 &1151750649
@@ -4341,7 +4353,7 @@ Transform:
   m_GameObject: {fileID: 1178157929}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.627, y: 0, z: -10}
+  m_LocalPosition: {x: -2.63, y: -0.004000008, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4924,8 +4936,8 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0
-    height: 0
+    width: 1
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -4955,7 +4967,7 @@ Transform:
   m_GameObject: {fileID: 1305537442}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.805, y: 0, z: -10}
+  m_LocalPosition: {x: -0.7550044, y: -0.0039999997, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5178,7 +5190,7 @@ Transform:
   m_GameObject: {fileID: 1364887200}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.248, y: 0.325, z: 0}
+  m_LocalPosition: {x: 0.254, y: 0.482, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5231,7 +5243,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1950817317
   m_SortingLayer: 12
-  m_SortingOrder: 5
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 334801650097319832, guid: dbcec45705dea42c2b1dcdfdb81db283, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

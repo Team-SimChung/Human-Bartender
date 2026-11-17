@@ -54,23 +54,18 @@ public sealed class WebNpcAnimationTests
                     Assert.That(clip.length, Is.EqualTo(spec.Item2).Within(.001f));
                     Assert.That(AnimationUtility.GetAnimationClipSettings(clip).loopTime, Is.False);
                     Assert.That(AnimationUtility.GetCurveBindings(clip), Is.Empty, "Reaction geometry belongs to the web sprite frames.");
-                    Assert.That(Sprites(clip).All(sprite => AssetDatabase.GetAssetPath(sprite).EndsWith("WebCatFrames.png", StringComparison.Ordinal)), Is.True);
+                    string source = spec.Item1 == "Pet"
+                        ? scene == home ? "bubi_sleep_hearts.png" : "bubi_box_meow_hearts.png"
+                        : "WebCatFrames.png";
+                    Assert.That(Sprites(clip).All(sprite => AssetDatabase.GetAssetPath(sprite).EndsWith(source, StringComparison.Ordinal)), Is.True);
                 }
             }
-            var box = outside.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Animator>(true))
-                .Single(animator => animator.name == "Box animation");
-            Assert.That(Clip(box, "Shake").length, Is.EqualTo(.9f).Within(.001f));
-            Assert.That(box.GetComponent<NpcActor>(), Is.Null);
-            Assert.That(box.GetComponent<SpriteRenderer>().sprite.name, Is.EqualTo("BoxIdle_00"));
-            using var interaction = new SerializedObject(box.GetComponentInParent<NpcInteraction>());
-            var cue = interaction.FindProperty("proximityAnimation");
-            Assert.That(cue.FindPropertyRelative("animator").objectReferenceValue, Is.EqualTo(box));
-            Assert.That(cue.FindPropertyRelative("stateName").stringValue, Is.EqualTo("Shake"));
-            Assert.That(cue.FindPropertyRelative("returnState").stringValue, Is.EqualTo("Idle"));
-            Assert.That(cue.FindPropertyRelative("duration").floatValue, Is.EqualTo(.9f));
-            Assert.That(cue.FindPropertyRelative("radius").floatValue, Is.EqualTo(.85f));
-            Assert.That(cue.FindPropertyRelative("when").stringValue, Is.EqualTo("!flag.boobi_box_shaken && !flag.boobi_revealed"));
-            Assert.That(cue.FindPropertyRelative("completionFlag").stringValue, Is.EqualTo("boobi_box_shaken"));
+            var box = outside.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<NpcActor>(true))
+                .Single(actor => actor.name.EndsWith("· boobi", StringComparison.Ordinal)).GetComponent<Animator>();
+            var shake = Clip(box, "BoxShake");
+            Assert.That(AnimationUtility.GetAnimationClipSettings(shake).loopTime, Is.False);
+            Assert.That(AnimationUtility.GetCurveBindings(shake), Is.Empty);
+            Assert.That(Sprites(shake).All(sprite => AssetDatabase.GetAssetPath(sprite).EndsWith("bubi_box_shaking.png", StringComparison.Ordinal)), Is.True);
         });
     }
 

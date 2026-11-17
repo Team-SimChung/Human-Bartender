@@ -555,7 +555,7 @@ Transform:
   m_GameObject: {fileID: 57693076}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35, z: 0}
+  m_LocalPosition: {x: -0.091, y: 0.143, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -882,7 +882,7 @@ GameObject:
   - component: {fileID: 89322233}
   - component: {fileID: 89322234}
   m_Layer: 0
-  m_Name: neighborhood-reveal
+  m_Name: BubiBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -906,12 +906,12 @@ MonoBehaviour:
   interactionRadius: 1.4
   contentStartOverrides: []
   startSettingsVersion: 1
-  interactionLabel: "\uACE0\uC591\uC774"
+  interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
   output: 0
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: 0}
   inspectionImage: {fileID: 0}
-  highlight: {fileID: 0}
+  highlight: {fileID: 1795489896}
   cutsceneSequence: {fileID: 0}
   timelines: []
   optionalTimelineIds: []
@@ -925,13 +925,12 @@ Transform:
   m_GameObject: {fileID: 89322229}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.59, y: 9.814, z: 0}
+  m_LocalPosition: {x: -15.59, y: 9.796, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1343346871}
   - {fileID: 954953858}
-  - {fileID: 1161729619}
   m_Father: {fileID: 1596800306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &89322232
@@ -969,27 +968,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NpcInteraction
   actor: {fileID: 1343346872}
   actorVisibleOutsideSession: 1
-  actorPresenceCondition: flag.boobi_revealed
+  actorPresenceCondition: 
   additionalActors:
   - actor: {fileID: 954953859}
     visibleOutsideSession: 0
     presenceCondition: 
   requireVisibleActorToInteract: 0
-  restorePoseAfterInteraction: 1
+  restorePoseAfterInteraction: 0
   useStoryPresence: 1
   minimumDay: 0
   maximumDay: -1
   presencePhase: 0
   minimumDayStartsOnReturn: 0
   presenceCondition: 
-  committedCondition: 
+  committedCondition: flag.boobi_revealed
+  beforeCommitIdleState: BoxShake
+  afterCommitIdleState: Idle
+  beforeCommitIdlePlayback: {fileID: 1343346875}
   sequences:
   - id: reveal
     trigger: 1
     worldAction: 2
     requiredCondition: 
     actions:
-    - kind: 12
+    - kind: 3
       performer: {fileID: 1343346872}
       positionOrigin: 2
       movementEase: 0
@@ -1007,33 +1009,9 @@ MonoBehaviour:
       cameraOffset: {x: 0, y: 0}
       cameraWidth: 4.8
       fadeInTogether: 0
-      stateName: Punch
-      returnState: Idle
-      duration: 0.35
-      walkDuration: 1
-      fadeEase: 0
-      text: 
-    - kind: 9
-      performer: {fileID: 1343346872}
-      positionOrigin: 0
-      movementEase: 0
-      horizontalOnly: 0
-      target: {fileID: 0}
-      distance: 0.65
-      offset: {x: 0, y: 0}
-      offsetMode: 0
-      unitsPerSecond: 0
-      arcHeight: 0.55
-      keepFacing: 0
-      clampPlayerLeft: 0
-      cameraWithMovement: 0
-      cameraMidpoint: 0
-      cameraOffset: {x: 0, y: 0}
-      cameraWidth: 4.8
-      fadeInTogether: 0
-      stateName: Punch
-      returnState: Idle
-      duration: 0.35
+      stateName: Eyes
+      returnState: BoxShake
+      duration: 1.8333334
       walkDuration: 1
       fadeEase: 0
       text: 
@@ -1055,44 +1033,20 @@ MonoBehaviour:
       cameraOffset: {x: 0, y: 0}
       cameraWidth: 4.8
       fadeInTogether: 0
-      stateName: RevealEyes
+      stateName: Jump
       returnState: Idle
-      duration: 0.55
+      duration: 1.25
       walkDuration: 1
       fadeEase: 0
       text: 
-    - kind: 17
+    - kind: 12
       performer: {fileID: 1343346872}
-      positionOrigin: 1
-      movementEase: 0
-      horizontalOnly: 0
-      target: {fileID: 0}
-      distance: 0.65
-      offset: {x: 0, y: 0}
-      offsetMode: 0
-      unitsPerSecond: 0
-      arcHeight: 0.55
-      keepFacing: 0
-      clampPlayerLeft: 0
-      cameraWithMovement: 0
-      cameraMidpoint: 0
-      cameraOffset: {x: 0, y: 0}
-      cameraWidth: 4.8
-      fadeInTogether: 0
-      stateName: Punch
-      returnState: Idle
-      duration: 0.9
-      walkDuration: 1
-      fadeEase: 0
-      text: 
-    - kind: 4
-      performer: {fileID: 0}
       positionOrigin: 0
       movementEase: 0
       horizontalOnly: 0
-      target: {fileID: 0}
+      target: {fileID: 1795489894}
       distance: 0.65
-      offset: {x: 0, y: 0}
+      offset: {x: 0.241, y: 0}
       offsetMode: 0
       unitsPerSecond: 0
       arcHeight: 0.55
@@ -1103,9 +1057,9 @@ MonoBehaviour:
       cameraOffset: {x: 0, y: 0}
       cameraWidth: 4.8
       fadeInTogether: 0
-      stateName: Punch
+      stateName: Jump
       returnState: Idle
-      duration: 0.35
+      duration: 1.25
       walkDuration: 1
       fadeEase: 0
       text: 
@@ -1135,30 +1089,6 @@ MonoBehaviour:
       stateName: Punch
       returnState: Idle
       duration: 0.35
-      walkDuration: 1
-      fadeEase: 0
-      text: 
-    - kind: 3
-      performer: {fileID: 1343346872}
-      positionOrigin: 0
-      movementEase: 0
-      horizontalOnly: 0
-      target: {fileID: 0}
-      distance: 0.65
-      offset: {x: 0, y: 0}
-      offsetMode: 0
-      unitsPerSecond: 0
-      arcHeight: 0.55
-      keepFacing: 0
-      clampPlayerLeft: 0
-      cameraWithMovement: 0
-      cameraMidpoint: 0
-      cameraOffset: {x: 0, y: 0}
-      cameraWidth: 4.8
-      fadeInTogether: 0
-      stateName: Feed
-      returnState: Idle
-      duration: 1.5
       walkDuration: 1
       fadeEase: 0
       text: 
@@ -1327,7 +1257,7 @@ MonoBehaviour:
       fadeEase: 0
       text: 
   proximityAnimation:
-    animator: {fileID: 1161729620}
+    animator: {fileID: 0}
     stateName: Shake
     returnState: Idle
     duration: 0.9
@@ -1346,8 +1276,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 250b1d48cbe54810a7a40cc4b149c33a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldDialogueTravelSettings
-  playerPosition: {x: 2.02, y: -0.7}
-  faceRight: 1
+  playerPosition: {x: -1.7, y: -0.7}
+  faceRight: 0
   fadeOutDuration: 0.35
   delayBeforeLoad: 0.05
   minimumBlackDuration: 0.35
@@ -2638,6 +2568,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: '!flag.elevator_repaired'
   committedCondition: flag.elevator_repaired
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: repair
     trigger: 1
@@ -3258,6 +3191,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
     animator: {fileID: 0}
@@ -8509,6 +8445,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: web-dialogue-start
     trigger: 3
@@ -10122,6 +10061,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: samho-approach
     trigger: 1
@@ -12360,6 +12302,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 1
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
     animator: {fileID: 0}
@@ -13403,13 +13348,14 @@ GameObject:
   - component: {fileID: 1161729619}
   - component: {fileID: 1161729621}
   - component: {fileID: 1161729620}
+  - component: {fileID: 1161729622}
   m_Layer: 0
   m_Name: Box animation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1161729619
 Transform:
   m_ObjectHideFlags: 0
@@ -13418,12 +13364,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1161729618}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.241, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 89322231}
+  m_Father: {fileID: 1795489894}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1161729620
 Animator:
@@ -13435,7 +13381,7 @@ Animator:
   m_GameObject: {fileID: 1161729618}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 8f2eba07ece937a43a5c5208ed51583d, type: 2}
+  m_Controller: {fileID: 9100000, guid: 8f200a2412f0d334d92e8d0cc35c4ad8, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -13473,7 +13419,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -13496,7 +13442,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 4
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1480698652783419826, guid: c065a48dcff14624bb1f7261558d2fcd, type: 3}
+  m_Sprite: {fileID: -7352205425088972467, guid: f198660793dcd4009930760260d76d13, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -13506,6 +13452,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1161729622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1161729618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1161729621}
+  fadeSpeed: 8
 --- !u!1 &1171577569
 GameObject:
   m_ObjectHideFlags: 0
@@ -14798,6 +14758,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
     animator: {fileID: 0}
@@ -15075,6 +15038,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: punch
     trigger: 1
@@ -16147,9 +16113,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
-    width: 0.99979913
-    height: 1
+    y: 0.055555556
+    width: 0.33333334
+    height: 0.3333333
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -16877,6 +16843,7 @@ GameObject:
   - component: {fileID: 1343346874}
   - component: {fileID: 1343346873}
   - component: {fileID: 1343346872}
+  - component: {fileID: 1343346875}
   m_Layer: 0
   m_Name: "Story actor \xB7 boobi"
   m_TagString: Untagged
@@ -16893,7 +16860,7 @@ Transform:
   m_GameObject: {fileID: 1343346870}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0.142, z: 0}
+  m_LocalPosition: {x: 0.023000717, y: 0.14299965, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16956,6 +16923,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1343346875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343346870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e76faac5ab58488493b3ae32c85c3521, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomIdleAnimation
+  animator: {fileID: 1343346874}
+  idleClip: {fileID: 7400000, guid: 5a585f8e39d8e6241a1ef9142efbcfaf, type: 2}
+  stateName: BoxShake
+  playOnEnable: 0
+  minimumStartFrame: 1
+  maximumStartFrame: 1
+  minimumWaitSeconds: 1
+  maximumWaitSeconds: 3
+  repeatIntervalSeconds: 10
 --- !u!1 &1352621509
 GameObject:
   m_ObjectHideFlags: 0
@@ -17317,6 +17305,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
     animator: {fileID: 0}
@@ -18974,6 +18965,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: web-dialogue-start
     trigger: 3
@@ -20033,6 +20027,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: web-dialogue-start
     trigger: 3
@@ -21096,6 +21093,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
     animator: {fileID: 0}
@@ -21665,6 +21665,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1795489894}
   - component: {fileID: 1795489895}
+  - component: {fileID: 1795489896}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -21681,10 +21682,11 @@ Transform:
   m_GameObject: {fileID: 1795489893}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.079, y: 0.371, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1161729619}
   m_Father: {fileID: 1343346871}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1795489895
@@ -21713,7 +21715,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -21736,7 +21738,7 @@ SpriteRenderer:
   m_SortingLayer: 12
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5986868820742579314, guid: 8ce2b8a7112d0420eaa2898112d1b30f, type: 3}
+  m_Sprite: {fileID: -7612851221316572020, guid: 49c00fd4b9af1483b8e9e5698ab9f3bf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -21746,6 +21748,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1795489896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1795489893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1795489895}
+  fadeSpeed: 8
 --- !u!1 &1799654223
 GameObject:
   m_ObjectHideFlags: 0
@@ -22358,6 +22374,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: samho-depart
     trigger: 1
@@ -25591,6 +25610,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
     animator: {fileID: 0}
@@ -26343,6 +26365,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 1
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
     animator: {fileID: 0}

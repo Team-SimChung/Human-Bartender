@@ -433,6 +433,18 @@ internal static class HomeInteractionTestSession
         Context.RefreshContents();
     }
 
+    public static void ApplyPreparation(string id)
+    {
+        RequireEditableState();
+        var scenario = WorldInteractionTestPreparationCatalog.Find(id).Scenario;
+        var state = GameStateManager.Instance;
+        if (Context.gameObject.scene.name != scenario.RuntimeScene || state.CurrentDay != scenario.Day || state.GameFlow != scenario.Flow)
+            throw new InvalidOperationException("[WorldTest] 씬·일차·국면이 다릅니다. '상황 다시 준비'를 사용하세요.");
+        scenario.ApplyConditions(isolatedPlayer);
+        Context.RefreshContents();
+        Status = "조건 적용: " + scenario.Name + " (다른 진행 기록 유지)";
+    }
+
     private static void RequireEditableState()
     {
         RequireSession();

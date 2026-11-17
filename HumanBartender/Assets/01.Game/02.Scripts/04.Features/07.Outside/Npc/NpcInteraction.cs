@@ -156,6 +156,14 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
     [SerializeField] private string presenceCondition;
     [Tooltip("이 조건이 참이면 중단해도 시작 자세로 되돌리지 않습니다. 비우면 CSV의 완료 플래그를 사용합니다.")]
     [SerializeField] private string committedCondition;
+    [Header("진행 상태별 대기 모션 · 선택 사항")]
+    [Tooltip("완료 조건이 거짓일 때 재생할 반복 Animator 상태. 비우면 기존 애니메이션을 유지합니다.")]
+    [SerializeField] private string beforeCommitIdleState;
+    [Tooltip("완료 조건이 참일 때 재생할 Animator 상태. 위 완료 조건(committedCondition)을 함께 설정합니다.")]
+    [SerializeField] private string afterCommitIdleState;
+    [Tooltip("완료 전 대기 모션을 간격을 두고 재생할 때 연결합니다. 상호작용 시작·완료·숨김 시 자동으로 멈춥니다.")]
+    [SerializeField] private RandomIdleAnimation beforeCommitIdlePlayback;
+    private string appliedIdleState;
     [Header("연출 목록")]
     [SerializeField] private NpcSequence[] sequences = Array.Empty<NpcSequence>();
     [Header("접근 시 주변 애니메이션")]
@@ -233,6 +241,7 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
     internal void Initialize(IConditionUtil conditionUtil, Transform playerTransform, NewSceneData definition,
         ISceneFadeService sceneFades, IPopupService popupService)
     {
+        appliedIdleState = null;
         if (actor == null || actor.gameObject.scene != gameObject.scene ||
             playerTransform != null && playerTransform.gameObject.scene != gameObject.scene)
             throw new InvalidOperationException("NPC의 Actor와 현재 씬 플레이어 연결을 확인하세요.");
@@ -329,6 +338,16 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
         SetPresence(actor, present && actorVisibleOutsideSession && conditions.CheckRequired(actorPresenceCondition));
         foreach (var binding in additionalActors)
             SetPresence(binding.actor, present && binding.visibleOutsideSession && conditions.CheckRequired(binding.presenceCondition));
+        if (!present || !actor.IsVisible) beforeCommitIdlePlayback?.Stop();
+        if (!present || !actor.IsVisible || actor.IsBusy || interaction != null ||
+            string.IsNullOrWhiteSpace(beforeCommitIdleState) || string.IsNullOrWhiteSpace(committedCondition)) return;
+        bool committed = conditions.CheckRequired(committedCondition);
+        if (committed) beforeCommitIdlePlayback?.Stop();
+        string state = committed ? afterCommitIdleState : beforeCommitIdleState;
+        if (string.IsNullOrWhiteSpace(state) || appliedIdleState == state) return;
+        actor.PlayIdleState(state);
+        appliedIdleState = state;
+        if (!committed && Application.isPlaying) beforeCommitIdlePlayback?.Play();
     }
 
     private static void SetPresence(NpcActor value, bool visible)
@@ -340,6 +359,7 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
     {
         if (!CanInteract) throw new InvalidOperationException("현재 NPC 대화를 시작할 수 없습니다.");
         ValidateSequences();
+        beforeCommitIdlePlayback?.Stop();
         startingPoses.Clear();
         foreach (var value in Actors) startingPoses.Add(value, value.CapturePose());
         foreach (var value in Actors) value.SetConversation(player, true);
@@ -444,6 +464,8 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
 
     public void EndInteraction()
     {
+        beforeCommitIdlePlayback?.Stop();
+        appliedIdleState = null;
         var source = interaction;
         interaction = null;
         source?.Cancel();

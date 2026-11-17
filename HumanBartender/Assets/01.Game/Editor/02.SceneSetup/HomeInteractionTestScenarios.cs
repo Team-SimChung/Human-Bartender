@@ -5,7 +5,6 @@ using System.Linq;
 /// <summary>실제 Home 상호작용을 재현하는 에디터 전용 시작 상태. CSV 대본을 복제하지 않는다.</summary>
 internal sealed class HomeInteractionTestScenario
 {
-    private const int TestMoney = 1000;
     private readonly IReadOnlyDictionary<string, bool> flagOverrides;
 
     internal string Id { get; }
@@ -16,12 +15,15 @@ internal sealed class HomeInteractionTestScenario
     internal bool Opening { get; }
     internal string FocusId { get; }
     internal string RuntimeScene { get; }
-    internal bool IsWorldTest => RuntimeScene == "OutSide" || Id.StartsWith(WorldInteractionTestCatalog.ScenarioPrefix, StringComparison.Ordinal);
+    internal int Money { get; }
+    internal IReadOnlyDictionary<string, bool> FlagOverrides => flagOverrides;
+    internal bool IsWorldTest => RuntimeScene == "OutSide" || Id.StartsWith(WorldInteractionTestCatalog.ScenarioPrefix, StringComparison.Ordinal)
+        || Id.StartsWith(WorldInteractionTestPreparationCatalog.Prefix, StringComparison.Ordinal);
     internal string[] ExpectedStories { get; }
 
     internal HomeInteractionTestScenario(string id, string name, string description, int day,
         EGameFlow flow, string focusId, string[] expectedStories = null, bool opening = false,
-        IReadOnlyDictionary<string, bool> flags = null, string runtimeScene = "Home")
+        IReadOnlyDictionary<string, bool> flags = null, string runtimeScene = "Home", int money = 1000)
     {
         Id = id;
         Name = name;
@@ -30,6 +32,7 @@ internal sealed class HomeInteractionTestScenario
         Flow = flow;
         FocusId = focusId;
         RuntimeScene = runtimeScene;
+        Money = money;
         ExpectedStories = expectedStories ?? Array.Empty<string>();
         Opening = opening;
         flagOverrides = flags ?? new Dictionary<string, bool>();
@@ -60,7 +63,15 @@ internal sealed class HomeInteractionTestScenario
         }
         foreach (var pair in flagOverrides) flags[pair.Key] = pair.Value;
         if (televisionWatched.HasValue) flags["tv_news_d" + Day + "_seen"] = televisionWatched.Value;
-        player.ReplaceProgress(TestMoney, 0, new Dictionary<string, int>(StringComparer.Ordinal), flags);
+        player.ReplaceProgress(Money, 0, new Dictionary<string, int>(StringComparer.Ordinal), flags);
+    }
+
+    /// <summary>목록에 명시한 조건만 바꾸며 다른 진행 기록과 호감도를 유지한다.</summary>
+    internal void ApplyConditions(PlayerDataSO player)
+    {
+        if (player == null) throw new ArgumentNullException(nameof(player));
+        player.SetMoney(Money);
+        foreach (var pair in flagOverrides) player.AddFlag(pair.Key, pair.Value);
     }
 }
 
@@ -90,7 +101,13 @@ internal static class HomeInteractionTestScenarios
             3, EGameFlow.CommuteIn, "home_tv", new[] { "home_tv_menu" }),
         new HomeInteractionTestScenario("tv-news-day0", "0일차 · 퇴근 TV 뉴스",
             "TV를 켜고 취소하여 기존 화재 뉴스를 듣고 이동합니다. 끈다는 화면과 대사를 중단합니다.",
-            0, EGameFlow.CommuteOut, "home_tv_broadcast", new[] { "outside_day0_tv_news1" }),
+            0, EGameFlow.CommuteOut, "home_tv", new[] { "outside_day0_tv_news1" }),
+        new HomeInteractionTestScenario("tv-broadcast-day1", "1일차 · TV 주변 방송 지점",
+            "TV에서 전원을 켠 뒤 이동하며 주변 방송을 확인합니다.",
+            1, EGameFlow.CommuteIn, "home_tv_broadcast", new[] { "outside_day1_tv_news2" }),
+        new HomeInteractionTestScenario("exit-door", "현관 · 출근 이동",
+            "오프닝 완료 상태에서 현관을 조사하고 거리로 이동합니다.",
+            1, EGameFlow.CommuteIn, "home_exit_door"),
         new HomeInteractionTestScenario("night-day0", "0일차 · 테라스와 다음 날",
             "소파에서 수면을 고르면 night0와 회상을 재생한 뒤 1일차 아침으로 돌아갑니다. 퇴근 TV도 수동 시청할 수 있습니다.",
             0, EGameFlow.CommuteOut, "home_sofa", new[] { "night0" }),
@@ -145,7 +162,9 @@ internal static class HomeInteractionTestScenarios
     });
 
     internal static HomeInteractionTestScenario Find(string id) =>
-        id != null && id.StartsWith(BarDialogueTestCatalog.Prefix, StringComparison.Ordinal)
+        id != null && id.StartsWith(WorldInteractionTestPreparationCatalog.Prefix, StringComparison.Ordinal)
+            ? WorldInteractionTestPreparationCatalog.Find(id).Scenario
+            : id != null && id.StartsWith(BarDialogueTestCatalog.Prefix, StringComparison.Ordinal)
             ? BarDialogueTestCatalog.Parse(id)
             : id != null && id.StartsWith(OutsideInteractionTestScenarios.Prefix, StringComparison.Ordinal)
             ? OutsideInteractionTestScenarios.Find(id)
