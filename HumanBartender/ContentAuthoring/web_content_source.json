@@ -5,9 +5,9 @@
   "direction": "web-to-unity",
   "files": {
     "system/table_index.csv": "222bc2ab45ff2aef755553624f51a61558b829f6dd65d8ffd5ef6f53315ffcd6",
-    "system/columns.csv": "9f5d6f80e85e2df7d08be35655dd922731ab82c1a9dc50f3b5758ec0f65bdd8d",
+    "system/columns.csv": "582df270b5eb645bce076102bafb768cd4697e9195dead1988ea0ee72c2e54c8",
     "system/data_sets.csv": "fbbb8c00506c17ea1e27c07eebef0711afa1d716b9ac56421d44eedd7063cfe3",
-    "system/row_formats.csv": "f29b4e6ef6bc64fb39103781113a7be7d30cb2465a2ad33ca5734864e3081f1d",
+    "system/row_formats.csv": "f2514e011baf3c51fd996cd930e5d75066ce30b95e71c1aa48b392a7b534b321",
     "settings/balance_config.csv": "7647bd1028e639391ca6c03337632811f8ae3e5701d8f31ceb636d0035231bd2",
     "settings/grade_cuts.csv": "6014098235dbfe9b290d127e9c3c998b009f471b5b562c3d62ef4bb2e72b2dd7",
     "settings/settlement_rules.csv": "8f7764993527b989f06c5d2b641e38248091391a0f5c30aa43b6305924ffa502",
@@ -36,14 +36,14 @@
     "interaction/dialogue_flows.csv": "1c7206c589a01191edcb108456922bab0290bff51162cd7c011b568e605f0e1e",
     "craft/order_rules.csv": "bbebcea6e8cfab61ff560097ecf0253ea9d9e50474ba9a5224045dc2835fd35b",
     "guests/personalities.csv": "a4964a886c2c62096a92478aaa4db742104a429bcd2e77fc0ced4ca4fcd26e91",
-    "guests/random_waves.csv": "f414f57577f703e67eeaf792c9df76e85c1fe815f490e85624f451e0d7ed37cd",
+    "guests/random_waves.csv": "6ee769accd4feecd8425ff4b403bbb356caddede7a7b0a745fd68dc140a13e4e",
     "guests/regular_slots.csv": "80a6c4042ccdc534664d167bea866f7d2cd98e25726a57850214e66c3d6152ae",
     "story/script_files.csv": "d06a0c83a49cf9f19148aea642c20481ca48bb4181d47ede50a02a4b2d70cd27",
     "story/scenes.csv": "b226ab4c7305f91fc6aa545eeb31b540bc6b67fca27cc4b9022925bdad78d190",
     "story/steps.csv": "1146593e3a6637f9d4e1ef50dc0c5b2d1a3f71d870e21731c633fe8f27558b1b",
     "story/bar_choice_groups.csv": "6878863d636a09166446ef1c86284060543ee1d223812a3a495cb98880485e83",
     "story/bar_choices.csv": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374",
-    "story/street_choices.csv": "81b23fe3b4032a81d74e87a52454d048352b3b037de63363ae2138bf33c3c3b5",
+    "story/street_choices.csv": "ccd0514395898a4a8a14ca8d47af7299e6d3187cce7eb7a5e76b951a1ca25459",
     "craft/shelf_items.csv": "2f794b3bab333e1c02bb96f322ad63ae1e417160d09763c7a469c81355b7ba8b",
     "interaction/spots.csv": "50b73d2d4ecf5f85fb3492dd600da938c70ce122f3d63e5ec30abe1f9c29fd5b",
     "craft/tastes.csv": "06fdec938731b80c5b4b914f48e264017d4e2b7cc695fb4939e13237a5137252",
@@ -87,7 +87,7 @@
     "interaction/dialogue_flows.csv": "1c7206c589a01191edcb108456922bab0290bff51162cd7c011b568e605f0e1e",
     "craft/order_rules.csv": "bbebcea6e8cfab61ff560097ecf0253ea9d9e50474ba9a5224045dc2835fd35b",
     "guests/personalities.csv": "a4964a886c2c62096a92478aaa4db742104a429bcd2e77fc0ced4ca4fcd26e91",
-    "guests/random_waves.csv": "f414f57577f703e67eeaf792c9df76e85c1fe815f490e85624f451e0d7ed37cd",
+    "guests/random_waves.csv": "6ee769accd4feecd8425ff4b403bbb356caddede7a7b0a745fd68dc140a13e4e",
     "guests/regular_slots.csv": "80a6c4042ccdc534664d167bea866f7d2cd98e25726a57850214e66c3d6152ae",
     "story/script_files.csv": "d06a0c83a49cf9f19148aea642c20481ca48bb4181d47ede50a02a4b2d70cd27",
     "story/scenes.csv": "b226ab4c7305f91fc6aa545eeb31b540bc6b67fca27cc4b9022925bdad78d190",
@@ -126,11 +126,20 @@
       "reason": "Existing scenes only; preserve Unity text effects, ambient wiring, QA and Samho expression bindings.",
       "review": "dialogue_merge_review.json",
       "review_sha256": "182fb03a8ea2ea7ed6147110d81bc5810f9c2003cafaa8feb16748850c059c4e"
+    },
+    {
+      "commit": "d9a34746761bc3a0f3a67bcd04cdf737d9884d70",
+      "files": [
+        "guests/random_waves.csv"
+      ],
+      "reason": "Web-current general guest fixed orders (2026-11-08: day 1 tequila_sunrise/screwdriver, day 2 whiskey_sour/champagne). Readable IDs already match; only the order column changed."
     }
   ],
   "unity_overrides": {
     "story/steps.csv": "1146593e3a6637f9d4e1ef50dc0c5b2d1a3f71d870e21731c633fe8f27558b1b",
     "story/bar_choices.csv": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374",
-    "story/street_choices.csv": "81b23fe3b4032a81d74e87a52454d048352b3b037de63363ae2138bf33c3c3b5"
+    "story/street_choices.csv": "ccd0514395898a4a8a14ca8d47af7299e6d3187cce7eb7a5e76b951a1ca25459",
+    "system/columns.csv": "582df270b5eb645bce076102bafb768cd4697e9195dead1988ea0ee72c2e54c8",
+    "system/row_formats.csv": "f2514e011baf3c51fd996cd930e5d75066ce30b95e71c1aa48b392a7b534b321"
   }
 }

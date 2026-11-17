@@ -9,13 +9,13 @@ internal static class OutsideInteractionTestScenarios
     internal const string MenuPath = "Tools/Human Bartender/Tests/Outside Interaction Lab";
     internal const string CoverageNote = "거리의 문·라디오·불량배·삼호·시BAR·부비·수리공·경비·보스·엘리베이터를 확인합니다. " +
         "구형 bubi/shiba/포스터 Source 대상 일부는 현재 CSV의 0~3일차 등장 조건이 닫혀 있어 비활성으로 표시됩니다. " +
-        "활성 NPC는 실제 사건 지점을 사용하며, 조건을 강제로 바꾸지 않습니다.";
+        "활성 NPC는 실제 사건 지점을 사용하며, 조건을 강제로 바꾸지 않습니다. 라디오는 엘리베이터 일반 탑승 중 재생됩니다.";
 
     internal static IReadOnlyList<HomeInteractionTestScenario> All { get; } = Array.AsReadOnly(new[]
     {
         Case("bar-door", "0일차 · 출근 / 바 입장", 0, EGameFlow.CommuteIn, "street_bar_door"),
         Case("home-door", "0일차 · 퇴근 / 집 입장", 0, EGameFlow.CommuteOut, "street_home_door"),
-        Case("radio", "0일차 · 퇴근 / 엘리베이터 라디오", 0, EGameFlow.CommuteOut, "elevator_radio"),
+        Case("radio", "0일차 · 퇴근 / 엘리베이터 탑승·라디오", 0, EGameFlow.CommuteOut, "outside_elevator"),
         Case("thug-first", "1일차 · 불량배 첫 조우", 1, EGameFlow.CommuteIn, "day1-corridor-thug"),
         Case("thug-repeat", "2일차 · 불량배 재회", 2, EGameFlow.CommuteIn, "day2-corridor-thug"),
         Case("thug-information", "2일차 · 불량배 정보 구매", 2, EGameFlow.CommuteIn, "day2-thug-information", "day2_thug_done"),

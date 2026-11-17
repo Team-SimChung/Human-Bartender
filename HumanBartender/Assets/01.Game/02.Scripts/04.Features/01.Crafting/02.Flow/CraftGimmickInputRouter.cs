@@ -12,6 +12,9 @@ public interface ICraftPointerInput : ICraftInputReceiver
     void OnPointerInput(bool pressed);
 }
 
+/// <summary>클릭과 Space를 같은 누름/뗌으로 받는 경로형 셰이커.</summary>
+public interface ICraftShakeInput : ICraftPointerInput { }
+
 public interface ICraftCapInput : ICraftInputReceiver
 {
     void OnCapInput();
@@ -30,6 +33,7 @@ public sealed class CraftGimmickInputRouter : MonoBehaviour
     private ICraftPointerInput pointerReceiver;
     private ICraftCapInput capReceiver;
     private ICraftStirInput stirReceiver;
+    private bool pointerHeld, shakeHeld, forwardedHeld;
 
     public void Begin()
     {
@@ -59,6 +63,7 @@ public sealed class CraftGimmickInputRouter : MonoBehaviour
 
     public void Unbind()
     {
+        pointerHeld = shakeHeld = forwardedHeld = false;
         pointerReceiver?.OnPointerInput(false);
         pointerReceiver?.SetRoutedInput(false);
         capReceiver?.SetRoutedInput(false);
@@ -77,7 +82,39 @@ public sealed class CraftGimmickInputRouter : MonoBehaviour
 
     public void OnPointerPress(InputValue value)
     {
-        pointerReceiver?.OnPointerInput(!UIDisplayOptions.IsOptionOpen && value.isPressed);
+        RoutePointer(value.isPressed, false);
+    }
+
+    public void OnShakePress(InputValue value) => RoutePointer(value.isPressed, true);
+
+    internal void RoutePointer(bool pressed, bool fromKeyboard)
+    {
+        if (fromKeyboard && pointerReceiver is not ICraftShakeInput) return;
+        if (pointerReceiver is not ICraftShakeInput)
+        {
+            pointerReceiver?.OnPointerInput(!UIDisplayOptions.IsOptionOpen && pressed);
+            return;
+        }
+        if (UIDisplayOptions.IsOptionOpen || GamePause.IsPaused) { ReleasePointer(); return; }
+        if (fromKeyboard) shakeHeld = pressed;
+        else pointerHeld = pressed;
+        bool held = pointerHeld || shakeHeld;
+        if (held == forwardedHeld) return;
+        forwardedHeld = held;
+        pointerReceiver.OnPointerInput(held);
+    }
+
+    void Update()
+    {
+        if (UIDisplayOptions.IsOptionOpen || GamePause.IsPaused) ReleasePointer();
+    }
+
+    void ReleasePointer()
+    {
+        pointerHeld = shakeHeld = false;
+        if (!forwardedHeld) return;
+        forwardedHeld = false;
+        pointerReceiver?.OnPointerInput(false);
     }
 
     public void OnCapPress(InputValue value)

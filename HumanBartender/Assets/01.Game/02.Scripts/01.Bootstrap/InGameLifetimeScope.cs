@@ -31,6 +31,7 @@ public class InGameLifetimeScope : LifetimeScope
         // 트리거 매니저와 커맨드도 걷어냈다. 그것을 부르는 데이터(triggers)가 한 건도 남지 않았다.
 
         builder.RegisterComponentInHierarchy<PlayPhaseController>();
+        builder.RegisterComponentInHierarchy<ProfileScreen>();
 
         // 2부 대본 국면. [Inject]로 플레이어 데이터와 사운드를 받는다.
         builder.RegisterComponentInHierarchy<StoryFlow>();

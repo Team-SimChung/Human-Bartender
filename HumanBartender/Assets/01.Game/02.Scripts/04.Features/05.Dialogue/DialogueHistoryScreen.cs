@@ -16,7 +16,7 @@ public sealed class DialogueHistoryScreen : MonoBehaviour
     [SerializeField] Button latestButton;
 
     readonly List<DialogueHistoryEntryView> rows = new();
-    float previousTimeScale;
+    IDisposable pauseHandle;
     public bool CanOpen => isActiveAndEnabled && history != null && history.CanUseHistory;
     public bool IsOpen { get; private set; }
     public event Action OpenChanged;
@@ -53,10 +53,9 @@ public sealed class DialogueHistoryScreen : MonoBehaviour
         for (int i = entries.Length; i < rows.Count; i++) rows[i].gameObject.SetActive(false);
         emptyMessage.SetActive(entries.Length == 0);
         latestButton.interactable = entries.Length > 0;
-        previousTimeScale = Time.timeScale;
+        pauseHandle = GamePause.Acquire();
         IsOpen = true;
-        // 단골·튜토리얼 대화 중에만 열 수 있다. 타이핑과 대화 연출을 함께 멈춘다.
-        Time.timeScale = 0f;
+        // 단골·튜토리얼 대화 중에만 열 수 있다. 게임 시간 기반 타이핑·연출을 멈춘다.
         screen.SetActive(true);
         ScrollToLatest();
         EventSystem.current?.SetSelectedGameObject(null);
@@ -65,9 +64,10 @@ public sealed class DialogueHistoryScreen : MonoBehaviour
 
     public void Close()
     {
+        pauseHandle?.Dispose();
+        pauseHandle = null;
         if (!IsOpen) return;
         IsOpen = false;
-        Time.timeScale = previousTimeScale;
         screen.SetActive(false);
         scroll.StopMovement();
         EventSystem.current?.SetSelectedGameObject(null);

@@ -73,6 +73,95 @@ public sealed class DailyUnlocksTests
         Assert.That(result.Cocktails.Count, Is.EqualTo(cocktailCount));
     }
 
+    // Lists from the web rule (story-flow.js dailyUnlocks) run on the web shared-csv, checked 2026-11-15.
+    static readonly string[][] WebDailyIngredients =
+    {
+        Array.Empty<string>(),
+        new[] { "beer", "tequila", "vodka", "rum", "orange_juice", "cola", "dry_vermouth" },
+        new[] { "red_wine", "champagne", "whiskey", "grenadine", "sour_mix", "cranberry_juice", "triple_sec", "kahlua", "milk", "amaretto" },
+        Array.Empty<string>()
+    };
+    static readonly string[][] WebDailyCocktails =
+    {
+        Array.Empty<string>(),
+        new[] { "bottle_beer", "screwdriver", "tequila_sunrise", "dry_martini" },
+        new[] { "red_wine", "champagne", "whiskey_sour", "cosmopolitan", "kahlua_milk", "godfather" },
+        Array.Empty<string>()
+    };
+
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    public void EachDayListsExactlyTheWebUnlocksInCsvOrder(int day)
+    {
+        var csv = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
+        var result = DailyUnlockQuery.Collect(day, csv.Read<NewShelfItemData[]>("shelf_items"), csv.Read<NewCocktailData[]>("cocktails"));
+        Assert.That(result.Ingredients.Select(i => i.Id), Is.EqualTo(WebDailyIngredients[day]), $"Day {day} 재료");
+        Assert.That(result.Cocktails.Select(c => c.Id), Is.EqualTo(WebDailyCocktails[day]), $"Day {day} 레시피");
+    }
+
+    // The web has no art for these either and shows item_dummy (gin.png). Remove an id once real art lands.
+    static readonly string[] IngredientsShownAsWebDummy = { "cranberry_juice", "triple_sec", "kahlua", "milk", "amaretto" };
+    const string WebDummyPath = "Assets/01.Game/03.Content/01.ArtResources/00.Dummy_Assets/02.Ingredient_Images/gin.png";
+
+    [Test]
+    public void EveryDailyUnlockHasACatalogImageOrTheWebDummy()
+    {
+        var catalog = AssetDatabase.LoadAssetAtPath<CocktailRecipeVisualCatalog>(
+            "Assets/01.Game/04.Data/01.Definitions/UI/CocktailRecipeVisualCatalog.asset");
+        Assert.That(catalog, Is.Not.Null);
+        foreach (string id in WebDailyIngredients.SelectMany(ids => ids))
+        {
+            // Unity null: a missing asset reference is a fake-null object that NUnit's Is.Null does not accept.
+            bool hasArt = catalog.GetIngredientSprite(id) != null;
+            if (IngredientsShownAsWebDummy.Contains(id))
+                Assert.That(hasArt, Is.False, $"{id}에 그림이 생겼으면 더미 목록에서 빼세요.");
+            else Assert.That(hasArt, Is.True, "재료 이미지 " + id);
+        }
+        foreach (string id in WebDailyCocktails.SelectMany(ids => ids))
+            Assert.That(catalog.GetCocktailSprite(id) != null, Is.True, "레시피 이미지 " + id);
+        Assert.That(AssetDatabase.GetAssetPath(catalog.GetCocktailSprite("godfather")),
+            Does.EndWith("/01.Finished/godfather_final.png"), "웹의 새 갓파더 그림");
+    }
+
+    [Test]
+    public void EveryConfirmedCocktailUsesTheWebFinishedArt()
+    {
+        // Web recipe_cocktail_* points at 03.Crafting/03.Cocktails/01.RatingReveal/01.Finished (checked 2026-11-15).
+        var csv = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"));
+        var catalog = AssetDatabase.LoadAssetAtPath<CocktailRecipeVisualCatalog>(
+            "Assets/01.Game/04.Data/01.Definitions/UI/CocktailRecipeVisualCatalog.asset");
+        foreach (var cocktail in csv.Read<NewCocktailData[]>("cocktails").Where(c => c.Status == ENewDataStatus.Confirmed))
+        {
+            var sprite = catalog.GetCocktailSprite(cocktail.Id);
+            Assert.That(sprite != null, Is.True, cocktail.Id);
+            Assert.That(AssetDatabase.GetAssetPath(sprite), Does.Contain("/03.Cocktails/01.RatingReveal/01.Finished/")
+                .And.Not.Contain("/Legacy/"), cocktail.Id);
+        }
+    }
+
+    [Test]
+    public void UnlockScreensFallBackToTheWebDummy()
+    {
+        var previous = EditorSceneManager.GetSceneManagerSetup();
+        try
+        {
+            var scene = EditorSceneManager.OpenScene(DailyUnlocksSetup.ScenePath, OpenSceneMode.Single);
+            var daily = Find<DailyUnlocksScreen>(scene);
+            var hidden = Find<HiddenRecipeUnlockScreen>(scene);
+            Assert.That(daily, Is.Not.Null);
+            Assert.That(hidden, Is.Not.Null);
+            Assert.That(AssetDatabase.GetAssetPath((Sprite)Field(daily, "fallbackSprite")), Is.EqualTo(WebDummyPath));
+            Assert.That(AssetDatabase.GetAssetPath((Sprite)Field(hidden, "fallbackSprite")), Is.EqualTo(WebDummyPath));
+        }
+        finally
+        {
+            if (previous.Any(s => !string.IsNullOrEmpty(s.path))) EditorSceneManager.RestoreSceneManagerSetup(previous);
+            else EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        }
+    }
+
     [Test]
     public void PlaySceneHasDailyUnlocksScreen()
     {

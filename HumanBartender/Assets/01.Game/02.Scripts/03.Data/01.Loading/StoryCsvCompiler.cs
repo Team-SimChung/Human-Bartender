@@ -4,6 +4,16 @@ using System.Linq;
 /// <summary>웹 CSV 표현을 로드 경계에서 Unity 명령으로 변환한다. 실행과 플레이어 상태 변경은 하지 않는다.</summary>
 public static class StoryCsvCompiler
 {
+    /// <summary>집의 사건과 기존 ambient CSV의 집 방송을 같은 조회 경로에 공개한다.</summary>
+    public static NewStreetData CompileHome(CsvContentCatalog catalog)
+    {
+        var home = catalog.Read<NewStreetData>("script/home");
+        var ambient = catalog.Read<NewStreetData>("script/ambient");
+        home.Scenes = (home.Scenes ?? Array.Empty<NewSceneData>()).Concat(
+            (ambient.Scenes ?? Array.Empty<NewSceneData>()).Where(scene => scene.Phase == ENewScenePhase.Home)).ToArray();
+        return Compile(home);
+    }
+
     public static readonly string[] RequiredScenes =
     {
         "day1-corridor-thug", "home-wardrobe-pressed", "shiba-allowance", "shared-shop-quizIntro", "shared-shop-lesson",
@@ -67,7 +77,12 @@ public static class StoryCsvCompiler
                 throw new InvalidOperationException("npc-sequence의 arg에 Inspector 연출 ID를 지정하세요.");
             step.Type = "event";
         }
-        if (step.Options != null) step.Options = step.Options.Select(CompileOption).ToArray();
+        if (step.Options != null)
+        {
+            if (step.Options.Count(option => option.IsCancel == true) > 1)
+                throw new InvalidOperationException("[Story] 한 선택지 묶음에 취소 표시는 하나만 지정할 수 있습니다.");
+            step.Options = step.Options.Select(CompileOption).ToArray();
+        }
         // 실행기는 원시 웹 메타데이터를 읽을 수 없다. 원본 CSV와 catalog의 조립 결과는 유지한다.
         step.WebFields = null;
         return step;

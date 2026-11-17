@@ -227,7 +227,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         var catalog = await CsvDataReader.LoadAsync(token);
         CsvGameContentRules.Validate(catalog);
         var resourceBindings = await ResourceLoader.ReadBindingsAsync(token);
-        var homeStory = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/home"));
+        var homeStory = StoryCsvCompiler.CompileHome(catalog);
         var memoryScripts = StoryCsvCompiler.Compile(catalog.Read<NewDayScriptBase>("script/cutscene"));
         pending.Add(() => cutsceneScript = memoryScripts);
         foreach (var day in barDayNumbers)

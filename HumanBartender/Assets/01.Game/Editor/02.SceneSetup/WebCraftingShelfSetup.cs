@@ -12,16 +12,18 @@ public static class WebCraftingShelfSetup
     const string UndoLabel = "Complete Web Crafting Shelf";
 
     // 최초 에디터 배치 값이다. 생성 후 프리팹 Inspector에서 조절하며 재실행 시 덮어쓰지 않는다.
+    // Y는 공용 진 병(가운데 피벗, 높이 1.48)의 바닥이 기존 병과 같은 선반 면에 닿도록 맞춘 값이다.
+    // 리큐어 위칸 0.76 / 아래칸 -1.31, 냉장고 위칸(캔) 1.08. 전용 그림으로 바꾸면 바닥을 유지하도록 Y를 다시 맞춘다.
     static readonly (string id, string name, CraftPrepStageScreen.Stage stage, Vector2 position)[] Missing =
     {
-        ("triple_sec", "트리플섹", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.90f, -.5f)),
-        ("kahlua", "칼루아", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.32f, -.5f)),
-        ("amaretto", "아마레토", CraftPrepStageScreen.Stage.Liquor, new Vector2(.26f, -.5f)),
+        ("triple_sec", "트리플섹", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.90f, -.57f)),
+        ("kahlua", "칼루아", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.32f, -.57f)),
+        ("amaretto", "아마레토", CraftPrepStageScreen.Stage.Liquor, new Vector2(.26f, -.57f)),
         ("wild_dog", "와일드 독", CraftPrepStageScreen.Stage.Liquor, new Vector2(.87f, 1.5f)),
-        ("bitters", "비터스", CraftPrepStageScreen.Stage.Liquor, new Vector2(.84f, -.5f)),
-        ("sugar_cube", "각설탕", CraftPrepStageScreen.Stage.Liquor, new Vector2(1.42f, -.5f)),
-        ("cranberry_juice", "크랜베리주스", CraftPrepStageScreen.Stage.Fridge, new Vector2(-1.42f, 1.5f)),
-        ("milk", "우유", CraftPrepStageScreen.Stage.Fridge, new Vector2(-.46f, 1.5f)),
+        ("bitters", "비터스", CraftPrepStageScreen.Stage.Liquor, new Vector2(.84f, -.57f)),
+        ("sugar_cube", "각설탕", CraftPrepStageScreen.Stage.Liquor, new Vector2(1.42f, -.57f)),
+        ("cranberry_juice", "크랜베리주스", CraftPrepStageScreen.Stage.Fridge, new Vector2(-1.42f, 1.82f)),
+        ("milk", "우유", CraftPrepStageScreen.Stage.Fridge, new Vector2(-.46f, 1.82f)),
     };
 
     [MenuItem("Tools/Human Bartender/Crafting/Complete Web Crafting Shelf")]

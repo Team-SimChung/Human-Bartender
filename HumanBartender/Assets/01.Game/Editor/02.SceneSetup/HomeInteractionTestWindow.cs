@@ -59,9 +59,8 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
         }
 
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox(outside ? OutsideInteractionTestScenarios.CoverageNote : "현재 씬에 연결된 대상: 현관문, 소파, TV, 부비.\n" +
-            "침대(home-bed)·옷장(home-wardrobe / home-wardrobe-pressed)은 CSV 대본만 있고 씬 대상이 없습니다. " +
-            "테라스 이야기는 소파의 수면으로 확인합니다.", MessageType.Info);
+        EditorGUILayout.HelpBox(outside ? OutsideInteractionTestScenarios.CoverageNote : HomeInteractionTestScenarios.CoverageNote,
+            MessageType.Info);
         EditorGUILayout.EndScrollView();
     }
 
@@ -128,7 +127,7 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
                 if (GUILayout.Button("이전 선택", GUILayout.Width(80))) controller.View.MoveChoice(-1);
                 if (GUILayout.Button("다음 선택", GUILayout.Width(80))) controller.View.MoveChoice(1);
             }
-            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !running || !controller.CanCancel))
+            using (new EditorGUI.DisabledScope(HomeInteractionTestSession.IsBusy || !running || !controller.CanStopForTest))
                 if (GUILayout.Button("상호작용 취소", GUILayout.Width(100))) HomeInteractionTestSession.Cancel();
         }
         EditorGUILayout.LabelField("Game 창에서도 기존 이동·상호작용 키와 선택지를 그대로 사용할 수 있습니다.", EditorStyles.wordWrappedMiniLabel);
@@ -145,15 +144,14 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("TV 첫 시청 / 재시청", EditorStyles.boldLabel);
             bool watched = player != null && player.CheckFlag($"tv_news_d{state.CurrentDay}_seen");
-            EditorGUILayout.LabelField("오늘의 시청 기록", watched ? "이미 봄 — 재시청 선택지 확인" : "아직 안 봄 — 최초 방송 확인");
+            EditorGUILayout.LabelField("오늘의 시청 기록", watched ? "이미 봄 — 같은 메뉴에서 다시 시청" : "아직 안 봄 — 준비된 방송 시청");
             using (new EditorGUI.DisabledScope(!idle || player == null))
             using (new EditorGUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("처음 보는 상태로")) SetTelevisionWatched(false);
                 if (GUILayout.Button("이미 본 상태로")) SetTelevisionWatched(true);
             }
-            if (state.CurrentDay == 1 && state.GameFlow == EGameFlow.CommuteIn)
-                EditorGUILayout.LabelField("Day 1 출근은 주변 자동 방송입니다. 재시청 선택지는 퇴근 상황에서 확인하세요.", EditorStyles.wordWrappedMiniLabel);
+
         }
 
         if (player != null)
@@ -221,7 +219,7 @@ internal sealed class HomeInteractionTestWindow : EditorWindow
     {
         "home_exit_door" => "현관문 — 출근 / 외부 이동",
         "home_sofa" => "소파 — 저장 / 취소 / 수면 / 테라스",
-        "home_tv" => "TV — 날짜별 방송 / 재시청 / 접근 자동 방송",
+        "home_tv" => "TV — 전원 / 본다·끈다·취소 / 주변 방송",
         "neighborhood-homeCat" => "부비 — 쓰다듬기 / 취소",
         _ => target.name
     };

@@ -98,7 +98,7 @@ public sealed class WorldInteractionStartSettingsTests
     }
 
     [Test]
-    public void TvRetainsItsCsvSelectedMorningBroadcastWithInspectorOwnedModes()
+    public void TvManualMenuRemainsSeparateFromItsMorningBroadcast()
     {
         var host = new GameObject("TV start migration test");
         var player = ScriptableObject.CreateInstance<PlayerDataSO>();
@@ -125,8 +125,10 @@ public sealed class WorldInteractionStartSettingsTests
             var conditions = new ConditionUtil(state, player, player);
             state.CurrentDay = 1;
             var morning = WorldInteractionContentRules.SelectDefinition(definitions, "home_tv", EGameFlow.CommuteIn, conditions);
-            Assert.That(morning.Value.Id, Is.EqualTo("p_home_tv_morning"));
-            Assert.That(target.ResolveStartMode(morning.Value.Id), Is.EqualTo(WorldInteractionStartMode.Ambient));
+            Assert.That(morning.Value.Id, Is.EqualTo("p_home_tv_manual"));
+            Assert.That(target.ResolveStartMode(morning.Value.Id), Is.EqualTo(WorldInteractionStartMode.Interact));
+            var broadcast = WorldInteractionContentRules.SelectDefinition(definitions, "home_tv_broadcast", EGameFlow.CommuteIn, conditions);
+            Assert.That(broadcast.Value.Id, Is.EqualTo("p_home_tv_morning"));
             var evening = WorldInteractionContentRules.SelectDefinition(definitions, "home_tv", EGameFlow.CommuteOut, conditions);
             Assert.That(target.ResolveStartMode(evening.Value.Id), Is.EqualTo(WorldInteractionStartMode.Interact));
             state.CurrentDay = 2;

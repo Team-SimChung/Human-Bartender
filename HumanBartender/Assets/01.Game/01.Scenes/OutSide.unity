@@ -7579,8 +7579,8 @@ GameObject:
   - component: {fileID: 809348808}
   - component: {fileID: 809348807}
   m_Layer: 9
-  m_Name: ImageExample
-  m_TagString: EditorOnly
+  m_Name: outside_shiba_wanted_inspect
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7599,7 +7599,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1412544336}
-  m_Father: {fileID: 740190000000000002}
+  m_Father: {fileID: 854879301}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &809348807
 MonoBehaviour:
@@ -7627,13 +7627,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c62a35bee00e4a48bc61174e0b037694, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  storySceneId: outside_interaction_choice_example
+  storySceneId: outside_shiba_wanted_inspect
   content: {fileID: 0}
   startMode: 0
   interactionRadius: 1.5
   contentStartOverrides: []
   startSettingsVersion: 1
-  interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
+  interactionLabel: "\uBCF4\uAE30"
   output: 1
   speechAnchor: {fileID: 1412544336}
   bubbleOffset: {x: 0, y: -15}
@@ -8188,6 +8188,7 @@ Transform:
   - {fileID: 792483999}
   - {fileID: 1905454067}
   - {fileID: 1074330137}
+  - {fileID: 809348806}
   m_Father: {fileID: 740190000000000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &868482183
@@ -16145,10 +16146,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.26458335
+    x: 0
     y: 0
-    width: 0.27407408
-    height: 0.27407408
+    width: 0.99979913
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -24641,7 +24642,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 2e82e191618af8b46a4c4a808802377b, type: 3}
-  m_Color: {r: 0.9019608, g: 0.92156863, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -25745,7 +25746,7 @@ SpriteRenderer:
   m_SortingOrder: 5
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1842851473143111439, guid: c318ea44034c3466680e7d51908bac22, type: 3}
-  m_Color: {r: 0.9019608, g: 0.92156863, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -26242,11 +26243,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2130020362}
+  - component: {fileID: 2130020365}
+  - component: {fileID: 2130020366}
+  - component: {fileID: 2130020367}
   - component: {fileID: 2130020361}
   - component: {fileID: 2130020363}
-  - component: {fileID: 2130020367}
-  - component: {fileID: 2130020366}
-  - component: {fileID: 2130020365}
   - component: {fileID: 2130020364}
   m_Layer: 0
   m_Name: neighborhood-guardBlocked
@@ -26665,7 +26666,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 809348806}
   - {fileID: 740190000000000022}
   - {fileID: 1081217489}
   - {fileID: 1038123104}

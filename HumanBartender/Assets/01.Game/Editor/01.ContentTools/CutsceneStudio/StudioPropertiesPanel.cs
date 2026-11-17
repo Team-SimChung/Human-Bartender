@@ -212,7 +212,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             var data = PanelBinding(host.Sequence);
             BoundField(section, data, "Id", "게임 호출 ID");
             BoundField(section, data, "BackgroundColor", "배경 색상");
-            BoundField(section, data, "AllowSkip", "Esc 스킵 허용");
+            BoundField(section, data, "AllowSkip", "길게 눌러 스킵 허용");
             var duration = new DoubleField("전체 길이 (초)") { name = "sequence-duration", isDelayed = true };
             duration.SetEnabled(host.Sequence.Timeline != null);
             section.Add(duration);

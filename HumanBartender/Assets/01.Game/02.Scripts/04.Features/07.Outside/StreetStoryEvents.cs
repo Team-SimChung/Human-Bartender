@@ -33,7 +33,7 @@ public sealed class StreetStoryEvents : IOutsideStoryEventHandler
                 run.Effect(original.Effects);
                 return string.IsNullOrEmpty(original.Goto) ? null : content.GetSceneSteps(original.Goto);
             case OutsideStoryCommand.WardrobeChoice:
-                var home = await run.ChooseAsync(new[] { Option("press", "누른다"), Option("cancel", "취소") }, token);
+                var home = await run.ChooseAsync(new[] { Option("press", "누른다"), Option("cancel", "취소", isCancel: true) }, token);
                 return home.Id == "press" ? content.GetSceneSteps("home-wardrobe-pressed") : Array.Empty<Step>();
             case OutsideStoryCommand.ThugChoice:
                 if (run.Flag("day1_thug_choice")) return Branch("day1-corridor-thug", "thug-pay");
