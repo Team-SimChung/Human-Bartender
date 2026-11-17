@@ -49,6 +49,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private bool useTestBottleId;
     [SerializeField] private string testBottleId = "beer";
     [SerializeField] private BottleTiltController bottle;
+    [Tooltip("저장된 푸어러 분리 연출과 분리 후 유량 배율. 비워 두면 기존 따르기로 동작한다.")]
+    [SerializeField] private PourerBreakaway pourer;
     [Tooltip("병 외곽선을 그리는 컴포넌트. 아래 병 모양 값을 그대로 받아 그리므로 " +
              "보이는 입구와 액체가 나오는 위치가 항상 일치한다. 비워두면 외곽선을 그리지 않는다.")]
     [SerializeField] private BottleSilhouette bottleSilhouette;
@@ -98,6 +100,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField, Min(1f)] private float mugCapacityMl = 450f;
     [Tooltip("SPH 입자 한 개의 안정된 면적 / spacing². 수량과 입자 방출이 같은 환산을 사용한다.")]
     [SerializeField, Range(0.5f, 2f)] private float particleAreaScale = 0.98f;
+    [Header("Volume Readout Limits")]
+    [Tooltip("일반 잔의 현재량 표시 상한(ml). 이 양 이상이면 화면 숫자를 이 값으로 표시한다. 판정과 결과 기록은 실제량을 사용한다.")]
+    [SerializeField, Min(0f)] private float glassReadoutLimitMl = 285f;
+    [Tooltip("바이젠잔(weizen)의 현재량 표시 상한(ml). oz 표시는 이 양을 환산한다.")]
+    [SerializeField, Min(0f)] private float mugReadoutLimitMl = 420f;
     [Header("Target Height")]
     [SerializeField] private bool showTargetHeight = true;
     [HideInInspector, SerializeField, Min(0.001f)] private float targetMarkerSize = 0.08f;
@@ -142,6 +149,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private GradientRatioController gageBar;
 
     [Header("Pour Settings")]
+    [Tooltip("실제 재료 ID가 beer일 때의 출수량 배율. 같은 비율로 분사 속도를 높여 입자 간격을 유지한다.")]
+    [SerializeField, Min(1f)] private float beerFlowMultiplier = 1.5f;
     [Tooltip("실제 기믹에서 입자를 내보내는 유량 배율. 도착한 입자의 용량에는 다시 곱하지 않는다.")]
     [SerializeField, Range(0.01f, 1f)] private float quantityAccumulateMultiplier = 0.25f;
     [Tooltip("따르기 마치기 후 공중의 액체가 잔에 도착하도록 기다릴 최대 시간. 이 시간은 제조시간에 포함하지 않는다.")]
@@ -250,6 +259,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         Vector3 cupRimPosition = glassCenter.TransformPoint(
             new Vector3(-glassInteriorHalfExtents.x * 0.8f, glassInteriorHalfExtents.y, 0f));
         bottle.ConfigurePourGeometry(new Vector3(0f, bottleInteriorHalfExtents.y, 0f), cupRimPosition);
+        pourer?.BeginPour(useTestBottleId ? testBottleId : pourIngredientId,
+            new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
+        liquidRenderer.SetAirborneWidthScale(pourer != null ? pourer.StreamWidthScale : 1f);
 
         simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax(), ConstrainToGlass);
         simulation.SynchronizeTransforms = false;
@@ -383,7 +395,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     {
         if (!IsManualInputActive || audioCancelled) return;
         float flow01 = FlowRate01();
-        float volumeRate = mlPerSecondAtFullFlow * flow01 * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
+        float flowMultiplier = (pourer != null ? pourer.FlowMultiplier : 1f) *
+            (pourIngredientId == "beer" ? Mathf.Max(1f, beerFlowMultiplier) : 1f);
+        float volumeRate = mlPerSecondAtFullFlow * flow01 * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f) * flowMultiplier;
 
         if (flow01 <= 0f || (drivenByRunner && volumeRate <= 0f) || (!unlimitedLiquid && remainingInBottle <= 0))
         {
@@ -391,12 +405,14 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             return;
         }
 
-        float speed = exitSpeed * flow01;
+        // 유량만 늘리면 같은 폭·속도의 출구에 입자가 겹쳐 밀도 보정이 두 줄기를 옆으로 벌린다.
+        // 분사 속도도 같은 배율로 늘려 분리 전후의 줄 간격과 단면 밀도를 유지한다.
+        float speed = exitSpeed * flow01 * flowMultiplier;
         if (speed <= 0.001f) return;
 
         int lanes = Mathf.Max(1,Mathf.FloorToInt(neckWidthInParticles));
-        // 잔 용량에 맞는 ml/입자를 사용한다. 속도는 물줄기의 궤적만 정하고,
-        // 같은 수량이 들어오면 기울기나 재료에 관계없이 같은 부피가 쌓인다.
+        // 잔 용량에 맞는 ml/입자를 사용한다. 입자당 용량은 분리 전후에 바꾸지 않는다.
+        // 독립 실행에서는 위에서 보정한 속도로 방출 간격을 정하므로 배율을 다시 곱하지 않는다.
         float interval = drivenByRunner && volumeRate > 0f && particleVolumeMl > 0f
             ? lanes * particleVolumeMl / volumeRate
             : Spacing / speed;
@@ -468,6 +484,10 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void Update()
     {
+        pourer?.Tick(Time.deltaTime);
+        if (IsManualInputActive && !audioCancelled && audioFocused && !audioPaused && Time.deltaTime > 0f)
+            pourer?.TryDetach();
+        liquidRenderer.SetAirborneWidthScale(pourer != null ? pourer.StreamWidthScale : 1f);
         if (IsManualInputActive) standaloneTimer?.Tick(Time.deltaTime);
         // 물리는 판정이 끝난 뒤에도 계속 돌린다. 여기서 멈춰버리면 공중에 있던 액체가 그대로 얼어붙어
         // 물리 버그처럼 보인다 — 판정만 멈추고 액체는 잔으로 마저 떨어지게 둔다.
@@ -771,12 +791,13 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     private void CancelRunnerCompletion()
     {
         audioCancelled = true;
+        pourer?.ResetState();
         StopPourSound();
         runnerCompletion?.TrySetCanceled();
     }
 
     void StopPourSound() { pourSound?.Dispose(); pourSound = null; }
-    void OnDisable() => StopPourSound();
+    void OnDisable() { StopPourSound(); pourer?.ResetState(); }
     void OnApplicationFocus(bool focus) { audioFocused = focus; if (!focus) StopPourSound(); }
     void OnApplicationPause(bool pause) { audioPaused = pause; if (pause) StopPourSound(); }
 
@@ -864,6 +885,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── ICraftGimmickProgress ───────────────────────────────────────────
 
+    float DisplayedPouredMl => Mathf.Min(pouredMl,
+        Mathf.Max(0f, craftContext.GlassId == "weizen" ? mugReadoutLimitMl : glassReadoutLimitMl));
+
     /// <summary>
     /// 지금까지 따른 양과 목표를 ml로 표시한다.
     ///
@@ -880,7 +904,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
             float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
             float targetMl = pourStep.TargetValue.Value / mlPerUnit;
-            return $"{pouredMl:0.00} / {targetMl:0.00} ml";
+            return $"{DisplayedPouredMl:0.00} / {targetMl:0.00} ml";
         }
     }
 
@@ -891,7 +915,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             ? pourStep.TargetValue.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
             : "???";
     public string CurrentValueText => !drivenByRunner || pourStep.IsTargetVisible
-        ? PouredInTargetUnit.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
+        ? ConvertMlTo(DisplayedPouredMl, pourStep.TargetUnit ?? ENewUnit.Ml)
+            .ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
         : "???";
     public string IngredientName
     {
@@ -906,7 +931,10 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
     public float TiltRatio => bottle != null ? Mathf.Clamp01(Mathf.Abs(bottle.CurrentAngle) / Mathf.Max(1f, bottle.MaxTiltAngle)) : 0f;
     public float FlowStartRatio => bottle != null ? Mathf.Clamp01(pourStartAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 0f;
-    public float FullFlowRatio => bottle != null ? Mathf.Clamp01(pourFullOpenAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f;
+    // 전용 푸어러가 있으면 빨간 범위는 분리 위험 각도만 나타낸다. 분리 후에는 위험 범위를 지운다.
+    public float FullFlowRatio => pourer != null && bottle != null
+        ? pourer.IsAttached ? Mathf.Clamp01(pourer.DetachAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f
+        : bottle != null ? Mathf.Clamp01(pourFullOpenAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f;
 
     /// <summary>
     /// 목표에 도달했는지. 도달해도 저절로 멈추지 않고, 넘겨서 계속 따라도 켜진 채로 있다.

@@ -353,14 +353,15 @@ public sealed class WorldInteractionController : MonoBehaviour
         testScriptOutput = true;
         try
         {
-            if (terrace) await homeTerrace.EnterAsync(sceneFades, token);
+            if (terrace) await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? GameStateManager.Instance.CurrentDay);
             view.Begin(target, terrace ? homeTerrace.LunaAnchor : player.transform,
                 speakers: terrace ? homeTerrace.Speakers : sessionActors?.Speakers ?? SessionSpeakers);
             runner.Bind(view);
             var travel = target.GetComponent<WorldDialogueTravelSettings>();
             return await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
                 playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync,
-                continueTravel: travel != null && travel.enabled);
+                continueTravel: travel != null && travel.enabled,
+                onStepStarted: terrace ? homeTerrace.OnStepStarted : null);
         }
         finally
         {
@@ -765,13 +766,14 @@ public sealed class WorldInteractionController : MonoBehaviour
                     !WorldInteractionSceneRules.IsEligible(story, gameObject.scene.name, state.CurrentDay, state.GameFlow, conditions)) continue;
                 bool terraceStory = homeTerrace != null && homeTerrace.ContainsStory(story.Id);
                 view.EndScene();
-                if (terraceStory) await homeTerrace.EnterAsync(sceneFades, token);
+                if (terraceStory) await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? state.CurrentDay);
                 else if (homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, token);
                 if (terraceStory) view.Begin(activeTarget, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);
                 else view.Begin(activeTarget, player.transform, player.transform, speakers: sessionActors?.Speakers);
                 runner.Bind(view);
                 var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
-                    playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync);
+                    playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync,
+                    onStepStarted: terraceStory ? homeTerrace.OnStepStarted : null);
                 if (result.Status == StoryExecutionStatus.Cancelled) throw new OperationCanceledException(token);
                 if (!result.Completed) throw new InvalidOperationException(result.Error);
                 if (!string.IsNullOrEmpty(story.CompletionFlag)) conditions.ApplyRequired("flag." + story.CompletionFlag + " = true");

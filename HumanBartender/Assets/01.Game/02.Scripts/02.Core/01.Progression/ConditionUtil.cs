@@ -158,7 +158,23 @@ public class ConditionUtil : IConditionUtil
         if (key.StartsWith("affinity.", StringComparison.Ordinal))
             return Value.Of(syntaxOnly ? 0 : _playerDataReader.GetCurCharacterAffinityValue(key.Substring("affinity.".Length)));
 
+        if (key == "cocktail.id")
+            return Value.Of(syntaxOnly ? "" : RequireResult(key).ServedCocktailId);
+        if (key == "cocktail.abv")
+            return Value.Of(syntaxOnly ? 0 : RequireCocktail().Abv);
+
         throw new InvalidOperationException($"'{key}'는 조건에 쓸 수 있는 값이 아닙니다.");
+    }
+
+    NewCocktailData RequireCocktail() => RequireResult("cocktail").ServedCocktail ??
+        throw new InvalidOperationException("[Condition] 제공 칵테일의 도수·태그 문맥이 없습니다.");
+
+    bool HasCocktailTag(string tag)
+    {
+        if (syntaxOnly) return false;
+        foreach (var candidate in RequireCocktail().Tags ?? Array.Empty<NewCocktailTag>())
+            if (string.Equals(candidate.Ko, tag, StringComparison.Ordinal)) return true;
+        return false;
     }
 
     /// <summary>
@@ -370,28 +386,34 @@ public class ConditionUtil : IConditionUtil
     readonly struct Value
     {
         public readonly bool IsBool;
+        public bool IsString => stringValue != null;
         readonly bool boolValue;
         readonly double number;
+        readonly string stringValue;
 
-        Value(bool isBool, bool boolValue, double number)
+        Value(bool isBool, bool boolValue, double number, string stringValue = null)
         {
             IsBool = isBool;
             this.boolValue = boolValue;
             this.number = number;
+            this.stringValue = stringValue;
         }
 
         public static Value Of(bool value) => new(true, value, 0d);
         public static Value Of(double value) => new(false, false, value);
+        public static Value Of(string value) => new(false, false, 0d, value ?? "");
 
         public bool AsBool() =>
-            IsBool ? boolValue : throw new InvalidOperationException("참·거짓이 와야 할 자리에 수가 있습니다.");
+            IsBool ? boolValue : throw new InvalidOperationException("참·거짓이 와야 할 자리에 다른 값이 있습니다.");
 
         public double AsNumber() =>
-            IsBool ? throw new InvalidOperationException("수가 와야 할 자리에 참·거짓이 있습니다.") : number;
+            IsBool || IsString ? throw new InvalidOperationException("수가 와야 할 자리에 다른 값이 있습니다.") : number;
 
         public bool EqualsValue(Value other)
         {
-            if (IsBool != other.IsBool) throw new InvalidOperationException("참·거짓과 수는 견줄 수 없습니다.");
+            if (IsBool != other.IsBool || IsString != other.IsString)
+                throw new InvalidOperationException("서로 다른 종류의 값은 견줄 수 없습니다.");
+            if (IsString) return string.Equals(stringValue, other.stringValue, StringComparison.Ordinal);
 
             return IsBool ? boolValue == other.boolValue : Math.Abs(number - other.number) < 0.0001d;
         }
@@ -451,7 +473,8 @@ public class ConditionUtil : IConditionUtil
             string op = TakeComparisonOperator();
             if (op == null) return left;
 
-            Value right = ParseUnary();
+            // cocktail.id == gin_fizz처럼 문자열 값의 오른쪽에는 CSV의 ID를 그대로 쓴다.
+            Value right = left.IsString ? Value.Of(TakeText()) : ParseUnary();
 
             return op switch
             {
@@ -485,13 +508,35 @@ public class ConditionUtil : IConditionUtil
             }
 
             if (pos < text.Length && (char.IsDigit(text[pos]) || text[pos] == '-')) return TakeNumber();
+            if (pos < text.Length && (text[pos] == '\'' || text[pos] == '"')) return Value.Of(TakeText());
 
             string token = TakeIdentifier();
+
+            if (token == "cocktail.tag")
+            {
+                if (!TryTake("(")) throw new InvalidOperationException("태그 조건에 여는 괄호가 없습니다.");
+                string tag = TakeText();
+                if (!TryTake(")")) throw new InvalidOperationException("태그 조건에 닫는 괄호가 없습니다.");
+                return Value.Of(owner.HasCocktailTag(tag));
+            }
 
             // 등급 이름은 변수가 아니라 값이다. 변수로 찾으면 없는 키가 되어 식이 무너진다.
             if (StoryGrade.TryParseRank(token, out int rank)) return Value.Of(rank);
 
             return owner.Resolve(token);
+        }
+
+        string TakeText()
+        {
+            SkipSpaces();
+            if (pos >= text.Length || (text[pos] != '\'' && text[pos] != '"')) return TakeIdentifier();
+            char quote = text[pos++];
+            int start = pos;
+            while (pos < text.Length && text[pos] != quote) pos++;
+            if (pos >= text.Length) throw new InvalidOperationException("문자열을 닫는 따옴표가 없습니다.");
+            string value = text.Substring(start, pos - start);
+            pos++;
+            return value;
         }
 
         Value TakeNumber()

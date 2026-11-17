@@ -29,6 +29,7 @@ public class DialogueRunner : MonoBehaviour
         public int VisitedSteps;
         public Func<string, string, CancellationToken, UniTask<bool>> PlayTimeline;
         public bool AutoAdvance;
+        public Action<Step> StepStarted;
         public OutsideStoryExecution Events;
     }
 
@@ -59,14 +60,15 @@ public class DialogueRunner : MonoBehaviour
     public async UniTask<StoryExecutionResult> PlayOutsideAsync(Step[] steps, CancellationToken token = default,
         Func<string, string, CancellationToken, UniTask<bool>> playTimeline = null, bool autoAdvance = false,
         Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction = null,
-        Func<string, CancellationToken, UniTask> playNpcSequence = null, bool continueTravel = false)
+        Func<string, CancellationToken, UniTask> playNpcSequence = null, bool continueTravel = false,
+        Action<Step> onStepStarted = null)
     {
         if (active != null) return Failed("A dialogue is already running.");
         if (!Alive(presenter) || conditionUtil == null) return Failed("Dialogue presenter or conditions are missing.");
         if (steps == null || steps.Length == 0) return Failed("Dialogue has no steps.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source,
-            PlayTimeline=playTimeline, AutoAdvance=autoAdvance };
+            PlayTimeline=playTimeline, AutoAdvance=autoAdvance, StepStarted=onStepStarted };
         run.Events = new OutsideStoryExecution(run.Conditions, (options, ct) => ChooseAsync(options, run), playWorldAction,
             playNpcSequence, continueTravel);
         active = run;
@@ -137,8 +139,12 @@ public class DialogueRunner : MonoBehaviour
             token.ThrowIfCancellationRequested();
             if (run.Presenter is IDialogueAutomaticPlayback automatic)
                 await automatic.WaitUntilReadyAsync(token);
+            token.ThrowIfCancellationRequested();
             if (++run.VisitedSteps > 10000) throw new InvalidOperationException("Street execution exceeded its step limit.");
             if (!run.Conditions.CheckRequired(step.When)) continue;
+            // 선택지의 중첩 결과 스텝은 원본 대본의 seq가 아니므로 연출 신호에서 제외한다.
+            if (depth == 0) run.StepStarted?.Invoke(step);
+            token.ThrowIfCancellationRequested();
             if (step.Command != OutsideStoryCommand.None)
             {
                 if (storyEvents == null) throw new InvalidOperationException("Unity 사건 서비스가 등록되지 않았습니다.");
