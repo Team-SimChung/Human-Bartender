@@ -492,7 +492,8 @@ public sealed class WorldInteractionController : MonoBehaviour
             player.GetComponent<PlayerMovement2D>()?.Face(settings.FaceRight);
             SetFocus(null);
             sessionParticipant = target.Participant;
-            sessionParticipant?.BeginInteraction();
+            if (sessionParticipant is NpcInteraction npc) npc.BeginSceneContinuation();
+            else sessionParticipant?.BeginInteraction();
             if (sessionParticipant is IWorldInteractionPreparationParticipant preparation)
                 await preparation.PrepareInteractionAsync(session.Token);
             sessionActors = sessionParticipant == null ? target.GetComponent<WorldStoryActors>() : null;
