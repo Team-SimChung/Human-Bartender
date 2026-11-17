@@ -142,7 +142,11 @@ namespace HumanBartender.CutsceneStudio.Editor
 
             void UnbindDialogueRow(VisualElement element, int _)
             {
-                ((DialogueRow)element.userData).Entry = default;
+                var row = (DialogueRow)element.userData;
+                // 재활용될 행의 초안은 이전 클립에 확정하고 포커스를 넘긴다.
+                StudioDelayedInput.CommitFocused(row.Root);
+                row.Text.Blur();
+                row.Entry = default;
             }
 
             void BindNavigationItem(VisualElement element, int index)
@@ -408,8 +412,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             if (!ids.SequenceEqual(row.Speaker.choices))
                 row.Speaker.choices = ids;
             row.Speaker.SetValueWithoutNotify(data.ActorId ?? "");
-            var focused = Window.rootVisualElement.focusController?.focusedElement as VisualElement;
-            if (focused != row.Text && !row.Text.Contains(focused))
+            if (StudioDelayedInput.FocusedTextField(row.Root) != row.Text)
                 row.Text.SetValueWithoutNotify(data.Text ?? "");
             row.Wait.SetValueWithoutNotify(data.WaitForInput);
             string GetActorId(StudioActor a)

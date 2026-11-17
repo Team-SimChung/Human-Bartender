@@ -164,8 +164,10 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         private void BuildTimingFields(TimelineClip clip)
         {
-            bool wait = host.Selected.Kind == StudioKind.Wait;
-            bool visual = host.Selected.Kind == StudioKind.Visual;
+            var sequence = host.Sequence;
+            var target = (StudioClip)clip.asset;
+            bool wait = target.Kind == StudioKind.Wait;
+            bool visual = target.Kind == StudioKind.Visual;
             var section = Section("클립 정보", "clip-info", wait || visual);
             var title = new TextField("클립 이름") { name = "clip-name", isDelayed = true, isReadOnly = visual };
             if (visual) title.AddToClassList("studio-properties-readonly");
@@ -186,6 +188,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
             void ChangeName(ChangeEvent<string> e)
             {
+                if (host.Sequence != sequence || target == null) return;
                 if (visual) { Refresh(); return; }
                 Undo.RecordObject(clip.GetParentTrack(), "클립 이름 변경");
                 clip.displayName = e.newValue;
@@ -193,22 +196,24 @@ namespace HumanBartender.CutsceneStudio.Editor
             }
             void ChangeTime(ChangeEvent<double> _)
             {
-                if (StudioPropertyEditing.SetTiming(host.Sequence, clip, start.value, duration.value))
+                if (host.Sequence != sequence || target == null) return;
+                if (StudioPropertyEditing.SetTiming(sequence, clip, start.value, duration.value))
                     host.Changed();
                 Refresh();
             }
             void Refresh()
             {
-                title.SetValueWithoutNotify(visual ? host.Sequence.FindActor(host.Selected.ActorId)?.Name ?? clip.displayName : clip.displayName);
+                title.SetValueWithoutNotify(visual ? sequence.FindActor(target.ActorId)?.Name ?? clip.displayName : clip.displayName);
                 start.SetValueWithoutNotify(clip.start);
                 duration.SetValueWithoutNotify(clip.duration);
-                duration.SetEnabled(!host.Playing && (host.Selected.Kind != StudioKind.Dialogue || host.Selected.DialogueLengthMode == StudioDialogueLengthMode.Manual));
+                duration.SetEnabled(!host.Playing && (target.Kind != StudioKind.Dialogue || target.DialogueLengthMode == StudioDialogueLengthMode.Manual));
                 end.SetValueWithoutNotify(clip.end.ToString("0.###"));
             }
         }
 
         private void BuildSequenceFields()
         {
+            var sequence = host.Sequence;
             var section = Section("시퀀스 설정", "settings");
             var data = PanelBinding(host.Sequence);
             BoundField(section, data, "Id", "제작 파일 ID");
@@ -227,15 +232,16 @@ namespace HumanBartender.CutsceneStudio.Editor
 
             void ChangeDuration(ChangeEvent<double> e)
             {
+                if (host.Sequence != sequence || sequence == null) return;
                 if (StudioPropertyEditing.IsFinite(e.newValue))
                 {
-                    Undo.RecordObject(host.Sequence.Timeline, "전체 길이 변경");
-                    host.Sequence.Timeline.fixedDuration = Math.Max(.1, e.newValue);
+                    Undo.RecordObject(sequence.Timeline, "전체 길이 변경");
+                    sequence.Timeline.fixedDuration = Math.Max(.1, e.newValue);
                     host.Changed();
                 }
                 Refresh();
             }
-            void Refresh() { duration.SetValueWithoutNotify(host.Sequence.Duration); }
+            void Refresh() { duration.SetValueWithoutNotify(sequence.Duration); }
         }
 
         private void BuildSelectedKeyFields(TimelineClip clip, VisualElement parent = null)
