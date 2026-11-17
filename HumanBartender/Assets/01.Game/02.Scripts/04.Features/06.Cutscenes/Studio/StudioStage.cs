@@ -193,7 +193,7 @@ namespace HumanBartender.CutsceneStudio
                 var camera = Sample(entry, time);
                 center = camera.Position;
                 zoom = camera.Scale;
-                if (!string.IsNullOrEmpty(entry.Asset.CameraTargetId))
+                if (TryGetActor(entry.Asset.CameraTargetId, out _))
                     center += CameraTargetPosition(entry.Asset.CameraTargetId, System.Math.Min(time, entry.Clip.end)) +
                         StudioExtensionValues.Position(entry.Asset.CameraFollowOffset);
             }
@@ -228,7 +228,7 @@ namespace HumanBartender.CutsceneStudio
                     continue;
                 image.sprite = actor.Sprite;
                 image.color = actor.Color;
-                image.enabled = !actor.ClipControlled && ownedActors.Contains(actor.Id);
+                image.enabled = image.sprite != null && !actor.ClipControlled && ownedActors.Contains(actor.Id);
                 image.rectTransform.sizeDelta = actor.Size;
                 image.rectTransform.anchoredPosition = actor.Position;
                 image.rectTransform.localScale = Vector3.one;
@@ -254,7 +254,6 @@ namespace HumanBartender.CutsceneStudio
             var clip = entry.Asset;
             if (!TryGetActor(clip.ActorId, out var image))
                 return;
-            image.enabled = true;
             bool flip = Value(clip, StudioProperty.FlipX, StudioKeyframes.Evaluate(clip, StudioProperty.FlipX,
                 (float)(time - entry.Clip.start), entry.Clip.duration)) >= .5f;
             ApplyActorPose(image, clip, Sample(entry, time), flip);
@@ -262,6 +261,8 @@ namespace HumanBartender.CutsceneStudio
             var sprite = StudioSpriteAnimation.Sample(clip, motion - entry.Clip.start, entry.ContinuesDuringWait && clip.Loop ? double.PositiveInfinity : entry.Clip.duration);
             if (clip.Frames != null && clip.Frames.Length > 0)
                 image.sprite = sprite;
+            // uGUI Image는 sprite가 없으면 흰 사각형을 그린다. 위치 정보는 남기고 그림만 숨긴다.
+            image.enabled = image.sprite != null;
         }
 
         private void ApplyActorPose(Image image, StudioClip clip, StudioPose pose, bool flip)
@@ -339,6 +340,7 @@ namespace HumanBartender.CutsceneStudio
                 if (clip.ProjectedDialogue != null && dialogue.font != null)
                     ApplyProjectedDialogue(clip, visible, (float)elapsed, reveal);
             }
+            // 화자가 아직 배치되지 않았다면 화자 없는 대사와 같은 화면 기준 위치를 사용한다.
             var position = new Vector2(0, clip.BubbleScreenHeight);
             if (TryGetActor(clip.ActorId, out var speaker))
                 position = (speaker.rectTransform.anchoredPosition - center) * zoom + new Vector2(0, clip.BubbleOffset);

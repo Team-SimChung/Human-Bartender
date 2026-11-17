@@ -23,7 +23,7 @@ namespace HumanBartender.CutsceneStudio
             sequence.Timeline != null && sequence.Duration > 0 && sequence.Validate().Count == 0 &&
             StudioEvaluation.Clips(sequence, false).Any();
 
-        /// <summary>미등록·누락·미완성 방송은 선택 불가로 표시한다. 재생 전에 리소스를 검증한다.</summary>
+        /// <summary>미등록·원본/Timeline 누락·재생 오류는 선택을 막는다. 시각 리소스 누락 경고만 있으면 재생한다.</summary>
         public static async UniTask<PreparedSequence> PrepareAsync(string id, CancellationToken token, string memoryKey = null)
         {
             AsyncOperationHandle<StudioCatalog>? catalog = null;

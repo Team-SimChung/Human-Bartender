@@ -62,6 +62,10 @@ namespace HumanBartender.CutsceneStudio
             var issues = sequence.Validate();
             if (issues.Count > 0)
                 throw new InvalidOperationException(string.Join("\n", issues));
+            var visualWarnings = StudioSequenceWarnings.CollectMissingVisuals(sequence);
+            if (visualWarnings.Count > 0)
+                Debug.LogWarning("[CutsceneStudio] 시각 리소스 누락 · 대사 재생은 계속합니다: " + sequence.Id + "\n" +
+                    string.Join("\n", visualWarnings), sequence);
             using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
             run = source;
             IsPlaying = true;
