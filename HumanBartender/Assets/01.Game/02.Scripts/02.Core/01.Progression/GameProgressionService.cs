@@ -558,6 +558,7 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
         EGameFlow previousFlow = gameState.GameFlow;
         bool previousReturned = homeReturned;
         bool changed = false;
+        IDayTransitionPresenter transitionShown = null;
         try
         {
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
@@ -573,6 +574,14 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
             if (!NewDataLoadManager.TryGetDayInfo(nextDay, out NewDayInfoData next))
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,
                     $"등록되지 않은 다음 일차입니다: Day {nextDay}");
+
+            // 웹 day-transition.js: 명언·저자 → Day 숫자 굴림이 끝나 가는 "준비 시점"에 일차를 바꾸고, 준비가 끝나면 공개한다.
+            IDayTransitionPresenter dayTransition = (sceneTransitions as IDayTransitionSource)?.DayTransition;
+            if (dayTransition != null)
+            {
+                transitionShown = dayTransition;
+                await dayTransition.PlayToPrepareAsync(previousDay, nextDay, cancellationToken);
+            }
 
             if (next.StartPhase == "commute_out")
             {
@@ -595,6 +604,8 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
                 }
                 if (!result.Succeeded && result.SceneActivated)
                     FindSceneContext("OutSide")?.ReportArrivalFailure(result.Message);
+                // 씬이 바뀐 뒤에는 되돌리지 않으므로 공개를 취소하지 않는다.
+                if (result.Succeeded && dayTransition != null) await dayTransition.FinishAsync(CancellationToken.None);
                 return ConvertSceneResult(result);
             }
 
@@ -602,14 +613,16 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,
                     $"알 수 없는 시작 국면입니다: Day {nextDay}/{next.StartPhase}");
 
-            await sceneFades.FadeOutAsync(0.5f, cancellationToken);
+            // 전환 화면이 이미 덮고 있으면 예전 0.5초 페이드는 생략한다.
+            if (dayTransition == null) await sceneFades.FadeOutAsync(0.5f, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             gameState.CurrentDay = nextDay;
             gameState.GameFlow = EGameFlow.CommuteIn;
             homeReturned = false;
             changed = true;
             refreshConditions?.Invoke();
-            await sceneFades.FadeInAsync(0.5f, CancellationToken.None);
+            if (dayTransition != null) await dayTransition.FinishAsync(CancellationToken.None);
+            else await sceneFades.FadeInAsync(0.5f, CancellationToken.None);
             Debug.Log($"[Progression] 취침 완료, Day {previousDay} → {gameState.CurrentDay}, {gameState.GameFlow}");
             return new GameProgressionResult(GameProgressionOutcome.Succeeded);
         }
@@ -628,6 +641,8 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
         }
         finally
         {
+            // 정상 종료면 이미 공개되어 꺼져 있다. 거절·취소·실패에서 검은 화면이 남지 않게 한다.
+            transitionShown?.HideImmediate();
             isRunning = false;
         }
     }
