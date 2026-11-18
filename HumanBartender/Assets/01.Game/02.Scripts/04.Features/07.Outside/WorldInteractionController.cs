@@ -80,6 +80,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         (view.IsChoosing ? view.Choices.HandlesCancelInput : view.IsImageVisible);
     public WorldInteractionTarget FocusedTarget => focused;
     internal WorldInteractionTarget ActiveTarget => activeTarget;
+    internal bool IsHandingOff => handingOff;
     internal WorldInteractionView View => view;
     internal WorldInteractionCutscenePlayer CutscenePlayer => cutscenePlayer;
     public StoryExecutionResult LastResult { get; private set; }

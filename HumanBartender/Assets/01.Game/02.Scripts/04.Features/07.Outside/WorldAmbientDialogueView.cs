@@ -15,6 +15,8 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
     private WorldInteractionTarget target;
     private Transform player;
     private Transform speaker;
+    private WorldAmbientDialogueDistanceGate distanceGate;
+    private bool inListeningRange;
     private Func<bool> isPaused;
     private float typingDelay;
     private float readTime;
@@ -27,6 +29,20 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
     internal Transform Speaker => speaker;
     internal DynamicSpeechBubble Bubble => bubble;
     internal bool IsVisible => visibility != null && visibility.alpha > 0;
+    internal bool IsPlaybackPaused => isPaused?.Invoke() == true || IsDistancePaused;
+    internal bool IsDistancePaused
+    {
+        get
+        {
+            if (distanceGate == null || !distanceGate.isActiveAndEnabled || speaker == null || player == null)
+            {
+                inListeningRange = false;
+                return false;
+            }
+            inListeningRange = distanceGate.Contains(player.position, speaker.position, inListeningRange);
+            return !inListeningRange;
+        }
+    }
 
     internal void Initialize(DynamicSpeechBubble value, RectTransform parent, NewTextTagDataSO textTags, float delay,
         ISoundEffectPlayer sound = null)
@@ -51,6 +67,8 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
         float minimum, float maximum, float readingSpeed)
     {
         target = source;
+        distanceGate = source.GetComponent<WorldAmbientDialogueDistanceGate>();
+        inListeningRange = false;
         player = playerTransform;
         isPaused = paused;
         minimumReadTime = minimum;
@@ -78,7 +96,7 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
     public UniTask WaitUntilReadyAsync(CancellationToken token) => WaitAsync(0, token);
     public UniTask WaitAfterLineAsync(CancellationToken token) => WaitAsync(readTime, token);
 
-    private bool CanHear() => showing && isPaused?.Invoke() != true && speaker != null && player != null &&
+    private bool CanHear() => showing && !IsPlaybackPaused && speaker != null && player != null &&
         Vector2.Distance(speaker.position, player.position) <= backgroundAudioRange;
 
     private async UniTask WaitAsync(float seconds, CancellationToken token)
@@ -87,9 +105,9 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
         while (true)
         {
             token.ThrowIfCancellationRequested();
-            if (isPaused?.Invoke() != true && remaining <= 0) return;
+            if (!IsPlaybackPaused && remaining <= 0) return;
             await UniTask.NextFrame(token);
-            if (isPaused?.Invoke() != true) remaining -= Time.deltaTime;
+            if (!IsPlaybackPaused) remaining -= Time.deltaTime;
         }
     }
 
@@ -106,7 +124,7 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
     {
         if (visibility == null) return;
         var camera = Camera.main;
-        if (!showing || speaker == null || camera == null || isPaused?.Invoke() == true)
+        if (!showing || speaker == null || camera == null || IsPlaybackPaused)
         {
             visibility.alpha = 0;
             return;

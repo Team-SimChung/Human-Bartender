@@ -32,8 +32,8 @@
     "guests/guest_parts.csv": "8eb445e5a3bd8fe35f5fb203bf023d9f1e1876b24f84c7ecddc3f6248fb5e885",
     "guests/guest_personalities.csv": "ff730e6aa2fab2dde73ed43844f47bc88d30bf36caa00db89824e66bd709d380",
     "guests/guest_exclusions.csv": "b77422fa71c72052d150ae7ce4bc8d99eab903ef06f2b5d8d45370239a654b11",
-    "interaction/interact_points.csv": "0bce6e2ae7c94d500dfe0a62078d386a75d09f11222b49507c9f4b57dfb1cfa6",
-    "interaction/dialogue_flows.csv": "1c7206c589a01191edcb108456922bab0290bff51162cd7c011b568e605f0e1e",
+    "interaction/interact_points.csv": "64d5470dcdcc7434685cdaa68a40b96609c75023772941221d859f737988f54a",
+    "interaction/dialogue_flows.csv": "d93d9363593ab3de1423bb886559fe15a1e14d894815af6ed2aa906984cb256a",
     "craft/order_rules.csv": "bbebcea6e8cfab61ff560097ecf0253ea9d9e50474ba9a5224045dc2835fd35b",
     "guests/personalities.csv": "a4964a886c2c62096a92478aaa4db742104a429bcd2e77fc0ced4ca4fcd26e91",
     "guests/random_waves.csv": "6ee769accd4feecd8425ff4b403bbb356caddede7a7b0a745fd68dc140a13e4e",
@@ -83,8 +83,8 @@
     "guests/guest_parts.csv": "8eb445e5a3bd8fe35f5fb203bf023d9f1e1876b24f84c7ecddc3f6248fb5e885",
     "guests/guest_personalities.csv": "ff730e6aa2fab2dde73ed43844f47bc88d30bf36caa00db89824e66bd709d380",
     "guests/guest_exclusions.csv": "b77422fa71c72052d150ae7ce4bc8d99eab903ef06f2b5d8d45370239a654b11",
-    "interaction/interact_points.csv": "0bce6e2ae7c94d500dfe0a62078d386a75d09f11222b49507c9f4b57dfb1cfa6",
-    "interaction/dialogue_flows.csv": "1c7206c589a01191edcb108456922bab0290bff51162cd7c011b568e605f0e1e",
+    "interaction/interact_points.csv": "48857d4f54f3bce210492e428b2e855540e947ae930d5e02699fae78b12f23f3",
+    "interaction/dialogue_flows.csv": "dfed593082fb3913ad0a290735483999149281f1dbd201b75b3367e510f31ff8",
     "craft/order_rules.csv": "bbebcea6e8cfab61ff560097ecf0253ea9d9e50474ba9a5224045dc2835fd35b",
     "guests/personalities.csv": "a4964a886c2c62096a92478aaa4db742104a429bcd2e77fc0ced4ca4fcd26e91",
     "guests/random_waves.csv": "6ee769accd4feecd8425ff4b403bbb356caddede7a7b0a745fd68dc140a13e4e",
@@ -133,6 +133,47 @@
         "guests/random_waves.csv"
       ],
       "reason": "Web-current general guest fixed orders (2026-11-08: day 1 tequila_sunrise/screwdriver, day 2 whiskey_sour/champagne). Readable IDs already match; only the order column changed."
+    },
+    {
+      "commit": "f09af0624eaed37d1f1714cc20bacca3c985247b",
+      "files": [
+        "interaction/interact_points.csv",
+        "interaction/dialogue_flows.csv"
+      ],
+      "scope": "outside_ambient_interaction_links",
+      "row_ids": {
+        "interaction/interact_points.csv": [
+          "interact_points_p_outside_day0_store_passers",
+          "interact_points_p_outside_day0_building_residents",
+          "interact_points_p_outside_day0_port_pair",
+          "interact_points_p_outside_day1_commute_passers2",
+          "interact_points_p_outside_day2_commute_reopening"
+        ],
+        "interaction/dialogue_flows.csv": [
+          "dialogue_flows_p_outside_day0_store_passers_0",
+          "dialogue_flows_p_outside_day0_building_residents_0",
+          "dialogue_flows_p_outside_day0_port_pair_0",
+          "dialogue_flows_p_outside_day1_commute_passers2_0",
+          "dialogue_flows_p_outside_day2_commute_reopening_0"
+        ]
+      },
+      "reason": "Import the five ambient groups' interaction rows and once dialogue flows verbatim. The four street groups and upper corridor residents are now placed and start by proximity. Unity-only interaction row p_outside_day0_street_children is not present in the web source; it prepares the independently placed ground-floor children for future NPC-to-NPC dialogue while preserving day-0 commute-out visibility. No child dialogue flow or dialogue lines are added. Preserve all existing Unity rows and dialogue; no script/scenes or script/steps import.",
+      "preserved_unity_commits": [
+        "37b8e1af",
+        "c0dad3ed"
+      ],
+      "unity_before_files": {
+        "interaction/interact_points.csv": "445405150e8c1d5f31a80bcc5d0ef946514c89bc5fade82c77a60f7b85ebad2d",
+        "interaction/dialogue_flows.csv": "b9479de241c38612c1dd5a00f663b323ecbfa79dff6f8e36dcf9f735328715f8"
+      },
+      "previous_recorded_files": {
+        "interaction/interact_points.csv": "0bce6e2ae7c94d500dfe0a62078d386a75d09f11222b49507c9f4b57dfb1cfa6",
+        "interaction/dialogue_flows.csv": "1c7206c589a01191edcb108456922bab0290bff51162cd7c011b568e605f0e1e"
+      },
+      "web_files": {
+        "interaction/interact_points.csv": "48857d4f54f3bce210492e428b2e855540e947ae930d5e02699fae78b12f23f3",
+        "interaction/dialogue_flows.csv": "dfed593082fb3913ad0a290735483999149281f1dbd201b75b3367e510f31ff8"
+      }
     }
   ],
   "unity_overrides": {
@@ -140,6 +181,8 @@
     "story/bar_choices.csv": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374",
     "story/street_choices.csv": "ccd0514395898a4a8a14ca8d47af7299e6d3187cce7eb7a5e76b951a1ca25459",
     "system/columns.csv": "582df270b5eb645bce076102bafb768cd4697e9195dead1988ea0ee72c2e54c8",
-    "system/row_formats.csv": "f2514e011baf3c51fd996cd930e5d75066ce30b95e71c1aa48b392a7b534b321"
+    "system/row_formats.csv": "f2514e011baf3c51fd996cd930e5d75066ce30b95e71c1aa48b392a7b534b321",
+    "interaction/interact_points.csv": "64d5470dcdcc7434685cdaa68a40b96609c75023772941221d859f737988f54a",
+    "interaction/dialogue_flows.csv": "d93d9363593ab3de1423bb886559fe15a1e14d894815af6ed2aa906984cb256a"
   }
 }
