@@ -25,6 +25,10 @@ namespace HumanBartender.CutsceneStudio
             internal set { studioDisplayName = value; }
         }
 
+        [SerializeField, Header("입력 대기"), Tooltip("대기 중 반복 스프라이트·음원·흔들림을 계속 재생합니다. 일회성 음원은 끝까지 재생합니다. 이동·카메라·강도 키는 멈춥니다.")]
+        private bool continueDuringWait;
+        public bool ContinueDuringWait { get => continueDuringWait; internal set => continueDuringWait = value; }
+
         // -1은 클립으로 유형을 추론하며 명시된 유형은 빈 트랙에도 적용함.
         [SerializeField, HideInInspector, UnityEngine.Serialization.FormerlySerializedAs("StudioTrackKind")]
         private int studioTrackKind = -1;

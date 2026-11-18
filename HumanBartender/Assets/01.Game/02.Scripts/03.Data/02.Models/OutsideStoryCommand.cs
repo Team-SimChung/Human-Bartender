@@ -6,6 +6,6 @@ public enum OutsideStoryCommand
     GuardChoice, BossFirstChoice, BossRepeatChoice, MeetBoss, GrantWildDog,
     RepairElevator, AdoptCat, RevealCat, PetCat, FeedCat, NeighborEnter, NeighborExit, ChrisEnter, CatMeow,
     SamhoDepart, NotionApproach, NotionDealerExit, NotionSamhoExit, ThugPunch, ThugDepart, DoorCue,
-    NpcSequence
+    NpcSequence, ShopSoldOut
 }
 

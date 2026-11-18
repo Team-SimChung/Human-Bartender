@@ -12,7 +12,7 @@ public sealed class WorldInteractionCutscenePlayer : MonoBehaviour
     private CancellationTokenSource request;
     public bool IsPlaying => request != null;
     internal StudioPlayer ActivePlayer => player;
-    public void Continue() { if (player != null && player.IsWaiting) player.Continue(); }
+    public void Continue() { if (player != null && player.IsPlaying) player.Continue(); }
     private void OnDisable() => request?.Cancel();
 
     public async UniTask PlayAsync(StudioSequence sequence, CancellationToken token)
@@ -22,8 +22,8 @@ public sealed class WorldInteractionCutscenePlayer : MonoBehaviour
     }
 
     /// <summary>대상에 직접 연결되지 않은 사건도 기존 Addressables StudioCatalog를 사용한다.</summary>
-    public UniTask<bool> TryPlayAsync(string id, CancellationToken token)
-        => RunAsync(ct => StudioPlaybackService.TryPlayAsync(player, id, ct), token);
+    public UniTask<bool> TryPlayAsync(string id, CancellationToken token, string memoryKey = null)
+        => RunAsync(ct => StudioPlaybackService.TryPlayAsync(player, id, ct, memoryKey), token);
 
     async UniTask<bool> RunAsync(Func<CancellationToken, UniTask<bool>> play, CancellationToken token)
     {

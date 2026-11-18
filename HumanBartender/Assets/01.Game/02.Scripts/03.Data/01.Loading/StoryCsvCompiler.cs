@@ -4,6 +4,19 @@ using System.Linq;
 /// <summary>웹 CSV 표현을 로드 경계에서 Unity 명령으로 변환한다. 실행과 플레이어 상태 변경은 하지 않는다.</summary>
 public static class StoryCsvCompiler
 {
+    /// <summary>기존 외부 사건과 ambient 묶음의 출퇴근 대본을 함께 공개한다. 집 방송은 포함하지 않는다.</summary>
+    public static NewStreetData CompileStreet(CsvContentCatalog catalog, string sourceId = "script/street")
+    {
+        var street = catalog.Read<NewStreetData>(sourceId);
+        var ambient = catalog.Read<NewStreetData>("script/ambient");
+        street.Scenes = (street.Scenes ?? Array.Empty<NewSceneData>()).Concat(
+            (ambient.Scenes ?? Array.Empty<NewSceneData>()).Where(scene =>
+                scene.Phase is ENewScenePhase.CommuteIn or ENewScenePhase.CommuteOut)).ToArray();
+        var duplicate = street.Scenes.GroupBy(scene => scene.Id, StringComparer.Ordinal).FirstOrDefault(group => group.Count() > 1);
+        if (duplicate != null) throw new InvalidOperationException("[Story] 중복된 외부 대본 ID: " + duplicate.Key);
+        return Compile(street);
+    }
+
     /// <summary>집의 사건과 기존 ambient CSV의 집 방송을 같은 조회 경로에 공개한다.</summary>
     public static NewStreetData CompileHome(CsvContentCatalog catalog)
     {

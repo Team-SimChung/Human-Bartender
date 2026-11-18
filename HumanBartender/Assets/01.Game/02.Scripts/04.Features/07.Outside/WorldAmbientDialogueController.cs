@@ -74,23 +74,34 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
         foreach (var target in WorldInteractionTarget.InScene(gameObject.scene))
         {
             if (sessions.ContainsKey(target)) continue;
-            if (!entries.TryGetValue(target, out var entry))
-            {
-                entry = new WorldProximityEntry();
-                entries.Add(target, entry);
-            }
             if (!target.IsAmbient || !foreground.TryResolve(target, out var story))
             {
-                entry.Reset();
+                if (entries.TryGetValue(target, out var oldEntry)) oldEntry.Reset();
                 continue;
             }
-            float distance = Vector2.Distance(context.Player.transform.position, target.transform.position);
-            bool entered = entry.CanStart(RuleKey(target), distance, story.Radius, exitMargin);
-            if (!entered || IsPaused) continue;
+            if (!CanStartTarget(target, story)) continue;
             // 잘못된 대본도 같은 범위 안에서 매 프레임 다시 시도하지 않게 함.
-            entry.Consume();
+            entries[target].Consume();
             PlayAsync(target, story).Forget(ReportFailure);
         }
+    }
+
+    // 시작 검사만 분리한다. ReadPaused/IsPaused는 탑승 중에도 그대로 적용한다.
+    internal bool CanStartTarget(WorldInteractionTarget target, NewSceneData story)
+    {
+        if (!isActiveAndEnabled || target == null || !target.isActiveAndEnabled || sessions.ContainsKey(target) ||
+            context == null || !context.IsReady || foreground == null || !foreground.IsReady ||
+            foreground.IsHandingOff || UIDisplayOptions.IsOptionOpen) return false;
+#if UNITY_EDITOR
+        if (foreground.SuppressDetectionForTest) return false;
+#endif
+        if (!entries.TryGetValue(target, out var entry))
+        {
+            entry = new WorldProximityEntry();
+            entries.Add(target, entry);
+        }
+        float distance = Vector2.Distance(context.Player.transform.position, target.transform.position);
+        return entry.CanStart(RuleKey(target), distance, story.Radius, exitMargin) && !IsPaused;
     }
 
     private static string RuleKey(WorldInteractionTarget target)

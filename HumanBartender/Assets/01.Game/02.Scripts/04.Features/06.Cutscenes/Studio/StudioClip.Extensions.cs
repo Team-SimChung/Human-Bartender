@@ -4,6 +4,23 @@ namespace HumanBartender.CutsceneStudio
 {
     public sealed partial class StudioClip
     {
+        [SerializeField, Header("대사 제작"), Tooltip("스튜디오에서 본문·속도 편집을 확정할 때 적용합니다. 기존 파일은 수동입니다.")]
+        private StudioDialogueLengthMode dialogueLengthMode;
+        public StudioDialogueLengthMode DialogueLengthMode { get => dialogueLengthMode; internal set => dialogueLengthMode = value; }
+        [SerializeField, Header("타이핑 효과음"), Tooltip("시퀀스 공통 설정을 사용하거나 이 대사만 끄고 직접 지정합니다.")]
+        private StudioTypingAudioMode typingAudioMode;
+        public StudioTypingAudioMode TypingAudioMode { get => typingAudioMode; internal set => typingAudioMode = value; }
+        [SerializeField] private StudioTypingAudioSettings typingAudio = new();
+        public StudioTypingAudioSettings TypingAudio => typingAudio;
+        internal StudioTypingAudioSettings ResolveTypingAudio(StudioSequence sequence) => typingAudioMode switch
+        {
+            StudioTypingAudioMode.Off => null,
+            StudioTypingAudioMode.Custom => typingAudio,
+            _ => sequence?.TypingAudio
+        };
+
+        [System.NonSerialized] internal StudioDialogueTiming TimingCache;
+        [System.NonSerialized] internal object TimingSignature;
         [SerializeField] private GameObject dialoguePrefab;
         public GameObject DialoguePrefab { get => dialoguePrefab; internal set => dialoguePrefab = value; }
 

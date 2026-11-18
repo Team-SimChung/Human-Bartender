@@ -27,6 +27,7 @@ namespace HumanBartender.CutsceneStudio
         private const float DialogueShakeAmplitude = 4f;
         private bool usingPrefabDialogue;
         private readonly Dictionary<string, Image> actors = new();
+        public StudioClock PlaybackClock { get; set; }
         internal bool RevealDialogue { get; set; }
         internal int EvaluationVersion { get; private set; }
         public RectTransform Frame => frame;
@@ -160,7 +161,7 @@ namespace HumanBartender.CutsceneStudio
             StudioEntry? cameraEntry = null;
             foreach (var entry in entries)
             {
-                if (time < entry.Clip.start)
+                if (PlaybackClock?.IsSuppressed(entry.Asset) == true || time < entry.Clip.start)
                     continue;
                 var clip = entry.Asset;
                 bool active = entry.Contains(time);
@@ -192,7 +193,7 @@ namespace HumanBartender.CutsceneStudio
                 var camera = Sample(entry, time);
                 center = camera.Position;
                 zoom = camera.Scale;
-                if (!string.IsNullOrEmpty(entry.Asset.CameraTargetId))
+                if (TryGetActor(entry.Asset.CameraTargetId, out _))
                     center += CameraTargetPosition(entry.Asset.CameraTargetId, System.Math.Min(time, entry.Clip.end)) +
                         StudioExtensionValues.Position(entry.Asset.CameraFollowOffset);
             }
@@ -204,6 +205,7 @@ namespace HumanBartender.CutsceneStudio
                 dialogueAnimator.Clear();
                 projectedDialogueClip = null;
             }
+            if (PlaybackClock?.Dialogue != null) line = PlaybackClock.Dialogue;
             if (line.HasValue)
                 ApplyDialogue(line.Value, time, center, zoom, revealDialogue);
             if (!usingPrefabDialogue) prefabDialogue?.StopWaiting();
@@ -226,7 +228,7 @@ namespace HumanBartender.CutsceneStudio
                     continue;
                 image.sprite = actor.Sprite;
                 image.color = actor.Color;
-                image.enabled = !actor.ClipControlled && ownedActors.Contains(actor.Id);
+                image.enabled = image.sprite != null && !actor.ClipControlled && ownedActors.Contains(actor.Id);
                 image.rectTransform.sizeDelta = actor.Size;
                 image.rectTransform.anchoredPosition = actor.Position;
                 image.rectTransform.localScale = Vector3.one;
@@ -252,13 +254,15 @@ namespace HumanBartender.CutsceneStudio
             var clip = entry.Asset;
             if (!TryGetActor(clip.ActorId, out var image))
                 return;
-            image.enabled = true;
             bool flip = Value(clip, StudioProperty.FlipX, StudioKeyframes.Evaluate(clip, StudioProperty.FlipX,
                 (float)(time - entry.Clip.start), entry.Clip.duration)) >= .5f;
             ApplyActorPose(image, clip, Sample(entry, time), flip);
-            var sprite = StudioSpriteAnimation.Sample(clip, time - entry.Clip.start, entry.Clip.duration);
+            double motion = PlaybackClock != null && entry.ContinuesDuringWait ? PlaybackClock.MotionTime(entry, time) : time;
+            var sprite = StudioSpriteAnimation.Sample(clip, motion - entry.Clip.start, entry.ContinuesDuringWait && clip.Loop ? double.PositiveInfinity : entry.Clip.duration);
             if (clip.Frames != null && clip.Frames.Length > 0)
                 image.sprite = sprite;
+            // uGUI Image는 sprite가 없으면 흰 사각형을 그린다. 위치 정보는 남기고 그림만 숨긴다.
+            image.enabled = image.sprite != null;
         }
 
         private void ApplyActorPose(Image image, StudioClip clip, StudioPose pose, bool flip)
@@ -299,6 +303,7 @@ namespace HumanBartender.CutsceneStudio
             float alpha = Value(clip, StudioProperty.Opacity, StudioKeyframes.Evaluate(clip, StudioProperty.Opacity, age, entry.Clip.duration));
             if (clip.Effect == StudioEffect.Shake)
             {
+                if (PlaybackClock != null && entry.ContinuesDuringWait) time = PlaybackClock.MotionTime(entry, time);
                 float speed = StudioExtensionValues.NonNegative(clip.ShakeSpeed, 1);
                 var amount = clip.ShakeAmplitude;
                 return new Vector2(Mathf.Sin((float)time * 73 * speed) * StudioExtensionValues.NonNegative(amount.x, 12),
@@ -313,7 +318,10 @@ namespace HumanBartender.CutsceneStudio
         private void ApplyDialogue(StudioEntry entry, double time, Vector2 center, float zoom, bool reveal)
         {
             var clip = entry.Asset;
-            int visible = reveal ? int.MaxValue : Mathf.Max(0, Mathf.FloorToInt((float)(time - entry.Clip.start) * clip.CharactersPerSecond));
+            bool manual = PlaybackClock?.Dialogue?.Asset == clip;
+            if (PlaybackClock != null) reveal = manual && PlaybackClock.Waiting?.Asset == clip;
+            double elapsed = manual ? PlaybackClock.DialogueElapsed : time - entry.Clip.start;
+            int visible = reveal ? int.MaxValue : StudioDialogueTiming.For(clip, Sequence).Visible(elapsed);
             usingPrefabDialogue = StudioDialoguePrefabPresentation.IsCompatible(clip.DialoguePrefab);
             if (usingPrefabDialogue)
             {
@@ -330,8 +338,9 @@ namespace HumanBartender.CutsceneStudio
                 bubble.gameObject.SetActive(true);
                 dialoguePresentation.Apply(clip, Sequence.Font);
                 if (clip.ProjectedDialogue != null && dialogue.font != null)
-                    ApplyProjectedDialogue(clip, visible, (float)(time - entry.Clip.start), reveal);
+                    ApplyProjectedDialogue(clip, visible, (float)elapsed, reveal);
             }
+            // 화자가 아직 배치되지 않았다면 화자 없는 대사와 같은 화면 기준 위치를 사용한다.
             var position = new Vector2(0, clip.BubbleScreenHeight);
             if (TryGetActor(clip.ActorId, out var speaker))
                 position = (speaker.rectTransform.anchoredPosition - center) * zoom + new Vector2(0, clip.BubbleOffset);
@@ -369,7 +378,7 @@ namespace HumanBartender.CutsceneStudio
                         var glyph = dialogue.textInfo.characterInfo[i];
                         if (spanStarted || !glyph.isVisible || glyph.elementType != TMP_TextElementType.Character) continue;
                         spanStarted = true;
-                        float start = (i + 1) / clip.CharactersPerSecond;
+                        float start = (float)StudioDialogueTiming.For(clip, Sequence).At(i);
                         if (start < lastStart + DialogueShakeDuration) continue;
                         dialogueShakeStarts.Add(start);
                         lastStart = start;
@@ -377,7 +386,7 @@ namespace HumanBartender.CutsceneStudio
                 }
             }
 
-            dialogueAnimator.SetVisible(visible, Time.time, reveal);
+            dialogueAnimator.SetVisible(visible, elapsed, reveal);
             if (reveal) return;
             foreach (float start in dialogueShakeStarts)
             {

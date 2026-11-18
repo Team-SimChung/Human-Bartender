@@ -78,6 +78,10 @@ public static class OutsideStorySceneRules
             else if (Flag("gang_boss_met")) id = "neighborhood-bossRepeat";
         }
         if (id != bound.Id) bound.Steps = content.GetSceneSteps(id);
+        // 웹 outside-shop.js entryRows: 팔 물건이 없으면 첫 만남·재방문 인사 대신 퀴즈 또는 판매 종료 한 줄.
+        if ((bound.Id is "shiba-shop" or "shiba-shop-revisit") && !ShopStoryEvents.HasStock(day, conditions))
+            bound.Steps = new[] { OutsideStorySteps.Command(ShopStoryEvents.NeedsQuiz(conditions)
+                ? OutsideStoryCommand.ShopOpen : OutsideStoryCommand.ShopSoldOut) };
         return bound;
     }
 }

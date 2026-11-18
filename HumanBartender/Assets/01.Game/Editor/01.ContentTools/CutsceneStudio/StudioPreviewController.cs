@@ -66,7 +66,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 try
                 {
                     audio ??= new StudioPreviewAudio();
-                    audio.Evaluate(session.Sequence, Clock.Time, Clock.Waiting.HasValue, speed);
+                    audio.Evaluate(session.Sequence, Clock.DisplayTime, Clock.IsHolding, speed, Clock);
                 }
                 catch (Exception error)
                 {

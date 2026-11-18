@@ -1,5 +1,4 @@
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -28,11 +27,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal bool NativeTextEditing()
         {
-            var focused = host.Window.rootVisualElement.focusController?.focusedElement as VisualElement;
-            for (var element = focused; element != null; element = element.parent)
-                if (element is ToolbarSearchField || element.ClassListContains("unity-base-text-field"))
-                    return true;
-            return false;
+            return StudioDelayedInput.FocusedTextField(host.Window.rootVisualElement) != null;
         }
 
         private bool Active => host.CanHandleInput && EditorWindow.focusedWindow == host.Window;

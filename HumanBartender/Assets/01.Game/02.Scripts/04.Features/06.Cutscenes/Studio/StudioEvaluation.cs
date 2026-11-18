@@ -15,6 +15,9 @@ namespace HumanBartender.CutsceneStudio
             Asset = asset;
         }
 
+        public bool ContinuesDuringWait => Clip.GetParentTrack() is StudioTrack track && track.ContinueDuringWait &&
+            (Asset.Kind == StudioKind.Audio || Asset.Kind == StudioKind.Visual && Asset.Loop ||
+             Asset.Kind == StudioKind.Effect && Asset.Effect == StudioEffect.Shake);
         public bool Contains(double time) => time >= Clip.start && time < Clip.end;
         public float Progress(double time) => Mathf.Clamp01((float)((time - Clip.start) / Math.Max(.001, Clip.duration)));
     }
@@ -101,64 +104,4 @@ namespace HumanBartender.CutsceneStudio
         }
     }
 
-    /// <summary>입력 대기 진행과 화면 평가를 분리해 탐색 중 이벤트가 발생하지 않게 함.</summary>
-    public sealed class StudioClock
-    {
-        private readonly HashSet<StudioClip> passed = new();
-        private readonly List<StudioEntry> entries = new();
-        public double Time { get; private set; }
-        public StudioEntry? Waiting { get; private set; }
-        public bool Finished { get; private set; }
-
-        public void Seek(double time)
-        {
-            Time = Math.Max(0, time);
-            Waiting = null;
-            Finished = false;
-            passed.Clear();
-        }
-
-        public void Advance()
-        {
-            if (Waiting.HasValue)
-                passed.Add(Waiting.Value.Asset);
-            Waiting = null;
-        }
-
-        public void Tick(StudioSequence sequence, double delta, bool gates)
-        {
-            if (Finished || Waiting.HasValue)
-                return;
-            double next = Math.Min(sequence.Duration, Time + Math.Max(0, delta));
-            if (gates)
-            {
-                StudioEntry? first = null;
-                double earliest = double.PositiveInfinity;
-                StudioEvaluation.CollectClips(sequence, entries);
-                foreach (var e in entries)
-                {
-                    if (!(e.Asset.Kind == StudioKind.Wait || e.Asset.Kind == StudioKind.Dialogue && e.Asset.WaitForInput) || passed.Contains(e.Asset))
-                        continue;
-                    double gate = e.Asset.Kind == StudioKind.Wait ? e.Clip.start : e.Clip.end;
-                    if (gate >= Time - .000001 && gate <= next && gate < earliest)
-                    {
-                        first = e;
-                        earliest = gate;
-                    }
-                }
-
-                if (first.HasValue)
-                {
-                    Time = earliest;
-                    Waiting = first;
-                    return;
-                }
-            }
-
-            Time = next;
-            Finished = Time >= sequence.Duration;
-        }
-
-        public double DisplayTime => Waiting.HasValue && Waiting.Value.Asset.Kind == StudioKind.Dialogue ? Math.Max(Waiting.Value.Clip.start, Time - .00001) : Time;
-    }
 }

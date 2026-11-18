@@ -20,7 +20,7 @@ enum FadeDirection
 /// 페이드와 Unity 씬 작업을 하나의 수명으로 조정하는 전환 서비스.
 /// 요청 하나가 페이드 아웃부터 씬 작업, 페이드 인, 입력 복구까지 소유한다.
 /// </summary>
-public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, ISceneFadeService, IPresentedSceneTransitionService
+public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, ISceneFadeService, IPresentedSceneTransitionService, IDayTransitionSource
 {
     public static SceneTransitionManager Instance { get; private set; }
     private static bool suppressStartupFade;
@@ -43,6 +43,10 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
     [SerializeField, Min(0f)] float fadeDuration = 1f;
     [Tooltip("바 출입 전환에서 페이드 위에 띄우는 문 화면. 비어 있으면 바 출입도 페이드만 한다.")]
     [SerializeField] BarDoorTransitionView barDoorOverlay;
+    [Tooltip("취침 뒤 명언·Day 숫자 전환 화면(Canvas_DayTransition). 비어 있으면 취침은 예전 페이드만 한다.")]
+    [SerializeField] DayTransitionView dayTransition;
+
+    public IDayTransitionPresenter DayTransition => dayTransition != null ? dayTransition : null;
 
     readonly SceneTransitionCoordinator coordinator = new();
 

@@ -80,6 +80,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         (view.IsChoosing ? view.Choices.HandlesCancelInput : view.IsImageVisible);
     public WorldInteractionTarget FocusedTarget => focused;
     internal WorldInteractionTarget ActiveTarget => activeTarget;
+    internal bool IsHandingOff => handingOff;
     internal WorldInteractionView View => view;
     internal WorldInteractionCutscenePlayer CutscenePlayer => cutscenePlayer;
     public StoryExecutionResult LastResult { get; private set; }
@@ -492,7 +493,8 @@ public sealed class WorldInteractionController : MonoBehaviour
             player.GetComponent<PlayerMovement2D>()?.Face(settings.FaceRight);
             SetFocus(null);
             sessionParticipant = target.Participant;
-            sessionParticipant?.BeginInteraction();
+            if (sessionParticipant is NpcInteraction npc) npc.BeginSceneContinuation();
+            else sessionParticipant?.BeginInteraction();
             if (sessionParticipant is IWorldInteractionPreparationParticipant preparation)
                 await preparation.PrepareInteractionAsync(session.Token);
             sessionActors = sessionParticipant == null ? target.GetComponent<WorldStoryActors>() : null;
@@ -643,7 +645,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         var target = activeTarget;
         if (target == null) throw new InvalidOperationException("컷씬 상호작용 대상이 사라졌습니다.");
         // Inspector의 명시적 연결을 우선하고, 나머지는 기존 StudioCatalog에서 조회한다.
-        bool local = target.TryResolveTimeline(id, out var sequence);
+        bool local = target.TryResolveTimeline(id, memoryKey, out var sequence);
         view.EndScene();
         if (cutscenePlayer == null)
             cutscenePlayer = GetComponent<WorldInteractionCutscenePlayer>() ?? gameObject.AddComponent<WorldInteractionCutscenePlayer>();
@@ -653,7 +655,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             if (local) { await cutscenePlayer.PlayAsync(sequence, token); played = true; }
             else
             {
-                played = await cutscenePlayer.TryPlayAsync(id, token);
+                played = await cutscenePlayer.TryPlayAsync(id, token, memoryKey);
                 if (!played && CsvStoryCutsceneProjection.TryGetSource(id, memoryKey, out var sourceId))
                 {
                     using var projection = new CsvStoryCutsceneProjection(id, storyContent.GetCutsceneSteps(sourceId), GameStateManager.Instance.Language);

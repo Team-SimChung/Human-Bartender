@@ -143,6 +143,9 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
     [SerializeField] private bool requireVisibleActorToInteract = true;
     [Tooltip("종료 시 모든 배우를 시작 자세로 복원한 뒤 현재 등장 조건을 적용합니다. 반복 대화·여러 배우 사건에서 사용합니다.")]
     [SerializeField] private bool restorePoseAfterInteraction;
+    [Header("대화 시작 시 루나 방향")]
+    [Tooltip("시작할 때 루나가 대표 Actor를 바라봅니다. Actor가 숨겨져 있으면 이 상호작용 오브젝트 위치를 바라봅니다. 씬 이동으로 이어받을 때는 이동 설정의 방향을 유지합니다. 이후 대화 전 연출의 방향 지정이 우선하며, 취소 시에는 세션 시작 방향으로 복원합니다.")]
+    [SerializeField, InspectorName("시작 시 루나가 대상 바라보기")] private bool facePlayerOnInteraction = true;
     [Header("등장 조건")]
     [Tooltip("CSV 사건의 일차·출퇴근·조건·완료 플래그를 표시 조건으로 사용합니다. 여러 날 상주하는 NPC는 끄고 아래 조건을 설정합니다.")]
     [SerializeField] private bool useStoryPresence = true;
@@ -177,6 +180,7 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
     private IPopupService popups;
     [Inject] private ISoundEffectPlayer sound;
     private Transform player;
+    private PlayerMovement2D playerMovement;
     private NpcSceneStaging staging;
     private Vector3 playerSessionStart;
     private bool completedSession;
@@ -247,6 +251,7 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
             throw new InvalidOperationException("NPC의 Actor와 현재 씬 플레이어 연결을 확인하세요.");
         conditions = conditionUtil ?? throw new ArgumentNullException(nameof(conditionUtil));
         player = playerTransform;
+        playerMovement = player != null ? player.GetComponent<PlayerMovement2D>() : null;
         content = GetComponent<WorldInteractionTarget>().Content;
         if (content != null && useStoryPresence)
             throw new InvalidOperationException("Content NPC는 CSV 사건 표시 조건 대신 Content의 등장 조건을 사용하세요: " + name);
@@ -355,7 +360,12 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
         if (value != null && value.IsVisible != visible) value.SetVisible(visible);
     }
 
-    public void BeginInteraction()
+    public void BeginInteraction() => BeginInteraction(preservePlayerFacing: false);
+
+    // 씬 이동 설정으로 정한 방향을 취소 복원용 시작 상태에도 그대로 저장한다.
+    internal void BeginSceneContinuation() => BeginInteraction(preservePlayerFacing: true);
+
+    private void BeginInteraction(bool preservePlayerFacing)
     {
         if (!CanInteract) throw new InvalidOperationException("현재 NPC 대화를 시작할 수 없습니다.");
         ValidateSequences();
@@ -365,8 +375,18 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
         foreach (var value in Actors) value.SetConversation(player, true);
         playerSessionStart = player != null ? player.position : default;
         completedSession = false;
+        // 취소 복원용 스냅샷에는 직접 대화의 대상 방향 또는 이어받기의 도착 방향을 저장한다.
+        if (!preservePlayerFacing) FacePlayerOnInteraction();
         staging?.BeginSession();
         interaction = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+    }
+
+    private void FacePlayerOnInteraction()
+    {
+        if (!facePlayerOnInteraction || playerMovement == null) return;
+        var target = actor.IsVisible ? actor.transform.position : transform.position;
+        float delta = target.x - player.position.x;
+        if (Mathf.Abs(delta) > .0001f) playerMovement.Face(delta > 0);
     }
 
     public async UniTask PrepareInteractionAsync(CancellationToken token)
