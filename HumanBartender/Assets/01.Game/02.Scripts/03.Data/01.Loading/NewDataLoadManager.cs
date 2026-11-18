@@ -288,7 +288,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         if (uiStringData == null) throw new InvalidOperationException("Missing data target: uiStringData");
         await StageAsync<Dictionary<string, LocalizedText>>(catalog, uiStringFileName, value => uiStringData.uiStringData = value, pending, token);
         if (streetData == null) throw new InvalidOperationException("Missing data target: streetData");
-        var streetStory = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>(streetFileName));
+        var streetStory = StoryCsvCompiler.CompileStreet(catalog, streetFileName);
         pending.Add(() => streetData.newStreetData = streetStory);
 
         // 완료를 알리기 전에 찍는다. UniTask는 TrySetResult 시점에 기다리던 쪽을 동기로 이어서 돌리기

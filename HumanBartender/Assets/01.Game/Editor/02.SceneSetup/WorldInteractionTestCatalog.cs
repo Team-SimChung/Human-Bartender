@@ -89,8 +89,9 @@ internal static class WorldInteractionTestCatalog
     {
         if (!Scenes.Contains(sceneName)) throw new ArgumentException("[WorldTest] 지원하지 않는 씬: " + sceneName);
         var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
-        string source = sceneName == "Home" ? "script/home" : "script/street";
-        return StoryCsvCompiler.Compile(catalog.Read<NewStreetData>(source)).Scenes
+        var data = sceneName == "Home" ? StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/home"))
+            : StoryCsvCompiler.CompileStreet(catalog);
+        return data.Scenes
             .Where(story => !string.IsNullOrWhiteSpace(story.Id) && story.Steps?.Length > 0)
             .OrderBy(story => story.Id, StringComparer.Ordinal).ToArray();
     }
