@@ -10335,7 +10335,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.38, y: 0.67}
+    oldSize: {x: 0.4, y: 0.57}
     newSize: {x: 1.46, y: 2.38}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -10392,7 +10392,7 @@ SpriteRenderer:
   m_SortingLayer: 9
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: f890e5ef0f71a7d4ba982b99618aa1cb, type: 3}
+  m_Sprite: {fileID: -779558451757042300, guid: f53f1ff62801b9246b763ddb995b8cb3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -10411,7 +10411,7 @@ Transform:
   m_GameObject: {fileID: 917009655}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.8800001, y: -0.5100002, z: 0}
+  m_LocalPosition: {x: 0.88, y: -0.57, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10471,7 +10471,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionContent
   sourceId: street_bar_door
-  useSpotPosition: 1
+  useSpotPosition: 0
   controlObjectVisibility: 1
 --- !u!1 &927650298
 GameObject:
