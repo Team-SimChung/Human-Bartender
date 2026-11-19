@@ -38,7 +38,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
              "실제 플레이에서는 balance_config.csv의 stir_target_stacks가 이긴다.")]
     [SerializeField] private int fallbackStackCount = 10;
     [Tooltip("같은 이유의 폴백. 실제 플레이에서는 balance_config.csv의 stir_circle_limit_sec가 이긴다.")]
-    [SerializeField] private float fallbackStackSeconds = 2f;
+    [SerializeField] private float fallbackStackSeconds = 2.5f;
 
     [Header("View")]
     [Tooltip("탑다운 잔(아레나) — 스푼 시침, 키 노드, 제한시간 링. 비워둬도 판정은 그대로 돌아간다.")]
