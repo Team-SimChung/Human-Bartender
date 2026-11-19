@@ -913,6 +913,8 @@ MonoBehaviour:
   okMark: {fileID: 7435572593353612822}
   okBlinkPerSecond: 2
   nextButton: {fileID: 8291550749105409836}
+  nextButtonGroup: {fileID: 5565535849948961744}
+  disabledNextButtonAlpha: 0.5
 --- !u!1 &2129282398620748832
 GameObject:
   m_ObjectHideFlags: 0
@@ -1780,6 +1782,7 @@ GameObject:
   - component: {fileID: 8795474122192997077}
   - component: {fileID: 3492992065844993471}
   - component: {fileID: 8291550749105409836}
+  - component: {fileID: 5565535849948961744}
   m_Layer: 0
   m_Name: Next Button
   m_TagString: Untagged
@@ -1871,7 +1874,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1890,6 +1893,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &5565535849948961744
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3534867990366479756}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3586634358820729936
 GameObject:
   m_ObjectHideFlags: 0

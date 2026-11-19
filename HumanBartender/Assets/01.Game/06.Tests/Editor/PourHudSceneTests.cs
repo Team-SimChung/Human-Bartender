@@ -52,7 +52,7 @@ public sealed class PourHudSceneTests
         public float FullFlowRatio => 110f / 140f;
         public string ProgressText => "363.39 / 360 ml";
         public bool ShowOkMark => false;
-        public bool CanEndNow => true;
+        public bool CanEndNow { get; set; } = true;
         public int Ends { get; private set; }
         public CraftGimmickHud GimmickHud { get; set; }
         public void EndNow() => Ends++;
@@ -61,6 +61,29 @@ public sealed class PourHudSceneTests
     sealed class OpeningDisplay : ICraftGimmickOwnHud
     {
         public ECraftHudPart OwnedParts => ECraftHudPart.Progress | ECraftHudPart.Subject | ECraftHudPart.NextButton;
+    }
+
+    [Test]
+    public void SavedFinishButtonDisablesAndFadesItsWholeGroupUntilItCanFinish()
+    {
+        WithPrefabHud(hud =>
+        {
+            var display = Bind(hud);
+            var button = Ref<Button>(hud, "nextButton");
+            var group = Ref<CanvasGroup>(hud, "nextButtonGroup");
+            Assert.That(group, Is.Not.Null, "투명도 파츠는 프리팹에 미리 저장한다.");
+            Assert.That(group.gameObject, Is.SameAs(button.gameObject));
+            display.CanEndNow = false;
+            typeof(CraftGimmickHud).GetMethod("Refresh", Private).Invoke(hud, null);
+            Assert.That(button.interactable, Is.False);
+            Assert.That(group.interactable, Is.False);
+            Assert.That(group.alpha, Is.EqualTo(new SerializedObject(hud).FindProperty("disabledNextButtonAlpha").floatValue));
+            Assert.That(group.alpha, Is.GreaterThan(0).And.LessThan(1));
+            display.CanEndNow = true;
+            typeof(CraftGimmickHud).GetMethod("Refresh", Private).Invoke(hud, null);
+            Assert.That(button.interactable && group.interactable, Is.True);
+            Assert.That(group.alpha, Is.EqualTo(1));
+        });
     }
 
     static PourDisplay Bind(CraftGimmickHud hud, ECraftGimmick type = ECraftGimmick.Pour)

@@ -85,7 +85,11 @@ public static class PourHudPrefabSetup
     internal static void Attach(GameObject root)
     {
         var manager = root.GetComponentInChildren<PourManager>(true);
-        if (manager.GimmickHud != null) return;
+        if (manager.GimmickHud != null)
+        {
+            ConnectFinishButtonGroup(manager.GimmickHud);
+            return;
+        }
 
         var scene = SceneManager.GetSceneByPath(PlayPath);
         bool openedHere = !scene.IsValid() || !scene.isLoaded;
@@ -127,6 +131,7 @@ public static class PourHudPrefabSetup
             Read<TMP_Text>(hud, "subjectText").text = "병맥주";
             Read<TMP_Text>(hud, "timeText").text = "00:00";
             GimmickUiPrefabSetup.Set(manager, "gimmickHud", hud);
+            ConnectFinishButtonGroup(hud);
 
             foreach (var oldCanvas in root.GetComponentsInChildren<Canvas>(true))
             {
@@ -137,6 +142,36 @@ public static class PourHudPrefabSetup
             Debug.Log("[PourHUD] 새 HUD를 NewPourGame/Pour HUD/Panel에 저장했습니다.");
         }
         finally { if (openedHere) EditorSceneManager.CloseScene(scene, true); }
+    }
+
+    static void ConnectFinishButtonGroup(CraftGimmickHud hud)
+    {
+        using var data = new SerializedObject(hud);
+        var field = data.FindProperty("nextButtonGroup");
+        if (field.objectReferenceValue != null) return;
+        var button = Read<Button>(hud, "nextButton");
+        if (button == null)
+        {
+            Debug.LogWarning("[PourHUD] 종료 버튼이 없어 비활성 표시를 연결하지 못했습니다.");
+            return;
+        }
+        var group = button.GetComponent<CanvasGroup>();
+        if (group == null)
+        {
+            group = Undo.AddComponent<CanvasGroup>(button.gameObject);
+            // 불투명도는 CanvasGroup 한 곳에서 정한다. 기존 Disabled Tint의 색은 유지한다.
+            Undo.RecordObject(button, "Set pour finish button opacity source");
+            var colors = button.colors;
+            var disabled = colors.disabledColor;
+            disabled.a = colors.normalColor.a;
+            colors.disabledColor = disabled;
+            button.colors = colors;
+            EditorUtility.SetDirty(button);
+        }
+        Undo.RecordObject(hud, "Connect pour finish button group");
+        field.objectReferenceValue = group;
+        data.ApplyModifiedProperties();
+        EditorUtility.SetDirty(hud);
     }
 
     static T Read<T>(Object target, string field) where T : Object =>

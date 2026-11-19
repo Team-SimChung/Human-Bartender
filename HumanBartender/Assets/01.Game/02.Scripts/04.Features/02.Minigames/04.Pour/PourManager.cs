@@ -24,7 +24,7 @@ using VContainer;
 /// </summary>
 public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                            ICraftGimmickProgress, ICraftGimmickManualEnd, ICraftGimmickQuantityProgress,
-                           ICraftGimmickHudProvider
+                           ICraftGimmickHudProvider, ICraftGimmickTiming
 {
     [Inject] ILoopingSoundManager loopSound;
     IAudioLoop pourSound;
@@ -488,7 +488,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         if (IsManualInputActive && !audioCancelled && audioFocused && !audioPaused && Time.deltaTime > 0f)
             pourer?.TryDetach();
         liquidRenderer.SetAirborneWidthScale(pourer != null ? pourer.StreamWidthScale : 1f);
-        if (IsManualInputActive) standaloneTimer?.Tick(Time.deltaTime);
+        if (IsTimeCounting) standaloneTimer?.Tick(Time.deltaTime);
         // 물리는 판정이 끝난 뒤에도 계속 돌린다. 여기서 멈춰버리면 공중에 있던 액체가 그대로 얼어붙어
         // 물리 버그처럼 보인다 — 판정만 멈추고 액체는 잔으로 마저 떨어지게 둔다.
         // 방출은 StepSimulation 안에서 물리와 같은 시간축으로 돈다(아래 주석 참고).
@@ -518,7 +518,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         // 기믹 큐가 돌릴 때는 목표를 넘겨도 저절로 끝나지 않는다. 초과한 양까지 결과에 담고,
         // 끝내는 시점은 플레이어가 정한다 — 목표 도달은 알려 주기만 하는 신호다.
-        if (!drivenByRunner && glassParticleCount > targetParticleCount + toleranceCount)
+        // 종료 버튼을 쓰는 전용 HUD에서는 독립 실행도 수동으로 확정한다.
+        // 전용 HUD가 없던 기존 개발 경로만 초과 수량 자동 종료를 유지한다.
+        if (!drivenByRunner && gimmickHud == null && glassParticleCount > targetParticleCount + toleranceCount)
             FinishPour();
     }
 
@@ -883,6 +885,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// </summary>
     public bool IsManualInputActive => isPlay && !isFinished && !finishRequested;
 
+    /// <summary>첫 병 조작부터 종료 요청까지 센다. 내려놓거나 복귀하는 중에도 계속 흐른다.</summary>
+    public bool IsTimeCounting => IsManualInputActive && bottle != null && bottle.HasBeenManipulated;
+
     // ── ICraftGimmickProgress ───────────────────────────────────────────
 
     float DisplayedPouredMl => Mathf.Min(pouredMl,
@@ -945,12 +950,12 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── ICraftGimmickManualEnd ──────────────────────────────────────────
 
-    public bool CanEndNow => IsManualInputActive;
+    public bool CanEndNow => IsTimeCounting && bottle.IsAtRest;
 
     /// <summary>출수를 막고 남은 물줄기를 정리한 다음 실제 담긴 양으로 확정한다.</summary>
     public void EndNow()
     {
-        FinishPour();
+        if (CanEndNow) FinishPour();
     }
 
     /// <summary>방출률을 balance.json에서 읽는다. 값이 없으면 액체가 나와도 수량이 안 쌓이므로 알린다.</summary>

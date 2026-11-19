@@ -48,6 +48,10 @@ public class CraftGimmickHud : MonoBehaviour
     [Header("Next")]
     [Tooltip("우측 하단. 지금까지의 결과로 기믹을 끝낸다. 끝낼 수 없는 기믹에서는 숨긴다.")]
     [SerializeField] Button nextButton;
+    [Tooltip("종료 버튼과 자식 글자의 투명도를 함께 제어하는 저장된 CanvasGroup.")]
+    [SerializeField] CanvasGroup nextButtonGroup;
+    [Tooltip("종료할 수 없을 때 버튼과 글자의 불투명도. 0은 투명, 1은 불투명.")]
+    [SerializeField, Range(0f, 1f)] float disabledNextButtonAlpha = .5f;
 
     ICraftGimmickProgress progress;
     ICraftGimmickManualEnd manualEnd;
@@ -237,7 +241,13 @@ public class CraftGimmickHud : MonoBehaviour
             SetRange(tiltFlowRange, quantity.FlowStartRatio, quantity.FullFlowRatio);
             SetRange(tiltWarningRange, quantity.FullFlowRatio, 1f);
         }
-        if (nextButton != null) nextButton.interactable = manualEnd != null && manualEnd.CanEndNow;
+        bool canEnd = manualEnd != null && manualEnd.CanEndNow;
+        if (nextButton != null) nextButton.interactable = canEnd;
+        if (nextButtonGroup != null)
+        {
+            nextButtonGroup.alpha = canEnd ? 1f : disabledNextButtonAlpha;
+            nextButtonGroup.interactable = canEnd;
+        }
 
         if (progressText != null && !Owns(ECraftHudPart.Progress))
             progressText.text = progress != null ? progress.ProgressText : string.Empty;
@@ -298,6 +308,7 @@ public class CraftGimmickHud : MonoBehaviour
         }
 
         manualEnd.EndNow();
+        Refresh();
     }
 
     void SetVisible(bool visible)

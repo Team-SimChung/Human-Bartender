@@ -46,6 +46,10 @@ public class BottleTiltController : MonoBehaviour
     public float CurrentAngle => currentAngle;
     public float MaxTiltAngle => maxTiltAngle;
     public bool IsDragging => dragging;
+    /// <summary>이번 병을 한 번이라도 집었는지. 내려놓은 뒤에도 유지한다.</summary>
+    public bool HasBeenManipulated { get; private set; }
+    /// <summary>손에서 놓였고 이동·회전이 모두 원래 자세로 복귀했는지.</summary>
+    public bool IsAtRest => !dragging && pickupProgress == 0f && currentAngle == 0f;
 
     public Vector3 PourPivotWorldPosition
     {
@@ -100,6 +104,7 @@ public class BottleTiltController : MonoBehaviour
     {
         InitializePose();
         dragging = true;
+        HasBeenManipulated = true;
         SetPointerAngle(pointerWorldPosition);
     }
 

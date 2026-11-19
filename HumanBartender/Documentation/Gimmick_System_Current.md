@@ -274,12 +274,12 @@ flow = Clamp01(InverseLerp(95°, 110°, 현재각도))
 
 ## 5. 제조시간과 결과 점수
 
-[CraftTimer.cs](../Assets/01.Game/02.Scripts/04.Features/01.Crafting/02.Flow/CraftTimer.cs)는 한 잔 전체에 하나만 있다. 실행기가 현재 기믹의 `IsManualInputActive`가 true일 때만 `Tick(Time.deltaTime)`을 넣는다.
+[CraftTimer.cs](../Assets/01.Game/02.Scripts/04.Features/01.Crafting/02.Flow/CraftTimer.cs)는 한 잔 전체에 하나만 있다. 실행기가 현재 기믹의 `IsManualInputActive`가 true일 때만 `Tick(Time.deltaTime)`을 넣으며, `ICraftGimmickTiming`을 구현한 따르기·필업은 `IsTimeCounting`도 true여야 센다. 첫 조작 대기 때문에 초기 입력 자체가 막히지 않도록 입력 가능 여부와 시간 조건을 구분한다.
 
 | 현재 본편 기믹 | 제조시간에 들어가는 구간 |
 | --- | --- |
 | 병따기 | 전체 제외 |
-| 따르기·필업 | 마치기를 누르기 전 조작 가능한 동안. 실제 드래그 중인 시간만 세는 것은 아니며, 종료 후 물줄기 정리 시간은 제외 |
+| 따르기·필업 | 첫 병 조작부터 마치기를 누를 때까지. 내려놓은 뒤 복귀·대기하는 시간도 계속 센다. 첫 조작 전과 종료 후 물줄기 정리 시간은 제외 |
 | 본편 셰이크 | `isPlay` 동안. 첫 클릭을 기다리는 구간도 포함 |
 | 스터 | 첫 시작 입력 이후, 완료 전이며 포커스·옵션 상태가 허용하는 동안 |
 
