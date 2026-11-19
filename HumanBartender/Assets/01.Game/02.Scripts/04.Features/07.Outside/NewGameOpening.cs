@@ -33,7 +33,7 @@ public sealed class NewGameOpening : MonoBehaviour
     }
 
     // 오프닝을 끝까지 본 기록. 저장된 진행 플래그라 다시 불러와도 반복하지 않는다.
-    const string SeenFlag = "flag.opening_seen";
+    internal const string SeenFlag = "opening_seen";
 
     [Tooltip("안내 화면에 쓰는 기존 튜토리얼 오버레이 프리팹(StoryTutorialOverlay).")]
     [SerializeField] private StoryTutorialView viewPrefab;
@@ -92,7 +92,8 @@ public sealed class NewGameOpening : MonoBehaviour
     [Inject] private ISceneFadeService fades;
 
     /// <summary>오프닝을 아직 보지 않았는지. 씬 컨텍스트가 시작 자리와 함께 판단한다.</summary>
-    public bool IsPending => conditions != null && !conditions.CheckRequired(SeenFlag);
+    public bool IsPending => conditions != null && !conditions.CheckRequired("flag." + SeenFlag);
+    internal bool IntroFinished { get; private set; }
 
     /// <summary>플레이어 조작을 잠근 채 오프닝을 끝까지 진행하고 완료를 기록한다.</summary>
     public async UniTask PlayAsync(Player player, CancellationToken token)
@@ -101,9 +102,11 @@ public sealed class NewGameOpening : MonoBehaviour
         if (conditions == null) throw new InvalidOperationException("NewGameOpening이 주입되지 않았습니다.");
         if (!IsPending) return;
 
-        var view = StoryTutorialView.Create(viewPrefab, null);
+        IntroFinished = false;
+        StoryTutorialView view = null;
         try
         {
+            view = StoryTutorialView.Create(viewPrefab, null);
             using (InteractionStateLease.Acquire(player, EInteractorState.Lock))
             {
                 await ShowAsync(view, playGuide, token);
@@ -113,10 +116,11 @@ public sealed class NewGameOpening : MonoBehaviour
                 // 안내를 닫은 키 입력이 같은 프레임에 문·TV 상호작용으로 이어지지 않게 한 프레임 뒤에 조작을 돌려준다.
                 await UniTask.NextFrame(token);
             }
-            conditions.ApplyRequired(SeenFlag + " = true");
+            conditions.ApplyRequired("flag." + SeenFlag + " = true");
         }
         finally
         {
+            IntroFinished = true;
             if (view != null) Destroy(view.gameObject);
         }
         if (popups != null && !string.IsNullOrWhiteSpace(firstObjective))
@@ -141,6 +145,7 @@ public sealed class NewGameOpening : MonoBehaviour
                 await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, token);
             });
 
+            IntroFinished = true;
             if (!string.IsNullOrWhiteSpace(incomingCallSound)) sound?.PlaySE(incomingCallSound);
             await sleep.WakeUpAsync(fades, token, wakeUpDelay, PlayDressingAsync);
         }

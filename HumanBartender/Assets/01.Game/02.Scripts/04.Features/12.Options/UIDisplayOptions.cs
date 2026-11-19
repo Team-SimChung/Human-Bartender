@@ -35,6 +35,7 @@ public class UIDisplayOptions : MonoBehaviour
 
     [Inject] private IDisplaySettings _display;
     [Inject] private IAudioVolumeSettings _sound;
+    [Inject] private ISoundEffectPlayer menuSound;
     [Inject] private ISceneTransitionService _transitions;
 
     public bool CanReturnToTitle => SceneManager.GetActiveScene().name != "Main" &&
@@ -112,6 +113,7 @@ public class UIDisplayOptions : MonoBehaviour
 
     private void Start()
     {
+        UISelectionAudio.ConfigureMenu(optionUI, menuSound);
         BuildDropdownOptions();
         SyncUIFromCurrentSettings();
         SyncAudioSliders();

@@ -288,6 +288,50 @@ public sealed class VisualUIReviewTests
     }
 
     [UnityTest]
+    public IEnumerator TitleAndSettingsPlayTheirMenuAudioFeedback()
+    {
+        EditorSceneManager.OpenScene("Assets/01.Game/01.Scenes/Main.unity", OpenSceneMode.Single);
+        yield return new EnterPlayMode();
+        yield return null;
+
+        var view = Object.FindFirstObjectByType<TitleMenuView>();
+        var options = Object.FindFirstObjectByType<UIDisplayOptions>();
+        var root = Ref<GameObject>(options, "optionUI");
+        var events = EventSystem.current;
+        var feedback = new MenuEffectSpy();
+        Inject(view, "sound", feedback);
+        UISelectionAudio.ConfigureMenu(view.gameObject, feedback);
+        UISelectionAudio.ConfigureMenu(root, feedback);
+        Assert.That(GameAudioRules.MusicGroup("Main"), Is.EqualTo(GameAudioRules.MusicGroup("OutSide")));
+
+        var settings = Ref<Button>(view, "settingsButton");
+        ExecuteEvents.Execute(settings.gameObject, new PointerEventData(events), ExecuteEvents.pointerEnterHandler);
+        ExecuteEvents.Execute(settings.gameObject, new BaseEventData(events), ExecuteEvents.selectHandler);
+        Assert.That(feedback.Keys, Is.EqualTo(new[] { "SFX_ui_hover" }));
+
+        settings.onClick.Invoke();
+        Assert.That(UIDisplayOptions.IsOptionOpen, Is.True);
+        Assert.That(feedback.Keys.Count(key => key == "SFX_ui_click"), Is.EqualTo(1));
+
+        var panel = root.GetComponentInChildren<OptionsPanelView>();
+        var back = Ref<Button>(panel, "backButton");
+        feedback.Keys.Clear();
+        ExecuteEvents.Execute(back.gameObject, new BaseEventData(events), ExecuteEvents.selectHandler);
+        Assert.That(feedback.Keys, Is.EqualTo(new[] { "SFX_ui_hover" }));
+        back.onClick.Invoke();
+        Assert.That(UIDisplayOptions.IsOptionOpen, Is.False);
+        Assert.That(feedback.Keys, Does.Not.Contain("SFX_ui_click"));
+
+        yield return new ExitPlayMode();
+    }
+
+    sealed class MenuEffectSpy : ISoundEffectPlayer
+    {
+        public readonly System.Collections.Generic.List<string> Keys = new();
+        public void PlaySE(string name) => Keys.Add(name);
+    }
+
+    [UnityTest]
     public IEnumerator RuntimeMenuWiringAndGlitchRestoreUseTheActualUnityLifecycle()
     {
         EditorSceneManager.OpenScene("Assets/01.Game/01.Scenes/Main.unity", OpenSceneMode.Single);

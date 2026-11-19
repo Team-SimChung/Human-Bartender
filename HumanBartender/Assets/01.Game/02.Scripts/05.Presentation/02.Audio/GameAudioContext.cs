@@ -46,7 +46,7 @@ public static class GameAudioRules
 {
     public static string MusicGroup(string scene) => scene switch
     {
-        "Home" => "home", "OutSide" => "street", "Play" => "bar", _ => null
+        "Home" => "home", "Main" or "OutSide" => "street", "Play" => "bar", _ => null
     };
 
     public static bool IsRainy(int day, EGameFlow route) =>
