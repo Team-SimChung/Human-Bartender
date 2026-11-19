@@ -10,7 +10,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
 {
     private const int SlotsPerPage = 2;
     [Header("루나 기상 연출")]
-    [SerializeField, Tooltip("다음 날 홈 화면에서 역순 클립으로 일어난 뒤, 짧은 페이드로 서 있는 루나를 표시합니다.")]
+    [SerializeField, Tooltip("첫 오프닝과 다음 날에 쓰는 기상 연출입니다. 기상 클립 뒤 짧은 페이드로 서 있는 루나를 표시합니다.")]
     private HomeSleepAnimation sleepAnimation = new();
     [Header("CSV 메뉴")]
     [SerializeField, Tooltip("수면·저장·취소 선택지가 들어 있는 CSV 씬 ID입니다.")]
@@ -28,6 +28,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
     public bool CanExecute => isActiveAndEnabled && !running && progression != null && saves != null && sceneFades != null;
     public bool CanSave => running && !sleeping;
     public bool CanCancel => !sleeping;
+    internal HomeSleepAnimation SleepAnimation => sleepAnimation;
 
     public async UniTask ExecuteAsync(WorldInteractionActionContext context, CancellationToken token)
     {

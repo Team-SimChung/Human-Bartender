@@ -308,6 +308,10 @@ public static class OutsideStoryUnitySetup
                 if (prefab.objectReferenceValue == null)
                     prefab.objectReferenceValue = AssetDatabase.LoadAssetAtPath<StoryTutorialView>(TutorialOverlayPath)
                         ?? throw new InvalidOperationException("튜토리얼 오버레이 프리팹이 없습니다: " + TutorialOverlayPath);
+                var sofa = openingObject.FindProperty("sofaAction");
+                if (sofa.objectReferenceValue == null)
+                    sofa.objectReferenceValue = roots.SelectMany(root => root.GetComponentsInChildren<HomeSofaAction>(true)).SingleOrDefault()
+                        ?? throw new InvalidOperationException("[NewGameOpening] Home 씬에 HomeSofaAction이 없습니다.");
                 openingObject.ApplyModifiedPropertiesWithoutUndo();
             }
             using (var contextObject = new SerializedObject(context))

@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Unity.Cinemachine;
 using UnityEngine;
 
-/// <summary>다음 날 소파의 기상 오브젝트를 켜고, 역재생이 끝나면 기존 루나를 다시 표시함.</summary>
+/// <summary>소파의 기상 오브젝트를 켜고, 기상 클립이 끝나면 기존 루나를 다시 표시함.</summary>
 [Serializable]
 public sealed class HomeSleepAnimation
 {
@@ -43,7 +43,7 @@ public sealed class HomeSleepAnimation
         if (!active && sleepAnimator != null) sleepAnimator.gameObject.SetActive(false);
     }
 
-    /// <summary>야간 흐름을 시작하기 전 복원할 표시 상태만 보관한다.</summary>
+    /// <summary>기상 연출 전에 복원할 표시 상태를 보관한다.</summary>
     public void BeginSleep()
     {
         Validate();
@@ -79,17 +79,21 @@ public sealed class HomeSleepAnimation
         }
     }
 
-    public async UniTask WakeUpAsync(ISceneFadeService fades, CancellationToken token)
+    public async UniTask WakeUpAsync(ISceneFadeService fades, CancellationToken token, float? poseDuration = null,
+        Func<CancellationToken, UniTask> whileCovered = null)
     {
         if (!active) return;
         if (fades == null) throw new InvalidOperationException("[HomeSleep] 페이드 서비스를 연결하세요.");
         bool fadeStarted = false;
         try
         {
-            await HoldPoseAsync(token);
+            float hold = poseDuration ?? visiblePoseDuration;
+            if (hold > 0)
+                await UniTask.Delay(TimeSpan.FromSeconds(hold), ignoreTimeScale: true, cancellationToken: token);
             await PlayAsync(wakeUpClip, WakeUpState, token);
             fadeStarted = true;
             await fades.FadeOutAsync(fadeDuration, token);
+            if (whileCovered != null) await whileCovered(token);
             // 서 있는 루나로 바뀌는 순간과 카메라 갱신을 검은 화면 안에서 처리한다.
             Restore(wakingUp: true);
             PrepareCamera();
@@ -144,10 +148,6 @@ public sealed class HomeSleepAnimation
         sleepAnimator.Play(state, 0, normalizedTime);
         sleepAnimator.Update(0);
     }
-
-    private UniTask HoldPoseAsync(CancellationToken token) => visiblePoseDuration > 0
-        ? UniTask.Delay(TimeSpan.FromSeconds(visiblePoseDuration), ignoreTimeScale: true, cancellationToken: token)
-        : UniTask.CompletedTask;
 
     private void PrepareCamera()
     {

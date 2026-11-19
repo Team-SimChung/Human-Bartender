@@ -120,6 +120,72 @@ public sealed class HomeObjectInteractionTests
     }
 
     [Test]
+    public void NewGameOpeningSharesTheSofaWakeUpAnimation()
+    {
+        var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/Home.unity");
+        try
+        {
+            var roots = scene.GetRootGameObjects();
+            var opening = roots.SelectMany(root => root.GetComponentsInChildren<NewGameOpening>(true)).Single();
+            var sofa = roots.SelectMany(root => root.GetComponentsInChildren<HomeSofaAction>(true)).Single();
+            using var openingData = new SerializedObject(opening);
+            using var sofaData = new SerializedObject(sofa);
+            Assert.That(openingData.FindProperty("sofaAction").objectReferenceValue, Is.SameAs(sofa));
+
+            var sleepData = sofaData.FindProperty("sleepAnimation");
+            var animator = (Animator)sleepData.FindPropertyRelative("sleepAnimator").objectReferenceValue;
+            var wakeUp = (AnimationClip)sleepData.FindPropertyRelative("wakeUpClip").objectReferenceValue;
+            Assert.That(animator, Is.Not.Null);
+            Assert.That(animator.gameObject.name, Is.EqualTo("LunaSleepAnimation"));
+            Assert.That(wakeUp, Is.Not.Null);
+            Assert.That(animator.runtimeAnimatorController.animationClips, Does.Contain(wakeUp));
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [Test]
+    public void OpeningCallUsesAuthoredHologramsAndBothCsvResponses()
+    {
+        var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/Home.unity");
+        try
+        {
+            var opening = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<NewGameOpening>(true)).Single();
+            using var serialized = new SerializedObject(opening);
+            var target = (WorldInteractionTarget)serialized.FindProperty("firstContact").objectReferenceValue;
+            Assert.That(target, Is.Not.Null);
+            Assert.That(target.StartMode, Is.EqualTo(WorldInteractionStartMode.ScriptOnly));
+            Assert.That(target.Output, Is.EqualTo(WorldInteractionOutput.SpeechBubble));
+            Assert.That(target.SpeechAnchor.parent, Is.SameAs(target.transform));
+            foreach (var field in new[] { "hologramOpen", "hologramClose" })
+            {
+                var effect = (ParticleSystem)serialized.FindProperty(field).objectReferenceValue;
+                Assert.That(effect, Is.Not.Null);
+                Assert.That(effect.transform.parent, Is.SameAs(target.transform));
+                Assert.That(effect.gameObject.activeSelf, Is.False);
+                Assert.That(PrefabUtility.IsPartOfPrefabInstance(effect), Is.True);
+            }
+
+            var catalog = CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, CsvDataReader.Folder));
+            var call = StoryCsvCompiler.CompileHome(catalog).Scenes.Single(value => value.Id == target.StorySceneId);
+            Assert.That(call.RuntimeScene, Is.EqualTo("Home"));
+            Assert.That(call.Route, Is.EqualTo("in"));
+            Assert.That(call.Day, Is.EqualTo(0));
+            Assert.That(call.Steps.Select(step => step.Type), Is.EqualTo(new[] { "say", "choice" }));
+            Assert.That(call.Steps[0].Actor, Is.EqualTo("chris"));
+            var branches = call.Steps[1].Options;
+            Assert.That(branches.Select(option => option.Id), Is.EqualTo(new[] { "awake", "silent" }));
+            Assert.That(branches.Select(option => option.ResultSteps.Length), Is.EqualTo(new[] { 4, 7 }));
+            foreach (var option in branches)
+            {
+                Assert.That(option.ResultSteps[0].Actor, Is.EqualTo("luna"));
+                Assert.That(option.ResultSteps[0].Text.Ko, Is.EqualTo(option.Text.Ko));
+                Assert.That(option.ResultSteps.Last().Actor, Is.EqualTo("chris"));
+            }
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [Test]
     public void AuthoredHomeObjectsUseManualInteractionAndTheActualBookCover()
     {
         var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/Home.unity");

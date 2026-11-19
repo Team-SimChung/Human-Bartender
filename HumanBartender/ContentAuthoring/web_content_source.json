@@ -39,11 +39,11 @@
     "guests/random_waves.csv": "6ee769accd4feecd8425ff4b403bbb356caddede7a7b0a745fd68dc140a13e4e",
     "guests/regular_slots.csv": "80a6c4042ccdc534664d167bea866f7d2cd98e25726a57850214e66c3d6152ae",
     "story/script_files.csv": "d06a0c83a49cf9f19148aea642c20481ca48bb4181d47ede50a02a4b2d70cd27",
-    "story/scenes.csv": "4dc07787929a66d0cf87a757f2e99018423ea5b9c69e19843ce6c1c0efb26267",
-    "story/steps.csv": "7159c5f01750ad4ef430936080b93ad6224cce135a2a822488d23a00d69a7569",
+    "story/scenes.csv": "c3e36d15aad2f7fc9b6a2279ce7125ef766122e973cac8e1498a7d841cdb5709",
+    "story/steps.csv": "c21ad8c8f3ec341a3f29a898d3e901a5b83ebb4043ff0bd5bb72fdc03ae24d39",
     "story/bar_choice_groups.csv": "6878863d636a09166446ef1c86284060543ee1d223812a3a495cb98880485e83",
     "story/bar_choices.csv": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374",
-    "story/street_choices.csv": "1afffcfa39635c5cfa1fa1b20eacacb169d7b480fc831521cc2c0c219db6c85b",
+    "story/street_choices.csv": "afaecac146741369c54dccd1095f5a2db32ce5223862fe859c50710b6754897d",
     "craft/shelf_items.csv": "2f794b3bab333e1c02bb96f322ad63ae1e417160d09763c7a469c81355b7ba8b",
     "interaction/spots.csv": "50b73d2d4ecf5f85fb3492dd600da938c70ce122f3d63e5ec30abe1f9c29fd5b",
     "craft/tastes.csv": "06fdec938731b80c5b4b914f48e264017d4e2b7cc695fb4939e13237a5137252",
@@ -174,13 +174,24 @@
         "interaction/interact_points.csv": "48857d4f54f3bce210492e428b2e855540e947ae930d5e02699fae78b12f23f3",
         "interaction/dialogue_flows.csv": "dfed593082fb3913ad0a290735483999149281f1dbd201b75b3367e510f31ff8"
       }
+    },
+    {
+      "commit": "0596b895f5d656817de66a3b9e13228eb93c4373",
+      "scope": "opening_first_contact",
+      "source_path": "cutscene-studio/data/first-contact.json",
+      "files": [
+        "story/scenes.csv",
+        "story/steps.csv",
+        "story/street_choices.csv"
+      ],
+      "reason": "First call dialogue and both response branches added to the existing Unity Home dataset, with English translations and TMP color tags."
     }
   ],
   "unity_overrides": {
-    "story/scenes.csv": "4dc07787929a66d0cf87a757f2e99018423ea5b9c69e19843ce6c1c0efb26267",
-    "story/steps.csv": "7159c5f01750ad4ef430936080b93ad6224cce135a2a822488d23a00d69a7569",
+    "story/scenes.csv": "c3e36d15aad2f7fc9b6a2279ce7125ef766122e973cac8e1498a7d841cdb5709",
+    "story/steps.csv": "c21ad8c8f3ec341a3f29a898d3e901a5b83ebb4043ff0bd5bb72fdc03ae24d39",
     "story/bar_choices.csv": "e580b80b1bea25334db1a40b42545476b8d0385e9919cce0924acd6af9dce374",
-    "story/street_choices.csv": "1afffcfa39635c5cfa1fa1b20eacacb169d7b480fc831521cc2c0c219db6c85b",
+    "story/street_choices.csv": "afaecac146741369c54dccd1095f5a2db32ce5223862fe859c50710b6754897d",
     "system/columns.csv": "582df270b5eb645bce076102bafb768cd4697e9195dead1988ea0ee72c2e54c8",
     "system/row_formats.csv": "f2514e011baf3c51fd996cd930e5d75066ce30b95e71c1aa48b392a7b534b321",
     "interaction/interact_points.csv": "64d5470dcdcc7434685cdaa68a40b96609c75023772941221d859f737988f54a",

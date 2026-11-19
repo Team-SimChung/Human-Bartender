@@ -3606,7 +3606,8 @@ Transform:
   m_LocalPosition: {x: 1.18, y: -0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8200000002}
   m_Father: {fileID: 620657396}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &899888469
@@ -4136,6 +4137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NewGameOpening
   viewPrefab: {fileID: 5872889954386708028, guid: 166b3dd3ed35f406c9d7bf8926c7dde4, type: 3}
   introCutsceneId: tl_intro
+  introBackdropSortingOrder: 199
   playGuide:
     Title: "\uD50C\uB808\uC774 \uC548\uB0B4"
     Body: "\uC774 \uAC8C\uC784\uC740 \uC778\uBB3C\uB4E4\uACFC\uC758 \uB300\uD654\uB97C
@@ -4159,6 +4161,16 @@ MonoBehaviour:
     InputLockSeconds: 0.3
     ShadeAlpha: 0.72
   firstObjective: "\uCCAB \uCD9C\uADFC\uD558\uAE30!"
+  sofaAction: {fileID: 319687453}
+  wakeUpDelay: 1.4
+  incomingCallSound: SFX_incoming_call
+  dressingSound: SFX_change_clothes
+  dressingDuration: 2.59
+  firstContact: {fileID: 8200000003}
+  hologramOpen: {fileID: 8200000008}
+  hologramOpenDuration: 0.9
+  hologramClose: {fileID: 8200000011}
+  hologramCloseDuration: 0.45
 --- !u!4 &1151750649
 Transform:
   m_ObjectHideFlags: 0
@@ -7837,6 +7849,154 @@ Transform:
   m_Children: []
   m_Father: {fileID: 620657396}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8200000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8200000002}
+  - component: {fileID: 8200000003}
+  m_Layer: 0
+  m_Name: ChrisOpeningCall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8200000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8200000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.08, y: 0.18, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8200000005}
+  - {fileID: 8200000007}
+  - {fileID: 8200000010}
+  m_Father: {fileID: 803327635}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8200000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8200000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c62a35bee00e4a48bc61174e0b037694, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionTarget
+  storySceneId: home-opening-chris-call
+  content: {fileID: 0}
+  startMode: 3
+  interactionRadius: 1.5
+  contentStartOverrides: []
+  startSettingsVersion: 1
+  interactionLabel:
+  output: 0
+  speechAnchor: {fileID: 8200000005}
+  bubbleOffset: {x: 0, y: 8}
+  inspectionImage: {fileID: 0}
+  highlight: {fileID: 0}
+  cutsceneSequence: {fileID: 0}
+  timelines: []
+  optionalTimelineIds: []
+  action: {fileID: 0}
+--- !u!1 &8200000004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8200000005}
+  m_Layer: 0
+  m_Name: ChrisSpeechAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8200000005
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8200000004}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.223, y: 0.03, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8200000002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &8200000006
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8200000002}
+    m_Modifications:
+    - target: {fileID: 3724031386772651719, guid: 165780c7ffb6a2a4db2565793822a7a9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 165780c7ffb6a2a4db2565793822a7a9, type: 3}
+--- !u!4 &8200000007 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2669670762358255955, guid: 165780c7ffb6a2a4db2565793822a7a9, type: 3}
+  m_PrefabInstance: {fileID: 8200000006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &8200000008 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3577051461273663151, guid: 165780c7ffb6a2a4db2565793822a7a9, type: 3}
+  m_PrefabInstance: {fileID: 8200000006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8200000009
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8200000002}
+    m_Modifications:
+    - target: {fileID: 8171360227525382388, guid: bac60a4b7d64bed46b78f20718134ece, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bac60a4b7d64bed46b78f20718134ece, type: 3}
+--- !u!4 &8200000010 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1089724322764837704, guid: bac60a4b7d64bed46b78f20718134ece, type: 3}
+  m_PrefabInstance: {fileID: 8200000009}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &8200000011 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 4369921576225112981, guid: bac60a4b7d64bed46b78f20718134ece, type: 3}
+  m_PrefabInstance: {fileID: 8200000009}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

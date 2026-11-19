@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using TMPro;
 using UnityEditor;
@@ -22,6 +23,45 @@ public sealed class VisualUIReviewTests
     const string ChoicePath = "Assets/01.Game/03.Content/08.Prefabs/03.UI/02.Dialogue/ChoicePanel.prefab";
     static T Ref<T>(Object owner, string field) where T : Object => (T)new SerializedObject(owner).FindProperty(field).objectReferenceValue;
     static void Inject(object owner, string name, object value) => owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, value);
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OpeningBackdropCoversTheLoadAndRestoresTheGuideAfterPlayback(bool cancel)
+    {
+        const string path = "Assets/01.Game/03.Content/08.Prefabs/03.UI/04.Tutorial/StoryTutorialOverlay.prefab";
+        var view = Object.Instantiate(AssetDatabase.LoadAssetAtPath<StoryTutorialView>(path));
+        try
+        {
+            var canvas = view.GetComponent<Canvas>();
+            var button = Ref<Button>(view, "fullScreenClick");
+            var initialColor = button.targetGraphic.color;
+            int initialOrder = canvas.sortingOrder;
+            var playback = new UniTaskCompletionSource();
+            var covered = view.KeepScreenCoveredAsync(199, () => playback.Task);
+
+            Assert.That(button.gameObject.activeInHierarchy, Is.True);
+            Assert.That(button.targetGraphic.color, Is.EqualTo(Color.black));
+            Assert.That(button.interactable, Is.False);
+            Assert.That(view.InstructionPanel.gameObject.activeSelf, Is.False);
+            Assert.That(canvas.sortingOrder, Is.EqualTo(199));
+
+            if (cancel)
+            {
+                playback.TrySetCanceled();
+                Assert.Throws<OperationCanceledException>(() => covered.GetAwaiter().GetResult());
+            }
+            else
+            {
+                playback.TrySetResult();
+                covered.GetAwaiter().GetResult();
+            }
+
+            Assert.That(button.gameObject.activeSelf, Is.False);
+            Assert.That(button.targetGraphic.color, Is.EqualTo(initialColor));
+            Assert.That(canvas.sortingOrder, Is.EqualTo(initialOrder));
+        }
+        finally { Object.DestroyImmediate(view.gameObject); }
+    }
 
     [TestCase("NewShakingMinigame")]
     [TestCase("RhythmShakingMinigame")]

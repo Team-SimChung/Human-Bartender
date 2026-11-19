@@ -246,9 +246,9 @@ public sealed class WorldInteractionController : MonoBehaviour
         view != null && view.isActiveAndEnabled &&
         (sessionParticipant == null || sessionParticipant is MonoBehaviour participant && participant != null && participant.isActiveAndEnabled);
 
-    private bool CanAcquireSession => ready && view != null && view.isActiveAndEnabled && !IsRunning &&
-        !runner.IsRunning && !UIDisplayOptions.IsOptionOpen && player.State == EInteractorState.None;
-    private bool CanStartSession => CanAcquireSession &&
+    private bool CanAcquireSession(EInteractorState state = EInteractorState.None) => ready && view != null &&
+        view.isActiveAndEnabled && !IsRunning && !runner.IsRunning && !UIDisplayOptions.IsOptionOpen && player.State == state;
+    private bool CanStartSession => CanAcquireSession() &&
         sceneContext?.IsReady != false && sceneContext?.IsSceneTransitioning != true &&
         !(progression is IGameProgressionContinuationService continuation && continuation.IsContinuingDialogue);
 
@@ -347,6 +347,25 @@ public sealed class WorldInteractionController : MonoBehaviour
         return await PlayResolvedAsync(target, story, token => ExecuteOutputAsync(target, story, token));
     }
 
+    /// <summary>조작을 잠근 연출에서 ScriptOnly 대상의 대본을 실행한다.</summary>
+    internal async UniTask<StoryExecutionResult> PlayScriptedAsync(WorldInteractionTarget target, CancellationToken token)
+    {
+        if (!await WaitUntilReadyAsync(token))
+            throw new InvalidOperationException("[WorldInteraction] 대화 화면을 초기화하지 못했습니다.");
+        await UniTask.WaitWhile(() => UIDisplayOptions.IsOptionOpen, cancellationToken: token);
+        if (target == null || !target.isActiveAndEnabled || target.gameObject.scene != gameObject.scene ||
+            target.StartMode != WorldInteractionStartMode.ScriptOnly || !CanAcquireSession(EInteractorState.Lock) ||
+            string.IsNullOrWhiteSpace(target.StorySceneId) ||
+            !stories.TryGetValue(target.StorySceneId, out var story))
+            throw new InvalidOperationException("[WorldInteraction] 연출에서 호출할 대화 대상이나 CSV 장면이 준비되지 않았습니다.");
+
+        var state = GameStateManager.Instance;
+        if (!WorldInteractionSceneRules.IsEligible(story, gameObject.scene.name, state.CurrentDay, state.GameFlow, conditions))
+            throw new InvalidOperationException("[WorldInteraction] 현재 진행 조건에서 호출할 수 없는 대화입니다. " + story.Id);
+        target.ApplyStartSettings(ref story);
+        return await PlayResolvedAsync(target, story, ct => ExecuteOutputAsync(target, story, ct), token);
+    }
+
 #if UNITY_EDITOR
     /// <summary>격리된 에디터 테스트에서만 호출한다. 대본 진입 조건을 생략하고 실제 세션·연출·정리를 사용한다.</summary>
     internal UniTask<StoryExecutionResult> PlayScriptForTestAsync(WorldInteractionTarget target, string scriptId)
@@ -395,9 +414,9 @@ public sealed class WorldInteractionController : MonoBehaviour
 #endif
 
     private async UniTask<StoryExecutionResult> PlayResolvedAsync(WorldInteractionTarget target, NewSceneData story,
-        Func<CancellationToken, UniTask<StoryExecutionResult>> execute)
+        Func<CancellationToken, UniTask<StoryExecutionResult>> execute, CancellationToken token = default)
     {
-        using var source = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy(), token);
         lastInputFrame = Time.frameCount;
         session = source;
         activeTarget = target;
@@ -494,7 +513,7 @@ public sealed class WorldInteractionController : MonoBehaviour
 
     internal async UniTask PrepareSceneContinuationAsync(WorldDialogueTravelSettings.Snapshot settings)
     {
-        if (!CanAcquireSession) throw new InvalidOperationException("도착한 씬에서 대화를 이어 갈 수 없습니다.");
+        if (!CanAcquireSession()) throw new InvalidOperationException("도착한 씬에서 대화를 이어 갈 수 없습니다.");
         var target = WorldInteractionTarget.InScene(gameObject.scene)
             .SingleOrDefault(value => value.StorySceneId == settings.DestinationTargetId);
         if (target == null || !target.isActiveAndEnabled)
