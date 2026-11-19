@@ -56,7 +56,8 @@ public class PlayerMovement2D : MonoBehaviour
     /// <summary>바라보는 방향을 지정한다. 씬 시작 자리처럼 입력 없이 방향을 정해야 할 때 쓴다.</summary>
     public void Face(bool right)
     {
-        if (_isFacingRight != right) Flip();
+        _isFacingRight = right;
+        if (spriteRenderer != null) spriteRenderer.flipX = right;
     }
     /// <summary>엘리베이터 등 외부 요인에 의한 위치 이동량을 다음 프레임 이동에 누적 반영한다.</summary>
     public void HandleExternalDelta(Vector2 delta) => _externalDelta += delta;
@@ -127,26 +128,9 @@ public class PlayerMovement2D : MonoBehaviour
     private void HandleFlip()
     {
         float inputX = CurrentInputX;
-        if (inputX > 0.01f && !_isFacingRight) Flip();
-        else if (inputX < -0.01f && _isFacingRight) Flip();
+        if (inputX > 0.01f && !_isFacingRight) Face(true);
+        else if (inputX < -0.01f && _isFacingRight) Face(false);
     }
-    /// <summary>
-    /// 좌우 방향을 반전시키고 spriteRenderer.flipX로 반영한다.
-    /// (인수인계 메모) 아래 return 이후 localScale을 반전시키는 코드는 도달 불가능한 죽은 코드로 남아있음.
-    /// </summary>
-    private void Flip()
-    {
-        _isFacingRight = !_isFacingRight;
-        spriteRenderer.flipX = _isFacingRight;
-
-        return;
-
-        Vector3 s = transform.localScale;
-        s.x *= -1f;
-        transform.localScale = s;
-    }
-
-
 
     /// <summary>에디터에서 접지 판정 박스를 시각화한다 (접지 시 초록, 아니면 빨강).</summary>
     private void OnDrawGizmosSelected()

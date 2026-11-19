@@ -144,6 +144,33 @@ public sealed class HomeObjectInteractionTests
     }
 
     [Test]
+    public void HomeArrivalAndSofaWakeUpSetLunasFacing()
+    {
+        var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/Home.unity");
+        try
+        {
+            var roots = scene.GetRootGameObjects();
+            var player = roots.SelectMany(root => root.GetComponentsInChildren<Player>(true)).Single();
+            var sofa = roots.SelectMany(root => root.GetComponentsInChildren<HomeSofaAction>(true)).Single();
+            var movement = player.GetComponent<PlayerMovement2D>();
+            var sprite = player.GetComponent<SpriteRenderer>();
+
+            movement.Face(false);
+            Assert.That(player.TrySetPosition(EPlayerSpawn.Home), Is.True);
+            Assert.That(movement.IsFacingRight && sprite.flipX, Is.True);
+
+            movement.Face(false);
+            sprite.flipX = true; // 스프라이트 반전과 이동 방향이 서로 다른 상태에서도 연출이 바로잡아야 한다.
+            var sleep = sofa.SleepAnimation;
+            sleep.BeginSleep();
+            sleep.Restore(wakingUp: true);
+            Assert.That(movement.IsFacingRight, Is.False);
+            Assert.That(sprite.flipX, Is.False);
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [Test]
     public void OpeningCallUsesAuthoredHologramsAndBothCsvResponses()
     {
         var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/Home.unity");

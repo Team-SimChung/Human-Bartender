@@ -24,6 +24,8 @@ public class Player : MonoBehaviour, IInteractor
     [SerializeField] private Transform barspawn;
     [Tooltip("집 안, 또는 거리 위층 집 문 앞에서 시작하는 위치.")]
     [SerializeField] private Transform homespawn;
+    [Tooltip("Home 시작 위치에서 실내 오른쪽을 보게 합니다. 끄면 현재 방향을 사용합니다.")]
+    [SerializeField] private bool faceRightAtHomeSpawn;
     [Tooltip("0일차 첫 출근 때 거리 1층 바 문 왼쪽에서 시작하는 위치. OutSide 씬에서만 연결한다.")]
     [SerializeField] private Transform firstCommuteSpawn;
     private WorldInteractionSceneContext sceneEntities;
@@ -65,8 +67,10 @@ public class Player : MonoBehaviour, IInteractor
         };
         if (destination == null) return false;
         transform.position = destination.position;
-        // 첫 출근은 바 쪽(오른쪽)으로 걸어 들어오고, 퇴근은 집 쪽(왼쪽)을 보고 나온다.
-        if (spawn != EPlayerSpawn.Home) movement2D.Face(spawn == EPlayerSpawn.FirstCommute);
+        if (spawn != EPlayerSpawn.Home)
+            movement2D.Face(spawn == EPlayerSpawn.FirstCommute);
+        else if (faceRightAtHomeSpawn)
+            movement2D.Face(true);
         return true;
     }
 

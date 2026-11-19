@@ -17,6 +17,8 @@ public sealed class HomeSleepAnimation
     private SpriteRenderer actorRenderer;
     [SerializeField, Tooltip("기상 후 기존 루나가 서 있을 HomeWakeUpSpawn입니다. 수면 오브젝트의 위치에는 영향을 주지 않습니다.")]
     private Transform wakeUpSpawn;
+    [SerializeField, Tooltip("기상 후 서 있는 루나의 방향입니다. 켜면 오른쪽, 끄면 왼쪽을 봅니다.")]
+    private bool wakeUpFacingRight;
     [SerializeField, Tooltip("소파 화면을 비추는 CM_GamePlay입니다. 연결된 Confiner2D의 경계를 유지하며 검은 화면에서 구도를 갱신합니다.")]
     private CinemachineCamera roomCamera;
     [SerializeField, Tooltip("검은 화면에서 소파 카메라 상태를 갱신할 Cinemachine Brain입니다.")]
@@ -116,6 +118,8 @@ public sealed class HomeSleepAnimation
         if (actorRenderer != null)
         {
             actorRenderer.transform.position = wakingUp && wakeUpSpawn != null ? wakeUpSpawn.position : originalPosition;
+            if (wakingUp && actorRenderer.TryGetComponent(out PlayerMovement2D movement))
+                movement.Face(wakeUpFacingRight);
             actorRenderer.enabled = originalRendererEnabled;
         }
         if (sleepAnimator != null)
