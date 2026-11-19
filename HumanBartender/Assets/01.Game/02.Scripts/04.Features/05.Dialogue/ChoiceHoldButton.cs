@@ -8,7 +8,8 @@ using UnityEngine.UI;
 [AddComponentMenu("UI/Choice Hold Button")]
 public sealed class ChoiceHoldButton : Button
 {
-    [SerializeField, Min(0.1f)] private float holdDuration = 1f;
+    [SerializeField, Min(0.1f), Tooltip("선택지 확정 입력을 연속으로 누르고 있어야 하는 시간(초).")]
+    private float holdDuration = .3f;
     [SerializeField, Min(0.01f)] private float resetDuration = 0.2f;
     [SerializeField] private GameObject holdProgressRoot;
     [SerializeField] private Image holdProgressFill;

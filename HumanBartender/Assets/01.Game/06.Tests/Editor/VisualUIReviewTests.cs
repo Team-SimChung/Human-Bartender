@@ -216,7 +216,7 @@ public sealed class VisualUIReviewTests
             hold.OnPointerDown(pointer); root.SetActive(false); Assert.That(hold.IsHolding, Is.False);
             root.SetActive(true); hold.OnPointerDown(pointer); typeof(ChoiceHoldButton).GetMethod("OnApplicationFocus", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(hold, new object[] { false }); Assert.That(hold.IsHolding, Is.False);
             Assert.That(changes.ToArray(), Is.EqualTo(new[] { true, false, true, false, true, false, true, false }));
-            Assert.That(new SerializedObject(hold).FindProperty("holdDuration").floatValue, Is.EqualTo(1));
+            Assert.That(new SerializedObject(hold).FindProperty("holdDuration").floatValue, Is.EqualTo(.3f));
             Assert.That(root.GetComponent<UIChoiceGlitch>(), Is.Not.Null);
             Assert.That(root.GetComponentsInChildren<TMP_Text>().Length, Is.EqualTo(1));
             Assert.That(root.GetComponentsInChildren<UnityEngine.UI.Text>(), Is.Empty);
