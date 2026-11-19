@@ -11,9 +11,8 @@ public sealed class WorldInteractionHintView : MonoBehaviour
     [SerializeField] private Image keyIcon;
     [Tooltip("비워 두면 E 아이콘을 숨기고 문구에 Esc를 표시합니다.")]
     [SerializeField] private Sprite escapeKeyIcon;
+    // 대화 진행 중에는 안내를 띄우지 않는다. 대상 상호작용·조사 이미지 나가기·선택 안내만 쓴다.
     [SerializeField] private string interactionText = "상호작용";
-    [SerializeField] private string revealText = "펼치기";
-    [SerializeField] private string advanceText = "다음";
     [SerializeField] private string exitText = "나가기";
     [SerializeField] private string selectionText = "선택";
     private Sprite interactKeyIcon;
@@ -45,7 +44,6 @@ public sealed class WorldInteractionHintView : MonoBehaviour
     public void ShowInteraction(string actionLabel)
         => Show(string.IsNullOrWhiteSpace(actionLabel) ? interactionText : actionLabel, false);
 
-    public void ShowDialogue(bool waiting) => Show(waiting ? advanceText : revealText, false);
     public void ShowExit() => Show(exitText, true);
     public void ShowSelection() => Show(selectionText, false);
 

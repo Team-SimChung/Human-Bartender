@@ -50,6 +50,16 @@ public sealed class HomeTVAction : MonoBehaviour, IWorldInteractionAction
         SetPower(false);
     }
 
+    /// <summary>
+    /// 꺼져 있던 TV를 켤 때만 주변 방송을 처음부터 다시 듣게 한다(웹 outside-tv.js open의 wasOff).
+    /// 이미 켜진 TV에서 메뉴를 다시 열면 방송은 메뉴가 닫힌 뒤 멈춘 줄부터 이어진다.
+    /// </summary>
+    internal void TurnOnForMenu()
+    {
+        if (!IsPoweredOn && ambient != null) ambient.Restart(ambientBroadcast);
+        SetPower(true);
+    }
+
     internal void SetPower(bool value)
     {
         IsPoweredOn = value;
@@ -65,14 +75,13 @@ public sealed class HomeTVAction : MonoBehaviour, IWorldInteractionAction
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         execution = lifetime;
         token = lifetime.Token;
-        ambient?.Restart(ambientBroadcast);
-        SetPower(true);
+        TurnOnForMenu();
         try
         {
             string id = programmeIdPrefix + currentDay;
             using var prepared = await StudioPlaybackService.PrepareAsync(id, token);
             token.ThrowIfCancellationRequested();
-            var selected = await context.ChooseOutsideChoices(menuSceneId, choice => choice != "watch" || prepared != null, token);
+            var selected = await context.ChooseOutsideChoices(menuSceneId, null, choice => choice != "watch" || prepared != null, token);
             token.ThrowIfCancellationRequested();
             switch (selected.Id)
             {
@@ -80,6 +89,7 @@ public sealed class HomeTVAction : MonoBehaviour, IWorldInteractionAction
                     if (prepared == null) throw new InvalidOperationException("[HomeTV] 준비되지 않은 방송을 선택했습니다.");
                     await context.PlayStudio(prepared.Sequence, token);
                     token.ThrowIfCancellationRequested();
+                    // 웹의 day0_tv_seen에 해당하는 시청 기록. 메뉴 동작은 이 값과 무관하며 테스트 도구가 시청 상태 준비에 쓴다.
                     conditions.ApplyRequired("flag." + id + "_seen = true");
                     break;
                 case "off":

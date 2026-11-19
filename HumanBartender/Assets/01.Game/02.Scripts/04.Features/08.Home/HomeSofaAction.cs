@@ -12,6 +12,13 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
     [Header("루나 기상 연출")]
     [SerializeField, Tooltip("다음 날 홈 화면에서 역순 클립으로 일어난 뒤, 짧은 페이드로 서 있는 루나를 표시합니다.")]
     private HomeSleepAnimation sleepAnimation = new();
+    [Header("CSV 메뉴")]
+    [SerializeField, Tooltip("수면·저장·취소 선택지가 들어 있는 CSV 씬 ID입니다.")]
+    private string menuSceneId = "home_sofa_menu";
+    [SerializeField, Tooltip("저장 슬롯 덮어쓰기 확인(덮어쓰기·취소) CSV 씬 ID입니다. 질문 문구는 슬롯 번호를 넣어 코드가 만듭니다.")]
+    private string overwriteSceneId = "home_sofa_overwrite_menu";
+    [SerializeField, Tooltip("저장·수면 결과 확인(확인) CSV 씬 ID입니다. 결과 문구는 코드가 만듭니다.")]
+    private string messageSceneId = "home_sofa_message_menu";
     [Inject] private IGameProgressionService progression;
     [Inject] private SaveManager saves;
     [Inject] private ISceneFadeService sceneFades;
@@ -25,7 +32,8 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
     public async UniTask ExecuteAsync(WorldInteractionActionContext context, CancellationToken token)
     {
         if (!CanExecute) throw new InvalidOperationException("소파를 사용할 준비가 되지 않았습니다.");
-        if (context.ChooseMenu == null) throw new InvalidOperationException("소파의 공통 선택창이 연결되지 않았습니다.");
+        if (context.ChooseOutsideChoices == null || context.ChooseMenu == null)
+            throw new InvalidOperationException("[HomeSofa] 소파의 공통 선택창이 연결되지 않았습니다.");
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         execution = lifetime;
         token = lifetime.Token;
@@ -34,12 +42,7 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
         {
             while (true)
             {
-                var selected = await context.ChooseMenu(new[]
-                {
-                    Option("sleep", "수면", "Sleep"),
-                    Option("save", "저장", "Save"),
-                    Option("cancel", "취소", "Cancel", isCancel: true)
-                }, null, token);
+                var selected = await context.ChooseOutsideChoices(menuSceneId, null, null, token);
                 switch (selected.Id)
                 {
                     case "sleep":
@@ -73,10 +76,8 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
             int slot = int.Parse(selected.Id.Substring("slot-".Length));
             if (saves.HasSlotFile(slot))
             {
-                var confirmation = await context.ChooseMenu(new[]
-                {
-                    Option("overwrite", "덮어쓰기", "Overwrite"), Option("back", "취소", "Cancel", isCancel: true)
-                }, Localize($"{slot}번 슬롯의 저장 내용을 덮어쓸까요?", $"Overwrite the save in slot {slot}?"), token);
+                var confirmation = await context.ChooseOutsideChoices(overwriteSceneId,
+                    Localize($"{slot}번 슬롯의 저장 내용을 덮어쓸까요?", $"Overwrite the save in slot {slot}?"), null, token);
                 if (confirmation.Id != "overwrite") continue;
             }
             token.ThrowIfCancellationRequested();
@@ -159,9 +160,9 @@ public sealed class HomeSofaAction : MonoBehaviour, IWorldInteractionAction, IWo
         finally { sleepAnimation?.Restore(); sleeping = false; }
     }
 
-    private static async UniTask ShowMessageAsync(WorldInteractionActionContext context, string message, CancellationToken token)
+    private async UniTask ShowMessageAsync(WorldInteractionActionContext context, string message, CancellationToken token)
     {
-        await context.ChooseMenu(new[] { Option("ok", "확인", "OK") }, message, token);
+        await context.ChooseOutsideChoices(messageSceneId, message, null, token);
     }
 
     private static NewStreetOptionData Option(string id, string ko, string en, bool isCancel = false) =>

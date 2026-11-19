@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using HumanBartender.CutsceneStudio;
 using NUnit.Framework;
 using UnityEditor;
@@ -58,6 +61,60 @@ public sealed class HomeTVActionTests
         finally { Object.DestroyImmediate(root); GameStateManager.Instance.CurrentDay = day; }
     }
 
+    const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
+
+    // 웹 outside-tv.js open(): 꺼져 있던 TV를 켤 때만 방송 채널을 초기화한다.
+    [Test]
+    public void ReopeningThePoweredMenuKeepsTheCurrentBroadcast()
+    {
+        var root = new GameObject("TVTest");
+        var screen = new GameObject("Screen");
+        var broadcast = new GameObject("Broadcast");
+        var system = new GameObject("AmbientSystem");
+        var running = new CancellationTokenSource();
+        try
+        {
+            screen.transform.SetParent(root.transform);
+            broadcast.transform.SetParent(root.transform);
+            var target = broadcast.AddComponent<WorldInteractionTarget>();
+            var ambient = system.AddComponent<WorldAmbientDialogueController>();
+            var action = root.AddComponent<HomeTVAction>();
+            using (var data = new SerializedObject(action))
+            {
+                data.FindProperty("powerVisual").objectReferenceValue = screen;
+                data.FindProperty("ambientBroadcast").objectReferenceValue = target;
+                data.ApplyModifiedPropertiesWithoutUndo();
+            }
+            typeof(HomeTVAction).GetField("ambient", Private).SetValue(action, ambient);
+            var entry = new WorldProximityEntry();
+            ((IDictionary)typeof(WorldAmbientDialogueController).GetField("entries", Private).GetValue(ambient)).Add(target, entry);
+            const string rule = "home_tv_broadcast";
+            action.SetPower(false);
+
+            entry.Consume();
+            action.TurnOnForMenu();
+            Assert.That(action.IsPoweredOn && screen.activeSelf && broadcast.activeSelf, Is.True);
+            Assert.That(entry.CanStart(rule, 0f, .9f, .3f), Is.True, "꺼진 TV를 켜면 방송을 처음부터 다시 듣는다.");
+
+            // 켜진 TV에서 방송이 재생 중일 때 메뉴를 다시 연다.
+            entry.Consume();
+            var sessionType = typeof(WorldAmbientDialogueController).GetNestedType("Session", BindingFlags.NonPublic);
+            var session = Activator.CreateInstance(sessionType, true);
+            sessionType.GetField("Cancellation", Private).SetValue(session, running);
+            ((IDictionary)typeof(WorldAmbientDialogueController).GetField("sessions", Private).GetValue(ambient)).Add(target, session);
+            action.TurnOnForMenu();
+            Assert.That(running.IsCancellationRequested, Is.False, "켜진 TV의 메뉴를 다시 열어도 방송을 끊지 않는다.");
+            Assert.That(entry.CanStart(rule, 0f, .9f, .3f), Is.False, "켜진 TV의 메뉴를 다시 열어도 방송을 처음부터 다시 시작하지 않는다.");
+            Assert.That(action.IsPoweredOn, Is.True);
+        }
+        finally
+        {
+            Object.DestroyImmediate(root);
+            Object.DestroyImmediate(system);
+            running.Dispose();
+        }
+    }
+
     [Test]
     public void OnlyValidNonemptyTimelinesArePrepared()
     {
@@ -79,8 +136,9 @@ public sealed class HomeTVActionTests
             Assert.That(StudioPlaybackService.IsPrepared(sequence), Is.True);
             asset.Kind = StudioKind.Visual;
             asset.ActorId = "missing-board";
-            Assert.That(StudioPlaybackService.IsPrepared(sequence), Is.False,
-                "A registered programme with missing actor bindings is still unavailable.");
+            // #133 이후 그림 연결 누락은 제작 경고일 뿐 시청을 막지 않는다.
+            Assert.That(StudioPlaybackService.IsPrepared(sequence), Is.True);
+            Assert.That(StudioSequenceWarnings.CollectMissingVisuals(sequence), Has.Some.Contains("missing-board"));
         }
         finally { Object.DestroyImmediate(sequence); Object.DestroyImmediate(timeline); }
     }
@@ -134,6 +192,45 @@ public sealed class HomeTVActionTests
             Assert.That(ambient.StartMode, Is.EqualTo(WorldInteractionStartMode.Ambient));
             Assert.That(ambient.Content.SourceId, Is.EqualTo("home_tv_broadcast"));
             Assert.That(ambient.ResolveSpeaker("tv", null), Is.EqualTo(tv.ResolveSpeaker("tv_announcer", null)));
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    // 웹 outside-tv.js tick·BackgroundStories.nearby: 0.9 안에서 시작하고 1.2를 넘어 벗어난 뒤에만 다시 시작하며,
+    // 재생 중에는 화자와 가로 4·세로 1.6(듣는 중 여유 0.2)을 벗어나면 멈춘다.
+    [Test]
+    public void HomeBroadcastUsesTheWebStartRearmAndListeningRanges()
+    {
+        var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/Home.unity");
+        try
+        {
+            var roots = scene.GetRootGameObjects();
+            var targets = roots.SelectMany(root => root.GetComponentsInChildren<WorldInteractionTarget>(true)).ToArray();
+            var broadcast = targets.Single(value => value.Content != null && value.Content.SourceId == "home_tv_broadcast");
+            var controller = roots.SelectMany(root => root.GetComponentsInChildren<WorldAmbientDialogueController>(true)).Single();
+            float exitMargin;
+            using (var data = new SerializedObject(controller)) exitMargin = data.FindProperty("exitMargin").floatValue;
+            float radius = broadcast.InteractionRadius;
+            Assert.That(radius, Is.EqualTo(.9f).Within(.0001f));
+            Assert.That(radius + exitMargin, Is.EqualTo(1.2f).Within(.0001f));
+            Assert.That(targets.Count(value => value.IsAmbient), Is.EqualTo(1),
+                "Home의 재시작 여유는 TV 방송 기준이다. 주변 대화를 추가하면 여유 값을 다시 검토한다.");
+
+            const string rule = "home_tv_broadcast";
+            var entry = new WorldProximityEntry();
+            Assert.That(entry.CanStart(rule, .85f, radius, exitMargin), Is.True);
+            entry.Consume();
+            Assert.That(entry.CanStart(rule, 1.15f, radius, exitMargin), Is.False);
+            Assert.That(entry.CanStart(rule, .5f, radius, exitMargin), Is.False, "1.2를 넘기 전에 돌아오면 다시 시작하지 않는다.");
+            Assert.That(entry.CanStart(rule, 1.25f, radius, exitMargin), Is.False);
+            Assert.That(entry.CanStart(rule, .85f, radius, exitMargin), Is.True);
+
+            var gate = broadcast.GetComponent<WorldAmbientDialogueDistanceGate>();
+            Assert.That(gate, Is.Not.Null, "멀어지면 방송 말풍선과 진행을 멈춘다.");
+            Assert.That(gate.Contains(new Vector3(3.9f, 1.5f), Vector3.zero, false), Is.True);
+            Assert.That(gate.Contains(new Vector3(4.1f, 0f), Vector3.zero, false), Is.False);
+            Assert.That(gate.Contains(new Vector3(0f, 1.7f), Vector3.zero, false), Is.False);
+            Assert.That(gate.Contains(new Vector3(4.1f, 0f), Vector3.zero, true), Is.True);
         }
         finally { EditorSceneManager.ClosePreviewScene(scene); }
     }

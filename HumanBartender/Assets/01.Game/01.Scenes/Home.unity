@@ -1384,6 +1384,9 @@ MonoBehaviour:
     playbackSpeed: 1
     fadeDuration: 0.35
     visiblePoseDuration: 0.5
+  menuSceneId: home_sofa_menu
+  overwriteSceneId: home_sofa_overwrite_menu
+  messageSceneId: home_sofa_message_menu
 --- !u!114 &319687454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1683,7 +1686,7 @@ Transform:
   m_GameObject: {fileID: 398070673}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.63, y: -0.704, z: 0}
+  m_LocalPosition: {x: 0.2, y: -0.704, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2442,6 +2445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionController
   view: {fileID: 1238596391}
   homeTerrace: {fileID: 1300846250}
+  terraceChoiceConfirmGuard: 0.8
 --- !u!114 &630451094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2472,7 +2476,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d7c5c7899dd418a9624e496dfe08b21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldAmbientDialogueController
-  exitMargin: 0.2
+  exitMargin: 0.3
   minimumReadTime: 1.2
   maximumReadTime: 4
   charactersPerSecond: 22
@@ -3037,6 +3041,7 @@ MonoBehaviour:
     presenceCondition: 
   requireVisibleActorToInteract: 0
   restorePoseAfterInteraction: 1
+  facePlayerOnInteraction: 1
   useStoryPresence: 1
   minimumDay: 0
   maximumDay: -1
@@ -3044,6 +3049,9 @@ MonoBehaviour:
   minimumDayStartsOnReturn: 0
   presenceCondition: 
   committedCondition: 
+  beforeCommitIdleState: 
+  afterCommitIdleState: 
+  beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: pet
     trigger: 1
@@ -4353,7 +4361,7 @@ Transform:
   m_GameObject: {fileID: 1178157929}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.63, y: -0.004000008, z: -10}
+  m_LocalPosition: {x: 0.2, y: -0.004000008, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4736,7 +4744,7 @@ MonoBehaviour:
   choicesPrefab: {fileID: 850190000000000013, guid: f6a49d2cec2c4334aad9fa3230990a31, type: 3}
   ambientLayer: {fileID: 59448422}
   choiceSideGap: 14
-  menuScale: 0.7
+  choiceAnchorHeight: 0.1
   textTags: {fileID: 11400000, guid: a4036fdbe34f51f32d1cb38225f1d890, type: 2}
   typingDelay: 0.035
 --- !u!1 &1300846247
@@ -4936,7 +4944,7 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
+    width: 0.99991274
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -4967,7 +4975,7 @@ Transform:
   m_GameObject: {fileID: 1305537442}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.7550044, y: -0.0039999997, z: -10}
+  m_LocalPosition: {x: 0.2, y: -0.004000008, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7145,6 +7153,7 @@ GameObject:
   - component: {fileID: 1957953512}
   - component: {fileID: 1957953511}
   - component: {fileID: 1957953510}
+  - component: {fileID: 1957953513}
   m_Layer: 0
   m_Name: TVBroadcast
   m_TagString: Untagged
@@ -7199,7 +7208,7 @@ MonoBehaviour:
   storySceneId: 
   content: {fileID: 1957953512}
   startMode: 2
-  interactionRadius: 0.8
+  interactionRadius: 0.9
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uC0B4\uD3B4\uBCF4\uAE30"
@@ -7227,6 +7236,21 @@ MonoBehaviour:
   sourceId: home_tv_broadcast
   useSpotPosition: 0
   controlObjectVisibility: 0
+--- !u!114 &1957953513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957953508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a43fdbbacae04c4e8abcc070f75579c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldAmbientDialogueDistanceGate
+  horizontalDistance: 4
+  verticalDistance: 1.6
+  exitMargin: 0.2
 --- !u!1 &1978158275
 GameObject:
   m_ObjectHideFlags: 0

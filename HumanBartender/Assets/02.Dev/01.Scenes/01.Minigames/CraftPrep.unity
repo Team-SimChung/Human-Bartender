@@ -266,9 +266,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.020522388
+    x: 0
     y: 0
-    width: 0.9585406
+    width: 0.999903
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -808,11 +808,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CraftGimmickHud
   root: {fileID: 1440321479}
+  useScreenSpaceDuringCraft: 0
   progressText: {fileID: 703555841}
   subjectText: {fileID: 75272290}
   timeText: {fileID: 984514894}
   timeRoot: {fileID: 0}
-  timeInset: {x: 100, y: 78}
+  quantityRoot: {fileID: 0}
+  targetValueText: {fileID: 0}
+  currentValueText: {fileID: 0}
+  ingredientRoot: {fileID: 0}
+  tiltRoot: {fileID: 0}
+  tiltMarker: {fileID: 0}
+  tiltFlowRange: {fileID: 0}
+  tiltWarningRange: {fileID: 0}
+  nextButtonLabel: {fileID: 0}
   okMark: {fileID: 114249917}
   okBlinkPerSecond: 2
   nextButton: {fileID: 1854437080}
@@ -1910,6 +1919,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1887984064}
     m_Modifications:
+    - target: {fileID: 160893627099582450, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2611515049673381143, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2611515049673381143, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2611515049673381143, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2611515049673381143, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2854824022800000841, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5866039184692155758, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
       propertyPath: m_Name
       value: CraftPrepStage
@@ -1954,10 +1987,54 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8056989269706472333, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.000030517578
+      objectReference: {fileID: 0}
+    - target: {fileID: 8113130402748028453, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -27.500061
+      objectReference: {fileID: 0}
+    - target: {fileID: 9160695361510469877, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9160695361510469877, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9160695361510469877, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5081805956045655020, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 3355461024803649804, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 2513952845337034130, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 907833682993603162, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 3360067613787868636, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 2979468587025978149, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4849955873434957294, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 624935040740554038, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 00492cd0b8ae116429f76660d79869a3, type: 3}
 --- !u!4 &2759452422219445571 stripped
 Transform:

@@ -38,6 +38,8 @@ public sealed class ChoiceRejectionTests
         using var data = new SerializedObject(view);
         data.FindProperty("revealDuration").floatValue = 0;
         data.FindProperty("cursorMoveDuration").floatValue = 0;
+        // 확정 보호 시간은 OutsideChoicePresentationTests에서 따로 검사한다.
+        data.FindProperty("confirmGuardDuration").floatValue = 0;
         data.ApplyModifiedPropertiesWithoutUndo();
         resultCount = 0;
         initializedRows.Clear();

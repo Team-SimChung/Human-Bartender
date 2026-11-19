@@ -7,6 +7,13 @@ using VContainer;
 
 public enum DialogueState { Idle, Typing, WaitingForInput, WaitingForChoice }
 
+/// <summary>선택지 행에 적힌 질문을 선택지와 함께 남기는 표현기. 외부 대화(웹 choiceLine)만 구현한다.</summary>
+public interface IDialogueChoicePrompt
+{
+    /// <summary>선택지를 띄우기 직전에 호출한다. 타이핑 없이 문장 전체를 바로 표시한다.</summary>
+    void ShowChoicePrompt(string actor, string text);
+}
+
 /// <summary>대화 한 번의 표현기·조건·입력·취소를 함께 관리함.</summary>
 public class DialogueRunner : MonoBehaviour
 {
@@ -31,6 +38,9 @@ public class DialogueRunner : MonoBehaviour
         public bool AutoAdvance;
         public Action<Step> StepStarted;
         public OutsideStoryExecution Events;
+        // 지금 실행 중인 행의 화자·문구. 이 행에서 선택지가 열리면 질문으로 한 번 표시한다.
+        public string PromptActor;
+        public string PromptText;
     }
 
     public DialogueState CurrentState => active?.State ?? DialogueState.Idle;
@@ -145,6 +155,9 @@ public class DialogueRunner : MonoBehaviour
             // 선택지의 중첩 결과 스텝은 원본 대본의 seq가 아니므로 연출 신호에서 제외한다.
             if (depth == 0) run.StepStarted?.Invoke(step);
             token.ThrowIfCancellationRequested();
+            // 선택지 행(choice와 thug-choice 같은 명령 선택지)의 문구는 선택지와 함께 보여 준다. 빈 행은 직전 말풍선을 유지한다.
+            run.PromptActor = step.Actor;
+            run.PromptText = Text(step.Text);
             if (step.Command != OutsideStoryCommand.None)
             {
                 if (storyEvents == null) throw new InvalidOperationException("Unity 사건 서비스가 등록되지 않았습니다.");
@@ -227,6 +240,7 @@ public class DialogueRunner : MonoBehaviour
         for (int i=0; i<choices.Length; i++) choices[i].Selectable = run.Conditions.CheckRequired(choices[i].When);
         if (!choices.Any(o => o.Selectable == true)) throw new InvalidOperationException("Street choice has no selectable options.");
         run.State = DialogueState.WaitingForChoice;
+        ShowChoicePrompt(run);
         var picked = new UniTaskCompletionSource<NewStreetOptionData>();
         run.Presenter.ShowOutsideChoices(choices, option => CompleteChoice(run, picked, option));
         var choice = await picked.Task.AttachExternalCancellation(token);
@@ -236,6 +250,15 @@ public class DialogueRunner : MonoBehaviour
             await SayAsync(null, Text(choice.LockReason), null, null, run);
         if (!run.Conditions.CheckRequired(choice.When)) throw new InvalidOperationException("Locked story choice selected.");
         return choice;
+    }
+
+    // 같은 행에서 선택창이 다시 열려도 이미 남아 있는 말풍선을 그대로 쓴다.
+    private static void ShowChoicePrompt(Execution run)
+    {
+        string text = run.PromptText;
+        run.PromptText = null;
+        if (!string.IsNullOrWhiteSpace(text) && run.Presenter is IDialogueChoicePrompt prompt)
+            prompt.ShowChoicePrompt(run.PromptActor, text);
     }
 
     private void CompleteChoice(Execution run, UniTaskCompletionSource<NewStreetOptionData> completion, NewStreetOptionData option)
