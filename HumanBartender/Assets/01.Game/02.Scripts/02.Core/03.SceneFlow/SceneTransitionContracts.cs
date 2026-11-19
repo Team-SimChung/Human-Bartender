@@ -82,6 +82,8 @@ public enum SceneTransitionStyle
     BarEntrance,
     /// <summary>바에서 거리로 나갈 때. "오늘의 영업을 마칩니다" 문 화면.</summary>
     BarExit,
+    /// <summary>집 현관을 통해 실내와 복도를 오가는 전환.</summary>
+    HomeDoor,
 }
 
 /// <summary>

@@ -119,6 +119,7 @@ public class Player : MonoBehaviour, IInteractor
                 foreach (var candidate in FindObjectsByType<WorldInteractionSceneContext>(FindObjectsSortMode.None))
                     if (candidate.gameObject.scene == gameObject.scene) { sceneEntities = candidate; break; }
             if (sceneEntities == null || !sceneEntities.IsReady) return;
+            if (sceneEntities.IsSceneTransitioning && state == EInteractorState.None) return;
         }
         if (state == EInteractorState.Lock) return;
         if (state == EInteractorState.Interct) return;

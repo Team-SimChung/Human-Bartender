@@ -37,6 +37,27 @@ public sealed class DayOneThugRuntimeSmokeTests
         Assert.That(progressionResult.Succeeded, Is.True, stage + ": " + progressionResult.Message);
     }
 
+    private IEnumerator WaitForHomeDoorReveal(string destination)
+    {
+        bool sawReveal = false;
+        float deadline = Time.realtimeSinceStartup + 30;
+        while (!progressionFinished && Time.realtimeSinceStartup < deadline)
+        {
+            var scene = SceneManager.GetActiveScene();
+            if (scene.name == destination && SceneTransitionManager.Instance.CurrentState == SceneTransitionState.FadingIn)
+            {
+                sawReveal = true;
+                var arriving = WorldInteractionController.ForScene(scene);
+                Assert.That(arriving, Is.Not.Null);
+                Assert.That(arriving.IsReady, Is.True, destination + " must be ready before the fade reveals it.");
+                Assert.That(arriving.IsRunning, Is.False, "A world event must wait until the arrival fade ends.");
+            }
+            yield return null;
+        }
+        yield return WaitForProgression(destination + " door transition");
+        Assert.That(sawReveal, Is.True, "The arrival fade should be observable in " + destination);
+    }
+
     private static WorldInteractionTarget FindThug(Scene scene) => WorldInteractionTarget.InScene(scene)
         .Single(target => target.StorySceneId == "day1-corridor-thug");
 
@@ -114,7 +135,7 @@ public sealed class DayOneThugRuntimeSmokeTests
         sharedPlayer.SetMoney(0); // Only the refusal option is selectable in the existing choice UI.
         progressionFinished = false;
         progression.EnterAsync(GameProgressionDestination.OutsideFromHome).ContinueWith(CompleteProgression).Forget();
-        yield return WaitForProgression("First outside visit");
+        yield return WaitForHomeDoorReveal("OutSide");
         var outside = SceneManager.GetActiveScene();
         Assert.That(outside.name, Is.EqualTo("OutSide"));
         var controller = WorldInteractionController.ForScene(outside);
@@ -183,8 +204,10 @@ public sealed class DayOneThugRuntimeSmokeTests
         Assert.That(controller.TryResolve(target, out _), Is.False);
 
         progressionFinished = false;
-        progression.EnterAsync(GameProgressionDestination.HomeVisit).ContinueWith(CompleteProgression).Forget();
-        yield return WaitForProgression("Home revisit");
+        GameStateManager.Instance.GameFlow = EGameFlow.CommuteOut;
+        progression.EnterAsync(GameProgressionDestination.Home).ContinueWith(CompleteProgression).Forget();
+        yield return WaitForHomeDoorReveal("Home");
+        GameStateManager.Instance.GameFlow = EGameFlow.CommuteIn;
         progressionFinished = false;
         progression.EnterAsync(GameProgressionDestination.OutsideFromHome).ContinueWith(CompleteProgression).Forget();
         yield return WaitForProgression("Second outside visit");

@@ -31,7 +31,7 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
     }
 
     public bool IsRunning => sessions.Count > 0;
-    public bool IsPaused => !isActiveAndEnabled || context == null || !context.IsReady ||
+    public bool IsPaused => !isActiveAndEnabled || context == null || !context.IsReady || context.IsSceneTransitioning ||
 #if UNITY_EDITOR
         foreground != null && foreground.SuppressDetectionForTest ||
 #endif

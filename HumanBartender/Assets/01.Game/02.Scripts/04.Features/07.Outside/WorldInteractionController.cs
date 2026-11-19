@@ -35,6 +35,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     private int registryRevision = -1;
     private int indexedFrame = -1;
     private readonly HashSet<string> reported = new(StringComparer.Ordinal);
+    private readonly UniTaskCompletionSource<bool> readiness = new();
     private Player player;
     private DialogueRunner runner;
     private WorldInteractionCutscenePlayer cutscenePlayer;
@@ -69,6 +70,7 @@ public sealed class WorldInteractionController : MonoBehaviour
 
     public bool IsRunning => session != null || handingOff;
     public bool IsReady => ready;
+    internal UniTask<bool> WaitUntilReadyAsync(CancellationToken token) => readiness.Task.AttachExternalCancellation(token);
 #if UNITY_EDITOR
     // 대본 직접 테스트 중 기본 위치의 자동 사건·주변 대사가 먼저 시작하는 것을 막는다.
     internal bool SuppressDetectionForTest { get; set; }
@@ -132,6 +134,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         }
         catch (OperationCanceledException) { }
         catch (Exception e) { Debug.LogException(e, this); }
+        finally { readiness.TrySetResult(ready); }
     }
 
     public bool OwnsStory(string id)
@@ -246,6 +249,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     private bool CanAcquireSession => ready && view != null && view.isActiveAndEnabled && !IsRunning &&
         !runner.IsRunning && !UIDisplayOptions.IsOptionOpen && player.State == EInteractorState.None;
     private bool CanStartSession => CanAcquireSession &&
+        sceneContext?.IsReady != false && sceneContext?.IsSceneTransitioning != true &&
         !(progression is IGameProgressionContinuationService continuation && continuation.IsContinuingDialogue);
 
     private void RefreshFocus()
@@ -828,4 +832,6 @@ public sealed class WorldInteractionController : MonoBehaviour
         SetFocus(null);
         if (view != null) view.EndScene();
     }
+
+    private void OnDestroy() => readiness.TrySetResult(false);
 }

@@ -370,14 +370,15 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
                     SceneTransitionStyle.BarEntrance);
             case GameProgressionDestination.Home:
                 return MoveAsync("OutSide", "Home", EGameFlow.CommuteOut, EGameFlow.CommuteOut,
-                    cancellationToken);
+                    cancellationToken, SceneTransitionStyle.HomeDoor);
             case GameProgressionDestination.HomeVisit:
                 if (gameState.GameFlow != EGameFlow.CommuteIn && gameState.GameFlow != EGameFlow.CommuteOut)
                     return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected, "출퇴근 중에만 집을 방문할 수 있습니다."));
-                return MoveAsync("OutSide", "Home", gameState.GameFlow, gameState.GameFlow, cancellationToken);
+                return MoveAsync("OutSide", "Home", gameState.GameFlow, gameState.GameFlow,
+                    cancellationToken, SceneTransitionStyle.HomeDoor);
             case GameProgressionDestination.OutsideFromHome:
                 return MoveAsync("Home", "OutSide", EGameFlow.CommuteIn, EGameFlow.CommuteIn,
-                    cancellationToken);
+                    cancellationToken, SceneTransitionStyle.HomeDoor);
             default:
                 return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
                     "알 수 없는 이동 요청입니다."));

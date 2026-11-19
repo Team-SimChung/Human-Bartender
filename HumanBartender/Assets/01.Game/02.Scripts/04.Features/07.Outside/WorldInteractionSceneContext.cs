@@ -18,6 +18,7 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
     [SerializeField] private NewGameOpening newGameOpening;
     [Inject] private IConditionUtil conditions;
     [Inject] private IObjectResolver resolver;
+    [Inject] private ISceneTransitionService sceneTransitions;
     private readonly List<WorldInteractionContent> contents = new();
     private readonly HashSet<string> onceHistory = new(StringComparer.Ordinal);
     private readonly UniTaskCompletionSource<bool> readiness = new();
@@ -30,6 +31,9 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
     public Player Player => player;
     public DialogueRunner Runner => runner;
     public bool IsReady { get; private set; }
+    internal bool IsSceneTransitioning => sceneTransitions?.CurrentState is
+        SceneTransitionState.FadingOut or SceneTransitionState.Loading or
+        SceneTransitionState.Unloading or SceneTransitionState.FadingIn;
     public string InitializationError { get; private set; }
     public bool IsSafeForSave => IsReady && runner != null && !runner.IsRunning &&
         (controller == null || controller.CanSave);
@@ -70,9 +74,13 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
             if (!player.TrySetPosition(spawn)) throw new InvalidOperationException("현재 씬의 플레이어 시작 위치가 없습니다: " + spawn);
             IsReady = true;
             readiness.TrySetResult(true);
-            // 준비가 끝나야 Player.Update가 이동을 처리하므로 도착 연출은 공개 뒤에 시작한다.
             if (spawn == EPlayerSpawn.FirstCommute && firstCommuteArrival != null)
+            {
+                // 준비 신호는 암전 중 전송하고 도착 보행은 화면이 밝아진 뒤 시작한다.
+                await UniTask.WaitWhile(() => IsSceneTransitioning, cancellationToken: token);
+                if (!IsReady) return;
                 await firstCommuteArrival.PlayAsync(player, token);
+            }
             if (newGameOpening != null && state.CurrentDay == 0 && state.GameFlow == EGameFlow.CommuteIn)
             {
                 resolver.Inject(newGameOpening);

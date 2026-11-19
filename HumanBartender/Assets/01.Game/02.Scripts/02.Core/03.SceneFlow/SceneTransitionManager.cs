@@ -46,6 +46,12 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
     [Tooltip("취침 뒤 명언·Day 숫자 전환 화면(Canvas_DayTransition). 비어 있으면 취침은 예전 페이드만 한다.")]
     [SerializeField] DayTransitionView dayTransition;
 
+    [Header("집 현관 전환")]
+    [SerializeField, Min(0f), Tooltip("집 현관을 지날 때 화면이 어두워지는 시간(초).")]
+    float homeDoorFadeOutDuration = .5f;
+    [SerializeField, Min(0f), Tooltip("도착한 씬의 준비가 끝난 뒤 화면이 밝아지는 시간(초).")]
+    float homeDoorFadeInDuration = .5f;
+
     public IDayTransitionPresenter DayTransition => dayTransition != null ? dayTransition : null;
 
     readonly SceneTransitionCoordinator coordinator = new();
@@ -210,7 +216,8 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             return new SceneTransitionRequest(rejectedResult);
         }
 
-        ISceneTransitionOverlay overlay = style != SceneTransitionStyle.Fade ? barDoorOverlay : null;
+        ISceneTransitionOverlay overlay = style is SceneTransitionStyle.BarEntrance or SceneTransitionStyle.BarExit
+            ? barDoorOverlay : null;
         return new SceneTransitionRequest(true,
             RunSceneOperationAsync(operationId, sceneName, sceneMode, operationKind, cancellationToken, style, overlay, presentation));
     }
@@ -266,6 +273,9 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         float restoreAlpha = fadeCanvasGroup.alpha;
         bool nativeOperationStarted = false;
         bool sceneActivated = false;
+        bool throughHomeDoor = style == SceneTransitionStyle.HomeDoor;
+        float fadeOut = throughHomeDoor ? homeDoorFadeOutDuration : presentation?.FadeOutDuration ?? fadeDuration;
+        float fadeIn = throughHomeDoor ? homeDoorFadeInDuration : presentation?.FadeInDuration ?? fadeDuration;
 
         try
         {
@@ -273,7 +283,7 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
                 cancellationToken, this.GetCancellationTokenOnDestroy());
 
             coordinator.TrySetState(operationId, SceneTransitionState.FadingOut);
-            await FadeCoreAsync(1f, presentation?.FadeOutDuration ?? fadeDuration, beforeNative.Token);
+            await FadeCoreAsync(1f, fadeOut, beforeNative.Token);
             beforeNative.Token.ThrowIfCancellationRequested();
             if (overlay != null) await overlay.ShowAsync(style, beforeNative.Token);
             float blackStarted = Time.unscaledTime;
@@ -306,6 +316,14 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             await sceneOperation;
             sceneActivated = true;
 
+            if (throughHomeDoor)
+            {
+                var arrivalToken = this.GetCancellationTokenOnDestroy();
+                await PrepareHomeDoorArrivalAsync(SceneManager.GetSceneByName(sceneName), arrivalToken);
+                // 씬 활성화와 카메라 갱신을 암전 중 한 프레임 마친 뒤 밝히기 시작한다.
+                await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, arrivalToken);
+            }
+
             if (presentation != null)
             {
                 if (presentation.BeforeReveal != null) await presentation.BeforeReveal();
@@ -319,10 +337,10 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             if (overlay != null) await overlay.FinishAsync(CancellationToken.None);
             coordinator.TrySetState(operationId, SceneTransitionState.FadingIn);
             if (overlay != null)
-                await UniTask.WhenAll(FadeCoreAsync(0f, presentation?.FadeInDuration ?? fadeDuration, CancellationToken.None),
+                await UniTask.WhenAll(FadeCoreAsync(0f, fadeIn, CancellationToken.None),
                     overlay.HideAsync(CancellationToken.None));
             else
-                await FadeCoreAsync(0f, presentation?.FadeInDuration ?? fadeDuration, CancellationToken.None);
+                await FadeCoreAsync(0f, fadeIn, CancellationToken.None);
             return new SceneTransitionResult(SceneTransitionOutcome.Succeeded, sceneName);
         }
         catch (OperationCanceledException) when (!nativeOperationStarted)
@@ -346,6 +364,21 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             if (fadeCanvasGroup != null) fadeCanvasGroup.blocksRaycasts = false;
             coordinator.TryEnd(operationId);
         }
+    }
+
+    static async UniTask PrepareHomeDoorArrivalAsync(Scene scene, CancellationToken token)
+    {
+        var interactions = WorldInteractionController.ForScene(scene);
+        if (interactions == null || !interactions.isActiveAndEnabled || !await interactions.WaitUntilReadyAsync(token))
+            throw new InvalidOperationException($"[SceneTransition] {scene.name}의 상호작용 준비에 실패했습니다.");
+
+        foreach (var camera in FindObjectsByType<OutsideCamera>(FindObjectsSortMode.None))
+        {
+            if (camera.gameObject.scene != scene) continue;
+            camera.SnapToFollow();
+            return;
+        }
+        throw new InvalidOperationException($"[SceneTransition] {scene.name}의 추적 카메라가 없습니다.");
     }
 
     async UniTask RunStandaloneFadeAsync(
@@ -407,14 +440,16 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
 
         // 컷씬이 게임 시간을 멈춰도 전환을 진행하며 트윈 종료 콜백 의존성 없이 보간함.
         float initialAlpha = fadeCanvasGroup.alpha;
-        float elapsed = 0f;
-        while (elapsed < duration)
+        double startedAt = Time.realtimeSinceStartupAsDouble;
+        while (true)
         {
             await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             if (fadeCanvasGroup == null) throw new MissingReferenceException("Fade CanvasGroup was destroyed during the transition.");
-            elapsed += Time.unscaledDeltaTime;
+            // 페이드가 시작되기 전의 로딩 프레임 시간은 보간에 포함하지 않는다.
+            float elapsed = (float)(Time.realtimeSinceStartupAsDouble - startedAt);
             fadeCanvasGroup.alpha = Mathf.Lerp(initialAlpha, targetAlpha, Mathf.Clamp01(elapsed / duration));
+            if (elapsed >= duration) break;
         }
         cancellationToken.ThrowIfCancellationRequested();
     }
