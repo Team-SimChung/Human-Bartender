@@ -40,6 +40,8 @@ public sealed class BarSeatStatusView : MonoBehaviour
 
     /// <summary>튜토리얼 전면 안내 중에는 좌석 표시를 숨긴다.</summary>
     public bool Suppressed { get; set; }
+    /// <summary>좌석 둘러보기·좌석 알림 수업 중. 단골 대화(2부)에서는 이때만 좌석 표시를 보인다.</summary>
+    public bool InSeatLesson { get; set; }
     public bool IsExploring { get; private set; }
     public ESlotType ExploringSeat { get; private set; }
 

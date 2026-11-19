@@ -618,8 +618,12 @@ public partial class StoryScriptRunner : MonoBehaviour
         }
 
         string tutorialCocktailId = CsvGameContentRules.ResolveCraftTutorialCocktail(step.Arg);
+        string orderedCocktailId = currentOrder?.Details.CocktailId;
+        bool skipDay0 = scene.Day == 0 && conditions.CheckRequired("flag.day0_skip_tutorial");
         string lessonCocktailId = StoryTutorialController.ResolveCraftLesson(scene.Day, tutorialCocktailId,
-            currentOrder?.Details.CocktailId, scene.Day == 0 && conditions.CheckRequired("flag.day0_skip_tutorial"));
+            orderedCocktailId, skipDay0);
+        string gimmickGuideId = StoryTutorialController.ResolveGimmickGuide(scene.Day, lessonCocktailId,
+            orderedCocktailId, skipDay0);
         bool guided = lessonCocktailId != null && tutorial != null;
 
         // 튜토리얼은 무엇을 만들지가 대본에 적혀 있어 주문 없이도 열 수 있다.
@@ -634,6 +638,7 @@ public partial class StoryScriptRunner : MonoBehaviour
         if (recipeScreen == null)
             throw new InvalidOperationException("[Story] Recipe Browser Screen 참조가 필요합니다.");
         if (guided) tutorial.BeginCraftLesson(lessonCocktailId);
+        else if (gimmickGuideId != null && tutorial != null) tutorial.BeginGimmickGuide(gimmickGuideId);
         TryOpenCraftMenu();
         await UniTask.CompletedTask;
     }

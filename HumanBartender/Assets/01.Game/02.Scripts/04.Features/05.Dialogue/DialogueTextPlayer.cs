@@ -70,9 +70,10 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public event Action ShakeSpanRevealed;
     public event Action MotionStopped;
 
+    /// <param name="periodRhythm">거리·집·테라스 대사처럼 웹의 마침표 멈춤 규칙을 따를지. 바 내부 대사는 끈다.</param>
     public async UniTask PlayAsync(TypingData data, NewTextTagDataSO tags, float defaultDelay,
         CancellationToken external = default, string cocktailName = null,
-        Func<float, CancellationToken, UniTask> wait = null)
+        Func<float, CancellationToken, UniTask> wait = null, bool periodRhythm = false)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
         external.ThrowIfCancellationRequested();
@@ -82,7 +83,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bubble.nameLabel.text = data.speaker;
         // 화자별 원본 색상과 관계없이 대화창 이름은 공통 하늘색을 사용한다.
         bubble.nameLabel.color = bubble.speakerNameColor;
-        var session = Begin(data.str, tags, cocktailName, defaultDelay, false);
+        var session = Begin(data.str, tags, cocktailName, defaultDelay, false, periodRhythm);
         session.Revealing = true;
         session.ExternalRegistration = external.Register(() => Close(session));
         session.DestroyRegistration = this.GetCancellationTokenOnDestroy().Register(() => Close(session));
@@ -141,7 +142,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         ShowAll(session, true);
     }
 
-    Session Begin(string text, NewTextTagDataSO tags, string cocktailName, float speed, bool instant)
+    Session Begin(string text, NewTextTagDataSO tags, string cocktailName, float speed, bool instant,
+        bool periodRhythm = false)
     {
         var settings = DialoguePresentationSettings.Shared;
         if (!DialogueTextCompiler.TryCompile(text, tags, settings, cocktailName, speed, out var line, out string error))
@@ -155,6 +157,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bubble.textLabel.maxVisibleCharacters = int.MaxValue;
         bubble.textLabel.ForceMeshUpdate(true, true);
         line.Bind(bubble.textLabel.textInfo);
+        if (periodRhythm && settings != null)
+            line.ApplyPeriodRhythm(bubble.textLabel.textInfo, settings.LonePeriodPause, settings.ConsecutivePeriodInterval);
         var session = new Session
         {
             Id = ++nextId, Line = line,

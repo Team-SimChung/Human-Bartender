@@ -355,7 +355,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         {
             if (terrace) await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? GameStateManager.Instance.CurrentDay);
             view.Begin(target, terrace ? homeTerrace.LunaAnchor : player.transform,
-                speakers: terrace ? homeTerrace.Speakers : sessionActors?.Speakers ?? SessionSpeakers);
+                speakers: terrace ? homeTerrace.Speakers : sessionActors?.Speakers ?? SessionSpeakers, terrace: terrace);
             runner.Bind(view);
             var travel = target.GetComponent<WorldDialogueTravelSettings>();
             return await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
@@ -679,7 +679,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             if (target != null && view != null && !token.IsCancellationRequested && restoreDialogue)
             {
                 if (homeTerrace != null && homeTerrace.IsActive)
-                    view.Begin(target, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);
+                    view.Begin(target, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers, terrace: true);
                 else if (player != null) view.Begin(target, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
             }
         }
@@ -768,7 +768,7 @@ public sealed class WorldInteractionController : MonoBehaviour
                 view.EndScene();
                 if (terraceStory) await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? state.CurrentDay);
                 else if (homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, token);
-                if (terraceStory) view.Begin(activeTarget, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers);
+                if (terraceStory) view.Begin(activeTarget, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers, terrace: true);
                 else view.Begin(activeTarget, player.transform, player.transform, speakers: sessionActors?.Speakers);
                 runner.Bind(view);
                 var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,

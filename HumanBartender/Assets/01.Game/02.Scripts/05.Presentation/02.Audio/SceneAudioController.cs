@@ -11,27 +11,25 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
     readonly SoundManager sound;
     readonly PlayerDataSO player;
     readonly IPopupService popups;
-    readonly IConditionUtil conditions;
-    HashSet<string> knownIngredients;
     IAudioLoop street, rain;
     string group;
     bool hadFocus = true;
-    public SceneAudioController(SoundManager sound, PlayerDataSO player, IPopupService popups, IConditionUtil conditions)
-    { this.sound = sound; this.player = player; this.popups = popups; this.conditions = conditions; }
+    // 재료 획득 알림은 여기서 띄우지 않는다. 선반 해금 조건이 바뀌었다고 알리면 받지 않은 재료까지 '획득'으로 뜬다
+    // (엔진 수정 사항 24). 웹처럼 실제로 받는 지점(거리 대본의 지급 행 등)이 직접 알린다.
+    public SceneAudioController(SoundManager sound, PlayerDataSO player, IPopupService popups)
+    { this.sound = sound; this.player = player; this.popups = popups; }
 
     public void Start()
     {
         player.MoneyAdded += OnMoney;
         player.AffinityAdded += OnAffinity;
         player.FlagChanged += OnFlag;
-        player.ProgressReplaced += ResetIngredients;
         Tick();
     }
 
     public void Tick()
     {
         if (sound == null || !sound.isActiveAndEnabled) return;
-        if (knownIngredients == null && NewDataLoadManager.IsLoaded) RefreshIngredients(false);
         bool focused = Application.isFocused;
         if (focused != hadFocus)
         {
@@ -85,27 +83,11 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
 
     void OnFlag(string key, bool value)
     {
-        if (knownIngredients != null) RefreshIngredients(true);
         if (!value || !key.EndsWith("_met", StringComparison.Ordinal)) return;
         string id = key.Substring(0, key.Length - 4);
         if (id == "chris") return;
         foreach (var character in NewDataLoadManager.StoryCharacters ?? Array.Empty<NewCharacterData>())
             if (character.Id == id) { popups.Popup(PopupType.CharacterRegistered, id).Forget(Debug.LogException); break; }
-    }
-
-    void ResetIngredients() => knownIngredients = null;
-    void RefreshIngredients(bool notify)
-    {
-        var next = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var item in NewDataLoadManager.StoryShelfItems ?? Array.Empty<NewShelfItemData>())
-        {
-            if (!item.IsIngredient || item.UnlockDay > GameStateManager.Instance.CurrentDay ||
-                (!string.IsNullOrWhiteSpace(item.UnlockWhen) && !conditions.CheckRequired(item.UnlockWhen))) continue;
-            next.Add(item.Id);
-            if (notify && knownIngredients != null && !knownIngredients.Contains(item.Id))
-                popups.Popup(PopupType.IngredientAcquired, item.Id).Forget(Debug.LogException);
-        }
-        knownIngredients = next;
     }
 
     void StopAmbience(bool immediately = false)
@@ -120,6 +102,5 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
         player.MoneyAdded -= OnMoney;
         player.AffinityAdded -= OnAffinity;
         player.FlagChanged -= OnFlag;
-        player.ProgressReplaced -= ResetIngredients;
     }
 }

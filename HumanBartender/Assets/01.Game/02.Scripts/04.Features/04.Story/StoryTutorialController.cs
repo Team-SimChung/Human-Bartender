@@ -43,6 +43,8 @@ public sealed class StoryTutorialController : MonoBehaviour
     ESlotType currentSeat, originSeat;
     bool visitedLeft, visitedRight, cameraMoving;
     bool craftLesson;
+    // 레시피·재료 안내 없이 미니게임 조작 안내만 하는 주문(0일차 포트의 진피즈).
+    bool gimmickGuideOnly;
     bool recipeConfirmed;
     string cocktail;
     string preparationStep;
@@ -191,6 +193,7 @@ public sealed class StoryTutorialController : MonoBehaviour
         ActiveLesson = kind;
         lessonToken = token;
         lessonComplete = new UniTaskCompletionSource();
+        view.SeatHud.InSeatLesson = kind is "seatExplore" or "seatIndicator";
         try
         {
             switch (kind)
@@ -217,7 +220,12 @@ public sealed class StoryTutorialController : MonoBehaviour
         {
             lessonComplete = null;
             ActiveLesson = null;
-            if (view != null) { view.SeatHud.SetExploration(false, currentSeat, false); view.Hide(); }
+            if (view != null)
+            {
+                view.SeatHud.InSeatLesson = false;
+                view.SeatHud.SetExploration(false, currentSeat, false);
+                view.Hide();
+            }
         }
     }
 
@@ -272,12 +280,43 @@ public sealed class StoryTutorialController : MonoBehaviour
     bool Beer => cocktail == "bottle_beer";
     bool GinFizz => cocktail == "gin_fizz";
 
-    /// <summary>명시된 수업과 0일차의 후속 주문을 같은 튜토리얼 수명으로 안내한다.</summary>
+    /// <summary>
+    /// 레시피 열기·재료 담기까지 따라가게 하는 제조 수업. 0일차는 크리스의 진토닉(재시도 포함)만 가르친다.
+    /// 포트의 진피즈는 웹처럼 같은 안내를 다시 강제하지 않는다 — 미니게임 조작 안내는 ResolveGimmickGuide가 따로 맡는다.
+    /// </summary>
     public static string ResolveCraftLesson(int day, string explicitCocktail, string orderedCocktail, bool skipDay0)
     {
         if (day == 0 && !skipDay0)
-            return explicitCocktail ?? (orderedCocktail is "gin_tonic" or "gin_fizz" ? orderedCocktail : null);
+            return explicitCocktail ?? (orderedCocktail == "gin_tonic" ? orderedCocktail : null);
         return day == 1 && explicitCocktail == "bottle_beer" ? explicitCocktail : null;
+    }
+
+    /// <summary>
+    /// 제조 수업은 없지만 처음 보는 미니게임의 조작 안내는 보여 줄 주문. 0일차 수업 밖의 주문(포트의 진피즈 쉐이킹)이 여기에 든다.
+    /// </summary>
+    public static string ResolveGimmickGuide(int day, string lessonCocktail, string orderedCocktail, bool skipDay0) =>
+        day == 0 && !skipDay0 && lessonCocktail == null ? orderedCocktail : null;
+
+    /// <summary>
+    /// 조작 안내만 하는 주문에서 안내할 미니게임. 따르기·채우기·병따기는 크리스 수업에서 이미 배웠으므로(웹 craft-flow.js는
+    /// 크리스 주문에서만 따르기 안내를 켠다) 처음 보는 쉐이킹·스터만 안내한다.
+    /// </summary>
+    public static bool GuidesInGimmickOnlyMode(ECraftGimmick type) => type is ECraftGimmick.Shake or ECraftGimmick.Stir;
+
+    /// <summary>레시피 선택·준비 화면은 플레이어에게 맡기고, 미니게임이 진행되는 동안만 조작 안내를 띄운다.</summary>
+    public void BeginGimmickGuide(string id)
+    {
+        EnsureView();
+        ReleaseLessonCap();
+        cocktail = id;
+        craftLesson = true;
+        gimmickGuideOnly = true;
+        OpenLessonCompleted = false;
+        preparationStep = null;
+        recipeConfirmed = false;
+        displayedText = null;
+        ActiveLesson = null;
+        view.Hide();
     }
 
     public void BeginCraftLesson(string id)
@@ -286,6 +325,7 @@ public sealed class StoryTutorialController : MonoBehaviour
         dialogue.ClearText();
         cocktail = id;
         craftLesson = true;
+        gimmickGuideOnly = false;
         OpenLessonCompleted = false;
         preparationStep = FirstPreparationStep;
         recipeConfirmed = false;
@@ -336,6 +376,11 @@ public sealed class StoryTutorialController : MonoBehaviour
     void Update()
     {
         if (!craftLesson || view == null) return;
+        if (gimmickGuideOnly)
+        {
+            UpdateGimmickGuide();
+            return;
+        }
         if (!craft.IsBusy && !craft.IsCraftFlowActive && craft.PendingDrink == null)
         {
             if (guidedStage != null) { guidedStage.TutorialCanStart = null; guidedStage = null; }
@@ -372,6 +417,25 @@ public sealed class StoryTutorialController : MonoBehaviour
         ReleaseLessonCap();
         ActiveLesson = "serveDrink";
         Show(craft.PendingDrink != null ? GinFizz ? "serveDrinkOrder" : "serveDrink" : "serveResult");
+    }
+
+    void UpdateGimmickGuide()
+    {
+        if (craft.Current?.Phase == ECraftPhase.Playing && craft.Plan != null)
+        {
+            int index = craft.Current.CurrentGimmickIndex;
+            if (index >= 0 && index < craft.Plan.Count && GuidesInGimmickOnlyMode(craft.Plan.Steps[index].Type))
+            {
+                ActiveLesson = "gimmick";
+                UpdateGimmick(craft.Plan.Steps[index]);
+                return;
+            }
+        }
+        if (ActiveLesson == null) return;
+        ReleaseLessonCap();
+        ActiveLesson = null;
+        displayedText = null;
+        view.Hide();
     }
 
     void UpdateGimmick(GimmickStep step)
@@ -491,6 +555,7 @@ public sealed class StoryTutorialController : MonoBehaviour
     public void EndLessons()
     {
         craftLesson = false;
+        gimmickGuideOnly = false;
         ActiveLesson = null;
         ReleaseLessonCap();
         if (guidedStage != null) guidedStage.TutorialCanStart = null;

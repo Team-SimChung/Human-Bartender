@@ -144,6 +144,10 @@ public sealed class BarSeatHudTests
         Assert.That(hud.Indicators.GetComponent<LayoutGroup>(), Is.Null, "프레임에는 Layout Group을 두지 않는다(테두리까지 한 칸으로 밀린다).");
         Assert.That(frame.type, Is.EqualTo(Image.Type.Sliced), "프레임은 9-slice로 늘린다.");
         Assert.That(frame.sprite.border, Is.Not.EqualTo(Vector4.zero), "프레임 스프라이트에 9-slice 테두리가 있어야 합니다.");
+        // 엔진 수정 사항 09: 점 세 개를 감싸는 알약 배경과 외곽 테두리는 그리지 않는다. 점·선택 링만 남긴다.
+        Assert.That(frame.enabled, Is.False, "좌석 점 뒤의 알약 배경은 그리지 않는다.");
+        var border = hud.Indicators.Find("SeatFrameBorder");
+        Assert.That(border == null || !border.gameObject.activeSelf, Is.True, "좌석 표시의 외곽 테두리는 그리지 않는다.");
     }
 
     [Test]

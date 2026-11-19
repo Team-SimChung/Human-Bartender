@@ -70,7 +70,7 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
         bubble.maxSize = new Vector2(Mathf.Min(authoredMaximumSize.x, (layer.rect.width - 20) / scale), authoredMaximumSize.y);
         Follow();
         await bubble.TextPlayer.PlayAsync(new TypingData(text, "", Vector3.zero, Color.white, actor == "luna"),
-            tags, typingDelay, token, wait: WaitAsync);
+            tags, typingDelay, token, wait: WaitAsync, periodRhythm: true);
         readTime = Mathf.Clamp(bubble.textLabel.textInfo.characterCount / Mathf.Max(1, charactersPerSecond),
             minimumReadTime, Mathf.Max(minimumReadTime, maximumReadTime));
     }

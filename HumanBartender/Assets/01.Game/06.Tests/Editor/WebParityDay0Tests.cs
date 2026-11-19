@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>웹 본편 0일차 흐름과 맞춘 Unity 규칙(시작 자리·튜토리얼 제조 인자·튜토리얼 문구 표)을 검사한다.</summary>
 public sealed class WebParityDay0Tests
 {
-    [TestCase(0, null, "gin_fizz", false, "gin_fizz")]
+    [TestCase(0, null, "gin_fizz", false, null)]
     [TestCase(0, null, "gin_tonic", false, "gin_tonic")]
     [TestCase(0, "gin_tonic", "gin_tonic", false, "gin_tonic")]
     [TestCase(0, null, "gin_fizz", true, null)]
@@ -15,10 +15,33 @@ public sealed class WebParityDay0Tests
     [TestCase(1, "bottle_beer", "bottle_beer", false, "bottle_beer")]
     [TestCase(2, null, "gin_fizz", false, null)]
     [TestCase(0, null, "unknown", false, null)]
-    public void CraftLessonsIncludePortsFirstOrderAndRespectSkipping(int day, string explicitCocktail,
+    public void CraftLessonsTeachOnlyChrisGinTonicAndRespectSkipping(int day, string explicitCocktail,
         string orderedCocktail, bool skip, string expected)
     {
         Assert.That(StoryTutorialController.ResolveCraftLesson(day, explicitCocktail, orderedCocktail, skip), Is.EqualTo(expected));
+    }
+
+    // 포트의 진피즈는 레시피·재료 수업 없이 쉐이킹 같은 처음 보는 미니게임 조작만 안내한다.
+    [TestCase(0, null, "gin_fizz", false, "gin_fizz")]
+    [TestCase(0, "gin_tonic", "gin_tonic", false, null)]
+    [TestCase(0, null, "gin_fizz", true, null)]
+    [TestCase(1, null, "gin_fizz", false, null)]
+    public void PortsGinFizzOnlyGuidesTheMinigame(int day, string explicitCocktail, string orderedCocktail, bool skip,
+        string expected)
+    {
+        string lesson = StoryTutorialController.ResolveCraftLesson(day, explicitCocktail, orderedCocktail, skip);
+        Assert.That(StoryTutorialController.ResolveGimmickGuide(day, lesson, orderedCocktail, skip), Is.EqualTo(expected));
+    }
+
+    // 따르기·채우기는 크리스 수업에서 배웠으므로 포트 주문에서는 다시 안내하지 않는다(웹 craft-flow.js).
+    [TestCase(ECraftGimmick.Shake, true)]
+    [TestCase(ECraftGimmick.Stir, true)]
+    [TestCase(ECraftGimmick.Pour, false)]
+    [TestCase(ECraftGimmick.FillUp, false)]
+    [TestCase(ECraftGimmick.Open, false)]
+    public void PortsOrderGuidesOnlyMinigamesNotYetTaught(ECraftGimmick type, bool expected)
+    {
+        Assert.That(StoryTutorialController.GuidesInGimmickOnlyMode(type), Is.EqualTo(expected));
     }
 
     [TestCase("OutSide", 0, EGameFlow.CommuteIn, EPlayerSpawn.FirstCommute)]
