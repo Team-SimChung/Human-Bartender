@@ -4166,7 +4166,7 @@ Transform:
   m_GameObject: {fileID: 398070673}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -16.913, y: 9.79, z: 0}
+  m_LocalPosition: {x: -16.913, y: 9.66, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10764,7 +10764,7 @@ Transform:
   m_GameObject: {fileID: 954953857}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.3299999, y: 0, z: 0}
+  m_LocalPosition: {x: 1.33, y: -0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -14832,7 +14832,7 @@ Transform:
   m_GameObject: {fileID: 1178157929}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -16.913, y: 10.49, z: -10}
+  m_LocalPosition: {x: -16.913, y: 10.36, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16231,7 +16231,7 @@ Transform:
   m_GameObject: {fileID: 1238390147}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.727, y: 9.82, z: 0}
+  m_LocalPosition: {x: -15.727, y: 9.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17452,9 +17452,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.055555556
-    width: 0.33333334
-    height: 0.3333333
+    y: 0
+    width: 0.99991274
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -17484,7 +17484,7 @@ Transform:
   m_GameObject: {fileID: 1305537442}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -16.912998, y: 10.49, z: -10}
+  m_LocalPosition: {x: -16.912998, y: 10.36, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -18671,7 +18671,7 @@ Transform:
   m_GameObject: {fileID: 1372032622}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.727, y: 9.82, z: 0}
+  m_LocalPosition: {x: -15.727, y: 9.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20824,7 +20824,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OutsideElevator
   logoEvent: {fileID: 94831492}
   logoFadeTiming: 0.25
-  radio: {fileID: 1095731500}
   changeCameraModeEvent: {fileID: 11400000, guid: c32ef6e22cbbca14aa31c164c86fdf23, type: 2}
   cameraReturnTiming: 0.75
   topPoint: {fileID: 890129396}
@@ -20838,6 +20837,12 @@ MonoBehaviour:
   fastBeforeMoveDelay: 0.05
   fastAfterMoveDelay: 0.3
   fastFadeInDuration: 0.45
+  bottomMenuSceneId: outside_elevator_menu_bottom
+  topMenuSceneId: outside_elevator_menu_top
+  bottomFastMenuSceneId: outside_elevator_menu_bottom_fast
+  topFastMenuSceneId: outside_elevator_menu_top_fast
+  bottomArrival: {fileID: 0}
+  topArrival: {fileID: 0}
 --- !u!114 &1582674274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21720,7 +21725,7 @@ Transform:
   m_GameObject: {fileID: 1639230067}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.727, y: 9.82, z: 0}
+  m_LocalPosition: {x: -15.727, y: 9.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -23876,7 +23881,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1950817317
   m_SortingLayer: 12
-  m_SortingOrder: 5
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: -7612851221316572020, guid: 49c00fd4b9af1483b8e9e5698ab9f3bf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -29473,6 +29478,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   view: {fileID: 740190000000000033}
   homeTerrace: {fileID: 0}
+  terraceChoiceConfirmGuard: 0.8
 --- !u!114 &740190000000000024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29576,7 +29582,7 @@ MonoBehaviour:
   choicesPrefab: {fileID: 850190000000000013, guid: f6a49d2cec2c4334aad9fa3230990a31, type: 3}
   ambientLayer: {fileID: 507392942}
   choiceSideGap: 14
-  menuScale: 0.7
+  choiceHeadHeight: 0.16
   textTags: {fileID: 11400000, guid: a4036fdbe34f51f32d1cb38225f1d890, type: 2}
   charactersPerSecond: 55
   terraceCharactersPerSecond: 60

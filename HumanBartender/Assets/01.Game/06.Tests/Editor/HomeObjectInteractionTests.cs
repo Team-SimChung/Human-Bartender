@@ -93,6 +93,32 @@ public sealed class HomeObjectInteractionTests
         finally { UnityEngine.Object.DestroyImmediate(player); }
     }
 
+    // 소파의 고정 메뉴는 TV처럼 CSV 메뉴 장면에서 읽는다. 코드가 처리하는 선택지 ID가 CSV에 그대로 있어야 한다.
+    [Test]
+    public void SofaMenusComeFromCsvWithTheIdsTheActionHandles()
+    {
+        var host = new GameObject("SofaMenuTest");
+        try
+        {
+            var sofa = host.AddComponent<HomeSofaAction>();
+            using var data = new SerializedObject(sofa);
+            var content = new CsvStoryTestContent();
+            var conditions = new ConditionUtil(GameStateManager.Instance, null, null);
+            NewStreetOptionData[] Menu(string property) => WorldInteractionController.PrepareOutsideChoices(content, conditions,
+                data.FindProperty(property).stringValue, null);
+
+            var main = Menu("menuSceneId");
+            CollectionAssert.AreEqual(new[] { "sleep", "save", "cancel" }, main.Select(value => value.Id));
+            CollectionAssert.AreEqual(new[] { "수면", "저장", "취소" }, main.Select(value => value.Text.Ko));
+            var overwrite = Menu("overwriteSceneId");
+            CollectionAssert.AreEqual(new[] { "overwrite", "back" }, overwrite.Select(value => value.Id));
+            CollectionAssert.AreEqual(new[] { "ok" }, Menu("messageSceneId").Select(value => value.Id));
+            Assert.That(main.Concat(overwrite).Where(value => value.IsCancel == true).Select(value => value.Id),
+                Is.EqualTo(new[] { "cancel", "back" }), "Esc·패드 B 취소는 cancel·back에만 걸립니다.");
+        }
+        finally { UnityEngine.Object.DestroyImmediate(host); }
+    }
+
     [Test]
     public void AuthoredHomeObjectsUseManualInteractionAndTheActualBookCover()
     {

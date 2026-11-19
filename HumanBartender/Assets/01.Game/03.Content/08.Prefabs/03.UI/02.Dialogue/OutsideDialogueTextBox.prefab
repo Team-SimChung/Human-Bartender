@@ -307,7 +307,7 @@ RectTransform:
   m_GameObject: {fileID: 3800628170868476413}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3190732095273570689}
@@ -712,6 +712,7 @@ MonoBehaviour:
   horizontalAnchor: 0
   horizontalOffset: 30.9773
   pointUp: 0
+  flipX: 0
   trackingEdgeMargin: 12
   singleImageSprite: {fileID: 4153481812424824212, guid: 8b10203c47caafa45a8b564511f0a5b7, type: 3}
   singleImageSize: {x: 10.167801, y: 8.5}
@@ -810,6 +811,7 @@ MonoBehaviour:
   horizontalAnchor: 1
   horizontalOffset: -29.0227
   pointUp: 0
+  flipX: 0
   trackingEdgeMargin: 12
   singleImageSprite: {fileID: -8522390261985450411, guid: ed2fe4d7c4d7db34bba3690fbe47c99e, type: 3}
   singleImageSize: {x: 10.167801, y: 8.5}
@@ -919,7 +921,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -8, y: 5}
-  m_SizeDelta: {x: 6.2, y: 6}
+  m_SizeDelta: {x: 6, y: 6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7200200000000000004
 CanvasRenderer:
@@ -1184,6 +1186,7 @@ MonoBehaviour:
   horizontalAnchor: 0.5
   horizontalOffset: 0.9773
   pointUp: 0
+  flipX: 0
   trackingEdgeMargin: 12
   singleImageSprite: {fileID: -2980120653554216641, guid: d60aedc454fe8b74cb5e9802dd9ac296, type: 3}
   singleImageSize: {x: 8.5, y: 8.5}

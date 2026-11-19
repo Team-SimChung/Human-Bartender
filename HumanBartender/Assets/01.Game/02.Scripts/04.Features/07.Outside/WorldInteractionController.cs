@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VContainer;
 
@@ -12,6 +13,9 @@ public sealed class WorldInteractionController : MonoBehaviour
 {
     [SerializeField] private WorldInteractionView view;
     [SerializeField] private HomeTerracePresentation homeTerrace;
+    [Tooltip("테라스 대화 선택지가 나타난 뒤 확정을 받지 않는 시간(초). 웹 테라스 기준 0.8초. " +
+        "그 밖의 외부·홈 선택지는 InteractionChoices 프리팹의 Confirm Guard Duration을 씁니다.")]
+    [SerializeField, Min(0)] private float terraceChoiceConfirmGuard = .8f;
     [Inject] private WorldInteractionSceneContext sceneContext;
     [Inject] private IConditionUtil conditions;
     [Inject] private IStoryContentSource storyContent;
@@ -222,7 +226,17 @@ public sealed class WorldInteractionController : MonoBehaviour
             return;
         }
         view.MoveChoice(WorldInteractionInput.ReadChoiceDirection());
-        if (WorldInteractionInput.AdvancePressed) TryHandleInput();
+        if (WorldInteractionInput.AdvancePressed || DialoguePointerPressed) TryHandleInput();
+    }
+
+    // 하단 '다음' 안내 대신 말풍선 클릭으로 대사를 넘긴다(웹 .outside-speech 클릭과 같음). 선택지 클릭은 선택창이 처리한다.
+    private bool DialoguePointerPressed
+    {
+        get
+        {
+            var mouse = Mouse.current;
+            return mouse != null && mouse.leftButton.wasPressedThisFrame && view.IsDialoguePointer(mouse.position.ReadValue());
+        }
     }
 
     private bool SessionAvailable => activeTarget != null && activeTarget.isActiveAndEnabled &&
@@ -355,8 +369,8 @@ public sealed class WorldInteractionController : MonoBehaviour
         try
         {
             if (terrace) await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? GameStateManager.Instance.CurrentDay);
-            view.Begin(target, terrace ? homeTerrace.LunaAnchor : player.transform,
-                speakers: terrace ? homeTerrace.Speakers : sessionActors?.Speakers ?? SessionSpeakers, terrace: terrace);
+            if (terrace) BeginTerraceView(target);
+            else view.Begin(target, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
             runner.Bind(view);
             var travel = target.GetComponent<WorldDialogueTravelSettings>();
             return await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
@@ -600,26 +614,29 @@ public sealed class WorldInteractionController : MonoBehaviour
         return new StoryExecutionResult(StoryExecutionStatus.Completed);
     }
 
-    private UniTask<NewStreetOptionData> ChooseMenuAsync(NewStreetOptionData[] options, string message, CancellationToken token)
-    {
-        view.Begin(activeTarget, player.transform, player.transform);
-        return view.ChooseMenuAsync(options, message, token);
-    }
-
-    // Action의 선택지도 일반 대화와 같은 표시·좌우 배치·거부 연출을 사용한다.
-    private async UniTask<NewStreetOptionData> ChooseOutsideChoicesAsync(string sceneId,
+    // 고정 메뉴(TV·소파·엘리베이터)는 CSV 메뉴 장면에서 선택지를 읽어 사물 메뉴 경로로 띄운다.
+    private UniTask<NewStreetOptionData> ChooseOutsideChoicesAsync(string sceneId, string message,
         Func<string, bool> canSelect, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        var options = PrepareOutsideChoices(storyContent, conditions, sceneId, canSelect);
-        view.Begin(activeTarget, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
+        return RunMenuAsync(PrepareOutsideChoices(storyContent, conditions, sceneId, canSelect), message, canSelect, token);
+    }
+
+    // 저장 슬롯처럼 실행 중에 만드는 목록만 선택지를 직접 넘긴다. 표시·검사는 CSV 메뉴와 같다.
+    private UniTask<NewStreetOptionData> ChooseMenuAsync(NewStreetOptionData[] options, string message, CancellationToken token) =>
+        RunMenuAsync(options, message, null, token);
+
+    /// <summary>사물 메뉴의 단일 경로. 대화 선택지와 같은 표시·좌우 배치·거부 연출을 쓰고, 메시지는 루나 위에 표시한다.</summary>
+    private async UniTask<NewStreetOptionData> RunMenuAsync(NewStreetOptionData[] options, string message,
+        Func<string, bool> canSelect, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        view.Begin(activeTarget, player.transform, player.transform);
         try
         {
-            var completion = new UniTaskCompletionSource<NewStreetOptionData>();
-            view.ShowOutsideChoices(options, option => completion.TrySetResult(option));
-            var selected = await completion.Task.AttachExternalCancellation(token);
+            var selected = await view.ChooseMenuAsync(options, message, token);
             token.ThrowIfCancellationRequested();
-            if (!options.Contains(selected) || selected.Selectable != true ||
+            if (!options.Contains(selected) || selected.Selectable == false ||
                 !conditions.CheckRequired(selected.When) || canSelect?.Invoke(selected.Id) == false)
                 throw new InvalidOperationException("[WorldInteraction] 선택할 수 없는 동작 선택지입니다.");
             return selected;
@@ -680,12 +697,16 @@ public sealed class WorldInteractionController : MonoBehaviour
 #endif
             if (target != null && view != null && !token.IsCancellationRequested && restoreDialogue)
             {
-                if (homeTerrace != null && homeTerrace.IsActive)
-                    view.Begin(target, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers, terrace: true);
+                if (homeTerrace != null && homeTerrace.IsActive) BeginTerraceView(target);
                 else if (player != null) view.Begin(target, player.transform, speakers: sessionActors?.Speakers ?? SessionSpeakers);
             }
         }
     }
+
+    // 테라스 대화는 루나 기준점·테라스 화자와 테라스 전용 대사 속도·선택지 확정 보호 시간을 쓴다.
+    private void BeginTerraceView(WorldInteractionTarget target) =>
+        view.Begin(target, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers, terrace: true,
+            choiceConfirmGuard: terraceChoiceConfirmGuard);
 
     private UniTask PlayWorldActionAsync(OutsideStoryWorldAction action, CancellationToken token)
     {
@@ -770,7 +791,7 @@ public sealed class WorldInteractionController : MonoBehaviour
                 view.EndScene();
                 if (terraceStory) await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? state.CurrentDay);
                 else if (homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, token);
-                if (terraceStory) view.Begin(activeTarget, homeTerrace.LunaAnchor, speakers: homeTerrace.Speakers, terrace: true);
+                if (terraceStory) BeginTerraceView(activeTarget);
                 else view.Begin(activeTarget, player.transform, player.transform, speakers: sessionActors?.Speakers);
                 runner.Bind(view);
                 var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,

@@ -31,11 +31,13 @@ public readonly struct WorldInteractionActionContext
     public readonly Func<Step[], Transform, CancellationToken, UniTask<StoryExecutionResult>> PlayAutomaticDialogue;
     public readonly Func<CancellationToken, UniTask> PlayNight;
     public readonly Action RefreshConditions;
+    /// <summary>실행 중에 만든 선택지(저장 슬롯 목록)로 사물 메뉴를 연다. 고정 메뉴는 ChooseOutsideChoices로 CSV에서 읽는다.</summary>
     public readonly Func<NewStreetOptionData[], string, CancellationToken, UniTask<NewStreetOptionData>> ChooseMenu;
     public readonly Action PrepareMorning;
     public readonly Func<CancellationToken, UniTask> FinishNight;
     public readonly Func<StudioSequence, CancellationToken, UniTask> PlayStudio;
-    public readonly Func<string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> ChooseOutsideChoices;
+    /// <summary>CSV 메뉴 장면(scene_id)의 선택지로 사물 메뉴를 연다. 인자: 장면 ID, 루나 위 메시지(없으면 null), 추가 선택 가능 조건, 취소.</summary>
+    public readonly Func<string, string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> ChooseOutsideChoices;
 
     public WorldInteractionActionContext(IInteractor player,
         Func<Step[], Transform, CancellationToken, UniTask<StoryExecutionResult>> playAutomaticDialogue,
@@ -43,7 +45,7 @@ public readonly struct WorldInteractionActionContext
         Func<NewStreetOptionData[], string, CancellationToken, UniTask<NewStreetOptionData>> chooseMenu = null,
         Action prepareMorning = null, Func<CancellationToken, UniTask> finishNight = null,
         Func<StudioSequence, CancellationToken, UniTask> playStudio = null,
-        Func<string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> chooseOutsideChoices = null)
+        Func<string, string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> chooseOutsideChoices = null)
     {
         Player = player;
         PlayAutomaticDialogue = playAutomaticDialogue;

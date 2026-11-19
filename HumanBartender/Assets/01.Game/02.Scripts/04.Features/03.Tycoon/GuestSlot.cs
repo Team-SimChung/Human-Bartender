@@ -98,6 +98,9 @@ public class GuestSlot : MonoBehaviour
     /// <summary>단골(카메오)의 그림을 붙이는 곳. 랜덤 손님에게는 쓰지 않는다.</summary>
     public GuestCharacterView CharacterView => characterView;
 
+    /// <summary>이 좌석 말풍선의 글자 재생기. 대화 기록이 본 글자를 읽으려고 구독한다. 말풍선이 연결되지 않았으면 null.</summary>
+    public DialogueTextPlayer BarkPlayer => speechBubble != null ? speechBubble.TextPlayer : null;
+
     /// <summary>GuestManager가 테스트 모드 여부를 전달한다. true면 파츠 addressable 로딩 대신 tempAppearanceObject를 On/Off한다.</summary>
     public void SetTempAppearanceMode(bool enabled)
     {

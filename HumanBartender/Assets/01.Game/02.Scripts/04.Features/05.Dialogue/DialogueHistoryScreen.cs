@@ -43,6 +43,7 @@ public sealed class DialogueHistoryScreen : MonoBehaviour
     public void Open()
     {
         if (IsOpen || !CanOpen) return;
+        // 일시정지 전에 사본을 뜬다. 목록은 여는 순간의 기록이고, 현재 줄은 그때까지 보인 글자만 담는다.
         var entries = history.Snapshot();
         for (int i = 0; i < entries.Length; i++)
         {
@@ -55,7 +56,8 @@ public sealed class DialogueHistoryScreen : MonoBehaviour
         latestButton.interactable = entries.Length > 0;
         pauseHandle = GamePause.Acquire();
         IsOpen = true;
-        // 단골·튜토리얼 대화 중에만 열 수 있다. 게임 시간 기반 타이핑·연출을 멈춘다.
+        // 단골·튜토리얼 대화 중이거나 영업 중에 열 수 있다. 게임 시간을 멈춰 타이핑·말풍선·손님 대기 시간을 세우고,
+        // 현재 문장을 끝까지 공개하거나 다음 줄로 넘기지 않는다.
         screen.SetActive(true);
         ScrollToLatest();
         EventSystem.current?.SetSelectedGameObject(null);

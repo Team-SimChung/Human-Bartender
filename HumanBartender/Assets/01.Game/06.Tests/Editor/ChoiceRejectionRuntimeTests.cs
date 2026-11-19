@@ -251,6 +251,17 @@ public sealed class ChoiceRejectionRuntimeTests
         Assert.That(controller.View.IsChoosing, Is.True, interactionFailure?.ToString() ?? interactionResult.Error);
         while (controller.View.Choices.IsRevealing && Time.realtimeSinceStartup < deadline) yield return null;
         Assert.That(controller.View.Choices.IsRevealing, Is.False);
+        // 펼침이 끝나도 확정 보호 시간에는 E를 버린다. 잠긴 첫 항목도 거부 표시 없이 그대로 남아야 한다.
+        var choices = controller.View.Choices;
+        if (choices.IsConfirmGuarded)
+        {
+            controller.View.ConfirmChoice();
+            Assert.That(controller.View.IsChoosing, Is.True);
+            Assert.That(choices.Rows.Any(row => row.IsRejected), Is.False, "보호 시간에 누른 확정은 거부 연출도 하지 않아야 합니다.");
+        }
+        while (choices.IsConfirmGuarded && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(choices.IsConfirmGuarded, Is.False);
+        Assert.That(choices.Rows.Any(row => row.IsRejected), Is.False, "보호 시간에 버린 확정이 나중에 실행되면 안 됩니다.");
         yield return null;
     }
 
