@@ -65,14 +65,15 @@ public sealed class BarSeatHudPresenter : MonoBehaviour
     }
 
     /// <summary>
-    /// 영업 중에는 되묻기 버튼과 같은 조건(CanUseGuestActions)을 따르고, 대화 중에는 준비·레시피 화면이 열려 있지 않을 때 보인다.
+    /// 영업 중에는 되묻기 버튼과 같은 조건(CanUseGuestActions)을 따른다. 단골 대화(2부) 중에는 숨기고,
+    /// 좌석 둘러보기·좌석 알림 수업 동안만 준비·레시피 화면이 닫혀 있을 때 보인다.
     /// 어느 쪽이든 기믹 중과 튜토리얼 전면 안내 중에는 숨는다. 카메라가 좌석을 옮기는 동안에는 숨기지 않는다 — 점이 이동을 보여 줘야 한다.
     /// </summary>
     bool ShouldShow(bool tycoon)
     {
         if (view.Suppressed || phases == null || craft != null && craft.Current?.Phase == ECraftPhase.Playing) return false;
         if (tycoon) return servicePanel == null || servicePanel.CanUseGuestActions;
-        return phases.CurrentPhase == EPlayPhase.Dialogue &&
+        return phases.CurrentPhase == EPlayPhase.Dialogue && view.InSeatLesson &&
             (preparation == null || !preparation.IsOpen) && (recipes == null || !recipes.IsOpen);
     }
 

@@ -17,7 +17,11 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     [Tooltip("소파 같은 동작 메뉴에만 적용하는 선택창 배율. 일반 대화 선택창에는 적용하지 않음.")]
     [SerializeField, Range(.1f, 1)] private float menuScale = .7f;
     [SerializeField] private NewTextTagDataSO textTags;
-    [SerializeField, Min(0)] private float typingDelay = .035f;
+    [Header("Typing")]
+    [Tooltip("거리·집 대사가 나오는 속도(초당 글자 수). 웹 기본 배속 55. 마침표 멈춤은 DialoguePresentationSettings가 정한다.")]
+    [SerializeField, Min(1)] private float charactersPerSecond = 55;
+    [Tooltip("테라스 대사가 나오는 속도(초당 글자 수). 웹 기본 배속 60.")]
+    [SerializeField, Min(1)] private float terraceCharactersPerSecond = 60;
     [Inject] private ICameraImpulse cameraImpulse;
     [Inject] private ISoundEffectPlayer sound;
     private Vector2 authoredMaximumSize;
@@ -60,7 +64,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         {
             instance.name = "AmbientSpeechBubble";
             var presenter = instance.gameObject.AddComponent<WorldAmbientDialogueView>();
-            presenter.Initialize(instance, ambientLayer, textTags, typingDelay, sound);
+            presenter.Initialize(instance, ambientLayer, textTags, 1f / charactersPerSecond, sound);
             return presenter;
         }
         catch { Destroy(instance.gameObject); throw; }
@@ -125,9 +129,11 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
 
     private Transform speakerOverride;
     private bool automatic;
+    private bool terraceDialogue;
 
+    /// <param name="terrace">테라스 대화. 대사 속도를 테라스 기준(terraceCharactersPerSecond)으로 바꾼다.</param>
     public void Begin(WorldInteractionTarget value, Transform playerTransform, Transform anchor = null, bool autoAdvance = false,
-        WorldDialogueSpeakers speakers = null)
+        WorldDialogueSpeakers speakers = null, bool terrace = false)
     {
         if (!built) throw new InvalidOperationException("상호작용 UI가 초기화되지 않았습니다.");
         EndScene();
@@ -136,6 +142,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         speakerOverride = anchor;
         sceneSpeakers = speakers;
         automatic = autoAdvance;
+        terraceDialogue = terrace;
         bubble.TextPlayer.ConfigureAudio(sound, automatic);
         imageMode = value.Output == WorldInteractionOutput.Image;
         if (imageMode && value.InspectionImage == null) throw new InvalidOperationException("확대할 이미지가 없습니다.");
@@ -165,7 +172,9 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         float scale = Mathf.Max(.001f, Mathf.Abs(bubble.bubble.localScale.x));
         bubble.maxSize = new Vector2(Mathf.Min(authoredMaximumSize.x, (root.rect.width - 20) / scale), authoredMaximumSize.y);
         Follow();
-        await bubble.TextPlayer.PlayAsync(new TypingData(text, "", Vector3.zero, Color.white, actor == "luna"), textTags, typingDelay, token);
+        float typingDelay = 1f / (terraceDialogue ? terraceCharactersPerSecond : charactersPerSecond);
+        await bubble.TextPlayer.PlayAsync(new TypingData(text, "", Vector3.zero, Color.white, actor == "luna"), textTags, typingDelay, token,
+            periodRhythm: true);
         Follow();
     }
 
@@ -206,6 +215,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         explicitSpeaker = false;
         placement = WorldSpeechBubblePlacement.Above;
         automatic = false;
+        terraceDialogue = false;
         hasDialogue = false;
         menuMode = false;
         if (!built) return;

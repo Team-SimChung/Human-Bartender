@@ -205,8 +205,24 @@ public class DialogueRunner : MonoBehaviour
                 if (played && cinemaAfter == "johnny-memory") run.Conditions.ApplyRequired("flag.campaign_observation = true");
             }
             run.Conditions.ApplyRequired(step.Effects);
+            NotifyGrantedItem(step);
             if (branch) return;
         }
+    }
+
+    /// <summary>
+    /// 거리 대본의 effect 행 arg는 그 순간 받는 아이템이다(신문 NPC의 기어 부품, 기신교 신도의 엠블럼).
+    /// 보유 기록은 같은 행의 effects가 남기고, 처음 한 번만 지나가게 하는 것은 행의 when이 맡는다. 여기서는 획득 알림만 띄운다.
+    /// </summary>
+    void NotifyGrantedItem(Step step)
+    {
+        if (!string.Equals(step.Type, "effect", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(step.Arg)) return;
+        if (popupService == null)
+        {
+            Debug.LogWarning("[Dialogue] 팝업 서비스가 없어 아이템 획득 알림을 띄우지 못했습니다: " + step.Arg);
+            return;
+        }
+        popupService.Popup(PopupType.IngredientAcquired, step.Arg.Trim()).Forget(Debug.LogException);
     }
 
     private async UniTask<bool> PlayChoiceAsync(Step step, Execution run, int depth)

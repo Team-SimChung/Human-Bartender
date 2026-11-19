@@ -157,7 +157,7 @@ public sealed class ServeAffinityTests
         var wired = (IServeProcessor)typeof(OrderRequestController)
             .GetProperty("Processor", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(injected);
         var popups = new PopupSpy();
-        using var audio = new SceneAudioController(null, player, popups, conditions);
+        using var audio = new SceneAudioController(null, player, popups);
         audio.Start();
         wired.Apply(wired.Evaluate(new OrderDetails("up", "port", "gin_fizz"), Drink("gin_fizz", ENewGrade.Excellent)));
         wired.Apply(wired.Evaluate(new OrderDetails("down", "port", "gin_fizz"), Drink("gin_fizz", ENewGrade.Poor)));
