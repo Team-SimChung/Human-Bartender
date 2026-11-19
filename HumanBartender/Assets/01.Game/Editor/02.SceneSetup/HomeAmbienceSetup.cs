@@ -11,18 +11,20 @@ public static class HomeAmbienceSetup
 {
     public const string HomePath = "Assets/01.Game/01.Scenes/Home.unity";
     public const string PrefabPath = "Assets/01.Game/03.Content/08.Prefabs/04.Shared/03.Audio/DistanceAmbientAudio.prefab";
-    const string RainPath = "Assets/01.Game/03.Content/04.Audio/02.Ambience/Weather/rain_loop.ogg";
+    const string AmbiencePath = "Assets/01.Game/03.Content/04.Audio/02.Ambience/";
 
-    [MenuItem("Tools/Home/Connect Window Rain Audio")]
+    [MenuItem("Tools/Home/Connect Home and Terrace Ambience")]
     public static void Run()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             throw new InvalidOperationException("[HomeAmbience] Play 모드를 종료한 뒤 실행하세요.");
-        var rain = AssetDatabase.LoadAssetAtPath<AudioClip>(RainPath);
+        var houseRain = AssetDatabase.LoadAssetAtPath<AudioClip>(AmbiencePath + "Weather/rain_house.wav");
+        var terraceRain = AssetDatabase.LoadAssetAtPath<AudioClip>(AmbiencePath + "Weather/rain_loop.ogg");
+        var city = AssetDatabase.LoadAssetAtPath<AudioClip>(AmbiencePath + "Urban/street_loop.ogg");
         var output = Resources.Load<AudioOutputSettings>("AudioOutputSettings");
-        if (rain == null || output == null)
+        if (houseRain == null || terraceRain == null || city == null || output == null)
         {
-            Debug.LogWarning("[HomeAmbience] rain_loop 또는 AudioOutputSettings가 없어 연결하지 않았습니다.");
+            Debug.LogWarning("[HomeAmbience] 실내 빗소리·실외 빗소리·도시음과 AudioOutputSettings를 확인하세요.");
             return;
         }
         GameObject prefab = EnsurePrefab(output);
@@ -47,58 +49,85 @@ public static class HomeAmbienceSetup
                 return;
             }
             bool changed = false;
-            var group = all.FirstOrDefault(t => t.name == "IndoorAmbience" && t.parent == gameplay.transform);
-            if (group == null)
+            var indoorGroup = EnsureGroup("IndoorAmbience");
+            var terraceGroup = EnsureGroup("TerraceAmbience");
+            Connect(indoorGroup, "WindowRainAudio", houseRain, true, .4675f, .65f, player.transform);
+            Connect(terraceGroup, "TerraceCityAudio", city, false, .3025f, .45f);
+            Connect(terraceGroup, "TerraceRainAudio", terraceRain, true, .257125f, .7f);
+
+            if (!changed) return;
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("[HomeAmbience] Home 창가 빗소리와 테라스 도시음·빗소리를 연결했습니다.");
+
+            Transform EnsureGroup(string name)
             {
-                var go = new GameObject("IndoorAmbience");
-                Undo.RegisterCreatedObjectUndo(go, "Create home ambience group");
+                var group = all.FirstOrDefault(t => t.name == name && t.parent == gameplay.transform);
+                if (group != null) return group;
+                var go = new GameObject(name);
+                Undo.RegisterCreatedObjectUndo(go, "Create ambience group");
                 go.transform.SetParent(gameplay.transform, false);
-                group = go.transform;
                 changed = true;
+                return go.transform;
             }
-            var ambient = group.GetComponentsInChildren<DistanceAmbientAudio>(true).FirstOrDefault(a => a.name == "WindowRainAudio");
-            if (ambient == null)
+
+            void Connect(Transform group, string name, AudioClip clip, bool rainOnly, float volume, float fadeSeconds,
+                Transform listener = null)
             {
-                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, group);
-                Undo.RegisterCreatedObjectUndo(instance, "Place window rain audio");
-                instance.name = "WindowRainAudio";
-                Bounds bounds = room.sprite.bounds;
-                instance.transform.position = room.transform.TransformPoint(new Vector3(
-                    Mathf.Lerp(bounds.min.x, bounds.max.x, .6f), Mathf.Lerp(bounds.min.y, bounds.max.y, .43f), 0f));
-                ambient = instance.GetComponent<DistanceAmbientAudio>();
-                var data = new SerializedObject(ambient);
-                data.FindProperty("listener").objectReferenceValue = player.transform;
-                data.FindProperty("clip").objectReferenceValue = rain;
-                var days = data.FindProperty("days");
-                days.arraySize = 4;
-                for (int day = 0; day < days.arraySize; day++)
+                bool indoors = listener != null;
+                var ambient = group.GetComponentsInChildren<DistanceAmbientAudio>(true).FirstOrDefault(a => a.name == name);
+                if (ambient == null)
                 {
-                    var entry = days.GetArrayElementAtIndex(day);
-                    entry.FindPropertyRelative("day").intValue = day;
-                    entry.FindPropertyRelative("play").boolValue = day < 3;
+                    var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, group);
+                    Undo.RegisterCreatedObjectUndo(instance, "Place ambience");
+                    instance.name = name;
+                    ambient = instance.GetComponent<DistanceAmbientAudio>();
+                    var data = new SerializedObject(ambient);
+                    data.FindProperty("clip").objectReferenceValue = clip;
+                    data.FindProperty("listener").objectReferenceValue = listener;
+                    data.FindProperty("baseVolume").floatValue = volume;
+                    data.FindProperty("useDistanceAttenuation").boolValue = indoors;
+                    data.FindProperty("duckDuringDialogue").boolValue = false;
+                    data.FindProperty("fadeSeconds").floatValue = fadeSeconds;
+                    if (indoors)
+                    {
+                        Bounds bounds = room.sprite.bounds;
+                        instance.transform.position = room.transform.TransformPoint(new Vector3(
+                            Mathf.Lerp(bounds.min.x, bounds.max.x, .6f), Mathf.Lerp(bounds.min.y, bounds.max.y, .43f), 0f));
+                        data.FindProperty("fullVolumeDistance").floatValue = .2f;
+                        data.FindProperty("silentDistance").floatValue = 5.1f;
+                        data.FindProperty("distantGain").floatValue = .42f / .85f;
+                    }
+                    var days = data.FindProperty("days");
+                    days.arraySize = terrace.StoryDayCount;
+                    for (int day = 0; day < days.arraySize; day++)
+                    {
+                        var entry = days.GetArrayElementAtIndex(day);
+                        bool commuteIn = !rainOnly || GameAudioRules.IsRainy(day, EGameFlow.CommuteIn);
+                        bool commuteOut = !rainOnly || GameAudioRules.IsRainy(day, EGameFlow.CommuteOut);
+                        entry.FindPropertyRelative("day").intValue = day;
+                        entry.FindPropertyRelative("play").boolValue = commuteIn;
+                        entry.FindPropertyRelative("commuteOut").enumValueIndex = (int)(commuteIn == commuteOut
+                            ? DistanceAmbientAudio.CommuteOutPlayback.SameAsCommuteIn
+                            : commuteOut ? DistanceAmbientAudio.CommuteOutPlayback.Play : DistanceAmbientAudio.CommuteOutPlayback.Mute);
+                    }
+                    data.ApplyModifiedProperties();
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(ambient);
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(instance.transform);
+                    changed = true;
                 }
-                data.ApplyModifiedProperties();
-                PrefabUtility.RecordPrefabInstancePropertyModifications(ambient);
-                PrefabUtility.RecordPrefabInstancePropertyModifications(instance.transform);
-                changed = true;
-            }
-            var terraceData = new SerializedObject(terrace);
-            var sounds = terraceData.FindProperty("indoorAmbience");
-            bool connected = false;
-            for (int i = 0; i < sounds.arraySize; i++)
-                connected |= sounds.GetArrayElementAtIndex(i).objectReferenceValue == ambient;
-            if (!connected)
-            {
+
+                var terraceData = new SerializedObject(terrace);
+                var sounds = terraceData.FindProperty(indoors ? "indoorAmbience" : "terraceAmbience");
+                for (int i = 0; i < sounds.arraySize; i++)
+                    if (sounds.GetArrayElementAtIndex(i).objectReferenceValue == ambient) return;
+                Undo.RecordObject(terrace, "Connect ambience");
                 sounds.arraySize++;
                 sounds.GetArrayElementAtIndex(sounds.arraySize - 1).objectReferenceValue = ambient;
                 terraceData.ApplyModifiedProperties();
                 EditorUtility.SetDirty(terrace);
                 changed = true;
             }
-            if (!changed) return;
-            EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene);
-            Debug.Log("[HomeAmbience] 창문 빗소리·거리 감쇠·날짜 배열·실내 전환을 Home에 저장했습니다.");
         }
         finally { if (openedHere) EditorSceneManager.CloseScene(scene, true); }
     }

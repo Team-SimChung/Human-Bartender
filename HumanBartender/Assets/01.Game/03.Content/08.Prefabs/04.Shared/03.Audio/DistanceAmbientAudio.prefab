@@ -146,8 +146,10 @@ MonoBehaviour:
   clip: {fileID: 0}
   listener: {fileID: 0}
   baseVolume: 0.3
+  useDistanceAttenuation: 1
   fullVolumeDistance: 0.75
   silentDistance: 4
+  distantGain: 0
   distanceCurve:
     serializedVersion: 2
     m_Curve:
@@ -172,5 +174,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  duckDuringDialogue: 1
   fadeSeconds: 0.5
   days: []

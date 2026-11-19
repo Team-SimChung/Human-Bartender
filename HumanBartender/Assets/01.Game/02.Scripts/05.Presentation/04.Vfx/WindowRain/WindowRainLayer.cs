@@ -119,6 +119,9 @@ public sealed class WindowRainLayer : MonoBehaviour
     {
         if (targetCamera != null && Layers.TryGetValue(targetCamera, out var layer) && layer == this)
             Layers.Remove(targetCamera);
+        simulation?.Clear();
+        prewarmed = false;
+        IsRaining = false;
         ReleaseGpu();
     }
 

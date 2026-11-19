@@ -27,12 +27,20 @@ public sealed class HomeTerracePresentation : MonoBehaviour
     [Header("테라스 이용 중 활성화")]
     [SerializeField, Tooltip("까마귀·비둘기가 들어 있는 TerraceBirdsGroup입니다. 테라스를 비추기 전에 켜고 복귀·취소 시 끕니다. 이 컴포넌트 자체를 포함하지 않는 자식 그룹을 연결하세요.")]
     private GameObject terraceBirdsRoot;
+    [SerializeField, Tooltip("비 오는 밤에 테라스 화면을 비추기 전부터 켜는 빗줄기 파티클입니다. 대본 날짜의 퇴근 날씨를 사용합니다.")]
+    private GameObject terraceRain;
+    [SerializeField, Tooltip("Home 카메라에 저장한 물방울 합성입니다. 테라스 빗줄기가 켜진 동안만 렌더링합니다.")]
+    private WindowRainLayer terraceRainGlass;
+    [SerializeField, Tooltip("실내 창문 밖 빗줄기입니다. 현재 날짜와 출퇴근 구간의 날씨를 사용합니다.")]
+    private GameObject roomWindowRain;
     [Header("대본 스텝 연출")]
     [SerializeField, Tooltip("씬에 배치한 새 도착 연출입니다. 날짜별 스텝은 각 컴포넌트의 Inspector에서 설정합니다.")]
     private TerraceBirdArrival[] birdArrivals = Array.Empty<TerraceBirdArrival>();
-    [Header("실내 환경음")]
+    [Header("실내·테라스 환경음")]
     [SerializeField, Tooltip("실내에서만 들리는 거리 환경음. 테라스 진입 시 줄이고 실내 복귀 시 다시 재생한다.")]
     private DistanceAmbientAudio[] indoorAmbience = Array.Empty<DistanceAmbientAudio>();
+    [SerializeField, Tooltip("테라스에서만 들리는 환경음. 대본의 날짜와 퇴근 재생 설정을 사용한다.")]
+    private DistanceAmbientAudio[] terraceAmbience = Array.Empty<DistanceAmbientAudio>();
     private bool previousCameraEnabled;
     public bool IsActive { get; private set; }
     public WorldDialogueSpeakers Speakers => speakers;
@@ -41,13 +49,33 @@ public sealed class HomeTerracePresentation : MonoBehaviour
     private void Awake()
     {
         SetTerraceBirdsActive(false);
-        SetIndoorAmbienceAllowed(true);
+        SetTerraceEnvironment(false);
     }
 
-    private void SetIndoorAmbienceAllowed(bool allowed)
+    private void SetTerraceEnvironment(bool onTerrace, int day = -1)
     {
+        bool raining = onTerrace &&
+            GameAudioRules.IsRainy(day >= 0 ? day : GameStateManager.Instance.CurrentDay, EGameFlow.CommuteOut);
+        if (terraceRain != null) terraceRain.SetActive(raining);
+        if (terraceRainGlass != null) terraceRainGlass.enabled = raining;
+        RefreshRoomWindowRain(!onTerrace);
         foreach (var ambience in indoorAmbience)
-            if (ambience != null) ambience.SetPlaybackAllowed(allowed);
+            if (ambience != null) ambience.SetPlaybackAllowed(!onTerrace);
+        foreach (var ambience in terraceAmbience)
+            if (ambience != null) ambience.SetPlaybackAllowed(onTerrace, day >= 0 ? day : null, EGameFlow.CommuteOut);
+    }
+
+    private void Update()
+    {
+        if (!IsActive) RefreshRoomWindowRain(true);
+    }
+
+    private void RefreshRoomWindowRain(bool indoors)
+    {
+        if (roomWindowRain == null) return;
+        var state = GameStateManager.Instance;
+        bool raining = indoors && isActiveAndEnabled && GameAudioRules.IsRainy(state.CurrentDay, state.GameFlow);
+        if (roomWindowRain.activeSelf != raining) roomWindowRain.SetActive(raining);
     }
 
     private void SetTerraceBirdsActive(bool active)
@@ -61,8 +89,10 @@ public sealed class HomeTerracePresentation : MonoBehaviour
 
     public void BeginStory(string id, int day)
     {
+        int storyDay = ContainsStory(id) ? day : -1;
+        if (IsActive) SetTerraceEnvironment(true, storyDay);
         foreach (var arrival in birdArrivals)
-            if (arrival != null) arrival.PrepareForDay(ContainsStory(id) ? day : -1);
+            if (arrival != null) arrival.PrepareForDay(storyDay);
         SyncBirdsWithForeground();
     }
 
@@ -94,9 +124,9 @@ public sealed class HomeTerracePresentation : MonoBehaviour
         token.ThrowIfCancellationRequested();
         if (IsActive)
         {
-            SetIndoorAmbienceAllowed(false);
             SetTerraceBirdsActive(true);
             if (storyId != null) BeginStory(storyId, day);
+            else if (day >= 0) SetTerraceEnvironment(true, day);
             return;
         }
         if (terraceCamera == null || cameraBrain == null || speakers == null || lunaAnchor == null || terraceForeground == null || fades == null)
@@ -109,10 +139,10 @@ public sealed class HomeTerracePresentation : MonoBehaviour
         try
         {
             IsActive = true;
-            SetIndoorAmbienceAllowed(false);
             SetForegroundX(entranceStartX);
             SetTerraceBirdsActive(true);
             if (storyId != null) BeginStory(storyId, day);
+            else SetTerraceEnvironment(true, day);
             terraceCamera.PreviousStateIsValid = false;
             terraceCamera.enabled = true;
             cameraBrain.ResetState(); // 검은 화면에서 즉시 전환하고 기본 카메라 블렌드는 유지함.
@@ -152,7 +182,7 @@ public sealed class HomeTerracePresentation : MonoBehaviour
 
     private void RestoreCamera()
     {
-        SetIndoorAmbienceAllowed(true);
+        SetTerraceEnvironment(false);
         ResetBirds();
         SetTerraceBirdsActive(false);
         if (!IsActive) return;

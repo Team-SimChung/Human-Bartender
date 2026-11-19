@@ -139,6 +139,40 @@ public sealed class HomeTerracePresentationTests
         Assert.That(data.FindProperty("entranceEndX").floatValue, Is.Zero);
         Assert.That(data.FindProperty("entranceDuration").floatValue, Is.GreaterThan(0));
         Assert.That(data.FindProperty("entranceEase").intValue, Is.EqualTo((int)Ease.InOutSine));
+        var rain = data.FindProperty("terraceRain").objectReferenceValue as GameObject;
+        Assert.That(rain, Is.Not.Null);
+        Assert.That(rain.activeSelf, Is.False);
+        Assert.That(rain.transform.parent, Is.EqualTo(presentation.transform));
+        Assert.That(PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(rain), Does.EndWith("/05.Vfx/FX_Rain.prefab"));
+        var emitter = rain.GetComponentsInChildren<ParticleSystem>(true).Single(p => p.gameObject.activeSelf && p.main.loop);
+        Assert.That(emitter.main.playOnAwake && emitter.main.prewarm, Is.True);
+        Assert.That(emitter.collision.enabled, Is.False);
+        var glass = data.FindProperty("terraceRainGlass").objectReferenceValue as WindowRainLayer;
+        Assert.That(glass, Is.Not.Null);
+        Assert.That(glass.enabled, Is.False);
+        Assert.That(glass.GetComponent<Camera>(), Is.Not.Null);
+        using var glassData = new SerializedObject(glass);
+        Assert.That(glassData.FindProperty("rainSource").objectReferenceValue, Is.EqualTo(rain));
+        Assert.That(glassData.FindProperty("dropShader").objectReferenceValue, Is.Not.Null);
+        Assert.That(glassData.FindProperty("compositeShader").objectReferenceValue, Is.Not.Null);
+
+        var roomRain = data.FindProperty("roomWindowRain").objectReferenceValue as GameObject;
+        Assert.That(roomRain, Is.Not.Null);
+        Assert.That(roomRain.activeSelf, Is.False);
+        Assert.That(roomRain.transform.parent.name, Is.EqualTo("RoomBackground"));
+        var room = roomRain.transform.parent.GetComponent<SpriteRenderer>();
+        var city = room.transform.parent.GetComponentsInChildren<SpriteRenderer>()
+            .Single(renderer => renderer.name == "Chrishouse_BG_City");
+        var roomEmitters = roomRain.GetComponentsInChildren<ParticleSystem>(true)
+            .Where(p => p.gameObject.activeSelf && p.main.loop).ToArray();
+        CollectionAssert.AreEquivalent(new[] { "WindowPaneRain", "RightExteriorRain" },
+            roomEmitters.Select(p => p.transform.parent.name));
+        foreach (var particle in roomEmitters)
+        {
+            var renderer = particle.GetComponent<ParticleSystemRenderer>();
+            Assert.That(renderer.sortingLayerID, Is.EqualTo(room.sortingLayerID).And.EqualTo(city.sortingLayerID));
+            Assert.That(renderer.sortingOrder, Is.GreaterThan(city.sortingOrder).And.LessThan(room.sortingOrder));
+        }
     }
 
     [UnityTest]
@@ -239,6 +273,12 @@ public sealed class HomeTerracePresentationTests
         changedTimeScale = true;
         Time.timeScale = 0;
         var presentation = CreatePresentation(out var foreground, out var camera);
+        var rain = new GameObject("TerraceRain");
+        rain.transform.SetParent(presentation.transform, false);
+        rain.SetActive(false);
+        var roomRain = new GameObject("RoomWindowRain");
+        roomRain.transform.SetParent(presentation.transform, false);
+        roomRain.SetActive(false);
         var birds = new GameObject("TerraceBirdsGroup");
         birds.transform.SetParent(foreground, false);
         birds.SetActive(false);
@@ -247,6 +287,8 @@ public sealed class HomeTerracePresentationTests
         using (var data = new SerializedObject(presentation))
         {
             data.FindProperty("terraceBirdsRoot").objectReferenceValue = birds;
+            data.FindProperty("terraceRain").objectReferenceValue = rain;
+            data.FindProperty("roomWindowRain").objectReferenceValue = roomRain;
             data.ApplyModifiedPropertiesWithoutUndo();
         }
         Assert.That(birds.activeInHierarchy, Is.False);
@@ -271,11 +313,12 @@ public sealed class HomeTerracePresentationTests
         }
         var fades = new RecordingFade(foreground);
         using var cancellation = new CancellationTokenSource();
-        Observe(presentation.EnterAsync(fades, cancellation.Token)).Forget();
+        Observe(presentation.EnterAsync(fades, cancellation.Token, "night0", 0)).Forget();
         yield return WaitUntil(() => fades.FirstFadeInStarted, "The terrace camera did not reach fade-in.");
         Assert.That(finished, Is.False);
         Assert.That(fades.FirstFadeInStartX, Is.EqualTo(-1.8f));
         Assert.That(birds.activeInHierarchy, Is.True, "화면이 밝아지기 전에 새를 활성화한다.");
+        Assert.That(rain.activeInHierarchy, Is.True, "비 오는 날에는 화면이 밝아지기 전에 비를 활성화한다.");
         Assert.That(crow.CurrentStartFrame, Is.InRange(1, 4));
         Assert.That(foreground.localPosition, Is.EqualTo(new Vector3(-1.8f, 2, 3)));
         AssertCarriedHierarchy();
@@ -293,6 +336,7 @@ public sealed class HomeTerracePresentationTests
         Assert.That(presentation.IsActive, Is.False);
         Assert.That(camera.enabled, Is.False);
         Assert.That(birds.activeSelf, Is.False, "진입 취소는 새의 반복과 대기도 정리한다.");
+        Assert.That(rain.activeSelf, Is.False);
         Assert.That(crow.CurrentStartFrame, Is.Zero);
         Assert.That(foreground.localPosition, Is.EqualTo(new Vector3(0, 2, 3)));
         AssertCarriedHierarchy();
@@ -302,9 +346,10 @@ public sealed class HomeTerracePresentationTests
         Assert.That(crow.CurrentStartFrame, Is.Zero);
 
         var replayFades = new RecordingFade(foreground);
-        Observe(presentation.EnterAsync(replayFades, CancellationToken.None)).Forget();
+        Observe(presentation.EnterAsync(replayFades, CancellationToken.None, "night2", 2)).Forget();
         yield return WaitUntil(() => replayFades.FirstFadeInStarted, "A fresh entrance did not start.");
         Assert.That(birds.activeInHierarchy, Is.True);
+        Assert.That(rain.activeSelf, Is.False, "맑은 밤에는 비가 꺼져 있다.");
         Assert.That(crow.CurrentStartFrame, Is.InRange(1, 4), "재진입하면 랜덤 재생을 새로 시작한다.");
         Assert.That(foreground.localPosition.x, Is.EqualTo(-1.8f));
         replayFades.ReleaseFirstFadeIn();
@@ -315,13 +360,35 @@ public sealed class HomeTerracePresentationTests
         Assert.That(foreground.localPosition, Is.EqualTo(new Vector3(0, 2, 3)));
         AssertCarriedHierarchy();
 
-        Observe(presentation.ExitAsync(replayFades, CancellationToken.None)).Forget();
-        yield return WaitUntil(() => finished, "Exit did not restore the indoor camera.");
+        presentation.BeginStory("night1", 1);
+        Assert.That(rain.activeInHierarchy, Is.True);
+        var state = GameStateManager.Instance;
+        int previousDay = state.CurrentDay;
+        EGameFlow previousFlow = state.GameFlow;
+        try
+        {
+            state.CurrentDay = 0;
+            state.GameFlow = EGameFlow.CommuteOut;
+            yield return null;
+            Assert.That(roomRain.activeSelf, Is.False, "테라스를 보는 동안 실내 창문 비는 꺼져 있다.");
+            Observe(presentation.ExitAsync(replayFades, CancellationToken.None)).Forget();
+            yield return WaitUntil(() => finished, "Exit did not restore the indoor camera.");
+            Assert.That(roomRain.activeSelf, Is.True, "비 오는 퇴근 구간으로 돌아오면 창밖 비가 이어진다.");
+            state.GameFlow = EGameFlow.CommuteIn;
+            yield return null;
+            Assert.That(roomRain.activeSelf, Is.False, "같은 날짜의 맑은 출근 구간에는 창밖 비가 멈춘다.");
+        }
+        finally
+        {
+            state.CurrentDay = previousDay;
+            state.GameFlow = previousFlow;
+        }
         Assert.That(failure, Is.Null);
         Assert.That(presentation.IsActive, Is.False);
         Assert.That(presentation.GetComponentInChildren<DistanceAmbientAudio>().PlaybackAllowed, Is.True);
         Assert.That(camera.enabled, Is.False);
         Assert.That(birds.activeSelf, Is.False);
+        Assert.That(rain.activeSelf, Is.False);
         Assert.That(crow.CurrentStartFrame, Is.Zero);
     }
 }

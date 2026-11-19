@@ -52,8 +52,9 @@ public sealed class DistanceAmbientAudioTests
     }
 
     void Set(string field, object value) => typeof(DistanceAmbientAudio).GetField(field, Private).SetValue(ambience, value);
-    void Tick(float seconds, int day = 1, bool focused = true, float context = 1f) =>
-        typeof(DistanceAmbientAudio).GetMethod("UpdatePlayback", Private).Invoke(ambience, new object[] { seconds, day, focused, context });
+    void Tick(float seconds, int day = 1, bool focused = true, float context = 1f, EGameFlow flow = EGameFlow.CommuteIn) =>
+        typeof(DistanceAmbientAudio).GetMethod("UpdatePlayback", Private)
+            .Invoke(ambience, new object[] { seconds, day, flow, focused, context });
 
     [TestCase(-1, false)]
     [TestCase(0, false)]
@@ -69,6 +70,27 @@ public sealed class DistanceAmbientAudioTests
     {
         Set("days", System.Array.Empty<DistanceAmbientAudio.DayPlayback>());
         Assert.That(ambience.IsScheduledForDay(1), Is.False);
+        Assert.That(ambience.IsScheduledForDay(1, EGameFlow.CommuteOut), Is.False);
+    }
+
+    [Test]
+    public void ReturnPlaybackCanInheritEnableOrMuteIndependently()
+    {
+        Set("days", new[]
+        {
+            new DistanceAmbientAudio.DayPlayback { day = 1, play = true },
+            new DistanceAmbientAudio.DayPlayback { day = 2, commuteOut = DistanceAmbientAudio.CommuteOutPlayback.Play },
+            new DistanceAmbientAudio.DayPlayback { day = 3, play = true, commuteOut = DistanceAmbientAudio.CommuteOutPlayback.Mute }
+        });
+        Assert.That(ambience.IsScheduledForDay(1, EGameFlow.CommuteOut), Is.True);
+        Assert.That(ambience.IsScheduledForDay(2, EGameFlow.CommuteIn), Is.False);
+        Assert.That(ambience.IsScheduledForDay(2, EGameFlow.CommuteOut), Is.True);
+        Assert.That(ambience.IsScheduledForDay(3, EGameFlow.CommuteIn), Is.True);
+        Assert.That(ambience.IsScheduledForDay(3, EGameFlow.CommuteOut), Is.False);
+        Tick(.5f, day: 2, flow: EGameFlow.CommuteOut);
+        Assert.That(source.volume, Is.EqualTo(1f));
+        Tick(.5f, day: 2, flow: EGameFlow.CommuteIn);
+        Assert.That(source.volume, Is.Zero);
         Set("days", new[]
         {
             new DistanceAmbientAudio.DayPlayback { day = 1, play = true },
@@ -95,6 +117,19 @@ public sealed class DistanceAmbientAudioTests
         Assert.That(ambience.EvaluateVolume(ambience.transform.position, 1), Is.Zero);
         ambience.SetPlaybackAllowed(true);
         Assert.That(ambience.EvaluateVolume(ambience.transform.position, 1), Is.EqualTo(1f));
+    }
+
+    [Test]
+    public void FarGainKeepsRoomAudibleAndFlatGainNeedsNoListener()
+    {
+        Set("distantGain", .4f);
+        Assert.That(ambience.EvaluateVolume(Vector3.right * 3, 1), Is.EqualTo(.7f).Within(.0001f));
+        Assert.That(ambience.EvaluateVolume(Vector3.right * 10, 1), Is.EqualTo(.4f));
+        Set("useDistanceAttenuation", false);
+        Set("listener", null);
+        Assert.That(ambience.EvaluateVolume(Vector3.right * 10, 1), Is.EqualTo(1f));
+        Tick(.5f);
+        Assert.That(source.volume, Is.EqualTo(1f));
     }
 
     [Test]
@@ -128,8 +163,19 @@ public sealed class DistanceAmbientAudioTests
         Assert.That(source.volume, Is.Zero);
     }
 
+    [TestCase(0, false, true)]
+    [TestCase(1, true, true)]
+    [TestCase(2, true, false)]
+    [TestCase(3, true, true)]
+    [TestCase(99, false, false)]
+    public void WeatherMatchesWebByDayAndCommute(int day, bool commuteIn, bool commuteOut)
+    {
+        Assert.That(GameAudioRules.IsRainy(day, EGameFlow.CommuteIn), Is.EqualTo(commuteIn));
+        Assert.That(GameAudioRules.IsRainy(day, EGameFlow.CommuteOut), Is.EqualTo(commuteOut));
+    }
+
     [Test]
-    public void SavedHomeWindowUsesReusablePartRainClipPlayerAndIndoorGate()
+    public void SavedHomeSwitchesFromWindowRainToTerraceCityAndNightRain()
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(HomeAmbienceSetup.PrefabPath);
         Assert.That(prefab, Is.Not.Null);
@@ -142,17 +188,51 @@ public sealed class DistanceAmbientAudioTests
         try
         {
             var roots = scene.GetRootGameObjects();
-            var window = roots.SelectMany(r => r.GetComponentsInChildren<DistanceAmbientAudio>(true)).Single(a => a.name == "WindowRainAudio");
+            var parts = roots.SelectMany(r => r.GetComponentsInChildren<DistanceAmbientAudio>(true)).ToArray();
+            var window = parts.Single(a => a.name == "WindowRainAudio");
+            var city = parts.Single(a => a.name == "TerraceCityAudio");
+            var rain = parts.Single(a => a.name == "TerraceRainAudio");
             Assert.That(window.transform.parent.name, Is.EqualTo("IndoorAmbience"));
             Assert.That(window.transform.parent.parent.name, Is.EqualTo("04.Gameplay"));
-            Assert.That(AssetDatabase.GetAssetPath(Ref<AudioClip>(window, "clip")), Does.EndWith("/Weather/rain_loop.ogg"));
+            Assert.That(city.transform.parent.name, Is.EqualTo("TerraceAmbience"));
+            Assert.That(rain.transform.parent, Is.SameAs(city.transform.parent));
+            Assert.That(AssetDatabase.GetAssetPath(Ref<AudioClip>(window, "clip")), Does.EndWith("/Weather/rain_house.wav"));
+            Assert.That(AssetDatabase.GetAssetPath(Ref<AudioClip>(city, "clip")), Does.EndWith("/Urban/street_loop.ogg"));
+            Assert.That(AssetDatabase.GetAssetPath(Ref<AudioClip>(rain, "clip")), Does.EndWith("/Weather/rain_loop.ogg"));
             Assert.That(Ref<Transform>(window, "listener").GetComponent<Player>(), Is.Not.Null);
             var terrace = roots.SelectMany(r => r.GetComponentsInChildren<HomeTerracePresentation>(true)).Single();
-            var entries = new SerializedObject(terrace).FindProperty("indoorAmbience");
-            Assert.That(Enumerable.Range(0, entries.arraySize).Any(i => entries.GetArrayElementAtIndex(i).objectReferenceValue == window), Is.True);
-            var audio = Ref<AudioSource>(window, "source");
-            Assert.That(audio.playOnAwake, Is.False);
-            Assert.That(audio.outputAudioMixerGroup, Is.EqualTo(AudioOutputSettings.Shared.GetGroup(AudioBus.SoundEffects)));
+            var gate = typeof(HomeTerracePresentation).GetMethod("SetTerraceEnvironment", Private);
+            var door = roots.SelectMany(r => r.GetComponentsInChildren<Transform>(true)).Single(t => t.name == "HomeSafeSpawn");
+            Vector3 outsideRange = window.transform.position + Vector3.left * 20f;
+
+            gate.Invoke(terrace, new object[] { false, -1 });
+            Assert.That(window.EvaluateVolume(door.position, 0, EGameFlow.CommuteIn), Is.Zero);
+            float doorVolume = window.EvaluateVolume(door.position, 0, EGameFlow.CommuteOut);
+            Assert.That(doorVolume, Is.GreaterThan(0f));
+            Assert.That(window.EvaluateVolume(window.transform.position, 0, EGameFlow.CommuteOut), Is.GreaterThan(doorVolume));
+            Assert.That(city.EvaluateVolume(outsideRange, 0, EGameFlow.CommuteOut), Is.Zero);
+            Assert.That(rain.EvaluateVolume(outsideRange, 0, EGameFlow.CommuteOut), Is.Zero);
+
+            for (int day = 0; day < terrace.StoryDayCount; day++)
+            {
+                Assert.That(window.IsScheduledForDay(day, EGameFlow.CommuteIn), Is.EqualTo(GameAudioRules.IsRainy(day, EGameFlow.CommuteIn)));
+                Assert.That(window.IsScheduledForDay(day, EGameFlow.CommuteOut), Is.EqualTo(GameAudioRules.IsRainy(day, EGameFlow.CommuteOut)));
+                gate.Invoke(terrace, new object[] { true, day });
+                Assert.That(window.EvaluateVolume(window.transform.position, 1), Is.Zero);
+                Assert.That(city.EvaluateVolume(outsideRange, 99, EGameFlow.CommuteIn), Is.GreaterThan(0f));
+                Assert.That(rain.EvaluateVolume(outsideRange, 99, EGameFlow.CommuteIn) > 0f, Is.EqualTo(GameAudioRules.IsRainy(day, EGameFlow.CommuteOut)));
+            }
+
+            gate.Invoke(terrace, new object[] { false, -1 });
+            Assert.That(window.EvaluateVolume(door.position, 1), Is.GreaterThan(0f));
+            Assert.That(city.EvaluateVolume(outsideRange, 1), Is.Zero);
+            Assert.That(rain.EvaluateVolume(outsideRange, 1), Is.Zero);
+            foreach (var partInstance in parts)
+            {
+                var audio = Ref<AudioSource>(partInstance, "source");
+                Assert.That(audio.playOnAwake, Is.False);
+                Assert.That(audio.outputAudioMixerGroup, Is.EqualTo(AudioOutputSettings.Shared.GetGroup(AudioBus.SoundEffects)));
+            }
         }
         finally { if (openedHere) EditorSceneManager.CloseScene(scene, true); }
     }
