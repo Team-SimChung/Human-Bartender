@@ -18,11 +18,13 @@ using VContainer;
 ///
 /// 지금은 say·enter·exit·choice·order·craft·serve·timeline을 실행하고 나머지 스텝은 기록만 남긴다.
 /// </summary>
-public class StoryScriptRunner : MonoBehaviour
+public partial class StoryScriptRunner : MonoBehaviour
 {
     [Inject] IOrderPaymentService orderPayments;
     [SerializeField] private RecipeBrowserScreen recipeScreen;
     [SerializeField] private StoryTutorialController tutorial;
+    [Tooltip("3일차 히든 레시피 해금 창(Canvas_HiddenRecipeUnlock). 확인할 때까지 대본을 멈춥니다.")]
+    [SerializeField] private HiddenRecipeUnlockScreen hiddenRecipeScreen;
     CraftServingView tables;
 
     public bool CanStartCraft { get; private set; }
@@ -121,21 +123,27 @@ public class StoryScriptRunner : MonoBehaviour
         try
         {
             token.ThrowIfCancellationRequested();
-            var cursor = new StorySceneCursor(script, conditions, phase);
-            if (!cursor.IsEmpty)
+#if UNITY_EDITOR
+            if (testStart != null) await RunFromTestDialogueAsync(token);
+            else
+#endif
             {
-                bool initialFramingDone = false;
-                while (cursor.TryTakeNext(out NewScriptSceneData scene))
+                var cursor = new StorySceneCursor(script, conditions, phase);
+                if (!cursor.IsEmpty)
                 {
-                    token.ThrowIfCancellationRequested();
-                    if (!initialFramingDone && TryGetFirstExecutableStep(scene, out ENewStepType firstStep))
+                    bool initialFramingDone = false;
+                    while (cursor.TryTakeNext(out NewScriptSceneData scene))
                     {
-                        // 첫 동작이 입장이면 그 입장의 프레임을 바로 잡는다. 빈 좌석 프레임을
-                        // 먼저 재생하면 첫 손님 앞에서 카메라가 물러났다가 다시 다가온다.
-                        if (firstStep != ENewStepType.Enter) await ApplyFramingAsync(token);
-                        initialFramingDone = true;
+                        token.ThrowIfCancellationRequested();
+                        if (!initialFramingDone && TryGetFirstExecutableStep(scene, out ENewStepType firstStep))
+                        {
+                            // 첫 동작이 입장이면 그 입장의 프레임을 바로 잡는다. 빈 좌석 프레임을
+                            // 먼저 재생하면 첫 손님 앞에서 카메라가 물러났다가 다시 다가온다.
+                            if (firstStep != ENewStepType.Enter) await ApplyFramingAsync(token);
+                            initialFramingDone = true;
+                        }
+                        if (await PlayFromAsync(scene, token)) break;
                     }
-                    if (await PlayFromAsync(scene, token)) break;
                 }
             }
             token.ThrowIfCancellationRequested();
@@ -280,6 +288,7 @@ public class StoryScriptRunner : MonoBehaviour
                 // 선택지의 effects는 고른 항목의 것을 이미 적용했다. 스텝 자체의 effects는 그다음이다.
                 token.ThrowIfCancellationRequested();
                 conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
+                await CheckRecipeUnlockAsync(scene.Day, token);
 
                 if (target != null) return (false, target);
 
@@ -295,9 +304,55 @@ public class StoryScriptRunner : MonoBehaviour
             // 씬과 seq를 합친 것을 표로 쓴다.
             token.ThrowIfCancellationRequested();
             conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
+            await CheckRecipeUnlockAsync(scene.Day, token);
         }
 
         return (false, null);
+    }
+
+    async UniTask CheckRecipeUnlockAsync(int day, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (!CampaignStoryRules.TryUnlockJohnnyRecipe(day, conditions))
+        {
+            WarnIfJohnnyUnlockBlocked(day);
+            return;
+        }
+        NewCocktailData? cocktail = FindStoryCocktail(CampaignStoryRules.JohnnyCocktailId);
+        if (hiddenRecipeScreen != null && cocktail.HasValue)
+        {
+            // 웹과 같이 확인할 때까지 다음 스텝(톰 입장)을 진행하지 않는다.
+            await hiddenRecipeScreen.ShowAsync(cocktail.Value, NewDataLoadManager.StoryShelfItems, token);
+            return;
+        }
+
+        Debug.LogError(hiddenRecipeScreen == null
+            ? "[Story] Hidden Recipe Screen이 비어 있어 기본 알림으로 대신합니다. Setup Hidden Recipe Unlock 메뉴를 실행하세요."
+            : $"[Story] '{CampaignStoryRules.JohnnyCocktailId}' 칵테일 데이터가 없어 기본 알림으로 대신합니다.", this);
+        if (popupService != null)
+            await popupService.Popup(PopupType.EventOccurred, "새 레시피: 올드 패션드\n와일드 독 · 비터스 · 각설탕을 사용할 수 있습니다.");
+    }
+
+    bool warnedJohnnyUnlockBlocked;
+
+    // 각설탕은 받았는데 전날 조건이 없어 해금되지 않으면 조용히 넘어가지 않고 한 번 알린다.
+    void WarnIfJohnnyUnlockBlocked(int day)
+    {
+        if (warnedJohnnyUnlockBlocked || day != 3 || conditions == null ||
+            !conditions.CheckRequired("flag.day3_sugar_received") ||
+            conditions.CheckRequired("flag.johnny_recipe_unlocked")) return;
+        var missing = CampaignStoryRules.MissingJohnnyPrerequisites(conditions);
+        if (missing.Count == 0) return;
+        warnedJohnnyUnlockBlocked = true;
+        Debug.LogWarning("[Story] 각설탕을 받았지만 올드 패션드 해금 조건이 부족합니다: " + string.Join(", ", missing) +
+                         ". 정상 진행이나 바 대사 테스트 창(3일차)으로 시작하면 채워집니다.", this);
+    }
+
+    static NewCocktailData? FindStoryCocktail(string id)
+    {
+        foreach (var cocktail in NewDataLoadManager.StoryCocktails ?? Array.Empty<NewCocktailData>())
+            if (cocktail.Id == id) return cocktail;
+        return null;
     }
 
     bool TryFindScene(string sceneId, out NewScriptSceneData found)
@@ -563,8 +618,12 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         string tutorialCocktailId = CsvGameContentRules.ResolveCraftTutorialCocktail(step.Arg);
+        string orderedCocktailId = currentOrder?.Details.CocktailId;
+        bool skipDay0 = scene.Day == 0 && conditions.CheckRequired("flag.day0_skip_tutorial");
         string lessonCocktailId = StoryTutorialController.ResolveCraftLesson(scene.Day, tutorialCocktailId,
-            currentOrder?.Details.CocktailId, scene.Day == 0 && conditions.CheckRequired("flag.day0_skip_tutorial"));
+            orderedCocktailId, skipDay0);
+        string gimmickGuideId = StoryTutorialController.ResolveGimmickGuide(scene.Day, lessonCocktailId,
+            orderedCocktailId, skipDay0);
         bool guided = lessonCocktailId != null && tutorial != null;
 
         // 튜토리얼은 무엇을 만들지가 대본에 적혀 있어 주문 없이도 열 수 있다.
@@ -579,6 +638,7 @@ public class StoryScriptRunner : MonoBehaviour
         if (recipeScreen == null)
             throw new InvalidOperationException("[Story] Recipe Browser Screen 참조가 필요합니다.");
         if (guided) tutorial.BeginCraftLesson(lessonCocktailId);
+        else if (gimmickGuideId != null && tutorial != null) tutorial.BeginGimmickGuide(gimmickGuideId);
         TryOpenCraftMenu();
         await UniTask.CompletedTask;
     }
@@ -613,7 +673,7 @@ public class StoryScriptRunner : MonoBehaviour
         var serve = result.Serve;
         orderPayments.Pay(new[] { serve.Settlement });
         conditions.Result = new StoryResultContext(serve.CraftGrade, serve.FinalGrade,
-            serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
+            serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId, serve.ServedCocktail);
         currentOrder = null;
         orderResultSignal = null;
         // 웹은 병따기 수업을 끝까지 마치면 이 기록을 남긴다. 아직 읽는 곳은 없다.

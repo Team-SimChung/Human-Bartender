@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bbe1f0368816964896af33fd3a513ab, type: 3}
+  m_Name: tl_intro
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioSequence
+  id: tl_intro
+  displayName: 도입 · 마지막 부탁
+  timeline: {fileID: 11400000, guid: ff1891e7b6ca247539412c2b1eacba3f, type: 2}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  actors: []
+  allowSkip: 1

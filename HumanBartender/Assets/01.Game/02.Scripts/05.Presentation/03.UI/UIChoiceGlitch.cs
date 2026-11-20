@@ -3,108 +3,174 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>선택 규칙과 분리된 글자 연출. 홀드 해제·포커스 상실·비활성화 때 원본 메시를 복원한다.</summary>
+/// <summary>기존 선택지의 포커스·홀드 입력을 공통 글자 글리치에 연결한다.</summary>
 [DisallowMultipleComponent]
 public sealed class UIChoiceGlitch : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
-    [SerializeField] TMP_Text label;
-    [SerializeField] ChoiceHoldButton holdButton;
-    [SerializeField] GameObject focusDecoration;
-    [SerializeField] Color restingColor = new Color32(77, 145, 165, 255);
-    [SerializeField] Color focusedColor = new Color32(237, 252, 255, 255);
-    [SerializeField] TMP_FontAsset restingFont;
-    [SerializeField] TMP_FontAsset focusedFont;
-    Selectable selectable;
-    bool hovered, selected, animating;
-    bool lastFocus;
-    double startedAt;
+    [SerializeField] private TMP_Text label;
+    [SerializeField] private ChoiceHoldButton holdButton;
+    [SerializeField] private GameObject focusDecoration;
+    [SerializeField] private Color restingColor = new Color32(77, 145, 165, 255);
+    [SerializeField] private Color focusedColor = new Color32(237, 252, 255, 255);
+    [SerializeField] private TMP_FontAsset restingFont;
+    [SerializeField] private TMP_FontAsset focusedFont;
 
-    void OnEnable()
+    [Header("글리치")]
+    [Tooltip("글리치 연출 값 에셋(04.Data/01.Definitions/UI/ChoiceGlitchSettings). 비우면 기본값으로 재생한다.")]
+    [SerializeField] private UIChoiceGlitchSettings settings;
+
+    private float Duration => ChoiceTextGlitch.GetDuration(settings);
+    private float FrameRate => settings != null ? settings.FrameRate : UIChoiceGlitchSettings.DefaultFrameRate;
+    private int ActiveFrames => settings != null ? settings.ActiveFrames : UIChoiceGlitchSettings.DefaultActiveFrames;
+    private int RestEvery => settings != null ? settings.RestEvery : UIChoiceGlitchSettings.DefaultRestEvery;
+    private float Jitter => settings != null ? settings.Jitter : UIChoiceGlitchSettings.DefaultJitter;
+    private Color32 TintA => settings != null ? settings.TintA : UIChoiceGlitchSettings.DefaultTintA;
+    private Color32 TintB => settings != null ? settings.TintB : UIChoiceGlitchSettings.DefaultTintB;
+
+    private readonly ChoiceTextGlitch glitch = new ChoiceTextGlitch();
+    private Selectable selectable;
+    private bool hovered;
+    private bool selected;
+    private bool animating;
+    // 마우스 선택은 호버가 강조를 맡는다. 다시 열린 선택지에 이전 클릭의 강조가 남지 않게 구분한다.
+    private bool selectedByPointer;
+    private bool lastFocus;
+    private bool? managedFocus;
+    private double startedAt;
+
+    public void SetManagedFocus(bool focused)
     {
-        selectable = GetComponent<Selectable>();
-        if (label != null) label.OnPreRenderText += Distort;
-        if (holdButton != null) holdButton.HoldingChanged += OnHoldingChanged;
-        selected = EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
+        managedFocus = focused;
         RefreshFocus();
     }
 
-    void OnDisable()
+    private bool IsFocused => (managedFocus ?? (hovered || selected)) && selectable != null && selectable.IsInteractable();
+
+    public bool HasExternalFeedback { get; private set; }
+
+    /// <summary>거부 표시가 글자 외형을 소유하는 동안에도 포커스 추적과 화살표는 유지한다.</summary>
+    public void SetExternalFeedback(bool active)
+    {
+        if (HasExternalFeedback == active) return;
+        animating = false;
+        glitch.Stop();
+        HasExternalFeedback = active;
+        RefreshFocus();
+    }
+
+    private void OnEnable()
+    {
+        selectable = GetComponent<Selectable>();
+        if (holdButton != null)
+        {
+            holdButton.HoldingChanged -= OnHoldingChanged;
+            holdButton.HoldingChanged += OnHoldingChanged;
+        }
+        selected = !selectedByPointer && EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
+        RefreshFocus();
+    }
+
+    private void OnDisable()
     {
         if (holdButton != null) holdButton.HoldingChanged -= OnHoldingChanged;
-        if (label != null) label.OnPreRenderText -= Distort;
         hovered = selected = animating = false;
         if (focusDecoration != null) focusDecoration.SetActive(false);
-        if (label != null && restingFont != null) label.font = restingFont;
+        // 외부 효과의 재질·폰트 복원은 그 효과를 시작한 선택지 항목이 담당한다.
+        if (!HasExternalFeedback && label != null && restingFont != null) label.font = restingFont;
         Restore();
     }
 
-    void OnHoldingChanged(bool holding)
+    private void OnHoldingChanged(bool holding)
     {
+        if (HasExternalFeedback) return;
         animating = holding;
         startedAt = Time.unscaledTimeAsDouble;
         if (!holding) Restore();
     }
 
-    public void OnPointerEnter(PointerEventData data) { hovered = true; RefreshFocus(true); }
-    public void OnPointerExit(PointerEventData data) { hovered = false; RefreshFocus(); }
-    public void OnSelect(BaseEventData data) { selected = true; RefreshFocus(true); }
-    public void OnDeselect(BaseEventData data) { selected = false; RefreshFocus(); }
-
-    void RefreshFocus(bool entered = false)
+    public void OnPointerEnter(PointerEventData data)
     {
-        bool focus = (hovered || selected) && selectable != null && selectable.IsInteractable();
+        hovered = true;
+        RefreshFocus(true);
+    }
+
+    public void OnPointerExit(PointerEventData data)
+    {
+        hovered = false;
+        RefreshFocus();
+    }
+
+    public void OnSelect(BaseEventData data)
+    {
+        selectedByPointer = data is PointerEventData;
+        selected = !selectedByPointer;
+        RefreshFocus(true);
+    }
+
+    public void OnDeselect(BaseEventData data)
+    {
+        selected = selectedByPointer = false;
+        RefreshFocus();
+    }
+
+    private void RefreshFocus(bool entered = false)
+    {
+        bool focus = IsFocused;
         lastFocus = focus;
         if (focusDecoration != null) focusDecoration.SetActive(focus);
+        if (HasExternalFeedback) return;
         if (label != null)
         {
             label.color = focus ? focusedColor : restingColor;
             TMP_FontAsset font = focus ? focusedFont : restingFont;
             if (font != null && label.font != font) label.font = font;
         }
-        // 홀드 선택지도 포커스 색은 적용하되, 글자 글리치는 누르고 있는 동안만 재생한다.
+        // 홀드 선택지는 포커스 색만 적용하고, 글리치는 누르고 있는 동안 재생한다.
         if (holdButton != null) return;
-        if (focus && entered) { animating = true; startedAt = Time.unscaledTimeAsDouble; }
-        else if (!focus) { animating = false; Restore(); }
+        if (focus && entered)
+        {
+            animating = true;
+            startedAt = Time.unscaledTimeAsDouble;
+        }
+        else if (!focus)
+        {
+            animating = false;
+            Restore();
+        }
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
-        bool focus = (hovered || selected) && selectable != null && selectable.IsInteractable();
+        bool focus = IsFocused;
         if (focus != lastFocus) RefreshFocus();
+        if (HasExternalFeedback) return;
         if (!animating || label == null) return;
-        if (selectable == null || !selectable.IsInteractable() ||
-            (holdButton == null && Time.unscaledTimeAsDouble - startedAt >= .3))
+        double elapsed = Time.unscaledTimeAsDouble - startedAt;
+        if (selectable == null || !selectable.IsInteractable() || (holdButton == null && elapsed >= Duration))
         {
             animating = false;
             Restore();
             return;
         }
-        // TMP regenerates pristine vertices before OnPreRenderText; offsets never accumulate.
-        label.ForceMeshUpdate();
+        glitch.Sample(label, settings, elapsed);
     }
 
-    void Distort(TMP_TextInfo info)
+    private void Restore()
     {
-        if (!animating) return;
-        float phase = (float)((Time.unscaledTimeAsDouble - startedAt) % .3);
-        int frame = Mathf.FloorToInt(phase * 60);
-        if (frame % 6 == 0 || frame > 15) return;
-        for (int i = 0; i < info.characterCount; i++)
-        {
-            var c = info.characterInfo[i];
-            if (!c.isVisible) continue;
-            var mesh = info.meshInfo[c.materialReferenceIndex];
-            float offset = ((i * 7 + frame * 3) % 5 - 2) * .75f;
-            Color32 tint = (i + frame) % 3 == 0 ? new Color32(101, 247, 255, 255) : new Color32(230, 166, 214, 255);
-            for (int v = 0; v < 4; v++)
-            {
-                int index = c.vertexIndex + v;
-                mesh.vertices[index].x += offset;
-                if ((i + frame) % 3 != 1) { tint.a = mesh.colors32[index].a; mesh.colors32[index] = tint; }
-            }
-        }
+        glitch.Stop();
+        if (!HasExternalFeedback && label != null) label.ForceMeshUpdate(true);
     }
 
-    void Restore() { if (label != null) label.ForceMeshUpdate(true); }
-    void OnApplicationFocus(bool focused) { if (!focused) { animating = false; hovered = false; Restore(); } }
+    private void OnDestroy()
+    {
+        glitch.Dispose();
+    }
+
+    private void OnApplicationFocus(bool focused)
+    {
+        if (focused) return;
+        animating = false;
+        hovered = false;
+        Restore();
+    }
 }

@@ -148,6 +148,70 @@ public sealed class PourTargetHeightTests
         Assert.That(Get<Transform>("targetHeightMarker").localPosition.y, Is.EqualTo(initialY));
     }
 
+    [Test]
+    public void StreamWidthControlNarrowsAirborneParticlesWithoutChangingLengthOrContainedLiquid()
+    {
+        Configure(90f, ENewUnit.Ml, false);
+        var renderRoot = new GameObject("Stream Width Render");
+        owned.Add(renderRoot);
+        var camera = renderRoot.AddComponent<Camera>();
+        camera.orthographic = true;
+        camera.orthographicSize = 2.5f;
+        camera.transform.position = new Vector3(0f, 0f, -10f);
+        var output = new RenderTexture(1024, 1024, 0);
+        owned.Add(output);
+        output.Create();
+        camera.targetTexture = output;
+        var renderer = renderRoot.AddComponent<SphLiquidRenderer>();
+        var settings = new SerializedObject(renderer);
+        settings.FindProperty("fieldResolutionScale").floatValue = 1f;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        renderer.SetContainer(glass, HalfExtents);
+        renderer.SetTargetCamera(camera);
+        renderer.Init(profile, Color.yellow);
+        var particle = Particle(Vector2.zero);
+        particle.velocity = Vector2.down * 1.6f;
+        Vector2Int ReadShape(float scale, bool inside, bool received = false)
+        {
+            typeof(SphParticle).GetField("insideContainer", Private).SetValue(particle, inside);
+            typeof(SphParticle).GetField("volumeReceived", Private).SetValue(particle, received);
+            renderer.SetAirborneWidthScale(scale);
+            renderer.UpdateBlobs(new[] { particle });
+            var build = typeof(SphLiquidRenderer).GetMethod("BuildCommands", Private);
+            Graphics.ExecuteCommandBuffer((CommandBuffer)build.Invoke(renderer, new object[] { camera, 1f / 60f }));
+            var field = (RenderTexture)typeof(SphLiquidRenderer).GetField("fieldTexture", Private).GetValue(renderer);
+            return new Vector2Int(ReadSpan(field, true), ReadSpan(field, false));
+        }
+        Vector2Int normal = ReadShape(1f, false);
+        Vector2Int narrow = ReadShape(.7f, false);
+        Assert.That(normal.x, Is.GreaterThan(0));
+        Assert.That(narrow.x, Is.GreaterThan(0).And.LessThan(normal.x * .85f));
+        Assert.That(narrow.y, Is.EqualTo(normal.y).Within(2), "물줄기의 축 방향 연결 길이를 유지한다.");
+        Assert.That(ReadShape(.7f, true), Is.EqualTo(narrow),
+            "잔 안으로 들어왔어도 아직 담기지 않은 유입 줄기는 가는 두께를 유지한다.");
+        Vector2Int contained = ReadShape(1f, true, true);
+        Assert.That(ReadShape(.7f, true, true), Is.EqualTo(contained), "실제로 담긴 액체의 크기는 유지한다.");
+    }
+
+    int ReadSpan(RenderTexture field, bool horizontal)
+    {
+        var pixels = new Texture2D(horizontal ? field.width : 1, horizontal ? 1 : field.height,
+            TextureFormat.RGBAFloat, false, true);
+        owned.Add(pixels);
+        var previous = RenderTexture.active;
+        try
+        {
+            RenderTexture.active = field;
+            pixels.ReadPixels(horizontal ? new Rect(0f, field.height / 2, field.width, 1f)
+                : new Rect(field.width / 2, 0f, 1f, field.height), 0, 0);
+            pixels.Apply();
+        }
+        finally { RenderTexture.active = previous; }
+        int count = 0;
+        foreach (Color pixel in pixels.GetPixels()) if (pixel.r >= profile.threshold) count++;
+        return count;
+    }
+
     [TestCase(30f, ENewUnit.Ml, false, 1f, 1f)]
     [TestCase(90f, ENewUnit.Ml, false, 1f, 1f)]
     [TestCase(12f, ENewUnit.Oz, true, 1f, 1f)]
@@ -184,17 +248,17 @@ public sealed class PourTargetHeightTests
         Assert.That(Get<Transform>("targetHeightMarker").localPosition.y, Is.EqualTo(initialY));
     }
 
-    void PrepareBottleEmission()
+    void PrepareBottleEmission(float angle = 140f)
     {
         var go = new GameObject("Actual Bottle");
         go.transform.SetParent(manager.transform, false);
         go.transform.localPosition = new Vector3(-2.03f, .13f, 0f);
         go.transform.localScale = new Vector3(1.4f, 3.6f, 1f);
         var bottle = go.AddComponent<BottleTiltController>();
-        foreach (var pair in new Dictionary<string, float> { { "maxTiltAngle", 140f }, { "liftHeight", 2.6f }, { "pourPivotHeight", .05f } })
+        foreach (var pair in new Dictionary<string, float> { { "maxTiltAngle", Mathf.Max(140f, angle) }, { "liftHeight", 2.6f }, { "pourPivotHeight", .05f } })
             typeof(BottleTiltController).GetField(pair.Key, Private).SetValue(bottle, pair.Value);
         bottle.ConfigurePourGeometry(new Vector3(0f, .4f, 0f), glass.TransformPoint(new Vector3(-HalfExtents.x * .8f, HalfExtents.y, 0f)));
-        typeof(BottleTiltController).GetField("currentAngle", Private).SetValue(bottle, 140f);
+        typeof(BottleTiltController).GetField("currentAngle", Private).SetValue(bottle, angle);
         typeof(BottleTiltController).GetField("pickupProgress", Private).SetValue(bottle, 1f);
         typeof(BottleTiltController).GetMethod("ApplyPose", Private).Invoke(bottle, null);
         Set("bottle", bottle);
@@ -235,7 +299,73 @@ public sealed class PourTargetHeightTests
         Assert.That(Get<SphVolumeTracker>("volumeTracker").ReceivedCount, Is.GreaterThanOrEqualTo(targetParticles));
     }
 
+    [Test]
+    public void FullFlowBeerStreamDoesNotDigADeepCraterIntoPooledLiquid()
+    {
+        Configure(12f, ENewUnit.Oz, true);
+        PrepareBottleEmission();
+        Set("pourIngredientId", "beer");
+        Call("ConfigureNeck");
+        for (int i = 0; i < 540; i++) TickPour(true); // 최대 유량으로 4.5초
+        var heights = new List<float>();
+        var pixels = RenderSurfacePixels();
+        for (int x = pixels.Length / 10; x < pixels.Length * 9 / 10; x++)
+            heights.Add(pixels[x].a > .5f ? pixels[x].r : 0f);
+        heights.Sort();
+        float crater = heights[heights.Count * 3 / 4] - heights[0];
+        Debug.Log($"[Pour Crater] beer full flow 4.5s: received={manager.PouredInTargetUnit:F2}oz, crater={crater:F3} of glass height");
+        Assert.That(crater, Is.LessThan(.25f),
+            "굵은 맥주 줄기가 고인 액체를 밀어내 V자 구덩이를 파면 안 된다(속도 제한 전 잔 높이의 약 46%).");
+    }
+
+    [Test]
+    public void SteepBeerPourAlongTheWallStaysOneStreamWithoutSprayingBackUp()
+    {
+        Configure(12f, ENewUnit.Oz, true);
+        PrepareBottleEmission(170f);
+        Set("pourIngredientId", "beer");
+        Call("ConfigureNeck");
+        var inside = typeof(SphParticle).GetField("insideContainer", Private);
+        var received = typeof(SphParticle).GetField("volumeReceived", Private);
+        var heights = new List<float>();
+        float hangingSum = 0f;
+        int samples = 0;
+        for (int i = 1; i <= 360; i++) // 최대 유량으로 3초. 입구가 잔 왼쪽 벽 바로 위에 온다.
+        {
+            TickPour(true);
+            if (i <= 120 || i % 2 != 0) continue;
+            heights.Clear();
+            foreach (var p in simulation.ActiveParticles)
+                if ((bool)received.GetValue(p)) heights.Add(GlassHeight(p.pos));
+            heights.Sort();
+            float surface = heights.Count > 0 ? heights[heights.Count * 9 / 10] : 0f;
+            // 수면보다 한참 위에서 떨어지지도 않고 떠 있는 잔 안 입자 = 튀어 오른 물보라나 막혀서 멈춘 줄기.
+            foreach (var p in simulation.ActiveParticles)
+                if ((bool)inside.GetValue(p) && !(bool)received.GetValue(p) &&
+                    GlassHeight(p.pos) > surface + .12f && p.velocity.y > -1.5f) hangingSum++;
+            samples++;
+        }
+        float hanging = hangingSum / samples;
+        Debug.Log($"[Pour Spray] beer 170deg full flow: hanging particles mean={hanging:F1}, received={manager.PouredInTargetUnit:F2}oz");
+        Assert.That(hanging, Is.LessThan(15f),
+            "벽에 붙어 떨어지는 줄기가 입구 아래에서 막히거나, 고인 액체에 부딪혀 입구까지 튀어 오르면 안 된다(수정 전 약 27).");
+    }
+
+    float GlassHeight(Vector2 position) => (glass.InverseTransformPoint(position).y + HalfExtents.y) / (2f * HalfExtents.y);
+
     float RenderedSurfaceHeight()
+    {
+        var heights = new List<float>();
+        var pixels = RenderSurfacePixels();
+        for (int x = pixels.Length / 8; x < pixels.Length * 7 / 8; x++)
+            if (pixels[x].a > .5f) heights.Add(-HalfExtents.y + pixels[x].r * HalfExtents.y * 2f);
+        Assert.That(heights.Count, Is.GreaterThan(0));
+        heights.Sort();
+        return heights[heights.Count / 2];
+    }
+
+    /// <summary>수면 추출 패스의 열별 결과. r=잔 높이 비율, a=바닥에서 이어진 액체가 있는지.</summary>
+    Color[] RenderSurfacePixels()
     {
         var root = new GameObject("Actual Liquid Render");
         owned.Add(root);
@@ -265,13 +395,7 @@ public sealed class PourTargetHeightTests
             texture.Apply();
         }
         finally { RenderTexture.active = previous; }
-        var heights = new List<float>();
-        var pixels = texture.GetPixels();
-        for (int x = pixels.Length / 8; x < pixels.Length * 7 / 8; x++)
-            if (pixels[x].a > .5f) heights.Add(-HalfExtents.y + pixels[x].r * HalfExtents.y * 2f);
-        Assert.That(heights.Count, Is.GreaterThan(0));
-        heights.Sort();
-        return heights[heights.Count / 2];
+        return texture.GetPixels();
     }
 
     SphParticle Particle(Vector2 position)

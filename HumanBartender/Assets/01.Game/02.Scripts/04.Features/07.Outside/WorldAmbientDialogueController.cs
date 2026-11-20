@@ -31,10 +31,21 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
     }
 
     public bool IsRunning => sessions.Count > 0;
-    public bool IsPaused => !isActiveAndEnabled || context == null || !context.IsReady ||
+    public bool IsPaused => !isActiveAndEnabled || context == null || !context.IsReady || context.IsSceneTransitioning ||
+#if UNITY_EDITOR
+        foreground != null && foreground.SuppressDetectionForTest ||
+#endif
         UIDisplayOptions.IsOptionOpen || foreground == null || foreground.IsRunning ||
         context.Runner.IsRunning || context.Player.State != EInteractorState.None;
     internal int CompletedCount { get; private set; }
+
+    /// <summary>전원 재조작 후 같은 범위 안에서도 방송을 처음부터 다시 들을 수 있게 한다.</summary>
+    public void Restart(WorldInteractionTarget target)
+    {
+        if (target == null) return;
+        if (sessions.TryGetValue(target, out var session)) session.Cancellation.Cancel();
+        if (entries.TryGetValue(target, out var entry)) entry.Reset();
+    }
 
     public bool IsRunningFor(WorldInteractionContent content)
     {
@@ -52,6 +63,9 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
     {
         if (foreground == null) foreground = GetComponent<WorldInteractionController>();
         if (foreground == null || !foreground.IsReady || context == null || !context.IsReady) return;
+#if UNITY_EDITOR
+        if (foreground.SuppressDetectionForTest) return;
+#endif
         cancelledSessions.Clear();
         foreach (var pair in sessions)
             if (pair.Key == null || !pair.Key.isActiveAndEnabled || pair.Value.Rule != RuleKey(pair.Key))
@@ -60,23 +74,34 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
         foreach (var target in WorldInteractionTarget.InScene(gameObject.scene))
         {
             if (sessions.ContainsKey(target)) continue;
-            if (!entries.TryGetValue(target, out var entry))
-            {
-                entry = new WorldProximityEntry();
-                entries.Add(target, entry);
-            }
             if (!target.IsAmbient || !foreground.TryResolve(target, out var story))
             {
-                entry.Reset();
+                if (entries.TryGetValue(target, out var oldEntry)) oldEntry.Reset();
                 continue;
             }
-            float distance = Vector2.Distance(context.Player.transform.position, target.transform.position);
-            bool entered = entry.CanStart(RuleKey(target), distance, story.Radius, exitMargin);
-            if (!entered || IsPaused) continue;
+            if (!CanStartTarget(target, story)) continue;
             // 잘못된 대본도 같은 범위 안에서 매 프레임 다시 시도하지 않게 함.
-            entry.Consume();
+            entries[target].Consume();
             PlayAsync(target, story).Forget(ReportFailure);
         }
+    }
+
+    // 시작 검사만 분리한다. ReadPaused/IsPaused는 탑승 중에도 그대로 적용한다.
+    internal bool CanStartTarget(WorldInteractionTarget target, NewSceneData story)
+    {
+        if (!isActiveAndEnabled || target == null || !target.isActiveAndEnabled || sessions.ContainsKey(target) ||
+            context == null || !context.IsReady || foreground == null || !foreground.IsReady ||
+            foreground.IsHandingOff || UIDisplayOptions.IsOptionOpen) return false;
+#if UNITY_EDITOR
+        if (foreground.SuppressDetectionForTest) return false;
+#endif
+        if (!entries.TryGetValue(target, out var entry))
+        {
+            entry = new WorldProximityEntry();
+            entries.Add(target, entry);
+        }
+        float distance = Vector2.Distance(context.Player.transform.position, target.transform.position);
+        return entry.CanStart(RuleKey(target), distance, story.Radius, exitMargin) && !IsPaused;
     }
 
     private static string RuleKey(WorldInteractionTarget target)
@@ -87,6 +112,8 @@ public sealed class WorldAmbientDialogueController : MonoBehaviour
 
     internal static void ValidateScript(WorldInteractionTarget target, NewSceneData story, Transform player)
     {
+        if (target.Participant != null)
+            throw new InvalidOperationException("NPC 연출이 연결된 대상은 직접 상호작용 또는 범위 진입 시 자동 시작을 사용하세요. 주변 대화는 대사 전용입니다: " + target.name);
         if (target.Output != WorldInteractionOutput.SpeechBubble)
             throw new InvalidOperationException("접근 자동 대화의 Output은 SpeechBubble이어야 함: " + target.name);
         if (story.Steps == null || story.Steps.Length == 0) throw new InvalidOperationException("자동 대화의 대본이 비어 있음.");

@@ -15,7 +15,8 @@ Shader "Pour/LiquidBlobSplat"
             struct Particle { float4 positionVelocity; float4 impact; };
             StructuredBuffer<Particle> _Particles;
             float4 _BlobShape;
-            // x: 충돌 탁도 발생 반경(블롭 반지름 배수), y: 흐르는 액체의 렌더 두께 배수
+            // x: 충돌 탁도 반경, y: 흐르는 액체의 크기 배수, z: 공중 입자의 가로 두께 배수,
+            // w: 흐르는 줄기 입자의 최소 가로 반지름(월드). 나란히 나가는 입자가 여러 가닥으로 갈라져 보이지 않게 한다.
             float4 _ImpactShape;
             float4x4 _WorldToScreen;
             struct Varyings {
@@ -45,9 +46,14 @@ Shader "Pour/LiquidBlobSplat"
                 // 낙하 속도가 커질수록 가로 단면만 조금 조인다. 축 방향 겹침은 유지해
                 // 큰 입자 간격에서도 줄기가 낱알로 끊기지 않는다.
                 thin *= lerp(1, 0.82, smoothstep(1.5, 4.5, speed));
+                // impact.w는 잔에 실제로 담긴 입자다. 잔 안에서 떨어지는 유입 줄기도 가로 단면을 줄인다.
+                thin *= lerp(max(0.1, _ImpactShape.z), 1, saturate(p.impact.w));
+                // 빠를수록 가로를 가늘게 그리지만, 담기기 전 줄기는 줄 간격보다 가늘어지지 않게 한다.
+                // 가늘어지면 나란히 나가는 입자들이 하나의 줄기가 아니라 여러 가닥으로 갈라져 보인다.
+                float across = max(radius * thin, _ImpactShape.w * moving * (1 - saturate(p.impact.w)));
                 float2 corner = corners[vertexId];
-                float2 world = p.positionVelocity.xy + radius *
-                    (direction * corner.x * stretch + float2(-direction.y,direction.x) * corner.y * thin);
+                float2 world = p.positionVelocity.xy + direction * corner.x * radius * stretch +
+                    float2(-direction.y,direction.x) * corner.y * across;
                 float2 uv = mul(_WorldToScreen, float4(world,0,1)).xy;
                 Varyings o;
                 o.position = float4(uv * 2 - 1, 0, 1);

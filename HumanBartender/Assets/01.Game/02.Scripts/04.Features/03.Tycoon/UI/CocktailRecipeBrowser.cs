@@ -125,7 +125,7 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
     {
         if (tutorialCocktailId != null && cocktail.Id != tutorialCocktailId) return false;
         bool isRequested = orderRequests != null && orderRequests.HasWaitingOrderForCocktail(cocktail.Id);
-        return CocktailUnlockPolicy.CanSelect(cocktail, day, isRequested);
+        return craftFlow != null && craftFlow.IsRecipeSelectable(cocktail, day, isRequested);
     }
 
     private void ClearRows()

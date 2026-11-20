@@ -13,6 +13,7 @@ using VContainer;
 public class CraftFlowController : MonoBehaviour
 {
     [Inject] ISoundEffectPlayer sound;
+    [Inject] IConditionUtil conditions;
     [Inject] IPlayerDataWriter playerDataWriter;
     [Inject] ICurrencyPresentation currencyPresentation;
     [Header("Scene")]
@@ -241,7 +242,7 @@ public class CraftFlowController : MonoBehaviour
         }
 
         bool isRequested = orderRequests != null && orderRequests.HasWaitingOrderForCocktail(cocktail.Id);
-        if (!CocktailUnlockPolicy.CanSelect(cocktail, GameStateManager.Instance.CurrentDay, isRequested))
+        if (!CocktailUnlockPolicy.CanSelect(cocktail, GameStateManager.Instance.CurrentDay, isRequested, conditions))
         {
             reason = "아직 해금되지 않은 칵테일 레시피입니다.";
             return false;
@@ -322,11 +323,17 @@ public class CraftFlowController : MonoBehaviour
     }
 
     public List<NewShelfItemData> GetShelfGlasses() =>
-        CraftShelf.GetGlasses(shelfData, GameStateManager.Instance.CurrentDay);
+        CraftShelf.GetGlasses(shelfData, GameStateManager.Instance.CurrentDay, conditions);
     public List<NewShelfItemData> GetShelfTools() =>
-        CraftShelf.GetTools(shelfData, GameStateManager.Instance.CurrentDay);
+        CraftShelf.GetTools(shelfData, GameStateManager.Instance.CurrentDay, conditions);
     public List<NewShelfItemData> GetShelfIngredients(ENewShelfGroup group) =>
-        CraftShelf.GetIngredients(shelfData, group, GameStateManager.Instance.CurrentDay);
+        CraftShelf.GetIngredients(shelfData, group, GameStateManager.Instance.CurrentDay, conditions);
+
+    public bool IsShelfItemAvailable(NewShelfItemData item) =>
+        CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay, conditions);
+
+    public bool IsRecipeSelectable(NewCocktailData cocktail, int day, bool requested) =>
+        CocktailUnlockPolicy.CanSelect(cocktail, day, requested, conditions);
 
     void NotifyPreparationChanged()
     {

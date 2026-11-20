@@ -38,11 +38,11 @@ namespace HumanBartender.CutsceneStudio.Editor
             }
         }
 
-        internal void Evaluate(StudioSequence sequence, double time, bool waiting, float speed)
+        internal void Evaluate(StudioSequence sequence, double time, bool waiting, float speed, StudioClock clock = null)
         {
             if (disposed) return;
             playback.Speed = speed;
-            playback.Evaluate(sequence, time, waiting);
+            playback.Evaluate(sequence, time, waiting, clock);
             StudioEditorAudio.Update(owner.transform);
         }
 

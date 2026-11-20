@@ -89,6 +89,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         StudioSequence IStudioPropertiesHost.Sequence { get { return sequence; } }
         StudioEditSession IStudioPropertiesHost.Session { get { return session; } }
         void IStudioDialogueHost.Changed(bool rebuild) { Changed(rebuild); }
+        bool IStudioDialogueHost.Playing => IsPlaybackActive;
         void IStudioDialogueHost.DeleteClip() { commandsComponent.DeleteClip(); }
         float IStudioDialogueHost.Inspector { get { return Inspector; } }
         void IStudioDialogueHost.PositionToolkitPanels() { PositionToolkitPanels(); }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using TMPro;
 using UnityEditor;
@@ -22,6 +23,45 @@ public sealed class VisualUIReviewTests
     const string ChoicePath = "Assets/01.Game/03.Content/08.Prefabs/03.UI/02.Dialogue/ChoicePanel.prefab";
     static T Ref<T>(Object owner, string field) where T : Object => (T)new SerializedObject(owner).FindProperty(field).objectReferenceValue;
     static void Inject(object owner, string name, object value) => owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, value);
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OpeningBackdropCoversTheLoadAndRestoresTheGuideAfterPlayback(bool cancel)
+    {
+        const string path = "Assets/01.Game/03.Content/08.Prefabs/03.UI/04.Tutorial/StoryTutorialOverlay.prefab";
+        var view = Object.Instantiate(AssetDatabase.LoadAssetAtPath<StoryTutorialView>(path));
+        try
+        {
+            var canvas = view.GetComponent<Canvas>();
+            var button = Ref<Button>(view, "fullScreenClick");
+            var initialColor = button.targetGraphic.color;
+            int initialOrder = canvas.sortingOrder;
+            var playback = new UniTaskCompletionSource();
+            var covered = view.KeepScreenCoveredAsync(199, () => playback.Task);
+
+            Assert.That(button.gameObject.activeInHierarchy, Is.True);
+            Assert.That(button.targetGraphic.color, Is.EqualTo(Color.black));
+            Assert.That(button.interactable, Is.False);
+            Assert.That(view.InstructionPanel.gameObject.activeSelf, Is.False);
+            Assert.That(canvas.sortingOrder, Is.EqualTo(199));
+
+            if (cancel)
+            {
+                playback.TrySetCanceled();
+                Assert.Throws<OperationCanceledException>(() => covered.GetAwaiter().GetResult());
+            }
+            else
+            {
+                playback.TrySetResult();
+                covered.GetAwaiter().GetResult();
+            }
+
+            Assert.That(button.gameObject.activeSelf, Is.False);
+            Assert.That(button.targetGraphic.color, Is.EqualTo(initialColor));
+            Assert.That(canvas.sortingOrder, Is.EqualTo(initialOrder));
+        }
+        finally { Object.DestroyImmediate(view.gameObject); }
+    }
 
     [TestCase("NewShakingMinigame")]
     [TestCase("RhythmShakingMinigame")]
@@ -183,9 +223,12 @@ public sealed class VisualUIReviewTests
             foreach (string field in new[] { "newGameButton", "continueButton", "settingsButton", "quitButton", "closeSlotsButton" }) Assert.That(Ref<Button>(view, field), Is.Not.Null, field);
             var data = new SerializedObject(view);
             Assert.That(data.FindProperty("slotButtons").arraySize, Is.EqualTo(SaveManager.SlotCount));
-            var logo = view.GetComponentInChildren<TitleLogoGlitch>(true);
-            Assert.That(logo.GetComponent<Image>().sprite, Is.Not.Null);
-            Assert.That(view.GetComponentInParent<Canvas>().GetComponentsInChildren<TitleLogoGlitch>(true).Length, Is.EqualTo(1));
+            var logo = view.GetComponentsInChildren<Image>(true).Single(image => image.name == "Project LUNA");
+            Assert.That(logo.sprite, Is.Not.Null);
+            // 띠 밀기와 RGB 분리를 머티리얼 하나가 맡는다. 예전 TitleLogoGlitch 자리에 Missing Script가 남으면 안 된다.
+            Assert.That(AssetDatabase.GetAssetPath(logo.material), Is.EqualTo(VisualUISetup.TitleLogoGlitchMaterialPath), "로고에 글리치 머티리얼이 있어야 합니다.");
+            Assert.That(logo.GetComponents<MonoBehaviour>(), Has.None.Null, "로고에 Missing Script 컴포넌트가 남아 있습니다.");
+            Assert.That(logo.material.shader.name, Is.EqualTo("Custom/TitleGlitchPanel"));
             var first = Ref<Button>(view, "newGameButton");
             var focusEvent = new BaseEventData(EventSystem.current); first.OnSelect(focusEvent);
             var fx = first.GetComponent<UIChoiceGlitch>();
@@ -213,7 +256,7 @@ public sealed class VisualUIReviewTests
             hold.OnPointerDown(pointer); root.SetActive(false); Assert.That(hold.IsHolding, Is.False);
             root.SetActive(true); hold.OnPointerDown(pointer); typeof(ChoiceHoldButton).GetMethod("OnApplicationFocus", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(hold, new object[] { false }); Assert.That(hold.IsHolding, Is.False);
             Assert.That(changes.ToArray(), Is.EqualTo(new[] { true, false, true, false, true, false, true, false }));
-            Assert.That(new SerializedObject(hold).FindProperty("holdDuration").floatValue, Is.EqualTo(1));
+            Assert.That(new SerializedObject(hold).FindProperty("holdDuration").floatValue, Is.EqualTo(.3f));
             Assert.That(root.GetComponent<UIChoiceGlitch>(), Is.Not.Null);
             Assert.That(root.GetComponentsInChildren<TMP_Text>().Length, Is.EqualTo(1));
             Assert.That(root.GetComponentsInChildren<UnityEngine.UI.Text>(), Is.Empty);
@@ -242,6 +285,50 @@ public sealed class VisualUIReviewTests
             Capture(service.GetComponent<Canvas>(), "service-panel", 1280, 720);
         }
         finally { EditorSceneManager.CloseScene(scene, true); }
+    }
+
+    [UnityTest]
+    public IEnumerator TitleAndSettingsPlayTheirMenuAudioFeedback()
+    {
+        EditorSceneManager.OpenScene("Assets/01.Game/01.Scenes/Main.unity", OpenSceneMode.Single);
+        yield return new EnterPlayMode();
+        yield return null;
+
+        var view = Object.FindFirstObjectByType<TitleMenuView>();
+        var options = Object.FindFirstObjectByType<UIDisplayOptions>();
+        var root = Ref<GameObject>(options, "optionUI");
+        var events = EventSystem.current;
+        var feedback = new MenuEffectSpy();
+        Inject(view, "sound", feedback);
+        UISelectionAudio.ConfigureMenu(view.gameObject, feedback);
+        UISelectionAudio.ConfigureMenu(root, feedback);
+        Assert.That(GameAudioRules.MusicGroup("Main"), Is.EqualTo(GameAudioRules.MusicGroup("OutSide")));
+
+        var settings = Ref<Button>(view, "settingsButton");
+        ExecuteEvents.Execute(settings.gameObject, new PointerEventData(events), ExecuteEvents.pointerEnterHandler);
+        ExecuteEvents.Execute(settings.gameObject, new BaseEventData(events), ExecuteEvents.selectHandler);
+        Assert.That(feedback.Keys, Is.EqualTo(new[] { "SFX_ui_hover" }));
+
+        settings.onClick.Invoke();
+        Assert.That(UIDisplayOptions.IsOptionOpen, Is.True);
+        Assert.That(feedback.Keys.Count(key => key == "SFX_ui_click"), Is.EqualTo(1));
+
+        var panel = root.GetComponentInChildren<OptionsPanelView>();
+        var back = Ref<Button>(panel, "backButton");
+        feedback.Keys.Clear();
+        ExecuteEvents.Execute(back.gameObject, new BaseEventData(events), ExecuteEvents.selectHandler);
+        Assert.That(feedback.Keys, Is.EqualTo(new[] { "SFX_ui_hover" }));
+        back.onClick.Invoke();
+        Assert.That(UIDisplayOptions.IsOptionOpen, Is.False);
+        Assert.That(feedback.Keys, Does.Not.Contain("SFX_ui_click"));
+
+        yield return new ExitPlayMode();
+    }
+
+    sealed class MenuEffectSpy : ISoundEffectPlayer
+    {
+        public readonly System.Collections.Generic.List<string> Keys = new();
+        public void PlaySE(string name) => Keys.Add(name);
     }
 
     [UnityTest]

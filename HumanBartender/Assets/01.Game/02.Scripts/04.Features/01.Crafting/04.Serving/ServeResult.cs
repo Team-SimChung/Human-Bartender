@@ -9,9 +9,11 @@ public sealed class ServeResult
     public ENewGrade FinalGrade { get; }
     public bool OrderMatch { get; }
     public OrderSettlement Settlement { get; }
+    public NewCocktailData ServedCocktail { get; }
+    public int AffinityDelta { get; }
 
     public ServeResult(OrderDetails order, CraftedDrink drink, ENewGrade finalGrade,
-        bool orderMatch, OrderSettlement settlement)
+        bool orderMatch, OrderSettlement settlement, NewCocktailData servedCocktail, int affinityDelta)
     {
         OrderId = order.Id;
         ReceiverId = order.ReceiverId;
@@ -21,6 +23,8 @@ public sealed class ServeResult
         FinalGrade = finalGrade;
         OrderMatch = orderMatch;
         Settlement = settlement;
+        ServedCocktail = servedCocktail;
+        AffinityDelta = affinityDelta;
     }
 }
 

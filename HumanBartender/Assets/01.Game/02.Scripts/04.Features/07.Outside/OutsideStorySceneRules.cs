@@ -14,6 +14,11 @@ public enum EPlayerSpawn
 /// <summary>Unity 동네 사건의 진입 조건과 대본 선택. 위치와 대상의 수명은 씬 오브젝트가 소유한다.</summary>
 public static class OutsideStorySceneRules
 {
+    internal static EPlayerSpawn ResolveSpawn(string sceneName, GameStateManager state) =>
+        sceneName == "OutSide" && state.ArrivingAtOutsideHomeDoor
+            ? EPlayerSpawn.Home
+            : ResolveSpawn(sceneName, state.CurrentDay, state.GameFlow);
+
     /// <summary>
     /// 씬·일차·출퇴근 흐름으로 시작 자리를 고른다. 첫 출근은 아직 집과 바의 길을 모르는 날이라
     /// 엘리베이터를 거치지 않고 바 앞에서 시작한다. 그 밖의 출근은 집 문 앞, 퇴근은 바 문 앞이다.
@@ -33,6 +38,9 @@ public static class OutsideStorySceneRules
     };
     public static bool IsNativeEntry(string id) => RuntimeScene(id) != null;
 
+    public static bool IsRepairmanPresent(int day, IConditionUtil conditions) =>
+        day >= 1 && !conditions.CheckRequired("flag.elevator_repaired");
+
     public static bool TryBind(NewSceneData source, string runtimeScene, out NewSceneData bound)
     {
         bound = source;
@@ -41,7 +49,6 @@ public static class OutsideStorySceneRules
         bound.RuntimeScene = scene;
         bound.Route = "both";
         bound.Day = null;
-        bound.StartMode = ENewSceneTrigger.Interact;
         return true;
     }
 
@@ -52,7 +59,7 @@ public static class OutsideStorySceneRules
         switch (id)
         {
             case "neighborhood-reveal": return After(2) && !Flag("boobi_adopted");
-            case "neighborhood-repairGreeting": return After(1) && !Flag("elevator_repaired");
+            case "neighborhood-repairGreeting": return IsRepairmanPresent(day, conditions);
             case "neighborhood-guardBlocked": return (day > 0 || flow == EGameFlow.CommuteOut) && !Flag("gang_pass_granted");
             case "neighborhood-bossIntro": return After(2) && Flag("gang_pass_granted");
             case "neighborhood-homeCat": return Flag("boobi_adopted");
@@ -76,6 +83,10 @@ public static class OutsideStorySceneRules
             else if (Flag("gang_boss_met")) id = "neighborhood-bossRepeat";
         }
         if (id != bound.Id) bound.Steps = content.GetSceneSteps(id);
+        // 웹 outside-shop.js entryRows: 팔 물건이 없으면 첫 만남·재방문 인사 대신 퀴즈 또는 판매 종료 한 줄.
+        if ((bound.Id is "shiba-shop" or "shiba-shop-revisit") && !ShopStoryEvents.HasStock(day, conditions))
+            bound.Steps = new[] { OutsideStorySteps.Command(ShopStoryEvents.NeedsQuiz(conditions)
+                ? OutsideStoryCommand.ShopOpen : OutsideStoryCommand.ShopSoldOut) };
         return bound;
     }
 }

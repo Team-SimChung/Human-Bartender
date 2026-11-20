@@ -8,8 +8,7 @@ namespace HumanBartender.CutsceneStudio
     {
         private readonly GameStateManager manager;
         private readonly GameState previousState;
-        private readonly float previousScale;
-        private readonly bool pause;
+        private readonly IDisposable pauseHandle;
         private readonly bool previousAudioPause;
         private bool disposed;
         private readonly IDisposable audioScope;
@@ -22,10 +21,7 @@ namespace HumanBartender.CutsceneStudio
             audioScope = GameAudioContext.Cutscene();
             manager = GameStateManager.Instance;
             previousState = manager.CurrentGameState;
-            previousScale = Time.timeScale;
-            this.pause = pause;
-            if (pause)
-                Time.timeScale = 0;
+            if (pause) pauseHandle = GamePause.Acquire();
             manager.CurrentGameState = GameState.Effect;
         }
 
@@ -36,8 +32,7 @@ namespace HumanBartender.CutsceneStudio
             disposed = true;
             audioScope.Dispose();
             AudioListener.pause = previousAudioPause;
-            if (pause)
-                Time.timeScale = previousScale;
+            pauseHandle?.Dispose();
             if (manager.CurrentGameState == GameState.Effect)
                 manager.CurrentGameState = previousState;
         }

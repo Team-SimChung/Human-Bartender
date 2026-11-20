@@ -1,27 +1,35 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using VContainer;
 
 /// <summary>Canvas_Dialogue/InteractionLayer 전용 UI. 공용 대사창의 위치/타이핑 상태를 건드리지 않음.</summary>
 [DefaultExecutionOrder(10000)]
-public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, IDialogueInputPrompt, IDialogueInputFeedback
+public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, IDialogueInputPrompt, IDialogueInputFeedback,
+    IDialogueChoicePrompt
 {
     [SerializeField] private DynamicSpeechBubble bubblePrefab;
     [SerializeField] private WorldInteractionImageView imageViewerPrefab;
     [SerializeField] private WorldInteractionHintView interactionHintPrefab;
     [SerializeField] private WorldInteractionChoiceView choicesPrefab;
     [SerializeField] private RectTransform ambientLayer;
+    [Tooltip("선택창은 웹처럼 루나가 바라보는 반대쪽(등 뒤)에 뜹니다. 루나와 선택창 가장자리 사이의 가로 간격입니다.")]
     [SerializeField, Min(0)] private float choiceSideGap = 14;
-    [Tooltip("소파 같은 동작 메뉴에만 적용하는 선택창 배율. 일반 대화 선택창에는 적용하지 않음.")]
-    [SerializeField, Range(.1f, 1)] private float menuScale = .7f;
+    [Tooltip("선택창 첫 항목의 세로 중심. 루나 위치에서 이만큼(월드 단위) 위입니다. 웹 world-choices.js의 head(루나 y + 0.16)와 같습니다. " +
+        "줄 수·프리팹 Scale과 상관없이 첫 항목이 이 높이에 오고, 소지금 줄이 있으면 그만큼 아래로 내려갑니다(웹과 같음).")]
+    [SerializeField] private float choiceHeadHeight = .16f;
     [SerializeField] private NewTextTagDataSO textTags;
-    [SerializeField, Min(0)] private float typingDelay = .035f;
+    [Header("Typing")]
+    [Tooltip("거리·집 대사가 나오는 속도(초당 글자 수). 웹 기본 배속 55. 마침표 멈춤은 DialoguePresentationSettings가 정한다.")]
+    [SerializeField, Min(1)] private float charactersPerSecond = 55;
+    [Tooltip("테라스 대사가 나오는 속도(초당 글자 수). 웹 기본 배속 60.")]
+    [SerializeField, Min(1)] private float terraceCharactersPerSecond = 60;
     [Inject] private ICameraImpulse cameraImpulse;
     [Inject] private ISoundEffectPlayer sound;
     private Vector2 authoredMaximumSize;
-    private Vector3 authoredChoiceScale;
     private CanvasGroup bubbleVisibility;
     private CanvasGroup choicesVisibility;
     private RectTransform root;
@@ -34,6 +42,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     private WorldInteractionTarget target;
     private Transform speaker;
     private Transform player;
+    private PlayerMovement2D playerMovement;
     private WorldDialogueSpeakers sceneSpeakers;
     private WorldSpeechBubblePlacement placement;
     private Vector2 speakerOffset;
@@ -42,7 +51,8 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     private bool imageMode;
     private bool built;
     private bool hasDialogue;
-    private bool menuMode;
+    private float? choiceConfirmGuard;
+    private static readonly List<RaycastResult> pointerHits = new();
     private Action cancelSession;
     private Func<int> readMoney;
     internal DynamicSpeechBubble Bubble => bubble;
@@ -60,16 +70,17 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         {
             instance.name = "AmbientSpeechBubble";
             var presenter = instance.gameObject.AddComponent<WorldAmbientDialogueView>();
-            presenter.Initialize(instance, ambientLayer, textTags, typingDelay, sound);
+            presenter.Initialize(instance, ambientLayer, textTags, 1f / charactersPerSecond, sound);
             return presenter;
         }
         catch { Destroy(instance.gameObject); throw; }
     }
 
-    public void Initialize(Action onAdvance, Action onClose, Func<int> moneyReader = null)
+    public void Initialize(Action onAdvance, Action onClose, Func<int> moneyReader = null, Action onDisabled = null)
     {
         if (built) return;
-        cancelSession = onClose;
+        // 화면 비활성화는 사용자 취소 선택이 아니라 세션 정리다.
+        cancelSession = onDisabled ?? onClose;
         readMoney = moneyReader;
         if (bubblePrefab == null) throw new InvalidOperationException("InteractionLayer의 Bubble Prefab이 없습니다.");
         if (imageViewerPrefab == null || !imageViewerPrefab.IsConfigured)
@@ -109,7 +120,6 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         hint.Initialize(onAdvance, onClose);
         choices = Instantiate(choicesPrefab, root);
         choices.name = "InteractionChoices";
-        authoredChoiceScale = choices.Rect.localScale;
         choicesVisibility = choices.GetComponent<CanvasGroup>();
         built = true;
         EndScene();
@@ -124,17 +134,23 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
 
     private Transform speakerOverride;
     private bool automatic;
+    private bool terraceDialogue;
 
+    /// <param name="terrace">테라스 대화. 대사 속도를 테라스 기준(terraceCharactersPerSecond)으로 바꾼다.</param>
+    /// <param name="choiceConfirmGuard">이 장면 선택지의 확정 보호 시간(초). 비우면 선택지 프리팹 값을 쓴다.</param>
     public void Begin(WorldInteractionTarget value, Transform playerTransform, Transform anchor = null, bool autoAdvance = false,
-        WorldDialogueSpeakers speakers = null)
+        WorldDialogueSpeakers speakers = null, bool terrace = false, float? choiceConfirmGuard = null)
     {
         if (!built) throw new InvalidOperationException("상호작용 UI가 초기화되지 않았습니다.");
         EndScene();
         target = value;
         player = playerTransform;
+        playerMovement = playerTransform != null ? playerTransform.GetComponent<PlayerMovement2D>() : null;
         speakerOverride = anchor;
         sceneSpeakers = speakers;
         automatic = autoAdvance;
+        terraceDialogue = terrace;
+        this.choiceConfirmGuard = choiceConfirmGuard;
         bubble.TextPlayer.ConfigureAudio(sound, automatic);
         imageMode = value.Output == WorldInteractionOutput.Image;
         if (imageMode && value.InspectionImage == null) throw new InvalidOperationException("확대할 이미지가 없습니다.");
@@ -146,6 +162,27 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     public async UniTask ShowDialogueAsync(string actor, string text, string arg, CancellationToken token)
     {
         if (target == null) throw new InvalidOperationException("상호작용 대상이 사라졌습니다.");
+        OpenBubble(actor, requireSpeaker: true);
+        float typingDelay = 1f / (terraceDialogue ? terraceCharactersPerSecond : charactersPerSecond);
+        await bubble.TextPlayer.PlayAsync(new TypingData(text, "", Vector3.zero, Color.white, actor == "luna"), textTags, typingDelay, token,
+            periodRhythm: true);
+        Follow();
+    }
+
+    /// <summary>선택지 행의 질문을 타이핑 없이 표시한다. 선택하는 동안 같은 말풍선이 남는다.</summary>
+    public void ShowChoicePrompt(string actor, string text)
+    {
+        if (target == null) throw new InvalidOperationException("상호작용 대상이 사라졌습니다.");
+        if (string.IsNullOrWhiteSpace(text)) return;
+        // 화자 연결이 없는 선택지 행도 선택은 진행되어야 하므로 상호작용 대상 위에 표시한다.
+        OpenBubble(actor, requireSpeaker: false);
+        bubble.nameLabel.text = "";
+        bubble.TextPlayer.ShowInstant(text, textTags);
+        Follow();
+    }
+
+    private void OpenBubble(string actor, bool requireSpeaker)
+    {
         choices.Hide();
         hasDialogue = true;
         var bindings = sceneSpeakers != null ? sceneSpeakers : target.GetComponent<WorldDialogueSpeakers>();
@@ -154,7 +191,8 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         explicitSpeaker = bindings != null && bindings.TryResolve(actor, out speaker, out placement, out speakerOffset);
         if (!explicitSpeaker)
         {
-            speaker = actor == "luna" ? player : speakerOverride != null ? speakerOverride : target.ResolveSpeaker(actor, player);
+            speaker = actor == "luna" ? player : speakerOverride != null ? speakerOverride :
+                requireSpeaker ? target.ResolveSpeaker(actor, player) : ResolveSpeakerOrTarget(actor);
             speakerOffset = target.BubbleOffset;
         }
         bubble.gameObject.SetActive(true);
@@ -164,8 +202,14 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         float scale = Mathf.Max(.001f, Mathf.Abs(bubble.bubble.localScale.x));
         bubble.maxSize = new Vector2(Mathf.Min(authoredMaximumSize.x, (root.rect.width - 20) / scale), authoredMaximumSize.y);
         Follow();
-        await bubble.TextPlayer.PlayAsync(new TypingData(text, "", Vector3.zero, Color.white, actor == "luna"), textTags, typingDelay, token);
-        Follow();
+    }
+
+    private Transform ResolveSpeakerOrTarget(string actor)
+    {
+        var own = target.GetComponent<WorldDialogueSpeakers>();
+        if (own != null && own.TryResolve(actor, out var anchor, out _, out _)) return anchor;
+        if (own != null) Debug.LogWarning($"[WorldInteraction] 선택지 질문의 화자 ID가 연결되지 않아 대상 위에 표시합니다: {actor}", target);
+        return target.SpeechAnchor;
     }
 
     public void SkipTyping()
@@ -184,9 +228,29 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     {
         if (prompt != null) prompt.SetWaiting(waiting);
         if (target == null || hint == null) return;
-        if (IsChoosing || automatic) hint.Hide(); // 선택지의 E 표시는 커서가 담당하며 방송은 자동으로 진행함.
-        else if (imageMode) hint.ShowExit();
-        else hint.ShowDialogue(waiting);
+        // 대화 중에는 하단 '펼치기·다음' 안내를 띄우지 않는다(웹과 같음). 진행은 E와 말풍선 클릭으로 한다.
+        // 선택지의 E 표시는 커서가 담당하며 방송은 자동으로 진행하므로, 조사 이미지의 나가기 안내만 남긴다.
+        if (imageMode && !IsChoosing && !automatic) hint.ShowExit();
+        else hint.Hide();
+    }
+
+    /// <summary>화면 좌표가 지금 진행을 기다리는 대사 말풍선 위인지. 위쪽 캔버스의 UI가 가리고 있으면 제외한다.</summary>
+    internal bool IsDialoguePointer(Vector2 screenPoint)
+    {
+        if (!built || target == null || imageMode || IsChoosing || !bubble.gameObject.activeInHierarchy ||
+            bubbleVisibility.alpha <= 0) return false;
+        if (!RectTransformUtility.RectangleContainsScreenPoint(bubble.bubble, screenPoint, null)) return false;
+        var events = EventSystem.current;
+        if (events == null) return true;
+        pointerHits.Clear();
+        events.RaycastAll(new PointerEventData(events) { position = screenPoint }, pointerHits);
+        var own = canvas.rootCanvas;
+        foreach (var hit in pointerHits)
+        {
+            var other = hit.gameObject != null ? hit.gameObject.GetComponentInParent<Canvas>() : null;
+            if (other != null && other.rootCanvas != own && other.rootCanvas.sortingOrder > own.sortingOrder) return false;
+        }
+        return true;
     }
     public EActivationMode GetPlayMode() => automatic ? EActivationMode.Proximity : EActivationMode.Interact;
     public void HideDialogue()
@@ -200,13 +264,15 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         target = null;
         speaker = null;
         player = null;
+        playerMovement = null;
         speakerOverride = null;
         sceneSpeakers = null;
         explicitSpeaker = false;
         placement = WorldSpeechBubblePlacement.Above;
         automatic = false;
+        terraceDialogue = false;
         hasDialogue = false;
-        menuMode = false;
+        choiceConfirmGuard = null;
         if (!built) return;
         if (choices != null) choices.Hide();
         if (imageViewer != null) imageViewer.Hide();
@@ -222,19 +288,16 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         ShowChoices(options, onSelected, readMoney?.Invoke());
     }
 
+    /// <summary>
+    /// 사물 메뉴(TV·소파·엘리베이터). 대화 선택지와 위치·크기 규칙이 같고, 웹처럼 소지금 줄은 없다.
+    /// 메시지(저장 결과·확인 문구)는 타이핑 없이 루나 위에 표시한다.
+    /// </summary>
     public async UniTask<NewStreetOptionData> ChooseMenuAsync(NewStreetOptionData[] options, string message, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        menuMode = true;
         try
         {
-            if (!string.IsNullOrEmpty(message))
-            {
-                // 저장 결과와 확인 문구는 타이핑 대기 없이 표시함.
-                var typing = ShowDialogueAsync("luna", message, null, token);
-                bubble.TextPlayer.Skip();
-                await typing;
-            }
+            if (!string.IsNullOrEmpty(message)) ShowChoicePrompt("luna", message);
             var completion = new UniTaskCompletionSource<NewStreetOptionData>();
             ShowChoices(options, option => completion.TrySetResult(option), null);
             return await completion.Task.AttachExternalCancellation(token);
@@ -243,7 +306,6 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         {
             if (choices != null) choices.Hide();
             HideDialogue();
-            menuMode = false;
         }
     }
 
@@ -253,8 +315,8 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         // 선택 중에는 직전 질문을 다시 표시함.
         bubble.gameObject.SetActive(hasDialogue);
         if (prompt != null) prompt.SetWaiting(false);
-        choices.Rect.localScale = authoredChoiceScale * (menuMode ? menuScale : 1);
-        choices.Show(options, onSelected, GameStateManager.Instance.Language, money, fitWidthToText: menuMode);
+        // 대화 선택지와 사물 메뉴가 같은 프리팹 크기·폭·위치 규칙을 쓴다(Scale은 프리팹 값 그대로). 소지금 줄만 다르다.
+        choices.Show(options, onSelected, GameStateManager.Instance.Language, money, choiceConfirmGuard);
         hint.Hide();
         Follow();
     }
@@ -283,22 +345,40 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         }
         if (IsChoosing && player != null && camera != null)
         {
-            Vector3 screen = camera.WorldToScreenPoint(player.position + (menuMode ? Vector3.zero : Vector3.up * .2f));
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, null, out var playerPoint);
-            float side = menuMode ? -1 : screen.x >= camera.WorldToScreenPoint(target.SpeechAnchor.position).x ? 1 : -1;
-            choices.SetSide(side > 0);
+            Vector3 screen = camera.WorldToScreenPoint(player.position + Vector3.up * choiceHeadHeight);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, null, out var headPoint);
+            bool right = ChoicesOnRight(playerMovement != null ? playerMovement.IsFacingRight : (bool?)null,
+                screen.x, camera.WorldToScreenPoint(target.SpeechAnchor.position).x);
+            float side = right ? 1 : -1;
+            choices.SetSide(right);
             var size = ScaledSize(choices.Rect);
-            var position = playerPoint + new Vector2(side * (size.x * .5f + choiceSideGap), 0);
+            // 웹(world-choices.js: top = head − 버튼 높이의 절반)처럼 위쪽 끝을 첫 항목 높이의 절반만큼 head 위에 둔다.
+            float top = ChoiceTop(headPoint.y, choices.FirstRowHeight * Mathf.Abs(choices.Rect.localScale.y));
             if (hasDialogue && bubble.gameObject.activeSelf)
             {
                 float bubbleBottom = root.InverseTransformPoint(bubble.bubble.TransformPoint(bubble.bubble.rect.min)).y;
-                position.y = Mathf.Min(position.y, bubbleBottom - size.y * .5f - 8);
+                top = Mathf.Min(top, bubbleBottom - 8);
             }
+            var position = new Vector2(headPoint.x + side * (size.x * .5f + choiceSideGap),
+                ChoicePivotY(top, size.y, choices.Rect.pivot.y));
             choices.Rect.anchoredPosition = ClampToCanvas(root.rect, size, choices.Rect.pivot, position, 8);
             choicesVisibility.alpha = screen.z > 0 ? 1 : 0;
             choicesVisibility.blocksRaycasts = screen.z > 0;
         }
     }
+
+    /// <summary>
+    /// 선택창을 루나 오른쪽에 띄울지. 웹(world-choices.js)과 같이 루나가 바라보는 반대쪽(등 뒤)에 띄운다.
+    /// 바라보는 방향을 모르면(이동 컴포넌트 없음) 대상을 바라본다고 본다.
+    /// </summary>
+    internal static bool ChoicesOnRight(bool? facingRight, float playerX, float targetX) =>
+        !(facingRight ?? targetX > playerX);
+
+    /// <summary>첫 항목의 중심을 head에 둘 때 선택창 위쪽 끝. firstRowHeight는 화면(InteractionLayer) 단위 높이다.</summary>
+    internal static float ChoiceTop(float head, float firstRowHeight) => head + firstRowHeight * .5f;
+
+    /// <summary>위쪽 끝을 top에 맞출 때 선택창 피벗의 세로 위치.</summary>
+    internal static float ChoicePivotY(float top, float height, float pivotY) => top - height * (1 - pivotY);
 
     private void Place(Vector3 worldPosition, Vector2 offset, Camera camera, bool below)
     {

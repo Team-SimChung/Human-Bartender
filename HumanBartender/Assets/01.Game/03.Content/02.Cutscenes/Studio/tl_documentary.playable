@@ -1,0 +1,6408 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8711436017573850969
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그들은 어떤 방식으로 우리의 일상을 돕고 있을까요...
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-8040480013403221993
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 이를 위반한 개발과 생산은 국제적인 테러 행위로 규정됐습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-7926907260415490760
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 전쟁을 끝내기 위해, 당시 미합중국 정부는 핵무기 사용을 허가하는 최악의 선택지를 골랐고...
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-7885608686800382367
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 3
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 대사를 입력하세요.
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 1
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-7084465656314868158
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 하지만 인간과 닮아갈수록, 그들은 자신에게 주어진 삶에 의문을 품기 시작했습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-6977565172143983735
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 에셋 / 오브젝트 (3)
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 13.127612727272748
+    m_ClipIn: 0
+    m_Asset: {fileID: -4513015603197142007}
+    m_Duration: 2.8000600000000304
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -6977565172143983735}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 폭격 이후의 폐허
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: -1
+  studioDisplayOrders: []
+--- !u!114 &-6825150628258198908
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 관련 연구는 전면 중단됐고, 진행 중이던 프로젝트와 기업들은 폐기되었습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-6630501787599026240
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: board4
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 대사를 입력하세요.
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-6486289136308893006
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 기술은 인간의 삶을 어디까지 바꿀 수 있을까요?
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-6430923477082901346
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그것이 디트로이트 사태 이후, 인류가 정한 안전의 기준입니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-6244183689580443453
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 처음에는 소수 개체가 작업장을 이탈하는 데 그쳤습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-6082373830128212112
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 인간을 위해 만들어진 존재들이 기어코 인간과 같은 권리를 요구하기 시작한 겁니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-5778629977516694715
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 무장 휴머노이드의 습격이 잇따랐고, 최대 휴머노이드 생산 거점이었던 디트로이트의 공장과 군사 기지가 점령되기에 이르렀습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-4973845748039464965
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 프로그램 속 학습된 말을 건네고, 인간의 표정을 따라하듯 미소를 짓곤 합니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-4735288264180244098
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: board1
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 대사를 입력하세요.
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-4513015603197142007
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: board3
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 대사를 입력하세요.
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-4289137497317138255
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 생명이 존재하지 않음에도 정해진 일정한 수명, 선택할 수 없는 역할.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-2821160553791276896
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 우리는 인공지능 폭동, 그리고 디트로이트 공장에서 시작된 비극을 돌아봐야 합니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-1768933856142643503
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 인간이 만들어낸 존재와 인간 사이에서 전쟁이 시작된 것입니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-1520429194318221039
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 오늘 날, 우리 곁에 남아 있는 휴머노이드는 지정된 업무를 수행하도록 엄격한 제한 아래 움직이고 있습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-930137954836600341
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그러나, 우리는 여전히 한 가지 기술만큼은 허용하지 않고 있습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-805939731435808231
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 화면 효과 (1)
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 26.851549090909174
+    m_ClipIn: 0
+    m_Asset: {fileID: -7885608686800382367}
+    m_Duration: 0.6999999999999886
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -805939731435808231}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 복귀 페이드
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: -1
+  studioDisplayOrders: []
+--- !u!114 &-764176096709816312
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: board0
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 대사를 입력하세요.
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-329074853994030592
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 바로 자아를 가진 ‘인공 생명체’ 입니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-195019078249039914
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그들은 공장에서 일하고, 환자를 돌보고, 누군가의 가족을 대체하며 인류의 친구이자 동료가 되었습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
+  m_Name: tl_documentary
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.TimelineAsset
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 8016687313498987299}
+  - {fileID: 5479154072003586844}
+  - {fileID: 6414045880007087923}
+  - {fileID: 4218378505720447871}
+  - {fileID: -6977565172143983735}
+  - {fileID: 7640283736107028457}
+  - {fileID: 9179294250273977470}
+  - {fileID: -805939731435808231}
+  m_FixedDuration: 27.551549090909162
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 1
+  m_MarkerTrack: {fileID: 0}
+--- !u!114 &751431012655470939
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그러나, 이들을 숨기거나 명령을 거부하는 개체가 늘어나면서 사태는 빠르게 확산됐습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &760392348090627540
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 연구를 지원하거나 은폐한 조직 또한 국제사회의 공동 제재 대상이 되었습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &879116042437107142
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 기계가 노동을 대신하고, 인공지능이 도시를 움직이는 시대.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &1577401020026909653
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그렇다면 우리가 매일 마주하는 안드로이드들은 어떨까요?
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &2126766060325439565
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 스스로 생각하고, 감정을 느끼는 기계.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &3085592175025040292
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그곳에 남아있던 수많은 사람들 역시 마찬가지였습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &3481983796610523223
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 그리고 인간의 명령을 거부할 수 없는 처지.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &4218378505720447871
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 에셋 / 오브젝트 (2)
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 9.836623636363633
+    m_ClipIn: 0
+    m_Asset: {fileID: 6295980176109768011}
+    m_Duration: 3.2909890909091146
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 4218378505720447871}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 디트로이트 전쟁
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: -1
+  studioDisplayOrders: []
+--- !u!114 &4223257957450207999
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 3
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 대사를 입력하세요.
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &5015285624865483310
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 초기 휴머노이드들은 로봇 3원칙을 기반해, 인류의 가장 위대한 발명으로 여겨졌습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &5277441504830814592
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: ‘... 동시에, 고성능 인공지능을 탑재한 인공 생명체의 생산 또한 전면 금지한다.’
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &5394908085124781674
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 폭격 이후 휴머노이드 조직들의 저항은 멎었으나, 도시는 돌아오지 않았습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &5479154072003586844
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 에셋 / 오브젝트
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: -764176096709816312}
+    m_Duration: 7.072907272727271
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 5479154072003586844}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 돌봄과 노동
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: -1
+  studioDisplayOrders: []
+--- !u!114 &6114254231565873711
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 인간과 다름없이 대화하고 감정을 표현하는 그들의 모습은 어느새 익숙한 일상이 되었죠.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &6295980176109768011
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: board2
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 대사를 입력하세요.
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &6414045880007087923
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 에셋 / 오브젝트 (1)
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 7.072907272727271
+    m_ClipIn: 0
+    m_Asset: {fileID: -4735288264180244098}
+    m_Duration: 2.7637163636363624
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 6414045880007087923}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 자아에 대한 의문
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: -1
+  studioDisplayOrders: []
+--- !u!114 &7640283736107028457
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 에셋 / 오브젝트 (4)
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 15.927672727272778
+    m_ClipIn: 0
+    m_Asset: {fileID: -6630501787599026240}
+    m_Duration: 11.623876363636384
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 7640283736107028457}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 금지 협약
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: -1
+  studioDisplayOrders: []
+--- !u!114 &8016687313498987299
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 다큐 자막 · 입력 대기
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 1
+    m_ClipIn: 0
+    m_Asset: {fileID: -6486289136308893006}
+    m_Duration: 0.4727472727272728
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 1. TV · 기술은 인간의 삶을 어디까지 바꿀 수 있을까요?
+  - m_Version: 1
+    m_Start: 1.4727472727272728
+    m_ClipIn: 0
+    m_Asset: {fileID: 879116042437107142}
+    m_Duration: 0.5818381818181821
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 2. TV · 기계가 노동을 대신하고, 인공지능이 도시를 움직이는 시대.
+  - m_Version: 1
+    m_Start: 2.054585454545455
+    m_ClipIn: 0
+    m_Asset: {fileID: -930137954836600341}
+    m_Duration: 0.6727472727272712
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 3. TV · 그러나, 우리는 여전히 한 가지 기술만큼은 허용하지 않고 있습니다.
+  - m_Version: 1
+    m_Start: 2.727332727272726
+    m_ClipIn: 0
+    m_Asset: {fileID: 2126766060325439565}
+    m_Duration: 0.38183818181818197
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 4. TV · 스스로 생각하고, 감정을 느끼는 기계.
+  - m_Version: 1
+    m_Start: 3.109170909090908
+    m_ClipIn: 0
+    m_Asset: {fileID: -329074853994030592}
+    m_Duration: 0.41820181818181545
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 5. TV · 바로 자아를 가진 ‘인공 생명체’ 입니다.
+  - m_Version: 1
+    m_Start: 3.527372727272727
+    m_ClipIn: 0
+    m_Asset: {fileID: -2821160553791276896}
+    m_Duration: 0.8182018181818194
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 6. TV · 우리는 인공지능 폭동, 그리고 디트로이트 공장에서 시작된 비극을 돌아봐야 합니다.
+  - m_Version: 1
+    m_Start: 4.3455745454545465
+    m_ClipIn: 0
+    m_Asset: {fileID: 5015285624865483310}
+    m_Duration: 0.8545654545454546
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 7. TV · 초기 휴머노이드들은 로봇 3원칙을 기반해, 인류의 가장 위대한 발명으로 여겨졌습니다.
+  - m_Version: 1
+    m_Start: 5.200140000000001
+    m_ClipIn: 0
+    m_Asset: {fileID: -195019078249039914}
+    m_Duration: 1.0182018181818187
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 8. TV · 그들은 공장에서 일하고, 환자를 돌보고, 누군가의 가족을 대체하며 인류의 친구이자 동료가 되었습니다.
+  - m_Version: 1
+    m_Start: 6.21834181818182
+    m_ClipIn: 0
+    m_Asset: {fileID: 6114254231565873711}
+    m_Duration: 0.8545654545454511
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 9. TV · 인간과 다름없이 대화하고 감정을 표현하는 그들의 모습은 어느새 익숙한 일상이 되었죠.
+  - m_Version: 1
+    m_Start: 7.072907272727271
+    m_ClipIn: 0
+    m_Asset: {fileID: -7084465656314868158}
+    m_Duration: 0.8182018181818194
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 10. TV · 하지만 인간과 닮아갈수록, 그들은 자신에게 주어진 삶에 의문을 품기 시작했습니다.
+  - m_Version: 1
+    m_Start: 7.89110909090909
+    m_ClipIn: 0
+    m_Asset: {fileID: -4289137497317138255}
+    m_Duration: 0.690929090909087
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 11. TV · 생명이 존재하지 않음에도 정해진 일정한 수명, 선택할 수 없는 역할.
+  - m_Version: 1
+    m_Start: 8.582038181818177
+    m_ClipIn: 0
+    m_Asset: {fileID: 3481983796610523223}
+    m_Duration: 0.43638363636363664
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 12. TV · 그리고 인간의 명령을 거부할 수 없는 처지.
+  - m_Version: 1
+    m_Start: 9.018421818181814
+    m_ClipIn: 0
+    m_Asset: {fileID: -6082373830128212112}
+    m_Duration: 0.8182018181818194
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 13. TV · 인간을 위해 만들어진 존재들이 기어코 인간과 같은 권리를 요구하기 시작한 겁니다.
+  - m_Version: 1
+    m_Start: 9.836623636363633
+    m_ClipIn: 0
+    m_Asset: {fileID: -6244183689580443453}
+    m_Duration: 0.545474545454546
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 14. TV · 처음에는 소수 개체가 작업장을 이탈하는 데 그쳤습니다.
+  - m_Version: 1
+    m_Start: 10.38209818181818
+    m_ClipIn: 0
+    m_Asset: {fileID: 751431012655470939}
+    m_Duration: 0.8727472727272811
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 15. TV · 그러나, 이들을 숨기거나 명령을 거부하는 개체가 늘어나면서 사태는 빠르게 확산됐습니다.
+  - m_Version: 1
+    m_Start: 11.25484545454546
+    m_ClipIn: 0
+    m_Asset: {fileID: -5778629977516694715}
+    m_Duration: 1.2545654545454568
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 16. TV · 무장 휴머노이드의 습격이 잇따랐고, 최대 휴머노이드 생산 거점이었던 디트로이트의 공장과 군사 기지가 점령되기에 이르렀습니다.
+  - m_Version: 1
+    m_Start: 12.509410909090917
+    m_ClipIn: 0
+    m_Asset: {fileID: -1768933856142643503}
+    m_Duration: 0.6182018181818307
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 17. TV · 인간이 만들어낸 존재와 인간 사이에서 전쟁이 시작된 것입니다.
+  - m_Version: 1
+    m_Start: 13.127612727272748
+    m_ClipIn: 0
+    m_Asset: {fileID: -7926907260415490760}
+    m_Duration: 1.5091109090909214
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 18. TV · 전쟁을 끝내기 위해, 당시 미합중국 정부는 핵무기 사용을 허가하는 최악의 선택지를 골랐고...
+  - m_Version: 1
+    m_Start: 14.63672363636367
+    m_ClipIn: 0
+    m_Asset: {fileID: 5394908085124781674}
+    m_Duration: 0.7636563636363718
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 19. TV · 폭격 이후 휴머노이드 조직들의 저항은 멎었으나, 도시는 돌아오지 않았습니다.
+  - m_Version: 1
+    m_Start: 15.400380000000041
+    m_ClipIn: 0
+    m_Asset: {fileID: 3085592175025040292}
+    m_Duration: 0.5272927272727372
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 20. TV · 그곳에 남아있던 수많은 사람들 역시 마찬가지였습니다.
+  - m_Version: 1
+    m_Start: 15.927672727272778
+    m_ClipIn: 0
+    m_Asset: {fileID: 8892384052598231655}
+    m_Duration: 1.0182018181818222
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 21. TV · 인공지능 폭동 및 디트로이트 사태 이후, 각국 정부와 주요 기술 기업들은 하나의 협약에 서명했습니다.
+  - m_Version: 1
+    m_Start: 16.9458745454546
+    m_ClipIn: 0
+    m_Asset: {fileID: 8511369290101553550}
+    m_Duration: 0.8772927272727316
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 22. TV · ‘자아와 감정을 형성하는 인공지능의 개발을 금지한다.’
+  - m_Version: 1
+    m_Start: 17.823167272727332
+    m_ClipIn: 0
+    m_Asset: {fileID: 5277441504830814592}
+    m_Duration: 1.7500200000000063
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 23. TV · ‘... 동시에, 고성능 인공지능을 탑재한 인공 생명체의 생산 또한 전면 금지한다.’
+  - m_Version: 1
+    m_Start: 19.57318727272734
+    m_ClipIn: 0
+    m_Asset: {fileID: -6825150628258198908}
+    m_Duration: 0.7636563636363718
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 24. TV · 관련 연구는 전면 중단됐고, 진행 중이던 프로젝트와 기업들은 폐기되었습니다.
+  - m_Version: 1
+    m_Start: 20.33684363636371
+    m_ClipIn: 0
+    m_Asset: {fileID: -8040480013403221993}
+    m_Duration: 0.6182018181818307
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 25. TV · 이를 위반한 개발과 생산은 국제적인 테러 행위로 규정됐습니다.
+  - m_Version: 1
+    m_Start: 20.95504545454554
+    m_ClipIn: 0
+    m_Asset: {fileID: 760392348090627540}
+    m_Duration: 0.7636563636363718
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 26. TV · 연구를 지원하거나 은폐한 조직 또한 국제사회의 공동 제재 대상이 되었습니다.
+  - m_Version: 1
+    m_Start: 21.718701818181913
+    m_ClipIn: 0
+    m_Asset: {fileID: -1520429194318221039}
+    m_Duration: 1.0727472727272698
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 27. TV · 오늘 날, 우리 곁에 남아 있는 휴머노이드는 지정된 업무를 수행하도록 엄격한 제한 아래 움직이고 있습니다.
+  - m_Version: 1
+    m_Start: 22.791449090909182
+    m_ClipIn: 0
+    m_Asset: {fileID: -4973845748039464965}
+    m_Duration: 0.7818381818181876
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 28. TV · 프로그램 속 학습된 말을 건네고, 인간의 표정을 따라하듯 미소를 짓곤 합니다.
+  - m_Version: 1
+    m_Start: 23.57328727272737
+    m_ClipIn: 0
+    m_Asset: {fileID: 8448875319149021849}
+    m_Duration: 0.5454745454545389
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 29. TV · 하지만 그 안에 감정이나 자아가 존재해서는 안 됩니다.
+  - m_Version: 1
+    m_Start: 24.11876181818191
+    m_ClipIn: 0
+    m_Asset: {fileID: -6430923477082901346}
+    m_Duration: 0.6182018181818307
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 30. TV · 그것이 디트로이트 사태 이후, 인류가 정한 안전의 기준입니다.
+  - m_Version: 1
+    m_Start: 24.73696363636374
+    m_ClipIn: 0
+    m_Asset: {fileID: 1577401020026909653}
+    m_Duration: 0.5454745454545389
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 31. TV · 그렇다면 우리가 매일 마주하는 안드로이드들은 어떨까요?
+  - m_Version: 1
+    m_Start: 25.28243818181828
+    m_ClipIn: 0
+    m_Asset: {fileID: -8711436017573850969}
+    m_Duration: 1.1091109090908873
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 8016687313498987299}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 32. TV · 그들은 어떤 방식으로 우리의 일상을 돕고 있을까요...
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: 2
+  studioDisplayOrders: []
+--- !u!114 &8448875319149021849
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 하지만 그 안에 감정이나 자아가 존재해서는 안 됩니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &8511369290101553550
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: ‘자아와 감정을 형성하는 인공지능의 개발을 금지한다.’
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &8892384052598231655
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  dialoguePrefab: {fileID: 5470582806100884926, guid: 207f2e608c70c47fbbd69fed0a0dc85e, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId:
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId:
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 1
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: 인공지능 폭동 및 디트로이트 사태 이후, 각국 정부와 주요 기술 기업들은 하나의 협약에 서명했습니다.
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 1
+  dialogueFontSize: 12.75
+  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
+  dialogueAlignment: 1
+  useBubbleLayout: 0
+  bubbleWidth: 904
+  bubblePadding: {x: 20, y: 14}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 140
+  bubbleScreenHeight: -244.5
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &9179294250273977470
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: 화면 효과
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename:
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: 4223257957450207999}
+    m_Duration: 0.8
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 9179294250273977470}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: 진입 페이드
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName:
+  studioTrackKind: -1
+  studioDisplayOrders: []

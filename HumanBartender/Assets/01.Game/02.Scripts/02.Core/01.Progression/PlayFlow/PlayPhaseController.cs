@@ -18,6 +18,8 @@ public class PlayPhaseController : MonoBehaviour
     [SerializeField] OrderRequestController orderController;
     [SerializeField] CraftFlowController craftFlow;
     [SerializeField] SettlementScreen settlementScreen;
+    [Tooltip("일차 시작 때 새로 쓸 수 있게 된 재료·칵테일을 소개하는 화면. Canvas_DailyUnlocks.")]
+    [SerializeField] DailyUnlocksScreen dailyUnlocksScreen;
     [SerializeField] ServicePanelController servicePanel;
 
     [Inject] IGameProgressionService progression;
@@ -234,6 +236,13 @@ public class PlayPhaseController : MonoBehaviour
                 GameStateManager.Instance.CurrentDay = testDay;
                 GameStateManager.Instance.GameFlow = EGameFlow.Bar;
                 Debug.LogWarning($"[PlayPhase] 명시적 Test Day {testDay}로 Play 씬을 직접 실행합니다.");
+                // 정상 진행이면 3일차 바 입장 전에 채워지는 조건. 없으면 올드 패션드 해금과 톰 주문이 막힌다.
+                if (testDay >= 3)
+                {
+                    var seeded = CampaignStoryRules.SeedJohnnyPrerequisites(conditions);
+                    if (seeded.Count > 0)
+                        Debug.LogWarning("[PlayPhase] Test Day 3 이상: 전날 조건을 대신 채웠습니다 — " + string.Join(", ", seeded));
+                }
             }
             else
 #endif
@@ -243,11 +252,16 @@ public class PlayPhaseController : MonoBehaviour
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             settlementScreen.ValidateReferences();
+            if (dailyUnlocksScreen == null)
+                throw new InvalidOperationException("[DailyUnlocks] Setup Daily Unlocks 메뉴로 안내 화면을 연결해 주세요.");
+            dailyUnlocksScreen.ValidateReferences();
             int day = GameStateManager.Instance.CurrentDay;
             if (!NewDataLoadManager.TryGetDayInfo(day, out var dayInfo))
                 throw new InvalidOperationException($"Day {day}의 유지비 데이터가 없습니다.");
             settlement.BeginDay(day, dayInfo.UpkeepGold);
             checkpoint.Capture();
+
+            await RunDailyUnlocksAsync(day, cancellationToken);
 
             BeginPhase(EPlayPhase.Dialogue);
             await storyFlow.RunOpeningAsync(cancellationToken);
@@ -324,6 +338,15 @@ public class PlayPhaseController : MonoBehaviour
         }
     }
 
+    async UniTask RunDailyUnlocksAsync(int day, CancellationToken cancellationToken)
+    {
+        if (day <= 0) return;
+        var unlocks = DailyUnlockQuery.Collect(day, NewDataLoadManager.StoryShelfItems, NewDataLoadManager.StoryCocktails);
+        if (unlocks.IsEmpty) return;
+        try { await dailyUnlocksScreen.ShowAsync(day, unlocks, cancellationToken); }
+        finally { if (dailyUnlocksScreen != null) dailyUnlocksScreen.Hide(); }
+    }
+
     async UniTask<bool> RunSettlementAsync(CancellationToken cancellationToken)
     {
         CurrentPhase = EPlayPhase.Settlement;
@@ -359,12 +382,15 @@ public class PlayPhaseController : MonoBehaviour
 
     string DescribeSettlementBlock() => "영업 정산 중에는 제조할 수 없습니다.";
 
-    async UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken)
+    UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken) =>
+        RunPhaseWorkAsync(flow.RunAsync, cancellationToken);
+
+    async UniTask RunPhaseWorkAsync(Func<CancellationToken, UniTask> run, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            await flow.RunAsync(cancellationToken);
+            await run(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         }
         finally
@@ -378,6 +404,45 @@ public class PlayPhaseController : MonoBehaviour
             orderController?.CloseIdleView();
         }
     }
+
+#if UNITY_EDITOR
+    internal async UniTask<StoryExecutionResult> RunDialogueForTestAsync(string sceneId, int stepSeq,
+        ENewGrade grade, bool orderMatch, CancellationToken token)
+    {
+        if (IsRunning || storyFlow == null)
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "[BarTest] 바 대사 실행 준비가 되지 않았습니다.");
+        long operationId = ++nextOperationId;
+        currentOperationId = operationId;
+        try
+        {
+            await NewDataLoadManager.WaitUntilLoadedAsync(token);
+            int day = GameStateManager.Instance.CurrentDay;
+            if (!NewDataLoadManager.TryGetDayInfo(day, out var info)) throw new InvalidOperationException("[BarTest] 일차 데이터가 없습니다.");
+            settlement.BeginDay(day, info.UpkeepGold);
+            BeginPhase(EPlayPhase.Dialogue);
+            await RunPhaseWorkAsync(ct => storyFlow.RunFromDialogueForTestAsync(sceneId, stepSeq, grade, orderMatch, ct), token);
+            State = PlayPhaseRunState.Completed;
+            return new StoryExecutionResult(StoryExecutionStatus.Completed);
+        }
+        catch (OperationCanceledException)
+        {
+            State = PlayPhaseRunState.Canceled;
+            return new StoryExecutionResult(StoryExecutionStatus.Cancelled);
+        }
+        catch (Exception error)
+        {
+            State = PlayPhaseRunState.Failed;
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, error.Message);
+        }
+        finally
+        {
+            var finalState = State;
+            EndCurrentPhase();
+            State = finalState;
+            currentOperationId = 0;
+        }
+    }
+#endif
 
     void BeginPhase(EPlayPhase phase)
     {

@@ -1,2 +1,3 @@
-# The pinned web snapshot is verified byte-for-byte, including embedded line endings and BOMs.
+# The pinned snapshot and review are verified byte-for-byte, including line endings and BOMs.
 Assets/StreamingAssets/csv/**/*.csv -text
+ContentAuthoring/dialogue_merge_review.json -text

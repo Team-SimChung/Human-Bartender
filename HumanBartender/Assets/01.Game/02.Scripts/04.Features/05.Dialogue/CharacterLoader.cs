@@ -203,7 +203,7 @@ public class CharacterLoader
     public async UniTask<bool> LoadPortaitSpriteAsync(
         SlotCharacterPart slot,
         string dataPath,
-        CancellationToken token, List<System.Action> pendingApply = null)
+        CancellationToken token, List<System.Action> pendingApply = null, Vector2Int offsetPixels = default)
     {
         if (dataPath == null || slot.portaitSpriteRenderer == null)
             return false;
@@ -217,7 +217,7 @@ public class CharacterLoader
         if (spriteHandle.HasValue)
         {
 
-            ApplyOrQueue(pendingApply, () => slot.ApplyPortrait(spriteHandle.Value.Result));
+            ApplyOrQueue(pendingApply, () => slot.ApplyPortrait(spriteHandle.Value.Result, offsetPixels));
             return true;
         }
 

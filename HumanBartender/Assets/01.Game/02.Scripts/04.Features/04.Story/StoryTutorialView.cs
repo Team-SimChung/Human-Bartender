@@ -169,6 +169,42 @@ public sealed class StoryTutorialView : MonoBehaviour
         }
     }
 
+    /// <summary>다음 화면이 준비되는 동안 기존 안내 배경을 검게 유지한다.</summary>
+    internal async UniTask KeepScreenCoveredAsync(int sortingOrder, Func<UniTask> present)
+    {
+        var canvas = GetComponent<Canvas>();
+        var shade = fullScreenClick != null ? fullScreenClick.targetGraphic : null;
+        if (canvas == null || shade == null)
+        {
+            Debug.LogWarning("[StoryTutorial] 화면을 가릴 안내 배경이 연결되지 않았습니다.", this);
+            await present();
+            return;
+        }
+
+        int originalOrder = canvas.sortingOrder;
+        Color originalColor = shade.color;
+        bool wasInteractable = fullScreenClick.interactable;
+        Hide();
+        canvas.sortingOrder = sortingOrder;
+        shade.color = Color.black;
+        fullScreenClick.interactable = false;
+        fullScreenClick.gameObject.SetActive(true);
+        try
+        {
+            await present();
+        }
+        finally
+        {
+            if (this != null)
+            {
+                fullScreenClick.gameObject.SetActive(false);
+                fullScreenClick.interactable = wasInteractable;
+                shade.color = originalColor;
+                canvas.sortingOrder = originalOrder;
+            }
+        }
+    }
+
     public void ShowInstruction(string title, string text, Action onConfirm = null)
     {
         gameObject.SetActive(true);

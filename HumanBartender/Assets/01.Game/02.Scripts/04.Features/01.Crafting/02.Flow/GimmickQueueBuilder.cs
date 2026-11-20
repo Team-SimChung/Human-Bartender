@@ -57,6 +57,15 @@ public static class GimmickQueueBuilder
     {
         foreach (string ingredientId in actual.IngredientIds)
         {
+            bool inRecipe = TryFindRecipeStep(selected, ingredientId, out var recipeStep);
+            var action = inRecipe ? recipeStep.Action : shelfData?.GetDefaultAction(ingredientId);
+            if (action == ENewRecipeAction.Add)
+            {
+                var target = FindTarget(selected, ingredientId, shelfData);
+                steps.Add(new GimmickStep(ECraftGimmick.Powder, ingredientId, target.Item1, target.Item2,
+                    inRecipe, isImmediateAddition: true));
+                continue;
+            }
             ECraftGimmick? gimmick = ResolveGimmick(selected, ingredientId, shelfData);
 
             if (gimmick == null)
@@ -77,7 +86,6 @@ public static class GimmickQueueBuilder
             if (shelfData != null && shelfData.RequiresOpen(ingredientId))
                 steps.Add(new GimmickStep(ECraftGimmick.Open, ingredientId));
 
-            bool inRecipe = TryFindRecipeStep(selected, ingredientId, out _);
             (float? qty, ENewUnit? unit) = FindTarget(selected, ingredientId, shelfData);
 
             steps.Add(new GimmickStep(gimmick.Value, ingredientId, qty, unit, inRecipe));
@@ -133,6 +141,9 @@ public static class GimmickQueueBuilder
                     (isSqueeze ? squeezeIds : powderIds).Add(recipeStep.Ingredient);
                     continue;
                 }
+
+                // add는 선반에서 고른 경우에만 정량 투입한다. 선택하지 않은 각설탕을 자동 보충하지 않는다.
+                if (recipeStep.Action == ENewRecipeAction.Add) continue;
 
                 // 플레이어가 직접 하는 재료다. 선반에 없으니 레시피에서 불러와 큐에 넣는다.
                 steps.Add(new GimmickStep(isSqueeze ? ECraftGimmick.Squeeze : ECraftGimmick.Powder,

@@ -98,6 +98,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
     public static NewCharacterData[] StoryCharacters { get; private set; }
     public static NewCocktailData[] StoryCocktails { get; private set; }
     public static NewShelfItemData[] StoryShelfItems { get; private set; }
+    public static NewTasteData[] StoryTastes { get; private set; }
     NewDayScriptBase cutsceneScript;
     public NewDialogueStepData[] GetCutsceneSteps(string id)
     {
@@ -166,6 +167,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         _barScriptCache.Clear();
         loadedDays = null;
         StreetStory = default; HomeStory = default; StoryCocktails = null; StoryCharacters = null; StoryShelfItems = null;
+        StoryTastes = null;
     }
 
     /// <summary>
@@ -227,7 +229,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         var catalog = await CsvDataReader.LoadAsync(token);
         CsvGameContentRules.Validate(catalog);
         var resourceBindings = await ResourceLoader.ReadBindingsAsync(token);
-        var homeStory = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>("script/home"));
+        var homeStory = StoryCsvCompiler.CompileHome(catalog);
         var memoryScripts = StoryCsvCompiler.Compile(catalog.Read<NewDayScriptBase>("script/cutscene"));
         pending.Add(() => cutsceneScript = memoryScripts);
         foreach (var day in barDayNumbers)
@@ -286,7 +288,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         if (uiStringData == null) throw new InvalidOperationException("Missing data target: uiStringData");
         await StageAsync<Dictionary<string, LocalizedText>>(catalog, uiStringFileName, value => uiStringData.uiStringData = value, pending, token);
         if (streetData == null) throw new InvalidOperationException("Missing data target: streetData");
-        var streetStory = StoryCsvCompiler.Compile(catalog.Read<NewStreetData>(streetFileName));
+        var streetStory = StoryCsvCompiler.CompileStreet(catalog, streetFileName);
         pending.Add(() => streetData.newStreetData = streetStory);
 
         // 완료를 알리기 전에 찍는다. UniTask는 TrySetResult 시점에 기다리던 쪽을 동기로 이어서 돌리기
@@ -298,6 +300,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
         HomeStory = homeStory; StreetStory = streetData.newStreetData;
         StoryCharacters = characterData.characterData; StoryCocktails = cocktailData.cocktailData;
         StoryShelfItems = shelfItemData.shelfItemData;
+        StoryTastes = tasteData.tasteData;
         _barScriptCache.Clear();
         foreach (var pair in barScripts) _barScriptCache.Add(pair.Key, pair.Value);
         // Content lookups are rebuilt before a scene can register its runtime anchors.

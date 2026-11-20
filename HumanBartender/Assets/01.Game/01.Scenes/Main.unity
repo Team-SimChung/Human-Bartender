@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 53584661}
   - component: {fileID: 53584660}
   - component: {fileID: 53584659}
+  - component: {fileID: 8200000106}
   m_Layer: 5
   m_Name: Slot 2
   m_TagString: Untagged
@@ -794,6 +795,7 @@ GameObject:
   - component: {fileID: 520552558}
   - component: {fileID: 520552557}
   - component: {fileID: 520552556}
+  - component: {fileID: 8200000103}
   m_Layer: 5
   m_Name: "\uC885\uB8CC"
   m_TagString: Untagged
@@ -841,6 +843,7 @@ MonoBehaviour:
   focusedColor: {r: 0.92941177, g: 0.9882353, b: 1, a: 1}
   restingFont: {fileID: 11400000, guid: 71219ef86e9c2d54286ba73096d537e1, type: 2}
   focusedFont: {fileID: 11400000, guid: 4fda139f08639e143a832f6ef58e216b, type: 2}
+  settings: {fileID: 11400000, guid: 35f172c4179ddc644b93dbe4d77095b1, type: 2}
 --- !u!114 &520552557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1770,6 +1773,7 @@ GameObject:
   - component: {fileID: 837678058}
   - component: {fileID: 837678057}
   - component: {fileID: 837678056}
+  - component: {fileID: 8200000109}
   m_Layer: 5
   m_Name: Slot 5
   m_TagString: Untagged
@@ -1976,6 +1980,7 @@ GameObject:
   - component: {fileID: 941534838}
   - component: {fileID: 941534837}
   - component: {fileID: 941534836}
+  - component: {fileID: 8200000105}
   m_Layer: 5
   m_Name: Slot 1
   m_TagString: Untagged
@@ -2097,6 +2102,7 @@ GameObject:
   - component: {fileID: 1189879104}
   - component: {fileID: 1189879103}
   - component: {fileID: 1189879102}
+  - component: {fileID: 8200000104}
   m_Layer: 5
   m_Name: Close slots
   m_TagString: Untagged
@@ -2719,7 +2725,6 @@ GameObject:
   - component: {fileID: 1427298824}
   - component: {fileID: 1427298827}
   - component: {fileID: 1427298826}
-  - component: {fileID: 1427298825}
   m_Layer: 5
   m_Name: Project LUNA
   m_TagString: Untagged
@@ -2746,20 +2751,6 @@ RectTransform:
   m_AnchoredPosition: {x: 46, y: -44}
   m_SizeDelta: {x: 447, y: 220}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1427298825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1427298823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7291cedd95d2434e920be1d1da1f9356, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TitleLogoGlitch
-  period: 2.86
-  displacement: 14
 --- !u!114 &1427298826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2772,7 +2763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 135d01816f67aed4fb8c8aab84c527d3, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -2948,6 +2939,7 @@ GameObject:
   - component: {fileID: 1555850072}
   - component: {fileID: 1555850071}
   - component: {fileID: 1555850070}
+  - component: {fileID: 8200000100}
   m_Layer: 5
   m_Name: "\uC0C8 \uAC8C\uC784"
   m_TagString: Untagged
@@ -2995,6 +2987,7 @@ MonoBehaviour:
   focusedColor: {r: 0.92941177, g: 0.9882353, b: 1, a: 1}
   restingFont: {fileID: 11400000, guid: 71219ef86e9c2d54286ba73096d537e1, type: 2}
   focusedFont: {fileID: 11400000, guid: 4fda139f08639e143a832f6ef58e216b, type: 2}
+  settings: {fileID: 11400000, guid: 35f172c4179ddc644b93dbe4d77095b1, type: 2}
 --- !u!114 &1555850071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3172,6 +3165,7 @@ GameObject:
   - component: {fileID: 1640832341}
   - component: {fileID: 1640832340}
   - component: {fileID: 1640832339}
+  - component: {fileID: 8200000101}
   m_Layer: 5
   m_Name: "\uC774\uC5B4\uD558\uAE30"
   m_TagString: Untagged
@@ -3219,6 +3213,7 @@ MonoBehaviour:
   focusedColor: {r: 0.92941177, g: 0.9882353, b: 1, a: 1}
   restingFont: {fileID: 11400000, guid: 71219ef86e9c2d54286ba73096d537e1, type: 2}
   focusedFont: {fileID: 11400000, guid: 4fda139f08639e143a832f6ef58e216b, type: 2}
+  settings: {fileID: 11400000, guid: 35f172c4179ddc644b93dbe4d77095b1, type: 2}
 --- !u!114 &1640832340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3655,6 +3650,7 @@ GameObject:
   - component: {fileID: 1749665259}
   - component: {fileID: 1749665258}
   - component: {fileID: 1749665257}
+  - component: {fileID: 8200000102}
   m_Layer: 5
   m_Name: "\uC124\uC815"
   m_TagString: Untagged
@@ -3702,6 +3698,7 @@ MonoBehaviour:
   focusedColor: {r: 0.92941177, g: 0.9882353, b: 1, a: 1}
   restingFont: {fileID: 11400000, guid: 71219ef86e9c2d54286ba73096d537e1, type: 2}
   focusedFont: {fileID: 11400000, guid: 4fda139f08639e143a832f6ef58e216b, type: 2}
+  settings: {fileID: 11400000, guid: 35f172c4179ddc644b93dbe4d77095b1, type: 2}
 --- !u!114 &1749665258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4008,6 +4005,7 @@ GameObject:
   - component: {fileID: 1873082585}
   - component: {fileID: 1873082584}
   - component: {fileID: 1873082583}
+  - component: {fileID: 8200000107}
   m_Layer: 5
   m_Name: Slot 3
   m_TagString: Untagged
@@ -4403,6 +4401,7 @@ GameObject:
   - component: {fileID: 1969387775}
   - component: {fileID: 1969387774}
   - component: {fileID: 1969387773}
+  - component: {fileID: 8200000108}
   m_Layer: 5
   m_Name: Slot 4
   m_TagString: Untagged
@@ -4665,6 +4664,126 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2129106141}
   m_CullTransparentMesh: 1
+--- !u!114 &8200000100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555850068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640832337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749665255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 520552554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1189879100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941534834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 53584657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873082581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969387771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
+--- !u!114 &8200000109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 837678054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

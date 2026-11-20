@@ -7,6 +7,8 @@ public sealed class CraftPrepShelfSlot : MonoBehaviour, IPointerEnterHandler, IP
     [SerializeField] private string itemId;
     [SerializeField] private CraftPrepStageScreen.Stage stage;
     [SerializeField] private SpriteRenderer icon;
+    [Tooltip("공용 임시 그림을 쓰는 재료의 이름. 전용 그림이 있는 기존 슬롯은 비워 둡니다.")]
+    [SerializeField] private TMPro.TMP_Text itemNameLabel;
     [SerializeField] private Color hoverColor = new Color(98f / 255f, 236f / 255f, 1f);
     [SerializeField] private Color selectedColor = new Color(1f, 218f / 255f, 123f / 255f);
     [SerializeField] private Color guideColor = new Color(0.75f, 0.95f, 1f);
@@ -27,6 +29,7 @@ public sealed class CraftPrepShelfSlot : MonoBehaviour, IPointerEnterHandler, IP
     {
         owner = screen;
         item = data;
+        if (itemNameLabel != null) itemNameLabel.text = string.IsNullOrEmpty(data.Name.Ko) ? data.Id : data.Name.Ko;
         available = true;
         selected = isSelected;
         guide = isGuide;

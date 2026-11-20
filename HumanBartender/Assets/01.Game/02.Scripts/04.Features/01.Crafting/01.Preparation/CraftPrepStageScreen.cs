@@ -26,17 +26,19 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     [Header("Fixed HUD")]
     [SerializeField] private CocktailRecipePreview recipePreview;
+    [Tooltip("하단 선택 슬롯 묶음. 화면 가운데에 고정되고 레시피를 열어도 움직이지 않는다(웹 기준).")]
     [SerializeField] private RectTransform trayContent;
-    [SerializeField] private RectTransform trayPosition;
-    [SerializeField] private float trayShiftWhenRecipeOpen = 238f;
     [SerializeField] private CraftPrepTrayItem trayItemPrefab;
     [SerializeField] private GameObject trayPlaceholder;
     [SerializeField] private Button previousButton;
     [SerializeField] private Button nextButton;
-    [SerializeField] private Button recipeButton;
+    [Tooltip("왼쪽 위 레시피 버튼. 칵테일 이름과 준비물 목록을 보여 주고, 누르면 상세 레시피를 연다.")]
+    [SerializeField] private CraftPrepRecipeBrief recipeBrief;
     [SerializeField] private Button recipeCloseButton;
     [SerializeField] private Button startButton;
     [SerializeField] private Button backButton;
+    [Tooltip("선반 데이터에 없는 병따개의 표시 이름. 하단 슬롯과 레시피 버튼 목록이 같이 쓴다.")]
+    [SerializeField] private string bottleOpenerName = "병따개";
     [Header("Notice Popup")]
     [SerializeField] private TMP_FontAsset noticeFont;
     [SerializeField] private float noticeFontSize = 22f;
@@ -46,10 +48,11 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     [SerializeField] private Sprite activeIndicator;
 
     private readonly List<CraftPrepTrayItem> trayItems = new List<CraftPrepTrayItem>();
+    private readonly List<CraftPrepChecklistEntry> checklist = new List<CraftPrepChecklistEntry>();
+    private System.Func<string, string> itemNameLookup;
     private CraftPreparation preparation;
     private CraftFlowController craftFlow;
     private CraftPrepShelfSlot hoveredSlot;
-    private Vector2 originalTrayPosition;
     private int stageIndex;
     private bool recipeOpen;
     private bool cameraMoving;
@@ -67,7 +70,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     public Transform GetTutorialTarget(string step, bool beer)
     {
-        if (step == "readRecipe") return recipeOpen ? recipeCloseButton.transform : recipeButton.transform;
+        if (step == "readRecipe") return recipeOpen ? recipeCloseButton.transform : recipeBrief.transform;
         if ((step is "opener" or "shaker") && CurrentStage != Stage.Tool)
             return CurrentStage < Stage.Tool ? nextButton.transform : previousButton.transform;
         if (step == "navigateGin" || step == "navigateSoda")
@@ -95,10 +98,9 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     private void Awake()
     {
-        if (trayPosition != null) originalTrayPosition = trayPosition.anchoredPosition;
         if (previousButton != null) previousButton.onClick.AddListener(Previous);
         if (nextButton != null) nextButton.onClick.AddListener(Next);
-        if (recipeButton != null) recipeButton.onClick.AddListener(ToggleRecipe);
+        if (recipeBrief != null && recipeBrief.Button != null) recipeBrief.Button.onClick.AddListener(ToggleRecipe);
         if (recipeCloseButton != null) recipeCloseButton.onClick.AddListener(CloseRecipe);
         if (startButton != null) startButton.onClick.AddListener(StartCraft);
         EnsureOpenerPopup();
@@ -146,7 +148,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         Close();
         if (previousButton != null) previousButton.onClick.RemoveListener(Previous);
         if (nextButton != null) nextButton.onClick.RemoveListener(Next);
-        if (recipeButton != null) recipeButton.onClick.RemoveListener(ToggleRecipe);
+        if (recipeBrief != null && recipeBrief.Button != null) recipeBrief.Button.onClick.RemoveListener(ToggleRecipe);
         if (recipeCloseButton != null) recipeCloseButton.onClick.RemoveListener(CloseRecipe);
         if (startButton != null) startButton.onClick.RemoveListener(StartCraft);
         if (backButton != null) backButton.onClick.RemoveListener(Back);
@@ -161,7 +163,8 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
             {
                 if (slot == null) continue;
                 if (shelfData == null || !shelfData.TryGet(slot.ItemId, out NewShelfItemData item) ||
-                    item.UnlockDay > GameStateManager.Instance.CurrentDay)
+                    !(craftFlow != null ? craftFlow.IsShelfItemAvailable(item) :
+                        CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay)))
                 {
                     slot.SetUnavailable();
                     continue;
@@ -172,6 +175,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         if (hoveredSlot != null && (!hoveredSlot.isActiveAndEnabled || !CanInteract(hoveredSlot.ItemStage)))
             HideItemInfo(hoveredSlot);
         RefreshTray();
+        RefreshRecipeBrief();
         if (stageIndicators != null)
         {
             for (int index = 0; index < stageIndicators.Length; index++)
@@ -203,6 +207,21 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         if (trayPlaceholder != null) trayPlaceholder.transform.SetAsLastSibling();
     }
 
+    private void RefreshRecipeBrief()
+    {
+        if (recipeBrief == null) return;
+        if (itemNameLookup == null) itemNameLookup = ItemName;
+        CraftPrepRecipeChecklist.Build(preparation, shelfData, checklist);
+        recipeBrief.Bind(preparation.Cocktail.Name.Ko, checklist, itemNameLookup);
+    }
+
+    private string ItemName(string id)
+    {
+        if (id == NewToolIds.BottleOpener) return bottleOpenerName;
+        return shelfData != null && shelfData.TryGet(id, out NewShelfItemData item) && !string.IsNullOrEmpty(item.Name.Ko)
+            ? item.Name.Ko : id;
+    }
+
     private void AddTrayItem(string id, Stage stage)
     {
         if (trayItemPrefab == null || trayContent == null) return;
@@ -212,7 +231,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
             foreach (CraftPrepInfoHotspot hotspot in GetComponentsInChildren<CraftPrepInfoHotspot>(true))
                 if (hotspot.IsBottleOpener) { openerIcon = hotspot.Icon; break; }
             CraftPrepTrayItem openerEntry = Instantiate(trayItemPrefab, trayContent);
-            openerEntry.Bind(this, id, Stage.Tool, "병따개", openerIcon);
+            openerEntry.Bind(this, id, Stage.Tool, bottleOpenerName, openerIcon);
             trayItems.Add(openerEntry);
             return;
         }
@@ -230,6 +249,9 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     public void ToggleItem(string id, Stage stage)
     {
         if (preparation == null) return;
+        if (shelfData == null || !shelfData.TryGet(id, out var item) ||
+            !(craftFlow != null ? craftFlow.IsShelfItemAvailable(item) :
+                CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay))) return;
         if (stage == Stage.Glass) preparation.ToggleGlass(id);
         else if (stage == Stage.Tool) preparation.ToggleTool(id);
         else preparation.ToggleIngredient(id);
@@ -305,12 +327,14 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     }
     private void ToggleRecipe() { if (recipeOpen) CloseRecipe(); else OpenRecipe(); }
 
+    // 하단 슬롯은 레시피 표시와 상관없이 화면 가운데에 둔다(웹 preparation-resources.css 주석).
+    // 레시피 버튼은 상세가 열린 동안 숨긴다(웹 .prep-open .recipe-toggle{visibility:hidden}).
     private void OpenRecipe()
     {
         if (preparation == null || recipePreview == null) return;
         recipePreview.Show(preparation.Cocktail, recipeVisuals);
         recipeOpen = true;
-        if (trayPosition != null) trayPosition.anchoredPosition = originalTrayPosition + Vector2.right * trayShiftWhenRecipeOpen;
+        if (recipeBrief != null) recipeBrief.gameObject.SetActive(false);
     }
 
     private void CloseRecipe()
@@ -319,7 +343,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         bool wasOpen = recipeOpen;
         if (wasOpen && preparation != null) preparation.MarkRecipeNoteRead();
         recipeOpen = false;
-        if (trayPosition != null) trayPosition.anchoredPosition = originalTrayPosition;
+        if (recipeBrief != null) recipeBrief.gameObject.SetActive(true);
         if (wasOpen) Refresh();
     }
 

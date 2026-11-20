@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bbe1f0368816964896af33fd3a513ab, type: 3}
+  m_Name: tl_yuna_memory_d3
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioSequence
+  id: tl_yuna_memory_d3
+  displayName: 3일차 · 유나의 마지막 선택
+  timeline: {fileID: 11400000, guid: 11b740517595547cab2f9dab132bed7d, type: 2}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  actors:
+  - id: luna
+    name: 루나
+    sprite: {fileID: 1097248969659561114, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
+    position: {x: 0, y: 0}
+    size: {x: 275.2, y: 246.4}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 1
+    clipControlled: 1
+  allowSkip: 0

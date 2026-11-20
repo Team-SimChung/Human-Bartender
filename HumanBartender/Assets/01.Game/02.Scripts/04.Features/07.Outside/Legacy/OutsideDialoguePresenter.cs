@@ -40,13 +40,15 @@ public class OutsideDialoguePresenter : MonoBehaviour, IDialoguePresenter, IDial
     {
         var texts = new List<string>();
         var selectable = new List<bool>();
+        var reasons = new List<string>();
         foreach (var option in options)
         {
             bool allowed = option.Selectable ?? true;
-            texts.Add(allowed ? option.Text?.Ko : option.LockReason?.Ko ?? option.Text?.Ko);
+            texts.Add(option.Text?.Ko);
+            reasons.Add(option.LockReason?.Ko);
             selectable.Add(allowed);
         }
-        choiceManager.ShowChoice(texts, selectable, index => onSelected(options[index]));
+        choiceManager.ShowChoice(texts, selectable, index => onSelected(options[index]), reasons);
     }
 
     /// <summary>Step 하나의 대사를 타이핑 효과로 표시한다.</summary>

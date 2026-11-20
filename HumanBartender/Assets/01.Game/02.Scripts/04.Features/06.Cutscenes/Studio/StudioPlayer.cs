@@ -19,8 +19,7 @@ namespace HumanBartender.CutsceneStudio
         public bool IsPlaying { get; private set; }
         public bool IsWaiting => clock.Waiting.HasValue;
         public double CurrentTime => clock.Time;
-        // Interaction sessions own E/Esc so cancellation and completion cannot race.
-        // Existing standalone and bar playback keep their original keyboard handling.
+        // 상호작용 재생기는 대사 진행만 전달한다. Space 유지 스킵은 모든 재생 경로에서 공통 처리한다.
         public bool HandleKeyboardInput { get; set; } = true;
 
         private readonly StudioClock clock = new();
@@ -30,6 +29,7 @@ namespace HumanBartender.CutsceneStudio
         private bool skip;
         private bool advance;
         private static StudioPlayer activePlayer;
+        public static bool HasActivePlayback => activePlayer != null && activePlayer.IsPlaying;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetPlaybackOwner() => activePlayer = null;
         private void Awake()
@@ -62,48 +62,67 @@ namespace HumanBartender.CutsceneStudio
             var issues = sequence.Validate();
             if (issues.Count > 0)
                 throw new InvalidOperationException(string.Join("\n", issues));
+            var visualWarnings = StudioSequenceWarnings.CollectMissingVisuals(sequence);
+            if (visualWarnings.Count > 0)
+                Debug.LogWarning("[CutsceneStudio] 시각 리소스 누락 · 대사 재생은 계속합니다: " + sequence.Id + "\n" +
+                    string.Join("\n", visualWarnings), sequence);
             using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
             run = source;
             IsPlaying = true;
             activePlayer = this;
             Sequence = sequence;
             skip = advance = false;
+            int startedFrame = Time.frameCount;
+            CutsceneSkipScreen skipScreen = null;
             clock.Seek(0);
+            clock.Tick(sequence, 0, true);
             try
             {
                 source.Token.ThrowIfCancellationRequested();
                 using var gameplay = new StudioGameplayScope(PauseGameplay);
                 using var audio = new StudioAudioPlayback(gameObject, AudioOutputSettings.Shared);
                 var director = CreatePresentation(sequence, out var canvas);
+                if (sequence.AllowSkip)
+                {
+                    skipScreen = FindFirstObjectByType<CutsceneSkipScreen>();
+                    if (skipScreen != null) skipScreen.Begin(Skip);
+                    else Debug.LogWarning("[CutsceneSkip] 공용 부트스트랩의 Canvas_CutsceneSkip 연결을 확인하세요.", this);
+                }
                 double last = Time.realtimeSinceStartupAsDouble;
                 while (!skip && !clock.Finished)
                 {
                     source.Token.ThrowIfCancellationRequested();
                     double now = Time.realtimeSinceStartupAsDouble;
+                    // ESC로 설정창을 닫은 프레임도 새 유지 입력으로 사용하지 않는다.
+                    if (Time.frameCount != startedFrame)
+                        skipScreen?.Tick(UIDisplayOptions.IsOptionOpen || UIDisplayOptions.EscapeHandledThisFrame ||
+                            Keyboard.current?.escapeKey.wasPressedThisFrame == true);
+                    if (skip) break;
                     if (UIDisplayOptions.IsOptionOpen)
                     {
-                        audio.Evaluate(sequence, clock.Time, true);
+                        audio.Evaluate(sequence, clock.DisplayTime, true, clock, paused: true);
                         last = now;
                         await UniTask.Yield(PlayerLoopTiming.Update, source.Token);
                         continue;
                     }
-                    bool waiting = clock.Waiting.HasValue;
-                    if (advance || HandleKeyboardInput && (GameKeyBindings.WasPressed(GameControl.Interact) || Keyboard.current?.enterKey.wasPressedThisFrame == true))
+                    bool keyPressed = HandleKeyboardInput && Time.frameCount != startedFrame &&
+                        !DialogueAdvanceInput.ConsumedThisFrame && DialogueAdvanceInput.PressedKey(includeInteraction: true) != null;
+                    bool advanceThisFrame = advance || keyPressed;
+                    bool acceptedInput = advanceThisFrame && clock.CanAdvance;
+                    if (advanceThisFrame)
                     {
-                        if (waiting)
-                            clock.Advance();
+                        DialogueAdvanceInput.TryConsume();
+                        clock.Advance();
                         advance = false;
                     }
 
-                    if (HandleKeyboardInput && sequence.AllowSkip && Keyboard.current?.escapeKey.wasPressedThisFrame == true)
-                        break;
-                    clock.Tick(sequence, waiting ? 0 : now - last, true);
+                    clock.Tick(sequence, acceptedInput ? 0 : now - last, true);
                     if (clock.Finished)
                         break;
                     last = now;
                     stage.FitTo(canvas.pixelRect.size);
                     EvaluatePresentation(director);
-                    audio.Evaluate(sequence, clock.Time, clock.Waiting.HasValue);
+                    audio.Evaluate(sequence, clock.DisplayTime, clock.IsHolding, clock);
                     await UniTask.Yield(PlayerLoopTiming.Update, source.Token);
                 }
 
@@ -111,6 +130,9 @@ namespace HumanBartender.CutsceneStudio
             }
             finally
             {
+                skipScreen?.End();
+                // 스킵·자연 종료 모두 뒤의 대사/선택지가 같은 프레임의 입력을 재사용하지 않게 한다.
+                DialogueAdvanceInput.TryConsume();
                 if (canvasObject != null)
                 {
                     canvasObject.SetActive(false);
@@ -152,6 +174,7 @@ namespace HumanBartender.CutsceneStudio
 
         private void EvaluatePresentation(PlayableDirector director)
         {
+            stage.PlaybackClock = clock;
             stage.RevealDialogue = clock.Waiting.HasValue;
             int previous = stage.EvaluationVersion;
             director.time = clock.DisplayTime;

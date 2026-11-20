@@ -14,9 +14,33 @@ public sealed class ShopStoryEvents : IOutsideStoryEventHandler
     public ShopStoryEvents(IPlayerDataReader player, GameStateManager state, IStoryContentSource content)
     { this.player = player; this.state = state; this.content = content; }
 
+    /// <summary>팔 물건이 없을 때의 웹 원문(outside-shop.js soldOut). 대본 CSV에는 없는 상점 규칙 대사다.</summary>
+    public const string SoldOutLine = "이제 팔 거 없어. 꺼져, 시바.";
+    const int AllowanceMoneyLimit = 300;
+
     public bool Handles(OutsideStoryCommand command) => command is OutsideStoryCommand.ShopIntroComplete or OutsideStoryCommand.ShopOpen
         or OutsideStoryCommand.ShopGreeting or OutsideStoryCommand.ShopItems or OutsideStoryCommand.ShopAllowance
-        or OutsideStoryCommand.GrantAllowance or OutsideStoryCommand.ShopQuiz;
+        or OutsideStoryCommand.GrantAllowance or OutsideStoryCommand.ShopQuiz or OutsideStoryCommand.ShopSoldOut;
+
+    /// <summary>참치캔은 2일차부터, 부비를 입양하지 않았고 아직 사지 않았을 때만 판다(웹 tunaAvailable).</summary>
+    public static bool TunaAvailable(int day, IConditionUtil conditions) => day >= 2 &&
+        !conditions.CheckRequired("flag.boobi_adopted") && !conditions.CheckRequired("flag.shiba_bought_tuna_can");
+
+    /// <summary>지금 팔 수 있는 상품이 하나라도 있는지(웹 hasStock). 와일드 독은 팔지 않는다.</summary>
+    public static bool HasStock(int day, IConditionUtil conditions) =>
+        !conditions.CheckRequired("flag.shiba_bought_bitters") || TunaAvailable(day, conditions);
+
+    /// <summary>비터스·와일드 독을 모두 갖고 아직 배우지 않았으면 올드 패션드 설명·퀴즈가 먼저다(웹 needsQuiz).</summary>
+    public static bool NeedsQuiz(IConditionUtil conditions) => conditions.CheckRequired("flag.shiba_bought_bitters") &&
+        CampaignStoryRules.HasWildDog(conditions) && !conditions.CheckRequired("flag.shiba_old_fashioned_taught");
+
+    /// <summary>재고가 없고 퀴즈도 남지 않았으면 인사·목록 대신 판매 종료 한 줄로 끝낸다.</summary>
+    public static bool IsSoldOut(int day, IConditionUtil conditions) => !NeedsQuiz(conditions) && !HasStock(day, conditions);
+
+    public static Step[] SoldOut() => new[]
+    {
+        new Step { Type = "say", Actor = "shiba", Arg = "default", Text = new Texts { Ko = SoldOutLine, En = SoldOutLine }, Sync = "wait" }
+    };
 
     public async UniTask<Step[]> ExecuteAsync(OutsideStoryCommand command, string argument, OutsideStoryExecution run, CancellationToken token)
     {
@@ -28,9 +52,12 @@ public sealed class ShopStoryEvents : IOutsideStoryEventHandler
                 if (string.IsNullOrEmpty(argument)) throw new InvalidOperationException("용돈의 원본 CSV 효과가 없습니다.");
                 if (!run.Flag("shiba_allowance_received")) run.Effect(argument + "; flag.shiba_allowance_received = true");
                 return null;
+            case OutsideStoryCommand.ShopSoldOut: return SoldOut();
             case OutsideStoryCommand.ShopOpen:
+                // 웹 openStock 순서: 퀴즈 → 판매 종료 → 용돈 → 목록.
                 if (CanTeach(run)) return Lesson();
-                if (!run.Flag("shiba_bought_bitters") && !run.Flag("shiba_allowance_received") && state.CurrentDay <= 2 && player.HasMoney() <= 300)
+                if (!HasStock(state.CurrentDay, run.Conditions)) return SoldOut();
+                if (!run.Flag("shiba_allowance_received") && state.CurrentDay <= 2 && player.HasMoney() <= AllowanceMoneyLimit)
                     return content.GetSceneSteps("shiba-allowance");
                 return new[] { Command(OutsideStoryCommand.ShopItems) };
             case OutsideStoryCommand.ShopGreeting:
@@ -52,7 +79,7 @@ public sealed class ShopStoryEvents : IOutsideStoryEventHandler
             case OutsideStoryCommand.ShopItems:
                 var choices = new List<NewStreetOptionData> { Option("cancel", "구매하지 않는다.") };
                 if (!run.Flag("shiba_bought_bitters")) choices.Add(Option("bitters", "비터스 · 300원", "money >= 300"));
-                if (state.CurrentDay >= 2 && !run.Flag("boobi_adopted") && !run.Flag("shiba_bought_tuna_can"))
+                if (TunaAvailable(state.CurrentDay, run.Conditions))
                     choices.Add(Option("tuna_can", "참치캔 구매 · 50원", "money >= 50"));
                 var selected = await run.ChooseAsync(choices.ToArray(), token);
                 if (selected.Id == "cancel") return Array.Empty<Step>();
@@ -64,8 +91,7 @@ public sealed class ShopStoryEvents : IOutsideStoryEventHandler
         }
     }
 
-    static bool CanTeach(OutsideStoryExecution run) => run.Flag("shiba_bought_bitters") &&
-        CampaignStoryRules.HasWildDog(run.Conditions) && !run.Flag("shiba_old_fashioned_taught");
+    static bool CanTeach(OutsideStoryExecution run) => NeedsQuiz(run.Conditions);
     Step[] Lesson() => content.GetSceneSteps("shared-shop-quizIntro").Concat(content.GetSceneSteps("shared-shop-lesson"))
         .Concat(new[] { Command(OutsideStoryCommand.ShopQuiz) }).ToArray();
 

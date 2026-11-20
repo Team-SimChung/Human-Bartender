@@ -11,27 +11,27 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
     readonly SoundManager sound;
     readonly PlayerDataSO player;
     readonly IPopupService popups;
-    readonly IConditionUtil conditions;
-    HashSet<string> knownIngredients;
     IAudioLoop street, rain;
     string group;
+    Scene musicScene;
+    NewGameOpening opening;
     bool hadFocus = true;
-    public SceneAudioController(SoundManager sound, PlayerDataSO player, IPopupService popups, IConditionUtil conditions)
-    { this.sound = sound; this.player = player; this.popups = popups; this.conditions = conditions; }
+    // 재료 획득 알림은 여기서 띄우지 않는다. 선반 해금 조건이 바뀌었다고 알리면 받지 않은 재료까지 '획득'으로 뜬다
+    // (엔진 수정 사항 24). 웹처럼 실제로 받는 지점(거리 대본의 지급 행 등)이 직접 알린다.
+    public SceneAudioController(SoundManager sound, PlayerDataSO player, IPopupService popups)
+    { this.sound = sound; this.player = player; this.popups = popups; }
 
     public void Start()
     {
         player.MoneyAdded += OnMoney;
         player.AffinityAdded += OnAffinity;
         player.FlagChanged += OnFlag;
-        player.ProgressReplaced += ResetIngredients;
         Tick();
     }
 
     public void Tick()
     {
         if (sound == null || !sound.isActiveAndEnabled) return;
-        if (knownIngredients == null && NewDataLoadManager.IsLoaded) RefreshIngredients(false);
         bool focused = Application.isFocused;
         if (focused != hadFocus)
         {
@@ -40,9 +40,27 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
         }
         var transition = SceneTransitionManager.Instance;
         bool revealing = transition == null || !transition.IsBusy || transition.CurrentState == SceneTransitionState.FadingIn;
-        string scene = SceneManager.GetActiveScene().name;
+        var activeScene = SceneManager.GetActiveScene();
+        if (musicScene != activeScene)
+        {
+            musicScene = activeScene;
+            opening = null;
+            if (activeScene.name == "Home")
+                foreach (var root in activeScene.GetRootGameObjects())
+                    if ((opening = root.GetComponentInChildren<NewGameOpening>()) != null) break;
+        }
+        string scene = activeScene.name;
         string next = GameAudioRules.MusicGroup(scene);
-        if (revealing && next != group)
+        var state = GameStateManager.Instance;
+        bool openingIntro = opening != null && opening.isActiveAndEnabled && !opening.IntroFinished &&
+            state.CurrentDay == 0 && state.GameFlow == EGameFlow.CommuteIn && !player.CheckFlag(NewGameOpening.SeenFlag);
+        if (openingIntro)
+        {
+            // 안내 화면이 뜨기 전에 타이틀 음악을 정리하고 Home 음악을 아직 요청하지 않는다.
+            if (group != null) sound.StopBGM(0);
+            group = null;
+        }
+        else if (revealing && next != group)
         {
             group = next;
             switch (group)
@@ -53,7 +71,7 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
                 default: sound.StopBGM(); break;
             }
         }
-        bool cinematic = GameAudioContext.Cinematic || GameStateManager.Instance.CurrentGameState == GameState.Effect;
+        bool cinematic = GameAudioContext.Cinematic || state.CurrentGameState == GameState.Effect;
         bool outside = group == "street" && scene == "OutSide" && focused && !cinematic;
         if (outside)
         {
@@ -61,7 +79,7 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
             bool paused = Time.timeScale <= 0f || UIDisplayOptions.IsOptionOpen;
             float gain = GameAudioRules.AmbienceGain(GameAudioContext.AnyDialogue, paused);
             street?.SetGain(gain);
-            bool rainy = GameAudioRules.IsRainy(GameStateManager.Instance.CurrentDay, GameStateManager.Instance.GameFlow);
+            bool rainy = GameAudioRules.IsRainy(state.CurrentDay, state.GameFlow);
             if (rainy) { rain ??= sound.StartLoop("SFX_rain_loop", .55f); rain?.SetGain(gain); }
             else { rain?.Dispose(); rain = null; }
         }
@@ -85,27 +103,11 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
 
     void OnFlag(string key, bool value)
     {
-        if (knownIngredients != null) RefreshIngredients(true);
         if (!value || !key.EndsWith("_met", StringComparison.Ordinal)) return;
         string id = key.Substring(0, key.Length - 4);
         if (id == "chris") return;
         foreach (var character in NewDataLoadManager.StoryCharacters ?? Array.Empty<NewCharacterData>())
             if (character.Id == id) { popups.Popup(PopupType.CharacterRegistered, id).Forget(Debug.LogException); break; }
-    }
-
-    void ResetIngredients() => knownIngredients = null;
-    void RefreshIngredients(bool notify)
-    {
-        var next = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var item in NewDataLoadManager.StoryShelfItems ?? Array.Empty<NewShelfItemData>())
-        {
-            if (!item.IsIngredient || item.UnlockDay > GameStateManager.Instance.CurrentDay ||
-                (!string.IsNullOrWhiteSpace(item.UnlockWhen) && !conditions.CheckRequired(item.UnlockWhen))) continue;
-            next.Add(item.Id);
-            if (notify && knownIngredients != null && !knownIngredients.Contains(item.Id))
-                popups.Popup(PopupType.IngredientAcquired, item.Id).Forget(Debug.LogException);
-        }
-        knownIngredients = next;
     }
 
     void StopAmbience(bool immediately = false)
@@ -120,6 +122,5 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
         player.MoneyAdded -= OnMoney;
         player.AffinityAdded -= OnAffinity;
         player.FlagChanged -= OnFlag;
-        player.ProgressReplaced -= ResetIngredients;
     }
 }

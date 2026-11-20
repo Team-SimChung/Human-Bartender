@@ -116,8 +116,11 @@ namespace HumanBartender.CutsceneStudio.Editor
                     Add("BubbleWidth", "말풍선 폭");
                     Add("BubblePadding", "안쪽 여백");
                     Add("CharactersPerSecond", "초당 글자 수");
+                    Add("DialogueLengthMode", "길이 조정");
+                    Add("TypingAudioMode", "타이핑 효과음");
+                    if (clip.TypingAudioMode == StudioTypingAudioMode.Custom) Add("TypingAudio", "직접 지정 효과음");
                     Add("BubbleOffset", "말풍선 높이");
-                    Add("WaitForInput", "끝에서 입력 대기");
+                    Add("WaitForInput", "타이핑 완료 후 입력 대기");
                     Add("Curve", "키 사이 보간 곡선");
                     break;
                 case StudioKind.Effect:
@@ -151,13 +154,13 @@ namespace HumanBartender.CutsceneStudio.Editor
             {
                 case StudioKind.Dialogue:
                     yield return "키프레임 탭에서 말풍선의 이동 / 크기 / 회전 / 불투명도를 조절합니다. 이동 값은 기본 말풍선 위치에 더해집니다.";
-                    yield return "E / Enter로 입력 대기를 진행합니다. Unity TMP 리치 텍스트 태그를 사용할 수 있습니다.";
+                    yield return "입력 대기 대사: 타이핑 중 입력은 전체 표시, 다음 입력은 클립 끝으로 이동합니다. 실제 게임은 공통 대사 키, 미리보기는 E / Enter를 사용합니다.";
                     break;
                 case StudioKind.Effect:
                     yield return "키프레임 탭에서 강도와 불투명도(흔들기는 감쇠)를 조절합니다.";
                     break;
                 case StudioKind.Audio:
-                    yield return "미리보기와 실제 재생에 같은 사운드 설정을 적용합니다. 일시정지·입력 대기 중에는 소리도 멈춥니다.";
+                    yield return "트랙의 입력 대기 중 계속 재생을 켜면 음원이 이어집니다. 일회성 음원은 끝까지 재생 후 종료합니다. 설정창에서는 모두 멈춥니다.";
                     break;
                 case StudioKind.Wait:
                     yield return "이 클립의 시작 시점에서 E / Enter 입력을 기다립니다.";

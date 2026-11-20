@@ -85,6 +85,8 @@ public sealed class WorldStoryActionLifetimeTests
         foreach (OutsideStoryWorldAction action in Enum.GetValues(typeof(OutsideStoryWorldAction)))
         {
             if (action == OutsideStoryWorldAction.DoorCue) continue; // existing sound service owns fire-and-forget audio
+            if (action == OutsideStoryWorldAction.RepairElevator) continue; // NpcInteraction/NpcActor own the migrated NPC.
+            if (action is OutsideStoryWorldAction.ThugPunch or OutsideStoryWorldAction.ThugDepart) continue; // NpcInteraction/NpcActor own day 1's thug.
             group.BeginSession();
             Observe(group, action, player, CancellationToken.None).Forget();
             until = Time.realtimeSinceStartup + 5;

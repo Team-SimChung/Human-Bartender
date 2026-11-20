@@ -1,0 +1,880 @@
+{
+  "web_commit": "d9a34746761bc3a0f3a67bcd04cdf737d9884d70",
+  "unity_review_base": "9caaa4245bfbb72626bf44f7127abbdb11445009",
+  "before_files": {
+    "story/steps.csv": "17cd79b99edb515cdd4bb5d1a64d2ebc88d5780531aad8d2181a9e79b62ad2f5",
+    "story/bar_choices.csv": "732955c9019bd116a430a8150d8cab43f116da0ff637f20e71efd3c1e40909bf",
+    "story/street_choices.csv": "8058b835ec7d4ec8cbbe23538117eea4bd2cdbbc34c1b28202ea438527a26064"
+  },
+  "deferred_expressions": [
+    "kihyun_campaign_d3_bar_85",
+    "notion_d3_samho_beer_taste",
+    "kihyun_campaign_d3_bar_89",
+    "kihyun_campaign_d3_bar_94"
+  ],
+  "effect_mappings": [
+    {
+      "source": "kihyun_campaign_d2_bar_35",
+      "target": "kihyun_campaign_d2_bar_35",
+      "field": "text.en",
+      "spans": [
+        [
+          "How sick is that?",
+          "<fast>",
+          "</fast>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_62",
+      "target": "kihyun_campaign_d3_bar_62",
+      "field": "text.en",
+      "spans": [
+        [
+          "I'm scared.",
+          "<slow>",
+          "</slow>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_32",
+      "target": "kihyun_campaign_d3_bar_32",
+      "field": "text.en",
+      "spans": [
+        [
+          "It really is the same!",
+          "<fx=admire>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_93",
+      "target": "kihyun_campaign_d1_bar_93",
+      "field": "text.en",
+      "spans": [
+        [
+          "whiskey and orange",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "steps_day2_corridor_thug_6",
+      "target": "steps_day2_corridor_thug_6",
+      "field": "text.ko",
+      "spans": [
+        [
+          "맨입으로는 힘들지만.",
+          "<fx=emphasis><slow>",
+          "</slow></fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding revised Korean phrase."
+    },
+    {
+      "source": "steps_day2_corridor_thug_6",
+      "target": "steps_day2_corridor_thug_6",
+      "field": "text.en",
+      "spans": [
+        [
+          "맨입으로는 힘들지만.",
+          "<fx=emphasis><slow>",
+          "</slow></fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_30",
+      "target": "kihyun_campaign_d2_bar_30",
+      "field": "text.en",
+      "spans": [
+        [
+          "unemployed bum to you?!",
+          "<pop peak=1.17>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_2",
+      "target": "kihyun_campaign_d3_bar_2",
+      "field": "text.en",
+      "spans": [
+        [
+          "Hellooo",
+          "<wave amp=1.3 hz=1.6>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_61",
+      "target": "kihyun_campaign_d3_bar_61",
+      "field": "text.en",
+      "spans": [
+        [
+          "scared I'll die",
+          "<slow>",
+          "</slow>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_d1_tutorial_chris_50",
+      "target": "kihyun_d1_tutorial_chris_50",
+      "field": "text.en",
+      "spans": [
+        [
+          "That doesn't apply to you.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_21",
+      "target": "notion_day0_d1_tutorial_chris_21",
+      "field": "text.en",
+      "spans": [
+        [
+          "stare",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_54",
+      "target": "kihyun_campaign_d3_bar_54",
+      "field": "text.en",
+      "spans": [
+        [
+          "Watch what you say.",
+          "<180><fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_83",
+      "target": "kihyun_campaign_d2_bar_83",
+      "field": "text.en",
+      "spans": [
+        [
+          "Thanks.",
+          "<160><slow>",
+          "</slow>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_84",
+      "target": "notion_day0_d1_tutorial_chris_84",
+      "field": "text.en",
+      "spans": [
+        [
+          "Glad the rest works.",
+          "<fx=gentle>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_98",
+      "target": "kihyun_campaign_d2_bar_98",
+      "field": "text.en",
+      "spans": [
+        [
+          "fail sometimes, and grow.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_26",
+      "target": "kihyun_campaign_d2_bar_26",
+      "field": "text.en",
+      "spans": [
+        [
+          "That's pretty good!",
+          "<wave amp=1.3 hz=2.3>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_d1_tutorial_chris_114",
+      "target": "kihyun_d1_tutorial_chris_114",
+      "field": "text.en",
+      "spans": [
+        [
+          "You've got nerve, miss. You'll go far.",
+          "<pop peak=1.14>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_61",
+      "target": "notion_day0_d1_tutorial_chris_61",
+      "field": "text.en",
+      "spans": [
+        [
+          "the old man who taught me.",
+          "<180>",
+          ""
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_open_2",
+      "target": "kihyun_campaign_d2_bar_open_2",
+      "field": "text.en",
+      "spans": [
+        [
+          "You're late",
+          "<fx=emphasis>",
+          "</fx>"
+        ],
+        [
+          "Luna.",
+          "<140>",
+          ""
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_46",
+      "target": "kihyun_campaign_d3_bar_46",
+      "field": "text.en",
+      "spans": [
+        [
+          "quit running away!",
+          "<fx=angry>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_69",
+      "target": "notion_day0_d1_tutorial_chris_69",
+      "field": "text.en",
+      "spans": [
+        [
+          "<color=#FF4D4D>feelings</color>",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_87",
+      "target": "kihyun_campaign_d1_bar_87",
+      "field": "text.en",
+      "spans": [
+        [
+          "the comfort of that drink after such a long day",
+          "<fx=gentle>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_100",
+      "target": "notion_day0_d1_tutorial_chris_100",
+      "field": "text.en",
+      "spans": [
+        [
+          "Ahh...",
+          "<wave amp=0.75 hz=1.35>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_d3_luna_same_taste",
+      "target": "notion_d3_luna_same_taste",
+      "field": "text.en",
+      "spans": [
+        [
+          "will it taste the same...?",
+          "<slow>",
+          "</slow>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_60",
+      "target": "kihyun_campaign_d2_bar_60",
+      "field": "text.en",
+      "spans": [
+        [
+          "You're not lyyying, are you?",
+          "<wave amp=1.15 hz=1.35>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_102",
+      "target": "kihyun_campaign_d2_bar_102",
+      "field": "text.en",
+      "spans": [
+        [
+          "you're worse!",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_74",
+      "target": "kihyun_campaign_d1_bar_74",
+      "field": "text.en",
+      "spans": [
+        [
+          "you don't owe me that. It's not your responsibility.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_199",
+      "target": "kihyun_campaign_d1_bar_199",
+      "field": "text.en",
+      "spans": [
+        [
+          "Johnny's successor",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_53",
+      "target": "kihyun_campaign_d2_bar_53",
+      "field": "text.en",
+      "spans": [
+        [
+          "the toughest gang boss",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_63",
+      "target": "kihyun_campaign_d1_bar_63",
+      "field": "text.en",
+      "spans": [
+        [
+          "I've got something to look forward to next time.",
+          "<fx=encourage>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_d3_tom_magic",
+      "target": "notion_d3_tom_magic",
+      "field": "text.en",
+      "spans": [
+        [
+          "magic",
+          "<pop peak=1.13>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_d1_tutorial_chris_27",
+      "target": "kihyun_d1_tutorial_chris_27",
+      "field": "text.en",
+      "spans": [
+        [
+          "You're picking it up pretty fast.",
+          "<fx=encourage>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_80",
+      "target": "kihyun_campaign_d3_bar_80",
+      "field": "text.en",
+      "spans": [
+        [
+          "beer!",
+          "<pop peak=1.18>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_63",
+      "target": "kihyun_campaign_d3_bar_63",
+      "field": "text.en",
+      "spans": [
+        [
+          "Protect me yourself.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "steps_thug_refuse_4",
+      "target": "steps_thug_refuse_4",
+      "field": "text.ko",
+      "spans": [
+        [
+          "아악...!",
+          "<shake>",
+          "</shake>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding revised Korean phrase."
+    },
+    {
+      "source": "steps_thug_refuse_4",
+      "target": "steps_thug_refuse_4",
+      "field": "text.en",
+      "spans": [
+        [
+          "아악...!",
+          "<shake>",
+          "</shake>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_12",
+      "target": "kihyun_campaign_d3_bar_12",
+      "field": "text.en",
+      "spans": [
+        [
+          "No takebacks!",
+          "<pop peak=1.16>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_d1_tutorial_chris_113",
+      "target": "kihyun_d1_tutorial_chris_113",
+      "field": "text.en",
+      "spans": [
+        [
+          "doesn't charge me rent.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_d1_tutorial_chris_40",
+      "target": "kihyun_d1_tutorial_chris_40",
+      "field": "text.en",
+      "spans": [
+        [
+          "Not bad.",
+          "<wave amp=0.55 hz=1.6>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_d3_tom_thanks",
+      "target": "notion_d3_tom_thanks",
+      "field": "text.en",
+      "spans": [
+        [
+          "I mean it.",
+          "<fx=gentle>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_25",
+      "target": "kihyun_campaign_d1_bar_25",
+      "field": "text.en",
+      "spans": [
+        [
+          "Confident little thing, aren't you?",
+          "<pop peak=1.14>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_open_8",
+      "target": "kihyun_campaign_d3_bar_open_8",
+      "field": "text.en",
+      "spans": [
+        [
+          "Make him a good one.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_40",
+      "target": "kihyun_campaign_d2_bar_40",
+      "field": "text.en",
+      "spans": [
+        [
+          "I'm not ready. Drives me nuts!",
+          "<fx=reproach>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_119",
+      "target": "kihyun_campaign_d1_bar_119",
+      "field": "text.en",
+      "spans": [
+        [
+          "Cute!",
+          "<wave amp=1.2 hz=2>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_71",
+      "target": "kihyun_campaign_d3_bar_71",
+      "field": "text.en",
+      "spans": [
+        [
+          "it could protect someone",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_68",
+      "target": "kihyun_campaign_d3_bar_68",
+      "field": "text.en",
+      "spans": [
+        [
+          "you should see it through.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_80",
+      "target": "kihyun_campaign_d2_bar_80",
+      "field": "text.en",
+      "spans": [
+        [
+          "you lousy boss!",
+          "<shake amp=0.65 hz=18>",
+          "</shake>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "steps_day3_samho_contract_2",
+      "target": "steps_day3_samho_contract_2",
+      "field": "text.ko",
+      "spans": [
+        [
+          "장기를 팔아도",
+          "<shake amp=0.35 hz=14>",
+          "</shake>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding revised Korean phrase."
+    },
+    {
+      "source": "steps_day3_samho_contract_2",
+      "target": "steps_day3_samho_contract_2",
+      "field": "text.en",
+      "spans": [
+        [
+          "장기를 팔아도",
+          "<shake amp=0.35 hz=14>",
+          "</shake>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_66",
+      "target": "notion_day0_d1_tutorial_chris_66",
+      "field": "text.en",
+      "spans": [
+        [
+          "don't sound natural, do I?",
+          "<slow>",
+          "</slow>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "steps_outside_day1_samho_smuggler_4",
+      "target": "steps_outside_day1_samho_smuggler_3",
+      "field": "text.ko",
+      "spans": [
+        [
+          "대금을 치를 방법이 없는",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "The payment threat moved from line 4 to line 3; retain emphasis on that threat, not the unrelated request now in line 4."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_51",
+      "target": "kihyun_campaign_d3_bar_51",
+      "field": "text.en",
+      "spans": [
+        [
+          "you're my kid all the same",
+          "<fx=gentle>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_4",
+      "target": "notion_day0_d1_tutorial_chris_4",
+      "field": "text.en",
+      "spans": [
+        [
+          "Remember it this time.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_118",
+      "target": "kihyun_campaign_d1_bar_118",
+      "field": "text.en",
+      "spans": [
+        [
+          "Enough gloomy talk!",
+          "<fast>",
+          "</fast>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "notion_day0_d1_tutorial_chris_43",
+      "target": "notion_day0_d1_tutorial_chris_43",
+      "field": "text.en",
+      "spans": [
+        [
+          "not a Gin Fizz.",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_38",
+      "target": "kihyun_campaign_d3_bar_38",
+      "field": "text.en",
+      "spans": [
+        [
+          "a child who'd lost their guardian",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_d1_tutorial_chris_105",
+      "target": "kihyun_d1_tutorial_chris_105",
+      "field": "text.en",
+      "spans": [
+        [
+          "they'll come for you and Aili for fixing her, and for me, too.",
+          "<fx=command>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d2_bar_57",
+      "target": "kihyun_campaign_d2_bar_57",
+      "field": "text.en",
+      "spans": [
+        [
+          "Won't even talk to meee...",
+          "<wave amp=1.2 hz=1.4>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_187",
+      "target": "kihyun_campaign_d1_bar_187",
+      "field": "text.en",
+      "spans": [
+        [
+          "Johnny's memory data",
+          "<fx=emphasis>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_open_13",
+      "target": "kihyun_campaign_d1_bar_open_13",
+      "field": "text.en",
+      "spans": [
+        [
+          "Just pour it.",
+          "<160>",
+          ""
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "steps_commute2_25",
+      "target": "steps_commute2_22",
+      "field": "text.ko",
+      "spans": [
+        [
+          "애니멀 소속이 될 몸이지.",
+          "<pop peak=1.15>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Samho's boast moved to line 22. The reused line 25 ID is now Luna's service question and must not inherit the effect."
+    },
+    {
+      "source": "steps_commute2_25",
+      "target": "steps_commute2_22",
+      "field": "text.en",
+      "spans": [
+        [
+          "애니멀 소속이 될 몸이지.",
+          "<pop peak=1.15>",
+          "</pop>"
+        ]
+      ],
+      "reason": "Samho's boast moved to line 22. The reused line 25 ID is now Luna's service question and must not inherit the effect."
+    },
+    {
+      "source": "kihyun_campaign_d3_bar_76",
+      "target": "kihyun_campaign_d3_bar_76",
+      "field": "text.en",
+      "spans": [
+        [
+          "That's a load off!",
+          "<wave amp=1.25 hz=2.15>",
+          "</wave>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_81",
+      "target": "kihyun_campaign_d1_bar_81",
+      "field": "text.en",
+      "spans": [
+        [
+          "Guess it stuck with me.",
+          "<fx=gentle>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_179",
+      "target": "kihyun_campaign_d1_bar_179",
+      "field": "text.en",
+      "spans": [
+        [
+          "Who are you calling a kid?",
+          "<shake amp=0.55 hz=18>",
+          "</shake>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    },
+    {
+      "source": "kihyun_campaign_d1_bar_31",
+      "target": "kihyun_campaign_d1_bar_31",
+      "field": "text.en",
+      "spans": [
+        [
+          "What is this dogshit?!",
+          "<fx=angry>",
+          "</fx>"
+        ]
+      ],
+      "reason": "Preserve the authored effect on the corresponding phrase of the new English translation."
+    }
+  ]
+}

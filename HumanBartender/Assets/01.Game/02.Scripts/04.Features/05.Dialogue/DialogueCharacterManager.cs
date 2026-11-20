@@ -47,15 +47,15 @@ public class SlotCharacterPart
     [System.NonSerialized] public CharacterFade fade;
 
     /// <summary>통짜 초상의 하단을 좌석 기준선에 맞춘다. 그림마다 다른 피벗에 의존하지 않는다.</summary>
-    public void ApplyPortrait(Sprite sprite)
+    public void ApplyPortrait(Sprite sprite, Vector2Int offsetPixels = default)
     {
         if (portaitSpriteRenderer == null) return;
         portaitSpriteRenderer.sprite = sprite;
         if (sprite != null)
         {
             var position = portaitSpriteRenderer.transform.localPosition;
-            position.x = -sprite.bounds.center.x;
-            position.y = -sprite.bounds.min.y;
+            position.x = -sprite.bounds.center.x + offsetPixels.x / sprite.pixelsPerUnit;
+            position.y = -sprite.bounds.min.y + offsetPixels.y / sprite.pixelsPerUnit;
             portaitSpriteRenderer.transform.localPosition = position;
         }
         portaitSpriteRenderer.gameObject.SetActive(sprite != null);
@@ -230,7 +230,8 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
             else
             {
                 string path = animConfig.GetSpritePath(characterId, expression);
-                if (!await characterLoader.LoadPortaitSpriteAsync(staged, path, token, pendingApply))
+                if (!await characterLoader.LoadPortaitSpriteAsync(staged, path, token, pendingApply,
+                    animConfig.GetPortraitOffsetPixels(characterId)))
                     throw new InvalidOperationException("Character portrait is missing: " + path);
                 token.ThrowIfCancellationRequested();
                 MoveCurrentHandlesToRemove(slotData);

@@ -46,12 +46,15 @@ public static class GameAudioRules
 {
     public static string MusicGroup(string scene) => scene switch
     {
-        "Home" => "home", "OutSide" => "street", "Play" => "bar", _ => null
+        "Home" => "home", "Main" or "OutSide" => "street", "Play" => "bar", _ => null
     };
 
-    public static bool IsRainy(int day, EGameFlow route) =>
-        ((day == 0 || day == 1) && route == EGameFlow.CommuteOut) ||
-        (day == 2 && route == EGameFlow.CommuteIn);
+    public static bool IsRainy(int day, EGameFlow route) => route switch
+    {
+        EGameFlow.CommuteIn => day is 1 or 2 or 3,
+        EGameFlow.CommuteOut => day is 0 or 1 or 3,
+        _ => false
+    };
 
     public static float AmbienceGain(bool dialogue, bool paused) => paused ? .45f : dialogue ? .65f : 1f;
     public static float PourGain(float flowRatio) => Mathf.Sqrt(Mathf.Min(1.4f, Mathf.Max(0f, flowRatio)));

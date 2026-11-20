@@ -77,6 +77,8 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal StudioClip selected => session.Selected;
 
+        private void CommitPendingInput() => StudioDelayedInput.CommitFocused(Window.rootVisualElement);
+
         internal int actorIndex => session.ActorIndex;
 
         [SerializeField]
@@ -136,6 +138,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void OnDisable()
         {
+            CommitPendingInput();
             timelineComponent.ReleaseTrackReorder();
             ReleaseToolkitEvents();
             timelineComponent.ReleaseClipDrag();
@@ -216,6 +219,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void Load(StudioSequence asset)
         {
+            CommitPendingInput();
             timelineComponent.ReleaseTrackReorder();
             timelineComponent.ReleaseClipDrag();
             timelineComponent.ReleaseTimelineScrub();
@@ -286,6 +290,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             if (Event.current.type == EventType.MouseDown && !timelineComponent.ContainsSearch(Event.current.mousePosition))
             {
+                CommitPendingInput();
                 previewComponent.PreviewToolFocus = false;
                 workbench?.Focus();
             }
@@ -345,6 +350,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void Select(TimelineClip clip, bool reveal = true)
         {
+            CommitPendingInput();
             if (Event.current != null)
                 GUI.FocusControl(null);
             panelsDirty = true;
@@ -372,6 +378,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void TogglePlay()
         {
+            CommitPendingInput();
             playback.Toggle();
         }
 
@@ -498,6 +505,7 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         internal void ClearClipSelection()
         {
+            CommitPendingInput();
             previewComponent.EndPreviewTransform();
             timelineComponent.ReleaseClipDrag();
             timelineComponent.ReleaseKeyDrag();
@@ -521,6 +529,10 @@ namespace HumanBartender.CutsceneStudio.Editor
         internal StudioSequence DisplayedSequence => sequenceComponent.DisplayedSequence;
         private void ReleasePreviewToolFocus(PointerDownEvent inputEvent)
         {
+            var root = Window.rootVisualElement;
+            // 이벤트 target도 ListView로 재지정되므로 실제 클릭 위치로 같은 입력칸인지 판정한다.
+            var clicked = root.panel?.Pick(inputEvent.position) ?? inputEvent.target as VisualElement;
+            StudioDelayedInput.CommitFocused(root, clicked);
             for (var target = inputEvent.target as VisualElement; target != null; target = target.parent)
                 if (target is IMGUIContainer)
                     return;
@@ -532,6 +544,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             switch (command)
             {
                 case StudioInputCommand.Save:
+                    CommitPendingInput();
                     workbench?.Focus();
                     files.Save();
                     break;

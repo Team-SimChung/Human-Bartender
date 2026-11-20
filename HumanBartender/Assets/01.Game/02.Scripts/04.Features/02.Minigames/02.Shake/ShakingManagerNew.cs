@@ -106,6 +106,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     void ResetJudgement()
     {
+        paused = resumeBgm = false;
         totalJudge = Mathf.Max(1, ResolveTargetStacks());
         successJudge = 0;
         failJudge = 0;
@@ -115,11 +116,34 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         isPlay = true;
     }
 
+    bool paused;
+    bool resumeBgm;
+
     void Update()
     {
         if (!isPlay || !hasStarted) return;
+        bool pause = GamePause.IsPaused || UIDisplayOptions.IsOptionOpen;
+        SyncPause(pause, AudioSettings.dspTime);
+        if (pause) return;
         shakingStrikeNode.Handle();
         nodeCreator.Handle();
+    }
+
+    internal void SyncPause(bool value, double now)
+    {
+        if (paused == value) return;
+        paused = value;
+        shakingStrikeNode?.SetPaused(value, now);
+        if (value)
+        {
+            resumeBgm = bgmSource != null && bgmSource.isPlaying;
+            if (resumeBgm) bgmSource.Pause();
+        }
+        else
+        {
+            if (resumeBgm && bgmSource != null) bgmSource.UnPause();
+            resumeBgm = false;
+        }
     }
 
 
@@ -226,7 +250,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     public void StartGame()
     {
-        if (!isPlay || hasStarted) return;
+        if (!isPlay || hasStarted || GamePause.IsPaused || UIDisplayOptions.IsOptionOpen) return;
 
         Logger.Log("Start Game");
 
@@ -243,7 +267,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     public void ClickEvent()
     {
-        if (!isPlay || !hasStarted) return;
+        if (!isPlay || !hasStarted || GamePause.IsPaused || UIDisplayOptions.IsOptionOpen) return;
 
         Logger.Log("Click Event");
         Vector3 hitPosition;

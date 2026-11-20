@@ -89,7 +89,8 @@ Shader "Custom/SpriteOutline_Lit"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                half4 c = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * IN.color;
+                half4 sprite = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
+                half4 c = sprite * IN.color;
 
                 float2 texel = _MainTex_TexelSize.xy * _OutlineThickness;
                 float neighborAlpha = 0;
@@ -102,7 +103,8 @@ Shader "Custom/SpriteOutline_Lit"
                 neighborAlpha += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + float2( texel.x, -texel.y)).a;
                 neighborAlpha += SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv + float2(-texel.x, -texel.y)).a;
 
-                float outlineMask = saturate(neighborAlpha) * (1.0 - c.a);
+                // 표시용 알파와 분리해 Color A가 0이어도 원본 윤곽만 남긴다.
+                float outlineMask = saturate(neighborAlpha) * (1.0 - sprite.a);
                 float outlineAlpha = outlineMask * saturate(_OutlineIntensity) * _OutlineColor.a;
 
                 half4 result;

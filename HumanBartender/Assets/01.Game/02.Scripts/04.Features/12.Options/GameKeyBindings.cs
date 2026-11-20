@@ -29,8 +29,8 @@ public static class GameKeyBindings
         new(GameControl.MoveLeft, "이동 · 왼쪽", "Outside", "Move", Key.A, "left"),
         new(GameControl.MoveRight, "이동 · 오른쪽", "Outside", "Move", Key.D, "right"),
         new(GameControl.Sprint, "달리기", "Outside", "Sprint", Key.LeftShift),
-        new(GameControl.Interact, "상호작용 / 야외 대화", "Outside", "Interact", Key.E),
-        new(GameControl.Advance, "바 대화 진행", "Play", "Advance", Key.Space),
+        new(GameControl.Interact, "상호작용", "Outside", "Interact", Key.E),
+        new(GameControl.Advance, "대화 진행", "Play", "Advance", Key.Space),
         new(GameControl.PreviousSeat, "바 시점 · 왼쪽", "Play", "Left", Key.A),
         new(GameControl.NextSeat, "바 시점 · 오른쪽", "Play", "Right", Key.D),
         new(GameControl.ServicePanel, "서비스 메뉴", "Play", "ServicePanel", Key.Tab),
@@ -77,8 +77,13 @@ public static class GameKeyBindings
             message = "E는 주문 되묻기에 사용하는 키입니다.";
             return false;
         }
+        if (control == GameControl.Advance && IsChoiceNavigationKey(key))
+        {
+            message = "W · S는 선택지 이동에 사용하는 키입니다.";
+            return false;
+        }
         foreach (var other in Bindings)
-            if (other.Control != control && other.Map == binding.Map && GetKey(other.Control) == key)
+            if (KeysShareContext(binding, other) && GetKey(other.Control) == key)
             {
                 message = $"‘{other.Label}’에서 사용하는 키입니다. 다른 키를 눌러 주세요.";
                 return false;
@@ -90,6 +95,13 @@ public static class GameKeyBindings
         return true;
     }
 
+    static bool IsChoiceNavigationKey(Key key) => key == Key.W || key == Key.S;
+
+    // 대화 진행은 Play에 저장하지만 외부에서도 사용한다. 어느 쪽을 나중에 바꿔도 검사한다.
+    static bool KeysShareContext(Binding a, Binding b) => a.Control != b.Control &&
+        (a.Map == b.Map || a.Control == GameControl.Advance && b.Map == "Outside" ||
+         b.Control == GameControl.Advance && a.Map == "Outside");
+
     public static void Reset()
     {
         foreach (var binding in Bindings) PlayerPrefs.DeleteKey(PreferenceKey(binding.Control));
@@ -97,26 +109,37 @@ public static class GameKeyBindings
         Changed?.Invoke();
     }
 
-    // 기존 Q/E 버전에서 따로 저장한 키 중 새 기본키나 되묻기와 겹치는 것만 해제한다.
+    // 진행 키를 먼저 보정한다. Space 복원으로 다른 저장 키와 겹치면 그 키도 기본값으로 돌린다.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void MigratePlayKeys()
     {
+        bool anyChanged = false;
         bool changed;
         do
         {
-            changed = false;
+            changed = ResetInvalidSavedKey(Definition(GameControl.Advance));
             foreach (var binding in Bindings)
             {
-                string pref = PreferenceKey(binding.Control);
-                if (binding.Map != "Play" || !PlayerPrefs.HasKey(pref)) continue;
-                var key = GetKey(binding.Control);
-                if (key == binding.DefaultKey || (key != RepeatOrderKey &&
-                    !Array.Exists(Bindings, other => other.Map == "Play" && other.Control != binding.Control &&
-                                                     GetKey(other.Control) == key))) continue;
-                PlayerPrefs.DeleteKey(pref);
-                changed = true;
+                if (binding.Control == GameControl.Advance || binding.Map != "Play" && binding.Map != "Outside") continue;
+                changed |= ResetInvalidSavedKey(binding);
             }
+            anyChanged |= changed;
         } while (changed);
+        if (anyChanged) PlayerPrefs.Save();
+    }
+
+    static bool ResetInvalidSavedKey(Binding binding)
+    {
+        string pref = PreferenceKey(binding.Control);
+        if (!PlayerPrefs.HasKey(pref)) return false;
+        var key = (Key)PlayerPrefs.GetInt(pref);
+        if (key == binding.DefaultKey) return false;
+        bool invalid = !IsAllowed(key) || binding.Map == "Play" && key == RepeatOrderKey ||
+            binding.Control == GameControl.Advance && IsChoiceNavigationKey(key) ||
+            Array.Exists(Bindings, other => KeysShareContext(binding, other) && GetKey(other.Control) == key);
+        if (!invalid) return false;
+        PlayerPrefs.DeleteKey(pref);
+        return true;
     }
 
     public static void ApplyTo(InputActionAsset asset)

@@ -33,11 +33,19 @@ public interface ICraftGimmick
     /// <summary>
     /// 지금 플레이어의 입력을 받아 판정에 반영하고 있는지.
     ///
-    /// 한 잔의 제조시간은 이 시간만 더한다. 성공 연출을 보는 동안, 다음 기믹으로 넘어가는 동안,
+    /// 한 잔의 제조시간은 이 구간에서 더한다. 첫 조작 대기는 ICraftGimmickTiming으로 별도 제외할 수 있다.
+    /// 성공 연출을 보는 동안, 다음 기믹으로 넘어가는 동안,
     /// 결과 화면을 기다리는 동안은 플레이어가 할 수 있는 일이 없어서 시간에 넣지 않는다 —
     /// 손이 굼떠서 늦은 것과 연출이 길어서 늦은 것을 같이 세면 실력을 재는 값이 아니게 된다.
     ///
     /// 선택이 아니라 필수다. 답하지 않는 기믹이 있으면 그 기믹만 공짜 시간을 갖게 된다.
     /// </summary>
     bool IsManualInputActive { get; }
+}
+
+/// <summary>입력을 받을 수 있는 시점과 제조시간을 세기 시작하는 시점이 다른 기믹의 시간 조건.</summary>
+public interface ICraftGimmickTiming
+{
+    /// <summary>첫 조작 대기를 제외하고, 종료 전까지 누적할 구간인지.</summary>
+    bool IsTimeCounting { get; }
 }

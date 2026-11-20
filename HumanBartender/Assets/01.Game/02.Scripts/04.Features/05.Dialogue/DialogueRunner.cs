@@ -7,6 +7,13 @@ using VContainer;
 
 public enum DialogueState { Idle, Typing, WaitingForInput, WaitingForChoice }
 
+/// <summary>선택지 행에 적힌 질문을 선택지와 함께 남기는 표현기. 외부 대화(웹 choiceLine)만 구현한다.</summary>
+public interface IDialogueChoicePrompt
+{
+    /// <summary>선택지를 띄우기 직전에 호출한다. 타이핑 없이 문장 전체를 바로 표시한다.</summary>
+    void ShowChoicePrompt(string actor, string text);
+}
+
 /// <summary>대화 한 번의 표현기·조건·입력·취소를 함께 관리함.</summary>
 public class DialogueRunner : MonoBehaviour
 {
@@ -29,7 +36,11 @@ public class DialogueRunner : MonoBehaviour
         public int VisitedSteps;
         public Func<string, string, CancellationToken, UniTask<bool>> PlayTimeline;
         public bool AutoAdvance;
+        public Action<Step> StepStarted;
         public OutsideStoryExecution Events;
+        // 지금 실행 중인 행의 화자·문구. 이 행에서 선택지가 열리면 질문으로 한 번 표시한다.
+        public string PromptActor;
+        public string PromptText;
     }
 
     public DialogueState CurrentState => active?.State ?? DialogueState.Idle;
@@ -58,15 +69,18 @@ public class DialogueRunner : MonoBehaviour
 
     public async UniTask<StoryExecutionResult> PlayOutsideAsync(Step[] steps, CancellationToken token = default,
         Func<string, string, CancellationToken, UniTask<bool>> playTimeline = null, bool autoAdvance = false,
-        Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction = null)
+        Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction = null,
+        Func<string, CancellationToken, UniTask> playNpcSequence = null, bool continueTravel = false,
+        Action<Step> onStepStarted = null)
     {
         if (active != null) return Failed("A dialogue is already running.");
         if (!Alive(presenter) || conditionUtil == null) return Failed("Dialogue presenter or conditions are missing.");
         if (steps == null || steps.Length == 0) return Failed("Dialogue has no steps.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source,
-            PlayTimeline=playTimeline, AutoAdvance=autoAdvance };
-        run.Events = new OutsideStoryExecution(run.Conditions, (options, ct) => ChooseAsync(options, run), playWorldAction);
+            PlayTimeline=playTimeline, AutoAdvance=autoAdvance, StepStarted=onStepStarted };
+        run.Events = new OutsideStoryExecution(run.Conditions, (options, ct) => ChooseAsync(options, run), playWorldAction,
+            playNpcSequence, continueTravel);
         active = run;
         using var dialogueAudio = GameAudioContext.Dialogue(run.Presenter.GetPlayMode() == EActivationMode.Proximity);
         var result = new StoryExecutionResult(StoryExecutionStatus.Completed);
@@ -74,7 +88,8 @@ public class DialogueRunner : MonoBehaviour
         {
             await ExecuteAsync(steps, run, 0);
             source.Token.ThrowIfCancellationRequested();
-            result = new StoryExecutionResult(StoryExecutionStatus.Completed, destination: run.Events.Destination);
+            result = new StoryExecutionResult(StoryExecutionStatus.Completed, destination: run.Events.Destination,
+                continuation: run.Events.Continuation);
         }
         catch (OperationCanceledException) { result = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
         catch (Exception e) { result = Failed(e.Message); }
@@ -128,19 +143,32 @@ public class DialogueRunner : MonoBehaviour
         // seq가 없는 기존 결과 스텝은 CSV source_order 순서를 유지함.
         var ordered = steps.All(s => s.Seq == 0) ? steps : steps.OrderBy(s => s.Seq).ToArray();
         if (ordered.Where(s=>s.Seq != 0).GroupBy(s=>s.Seq).Any(g=>g.Count()>1)) throw new InvalidOperationException("Duplicate street step seq.");
-        foreach (var step in ordered)
+        for (int index = 0; index < ordered.Length; index++)
         {
+            var step = ordered[index];
             token.ThrowIfCancellationRequested();
             if (run.Presenter is IDialogueAutomaticPlayback automatic)
                 await automatic.WaitUntilReadyAsync(token);
+            token.ThrowIfCancellationRequested();
             if (++run.VisitedSteps > 10000) throw new InvalidOperationException("Street execution exceeded its step limit.");
             if (!run.Conditions.CheckRequired(step.When)) continue;
+            // 선택지의 중첩 결과 스텝은 원본 대본의 seq가 아니므로 연출 신호에서 제외한다.
+            if (depth == 0) run.StepStarted?.Invoke(step);
+            token.ThrowIfCancellationRequested();
+            // 선택지 행(choice와 thug-choice 같은 명령 선택지)의 문구는 선택지와 함께 보여 준다. 빈 행은 직전 말풍선을 유지한다.
+            run.PromptActor = step.Actor;
+            run.PromptText = Text(step.Text);
             if (step.Command != OutsideStoryCommand.None)
             {
                 if (storyEvents == null) throw new InvalidOperationException("Unity 사건 서비스가 등록되지 않았습니다.");
                 var replacement = await storyEvents.ExecuteAsync(step.Command, step.Arg, run.Events, token);
                 token.ThrowIfCancellationRequested();
                 run.Conditions.ApplyRequired(step.Effects);
+                if (run.Events.ContinueAfterTravel)
+                {
+                    run.Events.CaptureContinuation(ordered.Skip(index + 1).ToArray());
+                    return;
+                }
                 if (replacement != null)
                 {
                     // 실행용 순서만 복사본에서 조정한다. 로더가 공개한 원본 배열을 수정하지 않는다.
@@ -190,8 +218,24 @@ public class DialogueRunner : MonoBehaviour
                 if (played && cinemaAfter == "johnny-memory") run.Conditions.ApplyRequired("flag.campaign_observation = true");
             }
             run.Conditions.ApplyRequired(step.Effects);
+            NotifyGrantedItem(step);
             if (branch) return;
         }
+    }
+
+    /// <summary>
+    /// 거리 대본의 effect 행 arg는 그 순간 받는 아이템이다(신문 NPC의 기어 부품, 기신교 신도의 엠블럼).
+    /// 보유 기록은 같은 행의 effects가 남기고, 처음 한 번만 지나가게 하는 것은 행의 when이 맡는다. 여기서는 획득 알림만 띄운다.
+    /// </summary>
+    void NotifyGrantedItem(Step step)
+    {
+        if (!string.Equals(step.Type, "effect", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(step.Arg)) return;
+        if (popupService == null)
+        {
+            Debug.LogWarning("[Dialogue] 팝업 서비스가 없어 아이템 획득 알림을 띄우지 못했습니다: " + step.Arg);
+            return;
+        }
+        popupService.Popup(PopupType.IngredientAcquired, step.Arg.Trim()).Forget(Debug.LogException);
     }
 
     private async UniTask<bool> PlayChoiceAsync(Step step, Execution run, int depth)
@@ -212,6 +256,7 @@ public class DialogueRunner : MonoBehaviour
         for (int i=0; i<choices.Length; i++) choices[i].Selectable = run.Conditions.CheckRequired(choices[i].When);
         if (!choices.Any(o => o.Selectable == true)) throw new InvalidOperationException("Street choice has no selectable options.");
         run.State = DialogueState.WaitingForChoice;
+        ShowChoicePrompt(run);
         var picked = new UniTaskCompletionSource<NewStreetOptionData>();
         run.Presenter.ShowOutsideChoices(choices, option => CompleteChoice(run, picked, option));
         var choice = await picked.Task.AttachExternalCancellation(token);
@@ -221,6 +266,15 @@ public class DialogueRunner : MonoBehaviour
             await SayAsync(null, Text(choice.LockReason), null, null, run);
         if (!run.Conditions.CheckRequired(choice.When)) throw new InvalidOperationException("Locked story choice selected.");
         return choice;
+    }
+
+    // 같은 행에서 선택창이 다시 열려도 이미 남아 있는 말풍선을 그대로 쓴다.
+    private static void ShowChoicePrompt(Execution run)
+    {
+        string text = run.PromptText;
+        run.PromptText = null;
+        if (!string.IsNullOrWhiteSpace(text) && run.Presenter is IDialogueChoicePrompt prompt)
+            prompt.ShowChoicePrompt(run.PromptActor, text);
     }
 
     private void CompleteChoice(Execution run, UniTaskCompletionSource<NewStreetOptionData> completion, NewStreetOptionData option)

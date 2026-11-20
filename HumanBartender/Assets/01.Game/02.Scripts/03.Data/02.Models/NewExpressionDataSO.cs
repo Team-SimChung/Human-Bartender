@@ -28,6 +28,27 @@ public class NewExpressionDataSO : ScriptableObject
 {
     public Dictionary<string, Dictionary<string, NewExpressionEntry>> expressionData;
 
+    [Serializable]
+    public struct PortraitPlacement
+    {
+        [Tooltip("CSV 캐릭터 ID. 이 캐릭터의 통짜 초상에만 적용합니다.")]
+        public string characterId;
+        [Tooltip("좌석 기준선에서 더할 원본 픽셀 거리. Y가 양수이면 위로 올립니다. 파츠 애니메이션에는 적용하지 않습니다.")]
+        public Vector2Int offsetPixels;
+    }
+
+    [Header("초상 시각 배치")]
+    [Tooltip("에디터에서 저장하는 시각 설정. CSV 표정 데이터를 다시 읽어도 유지됩니다. 미등록 캐릭터는 보정하지 않습니다.")]
+    [SerializeField] PortraitPlacement[] portraitPlacements = Array.Empty<PortraitPlacement>();
+
+    public Vector2Int GetPortraitOffsetPixels(string characterId)
+    {
+        if (portraitPlacements != null)
+            foreach (var placement in portraitPlacements)
+                if (placement.characterId == characterId) return placement.offsetPixels;
+        return Vector2Int.zero;
+    }
+
     /// <summary>표정이 파츠 조립이 아니라 통짜 그림 하나인지.</summary>
     public bool IsPortraitSprite(string characterId, string expression)
         => TryGetEntry(characterId, expression, out NewExpressionEntry entry)

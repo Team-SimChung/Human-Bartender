@@ -15,6 +15,8 @@ public class OrderRequestController : MonoBehaviour
     [SerializeField] private NewCocktailDataSO cocktailData;
     [SerializeField] private NewBalanceDataSO balanceData;
     [Inject] DailySales sales;
+    [Inject] IPlayerDataWriter player;
+    [Inject] IConditionUtil conditions;
 
     sealed class Entry
     {
@@ -71,7 +73,7 @@ public class OrderRequestController : MonoBehaviour
         return source;
     }
     protected virtual IServeProcessor Processor => processor ??= new ServeProcessor(
-        cocktailData, balanceData, sales);
+        cocktailData, balanceData, sales, player, conditions);
 
     /// <summary>주문 담당이 호출한다. 콜백은 성공·취소·실패 모두 정리 후 한 번 호출된다.</summary>
     public OrderRequest Request(OrderDetails details, Action<OrderResult> onFinished,

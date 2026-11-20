@@ -1275,6 +1275,7 @@ GameObject:
   - component: {fileID: 336040315119486769}
   - component: {fileID: 3943259705973560878}
   - component: {fileID: 2710867855830807998}
+  - component: {fileID: 8200000207}
   m_Layer: 5
   m_Name: "\uC0AC\uC6B4\uB4DC tab"
   m_TagString: Untagged
@@ -1385,6 +1386,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 331615932461552706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &350556939812367222
 GameObject:
   m_ObjectHideFlags: 0
@@ -1850,6 +1863,7 @@ GameObject:
   - component: {fileID: 4152411198315643763}
   - component: {fileID: 5372344890044071003}
   - component: {fileID: 1653566163712639708}
+  - component: {fileID: 8200000216}
   m_Layer: 5
   m_Name: NextSeat binding
   m_TagString: Untagged
@@ -1959,6 +1973,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412992980871700420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &418252529840563978
 GameObject:
   m_ObjectHideFlags: 0
@@ -1971,6 +1997,7 @@ GameObject:
   - component: {fileID: 1607622095984113779}
   - component: {fileID: 2827469392334678234}
   - component: {fileID: 7681375847284500386}
+  - component: {fileID: 8200000220}
   m_Layer: 5
   m_Name: StirUp binding
   m_TagString: Untagged
@@ -2080,6 +2107,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418252529840563978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &431557572510352971
 GameObject:
   m_ObjectHideFlags: 0
@@ -2092,6 +2131,7 @@ GameObject:
   - component: {fileID: 917630244885881434}
   - component: {fileID: 4047917834830660808}
   - component: {fileID: 7564258462174761104}
+  - component: {fileID: 8200000227}
   m_Layer: 5
   m_Name: Toggle
   m_TagString: Untagged
@@ -2218,6 +2258,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8200000227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431557572510352971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &443096419248481646
 GameObject:
   m_ObjectHideFlags: 0
@@ -7346,6 +7398,7 @@ GameObject:
   - component: {fileID: 5249386556845769259}
   - component: {fileID: 2621040263721082263}
   - component: {fileID: 2396086484605502575}
+  - component: {fileID: 8200000212}
   m_Layer: 5
   m_Name: Sprint binding
   m_TagString: Untagged
@@ -7455,6 +7508,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920471103650122360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &944086038463958494
 GameObject:
   m_ObjectHideFlags: 0
@@ -8719,7 +8784,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 105
+  m_SortingOrder: 210
   m_TargetDisplay: 0
 --- !u!114 &5216898637986071559
 MonoBehaviour:
@@ -8800,6 +8865,7 @@ GameObject:
   - component: {fileID: 1900096528775898763}
   - component: {fileID: 1390924874559552192}
   - component: {fileID: 4047175733107120850}
+  - component: {fileID: 8200000200}
   m_Layer: 5
   m_Name: Close settings
   m_TagString: Untagged
@@ -8909,6 +8975,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1376288459914080712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &1381893336611020739
 GameObject:
   m_ObjectHideFlags: 0
@@ -8996,6 +9074,7 @@ GameObject:
   - component: {fileID: 3520581840849562256}
   - component: {fileID: 6207424463225143837}
   - component: {fileID: 6366178754015467433}
+  - component: {fileID: 8200000229}
   m_Layer: 5
   m_Name: VSync
   m_TagString: Untagged
@@ -9122,6 +9201,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
+--- !u!114 &8200000229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1383627297130687639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &1384158344629761209
 GameObject:
   m_ObjectHideFlags: 0
@@ -9134,6 +9225,7 @@ GameObject:
   - component: {fileID: 4560273645360450196}
   - component: {fileID: 4196974877204966543}
   - component: {fileID: 8859558268497871150}
+  - component: {fileID: 8200000210}
   m_Layer: 5
   m_Name: MoveLeft binding
   m_TagString: Untagged
@@ -9243,6 +9335,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1384158344629761209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &1389759504093360531
 GameObject:
   m_ObjectHideFlags: 0
@@ -12869,6 +12973,7 @@ GameObject:
   - component: {fileID: 2430339597506779065}
   - component: {fileID: 4315148750570259577}
   - component: {fileID: 9014083293237275706}
+  - component: {fileID: 8200000203}
   m_Layer: 5
   m_Name: Apply display
   m_TagString: Untagged
@@ -12978,6 +13083,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2167330138305245467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &2184029512698566290
 GameObject:
   m_ObjectHideFlags: 0
@@ -13450,8 +13567,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeCanvasGroup: {fileID: 6668428908291027393}
-  fadeDuration: 2
+  fadeDuration: 1
   barDoorOverlay: {fileID: 3735152409864772154}
+  dayTransition: {fileID: 0}
+  homeDoorFadeOutDuration: 0.5
+  homeDoorFadeInDuration: 0.5
 --- !u!1 &2343444373459031218
 GameObject:
   m_ObjectHideFlags: 0
@@ -13691,8 +13811,17 @@ MonoBehaviour:
   exitEase: 8
   shelfData: {fileID: 11400000, guid: f79c175af95447bba922a8c3fdddff37, type: 2}
   visuals: {fileID: 11400000, guid: ae1c081ac28800a4bb4b3cf117fea17f, type: 2}
+  title: {fileID: 4338082856428197337}
   ingredientName: {fileID: 4883202437101720}
+  iconFrame: {fileID: 4330073423629676225}
   ingredientIcon: {fileID: 9031897046776127625}
+  ingredientTitle: "\uC7AC\uB8CC \uD68D\uB4DD"
+  itemTitle: "\uC544\uC774\uD15C \uD68D\uB4DD"
+  acquiredItems:
+  - Id: gear_part
+    NameKo: "\uAE30\uC5B4 \uBD80\uD488"
+  - Id: machine_church_emblem
+    NameKo: "\uAE30\uC2E0\uAD50\uC758 \uC5E0\uBE14\uB7FC"
 --- !u!1 &2428500840363656610
 GameObject:
   m_ObjectHideFlags: 0
@@ -14802,6 +14931,7 @@ GameObject:
   - component: {fileID: 15583019216789244}
   - component: {fileID: 3625112681968922247}
   - component: {fileID: 3885904884221980568}
+  - component: {fileID: 8200000222}
   m_Layer: 5
   m_Name: StirDown binding
   m_TagString: Untagged
@@ -14911,6 +15041,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2806386956427169910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &2821800595412329194
 GameObject:
   m_ObjectHideFlags: 0
@@ -16043,6 +16185,7 @@ GameObject:
   - component: {fileID: 765803579056912500}
   - component: {fileID: 6262424027102717803}
   - component: {fileID: 2236382340875868462}
+  - component: {fileID: 8200000228}
   m_Layer: 5
   m_Name: Fill screen
   m_TagString: Untagged
@@ -16157,6 +16300,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 0
+--- !u!114 &8200000228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3172309138107120720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &3195330737704849407
 GameObject:
   m_ObjectHideFlags: 0
@@ -16520,6 +16675,7 @@ GameObject:
   - component: {fileID: 6380739999582051118}
   - component: {fileID: 8757146415307335394}
   - component: {fileID: 5602641409020447120}
+  - component: {fileID: 8200000204}
   m_Layer: 5
   m_Name: Return to title
   m_TagString: Untagged
@@ -16629,6 +16785,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3229740289591039042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &3326525808778808428
 GameObject:
   m_ObjectHideFlags: 0
@@ -17462,6 +17630,7 @@ GameObject:
   - component: {fileID: 3225088323440363452}
   - component: {fileID: 7786745223770959138}
   - component: {fileID: 5309749280056830971}
+  - component: {fileID: 8200000223}
   m_Layer: 5
   m_Name: StirLeft binding
   m_TagString: Untagged
@@ -17571,6 +17740,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3536104938558692534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &3573216805579456682
 GameObject:
   m_ObjectHideFlags: 0
@@ -17583,6 +17764,7 @@ GameObject:
   - component: {fileID: 5148754536195577068}
   - component: {fileID: 6753613588565490516}
   - component: {fileID: 3983080336218174790}
+  - component: {fileID: 8200000232}
   m_Layer: 5
   m_Name: SE mute
   m_TagString: Untagged
@@ -17709,6 +17891,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
+--- !u!114 &8200000232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3573216805579456682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &3634804885866468739
 GameObject:
   m_ObjectHideFlags: 0
@@ -17933,6 +18127,7 @@ GameObject:
   - component: {fileID: 8637269202777866869}
   - component: {fileID: 1560108037991574403}
   - component: {fileID: 4434691866272424367}
+  - component: {fileID: 8200000226}
   m_Layer: 5
   m_Name: ShakeRight binding
   m_TagString: Untagged
@@ -18042,6 +18237,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3712175914309510030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &3736674012636503796
 GameObject:
   m_ObjectHideFlags: 0
@@ -19028,6 +19235,7 @@ GameObject:
   - component: {fileID: 9069137587213302272}
   - component: {fileID: 7564372607377305676}
   - component: {fileID: 2219830482883622963}
+  - component: {fileID: 8200000221}
   m_Layer: 5
   m_Name: StirRight binding
   m_TagString: Untagged
@@ -19137,6 +19345,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3968253975175806411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &3970846551023558004
 GameObject:
   m_ObjectHideFlags: 0
@@ -20341,6 +20561,7 @@ GameObject:
   - component: {fileID: 3497044103207203991}
   - component: {fileID: 478781607572280936}
   - component: {fileID: 6027546522247663055}
+  - component: {fileID: 8200000201}
   m_Layer: 5
   m_Name: Back
   m_TagString: Untagged
@@ -20450,6 +20671,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4417823747414615965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &4421312367764319192
 GameObject:
   m_ObjectHideFlags: 0
@@ -21001,6 +21234,7 @@ GameObject:
   - component: {fileID: 541602515051533794}
   - component: {fileID: 2058924056532166795}
   - component: {fileID: 8610102856716997670}
+  - component: {fileID: 8200000206}
   m_Layer: 5
   m_Name: Cancel return
   m_TagString: Untagged
@@ -21110,6 +21344,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4744788991074394967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &4745526355589043227
 GameObject:
   m_ObjectHideFlags: 0
@@ -22197,6 +22443,7 @@ GameObject:
   - component: {fileID: 2108168750314131156}
   - component: {fileID: 4255035771460584368}
   - component: {fileID: 6984606040665364439}
+  - component: {fileID: 8200000205}
   m_Layer: 5
   m_Name: Confirm return
   m_TagString: Untagged
@@ -22306,6 +22553,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5069687146179872070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &5085557370470127924
 GameObject:
   m_ObjectHideFlags: 0
@@ -22852,6 +23111,7 @@ GameObject:
   - component: {fileID: 2447939257684193331}
   - component: {fileID: 4192202007952088488}
   - component: {fileID: 3578165045753033288}
+  - component: {fileID: 8200000202}
   m_Layer: 5
   m_Name: Reset current tab
   m_TagString: Untagged
@@ -22961,6 +23221,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5253391621830880424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &5283616636078123519
 GameObject:
   m_ObjectHideFlags: 0
@@ -23590,6 +23862,7 @@ GameObject:
   - component: {fileID: 8084368020660531765}
   - component: {fileID: 1102461593730151884}
   - component: {fileID: 256209632795908371}
+  - component: {fileID: 8200000209}
   m_Layer: 5
   m_Name: "\uC870\uC791\uD0A4 tab"
   m_TagString: Untagged
@@ -23700,6 +23973,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5503067082304910185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &5510646165356418508
 GameObject:
   m_ObjectHideFlags: 0
@@ -24233,6 +24518,7 @@ GameObject:
   - component: {fileID: 7450429731514624321}
   - component: {fileID: 3637835166642746155}
   - component: {fileID: 1545712988272128011}
+  - component: {fileID: 8200000230}
   m_Layer: 5
   m_Name: Post processing
   m_TagString: Untagged
@@ -24347,6 +24633,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 0
+--- !u!114 &8200000230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5610120875237688171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &5656114664674202118
 GameObject:
   m_ObjectHideFlags: 0
@@ -24671,6 +24969,7 @@ GameObject:
   - component: {fileID: 533106658461248776}
   - component: {fileID: 1291245694356818156}
   - component: {fileID: 676716385950864382}
+  - component: {fileID: 8200000225}
   m_Layer: 5
   m_Name: ShakeLeft binding
   m_TagString: Untagged
@@ -24780,6 +25079,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5728845206228643882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &5758587765224223744
 GameObject:
   m_ObjectHideFlags: 0
@@ -25693,6 +26004,7 @@ GameObject:
   - component: {fileID: 8662524510367796065}
   - component: {fileID: 3613364581454375553}
   - component: {fileID: 154605383068994208}
+  - component: {fileID: 8200000219}
   m_Layer: 5
   m_Name: PrepNext binding
   m_TagString: Untagged
@@ -25802,6 +26114,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6058748800104265565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &6083239155376882446
 GameObject:
   m_ObjectHideFlags: 0
@@ -26504,6 +26828,7 @@ GameObject:
   - component: {fileID: 5211777488285403502}
   - component: {fileID: 2386983022078925862}
   - component: {fileID: 4342330636695804458}
+  - component: {fileID: 8200000213}
   m_Layer: 5
   m_Name: Interact binding
   m_TagString: Untagged
@@ -26613,6 +26938,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6313674444561404820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &6320251843924134020
 GameObject:
   m_ObjectHideFlags: 0
@@ -27310,6 +27647,7 @@ GameObject:
   - component: {fileID: 8858076819951161951}
   - component: {fileID: 1589284840035126684}
   - component: {fileID: 5404048077371254642}
+  - component: {fileID: 8200000231}
   m_Layer: 5
   m_Name: BGM mute
   m_TagString: Untagged
@@ -27436,6 +27774,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
+--- !u!114 &8200000231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6479641258920846728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &6489028434716201386
 GameObject:
   m_ObjectHideFlags: 0
@@ -27583,6 +27933,7 @@ GameObject:
   - component: {fileID: 1942146868358458011}
   - component: {fileID: 2334986834242625337}
   - component: {fileID: 1110897737547755679}
+  - component: {fileID: 8200000208}
   m_Layer: 5
   m_Name: "\uADF8\uB798\uD53D tab"
   m_TagString: Untagged
@@ -27693,6 +28044,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6575046501294210658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &6579928406245541911
 GameObject:
   m_ObjectHideFlags: 0
@@ -29508,6 +29871,7 @@ Transform:
   - {fileID: 5628384796373844579}
   - {fileID: 5798906079010553485}
   - {fileID: 3175819634485711351}
+  - {fileID: 9101819354824234018}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6267841711113335578
@@ -30950,6 +31314,7 @@ GameObject:
   - component: {fileID: 883341825504947881}
   - component: {fileID: 4142785732004051318}
   - component: {fileID: 2189264249905361855}
+  - component: {fileID: 8200000224}
   m_Layer: 5
   m_Name: CapPress binding
   m_TagString: Untagged
@@ -31059,6 +31424,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7451006193573914652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &7482711016076144919
 GameObject:
   m_ObjectHideFlags: 0
@@ -32589,6 +32966,7 @@ GameObject:
   - component: {fileID: 838239361788809562}
   - component: {fileID: 895623139907196162}
   - component: {fileID: 4161984731826628524}
+  - component: {fileID: 8200000217}
   m_Layer: 5
   m_Name: ServicePanel binding
   m_TagString: Untagged
@@ -32698,6 +33076,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7788481713568186187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &7826614640474485124
 GameObject:
   m_ObjectHideFlags: 0
@@ -33035,6 +33425,7 @@ GameObject:
   - component: {fileID: 2829038581445043473}
   - component: {fileID: 2399998661395315979}
   - component: {fileID: 2922321199098315528}
+  - component: {fileID: 8200000215}
   m_Layer: 5
   m_Name: PreviousSeat binding
   m_TagString: Untagged
@@ -33144,6 +33535,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7939751522153624025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &8002864544426737956
 GameObject:
   m_ObjectHideFlags: 0
@@ -33692,6 +34095,7 @@ GameObject:
   - component: {fileID: 8121697714975314506}
   - component: {fileID: 2119083488421139667}
   - component: {fileID: 5819417696613877535}
+  - component: {fileID: 8200000214}
   m_Layer: 5
   m_Name: Advance binding
   m_TagString: Untagged
@@ -33801,6 +34205,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8243209582886911283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &8317505562710616388
 GameObject:
   m_ObjectHideFlags: 0
@@ -34372,6 +34788,7 @@ GameObject:
   - component: {fileID: 8470226503684610383}
   - component: {fileID: 4804823742496336553}
   - component: {fileID: 905767476017380420}
+  - component: {fileID: 8200000218}
   m_Layer: 5
   m_Name: PrepPrevious binding
   m_TagString: Untagged
@@ -34481,6 +34898,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8619512268518300461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &8656025604664243963
 GameObject:
   m_ObjectHideFlags: 0
@@ -34583,6 +35012,7 @@ GameObject:
   - component: {fileID: 5403740501262920014}
   - component: {fileID: 3246459260561664463}
   - component: {fileID: 2223776338662623936}
+  - component: {fileID: 8200000211}
   m_Layer: 5
   m_Name: MoveRight binding
   m_TagString: Untagged
@@ -34692,6 +35122,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8200000211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8656247252145389658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d126ebf32c4d3591242d233cc32252, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISelectionAudio
 --- !u!1 &8698606005847331978
 GameObject:
   m_ObjectHideFlags: 0
@@ -36808,6 +37250,108 @@ PrefabInstance:
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3244794200870544319, guid: b576ec369facab34db5283509d9ca051, type: 3}
   m_PrefabInstance: {fileID: 2464626911231150370}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2468093772211101555
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8996201954025937108}
+    m_Modifications:
+    - target: {fileID: 6144520649523858338, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_Name
+      value: Canvas_CutsceneSkip
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+--- !u!224 &9101819354824234018 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6633879557758634833, guid: 7805ab00612bebd4a82d754970180d7c, type: 3}
+  m_PrefabInstance: {fileID: 2468093772211101555}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5342379101643881832
 PrefabInstance:

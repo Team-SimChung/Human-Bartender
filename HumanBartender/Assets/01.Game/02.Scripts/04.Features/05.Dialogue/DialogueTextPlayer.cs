@@ -18,6 +18,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         public bool Revealing;
         public bool ReducedMotion;
         public bool ShakeSpanNotified;
+        public int Visible;
         public bool[] VisibleGlyphs;
         public IDisposable AudioScope;
         public CancellationTokenRegistration ExternalRegistration;
@@ -49,13 +50,21 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public event Action<DialogueTextPlayer> LineStarted;
     public event Action<DialogueTextPlayer> LineEnding;
 
+    /// <summary>현재 줄에서 지금까지 화면에 드러난 글자 수. 타이핑 중이면 전체보다 작고, 즉시 표시·스킵 뒤에는 전체와 같다.</summary>
+    public int VisibleCharacterCount => current?.Visible ?? 0;
+
     /// <summary>현재 재생 중인 한 줄의 전체 본문을 TMP 해석 결과에서 읽는다. 타이핑 진행 상태는 변경하지 않는다.</summary>
-    public string ReadFullText()
+    public string ReadFullText() => current == null ? "" : Read(current.Line.Characters.Length);
+
+    /// <summary>현재 줄에서 지금까지 드러난 글자만 읽는다. 아직 나오지 않은 뒷부분은 포함하지 않고, 타이핑 진행 상태도 바꾸지 않는다.</summary>
+    public string ReadVisibleText() => current == null ? "" : Read(current.Visible);
+
+    string Read(int count)
     {
-        if (current == null) return "";
         var text = new System.Text.StringBuilder();
         var info = bubble.textLabel.textInfo;
-        for (int i = 0; i < current.Line.Characters.Length; i++)
+        count = Math.Min(count, current.Line.Characters.Length);
+        for (int i = 0; i < count; i++)
         {
             var ch = info.characterInfo[i];
             int at = ch.index;
@@ -70,9 +79,10 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public event Action ShakeSpanRevealed;
     public event Action MotionStopped;
 
+    /// <param name="periodRhythm">거리·집·테라스 대사처럼 웹의 마침표 멈춤 규칙을 따를지. 바 내부 대사는 끈다.</param>
     public async UniTask PlayAsync(TypingData data, NewTextTagDataSO tags, float defaultDelay,
         CancellationToken external = default, string cocktailName = null,
-        Func<float, CancellationToken, UniTask> wait = null)
+        Func<float, CancellationToken, UniTask> wait = null, bool periodRhythm = false)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
         external.ThrowIfCancellationRequested();
@@ -82,7 +92,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bubble.nameLabel.text = data.speaker;
         // 화자별 원본 색상과 관계없이 대화창 이름은 공통 하늘색을 사용한다.
         bubble.nameLabel.color = bubble.speakerNameColor;
-        var session = Begin(data.str, tags, cocktailName, defaultDelay, false);
+        var session = Begin(data.str, tags, cocktailName, defaultDelay, false, periodRhythm);
         session.Revealing = true;
         session.ExternalRegistration = external.Register(() => Close(session));
         session.DestroyRegistration = this.GetCancellationTokenOnDestroy().Register(() => Close(session));
@@ -104,6 +114,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
                 int visible = i + 1;
                 while (visible < count && line.ContinuesPrevious[visible]) visible++;
                 bubble.textLabel.maxVisibleCharacters = visible;
+                session.Visible = visible;
                 bubble.UpdateForVisible(visible);
                 animator.SetVisible(visible, Time.time, false);
                 if (visible == i + 1 && (!backgroundAudio || (!GameAudioContext.DirectDialogue && (audible == null || audible()))))
@@ -141,7 +152,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         ShowAll(session, true);
     }
 
-    Session Begin(string text, NewTextTagDataSO tags, string cocktailName, float speed, bool instant)
+    Session Begin(string text, NewTextTagDataSO tags, string cocktailName, float speed, bool instant,
+        bool periodRhythm = false)
     {
         var settings = DialoguePresentationSettings.Shared;
         if (!DialogueTextCompiler.TryCompile(text, tags, settings, cocktailName, speed, out var line, out string error))
@@ -155,11 +167,14 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bubble.textLabel.maxVisibleCharacters = int.MaxValue;
         bubble.textLabel.ForceMeshUpdate(true, true);
         line.Bind(bubble.textLabel.textInfo);
+        if (periodRhythm && settings != null)
+            line.ApplyPeriodRhythm(bubble.textLabel.textInfo, settings.LonePeriodPause, settings.ConsecutivePeriodInterval);
         var session = new Session
         {
             Id = ++nextId, Line = line,
             Speaker = bubble.nameLabel != null ? bubble.nameLabel.text : "",
             ReducedMotion = settings != null && settings.ReducedMotion,
+            Visible = instant ? line.Characters.Length : 0,
             VisibleGlyphs = new bool[line.Characters.Length]
         };
         // Capture from the full layout: TMP can mark unrevealed glyphs invisible later.
@@ -209,6 +224,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         if (!ReferenceEquals(current, session)) return;
         int count = session.Line.Characters.Length;
         bubble.textLabel.maxVisibleCharacters = count;
+        session.Visible = count;
         bubble.UpdateForVisible(count);
         animator.SetVisible(count, Time.time, instant);
     }

@@ -52,6 +52,27 @@ public static class DialogueTextCompiler
                 WaitBefore[boundary] += wait.Value;
             }
         }
+
+        /// <summary>
+        /// 외부 대사의 마침표 리듬(웹 dialogue-rhythm.js). 단독 마침표 다음 글자는 평소 간격 대신 lonePause 뒤에,
+        /// 이어진 마침표('...')는 점 사이마다 consecutiveInterval 뒤에 나온다. 마지막 점 다음은 평소 간격이고,
+        /// 줄이 단독 마침표로 끝나면 줄 끝에 lonePause를 더한다. 공백 뒤에는 따로 기다리지 않는다. Bind 뒤에 부른다.
+        /// </summary>
+        public void ApplyPeriodRhythm(TMP_TextInfo info, float lonePause, float consecutiveInterval)
+        {
+            int count = Characters.Length;
+            for (int i = 1; i < count; i++)
+            {
+                char previous = info.characterInfo[i - 1].character;
+                if (previous != '.') continue;
+                bool afterLonePeriod = i < 2 || info.characterInfo[i - 2].character != '.';
+                if (info.characterInfo[i].character == '.') Characters[i].SpeedSeconds = consecutiveInterval;
+                else if (afterLonePeriod) Characters[i].SpeedSeconds = lonePause;
+            }
+            if (count > 0 && info.characterInfo[count - 1].character == '.' &&
+                (count < 2 || info.characterInfo[count - 2].character != '.'))
+                WaitBefore[count] += lonePause;
+        }
     }
 
     struct Frame

@@ -45,7 +45,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 case StudioPropertiesSection.Dialogue:
                     Note(section, "화자와 본문은 대사 클립 전체에 적용됩니다.");
                     BuildSpeakerPicker(section);
-                    ClipField(section, data, "Text").AddToClassList("studio-properties-dialogue");
+                    BuildDialogueText(section);
                     break;
                 case StudioPropertiesSection.Typography:
                     BuildDialogueTypography(section, data);
@@ -58,9 +58,10 @@ namespace HumanBartender.CutsceneStudio.Editor
                     BuildDialoguePrefab(section, data);
                     break;
                 case StudioPropertiesSection.DialoguePlayback:
+                    BuildTypingAudio(section, data, false);
                     ClipField(section, data, "WaitForInput");
                     if (host.Selected.WaitForInput)
-                        Note(section, "대사가 끝나면 E / Enter 입력으로 진행합니다.");
+                        Note(section, "타이핑 중 첫 입력은 전체 표시, 다음 입력은 클립 끝으로 이동합니다. 자동 진행 대사에서는 입력해도 전체 표시하지 않습니다.");
                     break;
                 case StudioPropertiesSection.Effect:
                     ClipField(section, data, "Effect");
