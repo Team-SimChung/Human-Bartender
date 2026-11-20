@@ -248,17 +248,17 @@ public sealed class PourTargetHeightTests
         Assert.That(Get<Transform>("targetHeightMarker").localPosition.y, Is.EqualTo(initialY));
     }
 
-    void PrepareBottleEmission()
+    void PrepareBottleEmission(float angle = 140f)
     {
         var go = new GameObject("Actual Bottle");
         go.transform.SetParent(manager.transform, false);
         go.transform.localPosition = new Vector3(-2.03f, .13f, 0f);
         go.transform.localScale = new Vector3(1.4f, 3.6f, 1f);
         var bottle = go.AddComponent<BottleTiltController>();
-        foreach (var pair in new Dictionary<string, float> { { "maxTiltAngle", 140f }, { "liftHeight", 2.6f }, { "pourPivotHeight", .05f } })
+        foreach (var pair in new Dictionary<string, float> { { "maxTiltAngle", Mathf.Max(140f, angle) }, { "liftHeight", 2.6f }, { "pourPivotHeight", .05f } })
             typeof(BottleTiltController).GetField(pair.Key, Private).SetValue(bottle, pair.Value);
         bottle.ConfigurePourGeometry(new Vector3(0f, .4f, 0f), glass.TransformPoint(new Vector3(-HalfExtents.x * .8f, HalfExtents.y, 0f)));
-        typeof(BottleTiltController).GetField("currentAngle", Private).SetValue(bottle, 140f);
+        typeof(BottleTiltController).GetField("currentAngle", Private).SetValue(bottle, angle);
         typeof(BottleTiltController).GetField("pickupProgress", Private).SetValue(bottle, 1f);
         typeof(BottleTiltController).GetMethod("ApplyPose", Private).Invoke(bottle, null);
         Set("bottle", bottle);
@@ -299,7 +299,73 @@ public sealed class PourTargetHeightTests
         Assert.That(Get<SphVolumeTracker>("volumeTracker").ReceivedCount, Is.GreaterThanOrEqualTo(targetParticles));
     }
 
+    [Test]
+    public void FullFlowBeerStreamDoesNotDigADeepCraterIntoPooledLiquid()
+    {
+        Configure(12f, ENewUnit.Oz, true);
+        PrepareBottleEmission();
+        Set("pourIngredientId", "beer");
+        Call("ConfigureNeck");
+        for (int i = 0; i < 540; i++) TickPour(true); // 최대 유량으로 4.5초
+        var heights = new List<float>();
+        var pixels = RenderSurfacePixels();
+        for (int x = pixels.Length / 10; x < pixels.Length * 9 / 10; x++)
+            heights.Add(pixels[x].a > .5f ? pixels[x].r : 0f);
+        heights.Sort();
+        float crater = heights[heights.Count * 3 / 4] - heights[0];
+        Debug.Log($"[Pour Crater] beer full flow 4.5s: received={manager.PouredInTargetUnit:F2}oz, crater={crater:F3} of glass height");
+        Assert.That(crater, Is.LessThan(.25f),
+            "굵은 맥주 줄기가 고인 액체를 밀어내 V자 구덩이를 파면 안 된다(속도 제한 전 잔 높이의 약 46%).");
+    }
+
+    [Test]
+    public void SteepBeerPourAlongTheWallStaysOneStreamWithoutSprayingBackUp()
+    {
+        Configure(12f, ENewUnit.Oz, true);
+        PrepareBottleEmission(170f);
+        Set("pourIngredientId", "beer");
+        Call("ConfigureNeck");
+        var inside = typeof(SphParticle).GetField("insideContainer", Private);
+        var received = typeof(SphParticle).GetField("volumeReceived", Private);
+        var heights = new List<float>();
+        float hangingSum = 0f;
+        int samples = 0;
+        for (int i = 1; i <= 360; i++) // 최대 유량으로 3초. 입구가 잔 왼쪽 벽 바로 위에 온다.
+        {
+            TickPour(true);
+            if (i <= 120 || i % 2 != 0) continue;
+            heights.Clear();
+            foreach (var p in simulation.ActiveParticles)
+                if ((bool)received.GetValue(p)) heights.Add(GlassHeight(p.pos));
+            heights.Sort();
+            float surface = heights.Count > 0 ? heights[heights.Count * 9 / 10] : 0f;
+            // 수면보다 한참 위에서 떨어지지도 않고 떠 있는 잔 안 입자 = 튀어 오른 물보라나 막혀서 멈춘 줄기.
+            foreach (var p in simulation.ActiveParticles)
+                if ((bool)inside.GetValue(p) && !(bool)received.GetValue(p) &&
+                    GlassHeight(p.pos) > surface + .12f && p.velocity.y > -1.5f) hangingSum++;
+            samples++;
+        }
+        float hanging = hangingSum / samples;
+        Debug.Log($"[Pour Spray] beer 170deg full flow: hanging particles mean={hanging:F1}, received={manager.PouredInTargetUnit:F2}oz");
+        Assert.That(hanging, Is.LessThan(15f),
+            "벽에 붙어 떨어지는 줄기가 입구 아래에서 막히거나, 고인 액체에 부딪혀 입구까지 튀어 오르면 안 된다(수정 전 약 27).");
+    }
+
+    float GlassHeight(Vector2 position) => (glass.InverseTransformPoint(position).y + HalfExtents.y) / (2f * HalfExtents.y);
+
     float RenderedSurfaceHeight()
+    {
+        var heights = new List<float>();
+        var pixels = RenderSurfacePixels();
+        for (int x = pixels.Length / 8; x < pixels.Length * 7 / 8; x++)
+            if (pixels[x].a > .5f) heights.Add(-HalfExtents.y + pixels[x].r * HalfExtents.y * 2f);
+        Assert.That(heights.Count, Is.GreaterThan(0));
+        heights.Sort();
+        return heights[heights.Count / 2];
+    }
+
+    /// <summary>수면 추출 패스의 열별 결과. r=잔 높이 비율, a=바닥에서 이어진 액체가 있는지.</summary>
+    Color[] RenderSurfacePixels()
     {
         var root = new GameObject("Actual Liquid Render");
         owned.Add(root);
@@ -329,13 +395,7 @@ public sealed class PourTargetHeightTests
             texture.Apply();
         }
         finally { RenderTexture.active = previous; }
-        var heights = new List<float>();
-        var pixels = texture.GetPixels();
-        for (int x = pixels.Length / 8; x < pixels.Length * 7 / 8; x++)
-            if (pixels[x].a > .5f) heights.Add(-HalfExtents.y + pixels[x].r * HalfExtents.y * 2f);
-        Assert.That(heights.Count, Is.GreaterThan(0));
-        heights.Sort();
-        return heights[heights.Count / 2];
+        return texture.GetPixels();
     }
 
     SphParticle Particle(Vector2 position)

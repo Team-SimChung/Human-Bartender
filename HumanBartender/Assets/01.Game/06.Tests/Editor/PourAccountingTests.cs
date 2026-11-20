@@ -77,7 +77,8 @@ public sealed class PourAccountingTests
         typeof(PourerBreakaway).GetField("detachedPourer", Private).SetValue(effect, detached.GetComponent<SpriteRenderer>());
         Set("pourer", effect);
         effect.BeginPour("gin", Vector3.up);
-        for (int i = 0; i < 256; i++)
+        // 맥주(배율 7)나 분리된 푸어러가 1초 동안 내보내는 양까지 풀이 모자라지 않게 둔다.
+        for (int i = 0; i < 768; i++)
         {
             var go = new GameObject("PooledParticle");
             owned.Add(go);
@@ -172,7 +173,7 @@ public sealed class PourAccountingTests
         for (int i = 0; i < 120; i++) Call("EmitFromNeck", 1f / 120f);
         int detachedCount = simulation.ActiveParticles.Count - normalCount;
         Assert.That(normalCount, Is.EqualTo(50).Within(2));
-        Assert.That(detachedCount, Is.EqualTo(normalCount * effect.FlowMultiplier).Within(4));
+        Assert.That(detachedCount, Is.EqualTo(normalCount * effect.FlowMultiplier).Within(Mathf.Max(4, Lanes(effect.FlowMultiplier))));
         Assert.That(manager.PouredInTargetUnit, Is.Zero, "방출된 공중의 액체는 투입량에 포함하지 않는다.");
         Particle(new Vector2(0f, -.95f));
         Call("MeasureRetainedVolume");
@@ -199,29 +200,39 @@ public sealed class PourAccountingTests
         int afterCount = simulation.ActiveParticles.Count - beforeCount;
         float afterSpeed = MeanEmissionSpeed(beforeCount, afterCount);
         Assert.That(afterCount, Is.GreaterThan(beforeCount * 1.9f), "실제 유량 증가는 유지한다.");
-        float beforeDensity = beforeCount / beforeSpeed;
-        float afterDensity = afterCount / afterSpeed;
+        Assert.That(afterSpeed, Is.LessThanOrEqualTo(Get<float>("maxExitSpeed") + .05f),
+            "분리 후 유량이 커도 분사 속도는 상한을 넘지 않고 줄기를 굵게 해서 낸다.");
+        float beforeDensity = beforeCount / beforeSpeed / Lanes(1f);
+        float afterDensity = afterCount / afterSpeed / Lanes(effect.FlowMultiplier);
         Assert.That(afterDensity / beforeDensity, Is.EqualTo(1f).Within(.1f),
-            "유량만 증가하면 같은 길이에 입자가 압축돼 물줄기가 갈라진다. 분리 전후의 입자 밀도를 유지해야 한다.");
+            "유량만 증가하면 같은 길이에 입자가 압축돼 물줄기가 갈라진다. 분리 전후의 줄 하나당 입자 밀도를 유지해야 한다.");
     }
+
+    int Lanes(float flowMultiplier) =>
+        (int)typeof(PourManager).GetMethod("EmissionLanes", Private).Invoke(manager, new object[] { flowMultiplier, 1f });
 
     float MeanEmissionSpeed(int start, int count)
     {
         float sum = 0f;
+        // 큰 유량은 병목 방향 대신 아래쪽으로 더 빠르게 나가므로, 줄 간격을 정하는 진행 방향 속력으로 잰다.
         for (int i = start; i < start + count; i++)
-            sum += Vector2.Dot(simulation.ActiveParticles[i].velocity, bottle.BottleVisual.up);
+            sum += simulation.ActiveParticles[i].velocity.magnitude;
         return sum / count;
     }
 
-    [TestCase(true, "beer", "gin", 1.5f)]
-    [TestCase(false, "beer", "gin", 1.5f)]
-    [TestCase(true, "gin", "beer", 1f)]
-    [TestCase(true, "soda_water", "beer", 1f)]
-    public void BeerBoostChangesActualEmissionOnlyForTheActualIngredient(bool fromRunner, string ingredientId,
-        string visualId, float expectedMultiplier)
+    [TestCase(true, "beer", "gin")]
+    [TestCase(false, "beer", "gin")]
+    [TestCase(true, "soda_water", "beer")]
+    [TestCase(true, "gin", "beer")]
+    public void FlowOverrideChangesActualEmissionOnlyForTheActualIngredient(bool fromRunner, string ingredientId, string visualId)
     {
         Set("drivenByRunner", fromRunner);
         PreparePourerEmission();
+        var (baseMultiplier, baseLanes) = Flow("gin");
+        var (multiplier, lanes) = Flow(ingredientId);
+        Assert.That(baseMultiplier, Is.EqualTo(1f), "표에 없는 재료는 기존 출수량을 쓴다.");
+        if (ingredientId != "gin")
+            Assert.That(multiplier, Is.GreaterThan(1f), "푸어러 없는 병 재료는 표의 배율로 빠르게 나온다.");
         Set("pourIngredientId", "gin");
         for (int i = 0; i < 120; i++) Call("EmitFromNeck", 1f / 120f);
         int baselineCount = simulation.ActiveParticles.Count;
@@ -233,11 +244,43 @@ public sealed class PourAccountingTests
         for (int i = 0; i < 120; i++) Call("EmitFromNeck", 1f / 120f);
         int changedCount = simulation.ActiveParticles.Count - baselineCount;
         float changedSpeed = MeanEmissionSpeed(baselineCount, changedCount);
-        Assert.That(changedCount, Is.EqualTo(baselineCount * expectedMultiplier).Within(4),
+        // 입자는 한 줄(lanes개)씩 나가므로 1초 동안의 개수는 줄 하나 단위로 끊긴다.
+        Assert.That(changedCount, Is.EqualTo(baselineCount * multiplier).Within(Mathf.Max(4, lanes)),
             "실제 재료에 맞춰 출수량을 조절하고 병 그림 테스트는 판정에 영향을 주지 않는다.");
-        Assert.That(changedCount / changedSpeed / (baselineCount / baselineSpeed), Is.EqualTo(1f).Within(.1f),
-            "출수량을 높여도 물줄기를 과밀하게 만들지 않는다.");
+        Assert.That(changedCount / changedSpeed / lanes / (baselineCount / baselineSpeed / baseLanes), Is.EqualTo(1f).Within(.1f),
+            "출수량을 높여도 줄 하나의 입자 간격을 유지해 물줄기를 과밀하게 만들지 않는다.");
+        Assert.That(changedSpeed, Is.LessThanOrEqualTo(Get<float>("maxExitSpeed") + .05f),
+            "큰 유량은 분사 속도 대신 줄기 굵기로 낸다.");
         Assert.That(Get<float>("particleVolumeMl"), Is.EqualTo(2f));
+    }
+
+    [Test]
+    public void LargerGlassSlowsExitToKeepTheSameRowSpacing()
+    {
+        PreparePourerEmission();
+        Set("pourIngredientId", "gin");
+        Set("glassCapacityMl", 300f);
+        Set("visualCapacityMl", 300f);
+        for (int i = 0; i < 120; i++) Call("EmitFromNeck", 1f / 120f);
+        int baseCount = simulation.ActiveParticles.Count;
+        float baseSpeed = MeanEmissionSpeed(0, baseCount);
+        // 바이젠잔처럼 용량이 1.5배면 입자당 ml도 1.5배다. 같은 ml/s에서 입자는 덜 나오므로 속도도 그만큼 낮춘다.
+        Set("visualCapacityMl", 450f);
+        Set("particleVolumeMl", 3f);
+        Set("emitAccumulator", 0f);
+        for (int i = 0; i < 120; i++) Call("EmitFromNeck", 1f / 120f);
+        int mugCount = simulation.ActiveParticles.Count - baseCount;
+        float mugSpeed = MeanEmissionSpeed(baseCount, mugCount);
+        Assert.That(mugCount, Is.EqualTo(baseCount / 1.5f).Within(3));
+        Assert.That(mugCount / mugSpeed / (baseCount / baseSpeed), Is.EqualTo(1f).Within(.1f),
+            "큰 잔에서도 물줄기의 줄 간격이 기본 잔과 같아야 한다.");
+    }
+
+    (float multiplier, int lanes) Flow(string ingredientId)
+    {
+        Set("pourIngredientId", ingredientId);
+        float multiplier = (float)typeof(PourManager).GetMethod("IngredientFlowMultiplier", Private).Invoke(manager, null);
+        return (multiplier, Lanes(multiplier));
     }
 
     [Test]

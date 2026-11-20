@@ -68,6 +68,9 @@ Shader "Pour/LiquidComposite"
             float2 world = mul(_ScreenToWorld,float4(screen,0,1)).xy;
             float2 local = mul(_WorldToGlass,float4(world,0,1)).xy / max(0.001,_GlassSize.xy * 2) + 0.5;
             float inGlass = inside(local) * _GlassSize.z;
+            // 화면 대부분은 액체도 잔도 아니다. 수면 7탭과 조명 계산 전에 버린다.
+            // 거품은 잔 안(valid)에서만 생기므로 아래 discard와 결과가 같다.
+            [branch] if (mask < 0.5 && inGlass < 0.5) discard;
             float2 px = pixelInGlass();
             // 거품은 서로 연결된 층이다. 열 하나의 수면/유입 변화가 세로 빗살로 튀지 않게
             // 표시 픽셀 폭에서 함께 읽는다. 실제 액체 실루엣(mask)은 그대로 둔다.
