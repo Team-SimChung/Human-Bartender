@@ -53,7 +53,7 @@ public class Player : MonoBehaviour, IInteractor
     public bool TrySetPosition()
     {
         var state = GameStateManager.Instance;
-        return TrySetPosition(OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state.CurrentDay, state.GameFlow));
+        return TrySetPosition(OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state));
     }
 
     /// <summary>정해진 시작 자리의 씬 Transform으로 옮기고 그 자리의 기본 방향을 본다.</summary>

@@ -369,16 +369,16 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
                 return MoveAsync("OutSide", "Play", EGameFlow.CommuteIn, EGameFlow.Bar, cancellationToken,
                     SceneTransitionStyle.BarEntrance);
             case GameProgressionDestination.Home:
-                return MoveAsync("OutSide", "Home", EGameFlow.CommuteOut, EGameFlow.CommuteOut,
-                    cancellationToken, SceneTransitionStyle.HomeDoor);
             case GameProgressionDestination.HomeVisit:
-                if (gameState.GameFlow != EGameFlow.CommuteIn && gameState.GameFlow != EGameFlow.CommuteOut)
-                    return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected, "출퇴근 중에만 집을 방문할 수 있습니다."));
-                return MoveAsync("OutSide", "Home", gameState.GameFlow, gameState.GameFlow,
-                    cancellationToken, SceneTransitionStyle.HomeDoor);
             case GameProgressionDestination.OutsideFromHome:
-                return MoveAsync("Home", "OutSide", EGameFlow.CommuteIn, EGameFlow.CommuteIn,
-                    cancellationToken, SceneTransitionStyle.HomeDoor);
+                var flow = gameState.GameFlow;
+                if (flow is not (EGameFlow.CommuteIn or EGameFlow.CommuteOut))
+                    return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected, "출퇴근 중에만 집 현관을 이용할 수 있습니다."));
+                bool leavingHome = destination == GameProgressionDestination.OutsideFromHome;
+                // 0일차 첫 출근만 바 앞 연출을 사용하고, 집을 다시 방문한 뒤에는 현관 앞에 선다.
+                bool arriveAtDoor = leavingHome && (flow == EGameFlow.CommuteOut || homeReturned);
+                return MoveAsync(leavingHome ? "Home" : "OutSide", leavingHome ? "OutSide" : "Home",
+                    flow, flow, cancellationToken, SceneTransitionStyle.HomeDoor, arriveAtDoor);
             default:
                 return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected,
                     "알 수 없는 이동 요청입니다."));
@@ -469,7 +469,7 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
 
     async UniTask<GameProgressionResult> MoveAsync(string sourceScene, string destinationScene,
         EGameFlow requiredFlow, EGameFlow destinationFlow, CancellationToken cancellationToken,
-        SceneTransitionStyle style = SceneTransitionStyle.Fade)
+        SceneTransitionStyle style = SceneTransitionStyle.Fade, bool arriveAtOutsideHomeDoor = false)
     {
         if (isRunning || sceneTransitions.IsBusy)
             return new GameProgressionResult(GameProgressionOutcome.Rejected, "다른 진행 작업이 실행 중입니다.");
@@ -481,6 +481,7 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
 
         isRunning = true;
         EGameFlow previousFlow = gameState.GameFlow;
+        bool previousDoorArrival = gameState.ArrivingAtOutsideHomeDoor;
         UniTaskCompletionSource<GameProgressionResult> barEntry = null;
         GameProgressionResult outcome = default;
         try
@@ -503,6 +504,7 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
             // 새 씬의 Start가 전환 Completion보다 먼저 실행되므로, 수락된 요청에 한해서
             // 목적지의 출퇴근 문맥을 준비한다. 씬이 바뀌지 않은 실패는 아래에서 되돌린다.
             gameState.GameFlow = destinationFlow;
+            gameState.ArrivingAtOutsideHomeDoor = arriveAtOutsideHomeDoor;
             SceneTransitionResult result = await request.Completion;
             if (!result.Succeeded && !result.SceneActivated &&
                 SceneManager.GetActiveScene().name != destinationScene)
@@ -534,6 +536,7 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
         }
         finally
         {
+            gameState.ArrivingAtOutsideHomeDoor = previousDoorArrival;
             isRunning = false;
             if (barEntry != null)
             {

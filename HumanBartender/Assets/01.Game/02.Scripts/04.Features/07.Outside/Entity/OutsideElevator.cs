@@ -66,11 +66,11 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         transform.position = (top ? topPoint : bottomPoint).position;
     }
 
-    // 플레이어가 위층 집 문 앞에서 시작할 때만 엘리베이터가 위층에서 기다린다. 첫 출근과 퇴근은 1층에서 시작한다.
+    // 플레이어가 위층 집 문 앞에서 시작하면 엘리베이터도 위층에서 기다린다.
     private void Start()
     {
         var state = GameStateManager.Instance;
-        SetPosition(OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state.CurrentDay, state.GameFlow) == EPlayerSpawn.Home);
+        SetPosition(OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state) == EPlayerSpawn.Home);
     }
     private void OnDisable()
     {
