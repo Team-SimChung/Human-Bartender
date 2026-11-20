@@ -18,8 +18,9 @@ public sealed class ServeFallbackTests
     static object Field(object owner, string name) => owner.GetType().GetField(name, Private).GetValue(owner);
     static void Set(object owner, string name, object value) => owner.GetType().GetField(name, Private).SetValue(owner, value);
 
-    static CraftedDrink Drink(string id) =>
-        new(new CraftSession(id), null, new NewCocktailData { Id = id, Name = new LocalizedText { Ko = id }, Color = "#ffffff" });
+    static CraftedDrink Drink(string id, ENewGrade? grade = null) =>
+        new(new CraftSession(id), grade.HasValue ? new CraftJudgement { CraftGrade = grade } : null,
+            new NewCocktailData { Id = id, Name = new LocalizedText { Ko = id }, Color = "#ffffff" });
 
     // Mirrors Canvas_Serve/BG: drink (Image + Animator + ServeScreen) followed by FallbackDrinkImage and the grade.
     sealed class Fixture : IDisposable
@@ -173,6 +174,78 @@ public sealed class ServeFallbackTests
             Assert.That(still.rectTransform.sizeDelta, Is.EqualTo((Vector2)ServeFallbackSetup.Size));
             Assert.That(Field(screen, "animatedDrinkImage"), Is.SameAs(screen.GetComponent<Image>()));
             Assert.That((Object)Field(screen, "visuals") != null, Is.True);
+        }
+        finally
+        {
+            if (previous.Any(s => !string.IsNullOrEmpty(s.path))) EditorSceneManager.RestoreSceneManagerSetup(previous);
+            else EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        }
+    }
+
+    [Test]
+    public void PlaySceneRevealsOneAuthoredEffectPerGradeAndClosesTheTestResult()
+    {
+        var previous = EditorSceneManager.GetSceneManagerSetup();
+        try
+        {
+            var scene = EditorSceneManager.OpenScene(ServeFallbackSetup.ScenePath, OpenSceneMode.Single);
+            var screen = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<ServeScreen>(true)).Single();
+            var reveal = (ServeGradeReveal)Field(screen, "gradeReveal");
+            var camera = (Camera)Field(reveal, "effectCamera");
+            var image = reveal.GetComponent<RawImage>();
+            var label = (TMP_Text)Field(screen, "Grade");
+            var accept = (Button)Field(screen, "Accept");
+            var acceptLabel = (TMP_Text)Field(screen, "acceptLabel");
+            var discard = (Button)Field(screen, "Restart");
+            string normalAcceptLabel = acceptLabel.text;
+            Assert.That(image.raycastTarget, Is.False);
+            Assert.That(image.rectTransform.localScale, Is.EqualTo(Vector3.one));
+            Assert.That(image.texture, Is.SameAs(camera.targetTexture));
+            Assert.That(camera.backgroundColor.a, Is.Zero);
+            Assert.That(camera.targetTexture.depth, Is.GreaterThan(0));
+            Assert.That(camera.enabled, Is.False);
+
+            var variants = new[]
+            {
+                (ENewGrade.Excellent, "Excellent_Gold"), (ENewGrade.Good, "Good_Green"),
+                (ENewGrade.Decent, "Decent_Cyan"), (ENewGrade.Poor, "Poor_Red"), (ENewGrade.Sewage, "Sewage_Purple")
+            };
+            var effects = camera.gameObject.scene.GetRootGameObjects()
+                .SelectMany(go => go.GetComponentsInChildren<GradeRevealSequence>(true)).ToArray();
+            Assert.That(effects.Length, Is.EqualTo(variants.Length));
+            foreach (var (grade, variant) in variants)
+            {
+                Assert.That(screen.TryPlayPreview(Drink("gin_tonic", grade)), Is.True);
+                Assert.That(reveal.gameObject.activeInHierarchy, Is.False, "완성 컷이 끝나기 전");
+                screen.Apply();
+                Assert.That(camera.enabled && reveal.gameObject.activeInHierarchy, Is.True);
+                Assert.That(effects.Single(effect => effect.gameObject.activeInHierarchy).name,
+                    Is.EqualTo("FX_GradeReveal_" + variant));
+                Assert.That(label.gameObject.activeSelf, Is.False);
+                Assert.That(discard.gameObject.activeSelf, Is.False);
+                Assert.That(accept.interactable, Is.True);
+                Assert.That(acceptLabel.text, Is.EqualTo("닫기"));
+                accept.onClick.Invoke();
+                Assert.That(screen.IsShowing, Is.False);
+                Assert.That(acceptLabel.text, Is.EqualTo(normalAcceptLabel));
+                Assert.That(camera.enabled, Is.False);
+                Assert.That(effects.Any(effect => effect.gameObject.activeSelf), Is.False);
+            }
+
+            Assert.That(screen.TryPlay(Drink("gin_tonic", ENewGrade.Excellent)), Is.True);
+            screen.Apply();
+            Assert.That(discard.gameObject.activeSelf, Is.True);
+            Assert.That(acceptLabel.text, Is.EqualTo(normalAcceptLabel));
+            screen.Reset();
+
+            Assert.That(screen.TryPlayPreview(Drink("gin_tonic")), Is.True);
+            screen.Apply();
+            Assert.That(label.text, Is.EqualTo("판정 불가"));
+            Assert.That(label.gameObject.activeSelf, Is.True);
+            Assert.That(reveal.gameObject.activeSelf, Is.False);
+            Assert.That(accept.interactable, Is.True);
+            accept.onClick.Invoke();
+            Assert.That(screen.IsShowing, Is.False);
         }
         finally
         {
