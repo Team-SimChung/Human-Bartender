@@ -468,6 +468,10 @@ public sealed class RemainingNpcMigrationTests
             .FirstOrDefault(scope => scope.Container != null);
         Assert.That(root, Is.Not.Null);
         var progression = root.Container.Resolve<GameProgressionService>();
+        var transitions = root.Container.Resolve<ISceneTransitionService>();
+        yield return WaitUntil(() => !transitions.IsBusy, "The title startup fade did not finish.");
+        var dayTransition = root.GetComponentInChildren<DayTransitionView>(true);
+        Assert.That(dayTransition, Is.Not.Null);
         var conditions = root.Container.Resolve<IConditionUtil>();
         sharedPlayer = root.Container.Resolve<PlayerDataSO>();
         originalMoney = sharedPlayer.HasMoney();
@@ -502,10 +506,12 @@ public sealed class RemainingNpcMigrationTests
         StoryExecutionResult restResult = default;
         Observe(controller.PlayAsync(sofa).ContinueWith(value => { restResult = value; })).Forget();
         bool sawChris = false;
+        bool sawDayTransition = false;
         float deadline = Time.realtimeSinceStartup + 35;
         while (!finished && Time.realtimeSinceStartup < deadline)
         {
             sawChris |= chris.IsVisible;
+            sawDayTransition |= dayTransition.IsShowing;
             controller.TryHandleInput(); // First sofa option is Sleep, then progress the authored rest dialogue.
             yield return null;
         }
@@ -514,6 +520,8 @@ public sealed class RemainingNpcMigrationTests
         Assert.That(restResult.Completed, Is.True, restResult.Status + ": " + restResult.Error);
         Assert.That(controller.LastResult.Completed, Is.True, controller.LastResult.Error);
         Assert.That(sawChris, Is.True, "ChrisEnter was not dispatched to the nested HomeCat participant.");
+        Assert.That(sawDayTransition, Is.True, "The day transition did not appear during real sofa rest.");
+        Assert.That(dayTransition.IsShowing, Is.False, "The day transition did not reveal the next day.");
         Assert.That(conditions.CheckRequired("flag.boobi_rest_seen"), Is.True);
         Assert.That(GameStateManager.Instance.CurrentDay, Is.EqualTo(2));
         Assert.That(GameStateManager.Instance.GameFlow, Is.EqualTo(EGameFlow.CommuteIn));
