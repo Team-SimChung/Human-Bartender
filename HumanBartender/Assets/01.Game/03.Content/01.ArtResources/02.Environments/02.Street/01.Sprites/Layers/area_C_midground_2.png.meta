@@ -1,16 +1,25 @@
 fileFormatVersion: 2
-guid: 424868f39ddc41249a15dc58549b2860
+guid: 359575ac1adb39e4a992b6518968f0fb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7967015709876102157
-    second: area_C_midground_2_0
+      213: -2021839605521903980
+    second: area_C_midground_2 1_0
   - first:
-      213: -2733370160712980019
-    second: area_C_midground_2_1
+      213: 4915107901184074914
+    second: area_C_midground_2 1_1
   - first:
-      213: -7348836500306986306
-    second: area_C_midground_2_2
+      213: 6053607010272942482
+    second: area_C_midground_2 1_2
+  - first:
+      213: 151971567036784614
+    second: area_C_midground_2 1_3
+  - first:
+      213: 3130126235320290904
+    second: area_C_midground_2 1_4
+  - first:
+      213: -6724165090852743187
+    second: area_C_midground_2 1_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -81,7 +90,7 @@ TextureImporter:
     maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -106,12 +115,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: area_C_midground_2_0
+      name: area_C_midground_2 1_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 2562
+        width: 1151
         height: 529
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -121,14 +130,58 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d042f1bb396809e60800000000000000
-      internalID: 7967015709876102157
+      spriteID: 49e0d08479bf0f3e0800000000000000
+      internalID: -2021839605521903980
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: area_C_midground_2_1
+      name: area_C_midground_2 1_1
+      rect:
+        serializedVersion: 2
+        x: 1230
+        y: 58
+        width: 371
+        height: 504
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a4eac24898f53440800000000000000
+      internalID: 4915107901184074914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: area_C_midground_2 1_2
+      rect:
+        serializedVersion: 2
+        x: 1633
+        y: 0
+        width: 934
+        height: 529
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2991221a08bb20450800000000000000
+      internalID: 6053607010272942482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: area_C_midground_2 1_3
       rect:
         serializedVersion: 2
         x: 2618
@@ -143,20 +196,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dc9ec03225e111ad0800000000000000
-      internalID: -2733370160712980019
+      spriteID: 6efdf25c559eb1200800000000000000
+      internalID: 151971567036784614
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: area_C_midground_2_2
+      name: area_C_midground_2 1_4
       rect:
         serializedVersion: 2
         x: 2811
         y: 494
         width: 69
-        height: 42
+        height: 43
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -165,8 +218,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ebaf6c68320b30a90800000000000000
-      internalID: -7348836500306986306
+      spriteID: 85e85661a31707b20800000000000000
+      internalID: 3130126235320290904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: area_C_midground_2 1_5
+      rect:
+        serializedVersion: 2
+        x: 1182
+        y: 20
+        width: 110
+        height: 339
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de7d3acd977fea2a0800000000000000
+      internalID: -6724165090852743187
       vertices: []
       indices: 
       edges: []
@@ -185,9 +260,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      area_C_midground_2_0: 7967015709876102157
-      area_C_midground_2_1: -2733370160712980019
-      area_C_midground_2_2: -7348836500306986306
+      area_C_midground_2 1_0: -2021839605521903980
+      area_C_midground_2 1_1: 4915107901184074914
+      area_C_midground_2 1_2: 6053607010272942482
+      area_C_midground_2 1_3: 151971567036784614
+      area_C_midground_2 1_4: 3130126235320290904
+      area_C_midground_2 1_5: -6724165090852743187
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
