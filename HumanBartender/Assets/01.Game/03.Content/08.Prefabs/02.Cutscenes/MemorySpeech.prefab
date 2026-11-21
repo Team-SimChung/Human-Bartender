@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -8, y: 5}
-  m_SizeDelta: {x: 6.2, y: 6}
+  m_AnchoredPosition: {x: -13, y: 16}
+  m_SizeDelta: {x: 5.2, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2005859572318347801
 CanvasRenderer:
@@ -309,7 +309,7 @@ MonoBehaviour:
   singleImageSize: {x: 8.5, y: 8.5}
   singleImageJoinDepth: 2.8399963
   partsSprite: {fileID: -2980120653554216641, guid: d60aedc454fe8b74cb5e9802dd9ac296, type: 3}
-  partsHeight: 23.2
+  partsHeight: 14.4
   partsJoinDepth: 1
 --- !u!1 &3660624422672429281
 GameObject:
@@ -761,14 +761,14 @@ MonoBehaviour:
   centerArrow: {fileID: 3238237254211833770}
   leftArrow: {fileID: 7582701859736622574}
   rightArrow: {fileID: 9160894123794034574}
-  minSize: {x: 128, y: 61.440002}
-  maxSize: {x: 504, y: 400}
-  paddingLeft: 33.600002
-  paddingRight: 40.8
-  paddingTop: 16.800001
-  paddingBottom: 16.800001
-  baseFontSize: 20.4
-  minFontSize: 20.4
+  minSize: {x: 82.5, y: 39.5}
+  maxSize: {x: 315, y: 400}
+  paddingLeft: 21
+  paddingRight: 25.5
+  paddingTop: 10.5
+  paddingBottom: 10.5
+  baseFontSize: 12.75
+  minFontSize: 12.75
   widthSafetyMargin: 0
 --- !u!114 &2046597421171429711
 MonoBehaviour:
@@ -1029,7 +1029,7 @@ MonoBehaviour:
   singleImageSize: {x: 10.167801, y: 8.5}
   singleImageJoinDepth: 2.8399963
   partsSprite: {fileID: 4153481812424824212, guid: 8b10203c47caafa45a8b564511f0a5b7, type: 3}
-  partsHeight: 23.2
+  partsHeight: 14.4
   partsJoinDepth: 1
 --- !u!1 &7669885252376345040
 GameObject:
@@ -1533,5 +1533,5 @@ MonoBehaviour:
   singleImageSize: {x: 10.167801, y: 8.5}
   singleImageJoinDepth: 2.8399963
   partsSprite: {fileID: -8522390261985450411, guid: ed2fe4d7c4d7db34bba3690fbe47c99e, type: 3}
-  partsHeight: 23.2
+  partsHeight: 14.4
   partsJoinDepth: 1

@@ -12,6 +12,20 @@ namespace HumanBartender.CutsceneStudio
     {
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Id")]
         private string id = "actor";
+        [SerializeField, TextArea] private string caption;
+        [SerializeField, Min(1)] private float captionSize = 20;
+        [SerializeField] private bool centerCaption;
+        [SerializeField, Tooltip("원본 이미지의 일부를 표시할 때 사용할 텍스처입니다.")] private Texture2D regionTexture;
+        [SerializeField, Tooltip("원본 좌측 상단 기준 픽셀 좌표입니다. 점을 둘레 순서로 지정합니다.")] private Vector2[] region;
+        public string Caption { get => caption; internal set => caption = value; }
+        public float CaptionSize { get => captionSize; internal set => captionSize = value; }
+        public bool CenterCaption { get => centerCaption; internal set => centerCaption = value; }
+        [SerializeField, Tooltip("이 원화에 적용할 표시용 머티리얼입니다. 비우면 기본 UI 머티리얼을 사용합니다.")]
+        private Material regionMaterial;
+        public Material RegionMaterial => regionMaterial;
+        public Texture2D RegionTexture { get => regionTexture; internal set => regionTexture = value; }
+        public Vector2[] Region { get => region; internal set => region = value; }
+        public bool HasRegion => regionTexture != null && region != null && region.Length >= 3;
         public string Id
         {
             get { return id; }

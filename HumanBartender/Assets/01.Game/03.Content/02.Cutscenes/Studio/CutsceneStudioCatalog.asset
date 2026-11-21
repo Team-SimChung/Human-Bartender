@@ -14,21 +14,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioCatalog
   sequences:
   - id: CutsceneStudio_Test
+    memoryKey: 
     resourceKey: cutscene-studio/CutsceneStudio_Test
-  - id: tl_intro
-    resourceKey: cutscene-studio/tl_intro
-  - id: tl_documentary
-    resourceKey: cutscene-studio/tl_documentary
-  - id: tl_yuna_memory_d0
-    resourceKey: cutscene-studio/tl_yuna_memory_d0
-  - id: tl_yuna_memory_d3
-    resourceKey: cutscene-studio/tl_yuna_memory_d3
-  - id: tl_johnny_memory
-    resourceKey: cutscene-studio/tl_johnny_memory
   - id: tv_news_d0
+    memoryKey: 
     resourceKey: cutscene-studio/tl_documentary
   - id: johnny-memory
+    memoryKey: 
     resourceKey: cutscene-studio/tl_johnny_memory
   - id: tl_yuna_memory_d3
     memoryKey: terraceMemory3
     resourceKey: cutscene-studio/tl_yuna_memory_d3
+  - id: tl_intro
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_intro
+  - id: tl_documentary
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_documentary
+  - id: tl_yuna_memory_d0
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: tl_yuna_memory_d3
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_yuna_memory_d3
+  - id: tl_ending_credits
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_ending_credits
+  - id: tl_johnny_memory
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_johnny_memory
+  - id: terrace-memory
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: terrace-memory
+    memoryKey: terraceMemory
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: terrace-memory
+    memoryKey: terraceMemory3
+    resourceKey: cutscene-studio/tl_yuna_memory_d3
+  - id: tl_yuna_memory_d0
+    memoryKey: terraceMemory
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: ending-credits
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_ending_credits

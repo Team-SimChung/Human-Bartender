@@ -62,7 +62,7 @@ namespace HumanBartender.CutsceneStudio
             var resolvedFont = clip.Font != null ? clip.Font : font != null ? font : sequenceFont != null ? sequenceFont : TMP_Settings.defaultFontAsset;
             int settings = HashCode.Combine(resolvedFont, clip.UseDialogueStyle, clip.DialogueFontSize, clip.DialogueTextColor,
                 clip.DialogueAlignment, clip.UseBubbleLayout, clip.BubbleWidth, clip.BubblePadding);
-            string text = clip.Text ?? string.Empty;
+            string text = clip.ProjectedDialogue?.Text ?? clip.Text ?? string.Empty;
             if (!prepared || lastText != text || lastSettings != settings)
             {
                 Label.font = resolvedFont;
@@ -105,12 +105,12 @@ namespace HumanBartender.CutsceneStudio
         }
         internal void StopWaiting() => prompt?.SetWaiting(false);
 
-        internal Vector2 ClampAnchor(Vector2 position)
+        internal Vector2 ClampAnchor(Vector2 position, float scale)
         {
             var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(Root, view.bubble);
             var half = new Vector2(StudioSequence.Width, StudioSequence.Height) * .5f;
-            float minX = -half.x - bounds.min.x, maxX = half.x - bounds.max.x;
-            float minY = -half.y - bounds.min.y, maxY = half.y - bounds.max.y;
+            float minX = -half.x - scale * bounds.min.x, maxX = half.x - scale * bounds.max.x;
+            float minY = -half.y - scale * bounds.min.y, maxY = half.y - scale * bounds.max.y;
             return new Vector2(minX <= maxX ? Mathf.Clamp(position.x, minX, maxX) : 0,
                 minY <= maxY ? Mathf.Clamp(position.y, minY, maxY) : 0);
         }

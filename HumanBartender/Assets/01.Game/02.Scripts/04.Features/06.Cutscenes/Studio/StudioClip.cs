@@ -221,7 +221,27 @@ namespace HumanBartender.CutsceneStudio
             internal set { text = value; }
         }
 
-        internal DialogueTextCompiler.Line ProjectedDialogue { get; set; }
+        private DialogueTextCompiler.Line projectedDialogue, timedDialogue;
+        private string parsedSource;
+        private float parsedSpeed;
+        internal DialogueTextCompiler.Line ProjectedDialogue
+        {
+            get
+            {
+                if (projectedDialogue != null) return projectedDialogue;
+                if (parsedSource != text || parsedSpeed != charactersPerSecond)
+                {
+                    parsedSource = text;
+                    parsedSpeed = charactersPerSecond;
+                    timedDialogue = null;
+                    if (text != null && System.Text.RegularExpressions.Regex.IsMatch(text, @"<\d+>"))
+                        DialogueTextCompiler.TryCompile(text, null, null, null, 1f / Mathf.Max(1, parsedSpeed),
+                            out timedDialogue, out _);
+                }
+                return timedDialogue;
+            }
+            set => projectedDialogue = value;
+        }
 
         [Tooltip("비워두면 기존 시퀀스에 저장된 기본 글꼴을 사용합니다.")]
         [SerializeField, UnityEngine.Serialization.FormerlySerializedAs("Font")]

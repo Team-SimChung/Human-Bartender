@@ -41,7 +41,7 @@ namespace HumanBartender.CutsceneStudio
                         if (clip.Frames.Any(frame => frame == null))
                             result.Add($"{label}: '{clip.ActorId}'의 애니메이션 이미지가 누락되어 해당 프레임만 표시하지 않습니다.");
                     }
-                    else if (actor.Sprite == null)
+                    else if (actor.Sprite == null && string.IsNullOrEmpty(actor.Caption) && !actor.HasRegion)
                         result.Add($"{label}: '{clip.ActorId}'의 이미지가 없어 해당 그림만 표시하지 않습니다.");
                 }
                 else if (clip.Kind == StudioKind.Dialogue && !string.IsNullOrEmpty(clip.ActorId) && actor == null)

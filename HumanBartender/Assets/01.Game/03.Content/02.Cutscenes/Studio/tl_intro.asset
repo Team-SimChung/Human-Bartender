@@ -12,10 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bbe1f0368816964896af33fd3a513ab, type: 3}
   m_Name: tl_intro
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioSequence
+  typingAudio:
+    Enabled: 1
+    Sound: {fileID: 8300000, guid: 9d9e795045ee44119a67e2bb3a91a6b9, type: 3}
+    Volume: 0.55
+    MinimumInterval: 0.064
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  typingRhythm:
+    PeriodPause: 0
+    RepeatedPeriodPause: 0.3
+    ExtraPunctuation: 
+    ExtraPause: 0.35
   id: tl_intro
-  displayName: 도입 · 마지막 부탁
+  displayName: "\uB3C4\uC785 \xB7 \uB9C8\uC9C0\uB9C9 \uBD80\uD0C1"
   timeline: {fileID: 11400000, guid: ff1891e7b6ca247539412c2b1eacba3f, type: 2}
   backgroundColor: {r: 0, g: 0, b: 0, a: 1}
   font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
   actors: []
-  allowSkip: 1
+  allowSkip: 0
