@@ -131,20 +131,33 @@ public sealed class ElevatorRideBroadcastTests
         }
     }
 
-    // OutSide 씬의 엘리베이터가 웹과 같은 하차 높이(바 앞·집 앞 시작 지점)를 쓰는지 확인한다.
-    [Test]
-    public void OutsideElevatorArrivalsUseTheBarAndHomeSpawns()
+    [TestCase(EPlayerSpawn.Bar, "BarSpawn", -.696f, .29f)]
+    [TestCase(EPlayerSpawn.FirstCommute, "BarSpawn", -.696f, .29f)]
+    [TestCase(EPlayerSpawn.Home, "HomeSpawn", 9.784f, 10.78f)]
+    public void OutsideSceneUsesTheFloorHeightsForSpawnsAndElevatorArrivals(
+        EPlayerSpawn spawn, string arrivalName, float lunaY, float elevatorLocalY)
     {
         var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/OutSide.unity");
         try
         {
-            var elevator = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<OutsideElevator>(true)).Single();
-            var bottom = (Transform)typeof(OutsideElevator).GetField("bottomArrival", Fields).GetValue(elevator);
-            var top = (Transform)typeof(OutsideElevator).GetField("topArrival", Fields).GetValue(elevator);
-            Assert.That(bottom != null ? bottom.name : null, Is.EqualTo("BarSpawn"),
-                "Elevator의 아래층 하차 기준에 BarSpawn을 연결하세요.");
-            Assert.That(top != null ? top.name : null, Is.EqualTo("HomeSpawn"),
-                "Elevator의 위층 하차 기준에 HomeSpawn을 연결하세요.");
+            var roots = scene.GetRootGameObjects();
+            var elevator = roots.SelectMany(root => root.GetComponentsInChildren<OutsideElevator>(true)).Single();
+            var player = roots.SelectMany(root => root.GetComponentsInChildren<Player>(true)).Single();
+            bool top = spawn == EPlayerSpawn.Home;
+            var arrival = (Transform)typeof(OutsideElevator).GetField(top ? "topArrival" : "bottomArrival", Fields).GetValue(elevator);
+            Assert.That(arrival != null ? arrival.name : null, Is.EqualTo(arrivalName));
+
+            if (!top)
+            {
+                Assert.That(player.transform.localPosition.y, Is.EqualTo(lunaY).Within(.0001f));
+                Assert.That(elevator.transform.localPosition.y, Is.EqualTo(elevatorLocalY).Within(.0001f));
+            }
+
+            Assert.That(player.TrySetPosition(spawn), Is.True);
+            Assert.That(player.transform.position.y, Is.EqualTo(lunaY).Within(.0001f));
+            Assert.That(elevator.ArrivalY(top, 0, 0), Is.EqualTo(lunaY).Within(.0001f));
+            elevator.SetPosition(top);
+            Assert.That(elevator.transform.localPosition.y, Is.EqualTo(elevatorLocalY).Within(.0001f));
         }
         finally { EditorSceneManager.ClosePreviewScene(scene); }
     }

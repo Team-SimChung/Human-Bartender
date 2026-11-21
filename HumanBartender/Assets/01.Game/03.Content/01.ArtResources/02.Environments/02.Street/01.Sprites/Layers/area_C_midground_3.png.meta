@@ -1,13 +1,16 @@
 fileFormatVersion: 2
-guid: 5f4bf2931e715a549b5eaf0a9e484a67
+guid: d701b994c083a484387c2f56ac5458c9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4558308732894836088
-    second: area_C_midground_3_0
+      213: -8019918659244324705
+    second: area_C_midground_3 5_0
   - first:
-      213: -8111000736617668318
-    second: area_C_midground_3_1
+      213: -2806392169944790474
+    second: area_C_midground_3 5_1
+  - first:
+      213: -8653305257819309753
+    second: area_C_midground_3 5_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -78,7 +81,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -103,12 +106,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: area_C_midground_3_0
+      name: area_C_midground_3 5_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 424
+        width: 480
         height: 1620
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -118,20 +121,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 88a0e3fbb52adb0c0800000000000000
-      internalID: -4558308732894836088
+      spriteID: f980734887683b090800000000000000
+      internalID: -8019918659244324705
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: area_C_midground_3_1
+      name: area_C_midground_3 5_1
       rect:
         serializedVersion: 2
-        x: 473
-        y: 0
-        width: 256
-        height: 1272
+        x: 599
+        y: 1207
+        width: 15
+        height: 15
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -140,8 +143,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 221e8f0ddcfef6f80800000000000000
-      internalID: -8111000736617668318
+      spriteID: 63ac00ab031bd09d0800000000000000
+      internalID: -2806392169944790474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: area_C_midground_3 5_2
+      rect:
+        serializedVersion: 2
+        x: 479
+        y: 0
+        width: 246
+        height: 1203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 749f8a617b849e780800000000000000
+      internalID: -8653305257819309753
       vertices: []
       indices: 
       edges: []
@@ -160,8 +185,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      area_C_midground_3_0: -4558308732894836088
-      area_C_midground_3_1: -8111000736617668318
+      area_C_midground_3 5_0: -8019918659244324705
+      area_C_midground_3 5_1: -2806392169944790474
+      area_C_midground_3 5_2: -8653305257819309753
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

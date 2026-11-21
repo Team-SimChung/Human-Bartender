@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 97626239e99cba840be04f812cc74f32
+guid: 4dcb9f463ed8ba745b7b20bc6707407a
 TextureImporter:
   internalIDToNameTable:
   - first:
       213: -886822830779929842
     second: elevator_support 1_0
-  - first:
-      213: -1070620940353034210
-    second: elevator_support 1_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -78,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -106,10 +103,10 @@ TextureImporter:
       name: elevator_support 1_0
       rect:
         serializedVersion: 2
-        x: 44
-        y: 1461
-        width: 9
-        height: 6
+        x: 0
+        y: 0
+        width: 105
+        height: 1306
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -120,28 +117,6 @@ TextureImporter:
       bones: []
       spriteID: e0be7a0855f51b3f0800000000000000
       internalID: -886822830779929842
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: elevator_support 1_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 105
-        height: 1307
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e18a9295de36421f0800000000000000
-      internalID: -1070620940353034210
       vertices: []
       indices: 
       edges: []
@@ -161,7 +136,6 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       elevator_support 1_0: -886822830779929842
-      elevator_support 1_1: -1070620940353034210
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
