@@ -56,6 +56,7 @@ public class GuestSlot : MonoBehaviour
     bool useTempAppearance;
     CancellationTokenSource bubbleCts;
     CancellationTokenSource appearanceCts;
+    UniTaskCompletionSource entrance;
     CharacterFade randomFade;
     readonly GuestMouthAnimation mouthAnimation = new();
     bool speakingRequested;
@@ -101,6 +102,13 @@ public class GuestSlot : MonoBehaviour
     /// <summary>이 좌석 말풍선의 글자 재생기. 대화 기록이 본 글자를 읽으려고 구독한다. 말풍선이 연결되지 않았으면 null.</summary>
     public DialogueTextPlayer BarkPlayer => speechBubble != null ? speechBubble.TextPlayer : null;
 
+    /// <summary>
+    /// 지금 앉은 손님의 등장 연출(파츠 로딩과 페이드 인)이 끝나면 완료된다. 첫 대사는 이 뒤에 나온다(엔진 수정 13).
+    /// 로딩이 실패하거나 도중에 취소·교체돼도 완료로 친다 — 그림이 없더라도 대사는 나와야 하고, 기다리던 쪽은 손님이 그대로인지 따로 확인한다.
+    /// 자리가 비어 있으면 바로 완료다. 단골(카메오)의 그림은 GuestManager가 GuestCharacterView로 붙이므로 여기에 들어가지 않는다.
+    /// </summary>
+    public UniTask WaitForEntranceAsync() => entrance?.Task ?? UniTask.CompletedTask;
+
     /// <summary>GuestManager가 테스트 모드 여부를 전달한다. true면 파츠 addressable 로딩 대신 tempAppearanceObject를 On/Off한다.</summary>
     public void SetTempAppearanceMode(bool enabled)
     {
@@ -119,10 +127,18 @@ public class GuestSlot : MonoBehaviour
         appearanceCts?.Cancel();
         appearanceCts?.Dispose();
         appearanceCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
-        ApplyAppearanceAsync(guest, appearanceCts.Token).Forget(error =>
-        {
-            if (error is not OperationCanceledException) Debug.LogException(error);
-        });
+        entrance?.TrySetResult();
+        entrance = new UniTaskCompletionSource();
+        EnterAsync(guest, entrance, appearanceCts.Token).Forget();
+    }
+
+    /// <summary>외형을 적용하고, 어떻게 끝나든(완료·실패·취소) 기다리던 첫 대사를 놓아 준다.</summary>
+    async UniTaskVoid EnterAsync(Guest guest, UniTaskCompletionSource entered, CancellationToken token)
+    {
+        try { await ApplyAppearanceAsync(guest, token); }
+        catch (OperationCanceledException) { }
+        catch (Exception error) { Debug.LogException(error); }
+        finally { entered.TrySetResult(); }
     }
 
     /// <summary>
@@ -314,6 +330,8 @@ public class GuestSlot : MonoBehaviour
         appearanceCts?.Cancel();
         appearanceCts?.Dispose();
         appearanceCts = null;
+        entrance?.TrySetResult();
+        entrance = null;
         randomFade?.SetOpacity(1);
         StopSpeaking();
         CurrentGuest?.bodySprites?.Release();

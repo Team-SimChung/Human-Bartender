@@ -285,7 +285,9 @@ public class PlayPhaseController : MonoBehaviour
 
             BeginPhase(EPlayPhase.Dialogue);
             await RunPhaseAsync(storyFlow, cancellationToken);
-            EndCurrentPhase();
+            // 대본이 내보내지 않은 손님은 정산창 뒤에 남긴다(엔진 수정 11). 좌석 인물(storyOnlyObjects)을 끄면
+            // DialogueCharacterManager.OnDisable이 인물을 지우므로 켜 둔 채 입력만 닫는다. 정리는 finally의 ReleaseStage가 한다.
+            EndCurrentPhase(keepStoryObjects: true);
 
             if (!await RunSettlementAsync(cancellationToken))
             {
@@ -332,10 +334,22 @@ public class PlayPhaseController : MonoBehaviour
             {
                 phaseInputEnabled = false;
                 CurrentPhase = EPlayPhase.None;
+                ReleaseStoryStage();
                 HidePhaseObjects();
                 currentOperationId = 0;
             }
         }
+    }
+
+    /// <summary>
+    /// 정산창 뒤에 남겨 둔 본편 무대를 치운다. 퇴근 이동이 끝났으면 씬과 함께 이미 사라졌으므로 건너뛴다.
+    /// 재시작·실패·취소로 하루가 끝날 때도 여기서 치운다.
+    /// </summary>
+    void ReleaseStoryStage()
+    {
+        if (storyFlow == null) return;
+        try { storyFlow.ReleaseStage(); }
+        catch (Exception error) { Debug.LogException(error); }
     }
 
     async UniTask RunDailyUnlocksAsync(int day, CancellationToken cancellationToken)
@@ -464,12 +478,13 @@ public class PlayPhaseController : MonoBehaviour
         phaseInputEnabled = true;
     }
 
-    void EndCurrentPhase()
+    void EndCurrentPhase(bool keepStoryObjects = false)
     {
         phaseInputEnabled = false;
         CurrentPhase = EPlayPhase.None;
         State = PlayPhaseRunState.Transitioning;
-        HidePhaseObjects();
+        SetActive(tycoonOnlyObjects, false);
+        if (!keepStoryObjects) SetActive(storyOnlyObjects, false);
     }
 
     void ShowPhase(EPlayPhase phase)

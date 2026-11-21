@@ -112,11 +112,24 @@ public partial class StoryScriptRunner : MonoBehaviour
     /// </summary>
     public StoryExecutionResult LastResult { get; private set; }
 
-    public async UniTask<StoryExecutionResult> RunAsync(NewDayScriptBase dayScript, CancellationToken token, ENewScenePhase phase = ENewScenePhase.Bar)
+    /// <summary>
+    /// 본편이 끝난 뒤 정산창 뒤에 남겨 둔 무대(대본이 내보내지 않은 인물, 테이블 위 잔·코스터)가 있는지.
+    /// ReleaseStage가 정리한다(엔진 수정 11).
+    /// </summary>
+    public bool IsStageHeld { get; private set; }
+
+    /// <param name="holdStage">
+    /// 참이면 본편(phase = Bar)이 정상으로 끝났을 때 남은 인물의 자동 퇴장과 무대 정리를 미루고 말풍선만 닫는다.
+    /// 정산창이 뜨는 순간 손님이 한꺼번에 사라지지 않게 하려는 것이다(엔진 수정 11). 개점 전 대본, 취소·실패는 지금처럼 바로 정리한다.
+    /// </param>
+    public async UniTask<StoryExecutionResult> RunAsync(NewDayScriptBase dayScript, CancellationToken token,
+        ENewScenePhase phase = ENewScenePhase.Bar, bool holdStage = false)
     {
         if (IsRunning) return new StoryExecutionResult(StoryExecutionStatus.Failed, "Story is already running.");
         if (presenter == null || conditions == null)
             return new StoryExecutionResult(StoryExecutionStatus.Failed, "Story must be bound before running.");
+        ReleaseStage();
+        holdStage &= phase == ENewScenePhase.Bar;
         script = dayScript;
         conditions = conditions.CreateExecutionScope();
         IsRunning = true;
@@ -147,8 +160,14 @@ public partial class StoryScriptRunner : MonoBehaviour
                 }
             }
             token.ThrowIfCancellationRequested();
+            if (holdStage)
+            {
+                // 본편 끝: 대본이 내보내지 않은 손님은 정산창 뒤에 그대로 둔다. 말풍선만 바로 닫는다.
+                (presenter as IStoryDialogueVisibility)?.HideDialogue();
+                IsStageHeld = true;
+            }
             // 대본이 끝날 때도 화면에 남은 인물을 갑자기 지우지 않는다.
-            if (presenter is IStoryCharacterTransitions transition && seatActors.Count > 0)
+            else if (presenter is IStoryCharacterTransitions transition && seatActors.Count > 0)
             {
                 (presenter as IStoryDialogueVisibility)?.HideDialogue();
                 var exits = new List<UniTask>(seatActors.Count);
@@ -175,8 +194,16 @@ public partial class StoryScriptRunner : MonoBehaviour
             }
             if (currentOrder != null && orderController != null) Cleanup(CancelCurrentOrder);
             orderResultSignal = null;
-            if (IsAlive(presenter)) Cleanup(presenter.Clear);
-            if (tables != null) Cleanup(tables.EndVisits);
+            if (IsStageHeld)
+            {
+                // 잔·코스터는 보이게 두고 공급함과 놓기 조작만 닫는다. 나머지 정리는 ReleaseStage가 한다.
+                if (tables != null) Cleanup(tables.HoldTables);
+            }
+            else
+            {
+                if (IsAlive(presenter)) Cleanup(presenter.Clear);
+                if (tables != null) Cleanup(tables.EndVisits);
+            }
             currentOrder = null;
             Cleanup(ClearConditionResult);
             IsRunning = false;
@@ -188,6 +215,19 @@ public partial class StoryScriptRunner : MonoBehaviour
             }
         }
         return LastResult;
+    }
+
+    /// <summary>
+    /// 본편이 끝난 뒤 남겨 둔 무대(인물·테이블 위 잔과 코스터)를 정리한다. 남겨 둔 것이 없으면 아무것도 하지 않는다.
+    /// PlayPhaseController가 정산과 퇴근 이동을 마친 뒤, 또는 하루가 실패·취소로 끝날 때 부른다.
+    /// 씬이 이미 바뀌어 대상이 파괴됐으면 건너뛴다.
+    /// </summary>
+    public void ReleaseStage()
+    {
+        if (!IsStageHeld) return;
+        IsStageHeld = false;
+        if (IsAlive(presenter)) presenter.Clear();
+        if (tables != null) tables.EndVisits();
     }
 
     static bool IsAlive(object target) => target != null && (target is not UnityEngine.Object obj || obj != null);

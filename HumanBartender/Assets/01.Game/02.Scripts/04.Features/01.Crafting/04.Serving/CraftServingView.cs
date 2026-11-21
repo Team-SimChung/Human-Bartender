@@ -23,6 +23,7 @@ public class CraftServingView : MonoBehaviour
     readonly List<TableServeSpot> spots = new();
     int openPresentations;
     bool closeWhenIdle;
+    bool holdingTables;
 
     sealed class StoryPlace
     {
@@ -37,8 +38,20 @@ public class CraftServingView : MonoBehaviour
 
     bool BarVisible => serveCanvas.isActiveAndEnabled && !craftFlow.IsCraftFlowActive &&
         !craftFlow.IsAwaitingServeDecision;
-    bool CanInteract() => BarVisible && !playCamera.IsMoving && !recipes.IsOpen &&
+    /// <summary>테이블 위 자리(잔·코스터)를 그릴지. 정산 동안 남겨 둔 자리는 공급함이 닫혀도 보인다.</summary>
+    bool TablesVisible => holdingTables || BarVisible;
+    bool CanInteract() => !holdingTables && BarVisible && !playCamera.IsMoving && !recipes.IsOpen &&
         !servicePanel.BlocksBarInput && !UIDisplayOptions.IsOptionOpen;
+
+    /// <summary>
+    /// 본편이 끝나 정산창이 뜨는 동안 테이블 위 잔·코스터를 그대로 보여 둔다(엔진 수정 11).
+    /// 공급함 캔버스는 닫고 놓기 조작은 막는다. EndVisits가 자리를 치우면서 풀린다.
+    /// </summary>
+    public void HoldTables()
+    {
+        holdingTables = true;
+        CloseUi();
+    }
 
     TableServeSpot CreateSpot(string guest, float worldX)
     {
@@ -115,6 +128,7 @@ public class CraftServingView : MonoBehaviour
 
     public void EndVisits()
     {
+        holdingTables = false;
         foreach (var actor in new List<string>(storyPlaces.Keys)) EndVisit(actor);
         tables.Clear();
     }
@@ -191,7 +205,8 @@ public class CraftServingView : MonoBehaviour
         if (closeWhenIdle && openPresentations == 0 && !craftFlow.IsBusy) CloseUi();
 
         bool showSupply = false;
-        foreach (var spot in spots) showSupply |= spot.Refresh(BarVisible);
+        bool visible = TablesVisible;
+        foreach (var spot in spots) showSupply |= spot.Refresh(visible);
         if (supplyArrow.activeSelf != showSupply) supplyArrow.SetActive(showSupply);
     }
 
