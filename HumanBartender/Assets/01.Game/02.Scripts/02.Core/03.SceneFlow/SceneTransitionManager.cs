@@ -45,6 +45,9 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
     [SerializeField] BarDoorTransitionView barDoorOverlay;
     [Tooltip("취침 뒤 명언·Day 숫자 전환 화면(Canvas_DayTransition). 비어 있으면 취침은 예전 페이드만 한다.")]
     [SerializeField] DayTransitionView dayTransition;
+    [Tooltip("일반 씬 로딩(새 게임·이어하기·다음 날 등)에서 페이드 위에 띄우는 로딩 화면(Canvas_Loading). " +
+             "바 출입·집 현관·대화 중 장소 이동에는 쓰지 않는다. 비어 있으면 페이드만 한다.")]
+    [SerializeField] SceneLoadingView loadingOverlay;
 
     [Header("집 현관 전환")]
     [SerializeField, Min(0f), Tooltip("집 현관을 지날 때 화면이 어두워지는 시간(초).")]
@@ -155,6 +158,17 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             SceneTransitionStyle.Fade, presentation);
     }
 
+    /// <summary>
+    /// 전환 방식에 맞는 화면을 고른다. 바 출입은 문 화면, 일반 씬 로딩은 로딩 화면(웹 resource-loading),
+    /// 집 현관·대화 중 장소 이동·씬 내리기는 페이드만 한다. presented: 다른 연출(대화 이동·Day 전환)이 화면을 덮고 있다.
+    /// </summary>
+    public static ISceneTransitionOverlay SelectOverlay(SceneTransitionStyle style, bool presented, bool unload,
+        ISceneTransitionOverlay barDoor, ISceneTransitionOverlay loading)
+    {
+        if (style is SceneTransitionStyle.BarEntrance or SceneTransitionStyle.BarExit) return barDoor;
+        return style == SceneTransitionStyle.Fade && !presented && !unload ? loading : null;
+    }
+
     SceneTransitionRequest RequestSceneOperation(
         string sceneName,
         LoadSceneMode sceneMode,
@@ -216,8 +230,12 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
             return new SceneTransitionRequest(rejectedResult);
         }
 
-        ISceneTransitionOverlay overlay = style is SceneTransitionStyle.BarEntrance or SceneTransitionStyle.BarExit
-            ? barDoorOverlay : null;
+        // 비어 있는 직렬화 참조는 Unity 가짜 null이라 인터페이스로 넘기기 전에 진짜 null로 바꾼다.
+        // 명언·Day 전환 화면이 떠 있는 다음 날 로딩은 그 화면이 가리고 있으므로 로딩 화면을 겹치지 않는다.
+        bool dayTransitionShowing = dayTransition != null && dayTransition.IsShowing;
+        ISceneTransitionOverlay overlay = SelectOverlay(style, presentation != null || dayTransitionShowing,
+            operationKind == SceneOperationKind.Unload,
+            barDoorOverlay != null ? barDoorOverlay : null, loadingOverlay != null ? loadingOverlay : null);
         return new SceneTransitionRequest(true,
             RunSceneOperationAsync(operationId, sceneName, sceneMode, operationKind, cancellationToken, style, overlay, presentation));
     }

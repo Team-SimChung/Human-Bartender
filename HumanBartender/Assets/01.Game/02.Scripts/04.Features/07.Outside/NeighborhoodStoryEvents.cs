@@ -30,6 +30,8 @@ public sealed class NeighborhoodStoryEvents : IOutsideStoryEventHandler
                     if (!run.Flag("gang_wild_dog_paid") && !run.Flag("gang_wild_dog_repair_promised"))
                         throw new InvalidOperationException("와일드 독 거래가 확정되지 않았습니다.");
                     run.Effect("flag.gang_wild_dog_received = true; flag.gang_wild_dog_paid = false; flag.gang_wild_dog_repair_promised = false; flag.gang_wild_dog_repeat_deal = false");
+                    // 웹 wild-dog-grant: 실제로 받는 이 순간에만 재료 획득 알림(엔진 수정 사항 25). 이미 가졌으면 다시 띄우지 않는다.
+                    run.NotifyItem(CampaignStoryRules.WildDogIngredientId);
                 }
                 return null;
             case OutsideStoryCommand.RepairElevator:

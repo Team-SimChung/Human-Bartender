@@ -921,7 +921,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         if (ingredientBottle != null) ingredientBottle.gameObject.SetActive(false);
         if ((!drivenByRunner && !useTestBottleId) || bottle == null || bottle.BottleVisual == null) return false;
         string bottleId = useTestBottleId ? testBottleId : pourIngredientId;
-        Sprite sprite = bottleVisuals != null ? bottleVisuals.GetIngredientSprite(bottleId) : null;
+        Sprite sprite = bottleVisuals != null ? bottleVisuals.GetPourBottleSprite(bottleId) : null;
         if (sprite == null)
         {
             Debug.LogWarning($"[Pour] 재료 '{bottleId}'의 병 스프라이트가 없습니다. 기본 병을 사용합니다.", this);

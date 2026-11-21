@@ -13,6 +13,9 @@ public sealed class CapOpenView : MonoBehaviour
     [Header("Art")]
     [Tooltip("웹 item-beer.png(93×223)와 같은 병 그림. 몸통과 뚜껑을 이 한 장에서 잘라 쓴다.")]
     [SerializeField] Texture2D bottleTexture;
+    [Tooltip("뚜껑이 날아간 뒤의 병 그림(웹 bottled_beer_off.png, 93×223). 성공 순간 몸통을 이 그림으로 바꾼다(웹 open-view.js). " +
+             "비어 있으면 닫힌 병 위에 입구 타원을 그린다.")]
+    [SerializeField] Texture2D openedBottleTexture;
     [Tooltip("웹 item_opener(bottle_opener.png, 70×115)와 같은 병따개 그림.")]
     [SerializeField] Texture2D openerTexture;
     [SerializeField] TMP_FontAsset font;
@@ -26,6 +29,7 @@ public sealed class CapOpenView : MonoBehaviour
     [SerializeField] CapCanvasLayer halo, body, carbonationLayer, mouth, cap, perfectBurst, opener, overlay, powerGauge, rhythmRings;
     [SerializeField] Texture2D haloDefault, haloSuccess;
     CapCarbonationCanvas carbonation;
+    Texture closedBodyTexture;
 
     [SerializeField] TMP_Text phaseLabel, feedback, timingHint, gaugeLabel, hitLabel, finishLabel;
     [SerializeField] Button hitButton, finishButton;
@@ -114,7 +118,13 @@ public sealed class CapOpenView : MonoBehaviour
             : miss ? Mathf.Sin(t * 48f) * Mathf.Exp(-t * 10f) * 5f : 0f;
         float bottleAlpha = broken ? .2f : 1f;
         var bottle = identity.Translate(Cx + kick, Cy);
-        body.Image(bottle, 22f, 72f, 43f, 150f, -21f * s, 3f * s, 43f * s, 150f * s, bottleAlpha);
+        // 웹 open-view.js: 뚜껑이 날아가면 몸통을 딴 병 그림으로 바꾼다. 그림의 목이 7px 더 길어 위로 7px 올려 그린다.
+        // 닫힌 병은 프리팹에서 몸통 층에 꽂아 둔 그림을 그대로 쓴다(편집 모드 미리보기에서 값을 바꾸지 않게).
+        bool opened = ok && openedBottleTexture != null;
+        if (closedBodyTexture == null) closedBodyTexture = body.mainTexture;
+        body.SetTexture(opened ? openedBottleTexture : closedBodyTexture);
+        if (opened) body.Image(bottle, 25f, 65f, 43f, 157f, -21f * s, -4f * s, 43f * s, 157f * s, bottleAlpha);
+        else body.Image(bottle, 22f, 72f, 43f, 150f, -21f * s, 3f * s, 43f * s, 150f * s, bottleAlpha);
 
         if (ok && ingredientId == "beer")
         {
@@ -125,7 +135,8 @@ public sealed class CapOpenView : MonoBehaviour
             carbonationLayer.DrawTexture(bottle.Scale(s, s), area.x, area.y, area.width, area.height, new Color(1f, 1f, 1f, bottleAlpha));
         }
 
-        if (ok)
+        // 딴 병 그림이 없을 때만 닫힌 병 위에 입구를 그려 대신한다(웹과 같은 대체 경로).
+        if (ok && !opened)
         {
             mouth.FillEllipse(bottle, 0f, 3f * s, 8f * s, 1.5f * s, WithAlpha(Hex("#38291c"), bottleAlpha));
             mouth.StrokeEllipse(bottle, 0f, 3f * s, 8f * s, 1.5f * s, 2f, WithAlpha(Hex("#af9669"), bottleAlpha));

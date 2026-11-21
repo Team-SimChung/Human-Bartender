@@ -61,6 +61,8 @@ public sealed class PourerBreakaway : MonoBehaviour
     bool hasPourer;
     bool bodyOffsetApplied;
     Vector3 bodyRestPosition;
+    Vector3 pourerRestScale;
+    bool pourerRestScaleCaptured;
     Vector3 flightStartPosition;
     Quaternion flightStartRotation;
     Color flightColor;
@@ -86,6 +88,7 @@ public sealed class PourerBreakaway : MonoBehaviour
 
         // 병마다 스프라이트의 PPU·피벗이 달라도 푸어러의 윗끝과 기존 액체 출구가 일치한다.
         Transform cap = attachedPourer.transform;
+        MatchBottlePixelScale(cap);
         Bounds bounds = attachedPourer.sprite.bounds;
         Vector3 tip = new Vector3(bounds.center.x, bounds.max.y, 0f);
         cap.position = bottle.BottleVisual.TransformPoint(mouthLocalPosition) - cap.TransformVector(tip);
@@ -100,6 +103,23 @@ public sealed class PourerBreakaway : MonoBehaviour
             ingredientBottle.transform.localPosition -= parent != null ? parent.InverseTransformVector(neck) : neck;
             bodyOffsetApplied = true;
         }
+    }
+
+    /// <summary>
+    /// 웹은 병 그림과 푸어러를 같은 배율(4.2)로 그린다. 재료 병 그림은 PourManager가 병 크기에 맞춰 늘리므로,
+    /// 푸어러도 그 병 그림의 픽셀 크기에 맞춘다. 고정 크기로 두면 늘어난 병 위에서 점처럼 작아진다.
+    /// 재료 병 그림이 없을 때는 프리팹에 저장된 크기를 쓴다.
+    /// </summary>
+    void MatchBottlePixelScale(Transform cap)
+    {
+        if (!pourerRestScaleCaptured) { pourerRestScale = cap.localScale; pourerRestScaleCaptured = true; }
+        Sprite body = ingredientBottle != null && ingredientBottle.gameObject.activeSelf ? ingredientBottle.sprite : null;
+        if (body == null) { cap.localScale = pourerRestScale; return; }
+        float worldPerPixel = Mathf.Abs(ingredientBottle.transform.lossyScale.x) / Mathf.Max(1f, body.pixelsPerUnit);
+        float size = worldPerPixel * attachedPourer.sprite.pixelsPerUnit;
+        Vector3 parentScale = cap.parent != null ? cap.parent.lossyScale : Vector3.one;
+        cap.localScale = new Vector3(size / Mathf.Max(.0001f, Mathf.Abs(parentScale.x)),
+            size / Mathf.Max(.0001f, Mathf.Abs(parentScale.y)), 1f);
     }
 
     public bool UsesPourer(string ingredientId)

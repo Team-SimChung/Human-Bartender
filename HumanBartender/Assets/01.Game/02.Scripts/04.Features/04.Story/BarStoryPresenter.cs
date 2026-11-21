@@ -14,7 +14,8 @@ using VContainer;
 /// 길거리처럼 좌석이 없는 화면이 신형 대본을 재생하게 되면 이 인터페이스의 다른 구현을 만들면 된다.
 /// 실행기는 그대로 쓴다.
 /// </summary>
-public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueVisibility, IStoryCharacterTransitions, IDialogueInputPrompt, IDialogueInputFeedback
+public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueVisibility, IStoryCharacterTransitions, IDialogueInputPrompt, IDialogueInputFeedback,
+    IStoryCuePresenter
 {
     public bool IsChoosing => choiceView != null && choiceView.IsOpen;
     public bool TryBeginChoiceHold(UnityEngine.InputSystem.Controls.ButtonControl control) =>
@@ -56,10 +57,35 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
     [Tooltip("화면에 적을 이름과 이름 색을 찾는다.")]
     [SerializeField] private NewCharacterDataSO characterData;
 
+    [Header("Story Cue")]
+    [Tooltip("대본 effect 행 arg=door(2일차 루나가 나가는 순간 등)에서 내는 문소리. ProjectLifeScope SoundManager에 등록된 SE 이름.")]
+    [SerializeField] private string doorSoundKey = "SFX_door_open_close";
+    [Tooltip("문소리 뒤 다음 대본으로 넘어가기까지 쉬는 시간(초). 웹 story-flow.js의 door 0.9초.")]
+    [SerializeField, Min(0f)] private float doorHoldSeconds = 0.9f;
+
+    /// <summary>대본 effect 행 arg에 적히는 문 연출 이름(웹 story_cue door).</summary>
+    public const string DoorCue = "door";
+
+    [Inject] ISoundEffectPlayer sound;
+
     /// <summary>표정을 따로 정하지 않은 등장에 쓰는 값.</summary>
     const string DefaultExpression = "default";
 
     public void HideDialogue() => textView?.ClearText();
+
+    /// <summary>
+    /// 웹 story-flow.js의 story_cue: 문소리를 내고 잠깐 쉰 뒤 다음 대본으로 넘어간다(엔진 수정 사항 38).
+    /// 소리 설정이 빠져 있어도 틈은 그대로 둔다 — 대본의 흐름(누가 나간 뒤 다음 말)은 유지해야 한다.
+    /// </summary>
+    public async UniTask<bool> PlayCueAsync(string kind, CancellationToken token)
+    {
+        if (kind != DoorCue) return false;
+        if (string.IsNullOrWhiteSpace(doorSoundKey)) Debug.LogWarning("[Story] 문소리 이름이 비어 있어 소리 없이 쉽니다.", this);
+        else if (sound == null) Debug.LogWarning("[Story] 효과음 재생기가 주입되지 않아 문소리를 내지 못했습니다.", this);
+        else sound.PlaySE(doorSoundKey);
+        if (doorHoldSeconds > 0f) await UniTask.Delay(TimeSpan.FromSeconds(doorHoldSeconds), cancellationToken: token);
+        return true;
+    }
     public void SetWaitingForInput(bool waiting) => textView?.SetWaitingForInput(waiting);
     public void PlayAdvanceFeedback() => textView?.PlayAdvanceFeedback();
 

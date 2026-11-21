@@ -102,6 +102,15 @@ public interface IStoryDialogueVisibility
     void HideDialogue();
 }
 
+/// <summary>
+/// 대본 effect 행 arg의 짧은 연출(웹 story_cue). 예: 2일차 루나가 나갈 때의 문소리와 잠깐의 틈.
+/// </summary>
+public interface IStoryCuePresenter
+{
+    /// <summary>연출을 재생하고 정해진 만큼 쉰다. 모르는 kind면 아무것도 하지 않고 false를 돌려준다.</summary>
+    UniTask<bool> PlayCueAsync(string kind, CancellationToken token);
+}
+
 /// <summary>인물 퇴장 연출이 끝난 뒤 다음 프레임으로 넘어갈 수 있는 화면.</summary>
 public interface IStoryCharacterTransitions
 {

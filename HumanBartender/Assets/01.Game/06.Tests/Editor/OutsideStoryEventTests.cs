@@ -285,4 +285,127 @@ public sealed class OutsideStoryEventTests
             Assert.That(steps, Is.EqualTo(content.GetSceneSteps("shiba-allowance")));
         });
     }
+
+    // ── 획득 알림(엔진 수정 사항 25)과 상점 응답(28). 웹 outside-neighborhood.js·outside-shop.js ──
+
+    static Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> Pick(string id) =>
+        (options, token) => UniTask.FromResult(options.First(option => option.Id == id));
+
+    static string[] SayTexts(IEnumerable<Step> steps) =>
+        steps.Where(step => step.Type == "say").Select(step => step.Text.Ko).ToArray();
+
+    [Test]
+    public void WildDogGrantAnnouncesTheIngredientOnlyWhenItIsActuallyGiven()
+    {
+        var player = ScriptableObject.CreateInstance<PlayerDataSO>();
+        try
+        {
+            var conditions = new ConditionUtil(GameStateManager.Instance, player, player).CreateExecutionScope();
+            conditions.ApplyRequired("flag.gang_wild_dog_paid = true");
+            var notified = new List<string>();
+            var run = new OutsideStoryExecution(conditions, PickFirst, null, notifyItem: notified.Add);
+            var commands = new NeighborhoodStoryEvents(null);
+            commands.ExecuteAsync(OutsideStoryCommand.GrantWildDog, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            commands.ExecuteAsync(OutsideStoryCommand.GrantWildDog, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(notified, Is.EqualTo(new[] { "wild_dog" }), "받는 순간 한 번만 알린다. 이미 가진 뒤 다시 지나가면 알리지 않는다.");
+        }
+        finally { UnityEngine.Object.DestroyImmediate(player); }
+    }
+
+    [Test]
+    public void BuyingBittersRepliesFromTheCsvChargesOnceAndAnnouncesTheIngredient()
+    {
+        WithShop(1, 1000, "flag.shiba_shop_met = true", (player, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var notified = new List<string>();
+            var run = new OutsideStoryExecution(conditions, Pick("bitters"), null, notifyItem: notified.Add);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopItems, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(steps.All(step => step.Type == "say"), Is.True, "구매 장면의 돈 효과·goto는 다시 실행하지 않는다.");
+            Assert.That(SayTexts(steps), Is.EqualTo(SayTexts(content.GetSceneSteps("shiba-purchase-bitters"))));
+            Assert.That(SayTexts(steps), Is.Not.Empty);
+            Assert.That(player.HasMoney(), Is.EqualTo(700));
+            Assert.That(notified, Is.EqualTo(new[] { "bitters" }));
+        });
+    }
+
+    [Test]
+    public void BuyingBittersWithTheWildDogContinuesIntoTheOldFashionedLesson()
+    {
+        WithShop(1, 1000, "flag.shiba_shop_met = true; flag.gang_wild_dog_received = true", (player, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var run = new OutsideStoryExecution(conditions, Pick("bitters"), null);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopItems, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            var reply = SayTexts(content.GetSceneSteps("shiba-purchase-bitters"));
+            Assert.That(SayTexts(steps.Take(reply.Length)), Is.EqualTo(reply), "구매 응답이 먼저 나온다.");
+            Assert.That(steps.Last().Command, Is.EqualTo(OutsideStoryCommand.ShopQuiz));
+            Assert.That(player.HasMoney(), Is.EqualTo(700));
+        });
+    }
+
+    [Test]
+    public void BuyingTunaRepliesWithTheWebLinesWithoutAnIngredientNotice()
+    {
+        WithShop(2, 100, "flag.shiba_shop_met = true; flag.shiba_bought_bitters = true", (player, conditions) =>
+        {
+            var notified = new List<string>();
+            var run = new OutsideStoryExecution(conditions, Pick("tuna_can"), null, notifyItem: notified.Add);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, new CsvStoryTestContent())
+                .ExecuteAsync(OutsideStoryCommand.ShopItems, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(SayTexts(steps), Is.EqualTo(new[] { ShopStoryEvents.TunaReplyLine, ShopStoryEvents.TunaThanksLine }));
+            Assert.That(steps.Select(step => step.Actor), Is.EqualTo(new[] { "shiba", "luna" }));
+            Assert.That(player.HasMoney(), Is.EqualTo(50));
+            Assert.That(notified, Is.Empty, "참치캔은 칵테일 재료가 아니라 획득 알림이 없다.");
+        });
+    }
+
+    [Test]
+    public void DecliningThePurchaseUsesTheAuthoredRefusal()
+    {
+        WithShop(1, 1000, "flag.shiba_shop_met = true", (player, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var run = new OutsideStoryExecution(conditions, Pick("cancel"), null);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopItems, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            var refusal = content.GetSceneSteps("shiba-stock").Single(step => step.Options?.Length > 0)
+                .Options.Single(option => option.Id == "shop-no").ResultSteps;
+            Assert.That(SayTexts(steps), Is.EqualTo(SayTexts(refusal)));
+            Assert.That(SayTexts(steps), Is.Not.Empty);
+            Assert.That(player.HasMoney(), Is.EqualTo(1000));
+        });
+    }
+
+    [Test]
+    public void CorrectQuizAnswerRepliesWithoutChargingAgain()
+    {
+        WithShop(1, 1000, "flag.shiba_bought_bitters = true; flag.gang_wild_dog_received = true", (player, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var run = new OutsideStoryExecution(conditions, Pick("correct"), null);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopQuiz, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            var answer = content.GetSceneSteps("shiba-quiz-bitters").Single(step => step.Options?.Length > 0)
+                .Options.Single(option => option.Id == "answer-bitters").ResultSteps;
+            Assert.That(steps.All(step => step.Type == "say"), Is.True);
+            Assert.That(SayTexts(steps), Is.EqualTo(SayTexts(answer)));
+            Assert.That(player.HasMoney(), Is.EqualTo(1000), "정답 대사 행의 돈 효과(money -= 300)는 다시 적용하지 않는다.");
+            Assert.That(player.CheckFlag("flag.shiba_old_fashioned_taught"), Is.True);
+        });
+    }
+
+    [Test]
+    public void ItemListOnAnEmptyShopEndsWithTheSoldOutLine()
+    {
+        WithShop(2, 1000, "flag.shiba_bought_bitters = true; flag.shiba_bought_tuna_can = true", (player, conditions) =>
+        {
+            var run = new OutsideStoryExecution(conditions, PickFirst, null);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, new CsvStoryTestContent())
+                .ExecuteAsync(OutsideStoryCommand.ShopItems, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            Assert.That(SayTexts(steps), Is.EqualTo(new[] { ShopStoryEvents.SoldOutLine }));
+        });
+    }
 }

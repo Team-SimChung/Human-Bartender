@@ -16,6 +16,8 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
     [SerializeField] private FirstCommuteArrival firstCommuteArrival;
     [Tooltip("새 게임 직후의 오프닝(플레이 안내·도입 컷신·조작 안내). Home 씬에만 연결한다.")]
     [SerializeField] private NewGameOpening newGameOpening;
+    [Tooltip("갱단 경비가 통행을 허락하기 전까지 갱단 구역을 막는 벽. OutSide 씬에만 연결한다. 비어 있으면 막지 않는다.")]
+    [SerializeField] private GangPassBoundary gangPassBoundary;
     [Inject] private IConditionUtil conditions;
     [Inject] private IObjectResolver resolver;
     [Inject] private ISceneTransitionService sceneTransitions;
@@ -72,6 +74,7 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
             var state = GameStateManager.Instance;
             var spawn = OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state);
             if (!player.TrySetPosition(spawn)) throw new InvalidOperationException("현재 씬의 플레이어 시작 위치가 없습니다: " + spawn);
+            if (gangPassBoundary != null) gangPassBoundary.Initialize(conditions, player.transform);
             IsReady = true;
             readiness.TrySetResult(true);
             if (spawn == EPlayerSpawn.FirstCommute && firstCommuteArrival != null)

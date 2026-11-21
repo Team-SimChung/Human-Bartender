@@ -51,6 +51,12 @@ public sealed class DayThreeContractTests
         public UniTask WaitAfterLineAsync(CancellationToken token) => UniTask.CompletedTask;
     }
 
+    // 웹 outside-events.js 계약: 밀수업자는 삼호 오른쪽(-9.34, npc-placements.json)에서 오른쪽으로 0.845 걸어 나가고,
+    // 루나는 max(삼호 + 1, 밀수업자 퇴장 끝 + 0.4)에 선다(엔진 미구현 리스트 · 강제 이벤트 컷씬).
+    private const float DealerExitDistance = .845f;
+    private static float ContractLunaX(Vector3 samhoStart, Vector3 dealerStart) =>
+        Mathf.Max(samhoStart.x + 1, dealerStart.x + DealerExitDistance + .4f);
+
     private static NewSceneData ReadStory() => StoryCsvCompiler.Compile(
         CsvDataReader.LoadDirectory(Path.Combine(Application.streamingAssetsPath, "csv"))
             .Read<NewStreetData>("script/street")).Scenes.Single(value => value.Id == Id);
@@ -200,8 +206,8 @@ public sealed class DayThreeContractTests
         try
         {
             await interaction.PrepareInteractionAsync(CancellationToken.None);
-            Assert.That(luna.position.x, Is.EqualTo(samhoStart.x + 1).Within(.0001f),
-                "The web prelude places Luna one unit to Samho's right before the NPC dialogue.");
+            Assert.That(luna.position.x, Is.EqualTo(ContractLunaX(samhoStart, dealerStart)).Within(.0001f),
+                "The web prelude places Luna right of the dealer's exit path (max(samho + 1, dealer exit end + 0.4)).");
             Assert.That(interaction.GetComponent<NpcSceneStaging>().HasCameraOverride, Is.True);
             dialogueResult = await runner.PlayOutsideAsync(story.Steps, CancellationToken.None, autoAdvance: true,
                 playWorldAction: async (command, token) =>
@@ -210,7 +216,7 @@ public sealed class DayThreeContractTests
                     float began = Time.time;
                     await interaction.PlayWorldActionAsync(command, token);
                     Assert.That(Time.time - began, Is.GreaterThanOrEqualTo(command == OutsideStoryWorldAction.NotionApproach ? .90f : 1.25f));
-                    Assert.That(dealer.transform.position.x, Is.EqualTo(dealerStart.x - .845f).Within(.0001f));
+                    Assert.That(dealer.transform.position.x, Is.EqualTo(dealerStart.x + DealerExitDistance).Within(.0001f));
                     Assert.That(dealer.IsVisible, Is.False);
                     Assert.That(samho.transform.position.y, Is.EqualTo(samhoStart.y));
                     Assert.That(samho.transform.position.z, Is.EqualTo(samhoStart.z));
@@ -304,7 +310,7 @@ public sealed class DayThreeContractTests
             yield return null;
         }
         Assert.That(sawFade, Is.True, "The real CSV must reach the dealer's moving fade before cancellation.");
-        Assert.That(dealer.transform.position.x, Is.LessThan(dealerStart.x - .65f));
+        Assert.That(dealer.transform.position.x, Is.GreaterThan(dealerStart.x + .65f));
         Assert.That(samho.transform.position, Is.EqualTo(samhoStart));
         Assert.That(sharedPlayer.CheckFlag("day3_contract_done"), Is.False);
         // Keep the automatic trigger quiet while checking cancellation's restored entry pose.
@@ -326,7 +332,7 @@ public sealed class DayThreeContractTests
         yield return Frames();
         context.Player.transform.position = near;
         bool dealerGone = false, approachSettled = false, samhoFaded = false;
-        float approachX = samhoStart.x + 1 - .75f;
+        float approachX = ContractLunaX(samhoStart, dealerStart) - .75f;
         deadline = Time.realtimeSinceStartup + 35;
         while ((!sharedPlayer.CheckFlag("day3_contract_done") || controller.IsRunning) && Time.realtimeSinceStartup < deadline)
         {
@@ -351,7 +357,7 @@ public sealed class DayThreeContractTests
         Assert.That(dealerGone && approachSettled && samhoFaded, Is.True, "The real scene must show both exits with Samho's intervening Luna conversation.");
         Assert.That(sharedPlayer.CheckFlag("day3_contract_done"), Is.True);
         Assert.That(samho.IsVisible || dealer.IsVisible, Is.False);
-        Assert.That(context.Player.transform.position.x, Is.EqualTo(samhoStart.x + 1).Within(.0001f));
+        Assert.That(context.Player.transform.position.x, Is.EqualTo(ContractLunaX(samhoStart, dealerStart)).Within(.0001f));
         Assert.That(context.Player.State, Is.EqualTo(EInteractorState.None));
         Assert.That(context.IsSafeForSave, Is.True);
         sharedPlayer.ReplaceProgress(sharedPlayer.HasMoney(), sharedPlayer.GetSkillValue(), sharedPlayer.ReadAffinity(), sharedPlayer.ReadFlags());

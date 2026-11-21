@@ -22,21 +22,33 @@ public sealed class OutsideStoryExecution
     private readonly Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> choose;
     private readonly Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction;
     private readonly Func<string, CancellationToken, UniTask> playNpcSequence;
+    private readonly Action<string> notifyItem;
 
     public OutsideStoryExecution(IConditionUtil conditions,
         Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> choose,
         Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction,
-        Func<string, CancellationToken, UniTask> playNpcSequence = null, bool supportsSceneContinuation = false)
+        Func<string, CancellationToken, UniTask> playNpcSequence = null, bool supportsSceneContinuation = false,
+        Action<string> notifyItem = null)
     {
         Conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
         this.choose = choose ?? throw new ArgumentNullException(nameof(choose));
         this.playWorldAction = playWorldAction;
         this.playNpcSequence = playNpcSequence;
         SupportsSceneContinuation = supportsSceneContinuation;
+        this.notifyItem = notifyItem;
     }
 
     public bool Flag(string key) => Conditions.CheckRequired("flag." + key);
     public void Effect(string effect) => Conditions.ApplyRequired(effect);
+
+    /// <summary>
+    /// 실제로 받은 재료·아이템의 획득 알림을 띄운다(웹 notifyItem). 지급 기록을 남긴 처리기가 같은 자리에서 부른다.
+    /// 알림 담당이 연결되지 않은 실행(편집기 테스트·시뮬레이터)에서는 아무것도 하지 않는다.
+    /// </summary>
+    public void NotifyItem(string itemId)
+    {
+        if (!string.IsNullOrWhiteSpace(itemId)) notifyItem?.Invoke(itemId.Trim());
+    }
     public void RequestTravel(GameProgressionDestination destination)
     {
         if (Destination.HasValue && Destination != destination) throw new InvalidOperationException("대화의 이동 요청이 중복되었습니다.");

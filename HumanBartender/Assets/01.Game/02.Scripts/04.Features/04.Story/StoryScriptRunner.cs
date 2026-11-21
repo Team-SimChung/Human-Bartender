@@ -392,7 +392,8 @@ public partial class StoryScriptRunner : MonoBehaviour
                 return;
 
             case ENewStepType.Effect:
-                // effects만 적용하는 스텝. 적용은 부르는 쪽이 이미 한다.
+                // effects 적용은 부르는 쪽이 한다. arg가 있으면 웹 story_cue처럼 짧은 연출(문소리 등)을 먼저 낸다.
+                await PlayCueAsync(step, token);
                 return;
 
             case ENewStepType.Order:
@@ -508,6 +509,17 @@ public partial class StoryScriptRunner : MonoBehaviour
                choices != null && choices.Length > 0;
     }
 
+    /// <summary>
+    /// effect 행 arg의 짧은 연출(웹 story_cue). 2일차 루나가 나가는 행(arg=door)은 문소리와 0.9초 틈을 둔 뒤
+    /// 효과(day2_luna_left)를 적용한다. 화면이 모르는 연출이면 경고만 남기고 넘어간다.
+    /// </summary>
+    async UniTask PlayCueAsync(NewDialogueStepData step, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(step.Arg)) return;
+        if (presenter is IStoryCuePresenter cues && await cues.PlayCueAsync(step.Arg.Trim(), token)) return;
+        Debug.LogWarning($"[Story] 재생하지 못한 대본 연출입니다: {step.Arg} ({step.DialogueId ?? $"seq {step.Seq}"})");
+    }
+
     // ── 대사 ────────────────────────────────────────────────────────────
 
     /// <summary>대사 하나를 띄우고 플레이어가 넘길 때까지 기다린다. 그리는 일은 화면이 한다.</summary>
@@ -520,6 +532,10 @@ public partial class StoryScriptRunner : MonoBehaviour
         {
             throw new InvalidOperationException($"[Story] 본문이 없는 say입니다: {step.DialogueId ?? $"seq {step.Seq}"}");
         }
+
+        // 웹 story-notices.js: 이름을 밝히는 대사가 시작되는 순간 '새로운 인물' 알림을 낸다(입장 때가 아니라).
+        if (CampaignStoryRules.TryGetIntroduction(step.Actor, step.DialogueId, out string introduction))
+            conditions.ApplyRequired(introduction);
 
         await PresentLineAsync(
             new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId, step.DisplayName), token);

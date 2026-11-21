@@ -343,7 +343,7 @@ public sealed class RemainingNpcMigrationTests
         interaction.BeginInteraction();
         yield return CompleteAction(interaction.PlayWorldActionAsync(OutsideStoryWorldAction.NotionDealerExit, CancellationToken.None));
         Assert.That(dealer.IsVisible, Is.False);
-        Assert.That(dealer.transform.position.x, Is.EqualTo(dealerHome.x - .845f).Within(.0001f));
+        Assert.That(dealer.transform.position.x, Is.EqualTo(dealerHome.x + .845f).Within(.0001f));
         yield return CompleteAction(interaction.PlayWorldActionAsync(OutsideStoryWorldAction.NotionApproach, CancellationToken.None));
         Assert.That(dealer.IsVisible, Is.False, "The departing dealer must not reappear when Samho approaches Luna.");
         Assert.That(samho.transform.position.x, Is.EqualTo(luna.position.x - .75f).Within(.0001f));

@@ -52,6 +52,13 @@ public static class OutsideStorySceneRules
         return true;
     }
 
+    /// <summary>
+    /// 갱단 경비가 아래층 거리 왼쪽(갱단 구역)을 막고 있는지(웹 outside-neighborhood.js clampBoundary·guardBlocked).
+    /// 0일차 퇴근길부터 막고, 경비에게 "술을 찾고 있어요."로 통행 허가를 받으면 연다. 경비 대화와 이동 벽이 같은 조건을 쓴다.
+    /// </summary>
+    public static bool IsGangPassBlocked(int day, EGameFlow flow, IConditionUtil conditions) =>
+        (day > 0 || flow == EGameFlow.CommuteOut) && !conditions.CheckRequired("flag.gang_pass_granted");
+
     public static bool IsAvailable(string id, int day, EGameFlow flow, IConditionUtil conditions)
     {
         bool Flag(string key) => conditions.CheckRequired("flag." + key);
@@ -60,7 +67,7 @@ public static class OutsideStorySceneRules
         {
             case "neighborhood-reveal": return After(2) && !Flag("boobi_adopted");
             case "neighborhood-repairGreeting": return IsRepairmanPresent(day, conditions);
-            case "neighborhood-guardBlocked": return (day > 0 || flow == EGameFlow.CommuteOut) && !Flag("gang_pass_granted");
+            case "neighborhood-guardBlocked": return IsGangPassBlocked(day, flow, conditions);
             case "neighborhood-bossIntro": return After(2) && Flag("gang_pass_granted");
             case "neighborhood-homeCat": return Flag("boobi_adopted");
             default: return true;

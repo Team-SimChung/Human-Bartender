@@ -101,10 +101,25 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
         popups.Popup(delta > 0 ? PopupType.AffinityIncreased : PopupType.AffinityDecreased, name).Forget(Debug.LogException);
     }
 
+    const string MetSuffix = "_met";
+    const string IntroductionSuffix = "_introduction_notified";
+
     void OnFlag(string key, bool value)
     {
-        if (!value || !key.EndsWith("_met", StringComparison.Ordinal)) return;
-        string id = key.Substring(0, key.Length - 4);
+        if (!value) return;
+        string id;
+        if (key.EndsWith(MetSuffix, StringComparison.Ordinal))
+        {
+            id = key.Substring(0, key.Length - MetSuffix.Length);
+            // 이름 대사에서 알리는 인물(톰)은 입장 때 만남만 기록하고 알림은 미룬다(엔진 수정 사항 14, 웹 story-notices.js).
+            if (CampaignStoryRules.HasDelayedIntroduction(id)) return;
+        }
+        else if (key.EndsWith(IntroductionSuffix, StringComparison.Ordinal))
+        {
+            id = key.Substring(0, key.Length - IntroductionSuffix.Length);
+            if (!CampaignStoryRules.HasDelayedIntroduction(id)) return;
+        }
+        else return;
         if (id == "chris") return;
         foreach (var character in NewDataLoadManager.StoryCharacters ?? Array.Empty<NewCharacterData>())
             if (character.Id == id) { popups.Popup(PopupType.CharacterRegistered, id).Forget(Debug.LogException); break; }

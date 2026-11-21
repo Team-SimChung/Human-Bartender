@@ -80,7 +80,7 @@ public class DialogueRunner : MonoBehaviour
         var run = new Execution { Presenter=presenter, Conditions=conditionUtil.CreateExecutionScope(), Cancellation=source,
             PlayTimeline=playTimeline, AutoAdvance=autoAdvance, StepStarted=onStepStarted };
         run.Events = new OutsideStoryExecution(run.Conditions, (options, ct) => ChooseAsync(options, run), playWorldAction,
-            playNpcSequence, continueTravel);
+            playNpcSequence, continueTravel, NotifyItem);
         active = run;
         using var dialogueAudio = GameAudioContext.Dialogue(run.Presenter.GetPlayMode() == EActivationMode.Proximity);
         var result = new StoryExecutionResult(StoryExecutionStatus.Completed);
@@ -230,12 +230,19 @@ public class DialogueRunner : MonoBehaviour
     void NotifyGrantedItem(Step step)
     {
         if (!string.Equals(step.Type, "effect", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(step.Arg)) return;
+        NotifyItem(step.Arg);
+    }
+
+    /// <summary>재료·아이템 획득 알림. 대본 지급 행과 사건 처리기(갱 두목의 와일드 독, 시바견 상점 구매)가 함께 쓴다.</summary>
+    void NotifyItem(string itemId)
+    {
+        if (string.IsNullOrWhiteSpace(itemId)) return;
         if (popupService == null)
         {
-            Debug.LogWarning("[Dialogue] 팝업 서비스가 없어 아이템 획득 알림을 띄우지 못했습니다: " + step.Arg);
+            Debug.LogWarning("[Dialogue] 팝업 서비스가 없어 아이템 획득 알림을 띄우지 못했습니다: " + itemId);
             return;
         }
-        popupService.Popup(PopupType.IngredientAcquired, step.Arg.Trim()).Forget(Debug.LogException);
+        popupService.Popup(PopupType.IngredientAcquired, itemId.Trim()).Forget(Debug.LogException);
     }
 
     private async UniTask<bool> PlayChoiceAsync(Step step, Execution run, int depth)
