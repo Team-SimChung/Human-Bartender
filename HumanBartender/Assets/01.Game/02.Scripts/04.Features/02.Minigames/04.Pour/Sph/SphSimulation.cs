@@ -93,14 +93,40 @@ public class SphSimulation
         {
             // 공중의 겹침 정리를 발사 속도로 바꾸지 않는다. 중력/방출 속도는 계속 유지한다.
             // 잔 안에서는 보정된 이동량을 속도에 반영해 압력에 따른 옆 흐름을 유지한다.
-            if (p.insideContainer) p.UpdateVelocityFromPosition(dt);
+            // 아직 고인 액체에 합류하지 않은 입자는 수면에 부딪혀 밀려난 거리를 위로 튀는 속도로 바꾸지 않는다.
+            if (!p.insideContainer) continue;
+            if (p.volumeReceived) p.UpdateVelocityFromPosition(dt);
+            else p.UpdateVelocityWithoutRebound(dt);
         }
         ApplyFluidViscosity(dt);
+        LimitPooledSpeed();
         foreach (var p in activeParticles)
         {
             constrainParticle?.Invoke(p);
             p.CaptureRenderImpact(dt);
             if (SynchronizeTransforms) p.transform.position = p.pos;
+        }
+    }
+
+    /// <summary>
+    /// 굵은 물줄기가 고인 액체에 꽂히면 밀도 보정이 밀어낸 거리가 그대로 속도가 되어(UpdateVelocityFromPosition)
+    /// 액체가 옆으로 밀려나고 줄기 아래에 V자 구덩이가 파인다. 고인 액체의 속도를 제한해 충격을 흡수한다.
+    /// 고인 액체는 수량으로 인정된 입자와 그 입자에 닿은 입자다. 밀도로 고르면 벽에 붙어 떨어지는 3줄 줄기도
+    /// 기준 밀도의 약 92%라 걸리기 쉽다. 걸리면 입구 바로 아래에서 줄기가 멈춰 막히고, 뒤 입자가 쌓여 갈라진다.
+    /// 마지막 밀도 계산의 이웃 목록을 재사용하고, 아직 합류하지 않은 입자의 이웃만 확인하므로 비용이 거의 없다.
+    /// </summary>
+    void LimitPooledSpeed()
+    {
+        float limit = config.poolSpeedLimit;
+        if (limit <= 0f) return;
+        float limitSquared = limit * limit;
+        foreach (var p in activeParticles)
+        {
+            if (!p.insideContainer || p.velocity.sqrMagnitude <= limitSquared) continue;
+            bool pooled = p.volumeReceived;
+            for (int i = 0; !pooled && i < p.neighbours.Count; i++)
+                pooled = p.neighbours[i].particle.volumeReceived;
+            if (pooled) p.velocity = p.velocity.normalized * limit;
         }
     }
 
@@ -180,8 +206,13 @@ public class SphSimulation
 
         for (int iteration = 0; iteration < iterations; iteration++)
         {
-            AssignToGrid();
-            CalculateDensity();
+            // 이웃은 스텝의 첫 보정에서만 격자로 찾는다. 이후 보정은 그 쌍의 거리만 다시 잰다.
+            if (iteration == 0)
+            {
+                AssignToGrid();
+                CalculateDensity();
+            }
+            else RefreshDensity();
             float maxError = 0f;
             foreach (var p in activeParticles)
             {
@@ -312,12 +343,14 @@ public class SphSimulation
         float radiusSquared = r * r;
         int searchRadius = Mathf.Max(1, Mathf.CeilToInt(r / cellSize));
 
+        // 이웃 쌍마다 도는 가장 뜨거운 루프다. Mono는 작은 함수도 잘 인라인하지 않으므로 커널 계산을
+        // RefreshDensity와 같은 식으로 직접 적고, 밀도 합은 지역 변수에 모아 입자당 한 번만 쓴다.
         foreach (var p in activeParticles)
         {
-            p.density = 2f;
-            p.densityNear = 2f;
-            p.neighbourWeight = 0f;
-            p.neighbours.Clear();
+            float density = 2f, densityNear = 2f, neighbourWeight = 0f;
+            float px = p.pos.x, py = p.pos.y;
+            var neighbours = p.neighbours;
+            neighbours.Clear();
             int minX = Mathf.Max(0, p.gridX - searchRadius);
             int maxX = Mathf.Min(gridSizeX - 1, p.gridX + searchRadius);
             int minY = Mathf.Max(0, p.gridY - searchRadius);
@@ -329,24 +362,73 @@ public class SphSimulation
                 {
                     var cell = grid[row + gx];
                     if (cell == null) continue;
-                    foreach (var n in cell)
+                    for (int c = 0; c < cell.Count; c++)
                     {
+                        var n = cell[c];
                         if (ReferenceEquals(n, p)) continue;
-                        float dx = p.pos.x - n.pos.x;
-                        float dy = p.pos.y - n.pos.y;
+                        float dx = px - n.pos.x;
+                        float dy = py - n.pos.y;
                         float distanceSquared = dx * dx + dy * dy;
                         if (distanceSquared >= radiusSquared) continue;
                         float dist = Mathf.Sqrt(distanceSquared);
-
                         float normalDistance = 1f - dist / r;
-                        p.density += 2f * normalDistance * normalDistance;
-                        p.densityNear += 2f * normalDistance * normalDistance * normalDistance;
-                        p.neighbourWeight += normalDistance;
-
-                        p.neighbours.Add(new SphNeighbour(n, normalDistance, SeparationDirection(p, n, dist)));
+                        float weightSquared = normalDistance * normalDistance;
+                        density += 2f * weightSquared;
+                        densityNear += 2f * weightSquared * normalDistance;
+                        neighbourWeight += normalDistance;
+                        Vector2 direction = dist > 0.000001f ? new Vector2(dx / dist, dy / dist) : SeparationDirection(p, n, dist);
+                        neighbours.Add(new SphNeighbour(n, normalDistance, direction));
                     }
                 }
             }
+            p.density = density;
+            p.densityNear = densityNear;
+            p.neighbourWeight = neighbourWeight;
+        }
+    }
+
+    /// <summary>
+    /// 같은 물리 스텝의 두 번째 밀도 보정부터는 첫 탐색에서 찾은 이웃 쌍만 다시 잰다.
+    /// 보정 한 번은 입자를 spacing×0.2 이하로만 옮기므로, 그사이 반경 안으로 새로 들어오는 이웃은
+    /// 커널 끝(가중치 ≈ 0)뿐이다. 격자 재구성과 주변 셀 전체 비교를 반복마다 하지 않아도 결과가 거의 같다.
+    /// 커널 식은 CalculateDensity와 같다(인라인 이유도 같다).
+    /// </summary>
+    void RefreshDensity()
+    {
+        float r = config.NeighborRadius;
+        float radiusSquared = r * r;
+
+        foreach (var p in activeParticles)
+        {
+            float density = 2f, densityNear = 2f, neighbourWeight = 0f;
+            float px = p.pos.x, py = p.pos.y;
+            var neighbours = p.neighbours;
+            for (int i = neighbours.Count - 1; i >= 0; i--)
+            {
+                SphParticle n = neighbours[i].particle;
+                float dx = px - n.pos.x;
+                float dy = py - n.pos.y;
+                float distanceSquared = dx * dx + dy * dy;
+                if (distanceSquared >= radiusSquared)
+                {
+                    // 반경 밖으로 나간 쌍은 끝 항목과 바꿔 지운다. 뒤에서부터 도므로 옮겨 온 항목은 이미 계산했다.
+                    int last = neighbours.Count - 1;
+                    neighbours[i] = neighbours[last];
+                    neighbours.RemoveAt(last);
+                    continue;
+                }
+                float dist = Mathf.Sqrt(distanceSquared);
+                float normalDistance = 1f - dist / r;
+                float weightSquared = normalDistance * normalDistance;
+                density += 2f * weightSquared;
+                densityNear += 2f * weightSquared * normalDistance;
+                neighbourWeight += normalDistance;
+                Vector2 direction = dist > 0.000001f ? new Vector2(dx / dist, dy / dist) : SeparationDirection(p, n, dist);
+                neighbours[i] = new SphNeighbour(n, normalDistance, direction);
+            }
+            p.density = density;
+            p.densityNear = densityNear;
+            p.neighbourWeight = neighbourWeight;
         }
     }
 

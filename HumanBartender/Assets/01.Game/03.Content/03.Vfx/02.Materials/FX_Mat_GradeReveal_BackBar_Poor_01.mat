@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: FX_Mat_GradeReveal_BackBar_Poor_01
+  m_Shader: {fileID: 4800000, guid: f1edf2c613e4420e9fddb775180336b5, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _BlendAlpha: 0
+    - _CoreBoost: 0.84
+    - _CorePoint: 0.8
+    - _CoreWidth: 0.171
+    - _EndFade: 1
+    - _Falloff: 1.22
+    - _Intensity: 0.36
+    - _Shape: 1
+    m_Colors:
+    - _Color: {r: 1, g: 0.5859646, b: 0.3582452, a: 1}
+    - _CoreColor: {r: 1, g: 0.8153304, b: 0.7137622, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

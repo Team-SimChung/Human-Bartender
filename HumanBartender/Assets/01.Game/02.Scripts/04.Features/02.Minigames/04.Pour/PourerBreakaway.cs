@@ -21,8 +21,9 @@ public sealed class PourerBreakaway : MonoBehaviour
     [Header("Breakaway / Flow")]
     [Tooltip("병을 잡은 상태에서 이 각도 이상 기울이면 푸어러가 분리된다. 병의 최대 기울기보다 낮게 설정한다.")]
     [SerializeField, Range(0f, 180f)] float detachAngle = 160f;
-    [Tooltip("분리 후 실제 입자 방출량 배율. 웹빌드의 푸어러 유량 42 → 분리 후 95에 해당한다.")]
-    [SerializeField, Min(1f)] float detachedFlowMultiplier = 95f / 42f;
+    [Tooltip("분리 후 실제 입자 방출량 배율. 웹빌드의 비율(푸어러 유량 42 → 분리 후 95)의 2배다 — 푸어러 없이 병째 " +
+             "쏟을 때 너무 느리다는 플레이테스트 피드백(2026-11-20)으로 올렸다. 분사 속도가 상한을 넘으면 PourManager가 줄기를 굵게 해서 낸다.")]
+    [SerializeField, Min(1f)] float detachedFlowMultiplier = 2f * 95f / 42f;
 
     [Header("Attached Stream")]
     [Tooltip("푸어러가 붙어 있을 때 유입 물줄기 입자의 가로 두께. 잔 안에서 낙하 중인 입자에도 적용한다. 0.2이면 기존 두께의 20%이며 출수량과 물리는 실제 설정을 사용한다.")]

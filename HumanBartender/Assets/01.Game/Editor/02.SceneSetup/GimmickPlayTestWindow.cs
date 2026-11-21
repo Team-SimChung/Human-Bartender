@@ -102,6 +102,7 @@ internal sealed class GimmickPlayTestWindow : EditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.HelpBox("Game 창에 포커스를 두고 조작하세요. 마치기는 실제 기믹의 마치기 버튼을 사용합니다. " +
             "필업은 실제 게임과 같이 따르기 프리팹을 재사용합니다. 칵테일 한 잔은 정답 구성을 자동 준비하고 실제 제조 순서대로 진행합니다. " +
+            "마지막 기믹이 끝나면 Game 창에서 완성 컷과 제조 등급을 표시합니다. " +
             "스크립트를 다시 컴파일하면 테스트를 종료합니다.", MessageType.Info);
         EditorGUILayout.EndScrollView();
     }

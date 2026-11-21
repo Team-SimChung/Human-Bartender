@@ -42,6 +42,8 @@ public class SphLiquidRenderer : MonoBehaviour
     Vector3 previousContainerPosition;
     float effectTime;
     float airborneWidthScale = 1f;
+    float streamStretchScale = 1f;
+    float streamMinCrossRadius;
 
     static readonly int ParticlesId = Shader.PropertyToID("_Particles");
     static readonly int FieldId = Shader.PropertyToID("_FieldTex");
@@ -64,6 +66,8 @@ public class SphLiquidRenderer : MonoBehaviour
     void OnDisable()
     {
         airborneWidthScale = 1f;
+        streamStretchScale = 1f;
+        streamMinCrossRadius = 0f;
         RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
         if (compositeRenderer != null) compositeRenderer.enabled = false;
         ReleaseTargets();
@@ -144,6 +148,19 @@ public class SphLiquidRenderer : MonoBehaviour
 
     /// <summary>잔에 담기기 전 유입 입자의 가로 렌더 두께를 조절한다. 잔 안에서 낙하 중인 입자에도 적용한다.</summary>
     public void SetAirborneWidthScale(float scale) => airborneWidthScale = Mathf.Clamp(scale, 0.1f, 1f);
+
+    /// <summary>
+    /// 흐르는 입자를 속도 방향으로 늘리는 정도(프로파일 stretchPerSpeed에 곱한다). 늘림은 느리게 나와 가속되며
+    /// 사이가 벌어지는 줄기를 잇기 위한 것이라, 처음부터 빠르고 촘촘하게 나오는 줄기에서는 줄여야
+    /// 입구 뒤로 꼬리가 뻗어 입구에서 터지듯 보이지 않는다.
+    /// </summary>
+    public void SetStreamStretchScale(float scale) => streamStretchScale = Mathf.Clamp(scale, 0.1f, 1f);
+
+    /// <summary>
+    /// 담기기 전 흐르는 입자의 최소 가로 반지름(월드). 속도에 따라 가늘게 그려도 이보다 가늘어지지 않아,
+    /// 나란히 나가는 입자들이 여러 가닥으로 갈라지지 않고 하나의 줄기로 이어진다. 0이면 하한이 없다.
+    /// </summary>
+    public void SetStreamMinCrossRadius(float worldRadius) => streamMinCrossRadius = Mathf.Max(0f, worldRadius);
 
     public void UpdateBlobs(IReadOnlyList<SphParticle> particles)
     {
@@ -263,8 +280,8 @@ public class SphLiquidRenderer : MonoBehaviour
 
         splatMaterial.SetMatrix("_WorldToScreen", worldToScreen);
         splatMaterial.SetVector("_BlobShape", new Vector4(profile.physics.spacing * profile.blobRadiusScale,
-            profile.stretchPerSpeed, profile.maxStretch, profile.streamThinning));
-        splatMaterial.SetVector("_ImpactShape", new Vector4(appearance.cloudSpread, profile.airborneWidth, airborneWidthScale, 0f));
+            profile.stretchPerSpeed * streamStretchScale, profile.maxStretch, profile.streamThinning));
+        splatMaterial.SetVector("_ImpactShape", new Vector4(appearance.cloudSpread, profile.airborneWidth, airborneWidthScale, streamMinCrossRadius));
         commands.SetRenderTarget(fieldTexture);
         commands.ClearRenderTarget(false, true, Color.clear);
         if (particleCount > 0 && particleBuffer != null)

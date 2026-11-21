@@ -14,6 +14,11 @@ public enum EPlayerSpawn
 /// <summary>Unity 동네 사건의 진입 조건과 대본 선택. 위치와 대상의 수명은 씬 오브젝트가 소유한다.</summary>
 public static class OutsideStorySceneRules
 {
+    internal static EPlayerSpawn ResolveSpawn(string sceneName, GameStateManager state) =>
+        sceneName == "OutSide" && state.ArrivingAtOutsideHomeDoor
+            ? EPlayerSpawn.Home
+            : ResolveSpawn(sceneName, state.CurrentDay, state.GameFlow);
+
     /// <summary>
     /// 씬·일차·출퇴근 흐름으로 시작 자리를 고른다. 첫 출근은 아직 집과 바의 길을 모르는 날이라
     /// 엘리베이터를 거치지 않고 바 앞에서 시작한다. 그 밖의 출근은 집 문 앞, 퇴근은 바 문 앞이다.

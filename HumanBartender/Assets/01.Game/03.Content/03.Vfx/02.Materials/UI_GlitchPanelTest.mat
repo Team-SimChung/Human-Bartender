@@ -8,21 +8,18 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: UI_GlitchPanelTest
-  m_Shader: {fileID: -6465566751694194690, guid: 8dab1bce28343c8409e1595099642bea, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 5804ba85118efee46bf831d01d7b1e65, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _SURFACE_TYPE_TRANSPARENT
+  m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
-  - DepthOnly
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -44,10 +41,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTexture:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -73,13 +66,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
-    - _Blend: 0
-    - _CastShadows: 1
-    - _Cull: 2
-    - _DstBlend: 10
-    - _DstBlendAlpha: 10
     - _EnableExternalAlpha: 0
     - _GlitchAmount: 0.017
     - _GlitchCutAmountX: 0
@@ -94,14 +80,9 @@ Material:
     - _GlitchSpeed: 5
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _SrcBlend: 5
-    - _SrcBlendAlpha: 1
-    - _Surface: 1
     - _UseIntermittentGlitch: 1
     - _UseRGBGlitch: 1
-    - _ZTest: 4
     - _ZWrite: 0
-    - _ZWriteControl: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _GlitchColor1: {r: 1, g: 1, b: 1, a: 1}

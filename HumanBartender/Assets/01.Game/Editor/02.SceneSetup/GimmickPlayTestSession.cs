@@ -21,6 +21,7 @@ internal static class GimmickPlayTestSession
     private static CancellationTokenSource lifetime, operation;
     private static PlayerDataSO player;
     private static GimmickRunner runner;
+    private static ServeScreen serveScreen;
     private static readonly List<CraftSession> quickSessions = new();
     internal static bool IsActive => SessionState.GetBool(Prefix + "Active", false);
     internal static bool IsReady { get; private set; }
@@ -157,6 +158,10 @@ internal static class GimmickPlayTestSession
         if (!loaded.Succeeded) throw new InvalidOperationException("[GimmickPlayTest] Play 진입 실패: " + loaded.Message);
         await WaitAsync(() => (runner = Object.FindObjectsByType<GimmickRunner>(FindObjectsSortMode.None)
             .SingleOrDefault(value => value.gameObject.scene.name == "Play")) != null, "기믹 실행기", token);
+        serveScreen = runner.gameObject.scene.GetRootGameObjects()
+            .SelectMany(root => root.GetComponentsInChildren<ServeScreen>(true)).SingleOrDefault();
+        if (serveScreen == null)
+            throw new InvalidOperationException("[GimmickPlayTest] Play 씬에 제조 완료 화면이 없습니다.");
         if (!SessionState.GetBool(Prefix + "BarBlocked", false))
             throw new InvalidOperationException("[GimmickPlayTest] 영업 시작을 차단하지 못했습니다.");
         await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, token);
@@ -169,6 +174,7 @@ internal static class GimmickPlayTestSession
         if (!IsActive || !Application.isPlaying || !IsReady || runner == null || lifetime == null)
             throw new InvalidOperationException("[GimmickPlayTest] 테스트 시작 버튼으로 실행 환경을 준비하세요.");
         if (IsBusy) throw new InvalidOperationException("[GimmickPlayTest] 현재 기믹을 마치거나 중단한 뒤 다시 실행하세요.");
+        serveScreen.Reset();
         if (key == GimmickPlayTestCatalog.QuickTestKey)
         {
             await PlayQuickTestAsync();
@@ -194,8 +200,14 @@ internal static class GimmickPlayTestSession
             await ExecutePlanAsync(runner, session, recipe.Cocktail, steps, (index, step) =>
                 Status = (wholeCocktail ? recipe.Label + " · " + (index + 1) + "/" + steps.Length + " " : "") +
                     GimmickPlayTestCatalog.Name(step.Type) + " 플레이 중 — Game 창에서 조작하세요.", source.Token);
-            if (wholeCocktail) LastJudgement = Judge(session, recipe.Cocktail);
-            Status = wholeCocktail ? recipe.Label + " 제조를 완료했습니다. 단계별 결과와 제조 판정을 확인하세요."
+            if (wholeCocktail)
+            {
+                LastJudgement = Judge(session, recipe.Cocktail);
+                var drink = new CraftedDrink(session, LastJudgement, recipe.Cocktail);
+                if (!serveScreen.TryPlayPreview(drink))
+                    throw new InvalidOperationException("[GimmickPlayTest] 제조 완료 화면을 열 수 없습니다.");
+            }
+            Status = wholeCocktail ? recipe.Label + " 제조를 완료했습니다. Game 창에서 완성 컷과 등급을 확인하세요."
                 : "완료했습니다. 다시 플레이하거나 다른 기믹을 선택할 수 있습니다.";
         }
         catch (OperationCanceledException) { session.Cancel(); Status = "기믹을 중단했습니다."; }
@@ -325,6 +337,7 @@ internal static class GimmickPlayTestSession
         if (player != null) Object.DestroyImmediate(player);
         player = null;
         runner = null;
+        serveScreen = null;
         operation = null;
         IsReady = IsBusy = false;
         var previous = SessionState.GetString(Prefix + "StartScene", "");

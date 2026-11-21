@@ -70,7 +70,7 @@ public sealed class WorldInteractionSceneContext : MonoBehaviour
             }
             RefreshContents();
             var state = GameStateManager.Instance;
-            var spawn = OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state.CurrentDay, state.GameFlow);
+            var spawn = OutsideStorySceneRules.ResolveSpawn(gameObject.scene.name, state);
             if (!player.TrySetPosition(spawn)) throw new InvalidOperationException("현재 씬의 플레이어 시작 위치가 없습니다: " + spawn);
             IsReady = true;
             readiness.TrySetResult(true);

@@ -87,6 +87,12 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [Tooltip("최대 유량에서 액체가 입구를 떠나는 속도. 올리면 멀리 뻗어 나가고, 낮추면 입구에서 " +
              "바로 떨어진다. 방출 간격이 이 속도에서 유도되므로 줄기 굵기는 그대로다.")]
     [SerializeField] private float exitSpeed = 1.6f;
+    [Tooltip("액체가 입구를 떠나는 최대 속도. 유량 배율(재료 표, 푸어러 분리)이 커서 이 속도를 넘게 되면 " +
+             "속도 대신 줄 수를 늘려(물줄기를 굵게) 같은 유량을 낸다.\n" +
+             "프로파일 물성의 속도 상한(Max Velocity와 spacing × Max Travel Per Step × 120 중 작은 값, Liquid_Light 기준 6.5)보다 " +
+             "낮게 둔다. 넘으면 입자가 출구에서 겹쳐 줄기가 갈라진다.\n" +
+             "5이면 맥주·와인·분리된 푸어러가 3줄, 소다가 2줄로 나와 줄기가 가늘고 빠르게 떨어진다.")]
+    [SerializeField, Min(0.5f)] private float maxExitSpeed = 5f;
 
     [Header("Glass")]
     [Tooltip("잔 내부 중앙의 Transform. 스프라이트 중심과 내부 중심이 다르면 잔 아래의 자식 Transform을 연결한다.")]
@@ -149,8 +155,25 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private GradientRatioController gageBar;
 
     [Header("Pour Settings")]
-    [Tooltip("실제 재료 ID가 beer일 때의 출수량 배율. 같은 비율로 분사 속도를 높여 입자 간격을 유지한다.")]
-    [SerializeField, Min(1f)] private float beerFlowMultiplier = 1.5f;
+    [Tooltip("푸어러 없이 병째 따르는 재료의 출수량 배율. 표에 없는 재료는 배율 1이다.\n" +
+             "물줄기 굵기와 분사 속도는 따로 정하지 않는다 — 분사 속도가 Max Exit Speed를 넘지 않도록 줄 수를 늘리고, " +
+             "줄 간격이 기본 술(기본 병목·기본 잔)과 같아지도록 속도를 계산한다. 배율을 크게 올리면 줄기가 그만큼 굵어진다.\n" +
+             "최대 기울기에서 레시피 양을 약 3초에 채우도록 맞춘 값이다(맥주 360ml, 와인 240ml, 오렌지주스 180ml).")]
+    [SerializeField] private PourFlowOverride[] flowOverrides =
+    {
+        new PourFlowOverride("beer", 7f),
+        new PourFlowOverride("red_wine", 4.6f),
+        new PourFlowOverride("champagne", 4.6f),
+        new PourFlowOverride("orange_juice", 3.4f),
+        new PourFlowOverride("soda_water", 3f),
+        new PourFlowOverride("cola", 3f),
+        new PourFlowOverride("cranberry_juice", 3f),
+        new PourFlowOverride("milk", 2f),
+    };
+    [Tooltip("공중 물줄기에서 나란히 나가는 입자 하나를 그리는 최소 가로 반지름(줄 간격 배수, 렌더 전용).\n" +
+             "빠르게 떨어질수록 입자를 가늘게 그리는데, 반지름이 줄 간격보다 작아지면 하나의 줄기가 여러 가닥으로 갈라져 보인다. " +
+             "1.1이면 최고 속도(6.5)에서도 한 줄기로 이어진다. 올리면 빠른 줄기가 굵어진다.")]
+    [SerializeField, Range(0f, 2f)] private float streamMinRadiusPerLane = 1.1f;
     [Tooltip("실제 기믹에서 입자를 내보내는 유량 배율. 도착한 입자의 용량에는 다시 곱하지 않는다.")]
     [SerializeField, Range(0.01f, 1f)] private float quantityAccumulateMultiplier = 0.25f;
     [Tooltip("따르기 마치기 후 공중의 액체가 잔에 도착하도록 기다릴 최대 시간. 이 시간은 제조시간에 포함하지 않는다.")]
@@ -247,9 +270,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         liquidRenderer.SetContainer(glassCenter, glassInteriorHalfExtents);
         liquidRenderer.Init(liquidProfile, liquidColor, appearance);
 
-        // 통로 폭은 파티클 간격이 정한다. 병 모양보다 먼저 잡아야 실루엣이 같은 폭으로 그려진다.
-        float scaleX = Mathf.Max(Mathf.Abs(bottle.BottleVisual.lossyScale.x), 0.0001f);
-        neckHalfWidth = Spacing * neckWidthInParticles * 0.5f / scaleX;
+        ConfigureNeck();
 
         bool hasBottleSprite = ApplyIngredientBottle();
         if (!hasBottleSprite && bottleSilhouette != null)
@@ -261,7 +282,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         bottle.ConfigurePourGeometry(new Vector3(0f, bottleInteriorHalfExtents.y, 0f), cupRimPosition);
         pourer?.BeginPour(useTestBottleId ? testBottleId : pourIngredientId,
             new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
-        liquidRenderer.SetAirborneWidthScale(pourer != null ? pourer.StreamWidthScale : 1f);
+        UpdateStreamShape();
 
         simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax(), ConstrainToGlass);
         simulation.SynchronizeTransforms = false;
@@ -372,6 +393,77 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── 방출 ────────────────────────────────────────────────────────────
 
+    /// <summary>재료 하나의 출수량 배율. 물줄기 굵기와 분사 속도는 PourManager가 계산한다.</summary>
+    [System.Serializable]
+    struct PourFlowOverride
+    {
+        [Tooltip("재료 ID(shelf_items의 id).")]
+        public string ingredientId;
+        [Tooltip("최대 기울기에서의 출수량 배율. 1이면 pour_emit_rate_ml_per_sec × quantityAccumulateMultiplier 그대로다. " +
+                 "도착한 입자의 용량에는 곱하지 않는다.")]
+        [Min(1f)] public float flowMultiplier;
+
+        public PourFlowOverride(string ingredientId, float flowMultiplier)
+        {
+            this.ingredientId = ingredientId;
+            this.flowMultiplier = flowMultiplier;
+        }
+    }
+
+    /// <summary>지금 따르는 실제 재료의 출수량 배율. 표에 없으면 1이다.</summary>
+    float IngredientFlowMultiplier()
+    {
+        if (flowOverrides != null && !string.IsNullOrEmpty(pourIngredientId))
+            foreach (var entry in flowOverrides)
+                if (entry.ingredientId == pourIngredientId) return Mathf.Max(1f, entry.flowMultiplier);
+        return 1f;
+    }
+
+    /// <summary>기본 병목의 줄 수. 한 줄에 나란히 나가는 입자 수이자 줄 간격 계산의 기준이다.</summary>
+    int BaseLanes => Mathf.Max(1, Mathf.FloorToInt(neckWidthInParticles));
+
+    /// <summary>
+    /// 이 유량 배율에서 한 줄에 나란히 내보낼 입자 수. 최대 기울기에서도 분사 속도가 maxExitSpeed를 넘지 않을 만큼 늘린다.
+    /// 기울기와 무관하게 정해 따르는 도중 줄기 굵기가 계단처럼 바뀌지 않는다. 푸어러가 분리될 때만 한 번 굵어진다.
+    /// </summary>
+    int EmissionLanes(float flowMultiplier, float capacityScale)
+    {
+        float required = BaseLanes * flowMultiplier * capacityScale * exitSpeed / Mathf.Max(0.5f, maxExitSpeed);
+        return Mathf.Max(BaseLanes, Mathf.CeilToInt(required - 0.001f));
+    }
+
+    /// <summary>입자당 ml가 큰 잔(바이젠)은 같은 ml/s에서 입자가 덜 나온다. 그만큼 느리게 내보내 줄 간격을 맞춘다.</summary>
+    float CapacitySpeedScale => visualCapacityMl > 0f ? glassCapacityMl / visualCapacityMl : 1f;
+
+    /// <summary>
+    /// 통로 폭은 파티클 간격이 정한다. 병 모양보다 먼저 잡아야 실루엣이 같은 폭으로 그려진다.
+    /// 유량이 커서 줄이 늘면 줄 간격은 그대로 두고 줄기만 이 폭보다 넓어진다.
+    /// </summary>
+    void ConfigureNeck()
+    {
+        float scaleX = Mathf.Max(Mathf.Abs(bottle.BottleVisual.lossyScale.x), 0.0001f);
+        neckHalfWidth = Spacing * neckWidthInParticles * 0.5f / scaleX;
+    }
+
+    /// <summary>
+    /// 공중 물줄기를 그리는 굵기와 늘림을 지금 출수에 맞춘다(렌더 전용, 물리와 수량에는 영향 없음).
+    /// 굵기: 줄 수가 늘면 줄기 폭은 이미 넓어졌으므로 입자 하나하나는 그만큼 가늘게 그린다.
+    /// 늘림: 늘림은 느리게 나와 가속되며 사이가 벌어지는 줄기를 잇는 용도라, 처음부터 빠르게 나오는 줄기는
+    /// 그만큼 덜 늘린다. 그대로 두면 입자 꼬리가 입구 뒤로 뻗어 입구에서 터지듯 보인다.
+    /// 하한: 위 두 가지로 가늘게 그려도 입자 반지름이 줄 간격보다 작아지지 않게 해 한 줄기로 잇는다.
+    /// </summary>
+    void UpdateStreamShape()
+    {
+        float flowMultiplier = (pourer != null ? pourer.FlowMultiplier : 1f) * IngredientFlowMultiplier();
+        float capacityScale = CapacitySpeedScale;
+        int lanes = EmissionLanes(flowMultiplier, capacityScale);
+        liquidRenderer.SetAirborneWidthScale((pourer != null ? pourer.StreamWidthScale : 1f) * BaseLanes / lanes);
+        liquidRenderer.SetStreamMinCrossRadius(Spacing * neckWidthInParticles / BaseLanes * streamMinRadiusPerLane);
+        // 기본 술의 최대 분사 속도(exitSpeed)보다 빠르게 나올 때만 줄인다. 얕게 기울여 느리게 나오면 원래대로 늘린다.
+        float actualExit = exitSpeed * FlowRate01() * flowMultiplier * BaseLanes / lanes * capacityScale;
+        liquidRenderer.SetStreamStretchScale(actualExit > exitSpeed ? exitSpeed / actualExit : 1f);
+    }
+
     void ConfigureVolume()
     {
         visualCapacityMl = Mathf.Max(1f,craftContext.GlassId == "weizen" ? mugCapacityMl : glassCapacityMl);
@@ -395,8 +487,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     {
         if (!IsManualInputActive || audioCancelled) return;
         float flow01 = FlowRate01();
-        float flowMultiplier = (pourer != null ? pourer.FlowMultiplier : 1f) *
-            (pourIngredientId == "beer" ? Mathf.Max(1f, beerFlowMultiplier) : 1f);
+        float flowMultiplier = (pourer != null ? pourer.FlowMultiplier : 1f) * IngredientFlowMultiplier();
         float volumeRate = mlPerSecondAtFullFlow * flow01 * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f) * flowMultiplier;
 
         if (flow01 <= 0f || (drivenByRunner && volumeRate <= 0f) || (!unlimitedLiquid && remainingInBottle <= 0))
@@ -406,11 +497,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
 
         // 유량만 늘리면 같은 폭·속도의 출구에 입자가 겹쳐 밀도 보정이 두 줄기를 옆으로 벌린다.
-        // 분사 속도도 같은 배율로 늘려 분리 전후의 줄 간격과 단면 밀도를 유지한다.
-        float speed = exitSpeed * flow01 * flowMultiplier;
+        // 늘어난 유량은 분사 속도가 받고, 속도가 maxExitSpeed에 닿으면 나머지는 줄 수(줄기 굵기)가 받는다.
+        // 줄 간격이 기본 줄 수·기본 잔과 같도록 속도를 맞춘다 — 줄이 늘면 그만큼 느리게, 입자당 ml가 큰 잔(바이젠)에서도
+        // 그만큼 느리게 내보낸다. 기본 술을 기본 잔에 따르면 보정이 모두 1이라 기존과 같다.
+        float capacityScale = CapacitySpeedScale;
+        int lanes = EmissionLanes(flowMultiplier, capacityScale);
+        float speed = exitSpeed * flow01 * flowMultiplier * BaseLanes / lanes * capacityScale;
         if (speed <= 0.001f) return;
+        Vector2 exitVelocity = ExitVelocity(speed, exitSpeed * flow01);
 
-        int lanes = Mathf.Max(1,Mathf.FloorToInt(neckWidthInParticles));
         // 잔 용량에 맞는 ml/입자를 사용한다. 입자당 용량은 분리 전후에 바꾸지 않는다.
         // 독립 실행에서는 위에서 보정한 속도로 방출 간격을 정하므로 배율을 다시 곱하지 않는다.
         float interval = drivenByRunner && volumeRate > 0f && particleVolumeMl > 0f
@@ -432,7 +527,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             // 전부 입구에 그대로 놓으면 같은 자리에 겹쳐 쌓여 밀도가 폭발하고, 압력이 사방으로
             // 튕겨낸다(입구에서 가끔 튀는 원인). 밀린 시간만큼 진행 방향으로 미리 보내주면
             // 각 줄이 자신의 방출 시점에 맞는 간격을 유지한다.
-            EmitRow(speed, emitAccumulator);
+            EmitRow(exitVelocity, emitAccumulator, lanes);
             emitted++;
         }
 
@@ -441,39 +536,57 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
 
     /// <summary>
-    /// 입구 폭을 가로질러 한 줄 분량을 내보낸다. 줄기 굵기는 이 줄의 파티클 수가 정한다.
+    /// 입구를 떠나는 속도. 병목 방향으로는 일반 따르기와 같은 속도(regularSpeed)까지만 내보내고, 큰 유량 때문에 더
+    /// 필요한 속도는 아래쪽으로 더한다. 큰 유량을 전부 병목 방향으로 쏘면 줄기가 수평으로 멀리 날아가 맞은편 벽
+    /// 윗부분에 부딪히고, 거기서 튄 액체가 입구까지 물보라를 만든다. 크기는 speed 그대로라 줄 간격과 유량은 같다.
+    /// </summary>
+    Vector2 ExitVelocity(float speed, float regularSpeed)
+    {
+        Vector2 outward = bottle.BottleVisual.up;
+        float along = Mathf.Min(speed, regularSpeed);
+        if (speed <= along + 0.0001f) return outward * speed;
+        // |outward × along + down × extra| = speed 를 만족하는 extra(≥ 0).
+        float c = Vector2.Dot(outward, Vector2.down);
+        float extra = -along * c + Mathf.Sqrt(Mathf.Max(0f, along * along * (c * c - 1f) + speed * speed));
+        return outward * along + Vector2.down * extra;
+    }
+
+    /// <summary>
+    /// 입구에서 진행 방향에 수직으로 한 줄 분량을 내보낸다. 줄기 굵기는 이 줄의 파티클 수가 정한다.
     /// age는 이 줄이 원래 나갔어야 할 시점부터 지금까지의 시간이다(0이면 지금 막 나간 줄).
     /// </summary>
-    void EmitRow(float speed, float age)
+    void EmitRow(Vector2 exitVelocity, float age, int lanes)
     {
         Transform container = bottle.BottleVisual;
+        float speed = exitVelocity.magnitude;
+        Vector2 direction = exitVelocity / Mathf.Max(0.0001f, speed);
+        Vector2 across = new Vector2(-direction.y, direction.x);
 
-        int lanes = Mathf.Max(1, Mathf.FloorToInt(neckWidthInParticles));
-        float laneStep = neckHalfWidth * 2f / lanes;
+        // 줄 간격은 기본 병목 기준으로 고정한다. 줄이 늘면 줄기가 그만큼 넓어진다.
+        float laneStep = Spacing * neckWidthInParticles / BaseLanes;
 
-        // 입구는 병 로컬 +Y 끝이고, 액체는 그 바깥을 향해 나간다.
-        Vector2 outward = container.up;
+        // 입구는 병 로컬 +Y 끝이다.
+        Vector2 mouth = container.TransformPoint(new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
 
         // 밀린 시간만큼 미리 날아간 상태로 놓는다. 위치뿐 아니라 속도도 그동안 중력을 받았어야
         // 맞다 — 위치만 옮기고 속도를 그대로 두면 뒤따르는 줄과 속도가 어긋나 그 지점에서 뭉친다.
-        Vector2 headStart = outward * (speed * age);
+        Vector2 headStart = exitVelocity * age;
         Vector2 gravityGain = Vector2.down * (Physics.gravity * age);
 
         for (int i = 0; i < lanes; i++)
         {
             if ((!unlimitedLiquid && remainingInBottle <= 0) || pool.Count == 0) return;
 
-            float localX = (i - (lanes - 1) * 0.5f) * laneStep;
+            float offset = (i - (lanes - 1) * 0.5f) * laneStep;
 
             // 격자처럼 딱 떨어지면 줄기가 기계적으로 보인다. 아주 조금 흔들어준다.
             float jitter = Random.Range(-0.15f, 0.15f) * laneStep;
 
-            Vector3 localPos = new Vector3(localX + jitter, bottleInteriorHalfExtents.y, 0f);
-            Vector2 worldPos = (Vector2)container.TransformPoint(localPos) + headStart;
+            Vector2 worldPos = mouth + across * (offset + jitter) + headStart;
 
             SphParticle particle = pool.Pop();
             particle.Activate(worldPos);
-            particle.velocity = outward * speed + gravityGain;
+            particle.velocity = exitVelocity + gravityGain;
 
             simulation.Register(particle);
             live.Add(particle);
@@ -487,7 +600,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         pourer?.Tick(Time.deltaTime);
         if (IsManualInputActive && !audioCancelled && audioFocused && !audioPaused && Time.deltaTime > 0f)
             pourer?.TryDetach();
-        liquidRenderer.SetAirborneWidthScale(pourer != null ? pourer.StreamWidthScale : 1f);
+        UpdateStreamShape();
         if (IsTimeCounting) standaloneTimer?.Tick(Time.deltaTime);
         // 물리는 판정이 끝난 뒤에도 계속 돌린다. 여기서 멈춰버리면 공중에 있던 액체가 그대로 얼어붙어
         // 물리 버그처럼 보인다 — 판정만 멈추고 액체는 잔으로 마저 떨어지게 둔다.
