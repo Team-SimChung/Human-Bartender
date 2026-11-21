@@ -1,141 +1,216 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5735337023103890729
-MonoBehaviour:
-  m_ObjectHideFlags: 1
+--- !u!213 &-9191921656165307444
+Sprite:
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
-  m_Name: StudioClip
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 0}
-  hasDialogueSettingsBeforePrefab: 0
-  dialogueStyleBeforePrefab: 0
-  bubbleLayoutBeforePrefab: 0
-  dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
-  cameraFollowOffset: {x: 0, y: 0}
-  shakeSpeed: 1
-  shakeAmplitude: {x: 12, y: 12}
-  animationOffset: 0
-  animationSpeed: 1
-  backgroundDissolve: 0
-  kind: 6
-  actorId: luna
-  from: {x: -6.4, y: -120}
-  to: {x: 108.8, y: -427.2}
-  scaleFrom: 1
-  scaleTo: 1
-  rotationFrom: 0
-  rotationTo: 24
-  opacityFrom: 1
-  opacityTo: 0
-  curve:
+  m_Name: yuna_idle_606_43
+  m_Rect:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  holdEnd: 0
-  flipX: 0
-  frames:
-  - {fileID: 1097248969659561114, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 2050003498349119766, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1769622208183395871, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 2089556580675967341, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1454850162592471143, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1021030522630708486, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1970234247236781556, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1233247093130006883, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1615678234592137660, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  frameTimes:
-  - 0
-  - 0.083333336
-  - 0.16666667
-  - 0.25
-  - 0.33333334
-  - 0.41666666
-  - 0.5
-  - 0.5833333
-  - 0.6666667
-  animationLength: 0.75
-  propertyKeys:
-  - property: 0
-    keys:
-    - time: 0.0
-      value: -6.4
-    - time: 0.6000000000000014
-      value: 108.8
-  - property: 1
-    keys:
-    - time: 0.0
-      value: -120
-    - time: 0.17999999999999972
-      value: -120
-    - time: 0.75
-      value: -427.2
-  - property: 3
-    keys:
-    - time: 0.0
-      value: 0
-    - time: 0.4499999999999993
-      value: 24
-  - property: 4
-    keys:
-    - time: 0.0
-      value: 1
-    - time: 0.4499999999999993
-      value: 1
-    - time: 0.7800000000000011
-      value: 0
-  backgroundSprite: {fileID: 0}
-  framesPerSecond: 6
-  loop: 1
-  text: 대사를 입력하세요.
-  font: {fileID: 0}
-  useDialogueStyle: 0
-  dialogueFontSize: 22
-  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
-  dialogueAlignment: 0
-  useBubbleLayout: 0
-  bubbleWidth: 620
-  bubblePadding: {x: 22, y: 12}
-  charactersPerSecond: 22
-  waitForInput: 0
-  bubbleOffset: 140
-  bubbleScreenHeight: -185
-  effect: 0
-  strength: 1
-  effectColor: {r: 0, g: 0, b: 0, a: 1}
-  sound: {fileID: 0}
-  bus: 0
-  volume: 0.7
-  audioOffset: 0
-  fadeIn: 0
-  fadeOut: 0.1
---- !u!114 &-5472102921086292958
+    x: 606
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 606
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 624, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 606
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 624, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &-9124366815454783423
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -147,24 +222,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
   m_Name: StudioClip
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 0}
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
   hasDialogueSettingsBeforePrefab: 0
   dialogueStyleBeforePrefab: 0
   bubbleLayoutBeforePrefab: 0
   dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
+  cameraTargetId: 
   cameraFollowOffset: {x: 0, y: 0}
   shakeSpeed: 1
   shakeAmplitude: {x: 12, y: 12}
   animationOffset: 0
   animationSpeed: 1
   backgroundDissolve: 0
-  kind: 6
-  actorId: luna
-  from: {x: -6.4, y: -120}
-  to: {x: -6.4, y: -120}
-  scaleFrom: 1
-  scaleTo: 1
+  kind: 2
+  actorId: yuna
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 0.81
+  scaleTo: 0.81
   rotationFrom: 0
   rotationTo: 0
   opacityFrom: 1
@@ -195,33 +282,16 @@ MonoBehaviour:
     m_RotationOrder: 4
   holdEnd: 0
   flipX: 0
-  frames:
-  - {fileID: 1097248969659561114, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 2050003498349119766, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1769622208183395871, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 2089556580675967341, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1454850162592471143, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1021030522630708486, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1970234247236781556, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1233247093130006883, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  - {fileID: 1615678234592137660, guid: fc81c458e8eb74fe4b530e2039540638, type: 3}
-  frameTimes:
-  - 0
-  - 0.083333336
-  - 0.16666667
-  - 0.25
-  - 0.33333334
-  - 0.41666666
-  - 0.5
-  - 0.5833333
-  - 0.6666667
-  animationLength: 0.75
+  frames: []
+  frameTimes: []
+  animationLength: 0
   propertyKeys: []
   backgroundSprite: {fileID: 0}
-  framesPerSecond: 6
+  framesPerSecond: 12
   loop: 1
-  text: 대사를 입력하세요.
-  font: {fileID: 0}
+  text: "...\uC774 \uC21C\uAC04\uC5D0\uB3C4 \uAD81\uAE08\uD55C \uAC74 \uBABB \uCC38\uB294\uAD6C\uB098
+    \uB8E8\uB098."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
   useDialogueStyle: 0
   dialogueFontSize: 22
   dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
@@ -229,10 +299,10 @@ MonoBehaviour:
   useBubbleLayout: 0
   bubbleWidth: 620
   bubblePadding: {x: 22, y: 12}
-  charactersPerSecond: 22
-  waitForInput: 0
-  bubbleOffset: 140
-  bubbleScreenHeight: -185
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 74.67
+  bubbleScreenHeight: 0
   effect: 0
   strength: 1
   effectColor: {r: 0, g: 0, b: 0, a: 1}
@@ -242,7 +312,217 @@ MonoBehaviour:
   audioOffset: 0
   fadeIn: 0
   fadeOut: 0.1
---- !u!114 &-3747133206547134472
+--- !u!213 &-9102013280377521515
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_walk_127_43
+  m_Rect:
+    serializedVersion: 2
+    x: 127
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 127
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 145, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 127
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 145, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &-8664203427980562236
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -254,20 +534,984 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
   m_Name: StudioClip
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 0}
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
   hasDialogueSettingsBeforePrefab: 0
   dialogueStyleBeforePrefab: 0
   bubbleLayoutBeforePrefab: 0
   dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
+  cameraTargetId: 
   cameraFollowOffset: {x: 0, y: 0}
   shakeSpeed: 1
   shakeAmplitude: {x: 12, y: 12}
   animationOffset: 0
   animationSpeed: 1
   backgroundDissolve: 0
-  kind: 3
-  actorId:
+  kind: 2
+  actorId: luna
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 0.81
+  scaleTo: 0.81
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uC774\uD574\uAC00 \uB418\uC9C0 \uC54A\uB124\uC694."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 72.58
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!213 &-8493141716628098895
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_idle_702_43
+  m_Rect:
+    serializedVersion: 2
+    x: 702
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 702
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 720, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 702
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 720, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &-8469560246547796647
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uC720\uB098"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: -5031601247908653523}
+    m_Duration: 17.43181818181818
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -8469560246547796647}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uC720\uB098 \xB7 \uB300\uAE30"
+  - m_Version: 1
+    m_Start: 17.43181818181818
+    m_ClipIn: 0
+    m_Asset: {fileID: 8368663252115333223}
+    m_Duration: 0.4400000000000013
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -8469560246547796647}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uC720\uB098 \xB7 \uAC77\uAE30"
+  - m_Version: 1
+    m_Start: 17.87181818181818
+    m_ClipIn: 0
+    m_Asset: {fileID: -207980805532685835}
+    m_Duration: 1.3900000000000006
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -8469560246547796647}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uC720\uB098 \xB7 \uB300\uAE30"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uC720\uB098"
+  continueDuringWait: 1
+  studioTrackKind: 6
+  studioDisplayOrders: []
+--- !u!114 &-7946644519051169218
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uAE30\uC5B5 \uD654\uBA74 \xB7 \uB808\uD130\uBC15\uC2A4\uC640 \uB178\uC774\uC988"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: -4196798750660598854}
+    m_Duration: 19.26181818181818
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -7946644519051169218}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uAE30\uC5B5 \uD654\uBA74 \xB7 \uB808\uD130\uBC15\uC2A4\uC640
+      \uB178\uC774\uC988"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uAE30\uC5B5 \uD654\uBA74 \xB7 \uB808\uD130\uBC15\uC2A4\uC640
+    \uB178\uC774\uC988"
+  continueDuringWait: 1
+  studioTrackKind: 3
+  studioDisplayOrders: []
+--- !u!213 &-6430773563546665190
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_idle_222_43
+  m_Rect:
+    serializedVersion: 2
+    x: 222
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 222
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 240, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 222
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 240, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &-6125850986218035970
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uBC30\uCD9C\uAD6C \uAC00\uB9BC"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 17.77181818181818
+    m_ClipIn: 0
+    m_Asset: {fileID: -650519489475187692}
+    m_Duration: 1.1400000000000006
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -6125850986218035970}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uBC30\uCD9C\uAD6C \uAC00\uB9BC"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uBC30\uCD9C\uAD6C \uAC00\uB9BC"
+  continueDuringWait: 1
+  studioTrackKind: 6
+  studioDisplayOrders: []
+--- !u!114 &-5031601247908653523
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: yuna
   from: {x: 0, y: 0}
   to: {x: 0, y: 0}
   scaleFrom: 1
@@ -300,16 +1544,43 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  holdEnd: 1
-  flipX: 0
-  frames: []
+  holdEnd: 0
+  flipX: 1
+  frames:
+  - {fileID: 8259739291548635820}
+  - {fileID: 7074578495332943789}
+  - {fileID: -6430773563546665190}
+  - {fileID: -3821774570716737041}
+  - {fileID: 3808318153352561899}
+  - {fileID: 9033442546535598476}
+  - {fileID: -9191921656165307444}
+  - {fileID: -8493141716628098895}
+  - {fileID: -1635768412480786619}
   frameTimes: []
   animationLength: 0
-  propertyKeys: []
+  propertyKeys:
+  - property: 0
+    keys:
+    - time: 0
+      value: 336
+    - time: 17.431818
+      value: 336
+  - property: 1
+    keys:
+    - time: 0
+      value: -123
+    - time: 17.431818
+      value: -123
+  - property: 3
+    keys:
+    - time: 0
+      value: 0
+    - time: 17.431818
+      value: 0
   backgroundSprite: {fileID: 0}
-  framesPerSecond: 12
+  framesPerSecond: 7
   loop: 1
-  text: 대사를 입력하세요.
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
   font: {fileID: 0}
   useDialogueStyle: 0
   dialogueFontSize: 22
@@ -322,7 +1593,7 @@ MonoBehaviour:
   waitForInput: 0
   bubbleOffset: 140
   bubbleScreenHeight: -185
-  effect: 1
+  effect: 0
   strength: 1
   effectColor: {r: 0, g: 0, b: 0, a: 1}
   sound: {fileID: 0}
@@ -331,7 +1602,7 @@ MonoBehaviour:
   audioOffset: 0
   fadeIn: 0
   fadeOut: 0.1
---- !u!114 &-3509674865526669225
+--- !u!114 &-4196798750660598854
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -343,12 +1614,1265 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
   m_Name: StudioClip
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 2100000, guid: 4e0d73a28afef49dc97f2d4067389962, type: 2}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
   dialoguePrefab: {fileID: 0}
   hasDialogueSettingsBeforePrefab: 0
   dialogueStyleBeforePrefab: 0
   bubbleLayoutBeforePrefab: 0
   dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 3
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 4
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-4039278702967317373
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId: yuna
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 0.81
+  scaleTo: 0.81
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uADF8\uB0E5 \uB0B4\uAC00 \uADF8\uB7EC\uACE0 \uC2F6\uC5B4\uC11C \uADF8\uB7EC\uB294
+    \uAC70\uC57C."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 74.67
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!213 &-3821774570716737041
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_idle_318_43
+  m_Rect:
+    serializedVersion: 2
+    x: 318
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 318
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 336, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 318
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 336, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &-3067670953317252389
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uACE0\uC815 \uCE74\uBA54\uB77C \xB7 0.75\uBC30"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: 853730743538492522}
+    m_Duration: 19.26181818181818
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: -3067670953317252389}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uACE0\uC815 \uCE74\uBA54\uB77C \xB7 0.75\uBC30"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uACE0\uC815 \uCE74\uBA54\uB77C \xB7 0.75\uBC30"
+  continueDuringWait: 0
+  studioTrackKind: 1
+  studioDisplayOrders: []
+--- !u!213 &-1635768412480786619
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_idle_798_43
+  m_Rect:
+    serializedVersion: 2
+    x: 798
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 798
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 816, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 798
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 816, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!213 &-1342403876872147107
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_walk_319_43
+  m_Rect:
+    serializedVersion: 2
+    x: 319
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 319
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 337, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 319
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 337, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &-650519489475187692
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: lip
+  from: {x: 554.25, y: -231}
+  to: {x: 554.25, y: -231}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!213 &-409225631121537818
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_walk_223_43
+  m_Rect:
+    serializedVersion: 2
+    x: 223
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 223
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 241, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 223
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 241, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &-207980805532685835
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
   cameraFollowOffset: {x: 0, y: 0}
   shakeSpeed: 1
   shakeAmplitude: {x: 12, y: 12}
@@ -357,8 +2881,8 @@ MonoBehaviour:
   backgroundDissolve: 0
   kind: 6
   actorId: yuna
-  from: {x: -56, y: -54.4}
-  to: {x: -56, y: -54.4}
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
   scaleFrom: 1
   scaleTo: 1
   rotationFrom: 0
@@ -391,14 +2915,293 @@ MonoBehaviour:
     m_RotationOrder: 4
   holdEnd: 0
   flipX: 1
-  frames: []
+  frames:
+  - {fileID: 8259739291548635820}
+  - {fileID: 7074578495332943789}
+  - {fileID: -6430773563546665190}
+  - {fileID: -3821774570716737041}
+  - {fileID: 3808318153352561899}
+  - {fileID: 9033442546535598476}
+  - {fileID: -9191921656165307444}
+  - {fileID: -8493141716628098895}
+  - {fileID: -1635768412480786619}
   frameTimes: []
   animationLength: 0
-  propertyKeys: []
+  propertyKeys:
+  - property: 0
+    keys:
+    - time: 0
+      value: 410.51263
+    - time: 0.033333335
+      value: 408.53653
+    - time: 0.06666667
+      value: 406.54575
+    - time: 0.1
+      value: 404.54172
+    - time: 0.13333334
+      value: 402.52588
+    - time: 0.16666667
+      value: 400.49963
+    - time: 0.2
+      value: 398.4645
+    - time: 0.23333333
+      value: 396.42188
+    - time: 0.26666668
+      value: 394.37323
+    - time: 0.3
+      value: 392.32
+    - time: 0.33333334
+      value: 390.26373
+    - time: 0.36666667
+      value: 388.2058
+    - time: 0.37
+      value: 388
+    - time: 0.4
+      value: 388
+    - time: 0.43333334
+      value: 388
+    - time: 0.46666667
+      value: 388
+    - time: 0.5
+      value: 388
+    - time: 0.53333336
+      value: 388
+    - time: 0.56666666
+      value: 388
+    - time: 0.6
+      value: 388
+    - time: 0.6333333
+      value: 388
+    - time: 0.6666667
+      value: 388
+    - time: 0.7
+      value: 388
+    - time: 0.73333335
+      value: 388
+    - time: 0.76666665
+      value: 388
+    - time: 0.8
+      value: 388
+    - time: 0.8333333
+      value: 388
+    - time: 0.8666667
+      value: 388
+    - time: 0.9
+      value: 388
+    - time: 0.93333334
+      value: 388
+    - time: 0.96666664
+      value: 388
+    - time: 1
+      value: 388
+    - time: 1.0333333
+      value: 388
+    - time: 1.0666667
+      value: 388
+    - time: 1.1
+      value: 388
+    - time: 1.1333333
+      value: 388
+    - time: 1.1666666
+      value: 388
+    - time: 1.2
+      value: 388
+    - time: 1.2333333
+      value: 388
+    - time: 1.2666667
+      value: 388
+    - time: 1.3
+      value: 388
+    - time: 1.3333334
+      value: 388
+    - time: 1.3666667
+      value: 388
+    - time: 1.39
+      value: 388
+  - property: 1
+    keys:
+    - time: 0
+      value: -126.36453
+    - time: 0.033333335
+      value: -125.78914
+    - time: 0.06666667
+      value: -125.26677
+    - time: 0.1
+      value: -124.7978
+    - time: 0.13333334
+      value: -124.382545
+    - time: 0.16666667
+      value: -124.021324
+    - time: 0.2
+      value: -123.714386
+    - time: 0.23333333
+      value: -123.46195
+    - time: 0.26666668
+      value: -123.264206
+    - time: 0.3
+      value: -123.121284
+    - time: 0.33333334
+      value: -123.03328
+    - time: 0.36666667
+      value: -123.000275
+    - time: 0.37
+      value: -123
+    - time: 0.4
+      value: -123
+    - time: 0.43333334
+      value: -123
+    - time: 0.46666667
+      value: -123
+    - time: 0.5
+      value: -123
+    - time: 0.53333336
+      value: -123
+    - time: 0.56666666
+      value: -123
+    - time: 0.6
+      value: -123
+    - time: 0.6333333
+      value: -123
+    - time: 0.6666667
+      value: -123
+    - time: 0.7
+      value: -123
+    - time: 0.73333335
+      value: -123
+    - time: 0.76666665
+      value: -123
+    - time: 0.8
+      value: -123
+    - time: 0.8333333
+      value: -123
+    - time: 0.8666667
+      value: -123
+    - time: 0.9
+      value: -123
+    - time: 0.93333334
+      value: -123
+    - time: 0.96666664
+      value: -123
+    - time: 1
+      value: -123
+    - time: 1.0333333
+      value: -123
+    - time: 1.0666667
+      value: -123
+    - time: 1.1
+      value: -123
+    - time: 1.1333333
+      value: -123
+    - time: 1.1666666
+      value: -123
+    - time: 1.2
+      value: -123
+    - time: 1.2333333
+      value: -123
+    - time: 1.2666667
+      value: -123
+    - time: 1.3
+      value: -123
+    - time: 1.3333334
+      value: -123
+    - time: 1.3666667
+      value: -123
+    - time: 1.39
+      value: -123
+  - property: 3
+    keys:
+    - time: 0
+      value: -17
+    - time: 0.033333335
+      value: -15.468469
+    - time: 0.06666667
+      value: -13.936937
+    - time: 0.1
+      value: -12.405405
+    - time: 0.13333334
+      value: -10.873874
+    - time: 0.16666667
+      value: -9.342342
+    - time: 0.2
+      value: -7.810811
+    - time: 0.23333333
+      value: -6.279279
+    - time: 0.26666668
+      value: -4.747748
+    - time: 0.3
+      value: -3.2162163
+    - time: 0.33333334
+      value: -1.6846846
+    - time: 0.36666667
+      value: -0.15315315
+    - time: 0.37
+      value: 0
+    - time: 0.4
+      value: 0
+    - time: 0.43333334
+      value: 0
+    - time: 0.46666667
+      value: 0
+    - time: 0.5
+      value: 0
+    - time: 0.53333336
+      value: 0
+    - time: 0.56666666
+      value: 0
+    - time: 0.6
+      value: 0
+    - time: 0.6333333
+      value: 0
+    - time: 0.6666667
+      value: 0
+    - time: 0.7
+      value: 0
+    - time: 0.73333335
+      value: 0
+    - time: 0.76666665
+      value: 0
+    - time: 0.8
+      value: 0
+    - time: 0.8333333
+      value: 0
+    - time: 0.8666667
+      value: 0
+    - time: 0.9
+      value: 0
+    - time: 0.93333334
+      value: 0
+    - time: 0.96666664
+      value: 0
+    - time: 1
+      value: 0
+    - time: 1.0333333
+      value: 0
+    - time: 1.0666667
+      value: 0
+    - time: 1.1
+      value: 0
+    - time: 1.1333333
+      value: 0
+    - time: 1.1666666
+      value: 0
+    - time: 1.2
+      value: 0
+    - time: 1.2333333
+      value: 0
+    - time: 1.2666667
+      value: 0
+    - time: 1.3
+      value: 0
+    - time: 1.3333334
+      value: 0
+    - time: 1.3666667
+      value: 0
+    - time: 1.39
+      value: 0
   backgroundSprite: {fileID: 0}
   framesPerSecond: 7
   loop: 1
-  text: 대사를 입력하세요.
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
   font: {fileID: 0}
   useDialogueStyle: 0
   dialogueFontSize: 22
@@ -420,659 +3223,6 @@ MonoBehaviour:
   audioOffset: 0
   fadeIn: 0
   fadeOut: 0.1
---- !u!114 &-1483777517047057994
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
-  m_Name: StudioClip
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
-  hasDialogueSettingsBeforePrefab: 0
-  dialogueStyleBeforePrefab: 0
-  bubbleLayoutBeforePrefab: 0
-  dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
-  cameraFollowOffset: {x: 0, y: 0}
-  shakeSpeed: 1
-  shakeAmplitude: {x: 12, y: 12}
-  animationOffset: 0
-  animationSpeed: 1
-  backgroundDissolve: 0
-  kind: 2
-  actorId: yuna
-  from: {x: -1.6, y: 0}
-  to: {x: -1.6, y: 0}
-  scaleFrom: 1
-  scaleTo: 1
-  rotationFrom: 0
-  rotationTo: 0
-  opacityFrom: 1
-  opacityTo: 1
-  curve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  holdEnd: 1
-  flipX: 0
-  frames: []
-  frameTimes: []
-  animationLength: 0
-  propertyKeys: []
-  backgroundSprite: {fileID: 0}
-  framesPerSecond: 12
-  loop: 1
-  text: '...이 순간에도 궁금한 건 못 참는구나 루나.'
-  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
-  useDialogueStyle: 1
-  dialogueFontSize: 20.4
-  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
-  dialogueAlignment: 1
-  useBubbleLayout: 0
-  bubbleWidth: 650
-  bubblePadding: {x: 20, y: 14}
-  charactersPerSecond: 50
-  waitForInput: 0
-  bubbleOffset: 54
-  bubbleScreenHeight: 65
-  effect: 0
-  strength: 1
-  effectColor: {r: 0, g: 0, b: 0, a: 1}
-  sound: {fileID: 0}
-  bus: 0
-  volume: 0.7
-  audioOffset: 0
-  fadeIn: 0
-  fadeOut: 0.1
---- !u!114 &-807546366900560080
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 화면 효과 (1)
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
-  m_Version: 3
-  m_AnimClip: {fileID: 0}
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename:
-  m_Curves: {fileID: 0}
-  m_Parent: {fileID: 11400000}
-  m_Children: []
-  m_Clips:
-  - m_Version: 1
-    m_Start: 18.42
-    m_ClipIn: 0
-    m_Asset: {fileID: -3747133206547134472}
-    m_Duration: 0.3500000000000014
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: -807546366900560080}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 복귀 페이드
-  m_Markers:
-    m_Objects: []
-  studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: -1
-  studioDisplayOrders: []
---- !u!114 &-173812287111565046
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 유나와 루나 · 웹 자동 진행
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
-  m_Version: 3
-  m_AnimClip: {fileID: 0}
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename:
-  m_Curves: {fileID: 0}
-  m_Parent: {fileID: 11400000}
-  m_Children: []
-  m_Clips:
-  - m_Version: 1
-    m_Start: 1.2200000000000002
-    m_ClipIn: 0
-    m_Asset: {fileID: 6807790412386625715}
-    m_Duration: 2.7
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: -173812287111565046}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 1. 루나 · 전 인류를 돕기 위해 존재하는 건데 왜 유나가 희생하고 전 생존해야 하는 건가요?
-  - m_Version: 1
-    m_Start: 4.340000000000001
-    m_ClipIn: 0
-    m_Asset: {fileID: -1483777517047057994}
-    m_Duration: 3.2300000000000004
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: -173812287111565046}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 2. 유나 · ...이 순간에도 궁금한 건 못 참는구나 루나.
-  - m_Version: 1
-    m_Start: 7.990000000000001
-    m_ClipIn: 0
-    m_Asset: {fileID: 8691050754794069809}
-    m_Duration: 2.5699999999999994
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: -173812287111565046}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 3. 유나 · 그냥 내가 그러고 싶어서 그러는 거야.
-  - m_Version: 1
-    m_Start: 10.98
-    m_ClipIn: 0
-    m_Asset: {fileID: 7856431857442965081}
-    m_Duration: 2.370000000000001
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: -173812287111565046}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 4. 루나 · 이해가 되지 않네요.
-  - m_Version: 1
-    m_Start: 13.770000000000001
-    m_ClipIn: 0
-    m_Asset: {fileID: 4916891349975363169}
-    m_Duration: 3.450000000000001
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: -173812287111565046}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 5. 유나 · 나중에 알게 될 거야. 그럼 먼저 가 루나. 꼭 행복하고.
-  m_Markers:
-    m_Objects: []
-  studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: 2
-  studioDisplayOrders: []
---- !u!114 &-164469626729867306
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 에셋 / 오브젝트 (3)
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
-  m_Version: 3
-  m_AnimClip: {fileID: 0}
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename:
-  m_Curves: {fileID: 0}
-  m_Parent: {fileID: 11400000}
-  m_Children: []
-  m_Clips:
-  - m_Version: 1
-    m_Start: 17.91
-    m_ClipIn: 0
-    m_Asset: {fileID: 2325083405854351381}
-    m_Duration: 0.860000000000003
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: -164469626729867306}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 유나 · 마지막 자세
-  m_Markers:
-    m_Objects: []
-  studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: -1
-  studioDisplayOrders: []
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1087,117 +3237,231 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.TimelineAsset
   m_Version: 0
   m_Tracks:
-  - {fileID: -173812287111565046}
-  - {fileID: 6764670183755137978}
-  - {fileID: 15815039764497233}
-  - {fileID: 3715817185362631658}
-  - {fileID: -164469626729867306}
-  - {fileID: 8538801687267276765}
-  - {fileID: 8475480712109235899}
-  - {fileID: -807546366900560080}
-  m_FixedDuration: 18.770000000000003
+  - {fileID: 7621207629442384186}
+  - {fileID: -3067670953317252389}
+  - {fileID: -8469560246547796647}
+  - {fileID: 4892712198788925562}
+  - {fileID: 6456602692904244318}
+  - {fileID: -6125850986218035970}
+  - {fileID: -7946644519051169218}
+  - {fileID: 5395326810027629006}
+  m_FixedDuration: 19.26181818181818
   m_EditorSettings:
     m_Framerate: 30
     m_ScenePreview: 1
   m_DurationMode: 1
   m_MarkerTrack: {fileID: 0}
---- !u!114 &15815039764497233
-MonoBehaviour:
-  m_ObjectHideFlags: 1
+--- !u!213 &28429701769702807
+Sprite:
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 에셋 / 오브젝트 (1)
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
-  m_Version: 3
-  m_AnimClip: {fileID: 0}
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename:
-  m_Curves: {fileID: 0}
-  m_Parent: {fileID: 11400000}
-  m_Children: []
-  m_Clips:
-  - m_Version: 1
-    m_Start: 0
-    m_ClipIn: 0
-    m_Asset: {fileID: -5472102921086292958}
-    m_Duration: 17.67
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: 15815039764497233}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
+  m_Name: yuna_walk_511_43
+  m_Rect:
+    serializedVersion: 2
+    x: 511
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
+      x: 511
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 529, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 루나 · 대기
-  m_Markers:
-    m_Objects: []
-  studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: -1
-  studioDisplayOrders: []
---- !u!114 &2325083405854351381
+      x: 511
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 529, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &853730743538492522
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1209,24 +3473,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
   m_Name: StudioClip
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
   dialoguePrefab: {fileID: 0}
   hasDialogueSettingsBeforePrefab: 0
   dialogueStyleBeforePrefab: 0
   bubbleLayoutBeforePrefab: 0
   dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
+  cameraTargetId: 
   cameraFollowOffset: {x: 0, y: 0}
   shakeSpeed: 1
   shakeAmplitude: {x: 12, y: 12}
   animationOffset: 0
   animationSpeed: 1
   backgroundDissolve: 0
-  kind: 6
-  actorId: yuna
-  from: {x: 14.4, y: -54.4}
-  to: {x: 14.4, y: -54.4}
-  scaleFrom: 1
-  scaleTo: 1
+  kind: 1
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 0.75
+  scaleTo: 0.75
   rotationFrom: 0
   rotationTo: 0
   opacityFrom: 1
@@ -1256,15 +3532,15 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   holdEnd: 0
-  flipX: 1
+  flipX: 0
   frames: []
   frameTimes: []
   animationLength: 0
   propertyKeys: []
   backgroundSprite: {fileID: 0}
-  framesPerSecond: 7
+  framesPerSecond: 12
   loop: 1
-  text: 대사를 입력하세요.
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
   font: {fileID: 0}
   useDialogueStyle: 0
   dialogueFontSize: 22
@@ -1286,7 +3562,7 @@ MonoBehaviour:
   audioOffset: 0
   fadeIn: 0
   fadeOut: 0.1
---- !u!114 &2699648000828920383
+--- !u!114 &2589753814784011033
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1298,20 +3574,135 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
   m_Name: StudioClip
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 0}
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
   hasDialogueSettingsBeforePrefab: 0
   dialogueStyleBeforePrefab: 0
   bubbleLayoutBeforePrefab: 0
   dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
+  cameraTargetId: 
   cameraFollowOffset: {x: 0, y: 0}
   shakeSpeed: 1
   shakeAmplitude: {x: 12, y: 12}
   animationOffset: 0
   animationSpeed: 1
   backgroundDissolve: 0
-  kind: 3
-  actorId:
+  kind: 2
+  actorId: luna
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 0.81
+  scaleTo: 0.81
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uC804 \uC778\uB958\uB97C \uB3D5\uAE30 \uC704\uD574 \uC874\uC7AC\uD558\uB294
+    \uAC74\uB370 \uC65C \uC720\uB098\uAC00 \uD76C\uC0DD\uD558\uACE0 \uC804 \uC0DD\uC874\uD574\uC57C
+    \uD558\uB294 \uAC74\uAC00\uC694?"
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 72.58
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &2781394803815904638
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 4
+  actorId: 
   from: {x: 0, y: 0}
   to: {x: 0, y: 0}
   scaleFrom: 1
@@ -1344,7 +3735,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  holdEnd: 1
+  holdEnd: 0
   flipX: 0
   frames: []
   frameTimes: []
@@ -1353,7 +3744,363 @@ MonoBehaviour:
   backgroundSprite: {fileID: 0}
   framesPerSecond: 12
   loop: 1
-  text: 대사를 입력하세요.
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 8300000, guid: 6100ea3b9176b4902885f11ce83e1c4e, type: 3}
+  bus: 0
+  volume: 0.85
+  audioOffset: 0
+  fadeIn: 0.15
+  fadeOut: 0.24
+--- !u!114 &3078177262686024465
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: luna
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames:
+  - {fileID: 3193364998336583770, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: 6248104352408295971, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: 273714376162433322, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: 4894858529602164806, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: 8670694934926454323, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: 2228473079503540718, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: 2848788136304533508, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: -1755319536478803362, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  - {fileID: 1800380520348495437, guid: 409fc019663cf4b5da8fd55445653316, type: 3}
+  frameTimes: []
+  animationLength: 0
+  propertyKeys:
+  - property: 0
+    keys:
+    - time: 0
+      value: 422
+    - time: 17.771818
+      value: 422
+    - time: 17.805151
+      value: 435.59262
+    - time: 17.816818
+      value: 439.00983
+    - time: 17.838486
+      value: 452.0522
+    - time: 17.871819
+      value: 466.50168
+    - time: 17.905151
+      value: 475.72327
+    - time: 17.938484
+      value: 483.45767
+    - time: 17.971819
+      value: 489.70517
+    - time: 18.005152
+      value: 494.4661
+    - time: 18.038485
+      value: 497.74078
+    - time: 18.071817
+      value: 499.52948
+    - time: 18.105152
+      value: 499.83255
+    - time: 18.121819
+      value: 499.42703
+    - time: 18.138485
+      value: 499.63608
+    - time: 18.171818
+      value: 501.30478
+    - time: 18.20515
+      value: 504.6219
+    - time: 18.238485
+      value: 509.53845
+    - time: 18.271818
+      value: 515.961
+    - time: 18.305151
+      value: 523.7283
+    - time: 18.338486
+      value: 532.58325
+    - time: 18.371819
+      value: 542.14233
+    - time: 18.391819
+      value: 547.99945
+    - time: 18.405151
+      value: 549.0424
+    - time: 18.438484
+      value: 551.51025
+    - time: 18.471819
+      value: 553.7838
+    - time: 18.505152
+      value: 555.8692
+    - time: 18.538485
+      value: 557.77185
+    - time: 18.571817
+      value: 559.4965
+    - time: 18.605152
+      value: 561.04767
+    - time: 18.638485
+      value: 562.429
+    - time: 18.671818
+      value: 563.6439
+    - time: 18.70515
+      value: 564.69525
+    - time: 18.738485
+      value: 565.5855
+    - time: 18.771818
+      value: 566.3168
+    - time: 18.805151
+      value: 566.8906
+    - time: 18.838486
+      value: 567.30835
+    - time: 18.871819
+      value: 567.571
+    - time: 18.905151
+      value: 567.679
+    - time: 18.911818
+      value: 567.68207
+  - property: 1
+    keys:
+    - time: 0
+      value: -125.8
+    - time: 17.771818
+      value: -125.8
+    - time: 17.805151
+      value: -127.05563
+    - time: 17.816818
+      value: -127.776
+    - time: 17.838486
+      value: -129.00024
+    - time: 17.871819
+      value: -129.84253
+    - time: 17.905151
+      value: -129.45833
+    - time: 17.938484
+      value: -129.09286
+    - time: 17.971819
+      value: -128.74622
+    - time: 18.005152
+      value: -128.41846
+    - time: 18.038485
+      value: -128.10971
+    - time: 18.071817
+      value: -127.82003
+    - time: 18.105152
+      value: -127.54951
+    - time: 18.121819
+      value: -127.42145
+    - time: 18.138485
+      value: -127.36056
+    - time: 18.171818
+      value: -126.88923
+    - time: 18.20515
+      value: -126.03039
+    - time: 18.238485
+      value: -124.949486
+    - time: 18.271818
+      value: -123.88808
+    - time: 18.305151
+      value: -123.15288
+    - time: 18.338486
+      value: -123.09619
+    - time: 18.371819
+      value: -124.084305
+    - time: 18.391819
+      value: -125.32042
+    - time: 18.405151
+      value: -124.884964
+    - time: 18.438484
+      value: -124.808754
+    - time: 18.471819
+      value: -126.17503
+    - time: 18.505152
+      value: -128.97914
+    - time: 18.538485
+      value: -133.21654
+    - time: 18.571817
+      value: -138.88292
+    - time: 18.605152
+      value: -145.9742
+    - time: 18.638485
+      value: -154.4866
+    - time: 18.671818
+      value: -164.41663
+    - time: 18.70515
+      value: -175.76112
+    - time: 18.738485
+      value: -188.51732
+    - time: 18.771818
+      value: -202.6828
+    - time: 18.805151
+      value: -218.25557
+    - time: 18.838486
+      value: -235.23404
+    - time: 18.871819
+      value: -253.61703
+    - time: 18.905151
+      value: -273.40384
+    - time: 18.911818
+      value: -277.5296
+  - property: 3
+    keys:
+    - time: 0
+      value: 0
+    - time: 17.771818
+      value: 0
+    - time: 17.805151
+      value: -10.555555
+    - time: 17.816818
+      value: -13.2525
+    - time: 17.838486
+      value: -16.88889
+    - time: 17.871819
+      value: -19
+    - time: 17.905151
+      value: -18.066668
+    - time: 17.938484
+      value: -17.133333
+    - time: 17.971819
+      value: -16.2
+    - time: 18.005152
+      value: -15.266666
+    - time: 18.038485
+      value: -14.333333
+    - time: 18.071817
+      value: -13.4
+    - time: 18.105152
+      value: -12.466666
+    - time: 18.121819
+      value: -12
+    - time: 18.138485
+      value: -12.140985
+    - time: 18.171818
+      value: -13.268862
+    - time: 18.20515
+      value: -15.524615
+    - time: 18.238485
+      value: -18.908245
+    - time: 18.271818
+      value: -23.419754
+    - time: 18.305151
+      value: -29.059137
+    - time: 18.338486
+      value: -35.826397
+    - time: 18.371819
+      value: -43.721535
+    - time: 18.391819
+      value: -49
+    - time: 18.405151
+      value: -48.44313
+    - time: 18.438484
+      value: -47.114235
+    - time: 18.471819
+      value: -45.87574
+    - time: 18.505152
+      value: -44.727646
+    - time: 18.538485
+      value: -43.669952
+    - time: 18.571817
+      value: -42.702663
+    - time: 18.605152
+      value: -41.82577
+    - time: 18.638485
+      value: -41.039284
+    - time: 18.671818
+      value: -40.343197
+    - time: 18.70515
+      value: -39.737507
+    - time: 18.738485
+      value: -39.22222
+    - time: 18.771818
+      value: -38.797337
+    - time: 18.805151
+      value: -38.462852
+    - time: 18.838486
+      value: -38.21877
+    - time: 18.871819
+      value: -38.06509
+    - time: 18.905151
+      value: -38.00181
+    - time: 18.911818
+      value: -38
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 6
+  loop: 1
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
   font: {fileID: 0}
   useDialogueStyle: 0
   dialogueFontSize: 22
@@ -1375,103 +4122,217 @@ MonoBehaviour:
   audioOffset: 0
   fadeIn: 0
   fadeOut: 0.1
---- !u!114 &3715817185362631658
-MonoBehaviour:
-  m_ObjectHideFlags: 1
+--- !u!213 &3103952980529564713
+Sprite:
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 에셋 / 오브젝트 (2)
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
-  m_Version: 3
-  m_AnimClip: {fileID: 0}
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename:
-  m_Curves: {fileID: 0}
-  m_Parent: {fileID: 11400000}
-  m_Children: []
-  m_Clips:
-  - m_Version: 1
-    m_Start: 17.67
-    m_ClipIn: 0
-    m_Asset: {fileID: 8896132817268795001}
-    m_Duration: 0.23999999999999844
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: 3715817185362631658}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
+  m_Name: yuna_walk_703_43
+  m_Rect:
+    serializedVersion: 2
+    x: 703
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
+      x: 703
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 721, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: 유나 · 루나를 통로로 밀기
-  m_Markers:
-    m_Objects: []
-  studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: -1
-  studioDisplayOrders: []
---- !u!114 &4916891349975363169
+      x: 703
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 721, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &3451154185664929044
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1483,12 +4344,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
   m_Name: StudioClip
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
   dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
   hasDialogueSettingsBeforePrefab: 0
   dialogueStyleBeforePrefab: 0
   bubbleLayoutBeforePrefab: 0
   dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
+  cameraTargetId: 
   cameraFollowOffset: {x: 0, y: 0}
   shakeSpeed: 1
   shakeAmplitude: {x: 12, y: 12}
@@ -1497,10 +4370,10 @@ MonoBehaviour:
   backgroundDissolve: 0
   kind: 2
   actorId: yuna
-  from: {x: -1.6, y: 0}
-  to: {x: -1.6, y: 0}
-  scaleFrom: 1
-  scaleTo: 1
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 0.81
+  scaleTo: 0.81
   rotationFrom: 0
   rotationTo: 0
   opacityFrom: 1
@@ -1529,7 +4402,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  holdEnd: 1
+  holdEnd: 0
   flipX: 0
   frames: []
   frameTimes: []
@@ -1538,19 +4411,20 @@ MonoBehaviour:
   backgroundSprite: {fileID: 0}
   framesPerSecond: 12
   loop: 1
-  text: 나중에 알게 될 거야. 그럼 먼저 가 루나. 꼭 행복하고.
+  text: "\uB098\uC911\uC5D0 \uC54C\uAC8C \uB420 \uAC70\uC57C. \uADF8\uB7FC \uBA3C\uC800
+    \uAC00 \uB8E8\uB098. \uAF2D \uD589\uBCF5\uD558\uACE0."
   font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
-  useDialogueStyle: 1
-  dialogueFontSize: 20.4
-  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
-  dialogueAlignment: 1
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
   useBubbleLayout: 0
-  bubbleWidth: 650
-  bubblePadding: {x: 20, y: 14}
-  charactersPerSecond: 50
-  waitForInput: 0
-  bubbleOffset: 54
-  bubbleScreenHeight: 65
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 55
+  waitForInput: 1
+  bubbleOffset: 74.67
+  bubbleScreenHeight: 0
   effect: 0
   strength: 1
   effectColor: {r: 0, g: 0, b: 0, a: 1}
@@ -1560,7 +4434,427 @@ MonoBehaviour:
   audioOffset: 0
   fadeIn: 0
   fadeOut: 0.1
---- !u!114 &6764670183755137978
+--- !u!213 &3516539856569910848
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_walk_415_43
+  m_Rect:
+    serializedVersion: 2
+    x: 415
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 415
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 433, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 415
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 433, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!213 &3808318153352561899
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_idle_414_43
+  m_Rect:
+    serializedVersion: 2
+    x: 414
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 414
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 432, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 414
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 432, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &4892712198788925562
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1570,13 +4864,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 에셋 / 오브젝트
+  m_Name: "\uB8E8\uB098"
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
   m_Version: 3
   m_AnimClip: {fileID: 0}
   m_Locked: 0
   m_Muted: 0
-  m_CustomPlayableFullTypename:
+  m_CustomPlayableFullTypename: 
   m_Curves: {fileID: 0}
   m_Parent: {fileID: 11400000}
   m_Children: []
@@ -1584,10 +4878,10 @@ MonoBehaviour:
   - m_Version: 1
     m_Start: 0
     m_ClipIn: 0
-    m_Asset: {fileID: -3509674865526669225}
-    m_Duration: 17.67
+    m_Asset: {fileID: 3078177262686024465}
+    m_Duration: 18.91181818181818
     m_TimeScale: 1
-    m_ParentTrack: {fileID: 6764670183755137978}
+    m_ParentTrack: {fileID: 4892712198788925562}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: 0
@@ -1649,192 +4943,15 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: 유나 · 대기
+    m_DisplayName: "\uB8E8\uB098 \xB7 \uB300\uAE30"
   m_Markers:
     m_Objects: []
   studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: -1
+  studioDisplayName: "\uB8E8\uB098"
+  continueDuringWait: 1
+  studioTrackKind: 6
   studioDisplayOrders: []
---- !u!114 &6807790412386625715
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
-  m_Name: StudioClip
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
-  hasDialogueSettingsBeforePrefab: 0
-  dialogueStyleBeforePrefab: 0
-  bubbleLayoutBeforePrefab: 0
-  dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
-  cameraFollowOffset: {x: 0, y: 0}
-  shakeSpeed: 1
-  shakeAmplitude: {x: 12, y: 12}
-  animationOffset: 0
-  animationSpeed: 1
-  backgroundDissolve: 0
-  kind: 2
-  actorId: luna
-  from: {x: 57.6, y: 0}
-  to: {x: 57.6, y: 0}
-  scaleFrom: 1
-  scaleTo: 1
-  rotationFrom: 0
-  rotationTo: 0
-  opacityFrom: 1
-  opacityTo: 1
-  curve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  holdEnd: 1
-  flipX: 0
-  frames: []
-  frameTimes: []
-  animationLength: 0
-  propertyKeys: []
-  backgroundSprite: {fileID: 0}
-  framesPerSecond: 12
-  loop: 1
-  text: 전 인류를 돕기 위해 존재하는 건데 왜 유나가 희생하고 전 생존해야 하는 건가요?
-  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
-  useDialogueStyle: 1
-  dialogueFontSize: 20.4
-  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
-  dialogueAlignment: 1
-  useBubbleLayout: 0
-  bubbleWidth: 650
-  bubblePadding: {x: 20, y: 14}
-  charactersPerSecond: 50
-  waitForInput: 0
-  bubbleOffset: 106
-  bubbleScreenHeight: 65
-  effect: 0
-  strength: 1
-  effectColor: {r: 0, g: 0, b: 0, a: 1}
-  sound: {fileID: 0}
-  bus: 0
-  volume: 0.7
-  audioOffset: 0
-  fadeIn: 0
-  fadeOut: 0.1
---- !u!114 &7856431857442965081
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
-  m_Name: StudioClip
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
-  hasDialogueSettingsBeforePrefab: 0
-  dialogueStyleBeforePrefab: 0
-  bubbleLayoutBeforePrefab: 0
-  dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
-  cameraFollowOffset: {x: 0, y: 0}
-  shakeSpeed: 1
-  shakeAmplitude: {x: 12, y: 12}
-  animationOffset: 0
-  animationSpeed: 1
-  backgroundDissolve: 0
-  kind: 2
-  actorId: luna
-  from: {x: 57.6, y: 0}
-  to: {x: 57.6, y: 0}
-  scaleFrom: 1
-  scaleTo: 1
-  rotationFrom: 0
-  rotationTo: 0
-  opacityFrom: 1
-  opacityTo: 1
-  curve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  holdEnd: 1
-  flipX: 0
-  frames: []
-  frameTimes: []
-  animationLength: 0
-  propertyKeys: []
-  backgroundSprite: {fileID: 0}
-  framesPerSecond: 12
-  loop: 1
-  text: 이해가 되지 않네요.
-  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
-  useDialogueStyle: 1
-  dialogueFontSize: 20.4
-  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
-  dialogueAlignment: 1
-  useBubbleLayout: 0
-  bubbleWidth: 650
-  bubblePadding: {x: 20, y: 14}
-  charactersPerSecond: 50
-  waitForInput: 0
-  bubbleOffset: 106
-  bubbleScreenHeight: 65
-  effect: 0
-  strength: 1
-  effectColor: {r: 0, g: 0, b: 0, a: 1}
-  sound: {fileID: 0}
-  bus: 0
-  volume: 0.7
-  audioOffset: 0
-  fadeIn: 0
-  fadeOut: 0.1
---- !u!114 &8475480712109235899
+--- !u!114 &5395326810027629006
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1844,13 +4961,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 화면 효과
+  m_Name: "\uACBD\uBCF4\uC640 \uC2E4\uB0B4 \uD658\uACBD\uC74C"
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
   m_Version: 3
   m_AnimClip: {fileID: 0}
   m_Locked: 0
   m_Muted: 0
-  m_CustomPlayableFullTypename:
+  m_CustomPlayableFullTypename: 
   m_Curves: {fileID: 0}
   m_Parent: {fileID: 11400000}
   m_Children: []
@@ -1858,10 +4975,10 @@ MonoBehaviour:
   - m_Version: 1
     m_Start: 0
     m_ClipIn: 0
-    m_Asset: {fileID: 2699648000828920383}
-    m_Duration: 0.7
+    m_Asset: {fileID: 2781394803815904638}
+    m_Duration: 19.26181818181818
     m_TimeScale: 1
-    m_ParentTrack: {fileID: 8475480712109235899}
+    m_ParentTrack: {fileID: 5395326810027629006}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: 0
@@ -1923,14 +5040,15 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: 진입 페이드
+    m_DisplayName: "\uACBD\uBCF4\uC640 \uC2E4\uB0B4 \uD658\uACBD\uC74C"
   m_Markers:
     m_Objects: []
   studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: -1
+  studioDisplayName: "\uACBD\uBCF4\uC640 \uC2E4\uB0B4 \uD658\uACBD\uC74C"
+  continueDuringWait: 1
+  studioTrackKind: 4
   studioDisplayOrders: []
---- !u!114 &8538801687267276765
+--- !u!114 &6456602692904244318
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1940,24 +5058,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
-  m_Name: 에셋 / 오브젝트 (4)
+  m_Name: "\uB300\uC0AC"
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
   m_Version: 3
   m_AnimClip: {fileID: 0}
   m_Locked: 0
   m_Muted: 0
-  m_CustomPlayableFullTypename:
+  m_CustomPlayableFullTypename: 
   m_Curves: {fileID: 0}
   m_Parent: {fileID: 11400000}
   m_Children: []
   m_Clips:
   - m_Version: 1
-    m_Start: 17.67
+    m_Start: 1.1
     m_ClipIn: 0
-    m_Asset: {fileID: -5735337023103890729}
-    m_Duration: 0.7800000000000011
+    m_Asset: {fileID: 2589753814784011033}
+    m_Duration: 2.7381818181818183
     m_TimeScale: 1
-    m_ParentTrack: {fileID: 8538801687267276765}
+    m_ParentTrack: {fileID: 6456602692904244318}
     m_EaseInDuration: 0
     m_EaseOutDuration: 0
     m_BlendInDuration: 0
@@ -2019,103 +5137,602 @@ MonoBehaviour:
     m_PreExtrapolationMode: 0
     m_PostExtrapolationTime: 0
     m_PreExtrapolationTime: 0
-    m_DisplayName: 루나 · 통로 낙하
+    m_DisplayName: "01 \xB7 \uC804 \uC778\uB958\uB97C \uB3D5\uAE30 \uC704\uD574 \uC874\uC7AC\uD558\uB294
+      \uAC74\uB370 \uC65C \uC720\uB098\uAC00 \uD76C\uC0DD\uD558\uACE0 \uC804"
+  - m_Version: 1
+    m_Start: 4.138181818181819
+    m_ClipIn: 0
+    m_Asset: {fileID: -9124366815454783423}
+    m_Duration: 3.3063636363636366
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 6456602692904244318}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "02 \xB7 ...\uC774 \uC21C\uAC04\uC5D0\uB3C4 \uAD81\uAE08\uD55C
+      \uAC74 \uBABB \uCC38\uB294\uAD6C\uB098 \uB8E8\uB098."
+  - m_Version: 1
+    m_Start: 7.744545454545455
+    m_ClipIn: 0
+    m_Asset: {fileID: -4039278702967317373}
+    m_Duration: 2.651818181818182
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 6456602692904244318}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "03 \xB7 \uADF8\uB0E5 \uB0B4\uAC00 \uADF8\uB7EC\uACE0 \uC2F6\uC5B4\uC11C
+      \uADF8\uB7EC\uB294 \uAC70\uC57C."
+  - m_Version: 1
+    m_Start: 10.696363636363637
+    m_ClipIn: 0
+    m_Asset: {fileID: -8664203427980562236}
+    m_Duration: 2.47
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 6456602692904244318}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "04 \xB7 \uC774\uD574\uAC00 \uB418\uC9C0 \uC54A\uB124\uC694."
+  - m_Version: 1
+    m_Start: 13.466363636363637
+    m_ClipIn: 0
+    m_Asset: {fileID: 3451154185664929044}
+    m_Duration: 3.5154545454545447
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 6456602692904244318}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "05 \xB7 \uB098\uC911\uC5D0 \uC54C\uAC8C \uB420 \uAC70\uC57C.
+      \uADF8\uB7FC \uBA3C\uC800 \uAC00 \uB8E8\uB098. \uAF2D \uD589\uBCF5\uD558\uACE0."
   m_Markers:
     m_Objects: []
   studioRowHeight: 56
-  studioDisplayName:
-  studioTrackKind: -1
+  studioDisplayName: "\uB300\uC0AC"
+  continueDuringWait: 0
+  studioTrackKind: 2
   studioDisplayOrders: []
---- !u!114 &8691050754794069809
-MonoBehaviour:
-  m_ObjectHideFlags: 1
+--- !u!213 &7074578495332943789
+Sprite:
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
-  m_Name: StudioClip
-  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
-  dialoguePrefab: {fileID: 6647828757637851205, guid: 6fe131a50a6f64c25820c2830e740384, type: 3}
-  hasDialogueSettingsBeforePrefab: 0
-  dialogueStyleBeforePrefab: 0
-  bubbleLayoutBeforePrefab: 0
-  dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
-  cameraFollowOffset: {x: 0, y: 0}
-  shakeSpeed: 1
-  shakeAmplitude: {x: 12, y: 12}
-  animationOffset: 0
-  animationSpeed: 1
-  backgroundDissolve: 0
-  kind: 2
-  actorId: yuna
-  from: {x: -1.6, y: 0}
-  to: {x: -1.6, y: 0}
-  scaleFrom: 1
-  scaleTo: 1
-  rotationFrom: 0
-  rotationTo: 0
-  opacityFrom: 1
-  opacityTo: 1
-  curve:
+  m_Name: yuna_idle_126_43
+  m_Rect:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  holdEnd: 1
-  flipX: 0
-  frames: []
-  frameTimes: []
-  animationLength: 0
-  propertyKeys: []
-  backgroundSprite: {fileID: 0}
-  framesPerSecond: 12
-  loop: 1
-  text: 그냥 내가 그러고 싶어서 그러는 거야.
-  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
-  useDialogueStyle: 1
-  dialogueFontSize: 20.4
-  dialogueTextColor: {r: 0.94509804, g: 0.95686275, b: 0.9372549, a: 1}
-  dialogueAlignment: 1
-  useBubbleLayout: 0
-  bubbleWidth: 650
-  bubblePadding: {x: 20, y: 14}
-  charactersPerSecond: 50
-  waitForInput: 0
-  bubbleOffset: 54
-  bubbleScreenHeight: 65
-  effect: 0
-  strength: 1
-  effectColor: {r: 0, g: 0, b: 0, a: 1}
-  sound: {fileID: 0}
-  bus: 0
-  volume: 0.7
-  audioOffset: 0
-  fadeIn: 0
-  fadeOut: 0.1
---- !u!114 &8896132817268795001
+    x: 126
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 126
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 144, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 126
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 144, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &7621207629442384186
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uCC98\uB9AC\uC7A5 \uBC30\uACBD"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: 8104739526565675893}
+    m_Duration: 19.26181818181818
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 7621207629442384186}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uCC98\uB9AC\uC7A5 \uBC30\uACBD"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uCC98\uB9AC\uC7A5 \uBC30\uACBD"
+  continueDuringWait: 1
+  studioTrackKind: 6
+  studioDisplayOrders: []
+--- !u!114 &8104739526565675893
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2127,12 +5744,545 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
   m_Name: StudioClip
   m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
   dialoguePrefab: {fileID: 0}
   hasDialogueSettingsBeforePrefab: 0
   dialogueStyleBeforePrefab: 0
   bubbleLayoutBeforePrefab: 0
   dialogueFontBeforePrefab: {fileID: 0}
-  cameraTargetId:
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 6
+  actorId: lab
+  from: {x: -340, y: 100}
+  to: {x: -340, y: 100}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!213 &8259739291548635820
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_idle_30_43
+  m_Rect:
+    serializedVersion: 2
+    x: 30
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 30
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 48, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 30
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 48, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!213 &8366221573827896750
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_walk_31_43
+  m_Rect:
+    serializedVersion: 2
+    x: 31
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 31
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 49, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 31
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 49, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!114 &8368663252115333223
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
   cameraFollowOffset: {x: 0, y: 0}
   shakeSpeed: 1
   shakeAmplitude: {x: 12, y: 12}
@@ -2141,8 +6291,8 @@ MonoBehaviour:
   backgroundDissolve: 0
   kind: 6
   actorId: yuna
-  from: {x: -56, y: -54.4}
-  to: {x: 14.4, y: -54.4}
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
   scaleFrom: 1
   scaleTo: 1
   rotationFrom: 0
@@ -2175,14 +6325,130 @@ MonoBehaviour:
     m_RotationOrder: 4
   holdEnd: 0
   flipX: 1
-  frames: []
+  frames:
+  - {fileID: 8366221573827896750}
+  - {fileID: -9102013280377521515}
+  - {fileID: -409225631121537818}
+  - {fileID: -1342403876872147107}
+  - {fileID: 3516539856569910848}
+  - {fileID: 28429701769702807}
+  - {fileID: 8827103909010872208}
+  - {fileID: 3103952980529564713}
   frameTimes: []
   animationLength: 0
-  propertyKeys: []
+  propertyKeys:
+  - property: 0
+    keys:
+    - time: 0
+      value: 336
+    - time: 0.033333335
+      value: 335.512
+    - time: 0.06666667
+      value: 335.75458
+    - time: 0.1
+      value: 336.72784
+    - time: 0.13333334
+      value: 338.43195
+    - time: 0.16666667
+      value: 340.8669
+    - time: 0.2
+      value: 344.03293
+    - time: 0.21
+      value: 345.1253
+    - time: 0.23333333
+      value: 349.30338
+    - time: 0.26666668
+      value: 358.59634
+    - time: 0.3
+      value: 371.79654
+    - time: 0.33333334
+      value: 388.79797
+    - time: 0.34
+      value: 392.628
+    - time: 0.36666667
+      value: 400.90164
+    - time: 0.4
+      value: 407.65494
+    - time: 0.43333334
+      value: 410.43326
+    - time: 0.44
+      value: 410.51263
+  - property: 1
+    keys:
+    - time: 0
+      value: -123
+    - time: 0.033333335
+      value: -123.00473
+    - time: 0.06666667
+      value: -123.01891
+    - time: 0.1
+      value: -123.04255
+    - time: 0.13333334
+      value: -123.07563
+    - time: 0.16666667
+      value: -123.118164
+    - time: 0.2
+      value: -123.170135
+    - time: 0.21
+      value: -123.18757
+    - time: 0.23333333
+      value: -123.13714
+    - time: 0.26666668
+      value: -123.003944
+    - time: 0.3
+      value: -123.25097
+    - time: 0.33333334
+      value: -124.73931
+    - time: 0.34
+      value: -125.28723
+    - time: 0.36666667
+      value: -125.759895
+    - time: 0.4
+      value: -126.17852
+    - time: 0.43333334
+      value: -126.3593
+    - time: 0.44
+      value: -126.36453
+  - property: 3
+    keys:
+    - time: 0
+      value: 0
+    - time: 0.033333335
+      value: 0.63492066
+    - time: 0.06666667
+      value: 1.2698413
+    - time: 0.1
+      value: 1.9047619
+    - time: 0.13333334
+      value: 2.5396826
+    - time: 0.16666667
+      value: 3.1746032
+    - time: 0.2
+      value: 3.8095238
+    - time: 0.21
+      value: 4
+    - time: 0.23333333
+      value: 3.4201183
+    - time: 0.26666668
+      value: 0.57988167
+    - time: 0.3
+      value: -4.6272187
+    - time: 0.33333334
+      value: -12.201183
+    - time: 0.34
+      value: -14
+    - time: 0.36666667
+      value: -15.386666
+    - time: 0.4
+      value: -16.52
+    - time: 0.43333334
+      value: -16.986666
+    - time: 0.44
+      value: -17
   backgroundSprite: {fileID: 0}
   framesPerSecond: 9
   loop: 1
-  text: 대사를 입력하세요.
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
   font: {fileID: 0}
   useDialogueStyle: 0
   dialogueFontSize: 22
@@ -2204,3 +6470,423 @@ MonoBehaviour:
   audioOffset: 0
   fadeIn: 0
   fadeOut: 0.1
+--- !u!213 &8827103909010872208
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_walk_607_43
+  m_Rect:
+    serializedVersion: 2
+    x: 607
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 607
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 625, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: 07ad291955299403da2e98fca0ef5327, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 607
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 625, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 
+--- !u!213 &9033442546535598476
+Sprite:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: yuna_idle_510_43
+  m_Rect:
+    serializedVersion: 2
+    x: 510
+    y: 6
+    width: 36
+    height: 55
+  m_Offset: {x: 0, y: 0}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5, y: 0.5}
+  m_Extrude: 0
+  m_IsPolygon: 0
+  m_PackingTag: 
+  m_RenderDataKey:
+    00000000000000000000000000000000: 0
+  m_AtlasTags: []
+  m_SpriteAtlas: {fileID: 0}
+  m_RD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 510
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 528, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_AtlasRD:
+    serializedVersion: 3
+    texture: {fileID: 2800000, guid: d14631f37cd5f4572a9125d83e8c4c80, type: 3}
+    alphaTexture: {fileID: 0}
+    secondaryTextures: []
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 6
+      topology: 0
+      baseVertex: 0
+      firstVertex: 0
+      vertexCount: 4
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 000001000200020001000300
+    m_VertexData:
+      serializedVersion: 3
+      m_VertexCount: 4
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 1
+        offset: 0
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 80
+      _typelessdata: ec5138becdcc8c3e00000000ec51383ecdcc8c3e00000000ec5138becdcc8cbe00000000ec51383ecdcc8cbe000000000000000000000000000000000000000000000000000000000000000000000000
+    m_Bindpose: []
+    textureRect:
+      serializedVersion: 2
+      x: 510
+      y: 6
+      width: 36
+      height: 55
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 0
+    uvTransform: {x: 100, y: 528, z: 100, w: 33.5}
+    downscaleMultiplier: 1
+  m_PhysicsShape: []
+  m_Bones: []
+  m_ScriptableObjects: []
+  m_SpriteID: 

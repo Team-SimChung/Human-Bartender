@@ -104,6 +104,18 @@ public class SphParticle : MonoBehaviour
         pos += velocity * dt;
     }
 
+    /// <summary>
+    /// 고인 액체에 아직 합류하지 않은 잔 안 입자용. 밀려난 거리를 속도로 바꾸되, 위쪽 속도는 예측 속도보다
+    /// 커지지 않게 한다. 빠른 줄기가 고인 액체에 부딪혀 위로 밀려난 거리가 그대로 튀어 오르는 속도가 되면
+    /// 입구까지 물보라가 차올라 줄기가 갈라진다. 옆으로 밀리거나 느려지는 것은 그대로 둔다(중력 방향은 월드 아래).
+    /// </summary>
+    internal void UpdateVelocityWithoutRebound(float dt)
+    {
+        float maxUpward = Mathf.Max(0f, velocity.y);
+        UpdateVelocityFromPosition(dt);
+        if (velocity.y > maxUpward) velocity.y = maxUpward;
+    }
+
     public void UpdateVelocityFromPosition(float dt)
     {
         velocity = (pos - previousPos) / Mathf.Max(dt, 0.0001f);
@@ -115,8 +127,7 @@ public class SphParticle : MonoBehaviour
         // 한 스텝에 간격의 일부 이상 움직이면 이웃 관계가 통째로 바뀌어 밀도가 튀고, 벽도 뚫는다.
         // spacing을 줄이면 이 한계도 같이 내려가야 하므로 dt에서 직접 구한다 — 고정값만 쓰면
         // 알갱이를 곱게 만드는 순간 액체가 담길 때 사방으로 튄다.
-        const float maxTravelPerStep = 0.4f; // spacing 대비
-        float cflLimit = config.spacing * maxTravelPerStep / Mathf.Max(dt, 0.0001f);
+        float cflLimit = config.spacing * config.maxTravelPerStep / Mathf.Max(dt, 0.0001f);
         float speedLimit = Mathf.Min(config.maxVelocity, cflLimit);
 
         if (velocity.sqrMagnitude > speedLimit * speedLimit)

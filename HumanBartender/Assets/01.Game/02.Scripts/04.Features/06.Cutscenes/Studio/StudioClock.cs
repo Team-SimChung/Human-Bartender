@@ -16,6 +16,7 @@ namespace HumanBartender.CutsceneStudio
         public StudioEntry? Waiting { get; private set; }
         public StudioEntry? Dialogue { get; private set; }
         public double DialogueElapsed { get; private set; }
+        internal double DialogueHoldTime { get; private set; }
         public bool Finished { get; private set; }
         public int Revision { get; private set; }
         // 음원 위치를 바꾸는 탐색과 구분한다. 전체 표시 입력에서는 타이핑 효과음을 몰아 재생하지 않는다.
@@ -29,7 +30,7 @@ namespace HumanBartender.CutsceneStudio
         public void Seek(double time)
         {
             Time = Math.Max(0, time); Waiting = Dialogue = null; DialogueElapsed = 0;
-            Revision++; Finished = false; passed.Clear(); suppressed.Clear(); offsets.Clear();
+            DialogueHoldTime = 0; Revision++; Finished = false; passed.Clear(); suppressed.Clear(); offsets.Clear();
         }
 
         // 첫 입력은 전체 표시만. 다음 입력은 현재 대사의 끝으로 이동한다.
@@ -53,7 +54,7 @@ namespace HumanBartender.CutsceneStudio
                         if (other.ContinuesDuringWait && other.Contains(DisplayTime) && other.Contains(destination))
                             AddOffset(other.Asset, Time - destination);
                     Time = destination; Revision++;
-                    Dialogue = null; DialogueElapsed = 0;
+                    Dialogue = null; DialogueElapsed = 0; DialogueHoldTime = 0;
                 }
                 Waiting = null;
             }
@@ -73,7 +74,7 @@ namespace HumanBartender.CutsceneStudio
             delta = Math.Max(0, delta);
             if (!gates)
             {
-                Dialogue = Waiting = null; DialogueElapsed = 0;
+                Dialogue = Waiting = null; DialogueElapsed = 0; DialogueHoldTime = 0;
                 Time = Math.Min(sequence.Duration, Time + delta);
                 Finished = Time >= sequence.Duration;
                 return;
@@ -128,6 +129,7 @@ namespace HumanBartender.CutsceneStudio
         private void Hold(double delta)
         {
             if (delta <= 0) return;
+            if (Dialogue.HasValue) DialogueHoldTime += delta;
             foreach (var entry in entries)
                 if (entry.ContinuesDuringWait && entry.Contains(DisplayTime)) AddOffset(entry.Asset, delta);
         }

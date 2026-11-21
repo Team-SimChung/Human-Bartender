@@ -29,9 +29,18 @@ public sealed class BarDialogueHistory : MonoBehaviour
     bool PresentingStoryLine => phases != null && phases.CanReceiveInput(EPlayPhase.Dialogue) &&
         storyRunner != null && storyRunner.IsPresentingLine;
     bool InService => phases != null && phases.CanReceiveInput(EPlayPhase.Tycoon);
+    /// <summary>
+    /// 2부에서 주문을 받고 제조를 기다리는 중. 서비스 패널이 열리는 조건(ServicePanelController.CanOpen)과 같다.
+    /// 튜토리얼이 조작을 안내하는 중(0일차 진토닉·1일차 맥주 제조 실습)에는 웹처럼 잠근다 — 안내 창이 기록 화면 위에 남는다.
+    /// </summary>
+    bool AwaitingStoryCraft => phases != null && phases.CanReceiveInput(EPlayPhase.Dialogue) &&
+        storyRunner != null && storyRunner.CanStartCraft && !storyRunner.IsGuidingLesson;
 
-    /// <summary>열람 버튼과 화면 열기가 함께 쓰는 허용 조건. 단골·튜토리얼 대사 중이거나 영업 중이면 열 수 있다.</summary>
-    public bool CanUseHistory => CraftIdle && (PresentingStoryLine || InService);
+    /// <summary>
+    /// 열람 버튼과 화면 열기가 함께 쓰는 허용 조건. 단골·튜토리얼 대사 중, 2부 제조 대기 중, 영업 중이면 열 수 있다.
+    /// 제조 화면에 들어가 있는 동안에는 열지 않는다.
+    /// </summary>
+    public bool CanUseHistory => CraftIdle && (PresentingStoryLine || AwaitingStoryCraft || InService);
 
     // 단골·튜토리얼 대화창의 글자를 기록하는 조건. 예전 열람 조건과 같다.
     bool CanRecordStory => CraftIdle && PresentingStoryLine;

@@ -68,7 +68,7 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
                 case "home": sound.PlayPlaylist(group, new[] { "BGM_bar_02" }); break;
                 case "street": sound.PlayPlaylist(group, new[] { "BGM_outside" }, .6f); break;
                 case "bar": sound.PlayPlaylist(group, new[] { "BGM_bar_01", "BGM_bar_02", "BGM_bar_03" }); break;
-                default: sound.StopBGM(); break;
+                default: sound.StopBGM(scene == "TempEnding" ? 0 : 1); break;
             }
         }
         bool cinematic = GameAudioContext.Cinematic || state.CurrentGameState == GameState.Effect;

@@ -4,6 +4,12 @@ namespace HumanBartender.CutsceneStudio
 {
     public sealed partial class StudioClip
     {
+        [SerializeField, Tooltip("화면 전체와 대사에 적용할 UI 머티리얼입니다.")] private Material screenMaterial;
+        public Material ScreenMaterial { get => screenMaterial; internal set => screenMaterial = value; }
+
+        [SerializeField, Tooltip("화자 오브젝트 없이 표시할 화자 이름입니다.")] private string speakerName;
+        public string SpeakerName { get => speakerName; internal set => speakerName = value; }
+
         [SerializeField, Header("대사 제작"), Tooltip("스튜디오에서 본문·속도 편집을 확정할 때 적용합니다. 기존 파일은 수동입니다.")]
         private StudioDialogueLengthMode dialogueLengthMode;
         public StudioDialogueLengthMode DialogueLengthMode { get => dialogueLengthMode; internal set => dialogueLengthMode = value; }

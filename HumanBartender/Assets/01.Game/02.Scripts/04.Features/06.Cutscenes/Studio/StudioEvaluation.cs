@@ -17,7 +17,7 @@ namespace HumanBartender.CutsceneStudio
 
         public bool ContinuesDuringWait => Clip.GetParentTrack() is StudioTrack track && track.ContinueDuringWait &&
             (Asset.Kind == StudioKind.Audio || Asset.Kind == StudioKind.Visual && Asset.Loop ||
-             Asset.Kind == StudioKind.Effect && Asset.Effect == StudioEffect.Shake);
+             Asset.Kind == StudioKind.Effect && (Asset.ScreenMaterial != null || Asset.Effect == StudioEffect.Shake));
         public bool Contains(double time) => time >= Clip.start && time < Clip.end;
         public float Progress(double time) => Mathf.Clamp01((float)((time - Clip.start) / Math.Max(.001, Clip.duration)));
     }

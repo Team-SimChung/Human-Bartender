@@ -49,13 +49,15 @@ public class GuestSlot : MonoBehaviour
     [Tooltip("단골(카메오)이 앉을 때 그림을 붙이는 곳. 이 좌석의 캐릭터 리그를 들고 있다.")]
     [SerializeField] GuestCharacterView characterView;
 
-    [Header("손님 말풍선 (캐릭터 루트의 World Space Canvas)")]
+    [Header("손님 말풍선 (Canvas_Dialogue/GuestBarkRoot의 좌석 말풍선)")]
+    [Tooltip("말할 때 켜고 끄는 말풍선 오브젝트. 화면 캔버스에 있고 GuestBarkFollower가 이 좌석을 따라가게 한다.")]
     [SerializeField] GameObject bubbleRoot;
     [SerializeField] DynamicSpeechBubble speechBubble;
 
     bool useTempAppearance;
     CancellationTokenSource bubbleCts;
     CancellationTokenSource appearanceCts;
+    UniTaskCompletionSource entrance;
     CharacterFade randomFade;
     readonly GuestMouthAnimation mouthAnimation = new();
     bool speakingRequested;
@@ -101,6 +103,13 @@ public class GuestSlot : MonoBehaviour
     /// <summary>이 좌석 말풍선의 글자 재생기. 대화 기록이 본 글자를 읽으려고 구독한다. 말풍선이 연결되지 않았으면 null.</summary>
     public DialogueTextPlayer BarkPlayer => speechBubble != null ? speechBubble.TextPlayer : null;
 
+    /// <summary>
+    /// 지금 앉은 손님의 등장 연출(파츠 로딩과 페이드 인)이 끝나면 완료된다. 첫 대사는 이 뒤에 나온다(엔진 수정 13).
+    /// 로딩이 실패하거나 도중에 취소·교체돼도 완료로 친다 — 그림이 없더라도 대사는 나와야 하고, 기다리던 쪽은 손님이 그대로인지 따로 확인한다.
+    /// 자리가 비어 있으면 바로 완료다. 단골(카메오)의 그림은 GuestManager가 GuestCharacterView로 붙이므로 여기에 들어가지 않는다.
+    /// </summary>
+    public UniTask WaitForEntranceAsync() => entrance?.Task ?? UniTask.CompletedTask;
+
     /// <summary>GuestManager가 테스트 모드 여부를 전달한다. true면 파츠 addressable 로딩 대신 tempAppearanceObject를 On/Off한다.</summary>
     public void SetTempAppearanceMode(bool enabled)
     {
@@ -119,10 +128,18 @@ public class GuestSlot : MonoBehaviour
         appearanceCts?.Cancel();
         appearanceCts?.Dispose();
         appearanceCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
-        ApplyAppearanceAsync(guest, appearanceCts.Token).Forget(error =>
-        {
-            if (error is not OperationCanceledException) Debug.LogException(error);
-        });
+        entrance?.TrySetResult();
+        entrance = new UniTaskCompletionSource();
+        EnterAsync(guest, entrance, appearanceCts.Token).Forget();
+    }
+
+    /// <summary>외형을 적용하고, 어떻게 끝나든(완료·실패·취소) 기다리던 첫 대사를 놓아 준다.</summary>
+    async UniTaskVoid EnterAsync(Guest guest, UniTaskCompletionSource entered, CancellationToken token)
+    {
+        try { await ApplyAppearanceAsync(guest, token); }
+        catch (OperationCanceledException) { }
+        catch (Exception error) { Debug.LogException(error); }
+        finally { entered.TrySetResult(); }
     }
 
     /// <summary>
@@ -208,9 +225,10 @@ public class GuestSlot : MonoBehaviour
 
     /// <summary>
     /// 말풍선에 텍스트를 즉시 표시한다. durationSec이 0보다 크면 그 시간 뒤 자동으로 숨긴다.
+    /// speakerName은 이름 줄에 적는다(일반 손님 "손님", 카메오 단골은 인물 이름). 즉시 표시와 타이핑 모두 같은 이름을 쓴다.
     /// </summary>
     public void ShowBark(string text, float durationSec = 3f, NewTextTagDataSO tags = null,
-        string cocktailName = null, bool typewriter = false, bool orderLine = false)
+        string cocktailName = null, bool typewriter = false, bool orderLine = false, string speakerName = null)
     {
         bubbleCts?.Cancel();
         StopSpeaking();
@@ -218,6 +236,9 @@ public class GuestSlot : MonoBehaviour
         IsShowingOrderLine = orderLine;
 
         if (bubbleRoot != null) bubbleRoot.SetActive(true);
+        // 켜질 때 DynamicSpeechBubble이 이름 색을 공통 하늘색(speakerNameColor)으로 맞춘다. 타이핑 경로(PlayAsync)도
+        // 같은 색을 쓰므로 여기서는 글자만 정한다. 이름 줄이 없는 말풍선은 건너뛴다.
+        if (speechBubble != null && speechBubble.nameLabel != null) speechBubble.nameLabel.text = speakerName ?? "";
         if (typewriter && durationSec > 0f)
         {
             if (!DialogueTextCompiler.TryCompile(text, tags, DialoguePresentationSettings.Shared,
@@ -254,6 +275,7 @@ public class GuestSlot : MonoBehaviour
     {
         try
         {
+            // 화자 이름은 ShowBark가 이름 줄에 적어 둔 값을 그대로 넘긴다(PlayAsync가 이름 줄을 다시 쓴다).
             await speechBubble.TextPlayer.PlayAsync(
                 new TypingData(text, speechBubble.nameLabel != null ? speechBubble.nameLabel.text : "",
                     Vector3.zero, speechBubble.nameLabel != null ? speechBubble.nameLabel.color : Color.white,
@@ -314,6 +336,8 @@ public class GuestSlot : MonoBehaviour
         appearanceCts?.Cancel();
         appearanceCts?.Dispose();
         appearanceCts = null;
+        entrance?.TrySetResult();
+        entrance = null;
         randomFade?.SetOpacity(1);
         StopSpeaking();
         CurrentGuest?.bodySprites?.Release();

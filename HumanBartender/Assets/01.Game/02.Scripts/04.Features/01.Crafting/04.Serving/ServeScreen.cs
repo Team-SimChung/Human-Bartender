@@ -30,6 +30,12 @@ public class ServeScreen : MonoBehaviour
 
     [SerializeField] private GameObject BG;
 
+    [Header("제조 등급")]
+    [Tooltip("완성 컷 뒤에 제조 등급의 파티클과 글자를 표시합니다. 미연결 등급은 기존 텍스트로 표시합니다.")]
+    [SerializeField] private ServeGradeReveal gradeReveal;
+    [Tooltip("제공 버튼의 텍스트. 제조 테스트에서는 같은 버튼을 닫기로 사용합니다.")]
+    [SerializeField] private TextMeshProUGUI acceptLabel;
+
     [Header("전용 클립이 없는 칵테일")]
     [Tooltip("클립이 없는 칵테일의 완성 그림을 띄우는 Image. BG 아래 drink 바로 뒤에 둡니다. 웹 serve-fallback과 같은 연출입니다.")]
     [SerializeField] private Image fallbackDrinkImage;
@@ -57,6 +63,10 @@ public class ServeScreen : MonoBehaviour
     private float animationDuration;
     private bool animationCompleted;
     private bool initialized;
+    private bool preview;
+    private string provideLabel;
+    private bool gradeRevealed;
+    private bool showingGradeEffect;
     private CraftedDrink currentDrink;
 
     public bool IsShowing => currentDrink != null;
@@ -70,6 +80,7 @@ public class ServeScreen : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         if (Restart != null) Restart.onClick.AddListener(Discard);
         if (Accept != null) Accept.onClick.AddListener(Provide);
+        if (acceptLabel != null) provideLabel = acceptLabel.text;
         Reset();
     }
 
@@ -80,7 +91,12 @@ public class ServeScreen : MonoBehaviour
         TryPlay(drink);
     }
 
-    public bool TryPlay(CraftedDrink drink)
+    public bool TryPlay(CraftedDrink drink) => TryPlay(drink, false);
+
+    /// <summary>제조 결과를 보여 주고 확인을 받는 테스트 모드. 제조 흐름에 잔을 제출하지 않는다.</summary>
+    public bool TryPlayPreview(CraftedDrink drink) => TryPlay(drink, true);
+
+    private bool TryPlay(CraftedDrink drink, bool isPreview)
     {
         if (drink == null)
         {
@@ -92,7 +108,7 @@ public class ServeScreen : MonoBehaviour
         AnimationClip clip = FindAnimation(drink.CocktailId);
         if (clip == null && CanShowStill)
         {
-            BeginShow(drink);
+            BeginShow(drink, isPreview);
             PlayStill(drink.CocktailId);
             return true;
         }
@@ -116,7 +132,7 @@ public class ServeScreen : MonoBehaviour
             return false;
         }
 
-        BeginShow(drink);
+        BeginShow(drink, isPreview);
         if (animatedDrinkImage != null) animatedDrinkImage.enabled = true;
 
         // UI Image의 스프라이트 곡선은 Legacy 변환 없이 Animator에 재생한다.
@@ -135,13 +151,15 @@ public class ServeScreen : MonoBehaviour
         return true;
     }
 
-    private void BeginShow(CraftedDrink drink)
+    private void BeginShow(CraftedDrink drink, bool isPreview)
     {
         gameObject.SetActive(true);
         if (BG != null) BG.SetActive(true);
         SetControlsActive(false);
         StopAnimation();
         currentDrink = drink;
+        preview = isPreview;
+        if (acceptLabel != null) acceptLabel.text = preview ? "닫기" : provideLabel;
         UpdateGrade();
     }
 
@@ -227,18 +245,28 @@ public class ServeScreen : MonoBehaviour
     {
         if (currentDrink == null) return;
         UpdateGrade();
+        if (!gradeRevealed)
+        {
+            gradeRevealed = true;
+            showingGradeEffect = currentDrink.CraftGrade is { } grade && gradeReveal != null && gradeReveal.TryPlay(grade);
+        }
         SetControlsActive(true);
-        SetDecisionInteractable(craftFlow == null || !craftFlow.IsResolvingDiscard);
+        SetDecisionInteractable(preview || craftFlow == null || !craftFlow.IsResolvingDiscard);
     }
 
     public void Discard()
     {
-        if (currentDrink == null || craftFlow == null || craftFlow.IsResolvingDiscard) return;
+        if (preview || currentDrink == null || craftFlow == null || craftFlow.IsResolvingDiscard) return;
         craftFlow.TryDiscardPendingDrink(currentDrink, retryOnDiscard);
     }
 
     public void Provide()
     {
+        if (preview)
+        {
+            Reset();
+            return;
+        }
         if (currentDrink == null || craftFlow == null || craftFlow.IsResolvingDiscard) return;
         if (craftFlow.TryAcceptPendingDrink(currentDrink)) Reset();
     }
@@ -246,7 +274,7 @@ public class ServeScreen : MonoBehaviour
     public void SetDecisionInteractable(bool interactable)
     {
         if (Restart != null) Restart.interactable = interactable;
-        if (Accept != null) Accept.interactable = interactable && currentDrink?.CraftGrade.HasValue == true;
+        if (Accept != null) Accept.interactable = interactable && (preview || currentDrink?.CraftGrade.HasValue == true);
     }
 
     public void ResetIfShowing(CraftedDrink drink)
@@ -258,6 +286,8 @@ public class ServeScreen : MonoBehaviour
     {
         StopAnimation();
         currentDrink = null;
+        preview = false;
+        if (acceptLabel != null) acceptLabel.text = provideLabel;
         SetControlsActive(false);
         if (BG != null) BG.SetActive(false);
     }
@@ -277,9 +307,9 @@ public class ServeScreen : MonoBehaviour
 
     private void SetControlsActive(bool active)
     {
-        if (Restart != null) Restart.gameObject.SetActive(active);
+        if (Restart != null) Restart.gameObject.SetActive(active && !preview);
         if (Accept != null) Accept.gameObject.SetActive(active);
-        if (Grade != null) Grade.gameObject.SetActive(active);
+        if (Grade != null) Grade.gameObject.SetActive(active && !showingGradeEffect);
     }
 
     private void UpdateGrade()
@@ -299,6 +329,9 @@ public class ServeScreen : MonoBehaviour
 
     private void StopAnimation()
     {
+        if (gradeReveal != null) gradeReveal.Stop();
+        gradeRevealed = false;
+        showingGradeEffect = false;
         HideStill();
         if (servingGraph.IsValid()) servingGraph.Destroy();
         servingPlayable = default;
