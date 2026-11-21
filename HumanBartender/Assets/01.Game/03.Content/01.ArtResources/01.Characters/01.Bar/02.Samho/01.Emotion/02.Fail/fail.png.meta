@@ -111,10 +111,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 360
+        width: 386
         height: 310
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -127,55 +127,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: fail_1
-      rect:
-        serializedVersion: 2
-        x: 357
-        y: 0
-        width: 29
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fedc602bd114e4f40800000000000000
-      internalID: 5714576572976385519
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Game_fail_c310638f
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 386
-        height: 310
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1096}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c310638faaa2b7027b3a5958db439f68
-      internalID: 1878490244107348848
-      vertices: []
-      indices:
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 8da836da880492044aa0726823611639
     internalID: 0
     vertices: []
     indices: 
@@ -183,11 +139,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":386.0,"y":310.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Game_fail_c310638f: 1878490244107348848
       fail_0: -2318045846349371952
-      fail_1: 5714576572976385519
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -42,11 +42,22 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     [Inject] IConditionUtil conditions;
     [Inject] IPopupService popupService;
 
-    public UniTask RunAsync(CancellationToken cancellationToken = default) => RunPhaseAsync(ENewScenePhase.Bar, cancellationToken);
+    /// <summary>
+    /// 본편을 실행한다. 정상으로 끝나면 대본이 내보내지 않은 손님과 테이블 위 잔·코스터를 정산창 뒤에 남겨 둔다(엔진 수정 11).
+    /// 남긴 무대는 PlayPhaseController가 ReleaseStage로 정리한다.
+    /// </summary>
+    public UniTask RunAsync(CancellationToken cancellationToken = default) =>
+        RunPhaseAsync(ENewScenePhase.Bar, cancellationToken, holdStage: true);
 
     public UniTask RunOpeningAsync(CancellationToken cancellationToken = default) =>
         GameStateManager.Instance.CurrentDay >= 1 && GameStateManager.Instance.CurrentDay <= 3
             ? RunPhaseAsync(ENewScenePhase.BarOpen, cancellationToken) : UniTask.CompletedTask;
+
+    /// <summary>본편이 끝난 뒤 남겨 둔 무대(인물·테이블 위 잔과 코스터)를 정리한다. 남긴 것이 없으면 아무것도 하지 않는다.</summary>
+    public void ReleaseStage()
+    {
+        if (runner != null) runner.ReleaseStage();
+    }
 
 #if UNITY_EDITOR
     private string testSceneId;
@@ -67,7 +78,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     }
 #endif
 
-    async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken)
+    async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken, bool holdStage = false)
     {
         int day = GameStateManager.Instance.CurrentDay;
 
@@ -117,7 +128,7 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
                 result = await runner.RunFromDialogueForTestAsync(script, testSceneId, testStepSeq, testGrade, testOrderMatch, linked.Token);
             else
 #endif
-                result = await runner.RunAsync(script, linked.Token, phase);
+                result = await runner.RunAsync(script, linked.Token, phase, holdStage);
         }
         finally
         {
