@@ -49,7 +49,8 @@ public class GuestSlot : MonoBehaviour
     [Tooltip("단골(카메오)이 앉을 때 그림을 붙이는 곳. 이 좌석의 캐릭터 리그를 들고 있다.")]
     [SerializeField] GuestCharacterView characterView;
 
-    [Header("손님 말풍선 (캐릭터 루트의 World Space Canvas)")]
+    [Header("손님 말풍선 (Canvas_Dialogue/GuestBarkRoot의 좌석 말풍선)")]
+    [Tooltip("말할 때 켜고 끄는 말풍선 오브젝트. 화면 캔버스에 있고 GuestBarkFollower가 이 좌석을 따라가게 한다.")]
     [SerializeField] GameObject bubbleRoot;
     [SerializeField] DynamicSpeechBubble speechBubble;
 
@@ -224,9 +225,10 @@ public class GuestSlot : MonoBehaviour
 
     /// <summary>
     /// 말풍선에 텍스트를 즉시 표시한다. durationSec이 0보다 크면 그 시간 뒤 자동으로 숨긴다.
+    /// speakerName은 이름 줄에 적는다(일반 손님 "손님", 카메오 단골은 인물 이름). 즉시 표시와 타이핑 모두 같은 이름을 쓴다.
     /// </summary>
     public void ShowBark(string text, float durationSec = 3f, NewTextTagDataSO tags = null,
-        string cocktailName = null, bool typewriter = false, bool orderLine = false)
+        string cocktailName = null, bool typewriter = false, bool orderLine = false, string speakerName = null)
     {
         bubbleCts?.Cancel();
         StopSpeaking();
@@ -234,6 +236,9 @@ public class GuestSlot : MonoBehaviour
         IsShowingOrderLine = orderLine;
 
         if (bubbleRoot != null) bubbleRoot.SetActive(true);
+        // 켜질 때 DynamicSpeechBubble이 이름 색을 공통 하늘색(speakerNameColor)으로 맞춘다. 타이핑 경로(PlayAsync)도
+        // 같은 색을 쓰므로 여기서는 글자만 정한다. 이름 줄이 없는 말풍선은 건너뛴다.
+        if (speechBubble != null && speechBubble.nameLabel != null) speechBubble.nameLabel.text = speakerName ?? "";
         if (typewriter && durationSec > 0f)
         {
             if (!DialogueTextCompiler.TryCompile(text, tags, DialoguePresentationSettings.Shared,
@@ -270,6 +275,7 @@ public class GuestSlot : MonoBehaviour
     {
         try
         {
+            // 화자 이름은 ShowBark가 이름 줄에 적어 둔 값을 그대로 넘긴다(PlayAsync가 이름 줄을 다시 쓴다).
             await speechBubble.TextPlayer.PlayAsync(
                 new TypingData(text, speechBubble.nameLabel != null ? speechBubble.nameLabel.text : "",
                     Vector3.zero, speechBubble.nameLabel != null ? speechBubble.nameLabel.color : Color.white,

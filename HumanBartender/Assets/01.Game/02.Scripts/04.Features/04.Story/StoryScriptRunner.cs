@@ -28,6 +28,9 @@ public partial class StoryScriptRunner : MonoBehaviour
     CraftServingView tables;
 
     public bool CanStartCraft { get; private set; }
+
+    /// <summary>튜토리얼이 조작을 하나씩 안내하는 중인지(좌석·코스터·제조 실습). 대화 기록처럼 안내와 겹치는 화면을 막는 데 쓴다.</summary>
+    public bool IsGuidingLesson => tutorial != null && tutorial.ActiveLesson != null;
     string craftMenuTutorialCocktailId;
     public event Action CraftAuthorizationChanged;
 

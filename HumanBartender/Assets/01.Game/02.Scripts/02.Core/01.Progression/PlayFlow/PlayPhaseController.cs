@@ -285,8 +285,8 @@ public class PlayPhaseController : MonoBehaviour
 
             BeginPhase(EPlayPhase.Dialogue);
             await RunPhaseAsync(storyFlow, cancellationToken);
-            // 대본이 내보내지 않은 손님은 정산창 뒤에 남긴다(엔진 수정 11). 좌석 인물(storyOnlyObjects)을 끄면
-            // DialogueCharacterManager.OnDisable이 인물을 지우므로 켜 둔 채 입력만 닫는다. 정리는 finally의 ReleaseStage가 한다.
+            // 대본이 내보내지 않은 손님은 정산창 뒤에 남긴다(엔진 수정 11). 인물 파츠(Story/StoryCharacters/Left·Right의
+            // Body·Face 등)가 storyOnlyObjects 아래에 있어 끄면 함께 안 보이므로, 켜 둔 채 입력만 닫는다. 정리는 finally의 ReleaseStage가 한다.
             EndCurrentPhase(keepStoryObjects: true);
 
             if (!await RunSettlementAsync(cancellationToken))

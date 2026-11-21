@@ -29,6 +29,8 @@ public class GuestManager : MonoBehaviour
     [SerializeField] NewBarkDataSO barkData;
     [SerializeField] NewTextTagDataSO textTagData;
     [SerializeField] NewCharacterDataSO characterData;
+    [Tooltip("UI 문구 표(settings/ui_strings.csv의 실행 캐시). 일반 손님 말풍선 이름 줄에 ui_guest_name을 쓴다. 비우면 이름을 비워 둔다.")]
+    [SerializeField] NewUIStringDataSO uiStringData;
     [SerializeField] GuestSlot[] slots;
     [SerializeField] CraftServingView servingView;
     readonly Dictionary<GuestSlot, TableServeSpot> tableSpots = new();
@@ -796,7 +798,30 @@ public class GuestManager : MonoBehaviour
         string text = candidates.Length == 0 ? "{cocktail}" :
             PickBarkAvoidingRepeat($"{situation}/{voiceId}", candidates).Text.Ko;
         string cocktailName = GetCocktailName(guest?.CurrentOrder?.Details.CocktailId ?? guest?.targetCocktailId);
-        slot.ShowBark(text, durationSec, textTagData, cocktailName, typewriter, orderLine);
+        slot.ShowBark(text, durationSec, textTagData, cocktailName, typewriter, orderLine, GuestSpeakerName(guest));
+    }
+
+    /// <summary>UI 문구 표에서 일반 손님 이름 줄에 쓰는 키.</summary>
+    const string GuestNameStringId = "ui_guest_name";
+
+    /// <summary>
+    /// 말풍선 이름 줄에 적을 이름. 웹처럼 일반 손님은 "손님"(ui_strings의 ui_guest_name), 카메오 단골은 인물 이름이다.
+    /// 대화 기록에 남는 화자(성격 이름)와는 따로다 — 그쪽은 BarDialogueHistory가 정한다.
+    /// 다른 바 대사와 같이 한국어 값을 쓴다. 표가 없거나 비었으면 빈 이름(카메오는 인물 id)으로 둔다.
+    /// </summary>
+    internal string GuestSpeakerName(Guest guest)
+    {
+        if (guest == null) return "";
+        if (guest.isRegular)
+        {
+            if (characterData != null && characterData.characterData != null)
+                foreach (var character in characterData.characterData)
+                    if (character.Id == guest.characterId && !string.IsNullOrEmpty(character.Name.Ko))
+                        return character.Name.Ko;
+            return guest.characterId ?? "";
+        }
+        return uiStringData != null && uiStringData.uiStringData != null &&
+            uiStringData.uiStringData.TryGetValue(GuestNameStringId, out var name) ? name.Ko ?? "" : "";
     }
 
     bool IsOrderDialoguePlaying(GuestSlot slot) =>
