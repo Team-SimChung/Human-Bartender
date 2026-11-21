@@ -29,6 +29,8 @@ public class GuestManager : MonoBehaviour
     [SerializeField] NewBarkDataSO barkData;
     [SerializeField] NewTextTagDataSO textTagData;
     [SerializeField] NewCharacterDataSO characterData;
+    [Tooltip("UI 문구 표(settings/ui_strings.csv의 실행 캐시). 일반 손님 말풍선 이름 줄에 ui_guest_name을 쓴다. 비우면 이름을 비워 둔다.")]
+    [SerializeField] NewUIStringDataSO uiStringData;
     [SerializeField] GuestSlot[] slots;
     [SerializeField] CraftServingView servingView;
     readonly Dictionary<GuestSlot, TableServeSpot> tableSpots = new();
@@ -49,6 +51,11 @@ public class GuestManager : MonoBehaviour
 
     [Tooltip("서빙 반응 대사 하나가 말풍선에 떠 있는 시간(초).")]
     [SerializeField] float serveBarkGapSec = 2.5f;
+
+    [Header("Guest lines")]
+    [Tooltip("손님이 나타나는 연출(외형 로딩·페이드 인)이 끝난 뒤 첫 대사(call)까지 기다리는 바 운영 시간(초). " +
+             "웹 arrivalSpeechDelay와 같다. 인내심 시간은 이 대기와 상관없이 앉는 순간부터 흐른다.")]
+    [SerializeField, Min(0f)] float firstBarkDelaySec = 1f;
 
     [Header("Test")]
     [Tooltip("파츠 addressable 로딩을 생략하고 GuestSlot의 임시 오브젝트만 On/Off한다. " +
@@ -91,6 +98,8 @@ public class GuestManager : MonoBehaviour
     readonly HashSet<OrderRequest> repeatingOrders = new();
     readonly Dictionary<GuestSlot, string> pendingWarnings = new();
     readonly Dictionary<GuestSlot, CancellationTokenSource> patienceCtsBySlot = new();
+    /// <summary>코스터를 받고 주문 대사가 나가기 전까지, 주문 대화가 이어지는 자리. 그 사이에는 잡담이 끼어들지 않는다.</summary>
+    readonly HashSet<GuestSlot> orderDialogues = new();
     readonly Dictionary<GuestSlot, (Guest guest, float start, float duration)> seatWaitTimes = new();
 
     public bool TryGetSeatWaitTime(GuestSlot slot, out float remaining, out float total)
@@ -306,19 +315,22 @@ public class GuestManager : MonoBehaviour
     /// 다르게 보이기 시작한다.
     ///
     /// 표정은 우선 기본값으로 둔다. guests/barks.csv의 expression을 읽어 상황마다 바꾸는 것은 아직 미구현이다.
+    ///
+    /// 돌려주는 작업은 그 그림의 등장 연출(로딩·페이드 인)이 끝나면 완료된다. 실패해도 예외 없이 끝난다.
+    /// 랜덤 손님이면 바로 완료다.
     /// </summary>
-    void SetSlotCharacter(GuestSlot slot, Guest guest)
+    UniTask SetSlotCharacterAsync(GuestSlot slot, Guest guest)
     {
-        if (!guest.isRegular) return;
+        if (!guest.isRegular) return UniTask.CompletedTask;
 
         if (slot.CharacterView == null)
         {
             Debug.LogError($"[Guest] {slot.name}에 GuestCharacterView가 없어 단골 '{guest.characterId}'의 " +
                            "그림을 붙이지 못했습니다.");
-            return;
+            return UniTask.CompletedTask;
         }
 
-        slot.CharacterView.SetCharacterAsync(guest.characterId, DefaultExpression).Forget();
+        return slot.CharacterView.SetCharacterAsync(guest.characterId, DefaultExpression);
     }
 
     /// <summary>단골이 앉아 있던 자리를 비운다. 랜덤 손님 자리는 파츠 렌더러 쪽에서 정리한다.</summary>
@@ -449,6 +461,7 @@ public class GuestManager : MonoBehaviour
                 if (fallback == null)
                 {
                     Debug.LogError($"[Guest] {guest.id}의 기본 조합도 만들지 못해 자리에 아무 그림도 나오지 않습니다.");
+                    ShowWithoutSprites(guest);
                     return;
                 }
 
@@ -461,7 +474,22 @@ public class GuestManager : MonoBehaviour
             sprites = null;
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        catch (Exception error)
+        {
+            Debug.LogException(error);
+            ShowWithoutSprites(guest);
+        }
         finally { sprites?.Release(); }
+    }
+
+    /// <summary>
+    /// 파츠를 끝내 불러오지 못한 손님에게 빈 스프라이트 묶음을 준다. 그림은 없지만 좌석의 등장 대기가 풀려
+    /// 첫 대사와 주문은 그대로 진행된다(엔진 수정 13). 비워 두면 좌석이 스프라이트를 영영 기다린다.
+    /// </summary>
+    void ShowWithoutSprites(Guest guest)
+    {
+        if (guest.bodySprites == null && slots.Any(slot => slot != null && slot.CurrentGuest == guest))
+            guest.bodySprites = new GuestBodySprites();
     }
 
     /// <summary>조합의 모든 슬롯을 한꺼번에 불러온다.</summary>
@@ -614,20 +642,41 @@ public class GuestManager : MonoBehaviour
 
         slot.Seat(guest);
         tableSpots.Add(slot, servingView.OpenGuestSpot(this, slot));
-        SetSlotCharacter(slot, guest);
-        ShowBark(slot, "call");
-
-        StartPatienceTimer(slot, guest);
+        BeginStay(slot, guest, SetSlotCharacterAsync(slot, guest));
 
         return true;
     }
 
     /// <summary>
-    /// 슬롯의 인내 타이머를 시작한다. 이미 돌고 있던 타이머가 있으면(재착석 등) 먼저 멈추고 새로 시작한다.
+    /// 앉은 손님의 기다림을 시작한다. 인내심은 앉는 순간부터 흐르고(웹 spawn과 같음), 첫 대사(call)는
+    /// 등장 연출이 끝나고 firstBarkDelaySec이 지난 뒤에 나온다(엔진 수정 13, 웹 guestDialogue의 arrival + 1초).
+    /// characterEntrance는 단골 그림의 등장 연출이다. 랜덤 손님은 좌석이 자기 페이드 인을 기다린다.
     /// </summary>
-    void StartPatienceTimer(GuestSlot slot, Guest guest)
+    void BeginStay(GuestSlot slot, Guest guest, UniTask characterEntrance)
     {
-        WatchPatienceAsync(slot, guest, RegisterSlotTimer(slot)).Forget();
+        var token = StartPatienceTimer(slot, guest);
+        CallAfterEntranceAsync(slot, guest, characterEntrance, token).Forget();
+    }
+
+    /// <summary>
+    /// 등장 연출 → firstBarkDelaySec(바 운영 시간) → call. 기다리는 동안 입은 움직이지 않는다.
+    /// 인내심과 같은 슬롯 타이머 신호를 쓰므로, 그 사이 코스터를 받거나 손님이 떠나면 call은 건너뛴다.
+    /// </summary>
+    async UniTaskVoid CallAfterEntranceAsync(GuestSlot slot, Guest guest, UniTask characterEntrance, CancellationToken token)
+    {
+        await UniTask.WhenAll(slot.WaitForEntranceAsync(), characterEntrance);
+        if (!await WaitWhileSeatedAsync(slot, guest, firstBarkDelaySec, token) || !slot.CanReceiveCoaster) return;
+        ShowBark(slot, "call");
+    }
+
+    /// <summary>
+    /// 슬롯의 인내 타이머를 시작하고 그 슬롯 타이머 신호를 돌려준다. 이미 돌고 있던 타이머가 있으면(재착석 등) 먼저 멈추고 새로 시작한다.
+    /// </summary>
+    CancellationToken StartPatienceTimer(GuestSlot slot, Guest guest)
+    {
+        var token = RegisterSlotTimer(slot);
+        WatchPatienceAsync(slot, guest, token).Forget();
+        return token;
     }
 
     /// <summary>
@@ -749,11 +798,35 @@ public class GuestManager : MonoBehaviour
         string text = candidates.Length == 0 ? "{cocktail}" :
             PickBarkAvoidingRepeat($"{situation}/{voiceId}", candidates).Text.Ko;
         string cocktailName = GetCocktailName(guest?.CurrentOrder?.Details.CocktailId ?? guest?.targetCocktailId);
-        slot.ShowBark(text, durationSec, textTagData, cocktailName, typewriter, orderLine);
+        slot.ShowBark(text, durationSec, textTagData, cocktailName, typewriter, orderLine, GuestSpeakerName(guest));
+    }
+
+    /// <summary>UI 문구 표에서 일반 손님 이름 줄에 쓰는 키.</summary>
+    const string GuestNameStringId = "ui_guest_name";
+
+    /// <summary>
+    /// 말풍선 이름 줄에 적을 이름. 웹처럼 일반 손님은 "손님"(ui_strings의 ui_guest_name), 카메오 단골은 인물 이름이다.
+    /// 대화 기록에 남는 화자(성격 이름)와는 따로다 — 그쪽은 BarDialogueHistory가 정한다.
+    /// 다른 바 대사와 같이 한국어 값을 쓴다. 표가 없거나 비었으면 빈 이름(카메오는 인물 id)으로 둔다.
+    /// </summary>
+    internal string GuestSpeakerName(Guest guest)
+    {
+        if (guest == null) return "";
+        if (guest.isRegular)
+        {
+            if (characterData != null && characterData.characterData != null)
+                foreach (var character in characterData.characterData)
+                    if (character.Id == guest.characterId && !string.IsNullOrEmpty(character.Name.Ko))
+                        return character.Name.Ko;
+            return guest.characterId ?? "";
+        }
+        return uiStringData != null && uiStringData.uiStringData != null &&
+            uiStringData.uiStringData.TryGetValue(GuestNameStringId, out var name) ? name.Ko ?? "" : "";
     }
 
     bool IsOrderDialoguePlaying(GuestSlot slot) =>
-        slot.IsShowingOrderLine || repeatingOrders.Contains(slot.CurrentGuest?.CurrentOrder);
+        slot.IsShowingOrderLine || orderDialogues.Contains(slot) ||
+        repeatingOrders.Contains(slot.CurrentGuest?.CurrentOrder);
 
     void ShowWaitWarning(GuestSlot slot, string situation)
     {
@@ -864,32 +937,45 @@ public class GuestManager : MonoBehaviour
 
         slot.MarkWaitingOrder();
         tableSpots[slot].ShowCoaster();
+        // 손님이 하던 말(call·재촉)은 코스터를 받는 순간 접는다. 이어지는 루나 질문과 겹치지 않는다.
+        slot.HideBark();
 
         var token = RegisterSlotTimer(slot);
-        ShowPlayerAskOrderBark(slot.CurrentGuest);
         WatchOrderAsync(slot, slot.CurrentGuest, token).Forget();
         return true;
     }
 
     /// <summary>
-    /// 주문 대기 상태가 된 뒤 3초 후 order_think, 그로부터 다시 3초 후 order 대사를 띄운다.
-    /// order 대사 출력 후에는 곧바로 서빙 대기(WatchServeAsync)로 이어진다.
-    /// 대기 도중 슬롯이 비워지거나 다른 손님으로 바뀌면(=먼저 응대/이탈됨) 멈춘다.
+    /// 코스터를 받은 뒤의 주문 대화. 웹 beginOrder처럼 [루나 질문, (고민), 주문]을 한 줄씩 차례로 말한다.
+    /// 각 줄은 다 나온 뒤 order_bark_gap_sec만큼 유지하고 다음 줄로 넘어간다(웹 tickGeneral). 대기는 바 운영 시간이다.
+    /// order 대사가 나가면 주문을 등록하고 곧바로 서빙 대기(WatchServeAsync)로 이어진다.
+    /// 대화가 끝날 때까지 이 자리에는 잡담이 끼어들지 않는다. 손님이 떠나면(슬롯 타이머 취소) 그 자리에서 멈춘다.
     /// </summary>
     async UniTaskVoid WatchOrderAsync(GuestSlot slot, Guest guest, CancellationToken token)
     {
-        const float orderThinkDelaySec = 3f;
-        const float orderDelaySec = 3f;
+        orderDialogues.Add(slot);
+        try
+        {
+            float gapSec = Config.OrderBarkGapSec;
 
-        if (!await WaitWhileSeatedAsync(slot, guest, orderThinkDelaySec, token)) return;
+            // 루나 질문: 타이핑 → 유지 → 닫힘. 다른 자리의 루나 줄이 끊어도 이 자리는 다음 줄로 이어 간다.
+            await ShowPlayerAskOrderBarkAsync(guest, gapSec, token);
+            if (token.IsCancellationRequested || slot.CurrentGuest != guest) return;
 
-        // 주문을 고민하는 대사는 성격이 정한 확률로만 나온다(구현·검증 계약 §8.2). 추첨에 실패하면
-        // 고민 없이 바로 시키는 손님이 된다. 대사만 건너뛰고 주문까지의 간격은 그대로 둔다.
-        if (UnityEngine.Random.value < guest.thinkChance)
-            ShowBark(slot, "order_think");
+            // 주문을 고민하는 대사는 성격이 정한 확률로만 나온다(구현·검증 계약 §8.2). 추첨에 실패하면
+            // 고민 없이 바로 시키는 손님이 된다 — 웹처럼 그 줄과 유지 시간을 함께 건너뛴다.
+            if (UnityEngine.Random.value < guest.thinkChance)
+            {
+                ShowBark(slot, "order_think");
+                if (!await WaitWhileSeatedAsync(slot, guest, gapSec, token)) return;
+            }
 
-        if (!await WaitWhileSeatedAsync(slot, guest, orderDelaySec, token)) return;
-        ShowBark(slot, "order");
+            ShowBark(slot, "order");
+        }
+        finally
+        {
+            orderDialogues.Remove(slot);
+        }
         guest.orderRound = 1;
         RegisterGuestOrder(slot, guest);
         RefreshCraftAvailability();
@@ -1096,16 +1182,28 @@ public class GuestManager : MonoBehaviour
 
     /// <summary>
     /// 코스터를 받을 때 guests/barks.csv의 ask_order 중 루나의 대사를 골라 표시한다.
+    /// 다 나온 뒤 holdSec(바 운영 시간)만큼 두었다가 닫히면 끝난다. 대사가 없으면 바로 끝난다.
     /// </summary>
-    void ShowPlayerAskOrderBark(Guest guest)
+    UniTask ShowPlayerAskOrderBarkAsync(Guest guest, float holdSec, CancellationToken token)
     {
         var candidates = barkData.barkData.Where(b => b.Situation == "ask_order" && b.VoiceId == PlayerCharacterId).ToArray();
-        if (candidates.Length == 0) return;
+        if (candidates.Length == 0) return UniTask.CompletedTask;
 
-        ShowPlayerBarkAsync(PickWeightedBark(candidates).Text.Ko, guest, this.GetCancellationTokenOnDestroy()).Forget();
+        return ShowPlayerBarkAsync(PickWeightedBark(candidates).Text.Ko, guest,
+            holdToken => barClock.WaitAsync(holdSec, holdToken), token);
     }
 
-    async UniTask ShowPlayerBarkAsync(string rawText, Guest guest, CancellationToken token)
+    /// <summary>되묻기 질문의 유지 시간. 실제 시간으로 센다(기존 동작).</summary>
+    static UniTask HoldRepeatQuestion(CancellationToken token) =>
+        UniTask.Delay(TimeSpan.FromSeconds(PlayerBarkDurationSec), cancellationToken: token);
+
+    /// <summary>
+    /// 루나 말풍선에 한 줄을 타이핑하고 hold만큼 둔 뒤 닫는다. 화면에 루나 말풍선은 하나라,
+    /// 새 루나 줄이 오면 앞 줄은 그 자리에서 끊기고 정상 반환한다(앞 줄의 자리는 다음 줄로 이어 간다).
+    /// token이 취소되면(손님이 떠남) 말풍선을 닫고 정상 반환한다. 부른 쪽은 token과 손님을 다시 확인한다.
+    /// </summary>
+    async UniTask ShowPlayerBarkAsync(string rawText, Guest guest, Func<CancellationToken, UniTask> hold,
+        CancellationToken token)
     {
         string cocktailName = GetCocktailName(guest.targetCocktailId);
         var player = characterData.characterData.FirstOrDefault(c => c.Id == PlayerCharacterId);
@@ -1123,7 +1221,7 @@ public class GuestManager : MonoBehaviour
         try
         {
             await dialogueTextView.StartType(typingData, cocktailName, source.Token);
-            await UniTask.Delay(TimeSpan.FromSeconds(PlayerBarkDurationSec), cancellationToken: source.Token);
+            await hold(source.Token);
         }
         catch (OperationCanceledException) when (source.IsCancellationRequested) { }
         finally
@@ -1165,7 +1263,7 @@ public class GuestManager : MonoBehaviour
         try
         {
             slot.HideBark();
-            await ShowPlayerBarkAsync("주문하신 메뉴가 어떤 거였죠?", guest, token);
+            await ShowPlayerBarkAsync("주문하신 메뉴가 어떤 거였죠?", guest, HoldRepeatQuestion, token);
             if (token.IsCancellationRequested || !isActiveAndEnabled || slot.CurrentGuest?.CurrentOrder != order ||
                 !slot.CanReceiveDrink || HasServeTimedOut(guest)) return;
 

@@ -124,12 +124,12 @@ TextureImporter:
       name: eyes_0
       rect:
         serializedVersion: 2
-        x: 283
-        y: 300
-        width: 28
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -146,12 +146,12 @@ TextureImporter:
       name: eyes_1
       rect:
         serializedVersion: 2
-        x: 834
-        y: 300
-        width: 28
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 551
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -168,12 +168,12 @@ TextureImporter:
       name: eyes_2
       rect:
         serializedVersion: 2
-        x: 1385
-        y: 301
-        width: 28
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 1102
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -190,12 +190,12 @@ TextureImporter:
       name: eyes_3
       rect:
         serializedVersion: 2
-        x: 1936
-        y: 299
-        width: 28
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 1653
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -208,99 +208,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: Game_eyes_b0ef94ab
-      rect:
-        serializedVersion: 2
-        x: 1701
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b0ef94ab30afd0458fce39bb5c7d8d34
-      internalID: 1796848283317894404
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Game_eyes_d153b41d
-      rect:
-        serializedVersion: 2
-        x: 48
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d153b41d342767ee76b4ebfed59a5051
-      internalID: 1942724850907248254
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Game_eyes_d209059e
-      rect:
-        serializedVersion: 2
-        x: 599
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d209059e65aeb9104aaec71eece38137
-      internalID: 1945914637539011473
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Game_eyes_dbae7f6c
-      rect:
-        serializedVersion: 2
-        x: 1150
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: dbae7f6cbde176b70333e8d6dfc470be
-      internalID: 1989358115329546091
-      vertices: []
-      indices:
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d9048eb48a921f5488ed1292a7d43993
     internalID: 0
     vertices: []
     indices: 
@@ -308,12 +220,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":1.0},"gridSpriteSize":{"x":551.0,"y":530.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Game_eyes_b0ef94ab: 1796848283317894404
-      Game_eyes_d153b41d: 1942724850907248254
-      Game_eyes_d209059e: 1945914637539011473
-      Game_eyes_dbae7f6c: 1989358115329546091
       eyes_0: -8817426130257391540
       eyes_1: 3060230111996817670
       eyes_2: -7553300288962703749

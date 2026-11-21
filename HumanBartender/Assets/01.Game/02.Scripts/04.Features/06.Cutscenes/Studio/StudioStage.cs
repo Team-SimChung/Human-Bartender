@@ -27,6 +27,14 @@ namespace HumanBartender.CutsceneStudio
         private const float DialogueShakeAmplitude = 4f;
         private bool usingPrefabDialogue;
         private readonly Dictionary<string, Image> actors = new();
+        private readonly Dictionary<string, MaskableGraphic> illustrations = new();
+        private RawImage filter;
+        private StudioSignalCapture capture;
+        private StudioEntry? signalEntry;
+        private float signalTime, signalAmount;
+        private RectTransform content;
+
+        private void OnDestroy() { capture?.Dispose(); capture = null; }
         public StudioClock PlaybackClock { get; set; }
         internal bool RevealDialogue { get; set; }
         internal int EvaluationVersion { get; private set; }
@@ -60,7 +68,10 @@ namespace HumanBartender.CutsceneStudio
                     DestroyImmediate(frame.gameObject);
             }
 
+            capture?.Dispose(); capture = null; content = null;
             actors.Clear();
+            illustrations.Clear();
+            filter = null;
             entries.Clear();
             ownedActors.Clear();
             frame = world = bubble = null;
@@ -80,9 +91,12 @@ namespace HumanBartender.CutsceneStudio
         {
             frame = Rect("16:9 Frame", transform, new Vector2(StudioSequence.Width, StudioSequence.Height));
             frame.gameObject.AddComponent<RectMask2D>();
-            var fill = Image("Backdrop", frame, frame.sizeDelta);
+            bool processesScreen = StudioEvaluation.Clips(sequence).Any(entry => entry.Asset.ScreenMaterial != null);
+            if (processesScreen && GetComponentInParent<Canvas>() != null) capture = new StudioSignalCapture(this);
+            content = capture?.Content ?? frame;
+            var fill = Image("Backdrop", content, frame.sizeDelta);
             fill.color = sequence.BackgroundColor;
-            world = Rect("World", frame, frame.sizeDelta);
+            world = Rect("World", content, frame.sizeDelta);
             backgroundPresentation = new StudioBackgroundPresentation(world);
             background = backgroundPresentation.Current;
             foreach (var actor in sequence.Actors.Where(MatchesActorsWhere).OrderBy(SelectNullOrderBy))
@@ -92,9 +106,27 @@ namespace HumanBartender.CutsceneStudio
                 var visual = Image(actor.Name, world, actor.Size);
                 visual.preserveAspect = true;
                 actors.Add(actor.Id, visual);
+                if (!string.IsNullOrEmpty(actor.Caption))
+                {
+                    var labelRect = Rect("Caption", visual.transform, actor.Size);
+                    var labelView = labelRect.gameObject.AddComponent<TextMeshProUGUI>();
+                    labelView.font = sequence.Font != null ? sequence.Font : TMP_Settings.defaultFontAsset;
+                    labelView.text = actor.Caption;
+                    labelView.fontSize = actor.CaptionSize;
+                    labelView.alignment = actor.CenterCaption ? TextAlignmentOptions.Center : TextAlignmentOptions.MidlineLeft;
+                    labelView.textWrappingMode = TextWrappingModes.NoWrap;
+                    labelView.raycastTarget = false;
+                    illustrations.Add(actor.Id, labelView);
+                }
+                else if (actor.HasRegion)
+                {
+                    var region = Rect("Illustration", visual.transform, actor.Size).gameObject.AddComponent<StudioIllustrationRegion>();
+                    region.Configure(actor);
+                    illustrations.Add(actor.Id, region);
+                }
             }
 
-            bubble = Rect("Dialogue", frame, new Vector2(StudioDialoguePresentation.DefaultWidth, StudioDialoguePresentation.DefaultHeight));
+            bubble = Rect("Dialogue", content, new Vector2(StudioDialoguePresentation.DefaultWidth, StudioDialoguePresentation.DefaultHeight));
             bubbleVisibility = bubble.gameObject.AddComponent<CanvasGroup>();
             var panel = Image("Panel", bubble, bubble.sizeDelta);
             panel.color = new Color(.025f, .035f, .05f, .94f);
@@ -106,6 +138,12 @@ namespace HumanBartender.CutsceneStudio
             dialogue.textWrappingMode = TextWrappingModes.Normal;
             dialogue.raycastTarget = false;
             dialoguePresentation = new StudioDialoguePresentation(bubble, panel.rectTransform, dialogue);
+            if (capture != null)
+            {
+                filter = Rect("Screen Texture", frame, frame.sizeDelta).gameObject.AddComponent<RawImage>();
+                filter.raycastTarget = false;
+                filter.texture = capture.Texture;
+            }
             effect = Image("Screen Effect", frame, frame.sizeDelta);
             bool MatchesActorsWhere(StudioActor a)
             {
@@ -209,6 +247,23 @@ namespace HumanBartender.CutsceneStudio
             if (line.HasValue)
                 ApplyDialogue(line.Value, time, center, zoom, revealDialogue);
             if (!usingPrefabDialogue) prefabDialogue?.StopWaiting();
+            if (capture != null)
+            {
+                var material = signalEntry?.Asset.ScreenMaterial;
+                if (line.HasValue)
+                {
+                    // TV 자막과 바 말풍선은 화면 필터 위, 공통 페이드 아래에 그린다.
+                    var root = DialogueTransform;
+                    var parent = StudioSignalCapture.DrawDialogueOnTop(material) ? frame : content;
+                    if (root.parent != parent)
+                    {
+                        root.SetParent(parent, false);
+                        if (parent == frame) root.SetSiblingIndex(effect.transform.GetSiblingIndex());
+                    }
+                }
+                filter.material = capture.ResolveMaterial(signalEntry, line, Sequence, time, signalTime, signalAmount, PlaybackClock);
+                capture.Render();
+            }
         }
 
         private void ResetVisuals()
@@ -222,10 +277,12 @@ namespace HumanBartender.CutsceneStudio
             prefabDialogue?.Hide(); usingPrefabDialogue = false;
             backgroundPresentation.Reset(); background = backgroundPresentation.Current;
             effect.color = Color.clear;
+            signalEntry = null;
             foreach (var actor in Sequence.Actors)
             {
                 if (actor == null || !TryGetActor(actor.Id, out var image))
                     continue;
+                if (illustrations.TryGetValue(actor.Id, out var illustration)) illustration.enabled = false;
                 image.sprite = actor.Sprite;
                 image.color = actor.Color;
                 image.enabled = image.sprite != null && !actor.ClipControlled && ownedActors.Contains(actor.Id);
@@ -263,6 +320,12 @@ namespace HumanBartender.CutsceneStudio
                 image.sprite = sprite;
             // uGUI Image는 sprite가 없으면 흰 사각형을 그린다. 위치 정보는 남기고 그림만 숨긴다.
             image.enabled = image.sprite != null;
+            if (illustrations.TryGetValue(clip.ActorId, out var illustration))
+            {
+                illustration.enabled = true;
+                illustration.color = image.color;
+                image.enabled = false;
+            }
         }
 
         private void ApplyActorPose(Image image, StudioClip clip, StudioPose pose, bool flip)
@@ -301,6 +364,13 @@ namespace HumanBartender.CutsceneStudio
             float age = (float)(time - entry.Clip.start);
             float strength = Value(clip, StudioProperty.Strength, StudioKeyframes.Evaluate(clip, StudioProperty.Strength, age, entry.Clip.duration));
             float alpha = Value(clip, StudioProperty.Opacity, StudioKeyframes.Evaluate(clip, StudioProperty.Opacity, age, entry.Clip.duration));
+            if (clip.ScreenMaterial != null)
+            {
+                signalEntry = entry;
+                signalTime = (float)(PlaybackClock != null && entry.ContinuesDuringWait ? PlaybackClock.MotionTime(entry, time) : time);
+                signalAmount = Mathf.Clamp01(alpha * strength);
+                return Vector2.zero;
+            }
             if (clip.Effect == StudioEffect.Shake)
             {
                 if (PlaybackClock != null && entry.ContinuesDuringWait) time = PlaybackClock.MotionTime(entry, time);
@@ -328,10 +398,10 @@ namespace HumanBartender.CutsceneStudio
                 if (prefabDialogue == null || prefabDialogue.Source != clip.DialoguePrefab)
                 {
                     prefabDialogue?.Destroy();
-                    prefabDialogue = new StudioDialoguePrefabPresentation(clip.DialoguePrefab, frame);
-                    prefabDialogue.Root.SetSiblingIndex(effect.transform.GetSiblingIndex());
+                    prefabDialogue = new StudioDialoguePrefabPresentation(clip.DialoguePrefab, content);
+                    if (capture == null) prefabDialogue.Root.SetSiblingIndex(effect.transform.GetSiblingIndex());
                 }
-                prefabDialogue.Apply(clip, Sequence.Font, Sequence.FindActor(clip.ActorId)?.Name, visible, reveal);
+                prefabDialogue.Apply(clip, Sequence.Font, Sequence.FindActor(clip.ActorId)?.Name ?? clip.SpeakerName, visible, reveal);
             }
             else
             {
@@ -345,8 +415,8 @@ namespace HumanBartender.CutsceneStudio
             if (TryGetActor(clip.ActorId, out var speaker))
                 position = (speaker.rectTransform.anchoredPosition - center) * zoom + new Vector2(0, clip.BubbleOffset);
             // 출력 비율과 관계없이 말풍선 기준 위치를 연출 영역 안으로 제한함.
-            position = usingPrefabDialogue ? prefabDialogue.ClampAnchor(position) : dialoguePresentation.ClampAnchor(position);
             var pose = Sample(entry, time);
+            position = usingPrefabDialogue ? prefabDialogue.ClampAnchor(position, pose.Scale) : dialoguePresentation.ClampAnchor(position);
             pose.Position += position;
             ApplyTransform(DialogueTransform, pose, false);
             if (usingPrefabDialogue) prefabDialogue.Visibility.alpha = pose.Opacity;
@@ -401,6 +471,12 @@ namespace HumanBartender.CutsceneStudio
             if (frame == null)
                 return;
             frame.localScale = Vector3.one * Mathf.Min(size.x / StudioSequence.Width, size.y / StudioSequence.Height);
+            SetSignalResolution(size);
+        }
+
+        internal void SetSignalResolution(Vector2 viewport)
+        {
+            if (capture != null && capture.Resize(viewport)) filter.texture = capture.Texture;
         }
 
         // 미리보기와 재생 모두 연결되지 않은 대상을 같은 기준으로 제외함.
@@ -411,7 +487,7 @@ namespace HumanBartender.CutsceneStudio
         }
 
         public Vector2 ActorPosition(string id) => TryGetActor(id, out var actor) ? actor.rectTransform.anchoredPosition : Vector2.zero;
-        public bool ActorVisible(string id) => TryGetActor(id, out var actor) && actor.enabled;
+        public bool ActorVisible(string id) => TryGetActor(id, out var actor) && (actor.enabled || illustrations.TryGetValue(id, out var illustration) && illustration.enabled);
         public RectTransform ActorTransform(string id) => TryGetActor(id, out var actor) ? actor.rectTransform : null;
         public Vector2 FrameToWorld(Vector2 point) => (point - world.anchoredPosition) / world.localScale.x;
         public Vector2 CameraCenter => -world.anchoredPosition / world.localScale.x;
@@ -426,7 +502,7 @@ namespace HumanBartender.CutsceneStudio
             var max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
             foreach (var corner in corners)
             {
-                var p = (Vector2)frame.InverseTransformPoint(corner);
+                var p = (Vector2)content.InverseTransformPoint(corner);
                 min = Vector2.Min(min, p);
                 max = Vector2.Max(max, p);
             }

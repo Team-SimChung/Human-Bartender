@@ -124,12 +124,12 @@ TextureImporter:
       name: face_bottom_default_0
       rect:
         serializedVersion: 2
-        x: 258
-        y: 261
-        width: 38
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -146,12 +146,12 @@ TextureImporter:
       name: face_bottom_default_1
       rect:
         serializedVersion: 2
-        x: 809
-        y: 261
-        width: 38
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 551
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -168,12 +168,12 @@ TextureImporter:
       name: face_bottom_default_2
       rect:
         serializedVersion: 2
-        x: 1360
-        y: 262
-        width: 38
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 1102
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -190,12 +190,12 @@ TextureImporter:
       name: face_bottom_default_3
       rect:
         serializedVersion: 2
-        x: 1911
-        y: 260
-        width: 38
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 1653
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190564, y: 0.105325475}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -208,99 +208,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: Game_face_bottom_default_335a00ca
-      rect:
-        serializedVersion: 2
-        x: 1150
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 335a00ca762b2cd9f23af89e88f5c875
-      internalID: 1231266932087763661
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Game_face_bottom_default_b504cb99
-      rect:
-        serializedVersion: 2
-        x: 599
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b504cb99745700387c2c1c07ce3cfbad
-      internalID: 1815235892544630787
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Game_face_bottom_default_2fad234d
-      rect:
-        serializedVersion: 2
-        x: 48
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2fad234d87317c1978c98b9e921522a4
-      internalID: 1214715056665073601
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Game_face_bottom_default_68ca9009
-      rect:
-        serializedVersion: 2
-        x: 1701
-        y: 90
-        width: 402
-        height: 315
-      alignment: 9
-      pivot: {x: 0.5, y: -0.1085}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 68ca9009eb42674cf63d2b8061b4c9eb
-      internalID: 1471937881094760052
-      vertices: []
-      indices:
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 1996421f03c0203438a23f339ecc6e9b
     internalID: 0
     vertices: []
     indices: 
@@ -308,12 +220,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":1.0},"gridSpriteSize":{"x":551.0,"y":530.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Game_face_bottom_default_335a00ca: 1231266932087763661
-      Game_face_bottom_default_b504cb99: 1815235892544630787
-      Game_face_bottom_default_2fad234d: 1214715056665073601
-      Game_face_bottom_default_68ca9009: 1471937881094760052
       face_bottom_default_0: -8165771816949415413
       face_bottom_default_1: -1271313029700247249
       face_bottom_default_2: -8461894641604624878

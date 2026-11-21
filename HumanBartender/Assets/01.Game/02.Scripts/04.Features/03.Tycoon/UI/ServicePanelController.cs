@@ -16,6 +16,7 @@ public class ServicePanelController : MonoBehaviour
     [SerializeField] private DialogueHistoryScreen historyScreen;
     [SerializeField] private Button regularGuestInfoButton;
     [SerializeField] private ProfileScreen profileScreen;
+    [Tooltip("지금은 열기 조건에 쓰지 않는다. 좌석을 옮기는 동안에도 메뉴 버튼과 좌석 표시를 유지하고 메뉴를 열 수 있다(엔진 수정 08, 웹 focusSeat과 같음). 씬 연결을 보존하려고 남겨 둔다.")]
     [SerializeField] private PlayCamera playCamera;
 
     [Header("Recipe browser")]
@@ -34,6 +35,10 @@ public class ServicePanelController : MonoBehaviour
     public bool BlocksBarInput => menuOpen || (historyScreen != null && historyScreen.IsOpen) ||
         (recipeScreen != null && recipeScreen.IsOpen) || (profileScreen != null && profileScreen.IsOpen);
     public Transform ToggleControl => toggleButton != null ? toggleButton.transform : null;
+    /// <summary>
+    /// 영업 중 손님 쪽 조작(좌석 이동·메뉴 열기)과 좌석 표시가 가능한가. 카메라가 좌석을 옮기는 중에도 참이다.
+    /// 이동 중에 막아야 하는 조작(코스터·잔 놓기, 되묻기)은 각자 PlayCamera.IsMoving을 따로 본다.
+    /// </summary>
     public bool CanUseGuestActions => !menuOpen && playPhaseController != null &&
         playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) && CanOpen();
 
@@ -131,7 +136,8 @@ public class ServicePanelController : MonoBehaviour
             (storyRunner.IsPresentingLine || storyRunner.CanStartCraft);
         if (!storyMenu && !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return false;
         if (craftFlow != null && (craftFlow.IsBusy || craftFlow.IsCraftFlowActive || craftFlow.IsAwaitingServeDecision)) return false;
-        if ((playCamera != null && playCamera.IsMoving) || CoasterDragItem.Active != null || DrinkDragItem.Active != null) return false;
+        // 좌석 이동 중에는 막지 않는다(엔진 수정 08). 코스터·잔을 들고 있을 때만 막는다.
+        if (CoasterDragItem.Active != null || DrinkDragItem.Active != null) return false;
         return !UIDisplayOptions.IsOptionOpen;
     }
 
