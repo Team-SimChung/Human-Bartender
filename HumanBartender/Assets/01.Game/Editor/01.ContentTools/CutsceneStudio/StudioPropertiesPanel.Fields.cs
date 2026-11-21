@@ -45,6 +45,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 case StudioPropertiesSection.Dialogue:
                     Note(section, "화자와 본문은 대사 클립 전체에 적용됩니다.");
                     BuildSpeakerPicker(section);
+                    if (string.IsNullOrEmpty(host.Selected.ActorId))
+                        BoundField(section, data, "SpeakerName", "화자 표시 이름");
                     BuildDialogueText(section);
                     break;
                 case StudioPropertiesSection.Typography:
@@ -190,6 +192,19 @@ namespace HumanBartender.CutsceneStudio.Editor
                 BoundField(parent, data, path + "Name", "이름");
                 BoundField(parent, data, path + "Sprite", "기본 이미지").tooltip = "클립에 프레임이 없을 때 사용하는 이미지";
             }
+            var actor = host.Sequence.Actors[host.ActorIndex];
+            if (!string.IsNullOrEmpty(actor.Caption))
+            {
+                BoundField(parent, data, path + "Caption", "크레딧 문구");
+                BoundField(parent, data, path + "CaptionSize", "글자 크기");
+                BoundField(parent, data, path + "CenterCaption", "가운데 정렬");
+            }
+            if (actor.HasRegion)
+            {
+                BoundField(parent, data, path + "RegionTexture", "원본 그림");
+                BoundField(parent, data, path + "Region", "영역 꼭짓점");
+                BoundField(parent, data, path + "RegionMaterial", "원화 표시 효과");
+            }
             BoundField(parent, data, path + "Size", "기본 크기");
             BoundField(parent, data, path + "Color", "색상");
             BoundField(parent, data, path + "Layer", "그리기 순서");
@@ -287,6 +302,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             bool shake = host.Selected.Effect == StudioEffect.Shake;
             if (!shake)
             {
+                BoundField(parent, data, "ScreenMaterial", "화면 머티리얼");
                 ClipField(parent, data, "EffectColor");
                 Note(parent, "효과 색상은 클립 전체에 적용됩니다. 표시 불투명도는 색상의 알파 × 강도 × 불투명도 값입니다.");
             }

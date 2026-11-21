@@ -345,8 +345,12 @@ public sealed class StudioAudioPreviewTests
             yield return new WaitForSecondsRealtime(.15f);
             AssertOutput(voices, "actual wait resumed");
             player.Skip();
-            yield return null;
-            yield return null;
+            // 편집기 검사 루프는 한 게임 프레임에 여러 번 호출될 수 있다.
+            // 재생 종료와 프레임 끝의 AudioSource 파괴를 실제 게임 시간으로 기다린다.
+            double deadline = Time.realtimeSinceStartupAsDouble + 1;
+            while ((player.IsPlaying || root.GetComponents<AudioSource>().Length > 0) &&
+                Time.realtimeSinceStartupAsDouble < deadline)
+                yield return null;
             Assert.That(player.IsPlaying, Is.False);
             Assert.That(root.GetComponents<AudioSource>(), Is.Empty);
             Assert.That(playback.IsCompletedSuccessfully, Is.True, playback.Exception?.ToString());

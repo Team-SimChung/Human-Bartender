@@ -27,6 +27,7 @@ namespace HumanBartender.CutsceneStudio
         private readonly string[] characters;
         public double Duration { get; }
         public int Count => times.Length;
+        internal bool IsMaskedGlyph(int index) => characters[index] == "■";
         internal double At(int index) => index < times.Length ? times[index] : Duration;
         private StudioDialogueTiming(double[] values, string[] glyphs, double duration) { times = values; characters = glyphs; Duration = duration; }
         internal bool HasAudibleCharacter(int from, int to, StudioTypingAudioSettings settings)
