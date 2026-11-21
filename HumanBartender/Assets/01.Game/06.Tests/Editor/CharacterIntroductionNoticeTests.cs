@@ -71,6 +71,18 @@ public sealed class CharacterIntroductionNoticeTests
     }
 
     [Test]
+    public void TomIsUnknownOnDayOneUntilHisNameLine()
+    {
+        Assert.That(CampaignStoryRules.ResolveSpeakerName("tom", 1, conditions, null), Is.EqualTo("???"));
+        Assert.That(CampaignStoryRules.ResolveSpeakerName("port", 1, conditions, null), Is.Null, "다른 인물은 원래 이름 그대로.");
+        Assert.That(CampaignStoryRules.ResolveSpeakerName("tom", 2, conditions, null), Is.Null, "2일차부터는 이미 아는 인물이다.");
+
+        CampaignStoryRules.TryGetIntroduction("tom", TomNameLine, out string effects);
+        conditions.ApplyRequired(effects);
+        Assert.That(CampaignStoryRules.ResolveSpeakerName("tom", 1, conditions, null), Is.Null, "이름 대사부터는 원래 이름이 보인다.");
+    }
+
+    [Test]
     public void StoryCsvStillHasTomsNameLine()
     {
         string steps = File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "csv", "story", "steps.csv"));

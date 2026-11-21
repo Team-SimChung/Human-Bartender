@@ -520,6 +520,10 @@ public partial class StoryScriptRunner : MonoBehaviour
         Debug.LogWarning($"[Story] 재생하지 못한 대본 연출입니다: {step.Arg} ({step.DialogueId ?? $"seq {step.Seq}"})");
     }
 
+    /// <summary>대화창에 적을 이름. 1일차 톰은 이름 대사 전까지 '???'(웹 story-flow.js speakerName).</summary>
+    string SpeakerName(NewDialogueStepData step) => CampaignStoryRules.ResolveSpeakerName(
+        step.Actor, GameStateManager.Instance.CurrentDay, conditions, step.DisplayName);
+
     // ── 대사 ────────────────────────────────────────────────────────────
 
     /// <summary>대사 하나를 띄우고 플레이어가 넘길 때까지 기다린다. 그리는 일은 화면이 한다.</summary>
@@ -538,7 +542,7 @@ public partial class StoryScriptRunner : MonoBehaviour
             conditions.ApplyRequired(introduction);
 
         await PresentLineAsync(
-            new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId, step.DisplayName), token);
+            new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId, SpeakerName(step)), token);
     }
 
     // ── 연출 ────────────────────────────────────────────────────────────
@@ -588,7 +592,7 @@ public partial class StoryScriptRunner : MonoBehaviour
         if (!string.IsNullOrEmpty(body))
         {
             await PresentLineAsync(
-                new StorySayRequest(step.Actor, null, body, step.Actor == PlayerCharacterId, step.DisplayName), token);
+                new StorySayRequest(step.Actor, null, body, step.Actor == PlayerCharacterId, SpeakerName(step)), token);
         }
 
         if (step.Arg == "free")

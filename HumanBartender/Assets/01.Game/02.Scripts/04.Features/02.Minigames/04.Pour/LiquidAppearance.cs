@@ -67,6 +67,9 @@ public struct LiquidAppearance
                 result.foamGain = 1.6f; result.foamHold = 3.5f;
                 result.foamLifetime = 8f; result.foamHeight = 0.17f; result.foamLumps = 1f;
                 result.foamColor = new Color(1f, 0.97f, 0.88f);
+                // 흐름은 오렌지주스와 같게 맞춘다: 점도 1.3(PourManager의 출수 배율도 3.4로 같다).
+                // 물보다 묵직하게 흘러 잔 안에서 덜 튄다(플레이테스트 피드백 2026-11-22).
+                result.viscosityScale = 1.3f;
                 break;
             case "soda_water":
             case "champagne":

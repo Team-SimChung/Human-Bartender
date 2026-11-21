@@ -64,6 +64,19 @@ public static class CampaignStoryRules
     public static bool HasDelayedIntroduction(string characterId) =>
         characterId != null && IntroductionLines.ContainsKey(characterId);
 
+    /// <summary>이름을 밝히기 전 대화창에 적는 이름(웹 story-flow.js speakerName).</summary>
+    public const string UnknownSpeakerName = "???";
+
+    /// <summary>
+    /// 1일차 바 대화에서 이름 대사 전까지는 이름을 '???'로 적는다(웹 story-flow.js speakerName: 톰·1일차·이름 모름).
+    /// 이름 대사가 시작되는 순간 {id}_name_known이 켜지므로 그 대사부터 이름이 보인다. 2일차부터는 이미 아는 인물이다.
+    /// </summary>
+    public static string ResolveSpeakerName(string actor, int day, IConditionUtil conditions, string displayName) =>
+        HasDelayedIntroduction(actor) && day == 1 && conditions != null &&
+        !conditions.CheckRequired($"flag.{actor}_name_known")
+            ? UnknownSpeakerName
+            : displayName;
+
     /// <summary>알림이 끝났음을 남기는 플래그(웹 {id}_introduction_notified).</summary>
     public static string IntroductionNotifiedFlag(string characterId) => characterId + "_introduction_notified";
 

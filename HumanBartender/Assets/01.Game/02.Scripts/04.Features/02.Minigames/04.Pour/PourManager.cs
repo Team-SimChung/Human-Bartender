@@ -158,10 +158,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [Tooltip("푸어러 없이 병째 따르는 재료의 출수량 배율. 표에 없는 재료는 배율 1이다.\n" +
              "물줄기 굵기와 분사 속도는 따로 정하지 않는다 — 분사 속도가 Max Exit Speed를 넘지 않도록 줄 수를 늘리고, " +
              "줄 간격이 기본 술(기본 병목·기본 잔)과 같아지도록 속도를 계산한다. 배율을 크게 올리면 줄기가 그만큼 굵어진다.\n" +
-             "최대 기울기에서 레시피 양을 약 3초에 채우도록 맞춘 값이다(맥주 360ml, 와인 240ml, 오렌지주스 180ml).")]
+             "최대 기울기에서 레시피 양을 약 3초에 채우도록 맞춘 값이다(와인 240ml, 오렌지주스 180ml). " +
+             "맥주(360ml)는 오렌지주스와 같은 속도(3.4)로 따라 약 6초에 채운다.")]
     [SerializeField] private PourFlowOverride[] flowOverrides =
     {
-        new PourFlowOverride("beer", 7f),
+        new PourFlowOverride("beer", 3.4f),
         new PourFlowOverride("red_wine", 4.6f),
         new PourFlowOverride("champagne", 4.6f),
         new PourFlowOverride("orange_juice", 3.4f),

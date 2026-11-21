@@ -114,7 +114,8 @@ public sealed class PourerBreakawayTests
         Assert.That(pourer.TryDetach(), Is.True);
         Assert.That(pourer.StreamWidthScale, Is.EqualTo(1f));
         Assert.That(body.transform.localPosition, Is.EqualTo(bodyPosition));
-        Assert.That(pourer.FlowMultiplier, Is.EqualTo(95f / 42f).Within(.0001f));
+        // 웹 비율(42 → 95)의 2배. 푸어러 없이 병째 쏟을 때 너무 느리다는 플레이테스트 피드백(2026-11-20)으로 올렸다.
+        Assert.That(pourer.FlowMultiplier, Is.EqualTo(2f * 95f / 42f).Within(.0001f));
         Assert.That(manager.FullFlowRatio, Is.EqualTo(1f), "분리 후에는 HUD 경고 범위가 없어져야 한다.");
         Tilt(0f, true);
         Assert.That(pourer.TryDetach(), Is.False);

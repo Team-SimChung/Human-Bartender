@@ -249,6 +249,12 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     public void ToggleItem(string id, Stage stage)
     {
         if (preparation == null) return;
+        // 병따개는 선반 데이터에 없는 도구라 아래 선반 확인을 통과하지 못한다. 트레이 X로도 바로 뺄 수 있게 따로 처리한다.
+        if (stage == Stage.Tool && id == NewToolIds.BottleOpener)
+        {
+            ToggleBottleOpener();
+            return;
+        }
         if (shelfData == null || !shelfData.TryGet(id, out var item) ||
             !(craftFlow != null ? craftFlow.IsShelfItemAvailable(item) :
                 CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay))) return;
