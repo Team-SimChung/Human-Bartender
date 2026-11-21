@@ -149,14 +149,29 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
     {
         if (textOnlyActors.Contains(actor))
         { characterManager.SetTextOnlyCharacter(actor, slot); return; }
-        try { await characterManager.SetCharacterAsync(actor, expression, slot, token); }
-        catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
-        catch (Exception error)
+        Exception failure = await TrySetExpressionAsync(actor, expression, slot, token);
+        if (failure == null) return;
+        // 표정 하나가 빠졌다고 인물을 장면 끝까지 숨기지 않는다. 기본 표정으로 계속 보인다.
+        if (expression != DefaultExpression && await TrySetExpressionAsync(actor, DefaultExpression, slot, token) == null)
         {
-            textOnlyActors.Add(actor);
-            characterManager.SetTextOnlyCharacter(actor, slot);
-            Debug.LogWarning($"[BarStory] {actor} 외형을 표시하지 못해 텍스트로 진행합니다: {error.Message}");
+            Debug.LogWarning($"[BarStory] {actor}의 '{expression}' 표정을 불러오지 못해 기본 표정으로 보입니다: {failure.Message}");
+            return;
         }
+        textOnlyActors.Add(actor);
+        characterManager.SetTextOnlyCharacter(actor, slot);
+        Debug.LogWarning($"[BarStory] {actor} 외형을 표시하지 못해 텍스트로 진행합니다: {failure.Message}");
+    }
+
+    /// <summary>표정을 적용하고, 실패하면 그 예외를 돌려준다(성공이면 null). 이 요청 자체의 취소는 그대로 던진다.</summary>
+    async UniTask<Exception> TrySetExpressionAsync(string actor, string expression, ESlotType slot, CancellationToken token)
+    {
+        try
+        {
+            await characterManager.SetCharacterAsync(actor, expression, slot, token);
+            return null;
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+        catch (Exception error) { return error; }
     }
 
     public async UniTask FadeInAsync(CancellationToken token)

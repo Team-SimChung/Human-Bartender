@@ -3953,6 +3953,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1502931979}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &380505539
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 380505540}
+  - component: {fileID: 380505541}
+  m_Layer: 0
+  m_Name: GangPassBoundary
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &380505540
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380505539}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 637461167}
+  m_Father: {fileID: 1596800306}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &380505541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380505539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 030463bc6c557314991159dc002449a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GangPassBoundary
+  bounds: {fileID: 637461166}
+  wall: {fileID: 637461168}
 --- !u!1 &387715668
 GameObject:
   m_ObjectHideFlags: 0
@@ -4298,6 +4345,7 @@ MonoBehaviour:
   buttonOffset: {x: 0, y: 175}
   barspawn: {fileID: 1824786864}
   homespawn: {fileID: 406932928}
+  faceRightAtHomeSpawn: 0
   firstCommuteSpawn: {fileID: 498290032}
 --- !u!114 &398070684
 MonoBehaviour:
@@ -6615,7 +6663,7 @@ Transform:
   m_GameObject: {fileID: 577419842}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.3999996, y: 0, z: 0}
+  m_LocalPosition: {x: 0.119999886, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6915,6 +6963,84 @@ Transform:
   - {fileID: 80850566}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &637461166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 637461167}
+  - component: {fileID: 637461168}
+  m_Layer: 8
+  m_Name: PassBlockWall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &637461167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637461166}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -14.045, y: -0.29211867, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 380505540}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &637461168
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637461166}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.2, y: 2.0642374}
+  m_EdgeRadius: 0
 --- !u!1 &637985112
 GameObject:
   m_ObjectHideFlags: 0
@@ -11027,7 +11153,7 @@ MonoBehaviour:
       horizontalOnly: 0
       target: {fileID: 0}
       distance: 0.65
-      offset: {x: -0.845, y: 0}
+      offset: {x: 0.845, y: 0}
       offsetMode: 0
       unitsPerSecond: 0
       arcHeight: 0.55
@@ -11109,7 +11235,7 @@ MonoBehaviour:
       horizontalOnly: 1
       target: {fileID: 2095055570}
       distance: 0.65
-      offset: {x: 1, y: 0}
+      offset: {x: 1.9650002, y: 0}
       offsetMode: 0
       unitsPerSecond: 0
       arcHeight: 0.55
@@ -11117,7 +11243,7 @@ MonoBehaviour:
       clampPlayerLeft: 0
       cameraWithMovement: 1
       cameraMidpoint: 0
-      cameraOffset: {x: 0.2, y: 0.65}
+      cameraOffset: {x: -0.9825001, y: 0.65}
       cameraWidth: 4.8
       fadeInTogether: 0
       stateName: Punch
@@ -16818,7 +16944,7 @@ Transform:
   m_GameObject: {fileID: 1254479167}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4000001, y: 0, z: 0}
+  m_LocalPosition: {x: 0.120000124, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20642,7 +20768,7 @@ MonoBehaviour:
       horizontalOnly: 0
       target: {fileID: 0}
       distance: 0.65
-      offset: {x: 4, y: -0.05}
+      offset: {x: 3.3600001, y: -0.05}
       offsetMode: 0
       unitsPerSecond: 0
       arcHeight: 0.55
@@ -21147,6 +21273,7 @@ Transform:
   - {fileID: 205911620}
   - {fileID: 2130020362}
   - {fileID: 1083289475}
+  - {fileID: 380505540}
   m_Father: {fileID: 740190000000000002}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1602687405
@@ -29512,6 +29639,7 @@ MonoBehaviour:
   runner: {fileID: 1021899254}
   firstCommuteArrival: {fileID: 1502931978}
   newGameOpening: {fileID: 0}
+  gangPassBoundary: {fileID: 380505541}
 --- !u!114 &740190000000000026
 MonoBehaviour:
   m_ObjectHideFlags: 0

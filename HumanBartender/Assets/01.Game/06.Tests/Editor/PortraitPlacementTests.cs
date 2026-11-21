@@ -51,4 +51,31 @@ public sealed class PortraitPlacementTests
         }
         finally { Object.DestroyImmediate(data); }
     }
+
+    [Test]
+    public void ExpressionSpecificPlacementOverridesTheCharacterDefault()
+    {
+        var data = ScriptableObject.CreateInstance<NewExpressionDataSO>();
+        try
+        {
+            var owner = new SerializedObject(data);
+            var entries = owner.FindProperty("portraitPlacements");
+            entries.arraySize = 2;
+            void Set(int i, string character, string expression, Vector2Int offset)
+            {
+                var entry = entries.GetArrayElementAtIndex(i);
+                entry.FindPropertyRelative("characterId").stringValue = character;
+                entry.FindPropertyRelative("expression").stringValue = expression;
+                entry.FindPropertyRelative("offsetPixels").vector2IntValue = offset;
+            }
+            Set(0, "samho", "", new Vector2Int(1, 2));
+            Set(1, "samho", "fail", new Vector2Int(3, 4));
+            owner.ApplyModifiedPropertiesWithoutUndo();
+            Assert.That(data.GetPortraitOffsetPixels("samho", "fail"), Is.EqualTo(new Vector2Int(3, 4)), "표정까지 맞는 설정이 우선.");
+            Assert.That(data.GetPortraitOffsetPixels("samho", "success"), Is.EqualTo(new Vector2Int(1, 2)), "나머지 표정은 빈 칸 설정.");
+            Assert.That(data.GetPortraitOffsetPixels("samho"), Is.EqualTo(new Vector2Int(1, 2)));
+            Assert.That(data.GetPortraitOffsetPixels("chris", "fail"), Is.EqualTo(Vector2Int.zero));
+        }
+        finally { Object.DestroyImmediate(data); }
+    }
 }

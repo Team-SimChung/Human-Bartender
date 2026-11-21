@@ -575,7 +575,7 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
             if (previousDay == 2 && !CampaignStoryRules.CanPrepareJohnnyDrink(conditions))
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,
                     "와일드 독·비터스와 조니의 기억을 확인해야 다음 날로 진행할 수 있습니다.");
-            if (!NewDataLoadManager.TryGetDayInfo(nextDay, out NewDayInfoData next))
+            if (!NewDataLoadManager.TryGetDayInfo(nextDay, out _))
                 return new GameProgressionResult(GameProgressionOutcome.Rejected,
                     $"등록되지 않은 다음 일차입니다: Day {nextDay}");
 
@@ -587,36 +587,9 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
                 await dayTransition.PlayToPrepareAsync(previousDay, nextDay, cancellationToken);
             }
 
-            if (next.StartPhase == "commute_out")
-            {
-                SceneTransitionRequest request = sceneTransitions.RequestLoadScene("OutSide",
-                    cancellationToken: cancellationToken);
-                if (!request.Accepted)
-                    return ConvertSceneResult(await request.Completion);
-
-                // OutSide.Start보다 먼저 다음 일차 문맥을 준비한다. 씬이 바뀐 뒤의 실패는 되돌리지 않는다.
-                gameState.CurrentDay = nextDay;
-                gameState.GameFlow = EGameFlow.CommuteOut;
-                homeReturned = false;
-                changed = true;
-                SceneTransitionResult result = await request.Completion;
-                if (!result.Succeeded && SceneManager.GetActiveScene().name == "Home")
-                {
-                    gameState.CurrentDay = previousDay;
-                    gameState.GameFlow = previousFlow;
-                    homeReturned = previousReturned;
-                }
-                if (!result.Succeeded && result.SceneActivated)
-                    FindSceneContext("OutSide")?.ReportArrivalFailure(result.Message);
-                // 씬이 바뀐 뒤에는 되돌리지 않으므로 공개를 취소하지 않는다.
-                if (result.Succeeded && dayTransition != null) await dayTransition.FinishAsync(CancellationToken.None);
-                return ConvertSceneResult(result);
-            }
-
-            if (next.StartPhase != "home")
-                return new GameProgressionResult(GameProgressionOutcome.Rejected,
-                    $"알 수 없는 시작 국면입니다: Day {nextDay}/{next.StartPhase}");
-
+            // 웹 day-flow.js: 잠든 다음 날은 일차와 상관없이 집 소파에서 깨어나 출근길로 시작한다(street('in','home', true)).
+            // days.csv의 start_phase(3일차 commute_out)는 웹 대화 편집기만 읽는 값이라 여기서 쓰지 않는다.
+            // 쓰면 2일차에 잠든 뒤 집이 아니라 바 앞 퇴근길에서 깨어나고, 3일차 출근길(삼호 commute3)을 건너뛴다.
             // 전환 화면이 이미 덮고 있으면 예전 0.5초 페이드는 생략한다.
             if (dayTransition == null) await sceneFades.FadeOutAsync(0.5f, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();

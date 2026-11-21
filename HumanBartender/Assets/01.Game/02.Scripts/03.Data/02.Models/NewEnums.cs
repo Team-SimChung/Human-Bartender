@@ -293,6 +293,8 @@ public enum ENewAnimLoopMode
     [EnumMember(Value = "always_on_dialogue")] AlwaysOnDialogue,
     [EnumMember(Value = "special_on_dialogue")] SpecialOnDialogue,
     [EnumMember(Value = "on_dialogue")] OnDialogue,
+    /// <summary>이 표정에서 그 부위를 끈다. 기본 표정 부위로 물러서지 않는다(예: 삼호 취함은 몸통 그림에 얼굴이 함께 있어 눈·눈썹을 숨긴다).</summary>
+    [EnumMember(Value = "none")] None,
 }
 
 /// <summary>인물 정보(dossier) 항목의 분류를 나타내는 열거형.</summary>

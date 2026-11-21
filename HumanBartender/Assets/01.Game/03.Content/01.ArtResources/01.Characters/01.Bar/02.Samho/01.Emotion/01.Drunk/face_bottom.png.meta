@@ -3,17 +3,17 @@ guid: dbb46808f6a42484ca423484c21f087f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5573027905275751567
-    second: face_bottom_0
+      213: 4397130761712749569
+    second: Game_drunk_face_bottom_0
   - first:
-      213: 2139520348531368106
-    second: face_bottom_1
+      213: 4722296661899856317
+    second: Game_drunk_face_bottom_1
   - first:
-      213: 8518390321947917867
-    second: face_bottom_2
+      213: -5977803493420581010
+    second: Game_drunk_face_bottom_2
   - first:
-      213: -982160768403116672
-    second: face_bottom_3
+      213: -1951751077860963150
+    second: Game_drunk_face_bottom_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -43,10 +43,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -81,10 +81,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -109,89 +109,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: face_bottom_0
+      name: Game_drunk_face_bottom_0
       rect:
         serializedVersion: 2
-        x: 243
-        y: 146
-        width: 37
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 17313b6b5a0a8a2b0800000000000000
-      internalID: -5573027905275751567
+      spriteID: 51cfc6f3f4b143b2aae68e9aabb3e9c3
+      internalID: 4397130761712749569
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: face_bottom_1
+      name: Game_drunk_face_bottom_1
       rect:
         serializedVersion: 2
-        x: 794
-        y: 147
-        width: 37
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 551
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: aa0aeebdb6a11bd10800000000000000
-      internalID: 2139520348531368106
+      spriteID: 6a88f1f2dc7945ca902924a53bd7e4e7
+      internalID: 4722296661899856317
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: face_bottom_2
+      name: Game_drunk_face_bottom_2
       rect:
         serializedVersion: 2
-        x: 1345
-        y: 146
-        width: 37
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 1102
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b2eb4dd8dd6673670800000000000000
-      internalID: 8518390321947917867
+      spriteID: 2aee61f7fea64ed0ab0ea1391b97e691
+      internalID: -5977803493420581010
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: face_bottom_3
+      name: Game_drunk_face_bottom_3
       rect:
         serializedVersion: 2
-        x: 1896
-        y: 147
-        width: 37
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 1653
+        y: 0
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 08de10f1cf9ae52f0800000000000000
-      internalID: -982160768403116672
+      spriteID: 6feee9ffad7f40319b9702c4c3eadff9
+      internalID: -1951751077860963150
       vertices: []
       indices: 
       edges: []
@@ -210,10 +210,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      face_bottom_0: -5573027905275751567
-      face_bottom_1: 2139520348531368106
-      face_bottom_2: 8518390321947917867
-      face_bottom_3: -982160768403116672
+      Game_drunk_face_bottom_0: 4397130761712749569
+      Game_drunk_face_bottom_1: 4722296661899856317
+      Game_drunk_face_bottom_2: -5977803493420581010
+      Game_drunk_face_bottom_3: -1951751077860963150
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

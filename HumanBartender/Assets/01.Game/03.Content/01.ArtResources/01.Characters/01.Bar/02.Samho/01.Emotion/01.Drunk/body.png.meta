@@ -3,29 +3,17 @@ guid: a5c34e79aef9c4904bd38bbb00bca5ab
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1880120661550918566
-    second: body_0
+      213: -5090038570220231211
+    second: Game_drunk_body_0
   - first:
-      213: 3948609945394740131
-    second: body_1
+      213: 7124155930238792167
+    second: Game_drunk_body_1
   - first:
-      213: -699401053079628400
-    second: body_2
+      213: -5891205292859297635
+    second: Game_drunk_body_2
   - first:
-      213: -2138889809964615276
-    second: body_3
-  - first:
-      213: -8238207311930925460
-    second: body_4
-  - first:
-      213: 4004394502486728938
-    second: body_5
-  - first:
-      213: 5170923571141632267
-    second: body_6
-  - first:
-      213: 1478553301488493224
-    second: body_7
+      213: 8046952840746948205
+    second: Game_drunk_body_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,10 +43,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 2048
+  maxTextureSize: 4096
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -93,10 +81,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -121,177 +109,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: body_0
+      name: Game_drunk_body_0
       rect:
         serializedVersion: 2
-        x: 62
+        x: 0
         y: 0
-        width: 425
-        height: 286
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a549269383878e5e0800000000000000
-      internalID: -1880120661550918566
+      spriteID: a3340559c3704278966e5bc47c3a27ad
+      internalID: -5090038570220231211
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: body_1
+      name: Game_drunk_body_1
       rect:
         serializedVersion: 2
-        x: 490
-        y: 89
-        width: 32
-        height: 44
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3abf3df13d74cc630800000000000000
-      internalID: 3948609945394740131
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: body_2
-      rect:
-        serializedVersion: 2
-        x: 613
+        x: 551
         y: 0
-        width: 425
-        height: 286
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 09597a3a27a3b46f0800000000000000
-      internalID: -699401053079628400
+      spriteID: 059677802d9c405ea7ebed4c7b90791c
+      internalID: 7124155930238792167
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: body_3
+      name: Game_drunk_body_2
       rect:
         serializedVersion: 2
-        x: 1041
-        y: 89
-        width: 32
-        height: 44
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4993b57dc032152e0800000000000000
-      internalID: -2138889809964615276
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: body_4
-      rect:
-        serializedVersion: 2
-        x: 1164
+        x: 1102
         y: 0
-        width: 425
-        height: 286
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c6ed45209120cad80800000000000000
-      internalID: -8238207311930925460
+      spriteID: ac2ea6b4b80a45d0b4b73fcf787e5de0
+      internalID: -5891205292859297635
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: body_5
+      name: Game_drunk_body_3
       rect:
         serializedVersion: 2
-        x: 1592
-        y: 89
-        width: 32
-        height: 44
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ae0af357597729730800000000000000
-      internalID: 4004394502486728938
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: body_6
-      rect:
-        serializedVersion: 2
-        x: 1715
+        x: 1653
         y: 0
-        width: 425
-        height: 286
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 551
+        height: 530
+      alignment: 9
+      pivot: {x: 0.45190563, y: 0.10532547}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b01679a579fc2c740800000000000000
-      internalID: 5170923571141632267
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: body_7
-      rect:
-        serializedVersion: 2
-        x: 2143
-        y: 89
-        width: 32
-        height: 44
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8a2e3bcd460e48410800000000000000
-      internalID: 1478553301488493224
+      spriteID: 3f40b772253441a28199ca776ec2d7a7
+      internalID: 8046952840746948205
       vertices: []
       indices: 
       edges: []
@@ -310,14 +210,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      body_0: -1880120661550918566
-      body_1: 3948609945394740131
-      body_2: -699401053079628400
-      body_3: -2138889809964615276
-      body_4: -8238207311930925460
-      body_5: 4004394502486728938
-      body_6: 5170923571141632267
-      body_7: 1478553301488493224
+      Game_drunk_body_0: -5090038570220231211
+      Game_drunk_body_1: 7124155930238792167
+      Game_drunk_body_2: -5891205292859297635
+      Game_drunk_body_3: 8046952840746948205
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

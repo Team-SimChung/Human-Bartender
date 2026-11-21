@@ -100,7 +100,7 @@ public class GuestCharacterView : MonoBehaviour
             part.SetInactive();
 
         await loader.LoadPortaitSpriteAsync(rig, animConfig.GetSpritePath(characterId, expression), token,
-            offsetPixels: animConfig.GetPortraitOffsetPixels(characterId));
+            offsetPixels: animConfig.GetPortraitOffsetPixels(characterId, expression));
 
         ReleaseRemoveHandles();
     }

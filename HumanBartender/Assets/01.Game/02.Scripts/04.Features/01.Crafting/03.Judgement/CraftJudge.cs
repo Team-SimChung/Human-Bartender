@@ -224,8 +224,13 @@ public static class CraftJudge
     {
         dataError = false;
 
-        float? targetMl = ToMl(want.TargetValue, want.TargetUnit, balance.Config);
-        float? actualMl = ToMl(matched.ActualValue, matched.TargetUnit ?? want.TargetUnit, balance.Config);
+        // 개수(각설탕 등)는 부피가 아니라 ml로 바꿀 수 없다. 웹 craft-rules.js scoreCraft처럼 개수끼리 그대로 비교한다.
+        // 바꾸려다 실패하면 데이터 오류로 남아 '판정 불가'가 뜨고, 그 잔은 손님에게 내도 결과가 나오지 않는다.
+        bool counted = want.TargetUnit == ENewUnit.Count;
+        float? targetMl = counted ? want.TargetValue : ToMl(want.TargetValue, want.TargetUnit, balance.Config);
+        float? actualMl = counted
+            ? (matched.TargetUnit == null || matched.TargetUnit == ENewUnit.Count ? matched.ActualValue : (float?)null)
+            : ToMl(matched.ActualValue, matched.TargetUnit ?? want.TargetUnit, balance.Config);
 
         // 목표가 없으면 오차를 낼 수 없다. 임의의 점수를 지어내지 않고 데이터 오류로 남긴다.
         if (targetMl == null || targetMl.Value <= 0f || actualMl == null)

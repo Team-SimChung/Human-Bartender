@@ -231,7 +231,7 @@ public class DialogueCharacterManager : MonoBehaviour, ICharacterSetter, IDialog
             {
                 string path = animConfig.GetSpritePath(characterId, expression);
                 if (!await characterLoader.LoadPortaitSpriteAsync(staged, path, token, pendingApply,
-                    animConfig.GetPortraitOffsetPixels(characterId)))
+                    animConfig.GetPortraitOffsetPixels(characterId, expression)))
                     throw new InvalidOperationException("Character portrait is missing: " + path);
                 token.ThrowIfCancellationRequested();
                 MoveCurrentHandlesToRemove(slotData);
