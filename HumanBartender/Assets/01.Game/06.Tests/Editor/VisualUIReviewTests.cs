@@ -24,6 +24,48 @@ public sealed class VisualUIReviewTests
     static T Ref<T>(Object owner, string field) where T : Object => (T)new SerializedObject(owner).FindProperty(field).objectReferenceValue;
     static void Inject(object owner, string name, object value) => owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, value);
 
+    [Test]
+    public void BarSpeechBubbleKeepsItsAuthoredInsetsWhileGrowingForLongDialogue()
+    {
+        const string path = "Assets/01.Game/03.Content/08.Prefabs/03.UI/02.Dialogue/PlayDialogueTextBox.prefab";
+        var prefab = AssetDatabase.LoadAssetAtPath<DynamicSpeechBubble>(path);
+        var min = new Vector2(prefab.paddingLeft, prefab.paddingBottom);
+        var max = new Vector2(-prefab.paddingRight, -prefab.paddingTop);
+        var nameRect = prefab.nameLabel.rectTransform;
+        var textRect = prefab.textLabel.rectTransform;
+        Assert.That(textRect.offsetMin, Is.EqualTo(min));
+        Assert.That(textRect.offsetMax, Is.EqualTo(max));
+        Assert.That(nameRect.offsetMin.x, Is.EqualTo(min.x));
+        Assert.That(nameRect.offsetMax.x, Is.EqualTo(max.x));
+        Assert.That(nameRect.offsetMin.y, Is.GreaterThan(textRect.offsetMax.y));
+        Assert.That(prefab.bubble.rect.size, Is.EqualTo(prefab.minSize));
+
+        var canvas = new GameObject("BarSpeechBubbleTestCanvas", typeof(Canvas), typeof(CanvasScaler)).GetComponent<Canvas>();
+        try
+        {
+            var scaler = canvas.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(960, 540);
+            var bubble = Object.Instantiate(prefab, canvas.transform, false);
+            bubble.nameLabel.text = "루나";
+            bubble.SetText("어서 오세요.");
+            Assert.That(bubble.textLabel.textInfo.lineCount, Is.EqualTo(1));
+            Assert.That(bubble.bubble.rect.height, Is.EqualTo(prefab.minSize.y));
+            Capture(canvas, "bar-bubble-short-1280x720", 1280, 720);
+
+            bubble.SetText("어서 오세요.\n주문하시겠어요?\n추천 메뉴도 있어요.");
+            Assert.That(bubble.textLabel.textInfo.lineCount, Is.EqualTo(3));
+            Assert.That(bubble.bubble.rect.height, Is.GreaterThan(prefab.minSize.y));
+            Assert.That(bubble.textLabel.rectTransform.offsetMin, Is.EqualTo(min));
+            Assert.That(bubble.textLabel.rectTransform.offsetMax, Is.EqualTo(max));
+
+            Capture(canvas, "bar-bubble-1280x720", 1280, 720);
+            Capture(canvas, "bar-bubble-1920x1080", 1920, 1080);
+            Capture(canvas, "bar-bubble-2560x1440", 2560, 1440);
+        }
+        finally { Object.DestroyImmediate(canvas.gameObject); }
+    }
+
     [TestCase(false)]
     [TestCase(true)]
     public void OpeningBackdropCoversTheLoadAndRestoresTheGuideAfterPlayback(bool cancel)
