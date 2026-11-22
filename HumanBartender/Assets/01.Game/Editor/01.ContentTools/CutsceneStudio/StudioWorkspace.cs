@@ -226,6 +226,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             previewComponent.EndPreviewTransform();
             saves.Load(asset);
             sequence = asset;
+            contentVersion++;
             panelsDirty = true;
             propertiesComponent.ResetForSequence();
             sequenceComponent.ResetForSequence();
@@ -260,6 +261,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         {
             if (sequence == null)
                 return;
+            contentVersion++;
             panelsDirty = true;
             StudioEditorAssets.Dirty(sequence);
             session.CaptureUndoState();
@@ -392,6 +394,8 @@ namespace HumanBartender.CutsceneStudio.Editor
 
 
         [NonSerialized] private bool panelsDirty = true;
+        // 시퀀스를 열거나 내용이 바뀔 때(Undo 포함)마다 올라감. 검사 개수처럼 다시 계산이 비싼 표시를 캐시할 때 씀.
+        [NonSerialized] private int contentVersion;
 
 
         [NonSerialized] private IVisualElementScheduledItem toolkitSync;

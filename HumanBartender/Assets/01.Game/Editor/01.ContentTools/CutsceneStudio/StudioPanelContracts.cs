@@ -63,6 +63,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         StudioEditSession Session { get; }
         bool SnapEnabled { get; set; }
         string Status { get; }
+        int ContentVersion { get; }
     }
     internal interface IStudioSequenceHost : IStudioPanelHost
     {
@@ -98,6 +99,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         StudioClip Selected { get; }
         StudioSequence Sequence { get; }
         StudioEditSession Session { get; }
+        int ContentVersion { get; }
     }
     internal interface IStudioDialogueHost : IStudioPanelHost
     {

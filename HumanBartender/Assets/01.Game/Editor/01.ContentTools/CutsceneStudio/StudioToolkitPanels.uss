@@ -245,6 +245,37 @@
 #properties-panel .studio-properties-key-list .studio-button { -unity-text-align: middle-left; min-height: 22px; }
 #properties-panel .studio-properties-key-list .is-selected { background-color: rgb(75, 75, 75); border-left-color: rgb(160, 160, 160); }
 
+/* 엔진 클립 칸은 다른 칸과 같은 라벨 열(42%)을 쓰고, 작은 버튼을 같은 줄에, 상태 줄을 칸 열에 맞춰 둠. */
+#properties-panel .studio-properties-engine-row { flex-direction: row; align-items: center; margin-bottom: 2px; flex-shrink: 0; }
+#properties-panel .studio-properties-engine-label {
+    min-width: 94px;
+    width: 42%;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0 2px 0 0;
+    -unity-text-align: middle-left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#properties-panel .studio-properties-engine-row > .studio-properties-engine-field { flex-grow: 1; flex-shrink: 1; min-width: 30px; margin: 0; }
+#properties-panel .studio-properties-engine-buttons { flex-direction: row; flex-shrink: 0; }
+/* 에셋 카테고리의 ↻ 버튼(.studio-button + .studio-asset-actions > Button)과 같은 높이 / 글자 / 여백. */
+#properties-panel .studio-properties-engine-buttons > Button { min-height: 23px; margin: 0 0 0 4px; }
+#properties-panel .studio-properties-engine-status { flex-direction: row; margin: 0 0 6px 0; flex-shrink: 0; }
+#properties-panel .studio-properties-engine-gutter { min-width: 94px; width: 42%; flex-shrink: 0; }
+#properties-panel .studio-properties-engine-status > Label {
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+    font-size: 11px;
+    margin: 0;
+    padding-left: 2px;
+    color: rgb(164, 164, 164);
+}
+#properties-panel .studio-properties-engine-status > Label.engine-same { color: rgb(126, 190, 120); }
+#properties-panel .studio-properties-engine-status > Label.engine-differs { color: rgb(222, 172, 82); }
+#properties-panel .studio-properties-engine-status > Label.engine-error { color: rgb(230, 105, 95); }
+
 /* 속성 카테고리의 삼각형은 클릭 상태에서도 같은 회색을 사용함. */
 #properties-panel .studio-section > .unity-foldout__toggle > .unity-toggle__input > .unity-toggle__checkmark {
     -unity-background-image-tint-color: rgb(160, 160, 160);

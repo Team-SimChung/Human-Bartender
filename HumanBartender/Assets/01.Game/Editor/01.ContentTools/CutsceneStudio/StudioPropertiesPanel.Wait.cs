@@ -1,5 +1,6 @@
 using System;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Timeline;
 using UnityEngine.UIElements;
 
@@ -7,6 +8,70 @@ namespace HumanBartender.CutsceneStudio.Editor
 {
     internal sealed partial class StudioPropertiesPanel
     {
+        // 입력 대기 중 이 클립을 계속할지. 첫 항목에 트랙의 지금 값을 보여 주며, 항목 문구에는 하위 메뉴로 쪼개지는 '/'를 쓰지 않음.
+        private void BuildWaitPlayback(VisualElement parent, SerializedObject data)
+        {
+            var asset = host.Selected;
+            var timed = host.FindSelected();
+            var property = StudioSerializedFields.Find(data, "WaitPlayback");
+            if (property == null || timed == null)
+                return;
+            var picker = new PopupField<string>(StudioClipSchema.WaitPlaybackLabel, WaitChoices(false), 0) { name = "wait-playback" };
+            picker.AddToClassList("studio-property");
+            parent.Add(picker);
+            picker.RegisterValueChangedCallback(Change);
+            refreshFields.Add(Refresh);
+            Refresh();
+
+            void Change(ChangeEvent<string> _)
+            {
+                int index = picker.index;
+                if (index < 0 || index > (int)StudioWaitPlayback.Pause || data.targetObject == null || (int)asset.WaitPlayback == index)
+                    return;
+                // 다른 ClipField와 같이 SerializedObject로 반영해 Undo / Dirty를 같은 방식으로 남김.
+                data.Update();
+                property.enumValueIndex = index;
+                data.ApplyModifiedProperties();
+                host.Changed();
+            }
+
+            void Refresh()
+            {
+                bool trackOn = timed.GetParentTrack() is StudioTrack track && track.ContinueDuringWait;
+                var choices = WaitChoices(trackOn);
+                int index = Mathf.Clamp((int)asset.WaitPlayback, 0, choices.Count - 1);
+                picker.choices = choices;
+                picker.SetValueWithoutNotify(choices[index]);
+                bool available = StudioEvaluation.CanContinueDuringWait(asset);
+                // 효과는 흔들림이나 화면 머티리얼이 있을 때만 보이고, 그림은 반복이 꺼져 있으면 비활성으로 둠.
+                picker.style.display = asset.Kind == StudioKind.Effect && !available ? DisplayStyle.None : DisplayStyle.Flex;
+                picker.SetEnabled(available);
+                picker.tooltip = WaitTooltip(asset, available);
+            }
+        }
+
+        private static System.Collections.Generic.List<string> WaitChoices(bool trackOn) => new()
+        {
+            $"트랙 설정 따름 ({(trackOn ? "계속 재생" : "멈춤")})",
+            "계속 재생",
+            "멈춤"
+        };
+
+        private static string WaitTooltip(StudioClip clip, bool available)
+        {
+            string text = "입력 대기 중에도 이 클립의 " + clip.Kind switch
+            {
+                StudioKind.Audio => "소리를",
+                StudioKind.Effect => "흔들림 / 화면 효과를",
+                _ => "반복 프레임을"
+            } + " 계속할지 정합니다. 이동 / 카메라 / 강도 키는 멈추며, 대기가 시작될 때 재생선 아래에 있는 클립에만 적용됩니다.";
+            if (clip.Kind == StudioKind.Audio)
+                text += " 반복 여부와 상관없이 적용되며, 일회성 음원은 계속 재생일 때 대기 중에도 끝까지 재생합니다.";
+            if (clip.Kind == StudioKind.Visual && !available)
+                text += " 반복이 꺼져 있어 대기 중에는 항상 멈춥니다. 반복을 켜야 적용됩니다.";
+            return text;
+        }
+
         private void BuildWaitSettings(VisualElement section)
         {
             Note(section, "클립 시작에서 재생을 멈추고, 진행 입력을 받으면 이어서 재생합니다. 키프레임은 사용하지 않습니다.");

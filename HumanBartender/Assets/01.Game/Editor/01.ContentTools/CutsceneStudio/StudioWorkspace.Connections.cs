@@ -59,6 +59,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         StudioEditSession IStudioTimelineHost.Session { get { return session; } }
         bool IStudioTimelineHost.SnapEnabled { get { return snap; } set { snap = value; } }
         string IStudioTimelineHost.Status { get { return status; } }
+        int IStudioTimelineHost.ContentVersion => contentVersion;
         void IStudioSequenceHost.AddPalette(StudioKind kind, double at, StudioTrack track) { commandsComponent.AddPalette(kind, at, track); }
         void IStudioSequenceHost.Changed(bool rebuild) { Changed(rebuild); }
         void IStudioSequenceHost.PlaceAsset(Object asset, double at, Vector2 position, StudioTrack track) { commandsComponent.PlaceAsset(asset, at, position, track); }
@@ -73,6 +74,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         double IStudioPropertiesHost.CurrentTime => clock.Time;
         bool IStudioPropertiesHost.Playing => IsPlaybackActive;
         void IStudioPropertiesHost.Changed(bool rebuild) { Changed(rebuild); }
+        int IStudioPropertiesHost.ContentVersion => contentVersion;
         void IStudioPropertiesHost.DeleteClip() { commandsComponent.DeleteClip(); }
         void IStudioPropertiesHost.DeleteSelectedKey() { timelineComponent.DeleteSelectedKey(); }
         void IStudioPropertiesHost.DuplicateClip() { commandsComponent.DuplicateClip(); }

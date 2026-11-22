@@ -26,19 +26,33 @@ namespace HumanBartender.CutsceneStudio.Editor
         public string Name => Asset == null ? "누락된 에셋" : Asset.name;
 
         private bool checkedSupport;
-        private string reason;
+        private string reason, notice;
         public string Unsupported
         {
             get
             {
-                if (!checkedSupport)
-                {
-                    reason = StudioAssetLibrary.UnsupportedReason(Asset);
-                    checkedSupport = true;
-                }
-
+                Check();
                 return reason;
             }
+        }
+
+        // 받을 수는 있지만 일부 내용을 무시하는 경우의 안내. 없으면 null.
+        public string Notice
+        {
+            get
+            {
+                Check();
+                return notice;
+            }
+        }
+
+        private void Check()
+        {
+            if (checkedSupport)
+                return;
+            reason = StudioAssetLibrary.UnsupportedReason(Asset);
+            notice = reason == null ? StudioAssetLibrary.IgnoredContent(Asset) : null;
+            checkedSupport = true;
         }
     }
 
@@ -118,19 +132,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             if (source is Sprite || source is AudioClip)
                 return null;
             if (source is AnimationClip animation)
-            {
-                var bindings = AnimationUtility.GetObjectReferenceCurveBindings(animation);
-                if (AnimationUtility.GetCurveBindings(animation).Length != 0 || bindings.Length != 1 || bindings[0].type != typeof(SpriteRenderer) || bindings[0].propertyName != "m_Sprite" || AnimationUtility.GetAnimationEvents(animation).Length != 0)
-                    return "SpriteRenderer의 Sprite 교체 애니메이션을 지원합니다. Transform / 기타 속성 / 이벤트 애니메이션은 아직 지원하지 않습니다.";
-                var keys = AnimationUtility.GetObjectReferenceCurve(animation, bindings[0]);
-                if (keys.Length == 0 || keys.Any(MatchesKeysAny))
-                    return "Sprite 프레임이 없는 애니메이션입니다.";
-                return null;
-                bool MatchesKeysAny(UnityEditor.ObjectReferenceKeyframe k)
-                {
-                    return k.value is not Sprite;
-                }
-            }
+                return ReadSpriteKeys(animation, out _, out _);
 
             if (source is GameObject prefab)
             {
@@ -148,6 +150,44 @@ namespace HumanBartender.CutsceneStudio.Editor
             return "Sprite, Sprite 애니메이션, 단일 Sprite 프리팹, AudioClip을 선택하세요. 분할 시트는 개별 Sprite를 선택하세요.";
         }
 
+        // 받을 수 있는 애니메이션에서 스프라이트 키 말고 무시하는 내용. 없거나 애니메이션이 아니면 null.
+        public static string IgnoredContent(Object source)
+        {
+            if (Normalize(source) is not AnimationClip animation)
+                return null;
+            return ReadSpriteKeys(animation, out _, out string ignored) == null ? ignored : null;
+        }
+
+        // 스프라이트 교체 곡선이 정확히 하나면 그 키만 읽는다(대상 컴포넌트 종류는 묻지 않음).
+        // 다른 곡선 / 이벤트 / 대상 종류는 재생하지 않고 ignored에 적는다. 받을 수 없으면 이유를 돌려준다.
+        internal static string ReadSpriteKeys(AnimationClip animation, out ObjectReferenceKeyframe[] keys, out string ignored)
+        {
+            keys = null;
+            ignored = null;
+            var references = AnimationUtility.GetObjectReferenceCurveBindings(animation);
+            var sprites = references.Where(binding => binding.propertyName == "m_Sprite").ToArray();
+            if (sprites.Length == 0)
+                return "Sprite 교체 곡선이 없는 애니메이션입니다. Transform / 기타 속성 / 이벤트만 있는 애니메이션은 지원하지 않습니다.";
+            if (sprites.Length > 1)
+                return "Sprite 교체 곡선이 여러 개인 애니메이션입니다. 오브젝트 하나의 Sprite만 바꾸는 애니메이션을 지원합니다.";
+            var read = AnimationUtility.GetObjectReferenceCurve(animation, sprites[0]);
+            if (read.Length == 0 || read.Any(key => key.value is not Sprite))
+                return "Sprite 프레임이 없는 애니메이션입니다.";
+            keys = read;
+            var parts = new List<string>();
+            int curves = AnimationUtility.GetCurveBindings(animation).Length + references.Length - 1;
+            if (curves > 0)
+                parts.Add($"다른 속성 곡선 {curves}개");
+            int events = AnimationUtility.GetAnimationEvents(animation).Length;
+            if (events > 0)
+                parts.Add($"이벤트 {events}개");
+            if (sprites[0].type != typeof(SpriteRenderer))
+                parts.Add($"원래 대상 {(sprites[0].type != null ? sprites[0].type.Name : "알 수 없음")}");
+            if (parts.Count > 0)
+                ignored = "Sprite 교체 키만 사용합니다. 무시한 내용: " + string.Join(" / ", parts);
+            return null;
+        }
+
         public static TimelineClip Place(StudioSequence sequence, Object source, double time, Vector2 position, StudioTrack target = null)
         {
             source = Normalize(source);
@@ -162,10 +202,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             Undo.SetCurrentGroupName("컷씬 에셋 배치");
             Undo.RecordObject(sequence, "컷씬 에셋 배치");
             string actorId = null;
-            Sprite[] frames = null;
-            float[] times = null;
-            float animationLength = 0;
-            bool loop = false;
+            StudioEngineClip engine = null;
             if (source is not AudioClip)
             {
                 var sprite = source as Sprite;
@@ -174,22 +211,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 var prefabScale = Vector2.one;
                 if (source is AnimationClip animation)
                 {
-                    var binding = AnimationUtility.GetObjectReferenceCurveBindings(animation)[0];
-                    var keys = AnimationUtility.GetObjectReferenceCurve(animation, binding);
-                    frames = keys.Select(SelectKeysSelect).ToArray();
-                    times = keys.Select(SelectKeysSelect2).ToArray();
-                    sprite = frames[0];
-                    animationLength = Mathf.Max((float)StudioTiming.FrameDuration(sequence), animation.length);
-                    loop = animation.isLooping;
-                    UnityEngine.Sprite SelectKeysSelect(UnityEditor.ObjectReferenceKeyframe k)
-                    {
-                        return (Sprite)k.value;
-                    }
-
-                    float SelectKeysSelect2(UnityEditor.ObjectReferenceKeyframe k)
-                    {
-                        return k.time;
-                    }
+                    engine = StudioEngineClips.Load(animation) ?? throw new InvalidOperationException(UnsupportedReason(animation));
+                    sprite = engine.Frames[0];
                 }
 
                 if (source is GameObject prefab)
@@ -208,16 +231,26 @@ namespace HumanBartender.CutsceneStudio.Editor
                 var data = (StudioClip)clip.asset;
                 data.From = data.To = position;
                 data.RotationFrom = data.RotationTo = rotation;
-                data.Frames = frames ?? new[]
+                data.Frames = new[]
                 {
                     sprite
                 };
-                data.FrameTimes = times;
-                data.AnimationLength = animationLength;
-                data.Loop = loop;
+                data.FrameTimes = null;
+                data.AnimationLength = 0;
+                data.Loop = false;
+                if (engine != null)
+                    StudioEngineClips.Apply(data, engine, StudioTiming.FrameDuration(sequence));
+                // 반복 애니메이션을 새 트랙에 놓으면 그 트랙은 입력 대기 중에도 계속 재생함. 기존 트랙의 설정은 건드리지 않음.
+                if (target == null && engine != null && data.Loop && clip.GetParentTrack() is StudioTrack created)
+                {
+                    Undo.RecordObject(created, "컷씬 에셋 배치");
+                    created.ContinueDuringWait = true;
+                    EditorUtility.SetDirty(created);
+                }
                 if (source is GameObject go)
                     data.FlipX = go.GetComponent<SpriteRenderer>().flipX ^ (prefabScale.x < 0);
-                clip.duration = animationLength > 0 ? animationLength : 4;
+                // 애니메이션은 엔진에서 한 바퀴 도는 길이로 시작함.
+                clip.duration = engine != null ? Math.Max(StudioTiming.FrameDuration(sequence), StudioSpriteAnimation.CycleLength(data)) : 4;
                 clip.displayName = source.name;
                 sequence.Timeline.fixedDuration = Math.Max(sequence.Duration, clip.end);
                 EditorUtility.SetDirty(data);

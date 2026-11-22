@@ -38,6 +38,8 @@ namespace HumanBartender.CutsceneStudio.Editor
     // 클립의 표시 정보와 속성 필드를 공유하며 재생 동작은 런타임에 유지함.
     internal static class StudioClipSchema
     {
+        internal const string WaitPlaybackLabel = "입력 대기 중";
+
         // 배열 순서는 클립 추가와 새 트랙 메뉴의 표시 순서에 쓰임.
         internal static IReadOnlyList<StudioClipDefinition> Definitions { get; } = Array.AsReadOnly(new[]
         {
@@ -104,6 +106,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     Add("Frames", "애니메이션 프레임", animation: true);
                     Add("FramesPerSecond", "초당 프레임", animation: true);
                     Add("Loop", "반복", animation: true);
+                    Add("WaitPlayback", WaitPlaybackLabel, animation: true);
                     break;
                 case StudioKind.Dialogue:
                     Add("Text", "대사");
@@ -127,6 +130,9 @@ namespace HumanBartender.CutsceneStudio.Editor
                     Add("Effect", "효과");
                     Add("Strength", "강도", !StudioKeyframes.HasKeys(clip, StudioProperty.Strength));
                     Add("EffectColor", "색상");
+                    // 흔들림이나 화면 머티리얼 효과만 대기 중에 계속할 수 있음.
+                    if (StudioEvaluation.CanContinueDuringWait(clip))
+                        Add("WaitPlayback", WaitPlaybackLabel);
                     Add("Curve", "키 사이 보간 곡선");
                     break;
                 case StudioKind.Audio:
@@ -137,6 +143,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                     Add("FadeIn", "페이드 인");
                     Add("FadeOut", "페이드 아웃");
                     Add("Loop", "반복");
+                    Add("WaitPlayback", WaitPlaybackLabel);
                     Add("Curve", "볼륨 키 보간 곡선");
                     break;
             }

@@ -74,6 +74,15 @@ namespace HumanBartender.CutsceneStudio.Editor
         }
         internal static readonly Color Accent = new(.24f, .49f, .75f);
 
+        // 타임라인 반복 표시: 한 바퀴 눈금(항상)과 입력 대기 중에만 나오는 주황 막대 / 점.
+        internal static readonly Color LoopTickColor = new(1f, 1f, 1f, .22f);
+        internal static readonly Color WaitMarkColor = new(1f, .58f, .12f);
+        internal const float LoopTickWidth = 1, WaitBarWidth = 3, WaitDotSize = 8;
+        // 한 바퀴 칸이 이 폭(px)보다 좁으면 그 클립의 눈금은 그리지 않음(막대는 그림).
+        internal const float LoopTickMinCell = 6;
+        // 음소거 트랙의 표시를 흐리게 하는 배율. 클립 색 띠와 같은 값.
+        internal const float MutedAlpha = .35f;
+
         internal static void Panel(Rect rect) => EditorGUI.DrawRect(rect, new Color(.22f, .22f, .22f));
 
         internal static Rect DrawPanelHeader(Rect area, string title)

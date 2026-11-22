@@ -120,6 +120,9 @@ namespace HumanBartender.CutsceneStudio.Editor
                 scrollPositions[scrollKey] = propertiesBody.scrollOffset;
             ReleaseToolkitBindings();
             propertiesBody.Clear();
+            // 다른 타임라인 클립을 고르면 엔진 클립 칸을 버려, 열려 있던 선택 창의 클릭이 새 클립에 들어가지 않게 함.
+            if (engineField.Owner != host.Selected)
+                engineField.Release();
             clipFields.Clear();
             validationUI = null;
             int version = ++buildVersion;
@@ -339,6 +342,7 @@ namespace HumanBartender.CutsceneStudio.Editor
         internal void ResetForSequence()
         {
             dialogueTimingNotice = "";
+            engineField.Release();
             currentKeys.Reset();
             inspectorIdentity = null;
             scrollKey = null;
@@ -354,7 +358,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                 .Append(':').Append(host.KeySelectionOwner?.GetInstanceID()).Append(':').Append(host.KeyIndex)
                 .Append(':').Append(host.KeyProperty)
                 .Append(':').Append(clip?.Effect).Append(':').Append(clip?.WaitForInput)
-                .Append(':').Append(clip?.Frames?.Length);
+                .Append(':').Append(clip?.Frames?.Length).Append(':').Append(clip?.SourceAnimationGuid);
             identity.Append(':').Append(clip?.DialoguePrefab?.GetInstanceID()).Append(':').Append(clip?.CameraTargetId);
             if (clip != null)
                 identity.Append(':').Append(StudioPropertyEditing.UsesSourceTiming(clip))

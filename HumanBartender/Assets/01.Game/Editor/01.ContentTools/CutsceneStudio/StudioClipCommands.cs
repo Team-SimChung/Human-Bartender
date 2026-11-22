@@ -55,7 +55,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 var clip = StudioAssetLibrary.Place(host.Sequence, asset, at, position, track);
                 host.Select(clip);
                 host.Changed(true);
-                host.Status = asset.name + " / " + at.ToString("F2") + "초에 배치됨";
+                string ignored = StudioAssetLibrary.IgnoredContent(asset);
+                host.Status = asset.name + " / " + at.ToString("F2") + "초에 배치됨" + (ignored != null ? " / " + ignored : "");
             }
         }
 
