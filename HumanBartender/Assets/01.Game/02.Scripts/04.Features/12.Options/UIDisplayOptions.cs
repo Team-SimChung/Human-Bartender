@@ -44,6 +44,7 @@ public class UIDisplayOptions : MonoBehaviour
     static UIDisplayOptions activeOptions;
     GameObject previousSelection;
     IDisposable pauseHandle;
+    bool shownFullscreen;
     static int lastEscapeFrame = -1;
     // 설정창을 닫은 뒤 실행되는 월드 Update에도 같은 ESC가 전달되지 않게 한다.
     internal static bool EscapeHandledThisFrame => lastEscapeFrame == Time.frameCount;
@@ -143,6 +144,16 @@ public class UIDisplayOptions : MonoBehaviour
 
     private void Update()
     {
+        // Alt+Enter로 바뀐 화면 모드만 동기화하고, 아직 적용하지 않은 다른 옵션 초안은 유지한다.
+        bool fullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
+        if (optionUI != null && optionUI.activeSelf && windowedToggle != null && windowSizeDropdown != null &&
+            fullscreen != shownFullscreen)
+        {
+            shownFullscreen = fullscreen;
+            windowedToggle.SetIsOnWithoutNotify(!fullscreen);
+            windowSizeDropdown.interactable = !fullscreen;
+            optionUI.GetComponentInChildren<OptionsPanelView>(true)?.RefreshNavigation();
+        }
         if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
         HandleEscape();
     }
@@ -193,6 +204,7 @@ public class UIDisplayOptions : MonoBehaviour
         if (_display == null || windowSizeDropdown == null || windowedToggle == null) return;
         // 기본값 전체화면(1) → 창모드 토글은 off
         bool fullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
+        shownFullscreen = fullscreen;
         bool windowed = !fullscreen;
         int winIndex = PlayerPrefs.GetInt("WinIndex", 0);
 

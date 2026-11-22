@@ -7,11 +7,13 @@ using System.Collections.Generic;
 using VContainer.Unity;
 
 /// <summary>
-/// 화면 설정(전체화면/창 해상도/PixelPerfectCamera 채우기 방식)을 관리하는 VContainer 싱글톤.
+/// 16:9 화면 설정(전체화면/창 해상도/PixelPerfectCamera 채우기 방식)을 관리하는 VContainer 싱글톤.
 /// 설정값은 PlayerPrefs에 저장되어 씬 간 유지된다.
 /// </summary>
-public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
+public class DisplaySettings : IDisplaySettings, IInitializable, ITickable, IDisposable
 {
+    // 조절용 수치가 아니라 창 모드와 전체화면이 공유하는 고정 화면 비율이다.
+    const int AspectWidth = 16, AspectHeight = 9;
     public static readonly int[] FrameRates = { 30, 60, 120, 144, -1 };
     readonly Dictionary<UniversalAdditionalCameraData, bool> authoredPostProcessing = new();
     private static readonly Vector2Int[] _windowedSizes =
@@ -26,9 +28,13 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
     private PixelPerfectCamera _activePPC;
     Volume bloomVolume;
     VolumeProfile bloomProfile;
+    readonly WindowState windowState = new(_windowedSizes[0]);
+    bool initialized;
 
     public void Initialize()
     {
+        int windowIndex = Mathf.Clamp(PlayerPrefs.GetInt("WinIndex", 0), 0, _windowedSizes.Length - 1);
+        windowState.WindowedSize = _windowedSizes[windowIndex];
         // 기본값: 전체화면 (키가 없으면 1 = 전체화면)
         bool fullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
         SetFullscreen(fullscreen);
@@ -36,10 +42,27 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
         Application.targetFrameRate = FrameRates[Mathf.Clamp(PlayerPrefs.GetInt("FrameRateIndex", 1), 0, FrameRates.Length - 1)];
         SceneManager.sceneLoaded += OnSceneLoaded;
         ApplySceneCameras();
+        initialized = true;
+    }
+
+    public void Tick()
+    {
+        // 에디터의 Game 뷰 크기는 작업자가 자유롭게 바꿀 수 있게 둔다.
+        if (!initialized || Application.isEditor) return;
+        var screenSize = new Vector2Int(Screen.width, Screen.height);
+        var display = Screen.currentResolution;
+        bool fullscreen = Screen.fullScreen;
+        bool correct = windowState.TryUpdate(screenSize, fullscreen,
+            new Vector2Int(display.width, display.height), Time.frameCount, out var size);
+        if (windowState.FullscreenChanged)
+            SaveFullscreen(fullscreen);
+        if (correct)
+            ApplyResolution(size, fullscreen);
     }
 
     public void Dispose()
     {
+        initialized = false;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         foreach (var pair in authoredPostProcessing)
             if (pair.Key != null) pair.Key.renderPostProcessing = pair.Value;
@@ -142,16 +165,42 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
         if (fullscreen)
         {
             var r = Screen.currentResolution;
-            Screen.SetResolution(r.width, r.height, FullScreenMode.FullScreenWindow);
+            var s = GetFullscreenSize(r.width, r.height);
+            // 게임과 Overlay UI를 함께 16:9로 렌더링하고, 모니터의 남는 영역은 Unity가 검게 채운다.
+            ApplyResolution(s, true);
         }
         else
         {
-            int i = Mathf.Clamp(PlayerPrefs.GetInt("WinIndex", 0), 0, _windowedSizes.Length - 1);
-            var s = _windowedSizes[i];
-            Screen.SetResolution(s.x, s.y, FullScreenMode.Windowed);
+            ApplyResolution(windowState.WindowedSize, false);
         }
+        SaveFullscreen(fullscreen);
+    }
+
+    void ApplyResolution(Vector2Int size, bool fullscreen)
+    {
+        windowState.RecordRequest(size, fullscreen, Time.frameCount);
+        Screen.SetResolution(size.x, size.y, fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
+    }
+
+    static void SaveFullscreen(bool fullscreen)
+    {
         PlayerPrefs.SetInt("Fullscreen", fullscreen ? 1 : 0);
         PlayerPrefs.Save();
+    }
+
+    /// <summary>모니터 안에 들어가는 가장 큰 정수 픽셀 16:9 렌더링 해상도.</summary>
+    public static Vector2Int GetFullscreenSize(int displayWidth, int displayHeight)
+    {
+        int scale = Mathf.Max(1, Mathf.Min(displayWidth / AspectWidth, displayHeight / AspectHeight));
+        return new Vector2Int(AspectWidth * scale, AspectHeight * scale);
+    }
+
+    /// <summary>드래그한 축의 크기를 기준으로 창을 16:9에 맞춘다. 반올림하여 보정할 때마다 작아지지 않게 한다.</summary>
+    public static Vector2Int GetResizedWindowSize(Vector2Int size, Vector2Int previousSize)
+    {
+        bool widthChangedMore = Mathf.Abs(size.x - previousSize.x) * AspectHeight >= Mathf.Abs(size.y - previousSize.y) * AspectWidth;
+        int scale = Mathf.Max(1, Mathf.RoundToInt(widthChangedMore ? size.x / (float)AspectWidth : size.y / (float)AspectHeight));
+        return new Vector2Int(scale * AspectWidth, scale * AspectHeight);
     }
 
     public void SetWindowedSize(int index)
@@ -159,10 +208,10 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
         index = Mathf.Clamp(index, 0, _windowedSizes.Length - 1);
         PlayerPrefs.SetInt("WinIndex", index);
         PlayerPrefs.Save();
+        windowState.WindowedSize = _windowedSizes[index];
         if (!Screen.fullScreen)
         {
-            var s = _windowedSizes[index];
-            Screen.SetResolution(s.x, s.y, FullScreenMode.Windowed);
+            ApplyResolution(windowState.WindowedSize, false);
         }
     }
 
@@ -198,5 +247,76 @@ public class DisplaySettings : IDisplaySettings, IInitializable, IDisposable
         camera.cropFrame = stretch
             ? PixelPerfectCamera.CropFrame.StretchFill
             : PixelPerfectCamera.CropFrame.Windowbox;
+    }
+
+    /// <summary>OS 창 조절과 Alt+Enter를 감지한다. Unity API 호출과 분리해 전환 순서를 EditMode에서 검증한다.</summary>
+    public sealed class WindowState
+    {
+        public Vector2Int WindowedSize { get; set; }
+        public bool FullscreenChanged { get; private set; }
+        Vector2Int observedSize;
+        bool observedFullscreen, hasObservation, resizePending;
+        int requestFrame = -1;
+
+        public WindowState(Vector2Int windowedSize) => WindowedSize = windowedSize;
+
+        public void RecordRequest(Vector2Int size, bool fullscreen, int frame)
+        {
+            if (!fullscreen) WindowedSize = size;
+            requestFrame = frame;
+            resizePending = false;
+        }
+
+        public bool TryUpdate(Vector2Int size, bool fullscreen, Vector2Int displaySize, int frame, out Vector2Int correctedSize)
+        {
+            correctedSize = size;
+            FullscreenChanged = false;
+            if (size.x <= 0 || size.y <= 0) return false;
+            // SetResolution은 프레임 끝에 적용된다. 우리 요청을 OS의 새 조작으로 오인하지 않는다.
+            if (requestFrame >= 0)
+            {
+                if (frame <= requestFrame) return false;
+                requestFrame = -1;
+                observedSize = size;
+                observedFullscreen = fullscreen;
+                hasObservation = true;
+                return false;
+            }
+            if (!hasObservation)
+            {
+                observedSize = size;
+                observedFullscreen = fullscreen;
+                hasObservation = true;
+                return false;
+            }
+            if (fullscreen != observedFullscreen)
+            {
+                observedFullscreen = fullscreen;
+                observedSize = size;
+                resizePending = false;
+                FullscreenChanged = true;
+                correctedSize = fullscreen ? GetFullscreenSize(displaySize.x, displaySize.y) : WindowedSize;
+                return true;
+            }
+            if (fullscreen)
+            {
+                if (size == observedSize) return false;
+                observedSize = size;
+                correctedSize = GetFullscreenSize(displaySize.x, displaySize.y);
+                return correctedSize != size;
+            }
+            if (size != observedSize)
+            {
+                observedSize = size;
+                resizePending = true;
+                return false;
+            }
+            // 드래그 중 매 프레임 창 크기를 다시 쓰지 않고, 크기가 안정된 다음 보정한다.
+            if (!resizePending) return false;
+            resizePending = false;
+            correctedSize = GetResizedWindowSize(size, WindowedSize);
+            WindowedSize = correctedSize;
+            return correctedSize != size;
+        }
     }
 }

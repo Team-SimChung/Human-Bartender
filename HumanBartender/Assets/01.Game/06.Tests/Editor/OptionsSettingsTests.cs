@@ -31,6 +31,96 @@ public sealed class OptionsSettingsTests
         PlayerPrefs.Save();
     }
 
+    [TestCase(1280, 720, 1280, 720)]
+    [TestCase(1920, 1080, 1920, 1080)]
+    [TestCase(2560, 1440, 2560, 1440)]
+    [TestCase(3840, 2160, 3840, 2160)]
+    [TestCase(3440, 1440, 2560, 1440)]
+    [TestCase(1920, 1200, 1920, 1080)]
+    [TestCase(1280, 1024, 1280, 720)]
+    [TestCase(1080, 1920, 1072, 603)]
+    [TestCase(1366, 768, 1360, 765)]
+    public void FullscreenFitsSixteenByNineInsideDisplay(int width, int height, int expectedWidth, int expectedHeight)
+    {
+        var size = DisplaySettings.GetFullscreenSize(width, height);
+        Assert.That(size, Is.EqualTo(new Vector2Int(expectedWidth, expectedHeight)));
+        Assert.That(size.x * 9, Is.EqualTo(size.y * 16), "the render target must include Overlay UI in the same 16:9 area");
+        Assert.That(size.x, Is.LessThanOrEqualTo(width));
+        Assert.That(size.y, Is.LessThanOrEqualTo(height));
+    }
+
+    [Test]
+    public void WindowSizesAndPlayerSettingsKeepSixteenByNine()
+    {
+        foreach (var size in new DisplaySettings().WindowedSizes)
+            Assert.That(size.x * 9, Is.EqualTo(size.y * 16), $"window size {size} must be 16:9");
+        Assert.That(PlayerSettings.defaultScreenWidth * 9, Is.EqualTo(PlayerSettings.defaultScreenHeight * 16));
+        Assert.That(PlayerSettings.defaultIsNativeResolution, Is.False, "startup must not adopt a non-16:9 monitor resolution");
+        Assert.That(PlayerSettings.fullScreenMode, Is.EqualTo(FullScreenMode.FullScreenWindow));
+        Assert.That(PlayerSettings.resizableWindow, Is.True, "window resizing must remain available");
+        Assert.That(PlayerSettings.allowFullscreenSwitch, Is.True, "Alt+Enter must remain available");
+    }
+
+    [TestCase(1600, 720, 1600, 900)]
+    [TestCase(1280, 900, 1600, 900)]
+    [TestCase(960, 720, 960, 540)]
+    [TestCase(1280, 540, 960, 540)]
+    [TestCase(1599, 899, 1600, 900)]
+    public void WindowResizeFollowsTheDraggedAxis(int width, int height, int expectedWidth, int expectedHeight)
+    {
+        Assert.That(DisplaySettings.GetResizedWindowSize(new Vector2Int(width, height), new Vector2Int(1280, 720)),
+            Is.EqualTo(new Vector2Int(expectedWidth, expectedHeight)));
+    }
+
+    [Test]
+    public void DragSettlesBeforeCorrectionAndDoesNotRepeatOurResolutionRequest()
+    {
+        var state = new DisplaySettings.WindowState(new Vector2Int(1280, 720));
+        var display = new Vector2Int(1920, 1080);
+        Assert.That(state.TryUpdate(new Vector2Int(1280, 720), false, display, 0, out _), Is.False);
+        Assert.That(state.TryUpdate(new Vector2Int(1400, 720), false, display, 1, out _), Is.False);
+        Assert.That(state.TryUpdate(new Vector2Int(1600, 720), false, display, 2, out _), Is.False);
+        Assert.That(state.TryUpdate(new Vector2Int(1600, 720), false, display, 3, out var corrected), Is.True);
+        Assert.That(corrected, Is.EqualTo(new Vector2Int(1600, 900)));
+        state.RecordRequest(corrected, false, 3);
+        Assert.That(state.TryUpdate(new Vector2Int(1600, 720), false, display, 3, out _), Is.False);
+        Assert.That(state.TryUpdate(corrected, false, display, 4, out _), Is.False);
+        Assert.That(state.TryUpdate(corrected, false, display, 5, out _), Is.False);
+        Assert.That(state.WindowedSize, Is.EqualTo(corrected));
+    }
+
+    [Test]
+    public void AltEnterFitsUltrawideAndRestoresTheLastWindowSize()
+    {
+        var window = new Vector2Int(1600, 900);
+        var display = new Vector2Int(3440, 1440);
+        var state = new DisplaySettings.WindowState(window);
+        state.TryUpdate(window, false, display, 0, out _);
+        Assert.That(state.TryUpdate(display, true, display, 1, out var fullscreen), Is.True);
+        Assert.That(state.FullscreenChanged, Is.True);
+        Assert.That(fullscreen, Is.EqualTo(new Vector2Int(2560, 1440)));
+        state.RecordRequest(fullscreen, true, 1);
+        Assert.That(state.TryUpdate(fullscreen, true, display, 2, out _), Is.False);
+        Assert.That(state.FullscreenChanged, Is.False);
+        Assert.That(state.TryUpdate(new Vector2Int(1280, 720), false, display, 3, out var restored), Is.True);
+        Assert.That(state.FullscreenChanged, Is.True);
+        Assert.That(restored, Is.EqualTo(window));
+    }
+
+    [Test]
+    public void OwnModeChangesAndMinimizedWindowDoNotTriggerAnotherSwitch()
+    {
+        var state = new DisplaySettings.WindowState(new Vector2Int(1280, 720));
+        var display = new Vector2Int(1920, 1200);
+        var fullscreen = new Vector2Int(1920, 1080);
+        state.RecordRequest(fullscreen, true, 0);
+        Assert.That(state.TryUpdate(new Vector2Int(1280, 720), false, display, 0, out _), Is.False);
+        Assert.That(state.TryUpdate(fullscreen, true, display, 1, out _), Is.False);
+        Assert.That(state.FullscreenChanged, Is.False);
+        Assert.That(state.TryUpdate(Vector2Int.zero, true, display, 2, out _), Is.False);
+        Assert.That(state.TryUpdate(fullscreen, true, display, 3, out _), Is.False);
+    }
+
     [Test]
     public void RebindingUpdatesRealActionsKeepsArrowAndGamepadAlternativesAndSurvivesNewAssets()
     {
