@@ -1,8 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using NUnit.Framework;
+using TMPro;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 재료·아이템 획득 알림은 실제로 받은 순간에만 뜬다(엔진 수정 사항 24·26).
@@ -41,20 +46,92 @@ public sealed class AcquisitionNoticeTests
     }
 
     [Test]
-    public void ItemNoticeCanSwapTitleAndHideTheIcon()
+    public void ItemNoticeShowsTheAcquiredItemWithoutAnIngredientIcon()
     {
-        var serialized = new SerializedObject(LoadIngredientPopup());
-        foreach (string field in new[] { "title", "ingredientName", "iconFrame", "ingredientIcon" })
-            Assert.That(serialized.FindProperty(field).objectReferenceValue, Is.Not.Null, "연결되지 않은 참조: " + field);
+        var view = Object.Instantiate(LoadIngredientPopup());
+        try
+        {
+            using var serialized = new SerializedObject(view);
+            var message = (TMP_Text)serialized.FindProperty("ingredientName").objectReferenceValue;
+            var iconFrame = (GameObject)serialized.FindProperty("iconFrame").objectReferenceValue;
+            Assert.That(serialized.FindProperty("ingredientIcon").objectReferenceValue, Is.Not.Null);
+            Assert.That(view.TryPrepare("gear_part"), Is.True);
+            Assert.That(message.text, Is.EqualTo("기어 부품 획득!"));
+            Assert.That(iconFrame.activeSelf, Is.False);
+        }
+        finally { Object.DestroyImmediate(view.gameObject); }
     }
+
+    [Test]
+    public void SimultaneousNoticesStackInRequestOrderAndWaitForAvailableSpace()
+    {
+        var scene = EditorSceneManager.NewPreviewScene();
+        try
+        {
+            var scope = (GameObject)PrefabUtility.InstantiatePrefab(LoadScope(), scene);
+            var service = scope.GetComponentInChildren<PopupService>();
+            using var serialized = new SerializedObject(service);
+            var layout = (VerticalLayoutGroup)serialized.FindProperty("stack").objectReferenceValue;
+            var rect = (RectTransform)layout.transform;
+            var template = (UIPopupView)serialized.FindProperty("bindings.newObjective").objectReferenceValue;
+            float height = template.Height;
+            rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
+            rect.sizeDelta = new Vector2(960, layout.padding.vertical + 2 * height + layout.spacing);
+
+            Assert.That(service.Popup(PopupType.NewObjective, "첫째 목표").GetAwaiter().GetResult(), Is.True);
+            Assert.That(service.Popup(PopupType.NewObjective, "둘째 목표").GetAwaiter().GetResult(), Is.True);
+            Assert.That(service.Popup(PopupType.EventOccurred, "셋째 알림").GetAwaiter().GetResult(), Is.True);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+
+            var first = ActiveRows(rect);
+            Assert.That(first.Select(NoticeText), Is.EqualTo(new[] { "첫째 목표", "둘째 목표" }));
+            Assert.That(first[0].anchoredPosition, Is.EqualTo(new Vector2(layout.padding.left, -layout.padding.top)));
+            Assert.That(first[1].anchoredPosition.y, Is.EqualTo(first[0].anchoredPosition.y - height - layout.spacing));
+
+            first[0].GetComponent<UIPopupView>().Hide();
+            DOTween.Complete(first[0].GetComponent<CanvasGroup>());
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+            Assert.That(ActiveRows(rect).Select(NoticeText), Is.EqualTo(new[] { "둘째 목표", "셋째 알림" }));
+
+            Assert.That(service.Popup(PopupType.NewObjective, "넷째 목표").GetAwaiter().GetResult(), Is.True);
+            Assert.That(rect.childCount, Is.EqualTo(3), "닫힌 목표 행을 다음 요청에 재사용합니다.");
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [TestCase("ingredientAcquired", "IMG_ingredient")]
+    [TestCase("characterRegistered", "IMG_new_character")]
+    [TestCase("affinityIncreased", "IMG_decrease")]
+    [TestCase("affinityDecreased", "IMG_increase")]
+    [TestCase("newObjective", "IMG_objective")]
+    [TestCase("objectiveCompleted", "IMG_objective_complete")]
+    [TestCase("eventOccurred", "IMG_new_event")]
+    public void NoticeTemplatesUseTheLatestArt(string binding, string spriteName)
+    {
+        using var serialized = new SerializedObject(LoadScope().GetComponentInChildren<PopupService>());
+        var view = (UIPopupView)serialized.FindProperty("bindings." + binding).objectReferenceValue;
+        var image = view.GetComponent<Image>();
+        Assert.That(image.sprite.name, Is.EqualTo(spriteName + "_0"));
+        Assert.That(image.raycastTarget, Is.False);
+        Assert.That(view.transform.localScale, Is.EqualTo(Vector3.one));
+        Assert.That(view.gameObject.activeSelf, Is.False);
+    }
+
+    static RectTransform[] ActiveRows(RectTransform stack) => stack.Cast<RectTransform>().Where(rect => rect.gameObject.activeSelf).ToArray();
+    static string NoticeText(RectTransform row) => row.GetComponentInChildren<TMP_Text>().text;
 
     static UIIngredientPopupView LoadIngredientPopup()
     {
-        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(ProjectScopePrefab);
-        Assert.That(prefab, Is.Not.Null, ProjectScopePrefab);
-        var view = prefab.GetComponentInChildren<UIIngredientPopupView>(true);
+        var view = LoadScope().GetComponentInChildren<UIIngredientPopupView>(true);
         Assert.That(view, Is.Not.Null, "ProjectLifeScope에 Popup_IngredientAcquired가 있어야 합니다.");
         return view;
+    }
+
+    static GameObject LoadScope()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(ProjectScopePrefab);
+        Assert.That(prefab, Is.Not.Null, ProjectScopePrefab);
+        return prefab;
     }
 
     sealed class PopupSpy : IPopupService

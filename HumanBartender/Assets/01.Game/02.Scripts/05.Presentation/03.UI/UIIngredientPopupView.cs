@@ -19,16 +19,12 @@ public sealed class UIIngredientPopupView : UIPopupView
 
     [SerializeField] NewShelfItemDataSO shelfData;
     [SerializeField] CocktailRecipeVisualCatalog visuals;
-    [Tooltip("알림 제목 글자. 재료면 Ingredient Title, 아이템이면 Item Title을 넣는다.")]
-    [SerializeField] TMP_Text title;
     [SerializeField] TMP_Text ingredientName;
-    [Tooltip("재료 그림 칸. 그림이 없는 아이템 알림에서는 칸째 숨긴다.")]
+    [Tooltip("재료 그림을 담는 묶음입니다. 그림이 없는 아이템 알림에서는 숨깁니다.")]
     [SerializeField] GameObject iconFrame;
     [SerializeField] Image ingredientIcon;
 
     [Header("Copy")]
-    [SerializeField] string ingredientTitle = "재료 획득";
-    [SerializeField] string itemTitle = "아이템 획득";
     [Tooltip("칵테일 재료가 아닌 획득 아이템. 웹 outside-notices.js의 questItems와 같다.")]
     [SerializeField] AcquiredItem[] acquiredItems =
     {
@@ -54,12 +50,11 @@ public sealed class UIIngredientPopupView : UIPopupView
         if (ingredientName == null) return false;
         if (TryGetAcquiredItemName(id, out string itemName))
         {
-            if (title == null || iconFrame == null)
+            if (iconFrame == null)
             {
-                Debug.LogWarning("[Popup] 아이템 알림에 Title과 Icon Frame을 연결하세요.", this);
+                Debug.LogWarning("[Popup] 아이템 알림에 Icon Frame을 연결하세요.", this);
                 return false;
             }
-            title.text = itemTitle;
             ingredientName.text = itemName + " 획득!";
             iconFrame.SetActive(false);
             return true;
@@ -74,7 +69,6 @@ public sealed class UIIngredientPopupView : UIPopupView
             Debug.LogWarning($"[Popup] Ingredient sprite not found: {id}", this);
             return false;
         }
-        if (title != null) title.text = ingredientTitle;
         if (iconFrame != null) iconFrame.SetActive(true);
         ingredientName.text = string.IsNullOrWhiteSpace(item.Name.Ko) ? item.Id : item.Name.Ko;
         ingredientIcon.sprite = sprite;

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using VContainer;
 
 
@@ -22,8 +24,7 @@ public interface IPopupService
 }
 
 /// <summary>
-/// PopupService 컴포넌트에서 각 UI의 Popup(string)을 연결한다.
-/// 각 슬롯에는 해당 팝업 UI 컴포넌트를 직접 연결한다.
+/// PopupService가 복제하고 재사용할 알림 종류별 원본 행을 연결한다.
 /// </summary>
 [Serializable]
 public sealed class PopupBindings
@@ -52,31 +53,28 @@ public sealed class PopupBindings
     }
 }
 
-/// <summary>팝업 표시를 요청한다. 닫힘 신호와 UI 수명은 연결된 UI에서 관리한다.</summary>
+/// <summary>공용 알림을 요청 순서대로 표시하고, 화면에 자리가 나면 다음 알림을 표시한다.</summary>
 [DisallowMultipleComponent]
 public sealed class PopupService : MonoBehaviour, IPopupService
 {
     [SerializeField] PopupBindings bindings = new PopupBindings();
+    [Tooltip("좌상단 여백과 알림 사이 간격을 정하는 세로 목록입니다.")]
+    [SerializeField] VerticalLayoutGroup stack;
     [Inject] ISoundEffectPlayer sound;
-    readonly System.Collections.Generic.Dictionary<UIPopupView, Action> audioHandlers = new();
+    readonly Dictionary<PopupType, Stack<UIPopupView>> available = new();
+    readonly Queue<(PopupType Type, UIPopupView View)> pending = new();
+    readonly List<(PopupType Type, UIPopupView View)> visible = new();
 
-    void Awake()
+    void LateUpdate()
     {
-        foreach (PopupType type in Enum.GetValues(typeof(PopupType)))
-        {
-            var view = bindings.Get(type);
-            if (view == null || audioHandlers.ContainsKey(view)) continue;
-            string key = type == PopupType.ObjectiveCompleted ? "SFX_goal_completed" : "SFX_notification";
-            Action handler = () => sound?.PlaySE(key);
-            audioHandlers.Add(view, handler);
-            view.Shown += handler;
-        }
+        if (pending.Count > 0) ShowPending();
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-        foreach (var pair in audioHandlers) if (pair.Key != null) pair.Key.Shown -= pair.Value;
-        audioHandlers.Clear();
+        while (pending.Count > 0) Recycle(pending.Dequeue());
+        foreach (var entry in visible) Recycle(entry);
+        visible.Clear();
     }
 
     public UniTask<bool> Popup(PopupType type, string data)
@@ -85,14 +83,37 @@ public sealed class PopupService : MonoBehaviour, IPopupService
         {
             if (type == PopupType.CharacterRegistered && (data == "chris" || data == "크리스"))
                 return UniTask.FromResult(true);
-            var popup = bindings.Get(type);
-            if (popup == null)
+            var template = bindings.Get(type);
+            if (!isActiveAndEnabled || stack == null || template == null)
             {
                 Debug.LogWarning($"[Popup] No connected UI for {type}.", this);
                 return UniTask.FromResult(false);
             }
 
-            return UniTask.FromResult(popup.Popup(data));
+            if (!available.TryGetValue(type, out var pool))
+                available.Add(type, pool = new Stack<UIPopupView>());
+            var view = pool.Count > 0 ? pool.Pop() : Instantiate(template, stack.transform, false);
+            var entry = (Type: type, View: view);
+            bool prepared;
+            try
+            {
+                string message = type == PopupType.CharacterRegistered ? ResolveCharacterName(data) : data;
+                prepared = view.TryPrepare(message);
+            }
+            catch
+            {
+                Recycle(entry);
+                throw;
+            }
+            if (!prepared)
+            {
+                Recycle(entry);
+                return UniTask.FromResult(false);
+            }
+
+            pending.Enqueue(entry);
+            ShowPending();
+            return UniTask.FromResult(true);
         }
         catch (Exception exception)
         {
@@ -101,4 +122,44 @@ public sealed class PopupService : MonoBehaviour, IPopupService
         }
     }
 
+    void ShowPending()
+    {
+        if (!stack.isActiveAndEnabled) return;
+        var rect = (RectTransform)stack.transform;
+        float room = rect.rect.height - stack.padding.vertical;
+        foreach (var entry in visible) room -= entry.View.Height + stack.spacing;
+
+        while (pending.TryPeek(out var entry))
+        {
+            if (visible.Count > 0 && entry.View.Height > room) return;
+            var shown = pending.Dequeue();
+            room -= shown.View.Height + stack.spacing;
+            visible.Add(shown);
+            string cue = shown.Type == PopupType.ObjectiveCompleted ? "SFX_goal_completed" : "SFX_notification";
+            shown.View.Show(() => sound?.PlaySE(cue), () =>
+            {
+                visible.Remove(shown);
+                Recycle(shown);
+                ShowPending();
+            });
+        }
+    }
+
+    void Recycle((PopupType Type, UIPopupView View) entry)
+    {
+        if (entry.View == null) return;
+        entry.View.ResetView();
+        available[entry.Type].Push(entry.View);
+    }
+
+    static string ResolveCharacterName(string data)
+    {
+        foreach (var character in NewDataLoadManager.StoryCharacters ?? Array.Empty<NewCharacterData>())
+        {
+            if (character.Id != data) continue;
+            var name = GameStateManager.Instance.Language == ELanguage.Ko ? character.Name.Ko : character.Name.En;
+            return string.IsNullOrWhiteSpace(name) ? character.Name.Ko : name;
+        }
+        return data;
+    }
 }

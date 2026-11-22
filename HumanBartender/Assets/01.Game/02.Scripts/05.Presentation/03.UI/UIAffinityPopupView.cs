@@ -5,11 +5,13 @@ using UnityEngine;
 public sealed class UIAffinityPopupView : UIPopupView
 {
     [SerializeField] TMP_Text characterName;
+    [Tooltip("인물 이름 뒤에 붙는 문구입니다. 예: 호감도 상승!")]
+    [SerializeField] string changeText;
 
     protected override bool Prepare(string data)
     {
         if (characterName == null || string.IsNullOrWhiteSpace(data)) return false;
-        characterName.text = data;
+        characterName.text = data + " " + changeText;
         return true;
     }
 }

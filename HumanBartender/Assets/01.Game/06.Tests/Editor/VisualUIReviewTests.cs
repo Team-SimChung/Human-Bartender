@@ -24,6 +24,38 @@ public sealed class VisualUIReviewTests
     static T Ref<T>(Object owner, string field) where T : Object => (T)new SerializedObject(owner).FindProperty(field).objectReferenceValue;
     static void Inject(object owner, string name, object value) => owner.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, value);
 
+    [TestCase("03.UI/02.Dialogue/PlayDialogueTextBox")]
+    [TestCase("03.UI/02.Dialogue/OutsideDialogueTextBox")]
+    [TestCase("02.Cutscenes/MemorySpeech")]
+    [TestCase("02.Cutscenes/JohnnySpeech")]
+    [TestCase("02.Cutscenes/DocumentarySubtitle")]
+    public void DialogueBubbleDimsTheFrameAndKeepsTextOpaque(string prefabName)
+    {
+        const string folder = "Assets/01.Game/03.Content/08.Prefabs/";
+        const float frameAlpha = .85f;
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(folder + prefabName + ".prefab");
+        Assert.That(prefab, Is.Not.Null);
+        var visuals = prefab.GetComponentsInChildren<SpeechBubbleVisual>(true);
+        Assert.That(visuals, Is.Not.Empty);
+
+        foreach (var visual in visuals)
+        {
+            var bubble = visual.GetComponent<DynamicSpeechBubble>();
+            var parts = visual.Parts.GetComponent<CanvasGroup>();
+            Assert.That(parts, Is.Not.Null);
+            Assert.That(parts.alpha, Is.EqualTo(frameAlpha));
+            Assert.That(bubble.bubble.GetComponent<Image>().color.a, Is.EqualTo(frameAlpha));
+            foreach (var tail in new[] { bubble.centerArrow, bubble.leftArrow, bubble.rightArrow })
+                Assert.That(tail.GetComponent<Image>().color.a, Is.EqualTo(frameAlpha));
+
+            foreach (var label in new[] { bubble.nameLabel, bubble.textLabel }.Where(label => label != null))
+            {
+                Assert.That(label.transform.IsChildOf(parts.transform), Is.False);
+                Assert.That(label.color.a, Is.EqualTo(1f));
+            }
+        }
+    }
+
     [Test]
     public void BarSpeechBubbleKeepsItsAuthoredInsetsWhileGrowingForLongDialogue()
     {
