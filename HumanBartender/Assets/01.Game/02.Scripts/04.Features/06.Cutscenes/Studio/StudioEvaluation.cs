@@ -15,9 +15,13 @@ namespace HumanBartender.CutsceneStudio
             Asset = asset;
         }
 
-        public bool ContinuesDuringWait => Clip.GetParentTrack() is StudioTrack track && track.ContinueDuringWait &&
-            (Asset.Kind == StudioKind.Audio || Asset.Kind == StudioKind.Visual && Asset.Loop ||
-             Asset.Kind == StudioKind.Effect && (Asset.ScreenMaterial != null || Asset.Effect == StudioEffect.Shake));
+        // 계속할 수 있는 종류이고, 클립이 '계속 재생'이거나 '트랙 설정 따름'이면서 트랙이 켜져 있을 때. '멈춤'은 트랙보다 우선함.
+        public bool ContinuesDuringWait => StudioEvaluation.CanContinueDuringWait(Asset) && Asset.WaitPlayback switch
+        {
+            StudioWaitPlayback.Continue => true,
+            StudioWaitPlayback.Pause => false,
+            _ => Clip.GetParentTrack() is StudioTrack track && track.ContinueDuringWait
+        };
         public bool Contains(double time) => time >= Clip.start && time < Clip.end;
         public float Progress(double time) => Mathf.Clamp01((float)((time - Clip.start) / Math.Max(.001, Clip.duration)));
     }
@@ -33,6 +37,9 @@ namespace HumanBartender.CutsceneStudio
             _ => false
         };
         public static bool OwnsActor(StudioClip clip) => clip.Kind == StudioKind.Visual;
+        // 입력 대기 중에도 계속할 수 있는 종류: 사운드, 반복 그림, 화면 머티리얼이나 흔들림 효과. 그 밖은 클립 / 트랙 설정과 상관없이 멈춤.
+        public static bool CanContinueDuringWait(StudioClip clip) => clip.Kind == StudioKind.Audio || clip.Kind == StudioKind.Visual && clip.Loop ||
+            clip.Kind == StudioKind.Effect && (clip.ScreenMaterial != null || clip.Effect == StudioEffect.Shake);
         public static HashSet<string> ActorIds(StudioSequence sequence, bool includeMuted = true)
         {
             var ids = new HashSet<string>();

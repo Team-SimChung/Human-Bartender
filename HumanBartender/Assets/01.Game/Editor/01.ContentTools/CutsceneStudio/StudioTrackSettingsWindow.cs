@@ -21,8 +21,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             window.trackName = name;
             window.continueDuringWait = track.ContinueDuringWait;
             window.titleContent = new GUIContent("트랙 설정");
-            window.minSize = window.maxSize = new Vector2(440, 235);
-            window.position = new Rect(owner.position.center - new Vector2(220, 117), new Vector2(440, 235));
+            window.minSize = window.maxSize = new Vector2(440, 255);
+            window.position = new Rect(owner.position.center - new Vector2(220, 127), new Vector2(440, 255));
             window.ShowUtility();
         }
 
@@ -65,15 +65,16 @@ namespace HumanBartender.CutsceneStudio.Editor
             }
 
             continueDuringWait = EditorGUI.Toggle(new Rect(16, 98, 400, 22), "입력 대기 중 계속 재생", continueDuringWait);
-            EditorGUI.HelpBox(new Rect(16, 126, position.width - 32, 58), "반복 스프라이트·음원·흔들림만 계속됩니다. 일회성 음원은 끝까지 재생됩니다. 이동·카메라·강도 키는 정지하며 설정창에서는 모두 멈춥니다.", MessageType.Info);
-            if (GUI.Button(new Rect(position.width - 180, 199, 76, 24), "취소"))
+            EditorGUI.HelpBox(new Rect(16, 126, position.width - 32, 78),"반복 스프라이트·음원·흔들림만 계속됩니다. 일회성 음원은 끝까지 재생됩니다. 이동·카메라·강도 키는 정지하며 설정창에서는 모두 멈춥니다. " +
+                "클립 속성의 '입력 대기 중'이 '트랙 설정 따름'인 클립에 적용됩니다.", MessageType.Info);
+            if (GUI.Button(new Rect(position.width - 180, 219, 76, 24), "취소"))
             {
                 Close();
                 return;
             }
 
             using (new EditorGUI.DisabledScope(string.IsNullOrWhiteSpace(trackName)))
-                if (GUI.Button(new Rect(position.width - 96, 199, 80, 24), "적용"))
+                if (GUI.Button(new Rect(position.width - 96, 219, 80, 24), "적용"))
                 {
                     ApplyName();
                     return;

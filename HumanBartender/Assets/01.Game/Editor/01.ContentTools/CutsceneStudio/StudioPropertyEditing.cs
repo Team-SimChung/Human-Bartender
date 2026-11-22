@@ -42,6 +42,8 @@ namespace HumanBartender.CutsceneStudio.Editor
             Undo.RecordObject(clip, "애니메이션 프레임 변경");
             clip.FrameTimes = null;
             clip.AnimationLength = 0;
+            // 원본 타이밍을 버리면 엔진 클립 연결도 끊어 초당 프레임 값 그대로 재생함.
+            StudioEngineClips.ClearLink(clip);
             EditorUtility.SetDirty(clip);
         }
 
@@ -51,6 +53,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             clip.Frames = sprite == null ? Array.Empty<Sprite>() : new[] { sprite };
             clip.FrameTimes = null;
             clip.AnimationLength = 0;
+            StudioEngineClips.ClearLink(clip);
             EditorUtility.SetDirty(clip);
         }
     }

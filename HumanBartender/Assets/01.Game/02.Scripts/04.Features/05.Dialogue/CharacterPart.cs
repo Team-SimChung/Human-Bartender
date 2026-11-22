@@ -45,7 +45,8 @@ public abstract class AnimationPart
 
     [SerializeField] protected RuntimeAnimatorController baseController;
 
-    protected const float TARGET_LENGTH = 1f;
+    // 컷씬 스튜디오가 바 대화 클립의 엔진 속도를 계산할 때 같은 값을 읽는다.
+    public const float TARGET_LENGTH = 1f;
     protected const string CLIP_SPEED = "ClipSpeed";
 
     protected float curAnimSpeed = 0.3f;

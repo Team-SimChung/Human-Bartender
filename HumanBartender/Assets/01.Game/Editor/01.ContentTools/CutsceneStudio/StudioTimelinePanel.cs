@@ -590,7 +590,7 @@ namespace HumanBartender.CutsceneStudio.Editor
                         var rect = new Rect(TrackHeaderWidth + (float)clip.start * zoom, row.Y + 6, Mathf.Max(10, (float)clip.duration * zoom), row.Height - 12);
                         if (rect.xMax < timelineScroll.x + TrackHeaderWidth || rect.x > timelineScroll.x + viewport.width)
                             continue;
-                        DrawTimelineClip(rect, clip, asset, row.Track.muted);
+                        DrawTimelineClip(rect, clip, asset, row.Track.muted, timelineScroll.x + TrackHeaderWidth, timelineScroll.x + viewport.width);
                         if (inClips)
                         {
                             EditorGUIUtility.AddCursorRect(new Rect(rect.x, rect.y, 7, rect.height), MouseCursor.ResizeHorizontal);
@@ -720,9 +720,29 @@ namespace HumanBartender.CutsceneStudio.Editor
 
         private void DrawTimelineFooter(Rect area)
         {
-            GUI.Label(new Rect(area.x + 10, area.yMax - 24, area.width - 150, 22), host.Status, EditorStyles.miniLabel);
-            if (GUI.Button(new Rect(area.xMax - 120, area.yMax - 25, 110, 22), "검사 " + host.Sequence.Validate().Count))
+            GUI.Label(new Rect(area.x + 10, area.yMax - 24, area.width - 170, 22), host.Status, EditorStyles.miniLabel);
+            var (errors, notes) = CheckCounts();
+            var counts = new GUIContent($"오류 {errors} · 참고 {notes}",
+                "시퀀스 검사 열기 / 오류는 재생 전에 고칠 항목, 참고는 재생은 되지만 확인할 항목입니다.");
+            if (GUI.Button(new Rect(area.xMax - 140, area.yMax - 25, 130, 22), counts))
                 StudioSequenceCheckWindow.Open(Window, host.Sequence);
+        }
+
+        // 검사는 GUI 이벤트마다 하지 않고 시퀀스 내용이나 엔진 클립 캐시가 바뀔 때만 다시 계산함.
+        [NonSerialized] private StudioSequence checkSequence;
+        [NonSerialized] private int checkContentVersion = -1, checkEngineVersion = -1, checkErrors, checkNotes;
+
+        private (int Errors, int Notes) CheckCounts()
+        {
+            if (checkSequence != host.Sequence || checkContentVersion != host.ContentVersion || checkEngineVersion != StudioEngineClips.Version)
+            {
+                checkSequence = host.Sequence;
+                checkContentVersion = host.ContentVersion;
+                checkEngineVersion = StudioEngineClips.Version;
+                checkErrors = host.Sequence.Validate().Count;
+                checkNotes = StudioSequenceCheckWindow.CollectNotes(host.Sequence).Count;
+            }
+            return (checkErrors, checkNotes);
         }
 
 
@@ -807,12 +827,13 @@ namespace HumanBartender.CutsceneStudio.Editor
         }
 
 
-        private void DrawTimelineClip(Rect rect, TimelineClip clip, StudioClip data, bool muted)
+        private void DrawTimelineClip(Rect rect, TimelineClip clip, StudioClip data, bool muted, float visibleLeft, float visibleRight)
         {
             var color = StudioGUI.ClipColor(data.Kind);
             EditorGUI.DrawRect(rect, data == host.Selected ? new Color(.17f, .36f, .53f) : new Color(.25f, .25f, .25f));
             if (muted)
-                color.a = .35f;
+                color.a = StudioGUI.MutedAlpha;
+            DrawLoopTicks(rect, clip, data, muted, visibleLeft, visibleRight);
             EditorGUI.DrawRect(new Rect(rect.x, rect.y, 3, rect.height), color);
             EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, 1), color);
             EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - 1, rect.width, 1), color);
@@ -831,6 +852,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             GUI.Label(new Rect(textX, 3, Mathf.Max(0, rect.width - textX - 4), 21), clip.displayName, EditorStyles.miniBoldLabel);
             GUI.Label(new Rect(textX, 23, Mathf.Max(0, rect.width - textX - 4), 18), clip.duration.ToString("F2") + "s" + (data.WaitForInput ? " / E" : ""), EditorStyles.miniLabel);
             GUI.EndGroup();
+            DrawWaitMark(rect, clip, data, muted);
             bool MatchesActorsFind2(StudioActor a)
             {
                 return a.Id == data.ActorId;

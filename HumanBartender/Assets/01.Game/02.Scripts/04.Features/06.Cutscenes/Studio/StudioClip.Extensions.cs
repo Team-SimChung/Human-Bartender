@@ -2,8 +2,21 @@ using UnityEngine;
 
 namespace HumanBartender.CutsceneStudio
 {
+    // 입력 대기 중 이 클립을 계속 재생할지. 저장 번호는 바꾸지 않으며 0(트랙 설정 따름)이 기존 동작임.
+    public enum StudioWaitPlayback
+    {
+        [InspectorName("트랙 설정 따름")] FollowTrack = 0,
+        [InspectorName("계속 재생")] Continue = 1,
+        [InspectorName("멈춤")] Pause = 2
+    }
+
     public sealed partial class StudioClip
     {
+        [SerializeField, Tooltip("입력 대기 중에도 반복 프레임 / 소리 / 흔들림을 계속할지 정합니다. 트랙 설정 따름이면 트랙의 '입력 대기 중 계속 재생'을 씁니다. " +
+            "반복이 꺼진 그림과 페이드 / 플래시 / 색조 효과는 항상 멈추고, 이동 / 카메라 / 강도 키도 멈춥니다.")]
+        private StudioWaitPlayback waitPlayback;
+        public StudioWaitPlayback WaitPlayback { get => waitPlayback; internal set => waitPlayback = value; }
+
         [SerializeField, Tooltip("화면 전체와 대사에 적용할 UI 머티리얼입니다.")] private Material screenMaterial;
         public Material ScreenMaterial { get => screenMaterial; internal set => screenMaterial = value; }
 
@@ -50,6 +63,14 @@ namespace HumanBartender.CutsceneStudio
         public float AnimationOffset { get => animationOffset; internal set => animationOffset = value; }
         [SerializeField, Min(.01f)] private float animationSpeed = 1;
         public float AnimationSpeed { get => animationSpeed; internal set => animationSpeed = value; }
+        [SerializeField, Min(.01f), Tooltip("엔진이 원본 애니메이션에 곱하는 속도입니다. 실제 재생 속도는 재생 배속 × 이 값입니다. " +
+            "엔진 클립을 놓거나 연결할 때 정해지며, 이 값이 없는 기존 클립은 1입니다.")]
+        private float engineSpeed = 1;
+        public float EngineSpeed { get => engineSpeed; internal set => engineSpeed = value; }
+        [SerializeField, Tooltip("프레임을 가져온 원본 AnimationClip의 GUID입니다. 에디터가 원본을 다시 찾을 때만 쓰며, " +
+            "빌드에 클립이 딸려 들어가지 않도록 직접 참조하지 않습니다.")]
+        private string sourceAnimationGuid;
+        public string SourceAnimationGuid { get => sourceAnimationGuid; internal set => sourceAnimationGuid = value; }
 
         [SerializeField, Min(0)] private float backgroundDissolve;
         public float BackgroundDissolve { get => backgroundDissolve; internal set => backgroundDissolve = value; }

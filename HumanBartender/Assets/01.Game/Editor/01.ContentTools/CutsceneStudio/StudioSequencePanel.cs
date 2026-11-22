@@ -496,8 +496,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 var item = visibleAssets[index];
                 row.userData = item;
                 row.Q<Label>("title").text = item.Name;
-                row.Q<Label>("type").text = (item.Unsupported == null ? "" : "미지원 / ") + StudioAssetLibrary.TypeNames[(int)item.Type];
-                row.tooltip = item.Path + "\n" + item.Unsupported;
+                row.Q<Label>("type").text = (item.Unsupported != null ? "미지원 / " : item.Notice != null ? "Sprite만 / " : "") + StudioAssetLibrary.TypeNames[(int)item.Type];
+                row.tooltip = item.Path + "\n" + (item.Unsupported ?? item.Notice);
                 var image = row.Q<Image>("thumbnail");
                 image.sprite = null;
                 image.image = AssetPreview.GetAssetPreview(item.Asset) ?? AssetPreview.GetMiniThumbnail(item.Asset);

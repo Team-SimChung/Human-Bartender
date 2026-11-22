@@ -26,8 +26,6 @@ namespace HumanBartender.CutsceneStudio.Editor
                     ClipField(section, data, "FlipX");
                     break;
                 case StudioPropertiesSection.Animation:
-                    if (StudioEvaluation.OwnsActor(host.Selected))
-                        Note(section, "원본 프레임과 재생 설정 / 위치나 회전 등의 속성 키와 별개입니다.");
                     BuildAnimation(section, data);
                     break;
                 case StudioPropertiesSection.Playback:
@@ -167,16 +165,18 @@ namespace HumanBartender.CutsceneStudio.Editor
         private void BuildAnimation(VisualElement parent, SerializedObject data)
         {
             var asset = host.Selected;
-            ClipField(parent, data, "Frames", changed: FramesChanged);
-            bool sourceTiming = StudioPropertyEditing.UsesSourceTiming(asset);
-            ReadOnly(parent, "프레임 타이밍", "animation-timing").value = sourceTiming ? "원본 애니메이션" : "초당 프레임";
-            ClipField(parent, data, "FramesPerSecond", !sourceTiming);
+            const string framesOnly = " 애니메이션 프레임에만 적용되며 이동 키와 클립 길이는 유지됩니다.";
+            BuildEngineClip(parent);
+            ClipField(parent, data, "Frames", changed: FramesChanged).tooltip =
+                "클립에서 넘길 이미지 목록입니다. 원본 프레임과 재생 설정은 위치나 회전 등의 속성 키와 별개입니다.";
+            // 엔진 클립의 키 시간으로 재생하는 동안에는 쓰지 않는 값이라 숨김. 연결을 해제하면 다시 나타남.
+            if (!StudioPropertyEditing.UsesSourceTiming(asset))
+                ClipField(parent, data, "FramesPerSecond").tooltip = "엔진 클립의 키 시간을 쓰지 않을 때 1초에 넘기는 프레임 수입니다.";
             ClipField(parent, data, "Loop");
-            BoundField(parent, data, "AnimationOffset", "원본 시작 (초)");
-            BoundField(parent, data, "AnimationSpeed", "재생 배속");
-            Note(parent, "원본 시작 / 배속은 애니메이션 프레임에만 적용됩니다. 이동 키와 클립 길이는 유지됩니다.");
-            if (sourceTiming)
-                Note(parent, $"원본 길이 {asset.AnimationLength:0.###}초의 프레임 시각을 사용합니다.");
+            BuildWaitPlayback(parent, data);
+            BoundField(parent, data, "AnimationSpeed", "재생 배속").tooltip =
+                "1이면 엔진(게임)과 같은 속도입니다. 실제 재생 속도는 재생 배속 × 엔진 속도 보정입니다." + framesOnly;
+            BoundField(parent, data, "AnimationOffset", "원본 시작 (초)").tooltip = "애니메이션을 원본의 몇 초 지점부터 시작할지 정합니다." + framesOnly;
             void FramesChanged() { StudioPropertyEditing.ValidateFrameTiming(asset); }
         }
 
@@ -312,6 +312,8 @@ namespace HumanBartender.CutsceneStudio.Editor
                 BoundField(parent, data, "ShakeAmplitude", "가로 / 세로 크기");
                 Note(parent, "기본값은 속도 1배 / 크기 12, 12입니다. 크기 × 강도 × 감쇠를 적용하며, 한 축을 0으로 두면 해당 방향은 흔들리지 않습니다.");
             }
+            // 흔들림이거나 화면 머티리얼이 있을 때만 보임. 머티리얼을 넣고 빼면 다시 그리지 않아도 따라감.
+            BuildWaitPlayback(parent, data);
         }
 
     }

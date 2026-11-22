@@ -22,6 +22,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             ClipField(section, data, "Volume", !StudioKeyframes.HasKeys(host.Selected, StudioProperty.Volume)).label = "기본 볼륨 (0–1)";
             ClipField(section, data, "AudioOffset").label = "원본 시작 (초)";
             ClipField(section, data, "Loop").label = "원본 반복";
+            BuildWaitPlayback(section, data);
             Note(section, "기본 볼륨은 볼륨 키가 없을 때 적용됩니다. 볼륨 키가 있으면 현재 시점 / 키프레임에서 편집하세요.");
             Note(section, "원본 시작은 오디오 파일 안의 재생 시작 위치입니다. 반복을 끄면 원본 끝에서 소리가 멈추며, 반복을 켜면 원본 길이를 기준으로 되풀이합니다.");
         }
@@ -41,7 +42,7 @@ namespace HumanBartender.CutsceneStudio.Editor
             var gain = ReadOnly(section, "페이드 적용 볼륨", "audio-current-gain");
             gain.tooltip = "클립 볼륨에 페이드를 적용한 계산값 / 채널별 음량과 게임 음량 설정 적용 전입니다.";
             Note(section, "읽기 전용 계산값 / 실제 출력 음량계가 아닙니다. 오디오 미지정, 비활성 트랙, 원본 재생 종료 상태에서는 소리가 나지 않습니다.");
-            Note(section, "소리는 미리보기 재생 중에 나옵니다. 재생 헤드만 이동하면 재생하지 않으며, 입력 대기 중에는 일시 정지합니다. 소리가 없으면 Unity의 Mute Audio 설정을 확인하세요.");
+            Note(section, "소리는 미리보기 재생 중에 나옵니다. 재생 헤드만 이동하면 재생하지 않으며, 입력 대기 중에는 '입력 대기 중' 설정에 따라 계속하거나 멈춥니다. 소리가 없으면 Unity의 Mute Audio 설정을 확인하세요.");
             refreshFields.Add(Refresh);
             Refresh();
 

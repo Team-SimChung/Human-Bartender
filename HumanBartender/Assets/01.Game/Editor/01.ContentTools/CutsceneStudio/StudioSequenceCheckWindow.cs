@@ -29,8 +29,17 @@ namespace HumanBartender.CutsceneStudio.Editor
             {
                 "검사할 시퀀스가 없습니다."
             };
-            warnings = sequence != null ? StudioSequenceWarnings.Collect(sequence).ToArray() : System.Array.Empty<string>();
+            warnings = sequence != null ? CollectNotes(sequence).ToArray() : System.Array.Empty<string>();
             Repaint();
+        }
+
+        // 검사 창이 보여 주는 참고 목록 전체. 타임라인의 "참고 N"도 같은 목록의 개수를 씀.
+        // 엔진 클립 비교는 AssetDatabase가 필요해 실행 코드의 목록과 따로 모은 뒤 합침.
+        internal static System.Collections.Generic.List<string> CollectNotes(StudioSequence sequence)
+        {
+            var notes = StudioSequenceWarnings.Collect(sequence);
+            notes.AddRange(StudioEngineClips.CollectWarnings(sequence));
+            return notes;
         }
 
         private void OnGUI()
