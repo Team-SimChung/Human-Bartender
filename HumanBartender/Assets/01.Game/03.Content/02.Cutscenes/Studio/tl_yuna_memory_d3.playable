@@ -6329,13 +6329,11 @@ MonoBehaviour:
   - {fileID: 8366221573827896750}
   - {fileID: -9102013280377521515}
   - {fileID: -409225631121537818}
-  - {fileID: -1342403876872147107}
-  - {fileID: 3516539856569910848}
-  - {fileID: 28429701769702807}
-  - {fileID: 8827103909010872208}
-  - {fileID: 3103952980529564713}
-  frameTimes: []
-  animationLength: 0
+  frameTimes:
+  - 0
+  - 0.244182848
+  - 0.344381711
+  animationLength: 0.44
   propertyKeys:
   - property: 0
     keys:
@@ -6447,7 +6445,7 @@ MonoBehaviour:
       value: -17
   backgroundSprite: {fileID: 0}
   framesPerSecond: 9
-  loop: 1
+  loop: 0
   text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
   font: {fileID: 0}
   useDialogueStyle: 0
