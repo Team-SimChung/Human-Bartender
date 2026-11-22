@@ -8,6 +8,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using TMPro;
 using Object = UnityEngine.Object;
 
@@ -359,6 +360,47 @@ public sealed class OutsideChoicePresentationTests
     }
 
     // ── 19. 대화 중 하단 안내 ───────────────────────────────────────────
+
+    [TestCase("OutSide")]
+    [TestCase("Home")]
+    public void InteractionHintUsesTheSharedIconAndBoldFont(string sceneName)
+    {
+        const string iconPath = "Assets/01.Game/03.Content/01.ArtResources/05.UI/06.Ect/InteractionHintIcon/outside_interact_icon.png";
+        const string fontPath = "Assets/01.Game/03.Content/05.Fonts/Bold_Paperlogy_SDF.asset";
+        var expected = AssetDatabase.LoadAssetAtPath<Sprite>(iconPath);
+        var expectedFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(fontPath);
+        Assert.That(expected, Is.Not.Null);
+        Assert.That(expectedFont, Is.Not.Null);
+
+        string preference = GameKeyBindings.PreferenceKey(GameControl.Interact);
+        bool hadPreference = PlayerPrefs.HasKey(preference);
+        int previousKey = PlayerPrefs.GetInt(preference);
+        var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/" + sceneName + ".unity");
+        try
+        {
+            var view = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<WorldInteractionView>(true)).Single();
+            view.Initialize(() => { }, () => { });
+            var target = MakeTarget("NPC");
+
+            PlayerPrefs.SetInt(preference, (int)Key.E);
+            view.ShowHint(target);
+            Assert.That(view.Hint.KeyIcon.enabled, Is.True);
+            Assert.That(view.Hint.KeyIcon.sprite, Is.SameAs(expected));
+            Assert.That(view.Hint.Label.font, Is.SameAs(expectedFont));
+            Assert.That(view.Hint.Label.fontSharedMaterial, Is.SameAs(expectedFont.material));
+
+            PlayerPrefs.SetInt(preference, (int)Key.F);
+            view.ShowHint(target);
+            Assert.That(view.Hint.KeyIcon.enabled, Is.False);
+            Assert.That(view.Hint.Label.text, Does.StartWith("F"));
+        }
+        finally
+        {
+            if (hadPreference) PlayerPrefs.SetInt(preference, previousKey);
+            else PlayerPrefs.DeleteKey(preference);
+            EditorSceneManager.ClosePreviewScene(scene);
+        }
+    }
 
     [Test]
     public void DialogueHidesRevealAndNextHintButKeepsInteractionAndImageExit()
