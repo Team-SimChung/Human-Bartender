@@ -15,6 +15,8 @@ public class CutSceneBGBehaviour : PlayableBehaviour
     [Header("배경 이미지")]
     [Tooltip("Resources/Cutscenes/ 하위 경로 (확장자 제외)")]
     public string bgPath;
+    [Tooltip("직접 연결한 배경이 있으면 Resources 경로 대신 사용한다.")]
+    public Sprite backgroundSprite;
 
     [Header("위치/크기")]
     [Tooltip("배경 오프셋 (캔버스 비율, 예: (0.1, 0) = 오른쪽으로 10% 이동)")]
@@ -55,6 +57,7 @@ public class CutSceneBGBehaviour : PlayableBehaviour
     /// <summary> 스프라이트 로드 (한 번만) </summary>
     internal Sprite LoadSprite()
     {
+        if (backgroundSprite != null) return backgroundSprite;
         if (!spriteLoaded)
         {
             spriteLoaded = true;

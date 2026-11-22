@@ -77,6 +77,7 @@ public class GameStateManager
     #region Property
     public GameState CurrentGameState { get => gameState; set => gameState = value; }
     public EGameFlow GameFlow { get => gameFlow; set => gameFlow = value; }
+    internal bool ArrivingAtOutsideHomeDoor { get; set; }
     public bool IsDialogInitStart { get => isDialogInitStart; set => isDialogInitStart = value; }
     public int CurrentDay { get => currentDay; set => currentDay = value; }
     public bool IsOutsideLogo { get => isOutsideLogo; set => isOutsideLogo = value; }

@@ -1,0 +1,77 @@
+using HumanBartender.CutsceneStudio;
+using UnityEditor;
+using UnityEngine;
+
+namespace HumanBartender.CutsceneStudio.Editor
+{
+    internal sealed class StudioSequenceCheckWindow : EditorWindow
+    {
+        [SerializeField]
+        private StudioSequence sequence;
+        [SerializeField]
+        private string[] issues = System.Array.Empty<string>();
+        private string[] warnings = System.Array.Empty<string>();
+        private Vector2 scroll;
+        internal static void Open(EditorWindow owner, StudioSequence sequence)
+        {
+            var window = GetWindow<StudioSequenceCheckWindow>(true, "시퀀스 검사", true);
+            window.sequence = sequence;
+            window.Check();
+            window.minSize = new Vector2(420, 180);
+            var size = new Vector2(560, Mathf.Clamp(160 + window.issues.Length * 44, 200, 440));
+            window.position = new Rect(owner.position.center - size * .5f, size);
+            window.ShowUtility();
+        }
+
+        private void Check()
+        {
+            issues = sequence != null ? sequence.Validate().ToArray() : new[]
+            {
+                "검사할 시퀀스가 없습니다."
+            };
+            warnings = sequence != null ? CollectNotes(sequence).ToArray() : System.Array.Empty<string>();
+            Repaint();
+        }
+
+        // 검사 창이 보여 주는 참고 목록 전체. 타임라인의 "참고 N"도 같은 목록의 개수를 씀.
+        // 엔진 클립 비교는 AssetDatabase가 필요해 실행 코드의 목록과 따로 모은 뒤 합침.
+        internal static System.Collections.Generic.List<string> CollectNotes(StudioSequence sequence)
+        {
+            var notes = StudioSequenceWarnings.Collect(sequence);
+            notes.AddRange(StudioEngineClips.CollectWarnings(sequence));
+            return notes;
+        }
+
+        private void OnGUI()
+        {
+            if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+            {
+                Event.current.Use();
+                Close();
+                return;
+            }
+
+            EditorGUI.DrawRect(new Rect(0, 0, position.width, 38), new Color(.20f, .20f, .20f));
+            EditorGUI.DrawRect(new Rect(0, 37, position.width, 1), new Color(.10f, .10f, .10f));
+            GUI.Label(new Rect(16, 9, position.width - 32, 22), $"시퀀스 검사 / 오류 {issues.Length} · 참고 {warnings.Length}", EditorStyles.boldLabel);
+            GUILayout.BeginArea(new Rect(16, 52, position.width - 32, position.height - 102));
+            scroll = EditorGUILayout.BeginScrollView(scroll);
+            if (issues.Length == 0)
+                EditorGUILayout.LabelField("검사 항목에서 문제가 발견되지 않았습니다.", EditorStyles.wordWrappedLabel);
+            else
+                for (int i = 0; i < issues.Length; i++)
+                {
+                    EditorGUILayout.HelpBox($"{i + 1}. {issues[i]}", MessageType.Error);
+                    GUILayout.Space(5);
+                }
+
+            foreach (string warning in warnings) EditorGUILayout.HelpBox("참고 (재생 가능): " + warning, MessageType.Warning);
+            EditorGUILayout.EndScrollView();
+            GUILayout.EndArea();
+            if (GUI.Button(new Rect(position.width - 196, position.height - 36, 92, 24), "다시 검사"))
+                Check();
+            if (GUI.Button(new Rect(position.width - 96, position.height - 36, 80, 24), "닫기"))
+                Close();
+        }
+    }
+}

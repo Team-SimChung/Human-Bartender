@@ -1,0 +1,1070 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bbe1f0368816964896af33fd3a513ab, type: 3}
+  m_Name: tl_ending_credits
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioSequence
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  typingRhythm:
+    PeriodPause: 0.35
+    RepeatedPeriodPause: 0.3
+    ExtraPunctuation: 
+    ExtraPause: 0.35
+  id: tl_ending_credits
+  displayName: "\uC5D4\uB529 \uD06C\uB808\uB527"
+  timeline: {fileID: 11400000, guid: d89ece18e9f024b2594a7b05e26da1a0, type: 2}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  font: {fileID: 11400000, guid: 4fda139f08639e143a832f6ef58e216b, type: 2}
+  actors:
+  - id: title
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 2800000, guid: fd043190be7a84740b4da4a596feb4a6, type: 3}
+    region:
+    - {x: 0, y: 0}
+    - {x: 1340, y: 0}
+    - {x: 1340, y: 660}
+    - {x: 0, y: 660}
+    regionMaterial: {fileID: 21000215}
+    name: PROJECT LUNA
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 364.8, y: 179.68}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 2800000, guid: 0fe759012e3842478b14bab13832e480, type: 3}
+    region:
+    - {x: 0, y: 0}
+    - {x: 2004, y: 0}
+    - {x: 2004, y: 1779}
+    - {x: 0, y: 1779}
+    regionMaterial: {fileID: 21000215}
+    name: "\uC2EC\uCCAD\uB2E8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 93, y: 82.5}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_1
+    caption: SIMCHUNG
+    captionSize: 41.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: SIMCHUNG
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 53.75}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_2
+    caption: presents
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: presents
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_3
+    caption: Director
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Director
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_4
+    caption: LEE JUNSEO
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LEE JUNSEO
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_5
+    caption: Lead Artist
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Lead Artist
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_6
+    caption: MIN SUHYEON
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: MIN SUHYEON
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_7
+    caption: Lead Programmer
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Lead Programmer
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_8
+    caption: LEE DONGHUN
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LEE DONGHUN
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_9
+    caption: Technical Artist
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Technical Artist
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_10
+    caption: PARK YONGSEOK
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: PARK YONGSEOK
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_11
+    caption: Environment Artists
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Environment Artists
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_12
+    caption: MIN SUHYEON
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: MIN SUHYEON
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_13
+    caption: JEON JIMIN
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: JEON JIMIN
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_14
+    caption: Animator
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Animator
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_15
+    caption: JEONG YUBIN
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: JEONG YUBIN
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_16
+    caption: Character Artists
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Character Artists
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_17
+    caption: HAN SOYOON
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: HAN SOYOON
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_18
+    caption: JEONG YUBIN
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: JEONG YUBIN
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_19
+    caption: Prop Artist
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Prop Artist
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_20
+    caption: CHO HYEONA
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: CHO HYEONA
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_21
+    caption: Visual Effects
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Visual Effects
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_22
+    caption: GWAK YOSEP
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: GWAK YOSEP
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_23
+    caption: PARK YONGSEOK
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: PARK YONGSEOK
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_24
+    caption: UI/UX Designer
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: UI/UX Designer
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_25
+    caption: SHIN SEOYEON
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: SHIN SEOYEON
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_26
+    caption: Programmers
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Programmers
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_27
+    caption: HAN CHIU
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: HAN CHIU
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_28
+    caption: PARK YONGSEOK
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: PARK YONGSEOK
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_29
+    caption: Game Designers
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Game Designers
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_30
+    caption: GO HYEONJEONG
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: GO HYEONJEONG
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_31
+    caption: LIM SUJIN
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LIM SUJIN
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_32
+    caption: LEE JUNSEO
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LEE JUNSEO
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_33
+    caption: Narrative
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Narrative
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_34
+    caption: LEE JUNSEO
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LEE JUNSEO
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_35
+    caption: LEE GIHYEON
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LEE GIHYEON
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_36
+    caption: Music
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Music
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_37
+    caption: YU JIHOON
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: YU JIHOON
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_38
+    caption: Sound
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Sound
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_39
+    caption: LEE GIHYEON
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LEE GIHYEON
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_40
+    caption: LEE JUNSEO
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: LEE JUNSEO
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_41
+    caption: Special Thanks
+    captionSize: 14.25
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: Special Thanks
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 20}
+    color: {r: 0.733, g: 0.733, b: 0.733, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_42
+    caption: "\uC774\uB4DD\uC6B0 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC774\uB4DD\uC6B0 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_43
+    caption: "\uC774\uC218\uC5F0 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC774\uC218\uC5F0 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_44
+    caption: "\uCD5C\uBD80\uD638 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uCD5C\uBD80\uD638 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_45
+    caption: "\uC190\uBCD1\uD601 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC190\uBCD1\uD601 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_46
+    caption: "\uAE40\uC601\uC9C4 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uAE40\uC601\uC9C4 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_47
+    caption: "\uC2E0\uC720\uCCA0 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC2E0\uC720\uCCA0 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_48
+    caption: "\uCD5C\uD654\uC120 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uCD5C\uD654\uC120 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_49
+    caption: "\uC774\uC2B9\uD658 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC774\uC2B9\uD658 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_50
+    caption: "\uAE40\uC0C1\uC911 \uAD50\uC218\uB2D8"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uAE40\uC0C1\uC911 \uAD50\uC218\uB2D8"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_51
+    caption: "\uD669\uC2B9\uD558"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uD669\uC2B9\uD558"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_52
+    caption: "\uBC31\uCC2C\uD601"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uBC31\uCC2C\uD601"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_53
+    caption: "\uC774\uC2E0\uC9C0"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC774\uC2E0\uC9C0"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_54
+    caption: "\uCD5C\uC6A9\uADFC"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uCD5C\uC6A9\uADFC"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_55
+    caption: "\uC2E0\uC720\uD604"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC2E0\uC720\uD604"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_56
+    caption: "\uC774\uC218\uD558"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC774\uC218\uD558"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_57
+    caption: "\uC655\uB3C4\uD604"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC655\uB3C4\uD604"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: line_58
+    caption: "\uCD5C\uACBD\uBE48"
+    captionSize: 19.5
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uCD5C\uACBD\uBE48"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 451.2, y: 29}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  - id: cast_0_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uBE44\uB458\uAE30"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 76.5, y: 63}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 2
+    clipControlled: 1
+  - id: cast_1_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uB8E8\uB098"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 200.25, y: 193.5}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 2
+    clipControlled: 1
+  - id: cast_2_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uD06C\uB9AC\uC2A4"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 290.25, y: 310.5}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 2
+    clipControlled: 1
+  - id: cast_3_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uBD80\uBE44"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 249.75, y: 121.5}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 2
+    clipControlled: 1
+  - id: cast_3_1
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uBD80\uBE44"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 85.5, y: 51.75}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 3
+    clipControlled: 1
+  - id: cast_4_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC218\uB9AC\uACF5"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 290.25, y: 310.5}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 2
+    clipControlled: 1
+  - id: cast_5_1
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC2DC\uBC14\uACAC"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 101.25, y: 49.5}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 3
+    clipControlled: 1
+  - id: cast_6_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC0BC\uD638"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 189, y: 182.25}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 2
+    clipControlled: 1
+  - id: cast_7_0
+    caption: 
+    captionSize: 20
+    centerCaption: 0
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uC774\uC6C3"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 290.25, y: 310.5}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 2
+    clipControlled: 1
+  - id: thanks
+    caption: "\uB370\uBAA8 \uD50C\uB808\uC774\uD574\uC8FC\uC154\uC11C \uAC10\uC0AC\uD569\uB2C8\uB2E4."
+    captionSize: 21.75
+    centerCaption: 1
+    regionTexture: {fileID: 0}
+    region: []
+    regionMaterial: {fileID: 0}
+    name: "\uAC10\uC0AC \uC778\uC0AC"
+    sprite: {fileID: 0}
+    position: {x: 0, y: 0}
+    size: {x: 840, y: 90}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    layer: 0
+    clipControlled: 1
+  allowSkip: 1
+--- !u!21 &21000215
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Credits Logo
+  m_Shader: {fileID: 4800000, guid: 46143951d33e74138b6c33ee23a31e34, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Speckles:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Bars: 0
+    - _DialogueAfterSignal: 0
+    - _Grain: 0.2
+    - _Scan: 0.12
+    - _Sepia: 0
+    - _SignalAmount: 1
+    - _SignalStyle: 5
+    - _SignalTime: 0
+    - _Split: 0
+    - _Streak: 0.15
+    - _Vignette: 0
+    m_Colors: []
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

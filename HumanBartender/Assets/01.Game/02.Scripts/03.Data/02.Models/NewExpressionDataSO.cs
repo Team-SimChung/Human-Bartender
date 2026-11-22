@@ -28,6 +28,38 @@ public class NewExpressionDataSO : ScriptableObject
 {
     public Dictionary<string, Dictionary<string, NewExpressionEntry>> expressionData;
 
+    [Serializable]
+    public struct PortraitPlacement
+    {
+        [Tooltip("CSV 캐릭터 ID. 이 캐릭터의 통짜 초상에만 적용합니다.")]
+        public string characterId;
+        [Tooltip("CSV 표정 이름. 비우면 이 캐릭터의 모든 통짜 표정에 적용합니다. 적으면 그 표정만 따로 맞춥니다(같은 캐릭터의 빈 칸 설정보다 우선).")]
+        public string expression;
+        [Tooltip("좌석 기준선에서 더할 원본 픽셀 거리. Y가 양수이면 위로 올립니다. 파츠 애니메이션에는 적용하지 않습니다.")]
+        public Vector2Int offsetPixels;
+    }
+
+    [Header("초상 시각 배치")]
+    [Tooltip("에디터에서 저장하는 시각 설정. CSV 표정 데이터를 다시 읽어도 유지됩니다. 미등록 캐릭터는 보정하지 않습니다.")]
+    [SerializeField] PortraitPlacement[] portraitPlacements = Array.Empty<PortraitPlacement>();
+
+    /// <summary>
+    /// 통짜 초상의 위치 보정. 표정까지 맞는 설정이 있으면 그것을, 없으면 표정을 비운 캐릭터 설정을 쓴다.
+    /// 웹은 표정마다 위치 보정이 다르다(webPoseOffsets). 예: 삼호 취함은 탁자 위로 손을 걸쳐 다른 표정보다 아래에 그린다.
+    /// </summary>
+    public Vector2Int GetPortraitOffsetPixels(string characterId, string expression = null)
+    {
+        if (portraitPlacements == null) return Vector2Int.zero;
+        Vector2Int? characterDefault = null;
+        foreach (var placement in portraitPlacements)
+        {
+            if (placement.characterId != characterId) continue;
+            if (string.IsNullOrEmpty(placement.expression)) characterDefault ??= placement.offsetPixels;
+            else if (placement.expression == expression) return placement.offsetPixels;
+        }
+        return characterDefault ?? Vector2Int.zero;
+    }
+
     /// <summary>표정이 파츠 조립이 아니라 통짜 그림 하나인지.</summary>
     public bool IsPortraitSprite(string characterId, string expression)
         => TryGetEntry(characterId, expression, out NewExpressionEntry entry)

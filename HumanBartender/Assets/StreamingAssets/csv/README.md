@@ -1,5 +1,15 @@
 # CSV 폴더 안내
 
+> 공통 데이터의 정본은 웹 저장소 `junseo874/junseo874.github.io`의 `bar-playtest/data/shared-csv`입니다.
+> 현재는 **편집 표 43개 + 구조용 CSV 5개**입니다. 이 폴더는 커밋을 고정해 가져온 사본입니다.
+> `ContentAuthoring/web_content_source.json`에서 커밋과 해시를 확인합니다. Excel로 역수입하지 않습니다.
+> 반영: `ContentAuthoring/README.md`의 임시 수입 → Unity 검사 → 동일 해시 반영 절차를 따릅니다.
+> 웹 원본의 `shared_<해시>` 연결 ID는 반입 때 `expressions_tom_default`처럼 읽을 수 있는 이름으로 바뀌고,
+> 비어 있던 `context`에는 부모 경로(예: `tom/default`, 장면 id)가 채워집니다. 값·순서·게임 동작은 원본과 같습니다.
+> 대응표는 `ContentAuthoring/web_id_map.json`이며, 다음 반입에서도 같은 해시는 같은 이름을 유지합니다.
+> 검사: `python -B ContentAuthoring/export_content.py --validate-only`
+> 아래 Excel 안내와 `02.ContentAuthoring` 경로는 이전 작업 흐름의 기록입니다.
+
 게임은 이 폴더의 CSV를 직접 읽습니다. 데이터 JSON을 생성하거나 읽는 단계는 없습니다.
 총 **편집 표 42개 + 구조용 표 5개**이며, 파일은 용도별로 나누었습니다.
 
@@ -27,7 +37,9 @@
 현재는 **`balance_root`**로 정리했습니다. 관련 하위 표의 `parent_id`도 함께 변경했습니다.
 시작 금액 같은 실제 값은 `settings/balance_config.csv`에서 편집합니다.
 
-- `row_id`: 행을 연결하는 고정 ID. 이름에 있는 번호는 실행 순서가 아닙니다.
+- `row_id`: 행을 연결하는 고정 ID. `<표 이름>_<부모 경로>_<행 키>` 형식이며(예: `steps_d0_open_5`),
+  같은 키가 다른 데이터 묶음에도 있으면 묶음 이름이 들어갑니다(예: `expressions_expressions_tom_default`).
+  이름에 있는 번호는 실행 순서가 아닙니다.
 - `parent_id`: 부모 행의 `row_id`. `@데이터묶음`은 최상위 목록입니다.
 - `template_id`: 행이 사용하는 필드 구성. `steps_format_01` 등의 번호는 형식의 종류입니다.
 - `id`, `dialogue_id`: 게임이 참조하는 기존 ID. 이번 정리에서 변경하지 않았습니다.

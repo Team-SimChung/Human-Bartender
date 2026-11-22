@@ -14,7 +14,7 @@ public enum ECraftHudPart
     /// <summary>상단 중앙 — 지금 다루는 재료 이름.</summary>
     Subject = 1 << 1,
 
-    /// <summary>우측 상단 — 한 잔 전체의 경과 시간과 제한 시간.</summary>
+    /// <summary>우측 상단 — 시계 아이콘과 한 잔 전체의 경과 시간.</summary>
     Time = 1 << 2,
 
     /// <summary>우측 하단 — 다음 버튼.</summary>

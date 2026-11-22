@@ -9,7 +9,7 @@ using UnityEngine;
 /// 어떤 조합이 얼마나 자주 나오는지가 데이터가 아니라 다시 뽑은 횟수로 정해진다.
 ///
 /// 조합의 가중치는 들어 있는 파츠 weight를 모두 곱한 값이다. 선택 슬롯을 비우는 것도 하나의
-/// 후보이고, 그 가중치는 balance.json의 guest_acc_none_weight를 쓴다.
+/// 후보이고, 그 가중치는 settings/balance_config.csv의 guest_acc_none_weight를 쓴다.
 ///
 /// 카메오는 이 시스템을 쓰지 않는다 — 그쪽은 캐릭터 전용 리소스다(§1).
 /// </summary>
@@ -49,7 +49,7 @@ public class GuestAppearanceBuilder
         if (pool.Count == 0)
         {
             Debug.LogError($"[Guest] 성별 {gender}·성격 {personality}로 만들 수 있는 외형 조합이 없습니다. " +
-                           "guest_bodies.json의 파츠와 exclusions를 확인하세요.");
+                           "guests/guest_parts.csv와 guest_exclusions.csv를 확인하세요.");
             return null;
         }
 
@@ -74,7 +74,7 @@ public class GuestAppearanceBuilder
     {
         if (data.Defaults == null || !data.Defaults.TryGetValue(gender, out var defaults) || defaults == null)
         {
-            Debug.LogError($"[Guest] guest_bodies.json에 성별 {gender}의 기본 조합(defaults)이 없습니다.");
+            Debug.LogError($"[Guest] guests/guest_settings.csv에 성별 {gender}의 기본 조합(defaults)이 없습니다.");
             return null;
         }
 
@@ -87,7 +87,7 @@ public class GuestAppearanceBuilder
 
             if (!data.TryGetPart(id, out var part))
             {
-                Debug.LogError($"[Guest] 기본 조합의 파츠 '{id}'를 guest_bodies.json에서 찾지 못했습니다.");
+                Debug.LogError($"[Guest] 기본 조합의 파츠 '{id}'를 guests/guest_parts.csv에서 찾지 못했습니다.");
                 continue;
             }
 

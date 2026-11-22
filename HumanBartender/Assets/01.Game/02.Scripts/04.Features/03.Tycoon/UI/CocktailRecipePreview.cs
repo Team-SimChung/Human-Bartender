@@ -15,6 +15,7 @@ public sealed class CocktailRecipePreview : MonoBehaviour
 
     [Header("Dynamic contents")]
     [SerializeField] private RectTransform tagList;
+    [Tooltip("태그 색(도구명 강조색·기본색)은 이 프리팹이 가진다.")]
     [SerializeField] private RecipeTagChip tagPrefab;
     [SerializeField] private RectTransform ingredientList;
     [SerializeField] private RecipeIngredientCell ingredientPrefab;
@@ -132,19 +133,21 @@ public sealed class CocktailRecipePreview : MonoBehaviour
             return;
         }
 
-        AddTag(cocktail.Mix.ToString().ToUpperInvariant());
+        // 웹과 같이 첫 태그만 도구명(제조법)이고 강조색을 쓴다. 나머지 태그는 갈래와 상관없이 기본색이다.
+        AddTag(cocktail.Mix.ToString().ToUpperInvariant(), true);
         if (cocktail.Tags == null) return;
 
         foreach (NewCocktailTag tag in cocktail.Tags)
         {
-            if (!string.IsNullOrWhiteSpace(tag.Ko)) AddTag(tag.Ko);
+            if (string.IsNullOrWhiteSpace(tag.Ko)) continue;
+            AddTag(tag.Ko, false);
         }
     }
 
-    private void AddTag(string value)
+    private void AddTag(string value, bool isToolTag)
     {
         RecipeTagChip chip = Instantiate(tagPrefab, tagList);
-        chip.Bind(value);
+        chip.Bind(value, isToolTag);
         tagChips.Add(chip);
     }
 

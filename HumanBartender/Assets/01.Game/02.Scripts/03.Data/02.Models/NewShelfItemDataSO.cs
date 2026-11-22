@@ -62,7 +62,7 @@ public struct NewShelfItemData
 
     /// <summary>선택한 칵테일의 레시피를 보고 시스템이 자동으로 불러오는 재료인지(레몬·라임·설탕).</summary>
     public bool IsAutoCalled =>
-        IsIngredient && (DefaultAction == ENewRecipeAction.Squeeze || DefaultAction == ENewRecipeAction.Powder);
+        IsIngredient && (DefaultAction == ENewRecipeAction.Squeeze || DefaultAction == ENewRecipeAction.Powder || DefaultAction == ENewRecipeAction.Add);
 
     /// <summary>
     /// "R,G,B" 문자열을 색으로 바꾼다. 아직 색이 정해지지 않은 재료는 값이 비어 있어 false를 반환한다 —

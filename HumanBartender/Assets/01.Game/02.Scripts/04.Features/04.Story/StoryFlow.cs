@@ -23,8 +23,9 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
 
     [SerializeField] private OrderRequestController orderController;
     [SerializeField] private CraftFlowController craftFlow;
+    [SerializeField] private ServicePanelController servicePanel;
 
-    [Inject] ISoundManager soundManager;
+    [Inject] IBgmPlayer soundManager;
 
     /// <summary>
     /// 컷씬 재생기(CutSceneManager). 루트 스코프에 있어 인스펙터로 꽂을 수 없으므로 주입받는다.
@@ -39,8 +40,45 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// 같은 식이 곳에 따라 다르게 판정되지 않게 하려는 것이다.
     /// </summary>
     [Inject] IConditionUtil conditions;
+    [Inject] IPopupService popupService;
 
-    public async UniTask RunAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// 본편을 실행한다. 정상으로 끝나면 대본이 내보내지 않은 손님과 테이블 위 잔·코스터를 정산창 뒤에 남겨 둔다(엔진 수정 11).
+    /// 남긴 무대는 PlayPhaseController가 ReleaseStage로 정리한다.
+    /// </summary>
+    public UniTask RunAsync(CancellationToken cancellationToken = default) =>
+        RunPhaseAsync(ENewScenePhase.Bar, cancellationToken, holdStage: true);
+
+    public UniTask RunOpeningAsync(CancellationToken cancellationToken = default) =>
+        GameStateManager.Instance.CurrentDay >= 1 && GameStateManager.Instance.CurrentDay <= 3
+            ? RunPhaseAsync(ENewScenePhase.BarOpen, cancellationToken) : UniTask.CompletedTask;
+
+    /// <summary>본편이 끝난 뒤 남겨 둔 무대(인물·테이블 위 잔과 코스터)를 정리한다. 남긴 것이 없으면 아무것도 하지 않는다.</summary>
+    public void ReleaseStage()
+    {
+        if (runner != null) runner.ReleaseStage();
+    }
+
+#if UNITY_EDITOR
+    private string testSceneId;
+    private int testStepSeq;
+    private ENewGrade testGrade;
+    private bool testOrderMatch;
+
+    internal async UniTask RunFromDialogueForTestAsync(string sceneId, int stepSeq, ENewGrade grade,
+        bool orderMatch, CancellationToken token)
+    {
+        if (runner.IsRunning || testSceneId != null) throw new InvalidOperationException("[BarTest] 대사 테스트가 진행 중입니다.");
+        testSceneId = sceneId;
+        testStepSeq = stepSeq;
+        testGrade = grade;
+        testOrderMatch = orderMatch;
+        try { await RunPhaseAsync(ENewScenePhase.Bar, token); }
+        finally { testSceneId = null; }
+    }
+#endif
+
+    async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken, bool holdStage = false)
     {
         int day = GameStateManager.Instance.CurrentDay;
 
@@ -69,10 +107,14 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         // 비우지 않으면 같은 날을 다시 열었을 때 effects가 통째로 건너뛰어진다.
         // The runner owns its execution result and effect tokens.
 
-        runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer);
+        runner.Bind(storyPresenter, conditions, orderController, cutScenePlayer, popupService);
         if (craftFlow == null) throw new InvalidOperationException("[Story] Craft Flow 참조가 필요합니다.");
 
-        soundManager?.PlayBGM("BGM_bar_01", 1f, true);
+        var tutorial = GetComponent<StoryTutorialController>();
+        if (tutorial == null) tutorial = gameObject.AddComponent<StoryTutorialController>();
+        tutorial.ConnectSceneResources();
+        runner.SetTutorialController(tutorial);
+        // 오프닝 컷신은 새 게임 직후 집에서 재생한다(NewGameOpening). 0일차 바는 바로 대본으로 들어간다.
 
         Debug.Log($"[Story] Day {day} 2부 시작");
 
@@ -81,7 +123,12 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         StoryExecutionResult result;
         try
         {
-            result = await runner.RunAsync(script, linked.Token);
+#if UNITY_EDITOR
+            if (testSceneId != null)
+                result = await runner.RunFromDialogueForTestAsync(script, testSceneId, testStepSeq, testGrade, testOrderMatch, linked.Token);
+            else
+#endif
+                result = await runner.RunAsync(script, linked.Token, phase, holdStage);
         }
         finally
         {
@@ -108,6 +155,27 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         craftFlow.RefreshCraftAvailability();
     }
 
+    public bool IsChoosing => presenter is BarStoryPresenter bar && bar.IsChoosing;
+    public bool TryBeginChoiceHold(UnityEngine.InputSystem.Controls.ButtonControl control) =>
+        presenter is BarStoryPresenter bar && bar.TryBeginChoiceHold(control);
+
+    public bool CanAdvanceDialogue => runner != null && runner.IsPresentingLine && !IsChoosing &&
+        !UIDisplayOptions.IsOptionOpen && !GamePause.IsPaused && !HumanBartender.CutsceneStudio.StudioPlayer.HasActivePlayback &&
+        (servicePanel == null || !servicePanel.BlocksBarInput) &&
+        (craftFlow == null || (!craftFlow.IsCraftFlowActive && !craftFlow.IsAwaitingServeDecision));
+
+    /// <summary>화면 클릭도 키보드와 같은 대화 진행 조건을 사용한다.</summary>
+    public void OnAdvanceInput()
+    {
+        // 선택지 밖의 투명 대사 버튼을 클릭해도, 다음 방향 입력은 선택지로 전달한다.
+        if (presenter is BarStoryPresenter bar && bar.IsChoosing)
+        {
+            if (servicePanel == null || !servicePanel.BlocksBarInput) bar.RestoreChoiceNavigation();
+            return;
+        }
+        TryAdvance();
+    }
+
     /// <summary>
     /// 대사 진행 입력. 대본이 돌고 있을 때만 받는다.
     ///
@@ -116,9 +184,16 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
     /// </summary>
     public bool TryAdvance()
     {
-        if (runner == null || !runner.IsRunning) return false;
+        if (!CanAdvanceDialogue || !DialogueAdvanceInput.TryConsume()) return false;
 
         runner.OnAdvanceInput();
         return true;
+    }
+
+    public bool TryMoveTutorialSeat(int step)
+    {
+        if (runner == null || !runner.IsRunning) return false;
+        var tutorial = GetComponent<StoryTutorialController>();
+        return tutorial != null && tutorial.TryMoveSeat(step);
     }
 }

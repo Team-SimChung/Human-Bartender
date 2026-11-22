@@ -12,7 +12,7 @@ public struct NewPersonalityData
     [field: SerializeField][JsonProperty("think_chance")] public float ThinkChance { get; set; }
 }
 
-/// <summary>StreamingAssets/json/personalities.json을 보유하는 ScriptableObject.</summary>
+/// <summary>StreamingAssets/csv/guests/personalities.csv을 보유하는 ScriptableObject.</summary>
 [CreateAssetMenu(fileName = "NewPersonalityDataSO", menuName = "Data/New/PersonalityDataSO")]
 public class NewPersonalityDataSO : ScriptableObject
 {

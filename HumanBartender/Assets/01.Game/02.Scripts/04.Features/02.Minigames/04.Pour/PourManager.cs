@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity.Profiling;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// 따르기(Pour) 미니게임의 메인 매니저. IMiniGameController를 구현한다.
@@ -15,16 +17,20 @@ using UnityEngine;
 /// 인터페이스를 둘 구현한다. ICraftGimmick은 1부의 기믹 큐가 부르는 새 경로이고,
 /// IMiniGameController는 2부 대화에서 컷씬과 함께 돌던 기존 경로다. 조작과 액체 표현은 양쪽이 공유한다.
 ///
-/// 투입량을 재는 방식이 다르다. 기존 경로는 잔 영역에 들어온 파티클 개수를 셌지만, 기믹 큐가
-/// 돌릴 때는 방출률(ml/초) × 기울인 시간으로 쌓아 레시피의 oz와 같은 단위로 만든다. 파티클은
-/// 눈에 보이는 줄기일 뿐이라 프레임과 물리 설정에 따라 개수가 흔들리는데, 그 흔들림이 점수에
-/// 섞이면 안 되기 때문이다. 이 화면에는 잔을 그리지도 않는다.
+/// 수량은 잔 바닥 또는 이미 담긴 액체에 도착한 입자로 잰다. 기믹 큐는 입자당 ml를 목표 단위로
+/// 환산하고, 기존 경로는 입자 수를 쓴다. 공중의 물줄기는 제외하고 넘친 액체는 수량에서 뺀다.
 ///
 /// 필업(Fill-up)도 이 구현을 그대로 쓴다. 조작과 화면이 같고 큐에서의 위치만 다르다.
 /// </summary>
 public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
-                           ICraftGimmickProgress, ICraftGimmickManualEnd
+                           ICraftGimmickProgress, ICraftGimmickManualEnd, ICraftGimmickQuantityProgress,
+                           ICraftGimmickHudProvider, ICraftGimmickTiming
 {
+    [Inject] ILoopingSoundManager loopSound;
+    IAudioLoop pourSound;
+    bool audioFocused = true;
+    bool audioPaused;
+    bool audioCancelled;
     [SerializeField] private bool isTest = false;
 
     [Header("Data")]
@@ -43,6 +49,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private bool useTestBottleId;
     [SerializeField] private string testBottleId = "beer";
     [SerializeField] private BottleTiltController bottle;
+    [Tooltip("저장된 푸어러 분리 연출과 분리 후 유량 배율. 비워 두면 기존 따르기로 동작한다.")]
+    [SerializeField] private PourerBreakaway pourer;
     [Tooltip("병 외곽선을 그리는 컴포넌트. 아래 병 모양 값을 그대로 받아 그리므로 " +
              "보이는 입구와 액체가 나오는 위치가 항상 일치한다. 비워두면 외곽선을 그리지 않는다.")]
     [SerializeField] private BottleSilhouette bottleSilhouette;
@@ -79,30 +87,43 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [Tooltip("최대 유량에서 액체가 입구를 떠나는 속도. 올리면 멀리 뻗어 나가고, 낮추면 입구에서 " +
              "바로 떨어진다. 방출 간격이 이 속도에서 유도되므로 줄기 굵기는 그대로다.")]
     [SerializeField] private float exitSpeed = 1.6f;
+    [Tooltip("액체가 입구를 떠나는 최대 속도. 유량 배율(재료 표, 푸어러 분리)이 커서 이 속도를 넘게 되면 " +
+             "속도 대신 줄 수를 늘려(물줄기를 굵게) 같은 유량을 낸다.\n" +
+             "프로파일 물성의 속도 상한(Max Velocity와 spacing × Max Travel Per Step × 120 중 작은 값, Liquid_Light 기준 6.5)보다 " +
+             "낮게 둔다. 넘으면 입자가 출구에서 겹쳐 줄기가 갈라진다.\n" +
+             "5이면 맥주·와인·분리된 푸어러가 3줄, 소다가 2줄로 나와 줄기가 가늘고 빠르게 떨어진다.")]
+    [SerializeField, Min(0.5f)] private float maxExitSpeed = 5f;
 
     [Header("Glass")]
-    [Tooltip("잔 스프라이트 자신의 Transform. InverseTransformPoint로 로컬 판정 영역을 계산한다.")]
+    [Tooltip("잔 내부 중앙의 Transform. 스프라이트 중심과 내부 중심이 다르면 잔 아래의 자식 Transform을 연결한다.")]
     [SerializeField] private Transform glassCenter;
     [Tooltip("잔에 담긴 것으로 칠 판정 영역(스케일 적용 전 잔 로컬 좌표).")]
     [SerializeField] private Vector2 glassInteriorHalfExtents = new Vector2(0.45f, 0.45f);
+    [Header("Glass Volume")]
+    [Tooltip("기믹 화면의 잔 전체에 해당하는 ml. 목표량과 무관한 고정 표시 용량.")]
+    [SerializeField, Min(1f)] private float glassCapacityMl = 300f;
+    [Tooltip("선택한 잔 ID가 weizen(바이젠잔)일 때 사용할 표시 용량. 맥주 12oz와 거품 여유를 포함한다.")]
+    [SerializeField, Min(1f)] private float mugCapacityMl = 450f;
+    [Tooltip("SPH 입자 한 개의 안정된 면적 / spacing². 수량과 입자 방출이 같은 환산을 사용한다.")]
+    [SerializeField, Range(0.5f, 2f)] private float particleAreaScale = 0.98f;
+    [Header("Volume Readout Limits")]
+    [Tooltip("일반 잔의 현재량 표시 상한(ml). 이 양 이상이면 화면 숫자를 이 값으로 표시한다. 판정과 결과 기록은 실제량을 사용한다.")]
+    [SerializeField, Min(0f)] private float glassReadoutLimitMl = 285f;
+    [Tooltip("바이젠잔(weizen)의 현재량 표시 상한(ml). oz 표시는 이 양을 환산한다.")]
+    [SerializeField, Min(0f)] private float mugReadoutLimitMl = 420f;
     [Header("Target Height")]
     [SerializeField] private bool showTargetHeight = true;
-    [Tooltip("SPH 간격으로 추정한 액체 높이의 보정 배율.")]
-    [SerializeField, Min(0.01f)] private float targetHeightScale = 1f;
-    [Tooltip("계산된 목표 높이에서 내릴 거리(잔 로컬 단위).")]
-    [SerializeField, Min(0f)] private float targetHeightOffsetDown = 0f;
-    [Tooltip("목표량(oz)에 따른 아래쪽 보정. 기본값은 1.5oz에서 0.06, 4oz에서 0.12다.")]
-    [SerializeField] private bool useTargetQuantityHeightCorrection = true;
-    [SerializeField] private Vector2 targetHeightCorrectionAmountsOz = new Vector2(1.5f, 4f);
-    [SerializeField] private Vector2 targetHeightCorrectionOffsets = new Vector2(0.06f, 0.12f);
-    [SerializeField, Min(0.001f)] private float targetMarkerSize = 0.08f;
-    [SerializeField, Min(0f)] private float targetMarkerGap = 0.04f;
-    [SerializeField] private bool showTargetHeightDashedLine = true;
-    [SerializeField, Min(0.001f)] private float targetDashLength = 0.06f;
-    [SerializeField, Min(0.001f)] private float targetDashGap = 0.035f;
-    [SerializeField, Min(0.001f)] private float targetDashThickness = 0.008f;
-    private Mesh targetHeightMesh;
-    private Material targetHeightMaterial;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetMarkerSize = 0.08f;
+    [HideInInspector, SerializeField, Min(0f)] private float targetMarkerGap = 0.04f;
+    [HideInInspector, SerializeField] private bool showTargetHeightDashedLine = true;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetDashLength = 0.06f;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetDashGap = 0.035f;
+    [HideInInspector, SerializeField, Min(0.001f)] private float targetDashThickness = 0.008f;
+    [Tooltip("시작할 때 목표 높이만 적용하는 피벗. 자식 Marker Layout에서 위치·크기·색을 조절한다.")]
+    [SerializeField] Transform targetHeightMarker;
+    [Tooltip("프리팹의 Bottle Art Layout 아래 배치한 재료 스프라이트. 부모에서 공통 위치와 배율을 조절한다.")]
+    [SerializeField] SpriteRenderer ingredientBottle;
+    float targetMarkerParticles;
 
     [Header("Liquid (SPH)")]
     [SerializeField] private SphLiquidRenderer liquidRenderer;
@@ -116,7 +137,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private int bottleParticleCount = 400;
     [Tooltip("동시에 살아있을 수 있는 파티클 수(줄기 + 잔에 담긴 것). 재사용 풀 크기라 총량과 별개이고, " +
              "'한 번에 얼마나 많은 액체가 보이는가'는 총량이 아니라 이 값이 정한다.\n" +
-             "렌더러가 2패스로 바뀐 뒤로는 여기에 렌더 한계가 없다 — 이제 걸리는 건 SPH 계산 쪽이다. " +
+             "입자는 GPU가 그리지만 SPH 계산량과 화면상 겹침에 따른 GPU 비용은 남는다. " +
              "프레임이 떨어지면 이 값을 내리거나 프로파일의 spacing을 키울 것.")]
     [SerializeField] private int maxLiveParticles = 2000;
     [Tooltip("이 깊이 아래로 떨어진 파티클은 흘린 것으로 보고 치운다(풀로 돌아간다). " +
@@ -127,12 +148,37 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] private float gridPadding = 3f;
 
     [Header("UI")]
+    [Tooltip("이 프리팹에서 직접 편집하는 따르기 HUD. 제조 시계와 튜토리얼 연결은 공통 HUD가 전달한다.")]
+    [SerializeField] CraftGimmickHud gimmickHud;
+    public CraftGimmickHud GimmickHud => gimmickHud;
     [SerializeField] private Canvas buttonCanvas;
     [SerializeField] private GradientRatioController gageBar;
 
     [Header("Pour Settings")]
-    [Tooltip("목표 수량에 누적되는 속도 배율. 0.25면 기존의 1/4 속도로 숫자가 찬다. 액체 파티클 방출량은 바꾸지 않는다.")]
+    [Tooltip("푸어러 없이 병째 따르는 재료의 출수량 배율. 표에 없는 재료는 배율 1이다.\n" +
+             "물줄기 굵기와 분사 속도는 따로 정하지 않는다 — 분사 속도가 Max Exit Speed를 넘지 않도록 줄 수를 늘리고, " +
+             "줄 간격이 기본 술(기본 병목·기본 잔)과 같아지도록 속도를 계산한다. 배율을 크게 올리면 줄기가 그만큼 굵어진다.\n" +
+             "최대 기울기에서 레시피 양을 약 3초에 채우도록 맞춘 값이다(와인 240ml, 오렌지주스 180ml). " +
+             "맥주(360ml)는 오렌지주스와 같은 속도(3.4)로 따라 약 6초에 채운다.")]
+    [SerializeField] private PourFlowOverride[] flowOverrides =
+    {
+        new PourFlowOverride("beer", 3.4f),
+        new PourFlowOverride("red_wine", 4.6f),
+        new PourFlowOverride("champagne", 4.6f),
+        new PourFlowOverride("orange_juice", 3.4f),
+        new PourFlowOverride("soda_water", 3f),
+        new PourFlowOverride("cola", 3f),
+        new PourFlowOverride("cranberry_juice", 3f),
+        new PourFlowOverride("milk", 2f),
+    };
+    [Tooltip("공중 물줄기에서 나란히 나가는 입자 하나를 그리는 최소 가로 반지름(줄 간격 배수, 렌더 전용).\n" +
+             "빠르게 떨어질수록 입자를 가늘게 그리는데, 반지름이 줄 간격보다 작아지면 하나의 줄기가 여러 가닥으로 갈라져 보인다. " +
+             "1.1이면 최고 속도(6.5)에서도 한 줄기로 이어진다. 올리면 빠른 줄기가 굵어진다.")]
+    [SerializeField, Range(0f, 2f)] private float streamMinRadiusPerLane = 1.1f;
+    [Tooltip("실제 기믹에서 입자를 내보내는 유량 배율. 도착한 입자의 용량에는 다시 곱하지 않는다.")]
     [SerializeField, Range(0.01f, 1f)] private float quantityAccumulateMultiplier = 0.25f;
+    [Tooltip("따르기 마치기 후 공중의 액체가 잔에 도착하도록 기다릴 최대 시간. 이 시간은 제조시간에 포함하지 않는다.")]
+    [SerializeField, Min(0f)] private float finishSettleSeconds = 1.5f;
     [Tooltip("isTest일 때 목표 파티클 개수로 사용. 실제 모드에서도 recipe 기반 목표 연결 전까지는 임시로 이 값을 쓴다.")]
     [SerializeField] private int testTargetParticleCount = 60;
     [SerializeField] private int testToleranceCount = 15;
@@ -148,6 +194,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     bool isFinished;
 
     SphSimulation simulation;
+    SphContainerBoundary glassBoundary;
     float simulationAccumulator;
 
     /// <summary>비활성 파티클 보관소. 흘려서 사라진 파티클을 재사용한다.</summary>
@@ -157,15 +204,26 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>병에 남은 액체(파티클 수). 0이 되면 더 나오지 않는다.</summary>
     int remainingInBottle;
     float emitAccumulator;
+    float visualCapacityMl;
+    float particleVolumeMl;
+    SphVolumeTracker volumeTracker;
+    int volumeStep;
+    bool finishRequested;
+    float finishSettleElapsed;
+    static readonly ProfilerMarker SimulationMarker = new ProfilerMarker("Pour.Simulation");
+    static readonly ProfilerMarker VolumeMarker = new ProfilerMarker("Pour.MeasureRetainedVolume");
+    static readonly ProfilerMarker AudioMarker = new ProfilerMarker("Pour.StartPourAudio");
 
     /// <summary>병목 통로의 반너비(병 로컬). spacing에서 유도되므로 Start에서 한 번만 잡는다.</summary>
     float neckHalfWidth;
 
     /// <summary>프로파일의 물성값을 짧게 쓰기 위한 별칭.</summary>
-    SphConfig Physics => liquidProfile.physics;
+    SphConfig runtimePhysics;
+    SphConfig Physics => runtimePhysics ?? liquidProfile.physics;
     float Spacing => liquidProfile.physics.spacing;
 
     UniTaskCompletionSource tcs;
+    CraftTimer standaloneTimer;
 
     void Start()
     {
@@ -179,8 +237,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             data.targetCraft_tolerance = testToleranceCount;
         }
 
-        // 파티클 개수 목표는 기존 경로에서만 쓴다. 기믹 큐가 돌릴 때는 레시피의 oz를 그대로 목표로 삼고,
-        // 파티클은 눈에 보이는 줄기 역할만 한다.
+        // 기존 경로는 입자 개수, 기믹 큐는 입자 용량을 레시피의 단위로 환산한 양을 목표로 쓴다.
         targetParticleCount = testTargetParticleCount;
 
         int tolerance = data != null ? data.targetCraft_tolerance : 0;
@@ -190,43 +247,73 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         pouredMl = 0f;
 
         isFinished = false;
+        finishRequested = false;
+        finishSettleElapsed = 0f;
+        volumeStep = 0;
         glassParticleCount = 0;
         remainingInBottle = bottleParticleCount;
 
+        string visualIngredientId = drivenByRunner ? pourIngredientId : null;
+        LiquidAppearance appearance = liquidProfile.ResolveAppearance(visualIngredientId);
+        float? liquidAlpha = null;
         Color liquidColor = GetLiquidColor();
+        if (!liquidProfile.overrideColor && shelfData != null && shelfData.TryGet(visualIngredientId, out var visualItem))
+        {
+            liquidAlpha = visualItem.LiquidAlpha;
+            if (visualItem.TryGetLiquidColor(out Color32 ingredientColor)) liquidColor = ingredientColor;
+        }
+        liquidColor = appearance.ResolveColor(liquidColor, liquidAlpha, liquidProfile.overrideColor);
+        runtimePhysics = liquidProfile.physics.WithViscosity(appearance.viscosityScale);
 
         // 액체는 화면을 덮는 쿼드에 합성해 그린다. 어느 화면인지 알려 주지 않으면 메인 카메라에
         // 그려지는데, 기믹 무대는 바에서 멀리 떨어져 있어 그러면 아무것도 안 보인다.
         liquidRenderer.SetTargetCamera(CraftGimmickStage.Find(this));
-        liquidRenderer.Init(liquidProfile, liquidColor);
+        liquidRenderer.SetContainer(glassCenter, glassInteriorHalfExtents);
+        liquidRenderer.Init(liquidProfile, liquidColor, appearance);
 
-        // 통로 폭은 파티클 간격이 정한다. 병 모양보다 먼저 잡아야 실루엣이 같은 폭으로 그려진다.
-        float scaleX = Mathf.Max(Mathf.Abs(bottle.BottleVisual.lossyScale.x), 0.0001f);
-        neckHalfWidth = Spacing * neckWidthInParticles * 0.5f / scaleX;
+        ConfigureNeck();
 
         bool hasBottleSprite = ApplyIngredientBottle();
         if (!hasBottleSprite && bottleSilhouette != null)
             bottleSilhouette.Build(bottleInteriorHalfExtents, neckHalfWidth, ShoulderLocalY(), ChannelLocalY());
 
-        simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax());
+        // 잔 안쪽 왼편에서 따르게 하여 입구와 줄기가 잔 위에 머물게 한다.
+        Vector3 cupRimPosition = glassCenter.TransformPoint(
+            new Vector3(-glassInteriorHalfExtents.x * 0.8f, glassInteriorHalfExtents.y, 0f));
+        bottle.ConfigurePourGeometry(new Vector3(0f, bottleInteriorHalfExtents.y, 0f), cupRimPosition);
+        pourer?.BeginPour(useTestBottleId ? testBottleId : pourIngredientId,
+            new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
+        UpdateStreamShape();
+
+        simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax(), ConstrainToGlass);
+        simulation.SynchronizeTransforms = false;
 
         CreatePool();
+        volumeTracker = new SphVolumeTracker(Mathf.Max(1, maxLiveParticles));
         CalibrateRestDensity();
+        ConfigureVolume();
+        liquidRenderer.ReserveParticles(Mathf.Max(1, maxLiveParticles));
         CreateTargetHeightMarker();
 
-        // 이 게이지는 파티클 개수를 기준으로 그린다. 큐가 돌릴 때는 투입량을 방출량으로 재기 때문에
-        // 눈금이 실제 수량과 어긋난다 — 공통 표시가 정확한 수치를 보여주므로 여기서는 감춘다.
-        if (drivenByRunner)
+        // 새 프리팹은 저장된 전용 HUD를 쓴다. 전용 HUD가 없는 기존 개발 씬만 입자 수 게이지를 쓴다.
+        if (drivenByRunner || gimmickHud != null)
         {
             if (gageBar != null) gageBar.gameObject.SetActive(false);
         }
-        else
+        else if (gageBar != null)
         {
             gageBar.UpdateValues(targetParticleCount + toleranceCount,
                                  targetParticleCount - toleranceCount, toleranceCount * 2f, 0f);
         }
 
         isPlay = true;
+        if (!drivenByRunner && gimmickHud != null)
+        {
+            standaloneTimer = new CraftTimer();
+            standaloneTimer.Start();
+            gimmickHud.BeginCraft(standaloneTimer, 0f, false);
+            gimmickHud.BindGimmick(new GimmickStep(ECraftGimmick.Pour, testBottleId), this);
+        }
     }
 
     Vector2 ComputeGridMin()
@@ -307,10 +394,86 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── 방출 ────────────────────────────────────────────────────────────
 
+    /// <summary>재료 하나의 출수량 배율. 물줄기 굵기와 분사 속도는 PourManager가 계산한다.</summary>
+    [System.Serializable]
+    struct PourFlowOverride
+    {
+        [Tooltip("재료 ID(shelf_items의 id).")]
+        public string ingredientId;
+        [Tooltip("최대 기울기에서의 출수량 배율. 1이면 pour_emit_rate_ml_per_sec × quantityAccumulateMultiplier 그대로다. " +
+                 "도착한 입자의 용량에는 곱하지 않는다.")]
+        [Min(1f)] public float flowMultiplier;
+
+        public PourFlowOverride(string ingredientId, float flowMultiplier)
+        {
+            this.ingredientId = ingredientId;
+            this.flowMultiplier = flowMultiplier;
+        }
+    }
+
+    /// <summary>지금 따르는 실제 재료의 출수량 배율. 표에 없으면 1이다.</summary>
+    float IngredientFlowMultiplier()
+    {
+        if (flowOverrides != null && !string.IsNullOrEmpty(pourIngredientId))
+            foreach (var entry in flowOverrides)
+                if (entry.ingredientId == pourIngredientId) return Mathf.Max(1f, entry.flowMultiplier);
+        return 1f;
+    }
+
+    /// <summary>기본 병목의 줄 수. 한 줄에 나란히 나가는 입자 수이자 줄 간격 계산의 기준이다.</summary>
+    int BaseLanes => Mathf.Max(1, Mathf.FloorToInt(neckWidthInParticles));
+
     /// <summary>
-    /// 지금 기울기의 유량(0=안 나옴, 1=최대). 이 값이 곧 "몇 도부터 나오는가"를 정한다 —
-    /// 병 안 수면을 시뮬레이션하지 않으므로 기하학이 끼어들지 않는다.
+    /// 이 유량 배율에서 한 줄에 나란히 내보낼 입자 수. 최대 기울기에서도 분사 속도가 maxExitSpeed를 넘지 않을 만큼 늘린다.
+    /// 기울기와 무관하게 정해 따르는 도중 줄기 굵기가 계단처럼 바뀌지 않는다. 푸어러가 분리될 때만 한 번 굵어진다.
     /// </summary>
+    int EmissionLanes(float flowMultiplier, float capacityScale)
+    {
+        float required = BaseLanes * flowMultiplier * capacityScale * exitSpeed / Mathf.Max(0.5f, maxExitSpeed);
+        return Mathf.Max(BaseLanes, Mathf.CeilToInt(required - 0.001f));
+    }
+
+    /// <summary>입자당 ml가 큰 잔(바이젠)은 같은 ml/s에서 입자가 덜 나온다. 그만큼 느리게 내보내 줄 간격을 맞춘다.</summary>
+    float CapacitySpeedScale => visualCapacityMl > 0f ? glassCapacityMl / visualCapacityMl : 1f;
+
+    /// <summary>
+    /// 통로 폭은 파티클 간격이 정한다. 병 모양보다 먼저 잡아야 실루엣이 같은 폭으로 그려진다.
+    /// 유량이 커서 줄이 늘면 줄 간격은 그대로 두고 줄기만 이 폭보다 넓어진다.
+    /// </summary>
+    void ConfigureNeck()
+    {
+        float scaleX = Mathf.Max(Mathf.Abs(bottle.BottleVisual.lossyScale.x), 0.0001f);
+        neckHalfWidth = Spacing * neckWidthInParticles * 0.5f / scaleX;
+    }
+
+    /// <summary>
+    /// 공중 물줄기를 그리는 굵기와 늘림을 지금 출수에 맞춘다(렌더 전용, 물리와 수량에는 영향 없음).
+    /// 굵기: 줄 수가 늘면 줄기 폭은 이미 넓어졌으므로 입자 하나하나는 그만큼 가늘게 그린다.
+    /// 늘림: 늘림은 느리게 나와 가속되며 사이가 벌어지는 줄기를 잇는 용도라, 처음부터 빠르게 나오는 줄기는
+    /// 그만큼 덜 늘린다. 그대로 두면 입자 꼬리가 입구 뒤로 뻗어 입구에서 터지듯 보인다.
+    /// 하한: 위 두 가지로 가늘게 그려도 입자 반지름이 줄 간격보다 작아지지 않게 해 한 줄기로 잇는다.
+    /// </summary>
+    void UpdateStreamShape()
+    {
+        float flowMultiplier = (pourer != null ? pourer.FlowMultiplier : 1f) * IngredientFlowMultiplier();
+        float capacityScale = CapacitySpeedScale;
+        int lanes = EmissionLanes(flowMultiplier, capacityScale);
+        liquidRenderer.SetAirborneWidthScale((pourer != null ? pourer.StreamWidthScale : 1f) * BaseLanes / lanes);
+        liquidRenderer.SetStreamMinCrossRadius(Spacing * neckWidthInParticles / BaseLanes * streamMinRadiusPerLane);
+        // 기본 술의 최대 분사 속도(exitSpeed)보다 빠르게 나올 때만 줄인다. 얕게 기울여 느리게 나오면 원래대로 늘린다.
+        float actualExit = exitSpeed * FlowRate01() * flowMultiplier * BaseLanes / lanes * capacityScale;
+        liquidRenderer.SetStreamStretchScale(actualExit > exitSpeed ? exitSpeed / actualExit : 1f);
+    }
+
+    void ConfigureVolume()
+    {
+        visualCapacityMl = Mathf.Max(1f,craftContext.GlassId == "weizen" ? mugCapacityMl : glassCapacityMl);
+        Vector3 scale = glassCenter.lossyScale;
+        float area = 4f * Mathf.Abs(glassInteriorHalfExtents.x * scale.x * glassInteriorHalfExtents.y * scale.y);
+        particleVolumeMl = visualCapacityMl * Spacing * Spacing * particleAreaScale / Mathf.Max(0.0001f,area);
+    }
+
+    /// <summary>지금 기울기의 유량(0=안 나옴, 1=최대).</summary>
     float FlowRate01()
     {
         float fullOpen = Mathf.Max(pourFullOpenAngle, pourStartAngle + 0.01f);
@@ -318,31 +481,37 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
 
     /// <summary>
-    /// 입구에서 액체를 뿜는다. 방출 간격을 속도에서 유도하는 게 핵심이다 — 간격을 고정값으로 두면
-    /// 유량이 늘 때 파티클이 겹쳐 뭉치거나, 반대로 벌어져 알갱이로 끊어진다.
-    /// "파티클이 spacing만큼 이동할 때마다 한 줄"이라야 줄기가 굵기를 유지한 채 이어진다.
+    /// 입구에서 액체를 뿜는다. 실제 기믹은 표시 용량에 맞춘 ml/입자로 방출량을 정한다.
+    /// 독립 실행에서는 기존의 spacing/속도 간격을 유지한다.
     /// </summary>
     void EmitFromNeck(float dt)
     {
+        if (!IsManualInputActive || audioCancelled) return;
         float flow01 = FlowRate01();
+        float flowMultiplier = (pourer != null ? pourer.FlowMultiplier : 1f) * IngredientFlowMultiplier();
+        float volumeRate = mlPerSecondAtFullFlow * flow01 * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f) * flowMultiplier;
 
-        // 투입량은 파티클 개수가 아니라 "얼마나 오래, 얼마나 세게 기울였는가"로 쌓는다.
-        // 파티클은 눈에 보이는 줄기일 뿐이라 프레임이나 물리 설정에 따라 개수가 흔들리는데,
-        // 방출률 × 시간은 그런 것에 흔들리지 않고 레시피의 oz 단위로 바로 환산된다.
-        // 이 함수가 물리와 같은 고정 시간축(fixedStep)에서 돌기 때문에 프레임이 튀어도 값이 안 변한다.
-        if (flow01 > 0f && (unlimitedLiquid || remainingInBottle > 0))
-            pouredMl += mlPerSecondAtFullFlow * flow01 * dt * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
-
-        if (flow01 <= 0f || (!unlimitedLiquid && remainingInBottle <= 0))
+        if (flow01 <= 0f || (drivenByRunner && volumeRate <= 0f) || (!unlimitedLiquid && remainingInBottle <= 0))
         {
             emitAccumulator = 0f;
             return;
         }
 
-        float speed = exitSpeed * flow01;
+        // 유량만 늘리면 같은 폭·속도의 출구에 입자가 겹쳐 밀도 보정이 두 줄기를 옆으로 벌린다.
+        // 늘어난 유량은 분사 속도가 받고, 속도가 maxExitSpeed에 닿으면 나머지는 줄 수(줄기 굵기)가 받는다.
+        // 줄 간격이 기본 줄 수·기본 잔과 같도록 속도를 맞춘다 — 줄이 늘면 그만큼 느리게, 입자당 ml가 큰 잔(바이젠)에서도
+        // 그만큼 느리게 내보낸다. 기본 술을 기본 잔에 따르면 보정이 모두 1이라 기존과 같다.
+        float capacityScale = CapacitySpeedScale;
+        int lanes = EmissionLanes(flowMultiplier, capacityScale);
+        float speed = exitSpeed * flow01 * flowMultiplier * BaseLanes / lanes * capacityScale;
         if (speed <= 0.001f) return;
+        Vector2 exitVelocity = ExitVelocity(speed, exitSpeed * flow01);
 
-        float interval = Spacing / speed;
+        // 잔 용량에 맞는 ml/입자를 사용한다. 입자당 용량은 분리 전후에 바꾸지 않는다.
+        // 독립 실행에서는 위에서 보정한 속도로 방출 간격을 정하므로 배율을 다시 곱하지 않는다.
+        float interval = drivenByRunner && volumeRate > 0f && particleVolumeMl > 0f
+            ? lanes * particleVolumeMl / volumeRate
+            : Spacing / speed;
 
         emitAccumulator += dt;
 
@@ -358,8 +527,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             // 한 프레임에 여러 줄이 나갈 때는 그 줄들이 원래 프레임 '중간중간'에 나갔어야 한다.
             // 전부 입구에 그대로 놓으면 같은 자리에 겹쳐 쌓여 밀도가 폭발하고, 압력이 사방으로
             // 튕겨낸다(입구에서 가끔 튀는 원인). 밀린 시간만큼 진행 방향으로 미리 보내주면
-            // 줄 간격이 정확히 spacing이 되어 그냥 이어진 줄기가 된다.
-            EmitRow(speed, emitAccumulator);
+            // 각 줄이 자신의 방출 시점에 맞는 간격을 유지한다.
+            EmitRow(exitVelocity, emitAccumulator, lanes);
             emitted++;
         }
 
@@ -368,39 +537,57 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
 
     /// <summary>
-    /// 입구 폭을 가로질러 한 줄 분량을 내보낸다. 줄기 굵기는 이 줄의 파티클 수가 정한다.
+    /// 입구를 떠나는 속도. 병목 방향으로는 일반 따르기와 같은 속도(regularSpeed)까지만 내보내고, 큰 유량 때문에 더
+    /// 필요한 속도는 아래쪽으로 더한다. 큰 유량을 전부 병목 방향으로 쏘면 줄기가 수평으로 멀리 날아가 맞은편 벽
+    /// 윗부분에 부딪히고, 거기서 튄 액체가 입구까지 물보라를 만든다. 크기는 speed 그대로라 줄 간격과 유량은 같다.
+    /// </summary>
+    Vector2 ExitVelocity(float speed, float regularSpeed)
+    {
+        Vector2 outward = bottle.BottleVisual.up;
+        float along = Mathf.Min(speed, regularSpeed);
+        if (speed <= along + 0.0001f) return outward * speed;
+        // |outward × along + down × extra| = speed 를 만족하는 extra(≥ 0).
+        float c = Vector2.Dot(outward, Vector2.down);
+        float extra = -along * c + Mathf.Sqrt(Mathf.Max(0f, along * along * (c * c - 1f) + speed * speed));
+        return outward * along + Vector2.down * extra;
+    }
+
+    /// <summary>
+    /// 입구에서 진행 방향에 수직으로 한 줄 분량을 내보낸다. 줄기 굵기는 이 줄의 파티클 수가 정한다.
     /// age는 이 줄이 원래 나갔어야 할 시점부터 지금까지의 시간이다(0이면 지금 막 나간 줄).
     /// </summary>
-    void EmitRow(float speed, float age)
+    void EmitRow(Vector2 exitVelocity, float age, int lanes)
     {
         Transform container = bottle.BottleVisual;
+        float speed = exitVelocity.magnitude;
+        Vector2 direction = exitVelocity / Mathf.Max(0.0001f, speed);
+        Vector2 across = new Vector2(-direction.y, direction.x);
 
-        int lanes = Mathf.Max(1, Mathf.FloorToInt(neckWidthInParticles));
-        float laneStep = neckHalfWidth * 2f / lanes;
+        // 줄 간격은 기본 병목 기준으로 고정한다. 줄이 늘면 줄기가 그만큼 넓어진다.
+        float laneStep = Spacing * neckWidthInParticles / BaseLanes;
 
-        // 입구는 병 로컬 +Y 끝이고, 액체는 그 바깥을 향해 나간다.
-        Vector2 outward = container.up;
+        // 입구는 병 로컬 +Y 끝이다.
+        Vector2 mouth = container.TransformPoint(new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
 
         // 밀린 시간만큼 미리 날아간 상태로 놓는다. 위치뿐 아니라 속도도 그동안 중력을 받았어야
         // 맞다 — 위치만 옮기고 속도를 그대로 두면 뒤따르는 줄과 속도가 어긋나 그 지점에서 뭉친다.
-        Vector2 headStart = outward * (speed * age);
+        Vector2 headStart = exitVelocity * age;
         Vector2 gravityGain = Vector2.down * (Physics.gravity * age);
 
         for (int i = 0; i < lanes; i++)
         {
             if ((!unlimitedLiquid && remainingInBottle <= 0) || pool.Count == 0) return;
 
-            float localX = (i - (lanes - 1) * 0.5f) * laneStep;
+            float offset = (i - (lanes - 1) * 0.5f) * laneStep;
 
             // 격자처럼 딱 떨어지면 줄기가 기계적으로 보인다. 아주 조금 흔들어준다.
             float jitter = Random.Range(-0.15f, 0.15f) * laneStep;
 
-            Vector3 localPos = new Vector3(localX + jitter, bottleInteriorHalfExtents.y, 0f);
-            Vector2 worldPos = (Vector2)container.TransformPoint(localPos) + headStart;
+            Vector2 worldPos = mouth + across * (offset + jitter) + headStart;
 
             SphParticle particle = pool.Pop();
             particle.Activate(worldPos);
-            particle.velocity = outward * speed + gravityGain;
+            particle.velocity = exitVelocity + gravityGain;
 
             simulation.Register(particle);
             live.Add(particle);
@@ -411,19 +598,43 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void Update()
     {
+        pourer?.Tick(Time.deltaTime);
+        if (IsManualInputActive && !audioCancelled && audioFocused && !audioPaused && Time.deltaTime > 0f)
+            pourer?.TryDetach();
+        UpdateStreamShape();
+        if (IsTimeCounting) standaloneTimer?.Tick(Time.deltaTime);
         // 물리는 판정이 끝난 뒤에도 계속 돌린다. 여기서 멈춰버리면 공중에 있던 액체가 그대로 얼어붙어
         // 물리 버그처럼 보인다 — 판정만 멈추고 액체는 잔으로 마저 떨어지게 둔다.
         // 방출은 StepSimulation 안에서 물리와 같은 시간축으로 돈다(아래 주석 참고).
         StepSimulation();
         liquidRenderer.UpdateBlobs(simulation.ActiveParticles);
 
+        bool flowing = IsManualInputActive && !audioCancelled && audioFocused && !audioPaused &&
+            Time.deltaTime > 0f && bottle != null && FlowRate01() > 0f &&
+            (unlimitedLiquid || remainingInBottle > 0);
+        if (flowing)
+        {
+            if (pourSound == null)
+            {
+                using (AudioMarker.Auto()) pourSound = loopSound.StartLoop("SFX_pour");
+            }
+            pourSound?.SetGain(GameAudioRules.PourGain(FlowRate01()));
+        }
+        else StopPourSound();
+
         if (!isPlay) return;
 
-        glassParticleCount = CountParticlesInGlass();
+        if (finishRequested)
+        {
+            TryCompletePour();
+            return;
+        }
 
         // 기믹 큐가 돌릴 때는 목표를 넘겨도 저절로 끝나지 않는다. 초과한 양까지 결과에 담고,
         // 끝내는 시점은 플레이어가 정한다 — 목표 도달은 알려 주기만 하는 신호다.
-        if (!drivenByRunner && glassParticleCount > targetParticleCount + toleranceCount)
+        // 종료 버튼을 쓰는 전용 HUD에서는 독립 실행도 수동으로 확정한다.
+        // 전용 HUD가 없던 기존 개발 경로만 초과 수량 자동 종료를 유지한다.
+        if (!drivenByRunner && gimmickHud == null && glassParticleCount > targetParticleCount + toleranceCount)
             FinishPour();
     }
 
@@ -445,11 +656,19 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         simulationAccumulator += Time.deltaTime;
 
         int steps = 0;
+        glassBoundary = new SphContainerBoundary(glassCenter, glassInteriorHalfExtents, Spacing * 0.5f);
         while (simulationAccumulator >= fixedStep && steps < maxStepsPerFrame)
         {
             EmitFromNeck(fixedStep);
-            simulation.Tick(fixedStep);
-            ConstrainParticles();
+            using (SimulationMarker.Auto()) simulation.Tick(fixedStep);
+            RecycleSpilledParticles();
+            // 120Hz 물리 중 두 스텝마다 측정한다. 이웃 탐색을 새로 하지 않고 SPH 목록을 재사용한다.
+            if (++volumeStep >= 2)
+            {
+                volumeStep = 0;
+                MeasureRetainedVolume();
+            }
+            if (finishRequested) finishSettleElapsed += fixedStep;
 
             simulationAccumulator -= fixedStep;
             steps++;
@@ -461,10 +680,10 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     }
 
     /// <summary>
-    /// 살아있는 파티클을 잔 안쪽으로 가두고, 잔을 빗나가 떨어진 것은 치운다.
-    /// 병에는 가둘 액체가 없으므로 병 벽 처리도 없다 — 파티클은 입구를 떠난 순간부터 자유낙하다.
+    /// 잔을 빗나가 무대 아래로 떨어진 입자를 풀로 돌려보낸다.
+    /// 잔 경계는 시뮬레이션의 이동/밀도 보정 안에서 처리한다.
     /// </summary>
-    void ConstrainParticles()
+    void RecycleSpilledParticles()
     {
         for (int i = live.Count - 1; i >= 0; i--)
         {
@@ -480,64 +699,12 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
                 live.RemoveAt(i);
                 continue;
             }
-
-            ConstrainToGlass(p);
         }
     }
 
     void ConstrainToGlass(SphParticle particle)
     {
-        const float gateBuffer = 0.1f;
-
-        Transform container = glassCenter;
-        Vector2 halfExtents = glassInteriorHalfExtents;
-
-        // 잔은 회전하지 않으므로, 멀리 있으면(=아직 낙하 중) 그냥 건드리지 않는다.
-        Vector2 worldHalfExtents = Vector2.Scale(halfExtents, container.lossyScale);
-        float gateRadius = worldHalfExtents.magnitude + gateBuffer;
-
-        if (Vector2.Distance(particle.pos, container.position) > gateRadius)
-            return;
-
-        Vector3 local = container.InverseTransformPoint(particle.pos);
-        ApplyClamp(particle, container, local, halfExtents.x, halfExtents.y);
-    }
-
-    /// <summary>local 좌표를 컨테이너의 좌/우/바닥 안으로 클램프하고(위는 절대 안 막음), 벽을
-    /// 뚫고 나가려던 속도 성분만 제거한다.</summary>
-    static void ApplyClamp(SphParticle particle, Transform container, Vector3 local, float halfWidth, float halfHeight)
-    {
-        // 입구보다 위에 있으면 아직 컨테이너 안이 아니다. 이때 좌우로 끌어당기면 잔 옆으로 빗나가야 할
-        // 액체까지 잔 위로 빨려들어간다 — 벽 사이 높이에 들어온 뒤에만 좌우를 막는다.
-        if (local.y > halfHeight) return;
-
-        float clampedX = Mathf.Clamp(local.x, -halfWidth, halfWidth);
-        float clampedY = Mathf.Max(local.y, -halfHeight);
-
-        bool hitSide = !Mathf.Approximately(clampedX, local.x);
-        bool hitFloor = !Mathf.Approximately(clampedY, local.y);
-
-        if (!hitSide && !hitFloor) return;
-
-        Vector3 correctedWorld = container.TransformPoint(new Vector3(clampedX, clampedY, local.z));
-        particle.pos = correctedWorld;
-        particle.transform.position = correctedWorld;
-
-        Vector2 localXAxis = container.right;
-        Vector2 localYAxis = container.up;
-
-        if (hitSide)
-        {
-            float velAlongX = Vector2.Dot(particle.velocity, localXAxis);
-            particle.velocity -= velAlongX * localXAxis;
-        }
-
-        if (hitFloor)
-        {
-            float velAlongY = Vector2.Dot(particle.velocity, localYAxis);
-            if (velAlongY < 0f)
-                particle.velocity -= velAlongY * localYAxis;
-        }
+        glassBoundary.Constrain(particle);
     }
 
     // ── 병 모양 (그리기 전용) ───────────────────────────────────────────
@@ -553,27 +720,31 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── 판정 ────────────────────────────────────────────────────────────
 
-    int CountParticlesInGlass()
+    void MeasureRetainedVolume()
     {
-        int count = 0;
-
-        foreach (var p in live)
+        using (VolumeMarker.Auto())
         {
-            Vector3 local = glassCenter.InverseTransformPoint(p.pos);
-            if (Mathf.Abs(local.x) <= glassInteriorHalfExtents.x && Mathf.Abs(local.y) <= glassInteriorHalfExtents.y)
-                count++;
+            volumeTracker.Measure(simulation.ActiveParticles, glassBoundary, Spacing);
+            glassParticleCount = volumeTracker.ReceivedCount;
+            pouredMl = glassParticleCount * particleVolumeMl;
         }
-
-        return count;
     }
 
     /// <summary>플레이어가 스스로 따르기를 멈추고 결과를 확정할 때(별도 UI 버튼 등에서) 호출.</summary>
     public void FinishPour()
     {
-        if (!isPlay || isFinished) return;
+        if (!IsManualInputActive) return;
+        finishRequested = true;
+        finishSettleElapsed = 0f;
+        bottle.EndDrag();
+        StopPourSound();
+    }
 
+    void CompletePour()
+    {
         isFinished = true;
         isPlay = false;
+        StopPourSound();
 
         CompleteMade();
 
@@ -586,6 +757,15 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             Logger.Log($"[Pour] 판정 종료. 잔에 담긴 파티클 {glassParticleCount} / 목표 {targetParticleCount}(±{toleranceCount})");
             OnNextButton();
         }
+    }
+
+    void TryCompletePour()
+    {
+        if (!finishRequested || isFinished) return;
+        if (finishSettleElapsed < finishSettleSeconds &&
+            (finishSettleElapsed < 0.12f || volumeTracker.PendingCount > 0)) return;
+        MeasureRetainedVolume();
+        CompletePour();
     }
 
     Color GetLiquidColor()
@@ -649,7 +829,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     public void OnNextButton()
     {
-        buttonCanvas.gameObject.SetActive(true);
+        if (gimmickHud == null && buttonCanvas != null) buttonCanvas.gameObject.SetActive(true);
     }
 
     public void Serve()
@@ -677,11 +857,14 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>기울기를 끝까지 눕혔을 때의 방출률(ml/초). balance.json에서 읽는다.</summary>
     float mlPerSecondAtFullFlow;
 
-    /// <summary>지금까지 병에서 나온 양(ml). 기울인 세기 × 시간으로 쌓인다.</summary>
+    /// <summary>실제로 도착해 잔 안에 남아 있는 입자의 총 용량(ml).</summary>
     float pouredMl;
 
-    /// <summary>지금까지 따른 양을 이 기믹의 목표 단위로 환산한 값. 화면에 보여줄 수치다.</summary>
+    /// <summary>결과 기록과 목표 도달 판정에 사용할, 목표 단위로 환산한 투입량.</summary>
     public float PouredInTargetUnit => ConvertMlTo(pouredMl, pourStep.TargetUnit ?? ENewUnit.Ml);
+
+    /// <summary>병을 잡아 조작 중인지. 놓은 뒤의 복귀 회전이나 남은 물줄기와 구분한다.</summary>
+    public bool IsPourInputHeld => IsManualInputActive && bottle != null && bottle.IsDragging;
 
     /// <summary>
     /// 이번 제조 시도의 사정(고른 잔·도구·재료). 실행기가 PlayAsync로 넘겨준다.
@@ -723,14 +906,23 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     private void CancelRunnerCompletion()
     {
+        audioCancelled = true;
+        pourer?.ResetState();
+        StopPourSound();
         runnerCompletion?.TrySetCanceled();
     }
 
+    void StopPourSound() { pourSound?.Dispose(); pourSound = null; }
+    void OnDisable() { StopPourSound(); pourer?.ResetState(); }
+    void OnApplicationFocus(bool focus) { audioFocused = focus; if (!focus) StopPourSound(); }
+    void OnApplicationPause(bool pause) { audioPaused = pause; if (pause) StopPourSound(); }
+
     bool ApplyIngredientBottle()
     {
+        if (ingredientBottle != null) ingredientBottle.gameObject.SetActive(false);
         if ((!drivenByRunner && !useTestBottleId) || bottle == null || bottle.BottleVisual == null) return false;
         string bottleId = useTestBottleId ? testBottleId : pourIngredientId;
-        Sprite sprite = bottleVisuals != null ? bottleVisuals.GetIngredientSprite(bottleId) : null;
+        Sprite sprite = bottleVisuals != null ? bottleVisuals.GetPourBottleSprite(bottleId) : null;
         if (sprite == null)
         {
             Debug.LogWarning($"[Pour] 재료 '{bottleId}'의 병 스프라이트가 없습니다. 기본 병을 사용합니다.", this);
@@ -738,11 +930,14 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
 
         Transform parent = bottle.BottleVisual;
-        var visual = new GameObject("Ingredient Bottle", typeof(SpriteRenderer));
-        visual.transform.SetParent(parent, false);
-        var renderer = visual.GetComponent<SpriteRenderer>();
-        renderer.sprite = sprite;
-        renderer.sortingOrder = 10;
+        if (ingredientBottle == null)
+        {
+            Debug.LogError("[Pour] 프리팹의 Ingredient Bottle 렌더러를 연결해 주세요.", this);
+            return false;
+        }
+        Transform visual = ingredientBottle.transform;
+        ingredientBottle.sprite = sprite;
+        ingredientBottle.gameObject.SetActive(true);
 
         // 서로 다른 PPU와 피벗을 가진 병도 기존 입구 위치에 맞춘다.
         Vector3 size = sprite.bounds.size;
@@ -753,8 +948,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             bottleInteriorHalfExtents.x * 2f * sx / Mathf.Max(0.0001f, size.x),
             bottleInteriorHalfExtents.y * 2f * sy / Mathf.Max(0.0001f, size.y));
         Vector3 scale = new Vector3(worldScale / sx, worldScale / sy, 1f);
-        visual.transform.localScale = scale;
-        visual.transform.localPosition = new Vector3(
+        visual.localScale = scale;
+        visual.localPosition = new Vector3(
             -sprite.bounds.center.x * scale.x,
             bottleInteriorHalfExtents.y - sprite.bounds.max.y * scale.y, 0f);
         return true;
@@ -762,109 +957,58 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     void CreateTargetHeightMarker()
     {
+        if (targetHeightMarker == null) return;
+        targetHeightMarker.gameObject.SetActive(false);
         if (!showTargetHeight || glassCenter == null ||
             (drivenByRunner && !pourStep.IsTargetVisible)) return;
 
-        float targetParticles = targetParticleCount;
+        targetMarkerParticles = targetParticleCount;
         if (drivenByRunner)
         {
             float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
             float targetMl = pourStep.TargetValue.Value / Mathf.Max(0.0001f, mlPerUnit);
-            float particlesPerSecond = exitSpeed / Mathf.Max(0.0001f, Spacing) *
-                Mathf.Max(1, Mathf.FloorToInt(neckWidthInParticles));
-            float quantityPerSecond = mlPerSecondAtFullFlow * Mathf.Clamp(quantityAccumulateMultiplier, 0.01f, 1f);
-            if (quantityPerSecond <= 0f) return;
-            targetParticles = targetMl * particlesPerSecond / quantityPerSecond;
+            if (particleVolumeMl <= 0f) return;
+            targetMarkerParticles = targetMl / particleVolumeMl;
         }
 
-        // 2D 액체에서 파티클 한 개의 면적을 spacing²로 추정한다.
-        Vector3 glassScale = glassCenter.lossyScale;
-        float width = 2f * glassInteriorHalfExtents.x * Mathf.Abs(glassScale.x);
-        float worldHeight = targetParticles * Spacing * Spacing * targetHeightScale / Mathf.Max(0.0001f, width);
-        float localHeight = worldHeight / Mathf.Max(0.0001f, Mathf.Abs(glassScale.y));
-        float y = -glassInteriorHalfExtents.y + localHeight;
-        if (y > glassInteriorHalfExtents.y)
+        if (targetMarkerParticles * particleVolumeMl > visualCapacityMl)
             Debug.LogWarning("[Pour] 목표량의 예상 높이가 잔보다 높습니다. 목표선은 잔 상단에 표시합니다.", this);
-        float offsetDown = targetHeightOffsetDown + TargetQuantityHeightCorrection();
-        y = Mathf.Clamp(y - offsetDown, -glassInteriorHalfExtents.y, glassInteriorHalfExtents.y);
 
-        var marker = new GameObject("Target Liquid Height", typeof(MeshFilter), typeof(MeshRenderer));
-        marker.transform.SetParent(glassCenter, false);
-        marker.transform.localPosition = new Vector3(glassInteriorHalfExtents.x + targetMarkerGap, y, 0f);
-        targetHeightMesh = new Mesh { name = "Target Height Marker" };
-        var vertices = new List<Vector3> {
-            Vector3.zero,
-            new Vector3(targetMarkerSize, targetMarkerSize * 0.5f, 0f),
-            new Vector3(targetMarkerSize, -targetMarkerSize * 0.5f, 0f)
-        };
-        var triangles = new List<int> { 0, 1, 2 };
-        if (showTargetHeightDashedLine)
-        {
-            float originX = glassInteriorHalfExtents.x + targetMarkerGap;
-            float dashLength = Mathf.Max(0.001f, targetDashLength);
-            float step = dashLength + Mathf.Max(0.001f, targetDashGap);
-            float halfThickness = Mathf.Max(0.001f, targetDashThickness) * 0.5f;
-            for (float x = -glassInteriorHalfExtents.x; x < glassInteriorHalfExtents.x; x += step)
-            {
-                float left = x - originX;
-                float right = Mathf.Min(x + dashLength, glassInteriorHalfExtents.x) - originX;
-                int index = vertices.Count;
-                vertices.Add(new Vector3(left, -halfThickness, 0f));
-                vertices.Add(new Vector3(left, halfThickness, 0f));
-                vertices.Add(new Vector3(right, halfThickness, 0f));
-                vertices.Add(new Vector3(right, -halfThickness, 0f));
-                triangles.AddRange(new[] { index, index + 1, index + 2, index, index + 2, index + 3 });
-            }
-        }
-        targetHeightMesh.SetVertices(vertices);
-        targetHeightMesh.SetTriangles(triangles, 0);
-        Color markerColor = GetLiquidColor();
-        markerColor.a = 1f;
-        var colors = new List<Color>(vertices.Count);
-        var uv = new List<Vector2>(vertices.Count);
-        for (int i = 0; i < vertices.Count; i++)
-        {
-            colors.Add(markerColor);
-            uv.Add(Vector2.zero);
-        }
-        targetHeightMesh.SetColors(colors);
-        targetHeightMesh.SetUVs(0, uv);
-        targetHeightMesh.RecalculateBounds();
-        marker.GetComponent<MeshFilter>().sharedMesh = targetHeightMesh;
-        var renderer = marker.GetComponent<MeshRenderer>();
-        targetHeightMaterial = new Material(Shader.Find("Sprites/Default"));
-        renderer.sharedMaterial = targetHeightMaterial;
-        SpriteRenderer glassRenderer = glassCenter.GetComponent<SpriteRenderer>();
-        if (glassRenderer != null) renderer.sortingLayerID = glassRenderer.sortingLayerID;
-        renderer.sortingOrder = glassRenderer != null ? glassRenderer.sortingOrder + 1 : 20;
+        // 숫자에 따른 높이만 한 번 적용한다. 화살표·점선의 배치는 자식 오브젝트에 저장된다.
+        Vector3 position = targetHeightMarker.localPosition;
+        position.y = CalculateTargetHeight();
+        targetHeightMarker.localPosition = position;
+        targetHeightMarker.gameObject.SetActive(true);
     }
 
-    float TargetQuantityHeightCorrection()
+    float CalculateTargetHeight()
     {
-        if (!useTargetQuantityHeightCorrection || !drivenByRunner || !pourStep.HasTarget) return 0f;
-        // ml/tsp 레시피도 같은 용량이면 같은 보정을 사용하도록 oz로 환산한다.
-        float unitsPerMl = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
-        float targetMl = pourStep.TargetValue.Value / Mathf.Max(0.0001f, unitsPerMl);
-        float targetOz = ConvertMlTo(targetMl, ENewUnit.Oz);
-        float ratio = Mathf.InverseLerp(targetHeightCorrectionAmountsOz.x, targetHeightCorrectionAmountsOz.y, targetOz);
-        return Mathf.Max(0f, Mathf.Lerp(targetHeightCorrectionOffsets.x, targetHeightCorrectionOffsets.y, ratio));
+        float fillRatio = targetMarkerParticles * particleVolumeMl / Mathf.Max(1f, visualCapacityMl);
+        float heightRatio = liquidProfile.TargetHeightRatio(fillRatio);
+        return Mathf.Clamp(-glassInteriorHalfExtents.y + glassInteriorHalfExtents.y * 2f * heightRatio,
+            -glassInteriorHalfExtents.y, glassInteriorHalfExtents.y);
     }
 
     void OnDestroy()
     {
-        if (targetHeightMesh != null) Destroy(targetHeightMesh);
-        if (targetHeightMaterial != null) Destroy(targetHeightMaterial);
+        StopPourSound();
     }
 
     /// <summary>
     /// 병을 기울일 수 있는 동안. 따르기는 시작 대기나 연출 구간이 없어서 화면에 떠 있는 내내 해당한다.
     /// </summary>
-    public bool IsManualInputActive => isPlay && !isFinished;
+    public bool IsManualInputActive => isPlay && !isFinished && !finishRequested;
+
+    /// <summary>첫 병 조작부터 종료 요청까지 센다. 내려놓거나 복귀하는 중에도 계속 흐른다.</summary>
+    public bool IsTimeCounting => IsManualInputActive && bottle != null && bottle.HasBeenManipulated;
 
     // ── ICraftGimmickProgress ───────────────────────────────────────────
 
+    float DisplayedPouredMl => Mathf.Min(pouredMl,
+        Mathf.Max(0f, craftContext.GlassId == "weizen" ? mugReadoutLimitMl : glassReadoutLimitMl));
+
     /// <summary>
-    /// 지금까지 따른 양과 목표.
+    /// 지금까지 따른 양과 목표를 ml로 표시한다.
     ///
     /// 정답에 없는 재료를 골랐다면 알려 줄 정답이 없으므로 양쪽을 다 가린다. 가리는 건 화면뿐이고
     /// 실제 투입량은 그대로 쌓여 결과에 남는다 — 나중에 추가 재료로 판정할 때 그 값이 필요하다.
@@ -877,10 +1021,39 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
             if (!pourStep.IsTargetVisible) return "??? / ???";
 
-            string unit = (pourStep.TargetUnit ?? ENewUnit.Ml).ToString().ToLowerInvariant();
-            return $"{PouredInTargetUnit:0.00} / {pourStep.TargetValue.Value:0.00} {unit}";
+            float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
+            float targetMl = pourStep.TargetValue.Value / mlPerUnit;
+            return $"{DisplayedPouredMl:0.00} / {targetMl:0.00} ml";
         }
     }
+
+    string DisplayUnit => pourStep.TargetUnit == ENewUnit.Oz ? "oz" : "ml";
+    public string TargetValueText => !drivenByRunner
+        ? (targetParticleCount * particleVolumeMl).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " ml"
+        : pourStep.IsTargetVisible
+            ? pourStep.TargetValue.Value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
+            : "???";
+    public string CurrentValueText => !drivenByRunner || pourStep.IsTargetVisible
+        ? ConvertMlTo(DisplayedPouredMl, pourStep.TargetUnit ?? ENewUnit.Ml)
+            .ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " " + DisplayUnit
+        : "???";
+    public string IngredientName
+    {
+        get
+        {
+            string ingredientId = drivenByRunner ? pourIngredientId : useTestBottleId ? testBottleId : pourIngredientId;
+            if (string.IsNullOrEmpty(ingredientId) || shelfData == null || !shelfData.TryGet(ingredientId, out var item))
+                return ingredientId ?? string.Empty;
+            bool english = GameStateManager.Instance != null && GameStateManager.Instance.Language == ELanguage.En;
+            return english && !string.IsNullOrEmpty(item.Name.En) ? item.Name.En : item.Name.Ko;
+        }
+    }
+    public float TiltRatio => bottle != null ? Mathf.Clamp01(Mathf.Abs(bottle.CurrentAngle) / Mathf.Max(1f, bottle.MaxTiltAngle)) : 0f;
+    public float FlowStartRatio => bottle != null ? Mathf.Clamp01(pourStartAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 0f;
+    // 전용 푸어러가 있으면 빨간 범위는 분리 위험 각도만 나타낸다. 분리 후에는 위험 범위를 지운다.
+    public float FullFlowRatio => pourer != null && bottle != null
+        ? pourer.IsAttached ? Mathf.Clamp01(pourer.DetachAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f
+        : bottle != null ? Mathf.Clamp01(pourFullOpenAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f;
 
     /// <summary>
     /// 목표에 도달했는지. 도달해도 저절로 멈추지 않고, 넘겨서 계속 따라도 켜진 채로 있다.
@@ -891,12 +1064,12 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
     // ── ICraftGimmickManualEnd ──────────────────────────────────────────
 
-    public bool CanEndNow => isPlay && !isFinished;
+    public bool CanEndNow => IsTimeCounting && bottle.IsAtRest;
 
-    /// <summary>지금까지 따른 양으로 확정한다. 모자라든 넘치든 그 시점 값이 결과다.</summary>
+    /// <summary>출수를 막고 남은 물줄기를 정리한 다음 실제 담긴 양으로 확정한다.</summary>
     public void EndNow()
     {
-        FinishPour();
+        if (CanEndNow) FinishPour();
     }
 
     /// <summary>방출률을 balance.json에서 읽는다. 값이 없으면 액체가 나와도 수량이 안 쌓이므로 알린다.</summary>

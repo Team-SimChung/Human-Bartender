@@ -21,6 +21,7 @@ public class InGameLifetimeScope : LifetimeScope
             .As<ICharacterSetter>()
             .As<IDialogueFader>();
         builder.RegisterComponentInHierarchy<UIDialogueTextView>();
+        builder.RegisterComponentInHierarchy<UIDialogueChoiceView>();
         builder.RegisterComponentInHierarchy<VerticalCameraImpulse>().As<ICameraImpulse>();
         builder.RegisterEntryPoint<DialogueCameraFeedback>(Lifetime.Scoped);
 
@@ -30,9 +31,11 @@ public class InGameLifetimeScope : LifetimeScope
         // 트리거 매니저와 커맨드도 걷어냈다. 그것을 부르는 데이터(triggers)가 한 건도 남지 않았다.
 
         builder.RegisterComponentInHierarchy<PlayPhaseController>();
+        builder.RegisterComponentInHierarchy<ProfileScreen>();
 
         // 2부 대본 국면. [Inject]로 플레이어 데이터와 사운드를 받는다.
         builder.RegisterComponentInHierarchy<StoryFlow>();
+        builder.RegisterComponentInHierarchy<StoryScriptRunner>();
 
         // 2부 화면. 자리 수에 맞춰 화면을 잡아야 해서 카메라를 [Inject]로 받는다(2부 명세 §10.1.1).
         // StoryFlow가 인스펙터로 꽂아 두는 것과 같은 객체다 — 여기서는 주입만 걸어 준다.
@@ -42,7 +45,11 @@ public class InGameLifetimeScope : LifetimeScope
         // 실행기가 IObjectResolver를 받을 수 있도록 스코프에 올린다.
         builder.RegisterComponentInHierarchy<GimmickRunner>();
         builder.RegisterComponentInHierarchy<CraftFlowController>();
+        builder.RegisterComponentInHierarchy<CraftPrepStageHost>();
         builder.Register<DailySales>(Lifetime.Scoped);
+        builder.Register<OrderPaymentService>(Lifetime.Scoped).As<IOrderPaymentService>();
+        builder.Register<DaySettlementService>(Lifetime.Scoped);
+        builder.Register<BarSessionCheckpoint>(Lifetime.Scoped);
         builder.RegisterComponentInHierarchy<OrderRequestController>();
 
         // 손님 주문 세션이 끝날 때 확정된 매출을 프로젝트 전역 PlayerData에 반영한다.

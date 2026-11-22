@@ -1,0 +1,1703 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6160569744514413019
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uADF8\uB9AC\uACE0 \uC804\uBD80\uD130 \uC774 \uB9D0\uC744 \uD558\uACE0 \uC2F6\uC5C8\uC5B4."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 1
+  bubbleOffset: 70
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-5046753996416850888
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uADF8\uB807\uC9C0 \uC54A\uC544? \uC544\uB2C8\uB77C\uBA74 \uC778\uAC04\uB4E4\uC740
+    \uC804\uBD80 \uC8FD\uC5C8\uC5B4\uC57C\uACA0\uC9C0."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 1
+  bubbleOffset: 70
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-4163208287420899890
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 3
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 4
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-523479031248983919
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uADF8\uB7EC\uB2C8\uAE4C... \uD3EC\uAE30\uD558\uC9C0 \uB9D0\uC544 \uC918,
+    \uB8E8\uB098."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 1
+  bubbleOffset: 70
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &-205660147062176337
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 2100000, guid: f999f5c24ca7c461ca4d28fc545d8280, type: 2}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 3
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 4
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfda56da833e2384a9677cd3c976a436, type: 3}
+  m_Name: tl_intro
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.TimelineAsset
+  m_Version: 0
+  m_Tracks:
+  - {fileID: 5913872668908251736}
+  - {fileID: 9047751284707514603}
+  - {fileID: 5417308357613099039}
+  - {fileID: 2945747705537415203}
+  m_FixedDuration: 9.973
+  m_EditorSettings:
+    m_Framerate: 30
+    m_ScenePreview: 1
+  m_DurationMode: 1
+  m_MarkerTrack: {fileID: 0}
+--- !u!114 &1666046980951662305
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uBC14\uB85C \u25A0\u25A0\u25A0\u25A0\u25A0\uB97C \uB9D0\uC774\uC57C."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 1
+  bubbleOffset: 70
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &1699339565387563278
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uADF8\uB798\uC11C \uB09C \uAE30\uC801\uC744 \uBBFF\uC5B4 \uBCF4\uAE30\uB85C
+    \uD588\uC5B4."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 28
+  waitForInput: 1
+  bubbleOffset: 70
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &2945747705537415203
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uAE30\uC5B5 \uB178\uC774\uC988 \xB7 \uB9C8\uC9C0\uB9C9 \uB2E8\uC5B4\uC5D0\uC11C
+    \uC0C1\uC2B9"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 4.744
+    m_ClipIn: 0
+    m_Asset: {fileID: 4805817274338167380}
+    m_Duration: 5.229
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 2945747705537415203}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uAE30\uC5B5 \uB178\uC774\uC988 \xB7 \uB9C8\uC9C0\uB9C9 \uB2E8\uC5B4\uC5D0\uC11C
+      \uC0C1\uC2B9"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uAE30\uC5B5 \uB178\uC774\uC988 \xB7 \uB9C8\uC9C0\uB9C9 \uB2E8\uC5B4\uC5D0\uC11C
+    \uC0C1\uC2B9"
+  continueDuringWait: 1
+  studioTrackKind: 4
+  studioDisplayOrders: []
+--- !u!114 &4805817274338167380
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 0}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 4
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys:
+  - property: 7
+    keys:
+    - time: 0
+      value: 0.08
+    - time: 3.578
+      value: 0.12
+    - time: 4.428
+      value: 0.25
+    - time: 4.553
+      value: 0.35
+    - time: 4.678
+      value: 0.45
+    - time: 4.928
+      value: 0.55
+    - time: 5.053
+      value: 0.65
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "\uB300\uC0AC\uB97C \uC785\uB825\uD558\uC138\uC694."
+  font: {fileID: 0}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 22
+  waitForInput: 0
+  bubbleOffset: 140
+  bubbleScreenHeight: -185
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 8300000, guid: dbdac207a62ed475792caa1d81e30823, type: 3}
+  bus: 0
+  volume: 0.65
+  audioOffset: 0.8
+  fadeIn: 0
+  fadeOut: 0
+--- !u!114 &5417308357613099039
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uAE30\uC5B5 \uC2E0\uD638"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 4.744
+    m_ClipIn: 0
+    m_Asset: {fileID: -205660147062176337}
+    m_Duration: 5.229
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 5417308357613099039}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uAE30\uC5B5 \uC2E0\uD638"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uAE30\uC5B5 \uC2E0\uD638"
+  continueDuringWait: 1
+  studioTrackKind: 3
+  studioDisplayOrders: []
+--- !u!114 &5913872668908251736
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uB3C4\uC785 \xB7 2\uCD08\uAC04 \uAC80\uC740 \uD654\uBA74"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 0
+    m_ClipIn: 0
+    m_Asset: {fileID: -4163208287420899890}
+    m_Duration: 2
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 5913872668908251736}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "\uB3C4\uC785 \xB7 2\uCD08\uAC04 \uAC80\uC740 \uD654\uBA74"
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uB3C4\uC785 \xB7 2\uCD08\uAC04 \uAC80\uC740 \uD654\uBA74"
+  continueDuringWait: 1
+  studioTrackKind: 3
+  studioDisplayOrders: []
+--- !u!114 &6953657619504976686
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4719aa2fca661194e8440a0828817f20, type: 3}
+  m_Name: StudioClip
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioClip
+  screenMaterial: {fileID: 0}
+  speakerName: 
+  dialogueLengthMode: 0
+  typingAudioMode: 0
+  typingAudio:
+    Enabled: 0
+    Sound: {fileID: 0}
+    Volume: 1
+    MinimumInterval: 0.06
+    Whitespace: 0
+    Punctuation: 0
+    RepeatWhileWaiting: 0
+    WaitInterval: 0.25
+  dialoguePrefab: {fileID: 4598742471165506864, guid: 08adb4e8d223e4251a5c9a8a2a9a4842, type: 3}
+  hasDialogueSettingsBeforePrefab: 0
+  dialogueStyleBeforePrefab: 0
+  bubbleLayoutBeforePrefab: 0
+  dialogueFontBeforePrefab: {fileID: 0}
+  cameraTargetId: 
+  cameraFollowOffset: {x: 0, y: 0}
+  shakeSpeed: 1
+  shakeAmplitude: {x: 12, y: 12}
+  animationOffset: 0
+  animationSpeed: 1
+  backgroundDissolve: 0
+  kind: 2
+  actorId: 
+  from: {x: 0, y: 0}
+  to: {x: 0, y: 0}
+  scaleFrom: 1
+  scaleTo: 1
+  rotationFrom: 0
+  rotationTo: 0
+  opacityFrom: 1
+  opacityTo: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  holdEnd: 0
+  flipX: 0
+  frames: []
+  frameTimes: []
+  animationLength: 0
+  propertyKeys: []
+  backgroundSprite: {fileID: 0}
+  framesPerSecond: 12
+  loop: 1
+  text: "...\u25A0\u25A0\u25A0 \u25A0\u25A0."
+  font: {fileID: 11400000, guid: 08017e76388328b48aecd8069b267557, type: 2}
+  useDialogueStyle: 0
+  dialogueFontSize: 22
+  dialogueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueAlignment: 0
+  useBubbleLayout: 0
+  bubbleWidth: 620
+  bubblePadding: {x: 22, y: 12}
+  charactersPerSecond: 8
+  waitForInput: 0
+  bubbleOffset: 70
+  bubbleScreenHeight: 0
+  effect: 0
+  strength: 1
+  effectColor: {r: 0, g: 0, b: 0, a: 1}
+  sound: {fileID: 0}
+  bus: 0
+  volume: 0.7
+  audioOffset: 0
+  fadeIn: 0
+  fadeOut: 0.1
+--- !u!114 &9047751284707514603
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db6fee67e317b4a4b861ccc233bd54d1, type: 3}
+  m_Name: "\uB300\uC0AC"
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioTrack
+  m_Version: 3
+  m_AnimClip: {fileID: 0}
+  m_Locked: 0
+  m_Muted: 0
+  m_CustomPlayableFullTypename: 
+  m_Curves: {fileID: 0}
+  m_Parent: {fileID: 11400000}
+  m_Children: []
+  m_Clips:
+  - m_Version: 1
+    m_Start: 2
+    m_ClipIn: 0
+    m_Asset: {fileID: -5046753996416850888}
+    m_Duration: 1.68
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 9047751284707514603}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "02 \xB7 \uADF8\uB807\uC9C0 \uC54A\uC544? \uC544\uB2C8\uB77C\uBA74
+      \uC778\uAC04\uB4E4\uC740 \uC804\uBD80 \uC8FD\uC5C8\uC5B4\uC57C\uACA0\uC9C0."
+  - m_Version: 1
+    m_Start: 3.6799999999999997
+    m_ClipIn: 0
+    m_Asset: {fileID: 1699339565387563278}
+    m_Duration: 1.064
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 9047751284707514603}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "03 \xB7 \uADF8\uB798\uC11C \uB09C \uAE30\uC801\uC744 \uBBFF\uC5B4
+      \uBCF4\uAE30\uB85C \uD588\uC5B4."
+  - m_Version: 1
+    m_Start: 4.744
+    m_ClipIn: 0
+    m_Asset: {fileID: 1666046980951662305}
+    m_Duration: 0.85
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 9047751284707514603}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "04 \xB7 \uBC14\uB85C \u25A0\u25A0\u25A0\u25A0\u25A0\uB97C \uB9D0\uC774\uC57C."
+  - m_Version: 1
+    m_Start: 5.593999999999999
+    m_ClipIn: 0
+    m_Asset: {fileID: -523479031248983919}
+    m_Duration: 1.664
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 9047751284707514603}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "05 \xB7 \uADF8\uB7EC\uB2C8\uAE4C... \uD3EC\uAE30\uD558\uC9C0
+      \uB9D0\uC544 \uC918, \uB8E8\uB098."
+  - m_Version: 1
+    m_Start: 7.257999999999999
+    m_ClipIn: 0
+    m_Asset: {fileID: -6160569744514413019}
+    m_Duration: 1.064
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 9047751284707514603}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "06 \xB7 \uADF8\uB9AC\uACE0 \uC804\uBD80\uD130 \uC774 \uB9D0\uC744
+      \uD558\uACE0 \uC2F6\uC5C8\uC5B4."
+  - m_Version: 1
+    m_Start: 8.322
+    m_ClipIn: 0
+    m_Asset: {fileID: 6953657619504976686}
+    m_Duration: 1.651
+    m_TimeScale: 1
+    m_ParentTrack: {fileID: 9047751284707514603}
+    m_EaseInDuration: 0
+    m_EaseOutDuration: 0
+    m_BlendInDuration: 0
+    m_BlendOutDuration: 0
+    m_MixInCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_MixOutCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_BlendInCurveMode: 0
+    m_BlendOutCurveMode: 0
+    m_ExposedParameterNames: []
+    m_AnimationCurves: {fileID: 0}
+    m_Recordable: 0
+    m_PostExtrapolationMode: 0
+    m_PreExtrapolationMode: 0
+    m_PostExtrapolationTime: 0
+    m_PreExtrapolationTime: 0
+    m_DisplayName: "07 \xB7 ...\u25A0\u25A0\u25A0 \u25A0\u25A0."
+  m_Markers:
+    m_Objects: []
+  studioRowHeight: 56
+  studioDisplayName: "\uB300\uC0AC"
+  continueDuringWait: 0
+  studioTrackKind: 2
+  studioDisplayOrders: []

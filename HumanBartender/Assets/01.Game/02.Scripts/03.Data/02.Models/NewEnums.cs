@@ -22,6 +22,10 @@ public enum ENewStepType
     // street.json이 쓰는 값들. 없으면 그 파일 역직렬화가 통째로 끊긴다.
     [EnumMember(Value = "set_state")] SetState,
     [EnumMember(Value = "goto")] Goto,
+    [EnumMember(Value = "tutorial")] Tutorial,
+    [EnumMember(Value = "coaster")] Coaster,
+    [EnumMember(Value = "popup")] Popup,
+    [EnumMember(Value = "empty_glass")] EmptyGlass,
 }
 
 /// <summary>씬이 진행되는 하루 중 구간을 나타내는 열거형.</summary>
@@ -87,6 +91,7 @@ public enum ENewRecipeAction
     [EnumMember(Value = "squeeze")] Squeeze,
     [EnumMember(Value = "powder")] Powder,
     [EnumMember(Value = "fill_up")] FillUp,
+    [EnumMember(Value = "add")] Add,
 }
 
 /// <summary>
@@ -162,6 +167,7 @@ public enum ENewUnit
     [EnumMember(Value = "oz")] Oz,
     [EnumMember(Value = "tsp")] Tsp,
     [EnumMember(Value = "ml")] Ml,
+    [EnumMember(Value = "count")] Count,
 }
 
 /// <summary>선반 아이템의 종류(재료/잔/도구/가니시)를 나타내는 열거형.</summary>
@@ -186,6 +192,7 @@ public enum ENewIngredientCategory
     [EnumMember(Value = "mixer")] Mixer,
     [EnumMember(Value = "fruit")] Fruit,
     [EnumMember(Value = "powder")] Powder,
+    [EnumMember(Value = "sugar")] Sugar,
     [EnumMember(Value = "juice")] Juice,
     [EnumMember(Value = "liqueur")] Liqueur,
     [EnumMember(Value = "syrup")] Syrup,
@@ -286,6 +293,8 @@ public enum ENewAnimLoopMode
     [EnumMember(Value = "always_on_dialogue")] AlwaysOnDialogue,
     [EnumMember(Value = "special_on_dialogue")] SpecialOnDialogue,
     [EnumMember(Value = "on_dialogue")] OnDialogue,
+    /// <summary>이 표정에서 그 부위를 끈다. 기본 표정 부위로 물러서지 않는다(예: 삼호 취함은 몸통 그림에 얼굴이 함께 있어 눈·눈썹을 숨긴다).</summary>
+    [EnumMember(Value = "none")] None,
 }
 
 /// <summary>인물 정보(dossier) 항목의 분류를 나타내는 열거형.</summary>

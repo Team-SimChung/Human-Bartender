@@ -9,6 +9,12 @@ using UnityEngine;
 [Serializable]
 public class SphConfig
 {
+    public SphConfig WithViscosity(float scale)
+    {
+        var copy = (SphConfig)MemberwiseClone();
+        copy.viscosity *= Mathf.Clamp(scale, 0.5f, 8f);
+        return copy;
+    }
     [Tooltip("중력 가속도.")]
     public float gravity = 9f;
 
@@ -17,13 +23,12 @@ public class SphConfig
              "이웃 반경과 렌더링 블롭 크기가 모두 이 값에서 유도되므로 이것만 조절하면 된다.")]
     public float spacing = 0.16f;
 
-    [Tooltip("압력 계수(K). 액체가 중력에 눌리는 정도를 좌우한다 — 작으면 파티클을 아무리 늘려도 바닥에 " +
-             "얇게 깔리고, 크면 부피를 유지한다. 참고 레포보다 훨씬 큰 값을 쓰는데, 저쪽은 타임스텝이 " +
-             "우리(1/120초 고정)의 40배라 낮은 강성밖에 못 썼기 때문이다. 값을 키우면 액체가 덜 눌린다.\n" +
+    [Tooltip("Density Iterations가 0인 기존 힘 기반 모드의 압력 계수(K). " +
+             "위치 보정 모드에서는 압력을 중복 적용하지 않는다.\n" +
              "아래 StiffnessReferenceSpacing 기준으로 적는다 — spacing을 바꿔도 이 값은 그대로 두면 된다.")]
     public float pressureStiffness = 200f;
 
-    [Tooltip("근접 압력 계수(K_NEAR). 파티클끼리 완전히 겹쳐 뭉치는 것을 막는다.")]
+    [Tooltip("기존 힘 기반 모드의 근접 압력 계수(K_NEAR). 위치 보정 모드에서는 사용하지 않는다.")]
     public float nearPressureStiffness = 40f;
 
     /// <summary>위 두 계수를 튜닝한 기준 간격. 이 간격에서는 보정이 1배가 된다.</summary>
@@ -44,9 +49,17 @@ public class SphConfig
              "덮어쓰므로 보통 건드릴 필요 없다.")]
     public float restDensity = 3f;
 
-    [Tooltip("이웃 반경을 spacing의 몇 배로 잡을지. 1.25면 격자에서 상하좌우 4개만 이웃이 되고, " +
-             "1.5를 넘기면 대각선까지 들어와 액체가 더 끈끈해진다. 보통 건드릴 필요 없다.")]
-    public float neighborRadiusScale = 1.25f;
+    [Range(0, 8)]
+    [Tooltip("한 물리 스텝에서 과밀한 입자 위치를 보정하는 최대 횟수. 0이면 끈다. 보통 3회로 시작한다.")]
+    public int densityIterations = 3;
+
+    [Range(0f, 0.2f)]
+    [Tooltip("허용할 기준 밀도 초과 비율. 모든 입자가 이 범위 안이면 반복을 일찍 끝낸다.")]
+    public float densityTolerance = 0.02f;
+
+    [Tooltip("이웃 반경을 spacing의 몇 배로 잡을지. 2이면 여러 방향의 이웃으로 압력을 계산해 " +
+             "입자가 모래처럼 서로 끼어 경사진 상태로 굳는 것을 줄인다.")]
+    public float neighborRadiusScale = 2f;
 
     /// <summary>이웃 반경(R). 이 거리 안의 파티클만 서로 영향을 준다.
     /// spacing에서 유도해야 spacing을 바꿔도 이웃 관계가 깨지지 않는다(따로 두면 세로로 이웃이 끊겨
@@ -54,7 +67,7 @@ public class SphConfig
     public float NeighborRadius => spacing * neighborRadiusScale;
 
     [Range(0f, 1f)]
-    [Tooltip("응집력. 밀도가 기준보다 낮을 때 파티클끼리 얼마나 끌어당길지의 비율이다.\n" +
+    [Tooltip("기존 힘 기반 모드의 응집력. 밀도가 기준보다 낮을 때 파티클끼리 얼마나 끌어당길지의 비율이다.\n" +
              "1이면 압력 공식 그대로 당긴다 — 고인 액체는 표면장력처럼 보여 좋지만, 공중의 물줄기는 " +
              "이웃이 적어 늘 '밀도 부족'으로 판정되므로 덩어리로 뭉쳤다가 그 사이가 끊어진다.\n" +
              "0이면 밀어내기만 하고 당기지 않아 줄기가 흩어진다. 0.2~0.4가 적당하다.\n" +
@@ -65,11 +78,29 @@ public class SphConfig
     public float viscosity = 0.2f;
 
     [Range(0f, 1f)]
-    [Tooltip("매 스텝 속도를 이웃 평균 쪽으로 당기는 비율. 정지 상태에서 액체가 부르르 떨면 올리고, " +
-             "너무 끈적하게 굳어 보이면 낮춘다. 0이면 평활화를 끈다.")]
+    [Tooltip("이웃과의 속도 차이를 줄이는 정도. 위치 보정 모드에서는 초당 감쇠율로 변환해 " +
+             "프레임마다 속도가 과도하게 깎이지 않게 한다.")]
     public float velocitySmoothing = 0.25f;
 
-    [Tooltip("최대 속도. 불안정한 폭발적 힘을 방지하기 위한 클램프. 벽 터널링 방지를 위해 낮게 잡는다.")]
+    [Tooltip("최대 속도. 불안정한 폭발적 힘을 방지하기 위한 클램프. 아래 Max Travel Per Step과 함께 속도 상한을 정한다.\n" +
+             "잔 경계는 위치를 상자 안으로 되돌리므로 이 값을 올려도 벽을 뚫지 않는다. 따르기 프로파일(Liquid_Light)은 " +
+             "큰 유량을 굵은 판 대신 빠른 줄기로 내기 위해 6.5를 쓴다.")]
     public float maxVelocity = 4.5f;
+
+    [Range(0.2f, 1f)]
+    [Tooltip("한 물리 스텝(1/120초)에 움직일 수 있는 최대 거리(spacing 대비). 이 값과 Max Velocity 중 작은 쪽이 속도 상한이다.\n" +
+             "너무 크면 한 스텝에 이웃 관계가 통째로 바뀌어 밀도가 튄다. 잔 경계는 위치를 상자 안으로 되돌리는 방식이라 " +
+             "이 값을 올려도 벽을 뚫지 않는다.\n" +
+             "0.4(속도 상한 약 3.1)에서는 큰 유량을 줄기 폭으로만 낼 수 있어 맥주·병째 쏟기 줄기가 판처럼 넓어졌다. " +
+             "0.85면 spacing 0.065에서 상한이 약 6.6이라, Max Velocity까지 빠르고 가늘게 떨어진다.")]
+    public float maxTravelPerStep = 0.85f;
+
+    [Min(0f)]
+    [Tooltip("잔에 고인 액체의 최대 속도(월드/초). 0이면 끈다.\n" +
+             "'고인 액체'는 수량으로 인정된 입자와, 그 입자에 닿은 입자다. 공중의 물줄기는 고인 액체에 닿기 전까지 제한하지 않는다.\n" +
+             "굵은 물줄기가 수면에 꽂히면 밀도 보정으로 밀린 거리가 그대로 속도가 되어 고인 액체가 옆으로 밀려나고, " +
+             "줄기 아래에 깊은 V자 구덩이가 생긴다. 고인 액체의 속도를 제한해 그 충격을 흡수한다.\n" +
+             "맥주 최대 유량에서 1.5이면 구덩이 깊이가 잔 높이의 약 46%에서 15~20%로 줄었다. 1.0까지 낮춰도 더 좋아지지 않았다.")]
+    public float poolSpeedLimit = 1.5f;
 
 }

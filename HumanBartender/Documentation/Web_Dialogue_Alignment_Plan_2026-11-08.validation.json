@@ -1,0 +1,173 @@
+{
+  "mode": "architecture",
+  "claims": [
+    {
+      "claim": "현재 주변 대화는 재생 시 UI와 Runner를 생성하고 종료 시 파괴한다. 새 연결에 그대로 사용하면 에디터에 구조를 저장한다는 작업 규칙을 충족하지 못한다.",
+      "claimType": "behavior",
+      "verdict": "Bug",
+      "severity": "P2",
+      "proofLevel": "SourceVerified",
+      "evidence": [
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldInteractionView.cs:55",
+          "observation": "CreateAmbientView에서 Instantiate와 AddComponent를 호출한다."
+        },
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldAmbientDialogueController.cs:112",
+          "observation": "PlayAsync에서 Runner를 추가하고 finally에서 View GameObject를 파괴한다."
+        },
+        {
+          "kind": "requirement",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/AGENTS.md:11",
+          "observation": "구조는 에디터에서 만들어 저장하고 런타임 코드는 값만 바꾼다."
+        }
+      ],
+      "behaviorPath": [
+        {
+          "stage": "entry",
+          "stageStatus": "present",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldAmbientDialogueController.cs:76",
+          "symbol": "PlayAsync"
+        },
+        {
+          "stage": "dispatch",
+          "stageStatus": "present",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldInteractionView.cs:55",
+          "symbol": "CreateAmbientView"
+        },
+        {
+          "stage": "mutation",
+          "stageStatus": "present",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldAmbientDialogueController.cs:122",
+          "symbol": "DialogueRunner 추가 후 Bind"
+        },
+        {
+          "stage": "side_effect",
+          "stageStatus": "present",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldAmbientDialogueController.cs:141",
+          "symbol": "finally에서 View 파괴"
+        }
+      ],
+      "counterEvidence": [
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/07.Outside/WorldInteractionView.cs:11",
+          "observation": "기존 공용 프리팹 원본은 이미 있다. 아트를 새로 만드는 것이 아니라 편집기에 인스턴스를 저장할 수 있다."
+        }
+      ],
+      "unknowns": [
+        "실제 씬에서 재진입, 동시 재생, 취소 시나리오의 새 구현은 아직 시험하지 않았다."
+      ]
+    },
+    {
+      "claim": "웹의 삼호 drunk PNG는 존재하지만 현재 Unity에는 동일 PNG와 samho_drunk 주소 연결이 없다. 웹은 잘린 이미지의 위치를 별도로 보정한다.",
+      "claimType": "existence",
+      "verdict": "Confirmed",
+      "severity": "Info",
+      "proofLevel": "SourceVerified",
+      "evidence": [
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/StreamingAssets/csv/characters/expressions.csv:19",
+          "observation": "samho drunk가 samho_drunk sprite를 요구한다."
+        },
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/junseo874.github.io/bar-playtest/data/presentation/runtime-assets.json:2792",
+          "observation": "530x338 실제 PNG와 drink body 기준 보정용 데이터가 있다."
+        },
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/junseo874.github.io/bar-playtest/src/features/bar/bar-views.js:151",
+          "observation": "samho drunk에 별도 poseOffset을 적용한다."
+        }
+      ],
+      "behaviorPath": [],
+      "counterEvidence": [
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/03.Data/02.Models/NewExpressionDataSO.cs:44",
+          "observation": "시바 때문에 캐릭터별 초상 보정은 이미 있다. 새 SO가 아닌 기존 시각 설정의 최소 확장 대상이다."
+        }
+      ],
+      "unknowns": [
+        "원본의 Legacy 제거 관련 이력과 실제 삼호 표정별 Unity 배치값은 구현 전에 확정해야 한다."
+      ]
+    },
+    {
+      "claim": "구조 검사 errors 0은 웹 동작 전체의 동등성을 입증하지 않는다. 현재 검사기는 gaps 17개를 반환한다.",
+      "claimType": "existence",
+      "verdict": "Confirmed",
+      "severity": "Info",
+      "proofLevel": "StaticVerified",
+      "evidence": [
+        {
+          "kind": "static_analysis",
+          "location": "node tools/check-engine-data-contract.cjs (2026-11-08, web d9a3474)",
+          "observation": "44 tables, 37 datasets, 1664 steps, errors [], gaps 17. 조건 14건은 sameInEngine true."
+        },
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/03.Data/01.Loading/CsvGameContentRules.cs:46",
+          "observation": "조건 문법 검사 범위는 활성 대본과 상호작용 데이터이며 다른 데이터 소비자의 지원까지 검증하지 않는다."
+        }
+      ],
+      "behaviorPath": [],
+      "counterEvidence": [
+        {
+          "kind": "project_source",
+          "location": "C:/Users/sster/Documents/Git/Human-Bartender/HumanBartender/Assets/01.Game/02.Scripts/04.Features/05.Dialogue/DialogueRunner.cs:178",
+          "observation": "effect/set_state는 처리 후 Effects를 적용한다. 플래그 변경 자체가 누락되는 것으로 해석하면 안 된다."
+        }
+      ],
+      "unknowns": [
+        "14개 기존 조건은 최종 소비자별 평가 경로를 추가 확인해야 한다. 구조 검사만으로 실행 불능을 단정하지 않는다."
+      ]
+    }
+  ],
+  "existing": [
+    "CSV 컴파일러와 바/거리 대사 실행기",
+    "WorldInteractionContent/Target/Speakers 및 현재 ambient once/repeat 처리",
+    "기존 공용 말풍선·선택지·이미지·힌트 프리팹",
+    "NewExpressionDataSO 초상 시각 배치와 ResourceLoader 보정표",
+    "반입기 원본 검증·영수증 해시·로컬 변경 보호·롤백"
+  ],
+  "proposed": [
+    "9개 CSV만 대상으로 효과 보존 부분 병합 게시와 출처 기록을 보완",
+    "실제 삼호 drunk Sprite 연결 및 기존 SO의 표정별 배치 설정",
+    "Home/OutSide 고정 UI와 대상별 주변 대화 View/Runner를 편집기에 저장하고 생성·파괴 경로 제거",
+    "새 5그룹 source/화자 연결과 TV override를 누락분만 추가",
+    "새 데이터·뷰 수명·표정·병합된 선택지·기존 #116 회귀를 구분해 검증"
+  ],
+  "doNotDuplicate": [
+    "새 대사 실행기/범용 스키마/효과 대체 문법",
+    "새 NPC 이동 구조나 collider 전면 이전",
+    "런타임 UI 자동 생성 fallback",
+    "공통 UI 아트/글리치/입력 처리 재구현"
+  ],
+  "invariants": [
+    "현재 제조 반입과 시바 보정 및 선택지 병합 보존",
+    "한글 5/영어 61의 효과 대응을 ID 단독으로 추측하지 않음",
+    "웹 원본·정규화·병합 바이트와 실제 게시 기록 구분",
+    "기존 전체 반입 보류 유지; 현재는 계획만 작성",
+    "미저장 씬, 수동 배치, 기존 GUID를 보존"
+  ],
+  "impactedSurfaces": [
+    "ContentAuthoring/import_web_content.py 및 검사/기록",
+    "story/interaction/system CSV 9개",
+    "NewExpressionDataSO, DialogueCharacterManager, GuestCharacterView",
+    "WorldInteractionView, WorldAmbientDialogueController, WorldAmbientDialogueView",
+    "Home.unity와 OutSide.unity 및 명시적 리소스 연결",
+    "관련 EditMode/런타임 검사와 기존 반입 기록"
+  ],
+  "validationPlan": [
+    "부분 게시 해시·허용 필드·기존 파일 불변·실패 복구 검사",
+    "최종 스테이지에 Unity DTO 검증 및 영수증 발급",
+    "authoring 도구 두 번째 실행 무변경 검사",
+    "동시 ambient, 재진입, 일시정지, 취소, 씬 종료 후 복귀 검사",
+    "KO/EN 및 0~3일차 실제 재생, 3해상도 확인",
+    "현재 에디터가 열려 있으므로 준비 후 Test Runner로 결과 수집"
+  ]
+}

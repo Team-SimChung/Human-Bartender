@@ -16,7 +16,22 @@ public class CContentInspector : Editor
     }
 }
 [CustomEditor(typeof(NewStreetDataSO))] public class CStreetInspector : CContentInspector { }
-[CustomEditor(typeof(NewExpressionDataSO))] public class CExpressionInspector : CContentInspector { }
+[CustomEditor(typeof(NewExpressionDataSO))]
+public class CExpressionInspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+        EditorGUILayout.HelpBox("표정·리소스 연결의 원본은 CSV입니다. 아래 초상 시각 배치만 이 SO에 저장합니다. Y는 원본 픽셀 단위이며 양수이면 위로 이동합니다. 파츠 캐릭터에는 적용하지 않습니다.", MessageType.Info);
+        using (new EditorGUI.DisabledScope(true))
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Script"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("portraitPlacements"), true);
+        serializedObject.ApplyModifiedProperties();
+        var expressions = (NewExpressionDataSO)target;
+        EditorGUILayout.LabelField("로드된 캐릭터 표정 묶음", (expressions.expressionData?.Count ?? 0).ToString());
+        if (GUILayout.Button("C 콘텐츠 검증")) RefactoringCContentValidator.ValidateMenu();
+    }
+}
 [CustomEditor(typeof(NewDayScriptDataSO))] public class CScriptInspector : CContentInspector { }
 [CustomEditor(typeof(NewCharacterDataSO))] public class CCharacterInspector : CContentInspector { }
 [CustomEditor(typeof(NewCutSceneDataSO))] public class CCutsceneInspector : CContentInspector { }

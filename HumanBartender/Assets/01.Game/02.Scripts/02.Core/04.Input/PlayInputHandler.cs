@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Play(Bar) 씬 전용 입력 어댑터. 스페이스바로 대사를 진행시키고, Q/E로 카메라 슬롯(왼쪽/오른쪽)을 전환한다.
+/// Play 씬의 대화 진행, 좌석 이동, 주문 되묻기 입력을 각 기능으로 전달한다.
 /// </summary>
 public class PlayInputHandler : MonoBehaviour
 {
@@ -14,52 +14,134 @@ public class PlayInputHandler : MonoBehaviour
     [SerializeField] private ServicePanelController servicePanelController;
     [SerializeField] private RecipeBrowserScreen recipeScreen;
     [SerializeField] private CraftPrepStageHost craftPrepStageHost;
+    [SerializeField] private RepeatOrderView repeatOrder;
+    [Tooltip("히든 레시피 해금 창. 열려 있는 동안 바 입력을 받지 않습니다.")]
+    [SerializeField] private HiddenRecipeUnlockScreen hiddenRecipeScreen;
 
-    /// <summary>
-    /// 대사 진행 입력. 2부(Dialogue) 국면에서만 동작한다.
-    ///
-    /// 실행기가 스스로 "지금 내가 받는다"를 답하게 둔다. 대본이 돌지 않는 사이의 입력은 그냥 버린다 —
-    /// 예전에는 구형 DialogueRunner로 흘려보냈는데, 그 경로는 걷어냈다.
-    /// </summary>
+    const float SkipInterval = 0.12f;
+    bool skipHeld;
+    float skipElapsed;
+    bool advanceRequested;
+
+    bool HiddenRecipeOpen => hiddenRecipeScreen != null && hiddenRecipeScreen.IsOpen;
+
+    bool CanUseDialogueInput => playPhaseController != null && playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)
+        && !UIDisplayOptions.IsOptionOpen && (servicePanelController == null || !servicePanelController.BlocksBarInput)
+        && (recipeScreen == null || !recipeScreen.IsOpen) && !HiddenRecipeOpen && !GamePause.IsPaused &&
+        !HumanBartender.CutsceneStudio.StudioPlayer.HasActivePlayback;
+
     public void OnAdvance(InputValue value)
     {
-        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
-        if (servicePanelController != null && servicePanelController.IsMenuOpen) return;
-        if (recipeScreen != null && recipeScreen.IsOpen) return;
-
-        if (storyFlow != null) storyFlow.TryAdvance();
+        // 실제 처리는 Update의 한 경로에서 한다. 직접 키 읽기와 InputAction 콜백이 겹치지 않는다.
+        if (value.isPressed) advanceRequested = true;
     }
 
-    /// <summary>카메라를 현재 슬롯 기준 왼쪽 옆 칸으로 전환한다. 컷씬/미니게임 또는 1부(Tycoon) 국면일 때는 무시한다.</summary>
-    public void OnLeft(InputValue value)
+    public void OnSkipDialogue(InputValue value)
     {
-        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
-        if (playCamera == null) return;
-        playCamera.MoveAdjacent(-1, 0.5f);
+        skipHeld = isActiveAndEnabled && value.isPressed && CanUseDialogueInput;
+        skipElapsed = 0f;
     }
 
-    /// <summary>카메라를 현재 슬롯 기준 오른쪽 옆 칸으로 전환한다. 컷씬/미니게임 또는 1부(Tycoon) 국면일 때는 무시한다.</summary>
-    public void OnRight(InputValue value)
+    void Update()
     {
-        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
-        if (playCamera == null) return;
-        playCamera.MoveAdjacent(1, 0.5f);
+        HandleDialogueInput();
+        if (!skipHeld) return;
+        if (!CanUseDialogueInput)
+        {
+            ResetSkip();
+            return;
+        }
+        if (storyFlow == null || !storyFlow.CanAdvanceDialogue || (playCamera != null && playCamera.IsMoving)
+            || CoasterDragItem.Active != null || DrinkDragItem.Active != null || Time.timeScale == 0f)
+        {
+            skipElapsed = 0f;
+            return;
+        }
+
+        skipElapsed += Time.unscaledDeltaTime;
+        if (skipElapsed < SkipInterval) return;
+        skipElapsed = 0f;
+        storyFlow.TryAdvance();
+    }
+
+    private void HandleDialogueInput()
+    {
+        bool requested = advanceRequested;
+        advanceRequested = false;
+        if (!CanUseDialogueInput || storyFlow == null || DialogueAdvanceInput.ConsumedThisFrame) return;
+        var control = DialogueAdvanceInput.PressedKey();
+        if (control == null && !requested) return;
+        // Submit 대상이 창을 닫았더라도 이 프레임의 Enter는 그 UI가 소유한다.
+        if (DialogueAdvanceInput.UISubmitOwnsEnter) return;
+        if (storyFlow.IsChoosing) storyFlow.TryBeginChoiceHold(control);
+        else storyFlow.TryAdvance();
+    }
+
+    void ResetSkip()
+    {
+        skipHeld = false;
+        skipElapsed = 0f;
+        advanceRequested = false;
+    }
+
+    void OnDisable() => ResetSkip();
+    void OnApplicationFocus(bool focused)
+    {
+        if (!focused) ResetSkip();
+    }
+
+    /// <summary>영업 중 또는 바 둘러보기 실습 중 왼쪽으로 한 자리 이동한다.</summary>
+    public void OnLeft(InputValue value) => MoveSeat(value, -1);
+
+    /// <summary>영업 중 또는 바 둘러보기 실습 중 오른쪽으로 한 자리 이동한다.</summary>
+    public void OnRight(InputValue value) => MoveSeat(value, 1);
+
+    public void OnRepeatOrder(InputValue value)
+    {
+        if (value.isPressed && CanRepeatOrder) repeatOrder?.Submit();
+    }
+
+    internal bool CanRepeatOrder => playPhaseController != null &&
+        playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) && !UIDisplayOptions.IsOptionOpen &&
+        !HumanBartender.CutsceneStudio.StudioPlayer.HasActivePlayback &&
+        !GamePause.IsPaused && !HiddenRecipeOpen && (storyFlow == null || !storyFlow.IsChoosing && !storyFlow.CanAdvanceDialogue) &&
+        (servicePanelController == null || servicePanelController.CanUseGuestActions);
+
+    void MoveSeat(InputValue value, int step)
+    {
+        if (UIDisplayOptions.IsOptionOpen || HiddenRecipeOpen) return;
+        // SendMessages also forwards key release; move only on the press.
+        if (!value.isPressed || playPhaseController == null) return;
+        if (playPhaseController.CanReceiveInput(EPlayPhase.Dialogue))
+        {
+            if (servicePanelController != null && servicePanelController.BlocksBarInput) return;
+            if (recipeScreen != null && recipeScreen.IsOpen) return;
+            storyFlow?.TryMoveTutorialSeat(step);
+            return;
+        }
+        if (!playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
+        if (playCamera == null || (servicePanelController != null && !servicePanelController.CanUseGuestActions)) return;
+        playCamera.MoveAdjacent(step, 0.5f);
     }
 
     public void OnServicePanel(InputValue value)
     {
-        if (playPhaseController == null || !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)) return;
+        if (UIDisplayOptions.IsOptionOpen || HiddenRecipeOpen) return;
+        if (!value.isPressed || playPhaseController == null ||
+            !playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) && !playPhaseController.CanReceiveInput(EPlayPhase.Dialogue)) return;
         if (servicePanelController == null) return;
         servicePanelController.Toggle();
     }
 
     public void OnPrepPrevious(InputValue value)
     {
-        if (craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Previous();
+        if (UIDisplayOptions.IsOptionOpen) return;
+        if (value.isPressed && craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Previous();
     }
 
     public void OnPrepNext(InputValue value)
     {
-        if (craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Next();
+        if (UIDisplayOptions.IsOptionOpen) return;
+        if (value.isPressed && craftPrepStageHost != null && craftPrepStageHost.IsOpen) craftPrepStageHost.Next();
     }
 }

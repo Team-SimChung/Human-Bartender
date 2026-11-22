@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ff33a5526d6f84196c556f916cc12e, type: 3}
+  m_Name: CutsceneStudioCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::HumanBartender.CutsceneStudio.StudioCatalog
+  sequences:
+  - id: CutsceneStudio_Test
+    memoryKey: 
+    resourceKey: cutscene-studio/CutsceneStudio_Test
+  - id: tv_news_d0
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_documentary
+  - id: johnny-memory
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_johnny_memory
+  - id: tl_yuna_memory_d3
+    memoryKey: terraceMemory3
+    resourceKey: cutscene-studio/tl_yuna_memory_d3
+  - id: tl_intro
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_intro
+  - id: tl_documentary
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_documentary
+  - id: tl_yuna_memory_d0
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: tl_yuna_memory_d3
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_yuna_memory_d3
+  - id: tl_ending_credits
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_ending_credits
+  - id: tl_johnny_memory
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_johnny_memory
+  - id: terrace-memory
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: terrace-memory
+    memoryKey: terraceMemory
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: terrace-memory
+    memoryKey: terraceMemory3
+    resourceKey: cutscene-studio/tl_yuna_memory_d3
+  - id: tl_yuna_memory_d0
+    memoryKey: terraceMemory
+    resourceKey: cutscene-studio/tl_yuna_memory_d0
+  - id: ending-credits
+    memoryKey: 
+    resourceKey: cutscene-studio/tl_ending_credits

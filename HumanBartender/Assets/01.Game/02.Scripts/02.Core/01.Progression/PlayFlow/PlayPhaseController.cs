@@ -17,9 +17,15 @@ public class PlayPhaseController : MonoBehaviour
     [SerializeField] StoryFlow storyFlow;
     [SerializeField] OrderRequestController orderController;
     [SerializeField] CraftFlowController craftFlow;
+    [SerializeField] SettlementScreen settlementScreen;
+    [Tooltip("일차 시작 때 새로 쓸 수 있게 된 재료·칵테일을 소개하는 화면. Canvas_DailyUnlocks.")]
+    [SerializeField] DailyUnlocksScreen dailyUnlocksScreen;
+    [SerializeField] ServicePanelController servicePanel;
 
     [Inject] IGameProgressionService progression;
-    [Inject] PlayerSettlement settlement;
+    [Inject] DaySettlementService settlement;
+    [Inject] BarSessionCheckpoint checkpoint;
+    [Inject] IConditionUtil conditions;
 
     [Header("국면별 화면")]
     [Tooltip("1부에만 보이는 것. 손님 자리(Tycoon Resource), 코스터 트레이 캔버스, 제조 슬라이드 패널 캔버스.")]
@@ -92,7 +98,7 @@ public class PlayPhaseController : MonoBehaviour
             return new PlayPhaseRunRequest(rejectedResult);
         }
 
-        if (!SkipTycoonForTest && tycoonFlow == null)
+        if (GameStateManager.Instance.CurrentDay != 0 && !SkipTycoonForTest && tycoonFlow == null)
         {
             PlayPhaseRunResult rejectedResult = new(
                 PlayPhaseRunOutcome.Rejected,
@@ -118,6 +124,10 @@ public class PlayPhaseController : MonoBehaviour
                 "하루 진행 서비스가 연결되지 않았습니다.");
             return new PlayPhaseRunRequest(rejectedResult);
         }
+
+        if (settlementScreen == null || settlement == null || checkpoint == null)
+            return new PlayPhaseRunRequest(new PlayPhaseRunResult(
+                PlayPhaseRunOutcome.Rejected, 0, "영업 정산 화면 또는 서비스가 연결되지 않았습니다."));
 
         long operationId = ++nextOperationId;
         currentOperationId = operationId;
@@ -224,7 +234,15 @@ public class PlayPhaseController : MonoBehaviour
                 entry.Outcome == GameProgressionOutcome.Rejected)
             {
                 GameStateManager.Instance.CurrentDay = testDay;
+                GameStateManager.Instance.GameFlow = EGameFlow.Bar;
                 Debug.LogWarning($"[PlayPhase] 명시적 Test Day {testDay}로 Play 씬을 직접 실행합니다.");
+                // 정상 진행이면 3일차 바 입장 전에 채워지는 조건. 없으면 올드 패션드 해금과 톰 주문이 막힌다.
+                if (testDay >= 3)
+                {
+                    var seeded = CampaignStoryRules.SeedJohnnyPrerequisites(conditions);
+                    if (seeded.Count > 0)
+                        Debug.LogWarning("[PlayPhase] Test Day 3 이상: 전날 조건을 대신 채웠습니다 — " + string.Join(", ", seeded));
+                }
             }
             else
 #endif
@@ -233,9 +251,27 @@ public class PlayPhaseController : MonoBehaviour
 
             await NewDataLoadManager.WaitUntilLoadedAsync(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
-            settlement?.Init();
+            settlementScreen.ValidateReferences();
+            if (dailyUnlocksScreen == null)
+                throw new InvalidOperationException("[DailyUnlocks] Setup Daily Unlocks 메뉴로 안내 화면을 연결해 주세요.");
+            dailyUnlocksScreen.ValidateReferences();
+            int day = GameStateManager.Instance.CurrentDay;
+            if (!NewDataLoadManager.TryGetDayInfo(day, out var dayInfo))
+                throw new InvalidOperationException($"Day {day}의 유지비 데이터가 없습니다.");
+            settlement.BeginDay(day, dayInfo.UpkeepGold);
+            checkpoint.Capture();
 
-            if (SkipTycoonForTest)
+            await RunDailyUnlocksAsync(day, cancellationToken);
+
+            BeginPhase(EPlayPhase.Dialogue);
+            await storyFlow.RunOpeningAsync(cancellationToken);
+            EndCurrentPhase();
+
+            if (GameStateManager.Instance.CurrentDay == 0)
+            {
+                Debug.Log("[PlayPhase] 0일차는 인트로 안내 후 바 튜토리얼로 바로 진행합니다.");
+            }
+            else if (SkipTycoonForTest)
             {
                 Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
                                  "PlayPhaseController의 Skip Tycoon For Test를 끄면 원래대로 돌아옵니다.");
@@ -249,8 +285,18 @@ public class PlayPhaseController : MonoBehaviour
 
             BeginPhase(EPlayPhase.Dialogue);
             await RunPhaseAsync(storyFlow, cancellationToken);
-            EndCurrentPhase();
+            // 대본이 내보내지 않은 손님은 정산창 뒤에 남긴다(엔진 수정 11). 인물 파츠(Story/StoryCharacters/Left·Right의
+            // Body·Face 등)가 storyOnlyObjects 아래에 있어 끄면 함께 안 보이므로, 켜 둔 채 입력만 닫는다. 정리는 finally의 ReleaseStage가 한다.
+            EndCurrentPhase(keepStoryObjects: true);
 
+            if (!await RunSettlementAsync(cancellationToken))
+            {
+                // 재시작된 Play 씬의 컨트롤러가 새로운 영업을 소유한다.
+                State = PlayPhaseRunState.Completed;
+                return new PlayPhaseRunResult(PlayPhaseRunOutcome.Succeeded, operationId);
+            }
+
+            conditions.ApplyRequired($"flag.day{GameStateManager.Instance.CurrentDay}_bar_completed = true");
             departurePending = true;
             GameProgressionResult departure = await progression.CompleteBarAsync(cancellationToken);
             if (departure.Outcome == GameProgressionOutcome.Canceled)
@@ -288,18 +334,77 @@ public class PlayPhaseController : MonoBehaviour
             {
                 phaseInputEnabled = false;
                 CurrentPhase = EPlayPhase.None;
+                ReleaseStoryStage();
                 HidePhaseObjects();
                 currentOperationId = 0;
             }
         }
     }
 
-    async UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken)
+    /// <summary>
+    /// 정산창 뒤에 남겨 둔 본편 무대를 치운다. 퇴근 이동이 끝났으면 씬과 함께 이미 사라졌으므로 건너뛴다.
+    /// 재시작·실패·취소로 하루가 끝날 때도 여기서 치운다.
+    /// </summary>
+    void ReleaseStoryStage()
+    {
+        if (storyFlow == null) return;
+        try { storyFlow.ReleaseStage(); }
+        catch (Exception error) { Debug.LogException(error); }
+    }
+
+    async UniTask RunDailyUnlocksAsync(int day, CancellationToken cancellationToken)
+    {
+        if (day <= 0) return;
+        var unlocks = DailyUnlockQuery.Collect(day, NewDataLoadManager.StoryShelfItems, NewDataLoadManager.StoryCocktails);
+        if (unlocks.IsEmpty) return;
+        try { await dailyUnlocksScreen.ShowAsync(day, unlocks, cancellationToken); }
+        finally { if (dailyUnlocksScreen != null) dailyUnlocksScreen.Hide(); }
+    }
+
+    async UniTask<bool> RunSettlementAsync(CancellationToken cancellationToken)
+    {
+        CurrentPhase = EPlayPhase.Settlement;
+        State = PlayPhaseRunState.AwaitingSettlement;
+        servicePanel?.CloseAllScreens();
+        craftFlow?.AddCraftBlocker(DescribeSettlementBlock);
+        string error = null;
+        try
+        {
+            while (true)
+            {
+                var action = await settlementScreen.WaitForActionAsync(settlement.Preview(), cancellationToken, error);
+                if (action == SettlementAction.Confirm)
+                {
+                    if (settlement.TryConfirm()) return true;
+                    error = "소지금이 변경되었습니다. 정산 내용을 다시 확인해 주세요.";
+                    continue;
+                }
+
+                var result = await checkpoint.RestartAsync(progression, cancellationToken);
+                if (result.Succeeded) return false;
+                cancellationToken.ThrowIfCancellationRequested();
+                Debug.LogWarning("[Settlement] 영업 재시작 실패: " + result.Message);
+                error = "다시 시작하지 못했습니다. 버튼을 눌러 다시 시도해 주세요.";
+            }
+        }
+        finally
+        {
+            if (settlementScreen != null) settlementScreen.Hide();
+            if (craftFlow != null) craftFlow.RemoveCraftBlocker(DescribeSettlementBlock);
+        }
+    }
+
+    string DescribeSettlementBlock() => "영업 정산 중에는 제조할 수 없습니다.";
+
+    UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken) =>
+        RunPhaseWorkAsync(flow.RunAsync, cancellationToken);
+
+    async UniTask RunPhaseWorkAsync(Func<CancellationToken, UniTask> run, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         try
         {
-            await flow.RunAsync(cancellationToken);
+            await run(cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         }
         finally
@@ -313,6 +418,45 @@ public class PlayPhaseController : MonoBehaviour
             orderController?.CloseIdleView();
         }
     }
+
+#if UNITY_EDITOR
+    internal async UniTask<StoryExecutionResult> RunDialogueForTestAsync(string sceneId, int stepSeq,
+        ENewGrade grade, bool orderMatch, CancellationToken token)
+    {
+        if (IsRunning || storyFlow == null)
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, "[BarTest] 바 대사 실행 준비가 되지 않았습니다.");
+        long operationId = ++nextOperationId;
+        currentOperationId = operationId;
+        try
+        {
+            await NewDataLoadManager.WaitUntilLoadedAsync(token);
+            int day = GameStateManager.Instance.CurrentDay;
+            if (!NewDataLoadManager.TryGetDayInfo(day, out var info)) throw new InvalidOperationException("[BarTest] 일차 데이터가 없습니다.");
+            settlement.BeginDay(day, info.UpkeepGold);
+            BeginPhase(EPlayPhase.Dialogue);
+            await RunPhaseWorkAsync(ct => storyFlow.RunFromDialogueForTestAsync(sceneId, stepSeq, grade, orderMatch, ct), token);
+            State = PlayPhaseRunState.Completed;
+            return new StoryExecutionResult(StoryExecutionStatus.Completed);
+        }
+        catch (OperationCanceledException)
+        {
+            State = PlayPhaseRunState.Canceled;
+            return new StoryExecutionResult(StoryExecutionStatus.Cancelled);
+        }
+        catch (Exception error)
+        {
+            State = PlayPhaseRunState.Failed;
+            return new StoryExecutionResult(StoryExecutionStatus.Failed, error.Message);
+        }
+        finally
+        {
+            var finalState = State;
+            EndCurrentPhase();
+            State = finalState;
+            currentOperationId = 0;
+        }
+    }
+#endif
 
     void BeginPhase(EPlayPhase phase)
     {
@@ -334,12 +478,13 @@ public class PlayPhaseController : MonoBehaviour
         phaseInputEnabled = true;
     }
 
-    void EndCurrentPhase()
+    void EndCurrentPhase(bool keepStoryObjects = false)
     {
         phaseInputEnabled = false;
         CurrentPhase = EPlayPhase.None;
         State = PlayPhaseRunState.Transitioning;
-        HidePhaseObjects();
+        SetActive(tycoonOnlyObjects, false);
+        if (!keepStoryObjects) SetActive(storyOnlyObjects, false);
     }
 
     void ShowPhase(EPlayPhase phase)

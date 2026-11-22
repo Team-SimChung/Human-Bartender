@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using Spine;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -56,7 +55,8 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
     [SerializeField] private VoidEvent craftServe;
     [SerializeField] private VoidEvent craftRetry;
 
-    [Inject] ISoundManager soundManager;
+    [Inject] ISoundEffectPlayer soundManager;
+    [Inject] AudioOutputSettings audioOutput;
 
     Vector3[] dotPositions;
 
@@ -106,20 +106,44 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     void ResetJudgement()
     {
+        paused = resumeBgm = false;
         totalJudge = Mathf.Max(1, ResolveTargetStacks());
         successJudge = 0;
         failJudge = 0;
         hasStarted = false;
         endedManually = false;
-        attemptGauge?.ResetAll();
+        attemptGauge?.Configure(totalJudge);
         isPlay = true;
     }
+
+    bool paused;
+    bool resumeBgm;
 
     void Update()
     {
         if (!isPlay || !hasStarted) return;
+        bool pause = GamePause.IsPaused || UIDisplayOptions.IsOptionOpen;
+        SyncPause(pause, AudioSettings.dspTime);
+        if (pause) return;
         shakingStrikeNode.Handle();
         nodeCreator.Handle();
+    }
+
+    internal void SyncPause(bool value, double now)
+    {
+        if (paused == value) return;
+        paused = value;
+        shakingStrikeNode?.SetPaused(value, now);
+        if (value)
+        {
+            resumeBgm = bgmSource != null && bgmSource.isPlaying;
+            if (resumeBgm) bgmSource.Pause();
+        }
+        else
+        {
+            if (resumeBgm && bgmSource != null) bgmSource.UnPause();
+            resumeBgm = false;
+        }
     }
 
 
@@ -226,20 +250,24 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     public void StartGame()
     {
-        if (!isPlay || hasStarted) return;
+        if (!isPlay || hasStarted || GamePause.IsPaused || UIDisplayOptions.IsOptionOpen) return;
 
         Logger.Log("Start Game");
 
         hasStarted = true;
         attemptGauge?.SetNextSegment(successJudge + failJudge);
-        bgmSource?.PlayScheduled(AudioSettings.dspTime + 0.1f);
+        if (bgmSource != null && bgmSource.clip != null)
+        {
+            audioOutput.Route(bgmSource, AudioBus.Music);
+            bgmSource.PlayScheduled(AudioSettings.dspTime + 0.1f);
+        }
         shakingStrikeNode?.InitToStart(dotPositions, 60);
         characterAnim?.Init();
     }
 
     public void ClickEvent()
     {
-        if (!isPlay || !hasStarted) return;
+        if (!isPlay || !hasStarted || GamePause.IsPaused || UIDisplayOptions.IsOptionOpen) return;
 
         Logger.Log("Click Event");
         Vector3 hitPosition;

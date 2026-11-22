@@ -57,13 +57,16 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     /// <summary>지금 돌고 있는 기믹. 시계를 재울지 굴릴지 이 기믹에게 묻는다.</summary>
     ICraftGimmick currentGimmick;
 
-    void Update()
+    void Update() => TickTimer(Time.deltaTime);
+
+    void TickTimer(float deltaTime)
     {
         // 플레이어가 실제로 조작할 수 있는 동안만 시간을 센다. 기믹 사이의 전환, 성공 연출,
         // 프리팹을 띄우는 사이의 빈 시간은 손쓸 수 없는 구간이라 빼는 게 맞다.
         if (currentGimmick == null || !currentGimmick.IsManualInputActive) return;
+        if (currentGimmick is ICraftGimmickTiming timing && !timing.IsTimeCounting) return;
 
-        runningTimer?.Tick(Time.deltaTime);
+        runningTimer?.Tick(deltaTime);
     }
 
     /// <summary>공통 화면을 준비한다. 실패하더라도 호출자는 End를 호출해야 한다.</summary>
@@ -97,6 +100,9 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
                                               CraftTimer timer, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
+        if (step.IsImmediateAddition)
+            return GimmickResult.Quantity(step.Type, step.IngredientId, step.TargetValue, step.TargetUnit,
+                step.TargetValue ?? 0, ECraftEndType.AutoTarget, timer.ElapsedSec);
         GameObject prefab = ResolvePrefab(step.Type);
 
         if (prefab == null)
@@ -186,10 +192,15 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
 
         foreach (var canvas in barCanvases ?? Array.Empty<Canvas>())
         {
-            if (canvas == null || !canvas.enabled) continue;
-
-            canvas.enabled = false;
-            hiddenBarCanvases.Add(canvas);
+            if (canvas == null) continue;
+            // 정렬을 독립시킨 자식 Canvas는 부모 Canvas를 꺼도 남으므로 함께 숨긴다.
+            // 원래 켜져 있던 것만 기록해 종료·취소 때 이전 상태로 복구한다.
+            foreach (var child in canvas.GetComponentsInChildren<Canvas>(true))
+            {
+                if (!child.enabled) continue;
+                child.enabled = false;
+                hiddenBarCanvases.Add(child);
+            }
         }
 
         var names = new List<string>(hiddenBarCanvases.Count);

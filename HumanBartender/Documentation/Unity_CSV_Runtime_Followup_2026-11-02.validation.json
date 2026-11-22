@@ -1,0 +1,199 @@
+{
+  "immutable_ranges_unchanged": true,
+  "immutable_ranges": {
+    "Assets/StreamingAssets/csv": {
+      "files": 48,
+      "hash": "44d102e5d33f7dd2d6b686c9a16db153e697cad40e1e5cbd288893bee59bc429"
+    },
+    "ContentAuthoring/system": {
+      "files": 5,
+      "hash": "6331eb0a83733ba69d00f8f5d17b58f6d4ec1c0ef26a2f628ff4526e8079c996"
+    },
+    "Assets/01.Game/02.Scripts/04.Features/06.Cutscenes/Studio": {
+      "files": 38,
+      "hash": "41318d5d95f39dfa39304aadbf424a73a67208ad3c7bd3ffcce8a563bc8b02f9"
+    },
+    "Assets/01.Game/Editor/01.ContentTools/CutsceneStudio": {
+      "files": 115,
+      "hash": "0cbc336c47e79304fc74baf609594ad8ae9bc0b8c93c276942349f038fce7d0e"
+    },
+    "Assets/Plugins": {
+      "files": 988,
+      "hash": "5e60eeace4f58472c96e9a09ef3aa97507a6bcde914b39ed28af25c4d9b6c7ed"
+    }
+  },
+  "csv_rules_changed": false,
+  "studio_plugin_code_changed": false,
+  "csv_files": 48,
+  "datasets": 38,
+  "changed_area_tests": [
+    {
+      "name": "CsvMemoryProgressionTests.ObservationRequiresActualCsvMemoryCompletionAndCancellationCanRetry",
+      "result": "Passed",
+      "seconds": 49.510493
+    },
+    {
+      "name": "CsvStoryMemoryTests.HomeMemoryKeySurvivesCsvCompilation",
+      "result": "Passed",
+      "seconds": 0.184266
+    },
+    {
+      "name": "CsvStoryMemoryTests.MemoryUsesCurrentCsvRowsAndOwnsOnlyTemporaryStudioObjects(\"johnny-memory\",null,\"johnny\")",
+      "result": "Passed",
+      "seconds": 0.210988
+    },
+    {
+      "name": "CsvStoryMemoryTests.MemoryUsesCurrentCsvRowsAndOwnsOnlyTemporaryStudioObjects(\"terrace-memory\",null,\"terraceMemory\")",
+      "result": "Passed",
+      "seconds": 0.203513
+    },
+    {
+      "name": "CsvStoryMemoryTests.MemoryUsesCurrentCsvRowsAndOwnsOnlyTemporaryStudioObjects(\"terrace-memory\",\"terraceMemory3\",\"terraceMemory3\")",
+      "result": "Passed",
+      "seconds": 0.507977
+    },
+    {
+      "name": "OutsideStoryCutsceneLifetimeTests.ActualStudioPlaybackRestoresGameplayOnCancelDisableAndReplay",
+      "result": "Passed",
+      "seconds": 5.809018
+    },
+    {
+      "name": "OutsideStoryEventTests.AdoptionDefersSceneTravelUntilTheDialogueOwnerReleasesItsSession",
+      "result": "Passed",
+      "seconds": 0.006029
+    },
+    {
+      "name": "OutsideStoryEventTests.CancellationAtCutsceneCompletionCannotCommitEffectsAndNextRunCanRetry",
+      "result": "Passed",
+      "seconds": 0.00158
+    },
+    {
+      "name": "OutsideStoryEventTests.CancelledChoiceCannotChargeMoney",
+      "result": "Passed",
+      "seconds": 0.003069
+    },
+    {
+      "name": "OutsideStoryEventTests.CsvCompilationDoesNotChangeSourceAndUnknownInstructionsAreRejected",
+      "result": "Passed",
+      "seconds": 0.001308
+    },
+    {
+      "name": "OutsideStoryEventTests.EveryNativeCommandHasExactlyOneDomainOwnerAndDuplicatesAreRejected",
+      "result": "Passed",
+      "seconds": 0.000876
+    },
+    {
+      "name": "OutsideStoryEventTests.MissingWorldActionOwnerCannotCompleteTheEvent(RepairElevator,\"elevator_repaired\")",
+      "result": "Passed",
+      "seconds": 0.000639
+    },
+    {
+      "name": "OutsideStoryEventTests.MissingWorldActionOwnerCannotCompleteTheEvent(RevealCat,\"boobi_revealed\")",
+      "result": "Passed",
+      "seconds": 0.000116
+    },
+    {
+      "name": "OutsideStoryEventTests.MissingWorldActionOwnerCannotCompleteTheEvent(AdoptCat,\"boobi_adopted\")",
+      "result": "Passed",
+      "seconds": 9.2e-05
+    },
+    {
+      "name": "OutsideStoryEventTests.PendingBossDealCannotChargeAgainEvenWhenMoneyRemains",
+      "result": "Passed",
+      "seconds": 0.13633
+    },
+    {
+      "name": "OutsideStoryEventTests.RepeatedAllowanceCommandUsesExistingPlayerFlagsAndPaysOnlyOnce",
+      "result": "Passed",
+      "seconds": 0.134612
+    },
+    {
+      "name": "OutsideStoryEventTests.RepeatedWildDogGrantDoesNotReopenTheDealOrChangeMoney",
+      "result": "Passed",
+      "seconds": 0.002113
+    },
+    {
+      "name": "StoryTableStateTests.CancellationCleanupCannotLeaveVisitStateForNextRun",
+      "result": "Passed",
+      "seconds": 0.000588
+    },
+    {
+      "name": "StoryTableStateTests.CoastersBelongToVisitsAndAreIndependentForTwoActors",
+      "result": "Passed",
+      "seconds": 0.00017
+    },
+    {
+      "name": "StoryTableStateTests.EmptyGlassDoesNotCreateADrinkAndRejectsMissingActor",
+      "result": "Passed",
+      "seconds": 0.000215
+    },
+    {
+      "name": "WebContentRuntimeSmokeTests.PinnedContentLoadsThroughExistingProgressionAndSceneScopes",
+      "result": "Passed",
+      "seconds": 18.525105
+    },
+    {
+      "name": "WebCsvCompatibilityTests.AllRuntimeDtosMapAndWebBehaviorMetadataIsRetained",
+      "result": "Passed",
+      "seconds": 0.275848
+    },
+    {
+      "name": "WebCsvCompatibilityTests.DisplayingAnEmptyGlassDoesNotChangeTheCraftedDrinkOrOtherVisit",
+      "result": "Passed",
+      "seconds": 0.001461
+    },
+    {
+      "name": "WebCsvCompatibilityTests.PaymentProjectionDoesNotTurnAFreeOrderIntoAPaidOrder",
+      "result": "Passed",
+      "seconds": 0.00026
+    },
+    {
+      "name": "WebCsvCompatibilityTests.PublishedFilesAreExactlyThePinnedWebSnapshot",
+      "result": "Passed",
+      "seconds": 0.032387
+    },
+    {
+      "name": "WorldStoryActionLifetimeTests.WorldMotionCancellationDisableAndEveryAuthoredActionReleaseTheirPoses",
+      "result": "Passed",
+      "seconds": 14.617159
+    }
+  ],
+  "changed_area_summary": {
+    "total": 26,
+    "passed": 26,
+    "failed": 0
+  },
+  "all_editmode": {
+    "total": 55,
+    "passed": 48,
+    "failed": 3,
+    "skipped": 4
+  },
+  "final_owner_recheck": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "python_tests": {
+    "passed": 9
+  },
+  "failures": [
+    {
+      "name": "VisualUIReviewTests.CommonOptionsKeepsItsWidgetsAppliesDisplayExplicitlyAndRestoresFocus",
+      "message": "System.NullReferenceException : Object reference not set to an instance of an object"
+    },
+    {
+      "name": "VisualUIReviewTests.RuntimeMenuWiringAndGlitchRestoreUseTheActualUnityLifecycle",
+      "message": "  direct minigame polling must use the saved key in the player loop\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "name": "VisualUIReviewTests.ServiceAndRecipeControlsKeepTheirOwnersAndUseCurrentArt",
+      "message": "  Expected: String containing \"/recipe_choice/\"\n  But was:  \"Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes/WebGenerated/Web_BTN_recipe_card_background_v02.png\"\n"
+    }
+  ],
+  "limits": [
+    "Full manual 0-3 day route including crafting/serving is not performed.",
+    "Final visual review and dedicated animation/art are not complete."
+  ]
+}

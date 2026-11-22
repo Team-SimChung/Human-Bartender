@@ -33,6 +33,16 @@ public sealed class DialoguePresentationSettings : ScriptableObject
     public bool ReducedMotion;
     [Tooltip("Optional registered SoundManager SE key. Empty means silent typing.")]
     public string TypingSoundKey;
+    [Min(0f)] public float TypingSoundInterval = 0.06f;
+    [Header("Exterior Period Rhythm")]
+    [Tooltip("거리·집·테라스 대사에서 단독 마침표 다음 글자(또는 줄 끝)까지 기다리는 시간(초). 웹 dialogue-rhythm.js 기준 0.35. 바 내부 대사에는 적용하지 않는다.")]
+    [Min(0f)] public float LonePeriodPause = 0.35f;
+    [Tooltip("'...'처럼 이어진 마침표 사이의 간격(초). 웹 기준 0.3. 마지막 점 다음은 평소 속도로 이어진다.")]
+    [Min(0f)] public float ConsecutivePeriodInterval = 0.3f;
+    [Tooltip("SE keys for accepted dialogue input and choice interactions. Empty disables that cue.")]
+    public string AdvanceSoundKey;
+    public string ChoiceHoverSoundKey;
+    public string ChoiceConfirmSoundKey;
     [Tooltip("Reusable effects referenced by <fx=id>...</fx> in dialogue CSV.")]
     public DialogueFxPreset[] Presets;
 

@@ -28,6 +28,8 @@ public class CutSceneSpriteAnimBehaviour : PlayableBehaviour
     [Header("스프라이트 시트")]
     [Tooltip("Resources 하위 경로 (확장자 제외). 예: Cutscenes/luna_walk_sheet")]
     public string spriteSheetPath;
+    [Tooltip("직접 연결한 UI 애니메이션. Timeline 클립 길이에 맞춰 재생하며 잘린 프레임의 크기·위치도 적용한다.")]
+    public AnimationClip animationClip;
 
     [Tooltip("초당 프레임 수")]
     public float fps = 12f;
@@ -57,6 +59,7 @@ public class CutSceneSpriteAnimBehaviour : PlayableBehaviour
     [NonSerialized] private int actualEndFrame;
     [NonSerialized] private Vector2 prevPivot;
     [NonSerialized] private bool pivotApplied;
+    [NonSerialized] private Animator clipAnimator;
 
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
@@ -97,6 +100,19 @@ public class CutSceneSpriteAnimBehaviour : PlayableBehaviour
             {
                 rect.pivot = pivot;
             }
+        }
+
+        if (animationClip != null)
+        {
+            // UI의 오브젝트 참조 곡선을 샘플링할 때 바인딩용 Animator가 필요하다.
+            if (targetImage.GetComponent<Animator>() == null && clipAnimator == null)
+                clipAnimator = targetImage.gameObject.AddComponent<Animator>();
+            double duration = playable.GetDuration();
+            float time = duration > 0 && !double.IsInfinity(duration)
+                ? (float)(playable.GetTime() / duration) * animationClip.length
+                : (float)playable.GetTime();
+            animationClip.SampleAnimation(targetImage.gameObject, Mathf.Clamp(time, 0f, animationClip.length));
+            return;
         }
 
         // 스프라이트 시트에서 서브 스프라이트 로드 (한 번만)
@@ -156,6 +172,7 @@ public class CutSceneSpriteAnimBehaviour : PlayableBehaviour
 
     public override void OnBehaviourPause(Playable playable, FrameData info)
     {
+        ReleaseClipAnimator();
         // Pivot 복구 — 다음 SpriteAnim 클립이 자기 pivot을 설정하므로
         // 클립 사이에 빈 구간이 있을 때만 의미 있음
         if (overridePivot && pivotApplied && targetImage != null)
@@ -177,5 +194,15 @@ public class CutSceneSpriteAnimBehaviour : PlayableBehaviour
 
         targetImage = null;
         pivotApplied = false;
+    }
+
+    public override void OnPlayableDestroy(Playable playable) => ReleaseClipAnimator();
+
+    void ReleaseClipAnimator()
+    {
+        if (clipAnimator == null) return;
+        if (Application.isPlaying) UnityEngine.Object.Destroy(clipAnimator);
+        else UnityEngine.Object.DestroyImmediate(clipAnimator);
+        clipAnimator = null;
     }
 }

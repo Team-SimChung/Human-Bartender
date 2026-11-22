@@ -24,10 +24,10 @@ public static class StirDirections
     /// <summary>키 배지에 표시할 이름.</summary>
     public static string KeyLabel(int direction) => direction switch
     {
-        (int)EStirDirection.Up => "W",
-        (int)EStirDirection.Right => "D",
-        (int)EStirDirection.Down => "S",
-        (int)EStirDirection.Left => "A",
+        (int)EStirDirection.Up => GameKeyBindings.DisplayName(GameControl.StirUp),
+        (int)EStirDirection.Right => GameKeyBindings.DisplayName(GameControl.StirRight),
+        (int)EStirDirection.Down => GameKeyBindings.DisplayName(GameControl.StirDown),
+        (int)EStirDirection.Left => GameKeyBindings.DisplayName(GameControl.StirLeft),
         _ => "?",
     };
 

@@ -194,6 +194,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "SkipDialogue",
+                    "type": "Value",
+                    "id": "0cfadc25-0fbf-409b-a204-5de835d35cde",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "Left",
                     "type": "Button",
                     "id": "57b30e10-70fb-4bdf-9710-3ed9a05a244f",
@@ -207,6 +216,15 @@
                     "type": "Button",
                     "id": "c29e4f55-08f4-41d6-8a64-ec36194ab89a",
                     "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RepeatOrder",
+                    "type": "Button",
+                    "id": "3323f82e-f847-4304-ac8b-a2c4cddde270",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -235,8 +253,19 @@
                 },
                 {
                     "name": "",
+                    "id": "489b60b6-494a-41e8-995d-a6e7deef058f",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "SkipDialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "095d84d8-5e1b-4a59-be04-6b431f690545",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -247,11 +276,22 @@
                 {
                     "name": "",
                     "id": "f50ef1ee-d6eb-4cbe-8aaa-91bd56fbe4bc",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "54fd1aa1-396f-498a-8eda-f200add3bd74",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "RepeatOrder",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -295,7 +335,7 @@
                 {
                     "name": "",
                     "id": "75371c5e-a165-4a93-9c93-99cde349a646",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -306,7 +346,7 @@
                 {
                     "name": "",
                     "id": "bf04ee90-f12e-41c8-83ef-9956dd78d991",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -324,6 +364,15 @@
                     "name": "PointerPress",
                     "type": "PassThrough",
                     "id": "41d75149-2ce1-5f4d-8131-826cf7647b23",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ShakePress",
+                    "type": "PassThrough",
+                    "id": "495ef731-d96d-4dbe-aa25-b156bc2f6101",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -384,6 +433,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "PointerPress",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2805b241-5167-4667-a683-9f2a9ab1f012",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ShakePress",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1010,6 +1070,34 @@
                     "processors": "",
                     "groups": "XR",
                     "action": "TrackedDeviceOrientation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Cutscene",
+            "id": "9b6a90d5-93d6-45ca-a7a2-056dd65358aa",
+            "actions": [
+                {
+                    "name": "Skip",
+                    "type": "Button",
+                    "id": "fab6b84d-9efd-428f-8364-06b74c34d61d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a3239806-d1c3-49fc-8e9a-71c1b44f5d59",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Skip",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

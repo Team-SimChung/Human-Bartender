@@ -24,13 +24,17 @@ public class StoryResultContext
     /// <summary>플레이어가 실제로 낸 칵테일.</summary>
     public string ServedCocktailId { get; }
 
+    /// <summary>취향 조건이 읽는 실제 제공 칵테일의 도수·태그.</summary>
+    public NewCocktailData? ServedCocktail { get; }
+
     public StoryResultContext(ENewGrade craftGrade, ENewGrade finalGrade, bool orderMatch,
-                              string orderedCocktailId, string servedCocktailId)
+                              string orderedCocktailId, string servedCocktailId, NewCocktailData? servedCocktail = null)
     {
         CraftGrade = craftGrade;
         FinalGrade = finalGrade;
         OrderMatch = orderMatch;
         OrderedCocktailId = orderedCocktailId;
         ServedCocktailId = servedCocktailId;
+        ServedCocktail = servedCocktail;
     }
 }

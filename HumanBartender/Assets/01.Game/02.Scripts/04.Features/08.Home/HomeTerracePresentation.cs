@@ -1,0 +1,219 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using Unity.Cinemachine;
+using UnityEngine;
+
+/// <summary>테라스 진입 이동을 마친 뒤 대사를 시작하고 종료 시 실내 카메라를 복원함.</summary>
+[DisallowMultipleComponent]
+public sealed class HomeTerracePresentation : MonoBehaviour
+{
+    [Header("테라스 화면 연결")]
+    [SerializeField, Tooltip("테라스를 비추는 가상 카메라입니다.")] private CinemachineCamera terraceCamera;
+    [SerializeField, Tooltip("검은 화면에서 카메라 전환을 적용할 Brain입니다.")] private CinemachineBrain cameraBrain;
+    [SerializeField, Tooltip("테라스 대사의 화자 기준점입니다.")] private WorldDialogueSpeakers speakers;
+    [SerializeField, Tooltip("테라스에서 루나의 대사를 표시할 기준점입니다.")] private Transform lunaAnchor;
+    [SerializeField, Tooltip("다음 날 실내에서 깨어날 위치입니다.")] private Transform wakeUpSpawn;
+    [SerializeField, Min(0), Tooltip("테라스 진입·복귀 페이드 시간(초)입니다.")] private float fadeDuration = .35f;
+
+    [Header("대사 전 테라스 진입 이동")]
+    [SerializeField, Tooltip("Terrace_BG_City 바로 아래의 Terrace 루트입니다. 이 Transform과 모든 하위 오브젝트를 함께 이동합니다.")] private Transform terraceForeground;
+    [SerializeField, Tooltip("페이드 인 전에 배치할 부모 기준 로컬 X 좌표입니다. Y/Z는 유지합니다.")] private float entranceStartX = -1.8f;
+    [SerializeField, Tooltip("진입 완료·퇴장 시의 부모 기준 로컬 X 좌표입니다.")] private float entranceEndX = 0;
+    [SerializeField, Min(0), Tooltip("화면이 밝아진 뒤 이동할 시간(초)입니다. 0이면 즉시 도착합니다.")] private float entranceDuration = 3f;
+    [SerializeField, Tooltip("진입 이동의 가속·감속 곡선입니다.")] private Ease entranceEase = Ease.InOutSine;
+    [SerializeField, Tooltip("진입 이동을 마친 뒤 재생할 테라스 이야기 ID입니다.")] private string[] storyIds = { "night0", "night1", "night2", "ending" };
+    [Header("테라스 이용 중 활성화")]
+    [SerializeField, Tooltip("까마귀·비둘기가 들어 있는 TerraceBirdsGroup입니다. 테라스를 비추기 전에 켜고 복귀·취소 시 끕니다. 이 컴포넌트 자체를 포함하지 않는 자식 그룹을 연결하세요.")]
+    private GameObject terraceBirdsRoot;
+    [SerializeField, Tooltip("비 오는 밤에 테라스 화면을 비추기 전부터 켜는 빗줄기 파티클입니다. 대본 날짜의 퇴근 날씨를 사용합니다.")]
+    private GameObject terraceRain;
+    [SerializeField, Tooltip("Home 카메라에 저장한 물방울 합성입니다. 테라스 빗줄기가 켜진 동안만 렌더링합니다.")]
+    private WindowRainLayer terraceRainGlass;
+    [SerializeField, Tooltip("실내 창문 밖 빗줄기입니다. 현재 날짜와 출퇴근 구간의 날씨를 사용합니다.")]
+    private GameObject roomWindowRain;
+    [Header("대본 스텝 연출")]
+    [SerializeField, Tooltip("씬에 배치한 새 도착 연출입니다. 날짜별 스텝은 각 컴포넌트의 Inspector에서 설정합니다.")]
+    private TerraceBirdArrival[] birdArrivals = Array.Empty<TerraceBirdArrival>();
+    [Header("실내·테라스 환경음")]
+    [SerializeField, Tooltip("실내에서만 들리는 거리 환경음. 테라스 진입 시 줄이고 실내 복귀 시 다시 재생한다.")]
+    private DistanceAmbientAudio[] indoorAmbience = Array.Empty<DistanceAmbientAudio>();
+    [SerializeField, Tooltip("테라스에서만 들리는 환경음. 대본의 날짜와 퇴근 재생 설정을 사용한다.")]
+    private DistanceAmbientAudio[] terraceAmbience = Array.Empty<DistanceAmbientAudio>();
+    private bool previousCameraEnabled;
+    public bool IsActive { get; private set; }
+    public WorldDialogueSpeakers Speakers => speakers;
+    public Transform LunaAnchor => lunaAnchor;
+
+    private void Awake()
+    {
+        SetTerraceBirdsActive(false);
+        SetTerraceEnvironment(false);
+    }
+
+    private void SetTerraceEnvironment(bool onTerrace, int day = -1)
+    {
+        bool raining = onTerrace &&
+            GameAudioRules.IsRainy(day >= 0 ? day : GameStateManager.Instance.CurrentDay, EGameFlow.CommuteOut);
+        if (terraceRain != null) terraceRain.SetActive(raining);
+        if (terraceRainGlass != null) terraceRainGlass.enabled = raining;
+        RefreshRoomWindowRain(!onTerrace);
+        foreach (var ambience in indoorAmbience)
+            if (ambience != null) ambience.SetPlaybackAllowed(!onTerrace);
+        foreach (var ambience in terraceAmbience)
+            if (ambience != null) ambience.SetPlaybackAllowed(onTerrace, day >= 0 ? day : null, EGameFlow.CommuteOut);
+    }
+
+    private void Update()
+    {
+        if (!IsActive) RefreshRoomWindowRain(true);
+    }
+
+    private void RefreshRoomWindowRain(bool indoors)
+    {
+        if (roomWindowRain == null) return;
+        var state = GameStateManager.Instance;
+        bool raining = indoors && isActiveAndEnabled && GameAudioRules.IsRainy(state.CurrentDay, state.GameFlow);
+        if (roomWindowRain.activeSelf != raining) roomWindowRain.SetActive(raining);
+    }
+
+    private void SetTerraceBirdsActive(bool active)
+    {
+        if (terraceBirdsRoot != null) terraceBirdsRoot.SetActive(active);
+    }
+
+    public bool ContainsStory(string id) => Array.IndexOf(storyIds ?? Array.Empty<string>(), id) >= 0;
+    public int StoryDayCount => storyIds?.Length ?? 0;
+    public string GetStoryIdForDay(int day) => day >= 0 && day < StoryDayCount ? storyIds[day] : null;
+
+    public void BeginStory(string id, int day)
+    {
+        int storyDay = ContainsStory(id) ? day : -1;
+        if (IsActive) SetTerraceEnvironment(true, storyDay);
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.PrepareForDay(storyDay);
+        SyncBirdsWithForeground();
+    }
+
+    public void OnStepStarted(Step step)
+    {
+        if (!IsActive) return;
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.TryStartAtStep(step.Seq);
+    }
+
+    private void ResetBirds()
+    {
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.ResetArrival();
+    }
+
+    /// <summary>취침 페이드의 검은 화면에서 다음 날 위치와 실내 카메라를 준비함.</summary>
+    public void PrepareMorning(Player player)
+    {
+        if (player == null || wakeUpSpawn == null)
+            throw new InvalidOperationException("[HomeTerrace] Home의 다음 날 소파 앞 기상 위치를 연결하세요.");
+        player.PrepareWorldInteraction();
+        player.transform.position = wakeUpSpawn.position;
+        RestoreCamera();
+    }
+
+    public async UniTask EnterAsync(ISceneFadeService fades, CancellationToken token, string storyId = null, int day = -1)
+    {
+        token.ThrowIfCancellationRequested();
+        if (IsActive)
+        {
+            SetTerraceBirdsActive(true);
+            if (storyId != null) BeginStory(storyId, day);
+            else if (day >= 0) SetTerraceEnvironment(true, day);
+            return;
+        }
+        if (terraceCamera == null || cameraBrain == null || speakers == null || lunaAnchor == null || terraceForeground == null || fades == null)
+            throw new InvalidOperationException("[HomeTerrace] 테라스 카메라·화자 기준점·Terrace·페이드 서비스를 연결하세요.");
+        using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
+        token = lifetime.Token;
+        previousCameraEnabled = terraceCamera.enabled;
+        ResetBirds();
+        await fades.FadeOutAsync(fadeDuration, token);
+        try
+        {
+            IsActive = true;
+            SetForegroundX(entranceStartX);
+            SetTerraceBirdsActive(true);
+            if (storyId != null) BeginStory(storyId, day);
+            else SetTerraceEnvironment(true, day);
+            terraceCamera.PreviousStateIsValid = false;
+            terraceCamera.enabled = true;
+            cameraBrain.ResetState(); // 검은 화면에서 즉시 전환하고 기본 카메라 블렌드는 유지함.
+            await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, token);
+            await fades.FadeInAsync(fadeDuration, token);
+            if (entranceDuration > 0)
+                await terraceForeground.DOLocalMoveX(entranceEndX, entranceDuration)
+                    .SetEase(entranceEase).SetUpdate(true).OnUpdate(SyncBirdsWithForeground)
+                    .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, token);
+            token.ThrowIfCancellationRequested();
+            SetForegroundX(entranceEndX);
+        }
+        catch
+        {
+            await ExitAsync(fades, CancellationToken.None);
+            throw;
+        }
+    }
+
+    public async UniTask ExitAsync(ISceneFadeService fades, CancellationToken token)
+    {
+        ResetBirds();
+        if (!IsActive)
+        {
+            SetTerraceBirdsActive(false);
+            return;
+        }
+        try { await fades.FadeOutAsync(fadeDuration, token); }
+        finally
+        {
+            RestoreCamera();
+            // 취소돼도 검은 화면과 테라스 카메라가 남지 않게 끝까지 복원함.
+            await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate);
+            await fades.FadeInAsync(fadeDuration, CancellationToken.None);
+        }
+    }
+
+    private void RestoreCamera()
+    {
+        SetTerraceEnvironment(false);
+        ResetBirds();
+        SetTerraceBirdsActive(false);
+        if (!IsActive) return;
+        SetForegroundX(entranceEndX);
+        if (terraceCamera != null) terraceCamera.enabled = previousCameraEnabled;
+        if (cameraBrain != null) cameraBrain.ResetState();
+        IsActive = false;
+    }
+
+    private void SetForegroundX(float x)
+    {
+        if (terraceForeground == null) return;
+        var position = terraceForeground.localPosition;
+        position.x = x;
+        terraceForeground.localPosition = position;
+        SyncBirdsWithForeground();
+    }
+
+    private void SyncBirdsWithForeground()
+    {
+        if (terraceForeground == null) return;
+        var offset = Vector3.right * (terraceForeground.localPosition.x - entranceEndX);
+        if (terraceForeground.parent != null) offset = terraceForeground.parent.TransformVector(offset);
+        foreach (var arrival in birdArrivals)
+            if (arrival != null) arrival.SyncTerraceEntrance(terraceForeground, offset);
+    }
+
+    private void OnDisable()
+    {
+        if (Application.isPlaying) RestoreCamera();
+    }
+
+    private void OnDestroy() => RestoreCamera();
+}

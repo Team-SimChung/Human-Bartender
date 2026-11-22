@@ -13,7 +13,7 @@ using UnityEngine;
 public class AnimatorPlaceholderSetup : EditorWindow
 {
     private AnimatorController _baseController;
-    private string _outputFolder = "Assets/01.Game/03.Content/09.Shared/02.Animations/Placeholders";
+    private string _outputFolder = "Assets/01.Game/03.Content/07.Animations/04.Shared/01.Clips/01.Expressions";
 
     private const string STATE_INTRO = "ExpressionIntro";
     private const string STATE_LOOP  = "ExpressionLoop";

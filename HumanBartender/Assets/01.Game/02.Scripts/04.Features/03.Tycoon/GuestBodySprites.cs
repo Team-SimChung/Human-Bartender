@@ -72,6 +72,15 @@ public class GuestBodySprites
 {
     readonly Dictionary<EGuestBodySlot, Sprite> sprites = new();
     readonly List<AsyncOperationHandle<Sprite>?> handles = new();
+    AsyncOperationHandle<AnimationClip>? mouthAnimation;
+
+    public AnimationClip MouthAnimation => mouthAnimation.HasValue ? mouthAnimation.Value.Result : null;
+
+    public void SetMouthAnimation(AsyncOperationHandle<AnimationClip>? handle)
+    {
+        ResourceLoader.ReleaseHandle(ref mouthAnimation);
+        mouthAnimation = handle;
+    }
 
     /// <summary>불러온 스프라이트를 슬롯에 담는다. 핸들이 비어 있으면(로드 실패) 담지 않는다.</summary>
     public void Set(EGuestBodySlot slot, AsyncOperationHandle<Sprite>? handle)
@@ -101,6 +110,7 @@ public class GuestBodySprites
 
     public void Release()
     {
+        ResourceLoader.ReleaseHandle(ref mouthAnimation);
         for (int i = 0; i < handles.Count; i++)
         {
             var handle = handles[i];

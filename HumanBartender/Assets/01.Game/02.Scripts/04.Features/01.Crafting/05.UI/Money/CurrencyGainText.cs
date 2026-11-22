@@ -25,6 +25,7 @@ public class CurrencyGainText : MonoBehaviour
 
     private RectTransform rect;
     private CanvasGroup group;
+    private Action completed;
 
     private void Awake()
     {
@@ -34,9 +35,18 @@ public class CurrencyGainText : MonoBehaviour
 
     /// <summary>팝업을 시작 위치에서 목표 위치로 이동시키며 재생한다.</summary>
     /// <param name="onMerge">메인 텍스트와 겹치는 순간 호출 (값 반영 콜백)</param>
-    public void Play(int amount, string suffix, Vector2 startPos, Vector2 targetPos, Action onMerge)
+    /// <param name="onComplete">페이드아웃이 끝나거나 재생이 중단됐을 때 한 번 호출</param>
+    public void Play(int amount, string suffix, Vector2 startPos, Vector2 targetPos, Action onMerge,
+                     Action onComplete = null)
     {
         if (rect == null) Awake();
+        completed = onComplete;
+        if (!gameObject.activeInHierarchy || !isActiveAndEnabled || label == null)
+        {
+            Complete();
+            Destroy(gameObject);
+            return;
+        }
 
         bool positive = amount >= 0;
         label.text = (positive ? positivePrefix : negativePrefix) + Mathf.Abs(amount) + suffix;
@@ -56,7 +66,7 @@ public class CurrencyGainText : MonoBehaviour
         float t = 0f;
         while (t < travelDuration)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             float k = moveCurve.Evaluate(Mathf.Clamp01(t / travelDuration));
             rect.anchoredPosition = Vector2.LerpUnclamped(startPos, targetPos, k);
 
@@ -73,12 +83,27 @@ public class CurrencyGainText : MonoBehaviour
         float m = 0f;
         while (m < mergeDuration)
         {
-            m += Time.deltaTime;
+            m += Time.unscaledDeltaTime;
             float k = Mathf.Clamp01(m / mergeDuration);
             group.alpha = 1f - k;
             rect.localScale = Vector3.one * Mathf.Lerp(1f, endScale, k);
             yield return null;
         }
+        Complete();
         Destroy(gameObject);
+    }
+
+    // 도착과 별도로, 페이드 종료 또는 중단을 한 번만 알린다.
+    private void Complete()
+    {
+        var callback = completed;
+        completed = null;
+        callback?.Invoke();
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        Complete();
     }
 }

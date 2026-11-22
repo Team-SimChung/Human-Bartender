@@ -1,0 +1,87 @@
+{
+  "web_commit": "b2f8ca7a524f19363d0f8c8af6fa075e5b5661b4",
+  "csv_files": 48,
+  "datasets": 38,
+  "python_tests": {
+    "passed": 9
+  },
+  "unity_new_tests": [
+    {
+      "name": "StoryTableStateTests.CancellationCleanupCannotLeaveVisitStateForNextRun",
+      "result": "Passed"
+    },
+    {
+      "name": "StoryTableStateTests.CoastersBelongToVisitsAndAreIndependentForTwoActors",
+      "result": "Passed"
+    },
+    {
+      "name": "StoryTableStateTests.EmptyGlassDoesNotCreateADrinkAndRejectsMissingActor",
+      "result": "Passed"
+    },
+    {
+      "name": "WebContentRuntimeSmokeTests.PinnedContentLoadsThroughExistingProgressionAndSceneScopes",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.AllRuntimeDtosMapAndWebBehaviorMetadataIsRetained",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.DisplayingAnEmptyGlassDoesNotChangeTheCraftedDrinkOrOtherVisit",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.PaymentProjectionDoesNotTurnAFreeOrderIntoAPaidOrder",
+      "result": "Passed"
+    },
+    {
+      "name": "WebCsvCompatibilityTests.PublishedFilesAreExactlyThePinnedWebSnapshot",
+      "result": "Passed"
+    },
+    {
+      "name": "WebStoryEffectTests.RepeatedAllowanceCommandUsesExistingPlayerFlagsAndPaysOnlyOnce",
+      "result": "Passed"
+    },
+    {
+      "name": "WebStoryEffectTests.RepeatedWildDogGrantDoesNotReopenTheDealOrChangeMoney",
+      "result": "Passed"
+    }
+  ],
+  "all_editmode": {
+    "total": "39",
+    "passed": "32",
+    "failed": "3",
+    "skipped": "4"
+  },
+  "failures": [
+    {
+      "name": "VisualUIReviewTests.CommonOptionsKeepsItsWidgetsAppliesDisplayExplicitlyAndRestoresFocus",
+      "message": "System.NullReferenceException : Object reference not set to an instance of an object"
+    },
+    {
+      "name": "VisualUIReviewTests.RuntimeMenuWiringAndGlitchRestoreUseTheActualUnityLifecycle",
+      "message": "  direct minigame polling must use the saved key in the player loop\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "name": "VisualUIReviewTests.ServiceAndRecipeControlsKeepTheirOwnersAndUseCurrentArt",
+      "message": "  Expected: String containing \"/recipe_choice/\"\n  But was:  \"Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes/WebGenerated/Web_BTN_recipe_card_background_v02.png\"\n"
+    }
+  ],
+  "craft_validation": {
+    "cocktails": 29,
+    "shelf_items": 44,
+    "errors": 0,
+    "warnings": 2
+  },
+  "unity_receipt_matches_published_files": true,
+  "limits": [
+    "Full manual 0-3 day route and branch review not performed",
+    "Dedicated web event animations and some optional cutscenes remain unbound"
+  ],
+  "unity_final_scoped": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0
+  }
+}

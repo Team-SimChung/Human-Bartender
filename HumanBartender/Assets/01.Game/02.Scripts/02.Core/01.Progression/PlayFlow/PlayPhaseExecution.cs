@@ -19,6 +19,7 @@ public enum PlayPhaseRunState
     Completed,
     Canceled,
     Failed,
+    AwaitingSettlement,
 }
 
 /// <summary>Play 씬의 하루 실행이 끝난 이유와 실패 정보를 전달한다.</summary>

@@ -16,10 +16,13 @@ public class Texts
 [Serializable]
 public struct NewStreetOptionData
 {
+    [JsonIgnore] public bool? Selectable;
     [JsonProperty("id")] public string Id;
     [JsonProperty("seq")] public int Seq;
     [JsonProperty("text")] public Texts Text;
     [JsonProperty("when")] public string When;
+    /// <summary>true인 선택지만 ESC·패드 취소로 선택한다. CSV 빈 값은 취소 표시 없음이다.</summary>
+    [JsonProperty("is_cancel")] public bool? IsCancel;
 
     /// <summary>고를 수 없을 때 보여줄 이유. 화면에 그대로 나오는 문구라 언어별로 들어 있다. 고를 수 있으면 null이다.</summary>
     [JsonProperty("lock_reason")] public Texts LockReason;
@@ -53,6 +56,10 @@ public struct ChoiceOption
 [Serializable]
 public struct Step
 {
+    [JsonIgnore] public OutsideStoryCommand Command;
+    [JsonIgnore] public string CutsceneAfter;
+    [JsonIgnore] public string MemoryKey;
+    [JsonProperty("web_fields")] public Dictionary<string, object> WebFields;
     [JsonProperty("seq")] public int Seq;
     [JsonProperty("type")] public string Type;
     [JsonProperty("actor")] public string Actor;
@@ -78,6 +85,12 @@ public struct Step
 [Serializable]
 public struct NewSceneData
 {
+    [JsonProperty("runtime_scene")] public string RuntimeScene;
+    [JsonProperty("route")] public string Route;
+    [JsonProperty("x")] public float X;
+    [JsonProperty("y")] public float Y;
+    [JsonProperty("radius")] public float Radius;
+    [JsonProperty("completion_flag")] public string CompletionFlag;
     [JsonProperty("id")] public string Id;
     [JsonProperty("day")] public int? Day;
 

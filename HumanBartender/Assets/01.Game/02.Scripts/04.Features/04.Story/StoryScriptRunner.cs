@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
 /// 2부 대본을 씬 단위로 실행한다(2부 운영 명세 §4·§6).
@@ -17,12 +18,27 @@ using UnityEngine;
 ///
 /// 지금은 say·enter·exit·choice·order·craft·serve·timeline을 실행하고 나머지 스텝은 기록만 남긴다.
 /// </summary>
-public class StoryScriptRunner : MonoBehaviour
+public partial class StoryScriptRunner : MonoBehaviour
 {
+    [Inject] IOrderPaymentService orderPayments;
     [SerializeField] private RecipeBrowserScreen recipeScreen;
+    [SerializeField] private StoryTutorialController tutorial;
+    [Tooltip("3일차 히든 레시피 해금 창(Canvas_HiddenRecipeUnlock). 확인할 때까지 대본을 멈춥니다.")]
+    [SerializeField] private HiddenRecipeUnlockScreen hiddenRecipeScreen;
+    CraftServingView tables;
 
     public bool CanStartCraft { get; private set; }
+
+    /// <summary>튜토리얼이 조작을 하나씩 안내하는 중인지(좌석·코스터·제조 실습). 대화 기록처럼 안내와 겹치는 화면을 막는 데 쓴다.</summary>
+    public bool IsGuidingLesson => tutorial != null && tutorial.ActiveLesson != null;
+    string craftMenuTutorialCocktailId;
     public event Action CraftAuthorizationChanged;
+
+    public void SetTutorialController(StoryTutorialController controller)
+    {
+        tutorial = controller;
+        tables = controller != null ? controller.Tables : null;
+    }
 
     /// <summary>
     /// 플레이어. 바에서는 1인칭이라 초상을 세우지 않는데, 그 판단은 화면이 하고 여기서는 누구인지만 안다.
@@ -31,6 +47,7 @@ public class StoryScriptRunner : MonoBehaviour
 
     IStoryPresenter presenter;
     IConditionUtil conditions;
+    IPopupService popupService;
     OrderRequestController orderController;
     UniTaskCompletionSource<OrderResult> orderResultSignal;
 
@@ -59,6 +76,9 @@ public class StoryScriptRunner : MonoBehaviour
 
     /// <summary>대사를 넘기라는 입력을 기다리는 곳. 기다리는 중이 아니면 null이다.</summary>
     UniTaskCompletionSource advanceSignal;
+    public bool IsWaitingForAdvance => advanceSignal != null;
+    public bool IsPresentingLine { get; private set; }
+    public string CurrentDialogueId { get; private set; }
 
     /// <summary>
     /// 지금 어느 자리에 누가 앉아 있는지. 명세가 2부 세션의 관리 대상으로 두는 값이라 여기서 든다
@@ -80,12 +100,14 @@ public class StoryScriptRunner : MonoBehaviour
 
     /// <summary>화면과 평가기를 연결한다. RunAsync 전에 반드시 불러야 한다.</summary>
     public void Bind(IStoryPresenter storyPresenter, IConditionUtil conditionEvaluator,
-                     OrderRequestController requests, ICutScenePlayer cutScenePlayerImpl)
+                     OrderRequestController requests, ICutScenePlayer cutScenePlayerImpl,
+                     IPopupService popupServiceImpl = null)
     {
         presenter = storyPresenter;
         conditions = conditionEvaluator;
         orderController = requests;
         cutScenePlayer = cutScenePlayerImpl;
+        popupService = popupServiceImpl;
     }
 
     /// <summary>
@@ -93,44 +115,79 @@ public class StoryScriptRunner : MonoBehaviour
     /// </summary>
     public StoryExecutionResult LastResult { get; private set; }
 
-    public async UniTask<StoryExecutionResult> RunAsync(NewDayScriptBase dayScript, CancellationToken token)
+    /// <summary>
+    /// 본편이 끝난 뒤 정산창 뒤에 남겨 둔 무대(대본이 내보내지 않은 인물, 테이블 위 잔·코스터)가 있는지.
+    /// ReleaseStage가 정리한다(엔진 수정 11).
+    /// </summary>
+    public bool IsStageHeld { get; private set; }
+
+    /// <param name="holdStage">
+    /// 참이면 본편(phase = Bar)이 정상으로 끝났을 때 남은 인물의 자동 퇴장과 무대 정리를 미루고 말풍선만 닫는다.
+    /// 정산창이 뜨는 순간 손님이 한꺼번에 사라지지 않게 하려는 것이다(엔진 수정 11). 개점 전 대본, 취소·실패는 지금처럼 바로 정리한다.
+    /// </param>
+    public async UniTask<StoryExecutionResult> RunAsync(NewDayScriptBase dayScript, CancellationToken token,
+        ENewScenePhase phase = ENewScenePhase.Bar, bool holdStage = false)
     {
         if (IsRunning) return new StoryExecutionResult(StoryExecutionStatus.Failed, "Story is already running.");
         if (presenter == null || conditions == null)
             return new StoryExecutionResult(StoryExecutionStatus.Failed, "Story must be bound before running.");
+        ReleaseStage();
+        holdStage &= phase == ENewScenePhase.Bar;
         script = dayScript;
         conditions = conditions.CreateExecutionScope();
         IsRunning = true;
         try
         {
             token.ThrowIfCancellationRequested();
-            var cursor = new StorySceneCursor(script, conditions);
-            if (!cursor.IsEmpty)
+#if UNITY_EDITOR
+            if (testStart != null) await RunFromTestDialogueAsync(token);
+            else
+#endif
             {
-                bool initialFramingDone = false;
-                while (cursor.TryTakeNext(out NewScriptSceneData scene))
+                var cursor = new StorySceneCursor(script, conditions, phase);
+                if (!cursor.IsEmpty)
                 {
-                    token.ThrowIfCancellationRequested();
-                    if (!initialFramingDone && TryGetFirstExecutableStep(scene, out ENewStepType firstStep))
+                    bool initialFramingDone = false;
+                    while (cursor.TryTakeNext(out NewScriptSceneData scene))
                     {
-                        // 첫 동작이 입장이면 그 입장의 프레임을 바로 잡는다. 빈 좌석 프레임을
-                        // 먼저 재생하면 첫 손님 앞에서 카메라가 물러났다가 다시 다가온다.
-                        if (firstStep != ENewStepType.Enter) await ApplyFramingAsync(token);
-                        initialFramingDone = true;
+                        token.ThrowIfCancellationRequested();
+                        if (!initialFramingDone && TryGetFirstExecutableStep(scene, out ENewStepType firstStep))
+                        {
+                            // 첫 동작이 입장이면 그 입장의 프레임을 바로 잡는다. 빈 좌석 프레임을
+                            // 먼저 재생하면 첫 손님 앞에서 카메라가 물러났다가 다시 다가온다.
+                            if (firstStep != ENewStepType.Enter) await ApplyFramingAsync(token);
+                            initialFramingDone = true;
+                        }
+                        if (await PlayFromAsync(scene, token)) break;
                     }
-                    if (await PlayFromAsync(scene, token)) break;
                 }
             }
             token.ThrowIfCancellationRequested();
+            if (holdStage)
+            {
+                // 본편 끝: 대본이 내보내지 않은 손님은 정산창 뒤에 그대로 둔다. 말풍선만 바로 닫는다.
+                (presenter as IStoryDialogueVisibility)?.HideDialogue();
+                IsStageHeld = true;
+            }
+            // 대본이 끝날 때도 화면에 남은 인물을 갑자기 지우지 않는다.
+            else if (presenter is IStoryCharacterTransitions transition && seatActors.Count > 0)
+            {
+                (presenter as IStoryDialogueVisibility)?.HideDialogue();
+                var exits = new List<UniTask>(seatActors.Count);
+                foreach (var slot in seatActors.Keys) exits.Add(transition.ExitAsync(slot, token));
+                await UniTask.WhenAll(exits);
+            }
             LastResult = new StoryExecutionResult(StoryExecutionStatus.Completed);
         }
         catch (OperationCanceledException) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Cancelled); }
         catch (Exception e) { LastResult = new StoryExecutionResult(StoryExecutionStatus.Failed, e.Message); }
         finally
         {
+            if (tutorial != null) tutorial.EndLessons();
             SetCraftAuthorization(false);
             if (recipeScreen != null) recipeScreen.ForceClose();
             advanceSignal = null;
+            CurrentDialogueId = null;
             seatActors.Clear();
             var cleanupErrors = new List<string>();
             void Cleanup(Action action)
@@ -140,7 +197,16 @@ public class StoryScriptRunner : MonoBehaviour
             }
             if (currentOrder != null && orderController != null) Cleanup(CancelCurrentOrder);
             orderResultSignal = null;
-            if (IsAlive(presenter)) Cleanup(presenter.Clear);
+            if (IsStageHeld)
+            {
+                // 잔·코스터는 보이게 두고 공급함과 놓기 조작만 닫는다. 나머지 정리는 ReleaseStage가 한다.
+                if (tables != null) Cleanup(tables.HoldTables);
+            }
+            else
+            {
+                if (IsAlive(presenter)) Cleanup(presenter.Clear);
+                if (tables != null) Cleanup(tables.EndVisits);
+            }
             currentOrder = null;
             Cleanup(ClearConditionResult);
             IsRunning = false;
@@ -152,6 +218,19 @@ public class StoryScriptRunner : MonoBehaviour
             }
         }
         return LastResult;
+    }
+
+    /// <summary>
+    /// 본편이 끝난 뒤 남겨 둔 무대(인물·테이블 위 잔과 코스터)를 정리한다. 남겨 둔 것이 없으면 아무것도 하지 않는다.
+    /// PlayPhaseController가 정산과 퇴근 이동을 마친 뒤, 또는 하루가 실패·취소로 끝날 때 부른다.
+    /// 씬이 이미 바뀌어 대상이 파괴됐으면 건너뛴다.
+    /// </summary>
+    public void ReleaseStage()
+    {
+        if (!IsStageHeld) return;
+        IsStageHeld = false;
+        if (IsAlive(presenter)) presenter.Clear();
+        if (tables != null) tables.EndVisits();
     }
 
     static bool IsAlive(object target) => target != null && (target is not UnityEngine.Object obj || obj != null);
@@ -252,6 +331,7 @@ public class StoryScriptRunner : MonoBehaviour
                 // 선택지의 effects는 고른 항목의 것을 이미 적용했다. 스텝 자체의 effects는 그다음이다.
                 token.ThrowIfCancellationRequested();
                 conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
+                await CheckRecipeUnlockAsync(scene.Day, token);
 
                 if (target != null) return (false, target);
 
@@ -260,13 +340,62 @@ public class StoryScriptRunner : MonoBehaviour
 
             await PlayStepAsync(scene, step, token);
 
+            if (!string.IsNullOrEmpty(step.CutsceneAfter))
+                await OptionalStoryCutscene.PlayAsync(cutScenePlayer, step.CutsceneAfter, token);
+
             // effects는 스텝을 확정한 순간 한 번만. 같은 스텝을 두 번 지나도 값이 두 번 움직이지 않게
             // 씬과 seq를 합친 것을 표로 쓴다.
             token.ThrowIfCancellationRequested();
             conditions.ApplyRequired(step.Effects, $"{scene.Id}#{step.Seq}");
+            await CheckRecipeUnlockAsync(scene.Day, token);
         }
 
         return (false, null);
+    }
+
+    async UniTask CheckRecipeUnlockAsync(int day, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (!CampaignStoryRules.TryUnlockJohnnyRecipe(day, conditions))
+        {
+            WarnIfJohnnyUnlockBlocked(day);
+            return;
+        }
+        NewCocktailData? cocktail = FindStoryCocktail(CampaignStoryRules.JohnnyCocktailId);
+        if (hiddenRecipeScreen != null && cocktail.HasValue)
+        {
+            // 웹과 같이 확인할 때까지 다음 스텝(톰 입장)을 진행하지 않는다.
+            await hiddenRecipeScreen.ShowAsync(cocktail.Value, NewDataLoadManager.StoryShelfItems, token);
+            return;
+        }
+
+        Debug.LogError(hiddenRecipeScreen == null
+            ? "[Story] Hidden Recipe Screen이 비어 있어 기본 알림으로 대신합니다. Setup Hidden Recipe Unlock 메뉴를 실행하세요."
+            : $"[Story] '{CampaignStoryRules.JohnnyCocktailId}' 칵테일 데이터가 없어 기본 알림으로 대신합니다.", this);
+        if (popupService != null)
+            await popupService.Popup(PopupType.EventOccurred, "새 레시피: 올드 패션드\n와일드 독 · 비터스 · 각설탕을 사용할 수 있습니다.");
+    }
+
+    bool warnedJohnnyUnlockBlocked;
+
+    // 각설탕은 받았는데 전날 조건이 없어 해금되지 않으면 조용히 넘어가지 않고 한 번 알린다.
+    void WarnIfJohnnyUnlockBlocked(int day)
+    {
+        if (warnedJohnnyUnlockBlocked || day != 3 || conditions == null ||
+            !conditions.CheckRequired("flag.day3_sugar_received") ||
+            conditions.CheckRequired("flag.johnny_recipe_unlocked")) return;
+        var missing = CampaignStoryRules.MissingJohnnyPrerequisites(conditions);
+        if (missing.Count == 0) return;
+        warnedJohnnyUnlockBlocked = true;
+        Debug.LogWarning("[Story] 각설탕을 받았지만 올드 패션드 해금 조건이 부족합니다: " + string.Join(", ", missing) +
+                         ". 정상 진행이나 바 대사 테스트 창(3일차)으로 시작하면 채워집니다.", this);
+    }
+
+    static NewCocktailData? FindStoryCocktail(string id)
+    {
+        foreach (var cocktail in NewDataLoadManager.StoryCocktails ?? Array.Empty<NewCocktailData>())
+            if (cocktail.Id == id) return cocktail;
+        return null;
     }
 
     bool TryFindScene(string sceneId, out NewScriptSceneData found)
@@ -287,6 +416,12 @@ public class StoryScriptRunner : MonoBehaviour
     {
         switch (step.Type)
         {
+            case ENewStepType.Popup:
+                bool english = GameStateManager.Instance.Language == ELanguage.En;
+                string data = english && !string.IsNullOrEmpty(step.Text?.En) ? step.Text?.En : step.Text?.Ko;
+                await PopupCsvStep.ExecuteAsync(popupService, step.Arg, data, step.Sync, token);
+                return;
+
             case ENewStepType.Say:
                 await SayAsync(step, token);
                 return;
@@ -300,7 +435,8 @@ public class StoryScriptRunner : MonoBehaviour
                 return;
 
             case ENewStepType.Effect:
-                // effects만 적용하는 스텝. 적용은 부르는 쪽이 이미 한다.
+                // effects 적용은 부르는 쪽이 한다. arg가 있으면 웹 story_cue처럼 짧은 연출(문소리 등)을 먼저 낸다.
+                await PlayCueAsync(step, token);
                 return;
 
             case ENewStepType.Order:
@@ -319,6 +455,21 @@ public class StoryScriptRunner : MonoBehaviour
                 await TimelineAsync(scene, step, token);
                 return;
 
+            case ENewStepType.Tutorial:
+                await RunTutorialAsync(step.Arg, step.Actor, token);
+                return;
+
+            case ENewStepType.Coaster:
+                RequireSeatedActor(step.Actor);
+                if (step.Arg == "tutorial") await RunTutorialAsync("coaster", step.Actor, token);
+                else await tables.WaitForCoasterAsync(step.Actor, token);
+                return;
+
+            case ENewStepType.EmptyGlass:
+                RequireSeatedActor(step.Actor);
+                tables.EmptyGlass(step.Actor);
+                return;
+
             default:
                 // 아직 붙이지 않은 스텝. 조용히 지나가면 대본이 어디까지 왔는지 알 수 없어 남긴다.
                 throw new NotSupportedException($"Unsupported required step: {step.Type} ({scene.Id}#{step.Seq})");
@@ -326,6 +477,19 @@ public class StoryScriptRunner : MonoBehaviour
     }
 
     // ── 대사 ────────────────────────────────────────────────────────────
+
+    void RequireSeatedActor(string actor)
+    {
+        if (tables == null || !TryFindSeatOf(actor, out _))
+            throw new InvalidOperationException("테이블 동작의 좌석 또는 서빙 기능이 없습니다: " + actor);
+    }
+
+    async UniTask RunTutorialAsync(string kind, string actor, CancellationToken token)
+    {
+        if (tutorial == null) throw new InvalidOperationException("스토리 튜토리얼 UI가 연결되지 않았습니다.");
+        if (!TryFindSeatOf(actor, out var seat)) throw new InvalidOperationException("튜토리얼 대상의 좌석이 없습니다: " + actor);
+        await tutorial.RunBarLessonAsync(kind, actor, seat, token);
+    }
 
     // ── 선택지 ──────────────────────────────────────────────────────────
 
@@ -388,11 +552,27 @@ public class StoryScriptRunner : MonoBehaviour
                choices != null && choices.Length > 0;
     }
 
+    /// <summary>
+    /// effect 행 arg의 짧은 연출(웹 story_cue). 2일차 루나가 나가는 행(arg=door)은 문소리와 0.9초 틈을 둔 뒤
+    /// 효과(day2_luna_left)를 적용한다. 화면이 모르는 연출이면 경고만 남기고 넘어간다.
+    /// </summary>
+    async UniTask PlayCueAsync(NewDialogueStepData step, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(step.Arg)) return;
+        if (presenter is IStoryCuePresenter cues && await cues.PlayCueAsync(step.Arg.Trim(), token)) return;
+        Debug.LogWarning($"[Story] 재생하지 못한 대본 연출입니다: {step.Arg} ({step.DialogueId ?? $"seq {step.Seq}"})");
+    }
+
+    /// <summary>대화창에 적을 이름. 1일차 톰은 이름 대사 전까지 '???'(웹 story-flow.js speakerName).</summary>
+    string SpeakerName(NewDialogueStepData step) => CampaignStoryRules.ResolveSpeakerName(
+        step.Actor, GameStateManager.Instance.CurrentDay, conditions, step.DisplayName);
+
     // ── 대사 ────────────────────────────────────────────────────────────
 
     /// <summary>대사 하나를 띄우고 플레이어가 넘길 때까지 기다린다. 그리는 일은 화면이 한다.</summary>
     async UniTask SayAsync(NewDialogueStepData step, CancellationToken token)
     {
+        CurrentDialogueId = step.DialogueId;
         string body = step.Text?.Ko;
 
         if (string.IsNullOrEmpty(body))
@@ -400,10 +580,12 @@ public class StoryScriptRunner : MonoBehaviour
             throw new InvalidOperationException($"[Story] 본문이 없는 say입니다: {step.DialogueId ?? $"seq {step.Seq}"}");
         }
 
-        await presenter.ShowSayAsync(
-            new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId), token);
+        // 웹 story-notices.js: 이름을 밝히는 대사가 시작되는 순간 '새로운 인물' 알림을 낸다(입장 때가 아니라).
+        if (CampaignStoryRules.TryGetIntroduction(step.Actor, step.DialogueId, out string introduction))
+            conditions.ApplyRequired(introduction);
 
-        await WaitForAdvanceAsync(token);
+        await PresentLineAsync(
+            new StorySayRequest(step.Actor, step.Arg, body, step.Actor == PlayerCharacterId, SpeakerName(step)), token);
     }
 
     // ── 연출 ────────────────────────────────────────────────────────────
@@ -418,36 +600,7 @@ public class StoryScriptRunner : MonoBehaviour
     /// </summary>
     async UniTask TimelineAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
-        if (string.IsNullOrEmpty(step.Arg))
-        {
-            throw new InvalidOperationException($"[Story] timeline 스텝에 컷씬 id(arg)가 없습니다: {scene.Id}#{step.Seq}");
-        }
-
-        if (cutScenePlayer == null)
-        {
-            throw new InvalidOperationException($"[Story] 컷씬 재생기가 없어 '{step.Arg}'를 건너뜁니다: {scene.Id}#{step.Seq}");
-        }
-
-        Debug.Log($"[Story] 컷씬 — {step.Arg} ({scene.Id}#{step.Seq})");
-
-        token.ThrowIfCancellationRequested();
-
-        try
-        {
-            await cutScenePlayer.PlayCutScene(step.Arg, token: token);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            throw new InvalidOperationException($"[Story] 컷씬 '{step.Arg}' 재생에 실패했습니다: {scene.Id}#{step.Seq}\n{e}");
-        }
-        finally
-        {
-            if (IsAlive(cutScenePlayer)) cutScenePlayer.ClearCutScene();
-        }
+        await OptionalStoryCutscene.PlayAsync(cutScenePlayer, step.Arg, token);
     }
 
     // ── 주문·제조·서빙 ──────────────────────────────────────────────────
@@ -465,7 +618,8 @@ public class StoryScriptRunner : MonoBehaviour
     async UniTask OrderAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
         SetCraftAuthorization(false);
-        if (!TryParseOrderedCocktail(step.Arg, out string cocktailId))
+        string cocktailId = null;
+        if (step.Arg != "free" && !TryParseOrderedCocktail(step.Arg, out cocktailId))
         {
             throw new InvalidOperationException($"[Story] 주문 칵테일을 읽지 못했습니다(arg=\"{step.Arg}\"): {scene.Id}#{step.Seq}");
         }
@@ -480,10 +634,21 @@ public class StoryScriptRunner : MonoBehaviour
         string body = step.Text?.Ko;
         if (!string.IsNullOrEmpty(body))
         {
-            await presenter.ShowSayAsync(
-                new StorySayRequest(step.Actor, null, body, step.Actor == PlayerCharacterId), token);
+            await PresentLineAsync(
+                new StorySayRequest(step.Actor, null, body, step.Actor == PlayerCharacterId, SpeakerName(step)), token);
+        }
 
-            await WaitForAdvanceAsync(token);
+        if (step.Arg == "free")
+        {
+            var recipes = new List<NewCocktailData>();
+            var options = new List<StoryChoiceOption>();
+            foreach (var drink in NewDataLoadManager.StoryCocktails ?? Array.Empty<NewCocktailData>())
+                if (drink.Status == ENewDataStatus.Confirmed && drink.UnlockDay <= scene.Day && conditions.CheckRequired(drink.UnlockWhen))
+                { recipes.Add(drink); options.Add(new StoryChoiceOption(drink.Name.Ko, true, null)); }
+            if (recipes.Count == 0) throw new InvalidOperationException("자유 주문에 사용할 수 있는 레시피가 없습니다.");
+            int picked = await presenter.ShowChoicesAsync(options, token);
+            if (picked < 0 || picked >= recipes.Count) throw new InvalidOperationException("자유 주문 레시피 선택이 유효하지 않습니다.");
+            cocktailId = recipes[picked].Id;
         }
 
         if (!TryFindSeatOf(step.Actor, out ESlotType seat))
@@ -499,7 +664,7 @@ public class StoryScriptRunner : MonoBehaviour
 
         if (currentOrder != null) throw new InvalidOperationException("Previous story order has not been served.");
         if (orderController == null) throw new InvalidOperationException("OrderRequestController 연결이 필요합니다.");
-        var details = new OrderDetails($"{scene.Id}#{step.Seq}", step.Actor, cocktailId);
+        var details = new OrderDetails($"{scene.Id}#{step.Seq}", step.Actor, cocktailId, paid: step.IsPaid);
         var signal = new UniTaskCompletionSource<OrderResult>();
         orderResultSignal = signal;
         // 지역 신호를 캡처해 이전 주문의 늦은 콜백이 새 주문에 적용되지 않게 한다.
@@ -515,7 +680,14 @@ public class StoryScriptRunner : MonoBehaviour
             throw new InvalidOperationException($"[Story] orderController가 없어 제조로 넘어가지 못했습니다: {scene.Id}#{step.Seq}");
         }
 
-        string tutorialCocktailId = ParseTutorialCocktail(step.Arg);
+        string tutorialCocktailId = CsvGameContentRules.ResolveCraftTutorialCocktail(step.Arg);
+        string orderedCocktailId = currentOrder?.Details.CocktailId;
+        bool skipDay0 = scene.Day == 0 && conditions.CheckRequired("flag.day0_skip_tutorial");
+        string lessonCocktailId = StoryTutorialController.ResolveCraftLesson(scene.Day, tutorialCocktailId,
+            orderedCocktailId, skipDay0);
+        string gimmickGuideId = StoryTutorialController.ResolveGimmickGuide(scene.Day, lessonCocktailId,
+            orderedCocktailId, skipDay0);
+        bool guided = lessonCocktailId != null && tutorial != null;
 
         // 튜토리얼은 무엇을 만들지가 대본에 적혀 있어 주문 없이도 열 수 있다.
         if (currentOrder == null && tutorialCocktailId == null)
@@ -524,10 +696,13 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         token.ThrowIfCancellationRequested();
+        craftMenuTutorialCocktailId = guided ? lessonCocktailId : null;
         SetCraftAuthorization(true);
         if (recipeScreen == null)
             throw new InvalidOperationException("[Story] Recipe Browser Screen 참조가 필요합니다.");
-        recipeScreen.OpenForStoryOrder();
+        if (guided) tutorial.BeginCraftLesson(lessonCocktailId);
+        else if (gimmickGuideId != null && tutorial != null) tutorial.BeginGimmickGuide(gimmickGuideId);
+        TryOpenCraftMenu();
         await UniTask.CompletedTask;
     }
 
@@ -559,15 +734,28 @@ public class StoryScriptRunner : MonoBehaviour
         if (result.State == OrderState.Cancelled) throw new OperationCanceledException("주문이 취소되었습니다.");
         if (!result.Completed) throw new InvalidOperationException(result.Error ?? "서빙 처리에 실패했습니다.");
         var serve = result.Serve;
+        orderPayments.Pay(new[] { serve.Settlement });
         conditions.Result = new StoryResultContext(serve.CraftGrade, serve.FinalGrade,
-            serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId);
+            serve.OrderMatch, serve.OrderedCocktailId, serve.ServedCocktailId, serve.ServedCocktail);
         currentOrder = null;
         orderResultSignal = null;
+        // 웹은 병따기 수업을 끝까지 마치면 이 기록을 남긴다. 아직 읽는 곳은 없다.
+        if (tutorial != null && tutorial.OpenLessonCompleted) conditions.ApplyRequired("flag.day1_open_taught = true");
+        if (tutorial != null) tutorial.EndLessons();
         SetCraftAuthorization(false);
+    }
+
+    /// <summary>닫거나 취소한 제조창을 현재 주문과 레시피 제한을 유지해 다시 연다.</summary>
+    public bool TryOpenCraftMenu()
+    {
+        if (!CanStartCraft || recipeScreen == null) return false;
+        recipeScreen.OpenForStoryOrder(craftMenuTutorialCocktailId);
+        return recipeScreen.IsOpen;
     }
 
     private void SetCraftAuthorization(bool allowed)
     {
+        if (!allowed) craftMenuTutorialCocktailId = null;
         if (CanStartCraft == allowed) return;
         CanStartCraft = allowed;
         CraftAuthorizationChanged?.Invoke();
@@ -585,18 +773,6 @@ public class StoryScriptRunner : MonoBehaviour
         return cocktailId.Length > 0;
     }
 
-    /// <summary>
-    /// craft.arg를 읽는다. "tutorial:&lt;id&gt;"면 그 칵테일을, "order"면 null(주문대로)을 돌려준다.
-    /// </summary>
-    static string ParseTutorialCocktail(string arg)
-    {
-        const string prefix = "tutorial:";
-        if (string.IsNullOrEmpty(arg) || !arg.StartsWith(prefix, StringComparison.Ordinal)) return null;
-
-        string cocktailId = arg.Substring(prefix.Length).Trim();
-        return cocktailId.Length > 0 ? cocktailId : null;
-    }
-
     // ── 등장·퇴장 ───────────────────────────────────────────────────────
 
     async UniTask EnterAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
@@ -610,16 +786,32 @@ public class StoryScriptRunner : MonoBehaviour
             throw new InvalidOperationException($"[Story] {slot} 자리에 '{sitting}'가 앉아 있는데 '{step.Actor}'가 또 앉습니다.");
 
         seatActors[slot] = step.Actor;
+        if (tables != null && !tables.TableState.Contains(step.Actor)) tables.BeginVisit(step.Actor);
         WarnIfSeatingInvalid();
 
         await presenter.EnterAsync(step.Actor, slot, token);
+        conditions.ApplyRequired($"flag.{step.Actor}_met = true");
+        walkedIn |= step.Entrance != "seated";
 
         // 다음도 enter면 지금 화면을 잡지 않는다. 두 명으로 시작하는 씬이 1인 프레임을 한 번 거치면
         // 사람이 늘지도 않은 채 화면만 다가갔다 물러난다(§10.1.1 초기 진입).
         if (NextExecutableStepIsEnter(scene, step)) return;
 
         await ApplyFramingAsync(token);
+        if (presenter is IStoryCharacterTransitions transition) await transition.FadeInAsync(token);
+
+        // 웹 story-flow.js: 걸어 들어온 손님이 있으면 등장 연출이 끝난 뒤 1초 쉬고 다음 대본을 낸다.
+        // 처음부터 앉아 있던(entrance=seated) 손님만 있으면 바로 이어 간다.
+        bool hold = walkedIn;
+        walkedIn = false;
+        if (hold) await UniTask.Delay(TimeSpan.FromSeconds(EnterHoldSeconds), cancellationToken: token);
     }
+
+    /// <summary>등장 뒤 첫 대사까지의 쉼(초). 웹 본편 setTransition(입장 시간 + 1)의 1초다.</summary>
+    const float EnterHoldSeconds = 1f;
+
+    /// <summary>지금 묶음으로 들어오는 enter 중 걸어 들어온 손님이 있는지.</summary>
+    bool walkedIn;
 
     async UniTask ExitAsync(NewDialogueStepData step, CancellationToken token)
     {
@@ -631,7 +823,13 @@ public class StoryScriptRunner : MonoBehaviour
         }
 
         seatActors.Remove(slot);
-        presenter.Exit(slot);
+        try
+        {
+            if (presenter is IStoryCharacterTransitions transition)
+                await transition.ExitAsync(slot, token);
+            else presenter.Exit(slot);
+        }
+        finally { if (tables != null) tables.EndVisit(step.Actor); }
 
         await ApplyFramingAsync(token);
     }
@@ -730,29 +928,31 @@ public class StoryScriptRunner : MonoBehaviour
     // ── 진행 입력 ───────────────────────────────────────────────────────
 
     /// <summary>
-    /// 플레이어가 대사를 넘길 때까지 기다린다.
-    ///
-    /// 타이핑을 건너뛰는 입력과 대사를 넘기는 입력을 같은 키로 받는데, 그 둘을 한 번의 누름으로
-    /// 같이 처리하면 문장이 뜨자마자 사라진다. 타이핑은 표시 계층이 이미 기다렸으므로 여기서는
-    /// 넘기는 입력만 받는다.
+    /// 한 줄을 표시하는 동안만 진행 입력을 받는다. 타이핑이 끝나면 다음 입력으로 줄을 넘긴다.
     /// </summary>
-    async UniTask WaitForAdvanceAsync(CancellationToken token)
+    async UniTask PresentLineAsync(StorySayRequest request, CancellationToken token)
     {
-        advanceSignal = new UniTaskCompletionSource();
-
+        var prompt = presenter as IDialogueInputPrompt;
+        IsPresentingLine = true;
         try
         {
+            await presenter.ShowSayAsync(request, token);
+            advanceSignal = new UniTaskCompletionSource();
+            prompt?.SetWaitingForInput(true);
             await advanceSignal.Task.AttachExternalCancellation(token);
         }
         finally
         {
+            IsPresentingLine = false;
             advanceSignal = null;
+            prompt?.SetWaitingForInput(false);
         }
     }
 
     /// <summary>진행 입력. 대사를 기다리는 중이 아니면 아무 일도 하지 않는다.</summary>
     public void OnAdvanceInput()
     {
+        if (!IsPresentingLine) return;
         if (advanceSignal == null)
         {
             // 타이핑 도중이면 그것부터 끝낸다.
@@ -760,6 +960,8 @@ public class StoryScriptRunner : MonoBehaviour
             return;
         }
 
+        (presenter as IDialogueInputFeedback)?.PlayAdvanceFeedback();
+        if (presenter is IStoryDialogueVisibility visibility) visibility.HideDialogue();
         advanceSignal.TrySetResult();
     }
 }

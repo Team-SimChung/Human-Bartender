@@ -15,7 +15,7 @@ using VContainer.Unity;
 ///
 /// 구형 DataLoadManager와 그것이 읽던 파일은 모두 걷어냈다. 데이터 로더는 이것 하나다.
 /// </summary>
-public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
+public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentSource
 {
     [Inject] GameProgressionService progression;
     [Header("Bar Script dataset_id (script/bar/dayN)")]
@@ -93,6 +93,40 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
     /// </summary>
     static readonly Dictionary<int, NewDayScriptBase> _barScriptCache = new();
     static NewDayInfoData[] loadedDays;
+    public static NewStreetData StreetStory { get; private set; }
+    public static NewStreetData HomeStory { get; private set; }
+    public static NewCharacterData[] StoryCharacters { get; private set; }
+    public static NewCocktailData[] StoryCocktails { get; private set; }
+    public static NewShelfItemData[] StoryShelfItems { get; private set; }
+    public static NewTasteData[] StoryTastes { get; private set; }
+    NewDayScriptBase cutsceneScript;
+    public NewDialogueStepData[] GetCutsceneSteps(string id)
+    {
+        foreach (var scene in cutsceneScript?.Scenes ?? Array.Empty<NewScriptSceneData>())
+            if (scene.Id == id) return scene.Steps ?? Array.Empty<NewDialogueStepData>();
+        throw new InvalidOperationException("CSV 컷신 대본이 없습니다: " + id);
+    }
+    public NewChoiceOptionData[] GetSharedChoices(string id)
+    {
+        NewChoiceOptionData[] result = null;
+        foreach (var script in _barScriptCache.Values)
+            if (script.Choices != null && script.Choices.TryGetValue(id, out var found))
+            {
+                if (result != null) throw new InvalidOperationException("공통 선택지 ID가 중복되었습니다: " + id);
+                result = found;
+            }
+        return result ?? throw new InvalidOperationException("공통 선택지가 없습니다: " + id);
+    }
+
+    public Step[] GetSceneSteps(string id)
+    {
+        foreach (var scene in StreetStory.Scenes ?? Array.Empty<NewSceneData>())
+            if (scene.Id == id) return scene.Steps ?? Array.Empty<Step>();
+        foreach (var scene in HomeStory.Scenes ?? Array.Empty<NewSceneData>())
+            if (scene.Id == id) return scene.Steps ?? Array.Empty<Step>();
+        throw new InvalidOperationException("사건 대본이 없습니다: " + id);
+    }
+
 
     public static bool TryGetDayInfo(int day, out NewDayInfoData info)
     {
@@ -132,6 +166,8 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         LoadVersion = 0;
         _barScriptCache.Clear();
         loadedDays = null;
+        StreetStory = default; HomeStory = default; StoryCocktails = null; StoryCharacters = null; StoryShelfItems = null;
+        StoryTastes = null;
     }
 
     /// <summary>
@@ -191,6 +227,11 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         try
         {
         var catalog = await CsvDataReader.LoadAsync(token);
+        CsvGameContentRules.Validate(catalog);
+        var resourceBindings = await ResourceLoader.ReadBindingsAsync(token);
+        var homeStory = StoryCsvCompiler.CompileHome(catalog);
+        var memoryScripts = StoryCsvCompiler.Compile(catalog.Read<NewDayScriptBase>("script/cutscene"));
+        pending.Add(() => cutsceneScript = memoryScripts);
         foreach (var day in barDayNumbers)
         {
             NewDayScriptBase bar = await LoadOptionalAsync(catalog, BarScriptFileName(day), token);
@@ -247,13 +288,19 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
         if (uiStringData == null) throw new InvalidOperationException("Missing data target: uiStringData");
         await StageAsync<Dictionary<string, LocalizedText>>(catalog, uiStringFileName, value => uiStringData.uiStringData = value, pending, token);
         if (streetData == null) throw new InvalidOperationException("Missing data target: streetData");
-        await StageAsync<NewStreetData>(catalog, streetFileName, value => streetData.newStreetData = value, pending, token);
+        var streetStory = StoryCsvCompiler.CompileStreet(catalog, streetFileName);
+        pending.Add(() => streetData.newStreetData = streetStory);
 
         // 완료를 알리기 전에 찍는다. UniTask는 TrySetResult 시점에 기다리던 쪽을 동기로 이어서 돌리기
         // 때문에, 순서를 바꾸면 로딩이 끝났다는 줄보다 그 뒤에 벌어지는 일이 먼저 찍힌다.
         token.ThrowIfCancellationRequested();
         foreach (var publish in pending) publish();
+        ResourceLoader.PublishBindings(resourceBindings);
         loadedDays = dayInfoData.dayInfoData;
+        HomeStory = homeStory; StreetStory = streetData.newStreetData;
+        StoryCharacters = characterData.characterData; StoryCocktails = cocktailData.cocktailData;
+        StoryShelfItems = shelfItemData.shelfItemData;
+        StoryTastes = tasteData.tasteData;
         _barScriptCache.Clear();
         foreach (var pair in barScripts) _barScriptCache.Add(pair.Key, pair.Value);
         // Content lookups are rebuilt before a scene can register its runtime anchors.
@@ -298,7 +345,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable
     static UniTask<NewDayScriptBase> LoadOptionalAsync(CsvContentCatalog catalog, string sourceId, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        return UniTask.FromResult(catalog.Contains(sourceId) ? catalog.Read<NewDayScriptBase>(sourceId) : null);
+        return UniTask.FromResult(catalog.Contains(sourceId) ? StoryCsvCompiler.Compile(catalog.Read<NewDayScriptBase>(sourceId)) : null);
     }
 
 }

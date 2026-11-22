@@ -1,0 +1,242 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
+
+/// <summary>선택지 확인 입력을 일정 시간 유지했을 때만 onClick을 한 번 호출한다.</summary>
+[AddComponentMenu("UI/Choice Hold Button")]
+public sealed class ChoiceHoldButton : Button
+{
+    [SerializeField, Min(0.1f), Tooltip("선택지 확정 입력을 연속으로 누르고 있어야 하는 시간(초).")]
+    private float holdDuration = .3f;
+    [SerializeField, Min(0.01f)] private float resetDuration = 0.2f;
+    [SerializeField] private GameObject holdProgressRoot;
+    [SerializeField] private Image holdProgressFill;
+
+    public bool IsHolding => holding;
+    public event System.Action<bool> HoldingChanged;
+    // 사용하는 화면이 입력 허용과 중복 방지를 결정한다. 버튼은 바깥 화면을 직접 참조하지 않는다.
+    public System.Func<bool> InputAllowed { get; set; }
+    public System.Func<bool> AcceptKeyboardInput { get; set; }
+    public System.Action<AxisEventData> MoveRequested { get; set; }
+    private bool? managedFocus;
+
+    public void SetManagedFocus(bool focused)
+    {
+        managedFocus = focused;
+        if (!focused) CancelHold(true);
+        DoStateTransition(currentSelectionState, true);
+    }
+
+    public override void OnMove(AxisEventData eventData)
+    {
+        if (MoveRequested != null) MoveRequested(eventData);
+        else base.OnMove(eventData);
+    }
+
+    private bool holding;
+    private int heldPointerId;
+    private double holdStartedAt;
+    private float holdStartProgress;
+    private double lastProgressUpdateTime;
+    private float displayedProgress;
+    private bool pointerInside;
+    private PointerEventData hoverPointer;
+    private System.Func<bool> submitHeld;
+    private bool holdRequired = true;
+
+    /// <summary>조건 미충족 항목은 홀드 진행 없이 확정 시 거부 표시를 요청한다.</summary>
+    public void SetHoldRequired(bool required)
+    {
+        CancelHold(true);
+        holdRequired = required;
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        // Prefab Mode에서는 저장된 기본 외형을 유지하고, 게임 인스턴스만 초기화한다.
+        if (Application.IsPlaying(gameObject)) CancelHold(true);
+        RestorePointerHover();
+    }
+
+    protected override void OnDisable()
+    {
+        pointerInside = false;
+        if (Application.IsPlaying(gameObject) || holding || displayedProgress > 0f) CancelHold(true);
+        base.OnDisable();
+    }
+
+    public override void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left && CanHold()) pointerInside = true;
+        base.OnPointerDown(eventData);
+        if (eventData.button != PointerEventData.InputButton.Left || holding || !CanHold()) return;
+        if (!holdRequired) { onClick.Invoke(); return; }
+        heldPointerId = eventData.pointerId;
+        BeginHold();
+    }
+
+    public override void OnPointerUp(PointerEventData eventData)
+    {
+        base.OnPointerUp(eventData);
+        if (eventData.button == PointerEventData.InputButton.Left &&
+            eventData.pointerId == heldPointerId && submitHeld == null)
+            CancelHold();
+    }
+
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+        hoverPointer = eventData;
+        pointerInside = true;
+        base.OnPointerEnter(eventData);
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+        if (hoverPointer == eventData) hoverPointer = null;
+        pointerInside = false;
+        base.OnPointerExit(eventData);
+        if (eventData.pointerId == heldPointerId && submitHeld == null)
+            CancelHold();
+    }
+
+    protected override void DoStateTransition(SelectionState state, bool instant)
+    {
+        if (managedFocus.HasValue && state != SelectionState.Disabled)
+            state = managedFocus.Value ? SelectionState.Highlighted : SelectionState.Normal;
+        // 마우스로 선택된 상태에서도 커서가 안에 있으면 호버 외형을 유지한다.
+        // 논리적인 선택은 유지하여 키보드·게임패드 이동을 방해하지 않는다.
+        if (state == SelectionState.Selected && pointerInside) state = SelectionState.Highlighted;
+        base.DoStateTransition(state, instant);
+    }
+
+    // 확정은 Update에서만 한다. 손을 뗄 때 발생하는 클릭은 다음 선택지에도 전달하지 않는다.
+    public override void OnPointerClick(PointerEventData eventData) { }
+
+    public override void OnSubmit(BaseEventData eventData)
+    {
+        var module = eventData.currentInputModule as InputSystemUIInputModule;
+        var control = module?.submit?.action?.activeControl as ButtonControl;
+        TryBeginSubmit(control);
+    }
+
+    public bool TryBeginSubmit(ButtonControl control) =>
+        control != null && TryBeginSubmit(() => control.isPressed);
+
+    internal bool TryBeginSubmit(System.Func<bool> isPressed)
+    {
+        if (holding || !CanHold() || isPressed == null || !isPressed()) return false;
+        if (AcceptKeyboardInput?.Invoke() == false) return false;
+        if (!holdRequired) { onClick.Invoke(); return true; }
+        submitHeld = isPressed;
+        BeginHold();
+        return true;
+    }
+
+    public override void OnDeselect(BaseEventData eventData)
+    {
+        CancelHold();
+        base.OnDeselect(eventData);
+    }
+
+    private bool CanHold() => IsActive() && IsInteractable() && InputAllowed?.Invoke() != false;
+
+    private void BeginHold()
+    {
+        holding = true;
+        HoldingChanged?.Invoke(true);
+        // 한 번 놓은 키의 잔여 표시를 다시 누르기의 유지 시간에 더하지 않는다.
+        holdStartProgress = 0f;
+        SetProgress(0f);
+        holdStartedAt = Time.unscaledTimeAsDouble;
+        lastProgressUpdateTime = holdStartedAt;
+        if (holdProgressRoot != null) holdProgressRoot.SetActive(true);
+    }
+
+    private void Update() => Tick(Time.unscaledTimeAsDouble);
+
+    internal void Tick(double now)
+    {
+        if (!holding && displayedProgress <= 0f) return;
+        float delta = Mathf.Max(0f, (float)(now - lastProgressUpdateTime));
+        lastProgressUpdateTime = now;
+        float resetSpeed = 1f / Mathf.Max(0.01f, resetDuration);
+        if (!holding)
+        {
+            SetProgress(Mathf.MoveTowards(displayedProgress, 0f, resetSpeed * delta));
+            if (displayedProgress <= 0f && holdProgressRoot != null) holdProgressRoot.SetActive(false);
+            return;
+        }
+        if (!CanHold())
+        {
+            CancelHold(true);
+            return;
+        }
+        if (submitHeld != null && !submitHeld())
+        {
+            CancelHold();
+            return;
+        }
+
+        float progress = Mathf.Clamp01(holdStartProgress + (float)((now - holdStartedAt) /
+            Mathf.Max(0.1f, holdDuration)));
+        SetProgress(progress);
+        if (progress < 1f) return;
+
+        // 콜백이 페이지를 바꾸거나 같은 버튼을 다시 켜도 입력은 여기서 끝낸다.
+        CancelHold(true);
+        onClick.Invoke();
+    }
+
+    private void CancelHold(bool immediately = false)
+    {
+        bool wasHolding = holding;
+        holding = false;
+        if (wasHolding) HoldingChanged?.Invoke(false);
+        submitHeld = null;
+        lastProgressUpdateTime = Time.unscaledTimeAsDouble;
+        if (immediately || displayedProgress <= 0f)
+        {
+            SetProgress(0f);
+            if (holdProgressRoot != null) holdProgressRoot.SetActive(false);
+        }
+    }
+
+    private void SetProgress(float progress)
+    {
+        displayedProgress = progress;
+        if (holdProgressFill == null) return;
+        var rect = holdProgressFill.rectTransform;
+        rect.anchorMax = new Vector2(progress, 1f);
+    }
+
+    private void OnApplicationFocus(bool focused)
+    {
+        if (!focused) ClearInputState();
+        else RestorePointerHover();
+    }
+
+    private void OnApplicationPause(bool paused)
+    {
+        if (paused) ClearInputState();
+        else RestorePointerHover();
+    }
+
+    private void RestorePointerHover()
+    {
+        // 같은 슬롯을 즉시 다시 켜면 입력 모듈은 PointerEnter를 재전송하지 않는다.
+        // 모듈이 유지하는 실제 hovered 목록으로 기본 Button의 상태도 복원한다.
+        if (!IsActive() || hoverPointer == null || !hoverPointer.hovered.Contains(gameObject)) return;
+        pointerInside = true;
+        base.OnPointerEnter(hoverPointer);
+    }
+
+    private void ClearInputState()
+    {
+        if (Application.IsPlaying(gameObject) || holding || displayedProgress > 0f) CancelHold(true);
+        pointerInside = false;
+        InstantClearState();
+    }
+}

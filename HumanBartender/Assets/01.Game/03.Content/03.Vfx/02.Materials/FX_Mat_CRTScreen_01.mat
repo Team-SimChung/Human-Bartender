@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: FX_Mat_CRTScreen_01
+  m_Shader: {fileID: 4800000, guid: e68076e586a81f9e4a2defa06ef6eb14, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties:
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Intensity: 1
+    - _ScanlineCount: 74
+    - _ScanlineIntensity: 0.14
+    - _ScanlineSharpness: 1
+    - _ScanlineSpeed: 0.5
+    - _RollIntensity: 0.05
+    - _RollWidth: 0.08
+    - _RollSpeed: 0.04
+    - _ChromaticOffset: 0.5
+    - _HorizontalBlur: 0.5
+    - _NoiseIntensity: 0.035
+    - _NoiseFps: 24
+    - _FlickerIntensity: 0.015
+    - _FlickerSpeed: 10
+    - _JitterIntensity: 0
+    - _JitterSpeed: 8
+    - _Curvature: 0
+    - _VignetteIntensity: 0.12
+    - _VignettePower: 0.35
+    - _Brightness: 1.035
+    - _Contrast: 1
+    - _Saturation: 0.93
+    m_Colors:
+    - _Tint: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

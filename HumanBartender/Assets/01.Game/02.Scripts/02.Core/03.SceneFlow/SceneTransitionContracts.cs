@@ -74,12 +74,77 @@ public readonly struct SceneTransitionRequest
     }
 }
 
+/// <summary>씬을 바꾸는 동안 보여 줄 화면. 바 출입처럼 장소를 드나드는 전환은 페이드 위에 문 화면을 띄운다.</summary>
+public enum SceneTransitionStyle
+{
+    Fade,
+    /// <summary>거리에서 바로 들어갈 때. "영업을 준비하고 있습니다" 문 화면.</summary>
+    BarEntrance,
+    /// <summary>바에서 거리로 나갈 때. "오늘의 영업을 마칩니다" 문 화면.</summary>
+    BarExit,
+    /// <summary>집 현관을 통해 실내와 복도를 오가는 전환.</summary>
+    HomeDoor,
+}
+
+/// <summary>
+/// 페이드로 화면이 가려진 동안 그 위에 띄우는 전환 화면. 씬 작업 전에 나타나고, 씬 작업이 끝나면
+/// 자기 연출(최소 표시 시간·문 열림 등)을 마친 뒤 페이드 인과 함께 사라진다.
+/// </summary>
+/// <summary>취침 뒤 명언·Day 숫자 전환. 준비 시점까지 덮은 뒤, 일차 변경·씬 로드가 끝나면 공개한다.</summary>
+public interface IDayTransitionPresenter
+{
+    UniTask PlayToPrepareAsync(int from, int to, CancellationToken cancellationToken);
+    UniTask FinishAsync(CancellationToken cancellationToken);
+    void HideImmediate();
+}
+
+/// <summary>전역 전환 서비스가 일차 전환 화면을 갖고 있으면 노출한다. 없으면 null이고 예전 페이드를 쓴다.</summary>
+public interface IDayTransitionSource
+{
+    IDayTransitionPresenter DayTransition { get; }
+}
+
+public interface ISceneTransitionOverlay
+{
+    UniTask ShowAsync(SceneTransitionStyle style, CancellationToken cancellationToken);
+    UniTask FinishAsync(CancellationToken cancellationToken);
+    UniTask HideAsync(CancellationToken cancellationToken);
+    void HideImmediate();
+}
+
 public interface ISceneTransitionService
 {
     bool IsBusy { get; }
     SceneTransitionState CurrentState { get; }
     long CurrentOperationId { get; }
     SceneTransitionRequest RequestLoadScene(string sceneName, LoadSceneMode sceneMode = LoadSceneMode.Single,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default, SceneTransitionStyle style = SceneTransitionStyle.Fade);
     SceneTransitionRequest RequestUnloadScene(string sceneName, CancellationToken cancellationToken = default);
+}
+
+/// <summary>대화 도중 장소가 바뀔 때만 사용한다. 기존 기본 전환 시간은 변경하지 않는다.</summary>
+public sealed class SceneTransitionPresentation
+{
+    public float FadeOutDuration { get; }
+    public float DelayBeforeLoad { get; }
+    public float MinimumBlackDuration { get; }
+    public float FadeInDuration { get; }
+    public Action BeforeLoad { get; }
+    public Func<UniTask> BeforeReveal { get; }
+    public SceneTransitionPresentation(float fadeOut, float delayBeforeLoad, float minimumBlack, float fadeIn,
+        Action beforeLoad = null, Func<UniTask> beforeReveal = null)
+    {
+        if (!Valid(fadeOut) || !Valid(delayBeforeLoad) || !Valid(minimumBlack) || !Valid(fadeIn))
+            throw new ArgumentOutOfRangeException(nameof(fadeOut), "화면 전환 시간은 유한한 0 이상이어야 합니다.");
+        FadeOutDuration = fadeOut; DelayBeforeLoad = delayBeforeLoad;
+        MinimumBlackDuration = minimumBlack; FadeInDuration = fadeIn;
+        BeforeLoad = beforeLoad; BeforeReveal = beforeReveal;
+    }
+    private static bool Valid(float value) => float.IsFinite(value) && value >= 0;
+}
+
+public interface IPresentedSceneTransitionService
+{
+    SceneTransitionRequest RequestPresentedScene(string sceneName, SceneTransitionPresentation presentation,
+        CancellationToken cancellationToken = default);
 }

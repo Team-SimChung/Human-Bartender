@@ -11,13 +11,16 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     sealed class Session
     {
         public int Id;
+        public string Speaker;
         public DialogueTextCompiler.Line Line;
         public CancellationTokenSource Reveal;
         public bool Skipped;
         public bool Revealing;
         public bool ReducedMotion;
         public bool ShakeSpanNotified;
+        public int Visible;
         public bool[] VisibleGlyphs;
+        public IDisposable AudioScope;
         public CancellationTokenRegistration ExternalRegistration;
         public CancellationTokenRegistration DestroyRegistration;
     }
@@ -27,8 +30,11 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     Session current;
     int nextId;
     static int warnings;
-    ISoundManager sound;
-    public void ConfigureAudio(ISoundManager manager) => sound = manager;
+    ISoundEffectPlayer sound;
+    bool backgroundAudio;
+    Func<bool> audible;
+    public void ConfigureAudio(ISoundEffectPlayer manager, bool background = false, Func<bool> canHear = null)
+    { sound = manager; backgroundAudio = background; audible = canHear; }
 
     void Awake()
     {
@@ -40,12 +46,43 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public int CurrentSessionId => current?.Id ?? 0;
     public bool IsHolding => current != null && !current.Revealing;
 
+    public string SpeakerName => current?.Speaker ?? "";
+    public event Action<DialogueTextPlayer> LineStarted;
+    public event Action<DialogueTextPlayer> LineEnding;
+
+    /// <summary>현재 줄에서 지금까지 화면에 드러난 글자 수. 타이핑 중이면 전체보다 작고, 즉시 표시·스킵 뒤에는 전체와 같다.</summary>
+    public int VisibleCharacterCount => current?.Visible ?? 0;
+
+    /// <summary>현재 재생 중인 한 줄의 전체 본문을 TMP 해석 결과에서 읽는다. 타이핑 진행 상태는 변경하지 않는다.</summary>
+    public string ReadFullText() => current == null ? "" : Read(current.Line.Characters.Length);
+
+    /// <summary>현재 줄에서 지금까지 드러난 글자만 읽는다. 아직 나오지 않은 뒷부분은 포함하지 않고, 타이핑 진행 상태도 바꾸지 않는다.</summary>
+    public string ReadVisibleText() => current == null ? "" : Read(current.Visible);
+
+    string Read(int count)
+    {
+        var text = new System.Text.StringBuilder();
+        var info = bubble.textLabel.textInfo;
+        count = Math.Min(count, current.Line.Characters.Length);
+        for (int i = 0; i < count; i++)
+        {
+            var ch = info.characterInfo[i];
+            int at = ch.index;
+            if (at >= 0 && at + 1 < current.Line.Text.Length && char.IsSurrogatePair(current.Line.Text, at))
+                text.Append(current.Line.Text, at, 2);
+            else text.Append(ch.character);
+        }
+        return text.ToString();
+    }
+
     // Presentation cues describe the revealed text; subscribers choose the response.
     public event Action ShakeSpanRevealed;
     public event Action MotionStopped;
 
+    /// <param name="periodRhythm">거리·집·테라스 대사처럼 웹의 마침표 멈춤 규칙을 따를지. 바 내부 대사는 끈다.</param>
     public async UniTask PlayAsync(TypingData data, NewTextTagDataSO tags, float defaultDelay,
-        CancellationToken external = default, string cocktailName = null)
+        CancellationToken external = default, string cocktailName = null,
+        Func<float, CancellationToken, UniTask> wait = null, bool periodRhythm = false)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
         external.ThrowIfCancellationRequested();
@@ -53,8 +90,9 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         gameObject.SetActive(true);
         if (bubble == null) Awake();
         bubble.nameLabel.text = data.speaker;
-        bubble.nameLabel.color = data.nameColor;
-        var session = Begin(data.str, tags, cocktailName, defaultDelay, false);
+        // 화자별 원본 색상과 관계없이 대화창 이름은 공통 하늘색을 사용한다.
+        bubble.nameLabel.color = bubble.speakerNameColor;
+        var session = Begin(data.str, tags, cocktailName, defaultDelay, false, periodRhythm);
         session.Revealing = true;
         session.ExternalRegistration = external.Register(() => Close(session));
         session.DestroyRegistration = this.GetCancellationTokenOnDestroy().Register(() => Close(session));
@@ -63,27 +101,31 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bool completed = false;
         try
         {
+            // 별도 시계가 없는 기존 대화는 원래 대기 방식을 유지함.
+            var delay = wait ?? Wait;
             var line = session.Line;
             int count = line.Characters.Length;
             for (int i = 0; i < count;)
             {
-                await Wait(line.WaitBefore[i], source.Token);
-                await Wait(line.Characters[i].SpeedSeconds, source.Token);
+                await delay(line.WaitBefore[i], source.Token);
+                await delay(line.Characters[i].SpeedSeconds, source.Token);
                 source.Token.ThrowIfCancellationRequested();
                 if (!ReferenceEquals(current, session)) throw new OperationCanceledException();
                 int visible = i + 1;
                 while (visible < count && line.ContinuesPrevious[visible]) visible++;
                 bubble.textLabel.maxVisibleCharacters = visible;
+                session.Visible = visible;
                 bubble.UpdateForVisible(visible);
                 animator.SetVisible(visible, Time.time, false);
-                if (visible == i + 1) DialogueTypingAudio.TryPlay(sound,
-                    DialoguePresentationSettings.Shared, line.Text, bubble.textLabel.textInfo.characterInfo[i]);
+                if (visible == i + 1 && (!backgroundAudio || (!GameAudioContext.DirectDialogue && (audible == null || audible()))))
+                    DialogueTypingAudio.TryPlayWithGain(sound, DialoguePresentationSettings.Shared, line.Text,
+                        bubble.textLabel.textInfo.characterInfo[i], backgroundAudio ? .5f : 1f);
                 NotifyShakeSpan(session, i, visible);
                 source.Token.ThrowIfCancellationRequested();
                 if (!ReferenceEquals(current, session)) throw new OperationCanceledException();
                 i = visible;
             }
-            await Wait(line.WaitBefore[count], source.Token);
+            await delay(line.WaitBefore[count], source.Token);
             completed = true;
         }
         catch (OperationCanceledException) when (session.Skipped && ReferenceEquals(current, session) &&
@@ -110,7 +152,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         ShowAll(session, true);
     }
 
-    Session Begin(string text, NewTextTagDataSO tags, string cocktailName, float speed, bool instant)
+    Session Begin(string text, NewTextTagDataSO tags, string cocktailName, float speed, bool instant,
+        bool periodRhythm = false)
     {
         var settings = DialoguePresentationSettings.Shared;
         if (!DialogueTextCompiler.TryCompile(text, tags, settings, cocktailName, speed, out var line, out string error))
@@ -124,10 +167,14 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bubble.textLabel.maxVisibleCharacters = int.MaxValue;
         bubble.textLabel.ForceMeshUpdate(true, true);
         line.Bind(bubble.textLabel.textInfo);
+        if (periodRhythm && settings != null)
+            line.ApplyPeriodRhythm(bubble.textLabel.textInfo, settings.LonePeriodPause, settings.ConsecutivePeriodInterval);
         var session = new Session
         {
             Id = ++nextId, Line = line,
+            Speaker = bubble.nameLabel != null ? bubble.nameLabel.text : "",
             ReducedMotion = settings != null && settings.ReducedMotion,
+            Visible = instant ? line.Characters.Length : 0,
             VisibleGlyphs = new bool[line.Characters.Length]
         };
         // Capture from the full layout: TMP can mark unrevealed glyphs invisible later.
@@ -137,6 +184,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
             session.VisibleGlyphs[i] = ch.isVisible && ch.elementType == TMP_TextElementType.Character;
         }
         current = session;
+        if (!instant) session.AudioScope = GameAudioContext.Dialogue(backgroundAudio);
         try
         {
             bubble.textLabel.maxVisibleCharacters = instant ? line.Characters.Length : 0;
@@ -145,6 +193,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
             animator.SetVisible(instant ? line.Characters.Length : 0, Time.time, instant);
         }
         catch { Stop(); throw; }
+        LineStarted?.Invoke(this);
         return session;
     }
 
@@ -154,7 +203,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         for (int i = first; i < end; i++)
         {
             var style = session.Line.Characters[i];
-            if (!style.Shake || style.ShakeAmp <= 0f || style.ShakeHz <= 0f)
+            if (!style.HasShake)
             {
                 session.ShakeSpanNotified = false;
                 continue;
@@ -175,6 +224,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         if (!ReferenceEquals(current, session)) return;
         int count = session.Line.Characters.Length;
         bubble.textLabel.maxVisibleCharacters = count;
+        session.Visible = count;
         bubble.UpdateForVisible(count);
         animator.SetVisible(count, Time.time, instant);
     }
@@ -192,8 +242,10 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     {
         var old = current;
         if (old == null) return;
+        LineEnding?.Invoke(this);
         current = null;
         old.Reveal?.Cancel();
+        old.AudioScope?.Dispose();
         old.ExternalRegistration.Dispose();
         old.DestroyRegistration.Dispose();
         animator?.Clear();
@@ -219,16 +271,19 @@ static class DialogueTypingAudio
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Reset() { lastFrame = -1; lastTime = -1f; }
 
-    public static void TryPlay(ISoundManager sound, DialoguePresentationSettings settings,
-        string text, TMP_CharacterInfo ch)
+    public static void TryPlay(ISoundEffectPlayer sound, DialoguePresentationSettings settings,
+        string text, TMP_CharacterInfo ch) => TryPlayWithGain(sound, settings, text, ch, 1f);
+
+    public static void TryPlayWithGain(ISoundEffectPlayer sound, DialoguePresentationSettings settings,
+        string text, TMP_CharacterInfo ch, float gain)
     {
         if (sound == null || settings == null || string.IsNullOrWhiteSpace(settings.TypingSoundKey) ||
             ch.elementType == TMP_TextElementType.Sprite || ch.index < 0 || ch.index >= text.Length ||
             !char.IsLetterOrDigit(text, ch.index) || Time.frameCount == lastFrame ||
-            (lastTime >= 0f && Time.time - lastTime < 0.06f)) return;
+            (lastTime >= 0f && Time.unscaledTime - lastTime < settings.TypingSoundInterval)) return;
         lastFrame = Time.frameCount;
-        lastTime = Time.time;
-        sound.PlaySE(settings.TypingSoundKey);
+        lastTime = Time.unscaledTime;
+        sound.PlayCue(settings.TypingSoundKey, gain);
     }
 }
 

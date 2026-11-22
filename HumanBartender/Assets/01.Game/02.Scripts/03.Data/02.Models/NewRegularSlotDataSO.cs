@@ -22,7 +22,7 @@ public struct NewRegularSlotData
     [field: SerializeField][JsonProperty("serve_effects")] public string ServeEffects { get; set; }
 }
 
-/// <summary>StreamingAssets/json/regular_slots.json을 보유하는 ScriptableObject.</summary>
+/// <summary>StreamingAssets/csv/guests/regular_slots.csv을 보유하는 ScriptableObject.</summary>
 [CreateAssetMenu(fileName = "NewRegularSlotDataSO", menuName = "Data/New/RegularSlotDataSO")]
 public class NewRegularSlotDataSO : ScriptableObject
 {

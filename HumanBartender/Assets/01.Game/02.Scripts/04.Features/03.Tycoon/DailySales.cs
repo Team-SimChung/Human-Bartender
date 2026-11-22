@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// 결과가 다시 흘러들어와도 settlement_id로 한 번만 받는다(칵테일 제공·정산·다회 주문 §6.3.4).
 ///
 /// 1부에서는 잔별 정산 팝업을 띄우지 않는다. 여기 쌓인 값은 2부가 끝난 뒤 일일 매출 정산 화면이
-/// 한 번에 보여줄 몫이라, 지금은 화면 없이 값만 들고 있다.
+/// 한 번에 조회한다. 이 장부 자체는 소지금 지급이나 UI 표시를 하지 않는다.
 /// </summary>
 public class DailySales
 {
@@ -19,6 +19,8 @@ public class DailySales
 
     /// <summary>반영된 회차별 정산 기록. 일일 매출 정산 화면이 읽을 몫이다.</summary>
     public IReadOnlyList<OrderSettlement> Items => items;
+
+    public bool Contains(OrderSettlement settlement) => settlement != null && items.Contains(settlement);
 
     /// <summary>정산 하나를 누계에 더한다. 이미 반영된 ID거나 정산이 없으면 아무것도 하지 않는다.</summary>
     public bool Apply(OrderSettlement settlement)

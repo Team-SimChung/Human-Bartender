@@ -1,0 +1,1540 @@
+{
+  "completedAt": "2026-10-20T07:34:11.234373+09:00",
+  "temporaryImages": 81,
+  "changedImageBytes": 0,
+  "changedImportSettings": 23,
+  "referenceFiles": {
+    "Assets/01.Game/01.Scenes/Play.unity": 5,
+    "Assets/01.Game/03.Content/02.Cutscenes/02.Bar/01.Timelines/Serve_Cosmopolitan.playable": 2,
+    "Assets/01.Game/03.Content/02.Cutscenes/02.Bar/01.Timelines/Serve_Dry.playable": 2,
+    "Assets/01.Game/03.Content/02.Cutscenes/02.Bar/01.Timelines/Serve_Ginfizz.playable": 2,
+    "Assets/01.Game/03.Content/02.Cutscenes/02.Bar/01.Timelines/Serve_kalua.playable": 2,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_bottle_beer.anim": 30,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_cosmopolitan.anim": 30,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_dry_martini.anim": 30,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_gin_fizz.anim": 30,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_gin_tonic.anim": 30,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_kahlua_milk.anim": 30,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_screwdriver.anim": 30,
+    "Assets/01.Game/03.Content/07.Animations/02.Crafting/02.Serving/01.Clips/Serve_tequila_sunrise.anim": 30,
+    "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/01.Preparation/CraftPrepStage.prefab": 6,
+    "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/02.Stir/NewStirGame.prefab": 39,
+    "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/04.Cap/NewCapGame.prefab": 1,
+    "Assets/03.Dev/01.Scenes/01.Minigames/Stir.unity": 39
+  },
+  "replacedReferences": 338,
+  "existingOriginalIdConversions": {},
+  "backup": "C:\\Users\\hyeon2-400\\AppData\\Local\\Temp\\humanbartender-temp-finalize-w7kpoqkk",
+  "entries": [
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/02.Environments/01.Bar/02.Preparation/regular_shelf.png",
+      "originalGuid": "4f11218b333774ae9a0898cef7ba11f1",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/02.Environments/01.Bar/02.Preparation/regular_shelf.png",
+      "temporaryGuid": "c6524b2bd90d4d93bc1e0e4e7dda9bc7",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/01.Preparation/02.Tools/01.X1/bottle_opener.png",
+      "originalGuid": "746e3fb0dac474b10b454a6cb0baf126",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/01.Preparation/02.Tools/01.X1/bottle_opener.png",
+      "temporaryGuid": "0b988d74f47b438ba6ebb4c0f564c469",
+      "spriteMode": 2,
+      "spriteIds": [
+        -6088304283308702133
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer.png",
+      "originalGuid": "ace13427b527147ae8710fdf69004061",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer.png",
+      "temporaryGuid": "a35d075d923b4d3d90f1ae84fd3ab2b4",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer_decoration.png",
+      "originalGuid": "322685ffc7ad143f38b60bc4afa43936",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer_decoration.png",
+      "temporaryGuid": "c7fec0eccfd34875ba56c410759bc729",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/champagne.png",
+      "originalGuid": "40fc25c263acf4ef69bb7c760fb16176",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/champagne.png",
+      "temporaryGuid": "dcc2c95076cd4ddb902e9f083145d548",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola.png",
+      "originalGuid": "888a3af22ac19418cb89e6ab6aab15c1",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola.png",
+      "temporaryGuid": "34b9c8146c704269a945eaf81d9bbbbb",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola_decoration.png",
+      "originalGuid": "d5f87518cda0244a3a5c34e125fee9e7",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola_decoration.png",
+      "temporaryGuid": "4942757367ee43ea8df8680841501037",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/martini_dry_vermouth.png",
+      "originalGuid": "683217faef9bc46788cd49e8f7716194",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/martini_dry_vermouth.png",
+      "temporaryGuid": "cffca07aff1142b9a1ea726cd8cf8c03",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice.png",
+      "originalGuid": "4fad94b985de947ef930ea01712df5e5",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice.png",
+      "temporaryGuid": "0c582205f835482e8ecbf842e7125392",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice_decoration.png",
+      "originalGuid": "c30dc7960c0af458083de9e79d212f0c",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice_decoration.png",
+      "temporaryGuid": "97c65f2fe9fb461ca2f8476a9c0c2bc7",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/red_wine.png",
+      "originalGuid": "112e99c5cc4f94b77bc9ff4c377b1fb1",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/red_wine.png",
+      "temporaryGuid": "ee6d000e74384233963372a77e4bd9e2",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water.png",
+      "originalGuid": "5d1bb02add11546d8bf926c987d11181",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water.png",
+      "temporaryGuid": "31ab8a76af4e4e1a88f53642aa99ba8d",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water_decoration.png",
+      "originalGuid": "cfcaf0fe9bcb74a5cb6d11a121ae032d",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water_decoration.png",
+      "temporaryGuid": "6bf638a52f454d3a8679fb2d1f2a72da",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/beer_final.png",
+      "originalGuid": "f183352de23ac4fbbbfa7bb80d1fc2b2",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/beer_final.png",
+      "temporaryGuid": "93edbe0329214acc8fc7638deaf6199d",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/cosmopolitan_final.png",
+      "originalGuid": "265a3425de3e64216aa2a788d7713f41",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/cosmopolitan_final.png",
+      "temporaryGuid": "c407ea0516ce4222a5d049101885e43c",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/dry_martini_final.png",
+      "originalGuid": "9e83956705ecd4214ad873d4e690766f",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/dry_martini_final.png",
+      "temporaryGuid": "5a22d682709d47c0964d44c198d0273d",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_and_tonic_final.png",
+      "originalGuid": "1b308c37e3ee24c7b98173812e8ee57c",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_and_tonic_final.png",
+      "temporaryGuid": "37e250640c954cdab12de151e75dec2b",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_fizz_final.png",
+      "originalGuid": "104b4944d0cac4844bd9bb1e3bdc2083",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_fizz_final.png",
+      "temporaryGuid": "291ab91d0fb64e0aa523a474abcd0aaf",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/kahlua_milk_final.png",
+      "originalGuid": "a8527b8013d1d4ca6bcdfcdb4c4beede",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/kahlua_milk_final.png",
+      "temporaryGuid": "ad1866634ad74ffd8daf1f12e70749ec",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/screwdriver_final.png",
+      "originalGuid": "a10393a961f65495a95ba51fcf916629",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/screwdriver_final.png",
+      "temporaryGuid": "687cae35e0884d06bb512cdbc819bd89",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/tequila_sunrise_final.png",
+      "originalGuid": "51abbb1a5b54d46e79fffc4e561425f3",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/tequila_sunrise_final.png",
+      "temporaryGuid": "9842e61b377141d3aeaea14d99dff802",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/beer_glass.png",
+      "originalGuid": "cf4d8ca86b8234c20a30d5415d0b7b15",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/beer_glass.png",
+      "temporaryGuid": "507dd5ec7b7c47ce98e4b72d38d04319",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/cocktail_glass.png",
+      "originalGuid": "5208b24cfc3d74ec2b492f46f896a649",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/cocktail_glass.png",
+      "temporaryGuid": "398b914728b04b70a0e7f595fcd4994c",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/long_drink_glass.png",
+      "originalGuid": "90b71f0d4d3864fe3a3c7333f493f08f",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/long_drink_glass.png",
+      "temporaryGuid": "6ed27953fcd14d1c9bd4b7012f71090c",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/old_fashioned_glass.png",
+      "originalGuid": "8551b56e337734f5a81c2598135223a2",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/old_fashioned_glass.png",
+      "temporaryGuid": "6cfec2d8eb2848acba476c606179f08f",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/sour_glass.png",
+      "originalGuid": "0812ef116b59b42bfbbd430b9e878203",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/sour_glass.png",
+      "temporaryGuid": "13e3a909b359438dbbc77a62fdcf34aa",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/wine_glass.png",
+      "originalGuid": "08395db8395ca4fbe8ad7d2012a8ca66",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/wine_glass.png",
+      "temporaryGuid": "db99a2d9b75642ac86f13d87dc9fe47f",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/beer.png",
+      "originalGuid": "d74bd73d905f14fcaa16e2effeae2f11",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/beer.png",
+      "temporaryGuid": "af6c7153628f4574868ed4b2491bc55c",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/cosmopolitan.png",
+      "originalGuid": "e0ca343736900459e8bda88cdce2795d",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/cosmopolitan.png",
+      "temporaryGuid": "bbd8b8036df643f9a4e5e36ce0f5278d",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/dry_martini.png",
+      "originalGuid": "ef08938122e0845ccae8929239d5a72a",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/dry_martini.png",
+      "temporaryGuid": "6401dbc40de141458de1a6d70f64176e",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/gin_and_tonic.png",
+      "originalGuid": "eabab1a2514da47f3b411d2c12936b30",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/gin_and_tonic.png",
+      "temporaryGuid": "422cbda1b8914930997ea46f72a56e02",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/screwdriver.png",
+      "originalGuid": "0bac4011a530443519675bcdeb664687",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/screwdriver.png",
+      "temporaryGuid": "9fc9dfe0d63046508e0fc358b986628d",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/tequila_sunrise.png",
+      "originalGuid": "99b7c585a273a49f6874aecc37425530",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/tequila_sunrise.png",
+      "temporaryGuid": "43364b61ada24c8d80a34c997f39b223",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/beer_glass.png",
+      "originalGuid": "9c0b44421f41f4fb38b12ed6010a88ee",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/beer_glass.png",
+      "temporaryGuid": "97f19670a591495d9fc81e3f091ce3cf",
+      "spriteMode": 2,
+      "spriteIds": [
+        6067333682832215987
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/cocktail_glass.png",
+      "originalGuid": "8e1ff0c01db404e24a95be0ae3278236",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/cocktail_glass.png",
+      "temporaryGuid": "0f98cda990964979bf7542c0c02b0ef7",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8617008876772426674
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/long_drink_glass.png",
+      "originalGuid": "1dd028ffdb3cb4f11b7155f3d58b8ff4",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/long_drink_glass.png",
+      "temporaryGuid": "812d066135d34654b1fc07e02ff6072c",
+      "spriteMode": 2,
+      "spriteIds": [
+        6380718701440112990
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/04.Minigames/02.Stir/01.Sprites/stir_Sheet.png",
+      "originalGuid": "6fe23d2f7a3ea47ca9c2fb18f609b9ef",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/04.Minigames/02.Stir/01.Sprites/stir_Sheet.png",
+      "temporaryGuid": "004c32d3c2b645aba050ab07d140c141",
+      "spriteMode": 2,
+      "spriteIds": [
+        -6196515148674051631,
+        -4224669004482311929,
+        -4139199221308039564,
+        -137285232573108688,
+        5671634578202280452,
+        5859197291287972572
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/05.Serving/01.Coasters/Serve_Background.png",
+      "originalGuid": "9a23175ce88ed1d49918f7192a44f4de",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving/01.Coasters/Serve_Background.png",
+      "temporaryGuid": "b3bf8582343549e3a86a468d4a4ce91b",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/05.Serving/01.Coasters/coaster.png",
+      "originalGuid": "d4eac0b3d057947cb8586c0a678058cc",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving/01.Coasters/coaster.png",
+      "temporaryGuid": "b602d20bd36e4aba8ce4f3c7596971d1",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/03.Bar/01.Serving/01.Drink_Serving_Screen_Sheets/gin_tonic.png",
+      "originalGuid": "5b729b2b0b39644ca88acba1d0f8cf2e",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/03.Bar/01.Serving/01.Drink_Serving_Screen_Sheets/gin_tonic.png",
+      "temporaryGuid": "e1c835026af54147bf7dbee321b13349",
+      "spriteMode": 2,
+      "spriteIds": [
+        -9014406125694255791,
+        -8215216551635465513,
+        -6999345751583474598,
+        -6234092036190817438,
+        -5744900331492867621,
+        -4491686514534276018,
+        -3677040352090321536,
+        -3047931888490204697,
+        -2703336318413554576,
+        -2129767665017449691,
+        -1815262646290084603,
+        -1254888518356142626,
+        -785935100157951262,
+        -597625460060431009,
+        529831523892150947,
+        926733882173633652,
+        1685245093424576230,
+        3827218124580504579,
+        4286729070718528731,
+        4496967342238357111,
+        5378582370069880427,
+        5624899373606083647,
+        6859101892984919142,
+        7397547251138432497,
+        7621128299863450571,
+        8022539226461101071,
+        8086543341480774044,
+        8449272818742204336,
+        8733853344283447872,
+        8938078771440062916
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/background.png",
+      "originalGuid": "15ec71c706c5e41869c14782ee528ba0",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/background.png",
+      "temporaryGuid": "2a2fe1a532e84828a2f3af08a79bd995",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8846625461509582439,
+        -8595306022536147679,
+        -8495518608564199154,
+        -8017813488550349263,
+        -7443756053782179069,
+        -6863712573513296491,
+        -6444662470419259896,
+        -6344343437890535301,
+        -3192133289119773823,
+        -2841738272403921048,
+        -2151087672213475925,
+        -709579608419119541,
+        -664377540809205162,
+        554659820273570864,
+        986969114328154071,
+        1316490896907413468,
+        1405897620634370583,
+        2415078317887781457,
+        2998442183771500188,
+        3414901824912693521,
+        3970015981214305365,
+        4328097311078286071,
+        4372148480733514280,
+        5054532152264460952,
+        6063939892028557472,
+        7001778013311136900,
+        7573440505101220439,
+        7898562296661958002,
+        8343477328892443928,
+        8900154682771799127
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_beer.png",
+      "originalGuid": "a0f0101e36e944ef3b07c761ebd957ab",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_beer.png",
+      "temporaryGuid": "c1c543033c844664be744d539eed47e4",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8981531700316031474,
+        -7945219270239115754,
+        -7660193985069652794,
+        -7568915647209135840,
+        -7454682528368907693,
+        -6889746292753257472,
+        -6852612062246502631,
+        -6190480165512283908,
+        -5140543610525176508,
+        -4804061939891712879,
+        -4601016311668152132,
+        -4395133488051360492,
+        -1766387738510182879,
+        -1580262597698050616,
+        -1474674111397764539,
+        -852418528330004579,
+        -693113994737097771,
+        -498731680473385200,
+        -381161979642844015,
+        -136780159952742357,
+        1552767599754890580,
+        1596400293463615272,
+        1764087289973982270,
+        2399378254711847559,
+        3108889712945057094,
+        6006938197639277480,
+        6220084473999616815,
+        6567708220345925362,
+        8059442485232691832,
+        8897529322076213765
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_cosmopolitan.png",
+      "originalGuid": "5430265ed5a74462c89057bcf903aa1f",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_cosmopolitan.png",
+      "temporaryGuid": "267bcc5dfafd4a4eb3a5a7eb4925002c",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8792313305753141481,
+        -7179346574385201505,
+        -6346156012745915301,
+        -6293861408952711579,
+        -5378185760186596866,
+        -3838737832095167748,
+        -3419053961690145414,
+        -2677854362941242400,
+        -2394669622186973648,
+        -2332841905514682401,
+        -2252973310144033733,
+        -1820106444521453848,
+        -1523750927952152503,
+        -1170579041690322371,
+        -1159946072422206898,
+        -828299981779855754,
+        -565188229807141211,
+        2007038106408526507,
+        3235782434296066065,
+        3408074683434756145,
+        3504267706317454431,
+        4124728629906261442,
+        5019114819797140739,
+        5793455843760050346,
+        6667166207298062550,
+        6838191840373361823,
+        7324940932334929855,
+        7716191371484579107,
+        8030220966947469421,
+        8643718301395487884
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_drymartini.png",
+      "originalGuid": "e0b74a323347b46e8a35af24daf58611",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_drymartini.png",
+      "temporaryGuid": "bc6eb6e80d614459b84051929484556b",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8925690956630114661,
+        -8699778786764431663,
+        -8322879131764024691,
+        -8055655356579563069,
+        -7606285466269369920,
+        -7597100287789433000,
+        -7221918632029562406,
+        -4728947617092988616,
+        -3954923535949230050,
+        -3712148070417272234,
+        -3555975402085628948,
+        20641507912855517,
+        49346711217176529,
+        1267722718359793927,
+        1798938826271795142,
+        1836058713670352305,
+        1929663988396231715,
+        1938143966526387968,
+        2718010645396020158,
+        3672070572696555279,
+        4623910213359203381,
+        5190916769604274481,
+        5202972742392392198,
+        7804532953203055626,
+        7913528659896446201,
+        8205506405593492778,
+        8900014514295806951,
+        8915511160965733499,
+        8961589864099229210,
+        9006828345384127714
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_gin_tonic.png",
+      "originalGuid": "7579c6934c3a34a43bc65a5a57684b98",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_gin_tonic.png",
+      "temporaryGuid": "d8ea95e97e9c4c52ae66ae8eb18e5928",
+      "spriteMode": 2,
+      "spriteIds": [
+        -7575718324488083535,
+        -5656381692422026570,
+        -5497309494187589603,
+        -5138401892402026170,
+        -4242184506977355440,
+        -3973376976876970082,
+        -3722379504486410655,
+        -3659389016947959863,
+        -2853043595852369254,
+        -2738270677681909881,
+        -1316415994856024864,
+        -379007729013407023,
+        -340217852200297333,
+        778715370630779044,
+        846334752905554822,
+        938427182492277837,
+        1130799571388515955,
+        2679002040784399177,
+        2703187203220964520,
+        2807732195197323084,
+        4323708263587279939,
+        4808645089995876579,
+        4948224327204845042,
+        5003515980129512451,
+        5412054016715616650,
+        5653501661231822985,
+        6516170891213424672,
+        6965719958077847425,
+        8749876401583537716,
+        8760010362229985723
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_ginfizz.png",
+      "originalGuid": "2349dbda7b22e45c3aac7c7b4f13c416",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_ginfizz.png",
+      "temporaryGuid": "f409d2a863e547cb8e01be91d1031a44",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8332192000427045484,
+        -8042622800111402945,
+        -7157177123513118492,
+        -6840091805216430753,
+        -5249970571325329996,
+        -5179366764494479013,
+        -4817696017612295878,
+        -3517284663039989030,
+        -3423834062264722592,
+        -2730193087928186025,
+        -2361633358337557988,
+        -2111874677170577771,
+        -878536519215364185,
+        -797882134565659101,
+        -216238214095808372,
+        218566016993659009,
+        233556074684389432,
+        450998865693373014,
+        468897398139731449,
+        1839827810249738930,
+        1999645650273779148,
+        2445951207256645204,
+        2966608243327196267,
+        3183924362708860341,
+        4613879873399343132,
+        5068812137044993494,
+        5153242488449464666,
+        6439631403838373674,
+        7466649627171243866,
+        8100383017244970967
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_kahluaMilk.png",
+      "originalGuid": "7ef5408379061440c8274b1c8d86b7ce",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_kahluaMilk.png",
+      "temporaryGuid": "3bd07352dc8c4db98bd5eb780d53db74",
+      "spriteMode": 2,
+      "spriteIds": [
+        -9196962829598730193,
+        -8039232483208401957,
+        -7651864948836594579,
+        -6184509996429459676,
+        -4801607212665514408,
+        -4592699982748731902,
+        -4220352688890006500,
+        -4153288542453179125,
+        -3667692644466446608,
+        -2748834960106719831,
+        -1184733916312873116,
+        61651698175875681,
+        620714792730546013,
+        679786320709908168,
+        1284975938621400621,
+        1515396090137130272,
+        1834944429634382332,
+        2444082679720949860,
+        3201638172395440495,
+        3652413218541021876,
+        4574020996432291391,
+        4961770903538052597,
+        5809552238494319530,
+        7362867058605897578,
+        8269389255764909245,
+        8423317214063291865,
+        8525340000020666686,
+        8685327808096814591,
+        8752930792127507042,
+        8780818254174230521
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_screwdriver.png",
+      "originalGuid": "8695a35823e204ec58a35214b85c2438",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_screwdriver.png",
+      "temporaryGuid": "0acaf131ce0748bbab85d7e310fc5298",
+      "spriteMode": 2,
+      "spriteIds": [
+        -9174258796292846552,
+        -8037246035364205442,
+        -7945181288790082763,
+        -7156202743516268100,
+        -6658251387521349721,
+        -5421508048228314736,
+        -3037310897341334919,
+        -2655070915304969444,
+        -1376492198897223680,
+        -680001567453324916,
+        162376550193427373,
+        418540639867296863,
+        714292377147653990,
+        1074666009993237980,
+        1191625143301432599,
+        2204828666268350222,
+        3106166806685840826,
+        3459304088450803317,
+        3595602015190171879,
+        3627278696539679400,
+        3727838639566711008,
+        4740976025870404258,
+        4932799508643079717,
+        6359744101345491445,
+        6432606531166748811,
+        6502341370306747028,
+        6796533997917839461,
+        8214759394009283536,
+        8465679391199913019,
+        8986743384481056171
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/04.Cutscenes/04.ServingAnime/give_drink_tequila_sunrise.png",
+      "originalGuid": "3650a8959b19c4b70912c6f18cce30c7",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_tequila_sunrise.png",
+      "temporaryGuid": "5d83e8136bb2402d95dfccefb85fa932",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8606944429002551789,
+        -8453632885630773981,
+        -8236158418332777405,
+        -7040726919285434891,
+        -4866188951223636401,
+        -4405447194972287047,
+        -3878733187511747760,
+        -3333452287249166357,
+        -1089036900414476696,
+        -1039517712109773086,
+        -1024796966173652853,
+        -465074149576752328,
+        238861205560795662,
+        1501716919773262472,
+        2696562414916285427,
+        3191464324963014231,
+        3258322874186161955,
+        3327767046433722137,
+        4542582045617646260,
+        5183079471114686356,
+        5217737900000789169,
+        5222218227885609116,
+        5469666355380107693,
+        5670540196796587893,
+        5958188128775126250,
+        6706181548587902499,
+        8017751244999334775,
+        8110487561213592988,
+        8287642874358183395,
+        9072769103652955952
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_arrow_cocktail.png",
+      "originalGuid": "69ee054b9f6f34d6f9033911cca26bb3",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_arrow_cocktail.png",
+      "temporaryGuid": "b6b73c8e11f44b3997ab998277ed3c4a",
+      "spriteMode": 2,
+      "spriteIds": [
+        -8174976130562640986
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/05.Profile/profile_window/IMG_card_R.png",
+      "originalGuid": "a205a7089da784ecc851477eef0c67ba",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_card_R.png",
+      "temporaryGuid": "b839cb7e5c2f9a74f8f7cbb6c446c4c3",
+      "spriteMode": 2,
+      "spriteIds": [
+        6523944065022665437
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_shadow_cocktail.png",
+      "originalGuid": "31dea69e11bb348b58e2845678274576",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_shadow_cocktail.png",
+      "temporaryGuid": "eed63681664f4c6aa822377a621198f5",
+      "spriteMode": 2,
+      "spriteIds": [
+        7882816808516116208
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_A.png",
+      "originalGuid": "bdc479ee8efec4889b1210416d0ad2f9",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_A.png",
+      "temporaryGuid": "eacde643b20d450fb1470b13e6fc4ffe",
+      "spriteMode": 2,
+      "spriteIds": [
+        -434157067763657943
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_B.png",
+      "originalGuid": "6645b8f1159784fc8beb77cfae42cb9f",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_B.png",
+      "temporaryGuid": "0af24c767d404b559cbb3ec9350c266a",
+      "spriteMode": 2,
+      "spriteIds": [
+        -809007333491799233
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_close.png",
+      "originalGuid": "0ca60330d51af4afdacb38247f7a72c3",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_close.png",
+      "temporaryGuid": "b6ab45de39a547a8a4a136cd89b72dd5",
+      "spriteMode": 2,
+      "spriteIds": [
+        -3117215882931059645
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_ESC.png",
+      "originalGuid": "a0111034662054067a2a02525820684f",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_ESC.png",
+      "temporaryGuid": "b7f62e34424c43178495d9c8aa551817",
+      "spriteMode": 2,
+      "spriteIds": [
+        8651427957003732856
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_recipe_choice_box.png",
+      "originalGuid": "083bc55d43f88459b9629d6727b3ac5b",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_recipe_choice_box.png",
+      "temporaryGuid": "eb5e08851cc94811ae5ad820952dd94f",
+      "spriteMode": 2,
+      "spriteIds": [
+        4257616254579131092
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_thumb.png",
+      "originalGuid": "aa64db31542074de9a49ed4cf3f1eba9",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_thumb.png",
+      "temporaryGuid": "bbdc94dd43824dfa8a8828754805ec12",
+      "spriteMode": 2,
+      "spriteIds": [
+        4040705422794245197
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_track.png",
+      "originalGuid": "79c2e3b0d530846849450d63e696c03b",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_track.png",
+      "temporaryGuid": "c3df174cdff849fd8dedc63ebf3d7a6f",
+      "spriteMode": 2,
+      "spriteIds": [
+        -5270856292822341483
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_A.png",
+      "originalGuid": "aab7ccd3a7c7244e68da25262ff93354",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_A.png",
+      "temporaryGuid": "cd92eeaa3c1b482a80d1e6942a577aff",
+      "spriteMode": 2,
+      "spriteIds": [
+        -3163230578892770118
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_B.png",
+      "originalGuid": "f120692f6903248099873888865d5c60",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_B.png",
+      "temporaryGuid": "93e205d4ccac45d695ee83545bd1e8c6",
+      "spriteMode": 2,
+      "spriteIds": [
+        8735340000864348960
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_close.png",
+      "originalGuid": "3ac90a11528b0412688903f2a0342769",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_close.png",
+      "temporaryGuid": "43406691dc9d482db6f07c862f3ba59b",
+      "spriteMode": 2,
+      "spriteIds": [
+        1902746593729559870
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_panel.png",
+      "originalGuid": "a051859ef2e56410894d90a625056b91",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_panel.png",
+      "temporaryGuid": "ac471693e5704211b827fc264813a692",
+      "spriteMode": 2,
+      "spriteIds": [
+        5915970416514168513
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/IMG_ESC.png",
+      "originalGuid": "4eefcccb9b2484ba0ac4a1c9f3e3b693",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/IMG_ESC.png",
+      "temporaryGuid": "d8fa99489bb84bf1b9a17fe2fcc2ad90",
+      "spriteMode": 2,
+      "spriteIds": [
+        8651427957003732856
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes/IMG_ESC.png",
+      "originalGuid": "490fe2839541b48b0bd40c4ac303a187",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes/IMG_ESC.png",
+      "temporaryGuid": "d7205750a0854014a804577d83f98550",
+      "spriteMode": 2,
+      "spriteIds": [
+        8651427957003732856
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_L_B.png",
+      "originalGuid": "36862a839194c4303bc6ee58d347e526",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_L_B.png",
+      "temporaryGuid": "d161f08e8c3b4fe6a1525a05a6c6987e",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_R_B.png",
+      "originalGuid": "c037c7e539d21461db88b1ab3d99ee66",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_R_B.png",
+      "temporaryGuid": "4aad9bad7df64085852f0667d67d4f3d",
+      "spriteMode": 1,
+      "spriteIds": [
+        21300000
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_A.png",
+      "originalGuid": "c6a1d3edb869041b5b775634b38a385b",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_A.png",
+      "temporaryGuid": "42d5034dcc84446bbbb99f41460f4174",
+      "spriteMode": 2,
+      "spriteIds": [
+        7018331438626151071
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_B.png",
+      "originalGuid": "791f2fa621acc42a7886ee9094e2f2c0",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_B.png",
+      "temporaryGuid": "f13a4d7d41104138b1a61b6b1a159911",
+      "spriteMode": 2,
+      "spriteIds": [
+        -259734678970468917
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_C.png",
+      "originalGuid": "7047a758ee98247098489dfa6f69d799",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_C.png",
+      "temporaryGuid": "a7045c03ffda411c8502f57d5b643881",
+      "spriteMode": 2,
+      "spriteIds": [
+        2250313438145005820
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_D.png",
+      "originalGuid": "7c3a7a3dc878847839288a82537ce583",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_D.png",
+      "temporaryGuid": "ef7096fde25f4db5b368e332aa83c29f",
+      "spriteMode": 2,
+      "spriteIds": [
+        7842989964027598036
+      ],
+      "importSettingsChanged": false,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir.png",
+      "originalGuid": "1ead96f142d6a4ff28cac5e59c63c32b",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir.png",
+      "temporaryGuid": "ab4ebe0f927c4b7d9515b017ce97c84a",
+      "spriteMode": 2,
+      "spriteIds": [
+        -1956855967675607953,
+        6700020001,
+        6700020002,
+        6700020003
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": [
+        "BG_stir_right_frame",
+        "BG_stir_grid_tile",
+        "BG_stir_left_frame"
+      ]
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir_line.png",
+      "originalGuid": "c0064cd548dcb476b9f67c220113398b",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir_line.png",
+      "temporaryGuid": "f6627157ab334742bf136416ed220dc1",
+      "spriteMode": 2,
+      "spriteIds": [
+        -7836150334763740819
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_A.png",
+      "originalGuid": "53b13a620ae584364a70260d0ecb1829",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_A.png",
+      "temporaryGuid": "cd1456913a70497ca00d9853c740d3fe",
+      "spriteMode": 2,
+      "spriteIds": [
+        -9095695528685516250
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_C.png",
+      "originalGuid": "ef0e70c5d85c644418b6627a379d1906",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_C.png",
+      "temporaryGuid": "2b967e00c36f479d97eb27f9a61def4e",
+      "spriteMode": 2,
+      "spriteIds": [
+        4345110329659078646
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_basic.png",
+      "originalGuid": "654373df15e26440780605fd61f20971",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_basic.png",
+      "temporaryGuid": "4fe8c78fcdf34b04ae19c90bec23aea6",
+      "spriteMode": 2,
+      "spriteIds": [
+        5244957381425140619
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_fail.png",
+      "originalGuid": "7471725848d0a4d2a8313e5e23707d8f",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_fail.png",
+      "temporaryGuid": "1b034decd7514720b8ef52e5047565fa",
+      "spriteMode": 2,
+      "spriteIds": [
+        -2136311942556112072,
+        6700010002
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": [
+        "GAU_stir_fail_fill"
+      ]
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_A.png",
+      "originalGuid": "789b61260f79e441a81174bee07416fe",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_A.png",
+      "temporaryGuid": "36537e0441ac437080e163198f30736b",
+      "spriteMode": 2,
+      "spriteIds": [
+        674064598793797935
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_B.png",
+      "originalGuid": "29620a5df5ca046dcae7751b7f135d7f",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_B.png",
+      "temporaryGuid": "44cf4c3a3a78477c9b7cb255310cb142",
+      "spriteMode": 2,
+      "spriteIds": [
+        -1780299798731141986
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_success.png",
+      "originalGuid": "fcdd93844c981436c80995f2560a93fd",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_success.png",
+      "temporaryGuid": "bc6455a6eb81440984e44790c6f08b10",
+      "spriteMode": 2,
+      "spriteIds": [
+        6700010001,
+        3944764043510144689
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": [
+        "GAU_stir_success_fill"
+      ]
+    },
+    {
+      "originalPath": "Assets/01.Game/03.Content/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/ICN_sitr_time.png",
+      "originalGuid": "a0b65d5b9ccea4f009e184c0d29ddb6c",
+      "temporaryPath": "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/ICN_sitr_time.png",
+      "temporaryGuid": "d0ed7d660f2f4a1cb465fdc28bdbc724",
+      "spriteMode": 2,
+      "spriteIds": [
+        8286226605919586741
+      ],
+      "importSettingsChanged": true,
+      "addedSprites": []
+    }
+  ],
+  "verifiedTemporaryGuids": 417,
+  "remainingTemporaryGuidReferences": 0,
+  "unityValidatedSpriteAndTextureIds": 462,
+  "removedTemporaryFiles": [
+    "Assets/99.TempResources/01.ArtResources.meta",
+    "Assets/99.TempResources/CLEANUP_REPORT.json",
+    "Assets/99.TempResources/CLEANUP_REPORT.json.meta",
+    "Assets/99.TempResources/README.md",
+    "Assets/99.TempResources/README.md.meta",
+    "Assets/99.TempResources/TEMP_RESOURCE_MAP.json",
+    "Assets/99.TempResources/TEMP_RESOURCE_MAP.json.meta",
+    "Assets/99.TempResources/01.ArtResources/02.Environments.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI.meta",
+    "Assets/99.TempResources/01.ArtResources/02.Environments/01.Bar.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/01.Preparation.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/04.Minigames.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/03.Bar.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting.meta",
+    "Assets/99.TempResources/01.ArtResources/02.Environments/01.Bar/02.Preparation.meta",
+    "Assets/99.TempResources/01.ArtResources/02.Environments/01.Bar/02.Preparation/regular_shelf.png",
+    "Assets/99.TempResources/01.ArtResources/02.Environments/01.Bar/02.Preparation/regular_shelf.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/01.Preparation/02.Tools.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/04.Minigames/02.Stir.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving/01.Coasters.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/01.Preparation/02.Tools/01.X1.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/01.Preparation/02.Tools/01.X1/bottle_opener.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/01.Preparation/02.Tools/01.X1/bottle_opener.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer_decoration.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/bottled_beer_decoration.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/champagne.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/champagne.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola_decoration.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/cola_decoration.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/martini_dry_vermouth.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/martini_dry_vermouth.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice_decoration.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/orange_juice_decoration.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/red_wine.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/red_wine.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water_decoration.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/02.Ingredients/01.Refrigerator/sparkling_water_decoration.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/beer_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/beer_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/cosmopolitan_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/cosmopolitan_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/dry_martini_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/dry_martini_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_and_tonic_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_and_tonic_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_fizz_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/gin_fizz_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/kahlua_milk_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/kahlua_milk_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/screwdriver_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/screwdriver_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/tequila_sunrise_final.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/01.Finished/tequila_sunrise_final.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/beer_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/beer_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/cocktail_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/cocktail_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/long_drink_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/long_drink_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/old_fashioned_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/old_fashioned_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/sour_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/sour_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/wine_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/01.RatingReveal/02.Glasses/wine_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/beer.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/beer.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/cosmopolitan.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/cosmopolitan.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/dry_martini.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/dry_martini.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/gin_and_tonic.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/gin_and_tonic.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/screwdriver.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/screwdriver.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/tequila_sunrise.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/01.Finished/tequila_sunrise.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/beer_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/beer_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/cocktail_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/cocktail_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/long_drink_glass.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/03.Cocktails/02.Table/02.Glasses/long_drink_glass.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/04.Minigames/02.Stir/01.Sprites.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/04.Minigames/02.Stir/01.Sprites/stir_Sheet.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/04.Minigames/02.Stir/01.Sprites/stir_Sheet.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving/01.Coasters/coaster.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving/01.Coasters/coaster.png.meta",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving/01.Coasters/Serve_Background.png",
+    "Assets/99.TempResources/01.ArtResources/03.Crafting/05.Serving/01.Coasters/Serve_Background.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/03.Bar/01.Serving.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/background.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/background.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_beer.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_beer.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_cosmopolitan.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_cosmopolitan.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_drymartini.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_drymartini.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_ginfizz.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_ginfizz.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_gin_tonic.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_gin_tonic.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_kahluaMilk.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_kahluaMilk.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_screwdriver.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_screwdriver.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_tequila_sunrise.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/04.serving ani/give_drink_tequila_sunrise.png.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/03.Bar/01.Serving/01.Drink_Serving_Screen_Sheets.meta",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/03.Bar/01.Serving/01.Drink_Serving_Screen_Sheets/gin_tonic.png",
+    "Assets/99.TempResources/01.ArtResources/04.Cutscenes/03.Bar/01.Serving/01.Drink_Serving_Screen_Sheets/gin_tonic.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_arrow_cocktail.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_arrow_cocktail.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_card_R.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_card_R.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_shadow_cocktail.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/IMG_shadow_cocktail.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_A.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_A.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_B.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_B.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_close.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/BTN_recipe_choice_close.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_ESC.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_ESC.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_recipe_choice_box.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_recipe_choice_box.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_thumb.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_thumb.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_track.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/recipe_choice/IMG_scroll_track.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_A.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_A.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_B.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_B.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_close.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_close.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_panel.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/BTN_service_panel.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/IMG_ESC.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/01.Shared/01.MainScreen/service_panel/IMG_ESC.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_L_B.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_L_B.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_R_B.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/BTN_arrow_R_B.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_A.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_A.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_B.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_B.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_C.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_C.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_D.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/GRD_igd_info_D.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes/IMG_ESC.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/01.Preparation/01.Recipes/IMG_ESC.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir_line.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BG_stir_line.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_A.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_A.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_C.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/BTN_key_C.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_basic.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_basic.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_fail.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_fail.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_A.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_A.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_B.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_round_B.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_success.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/GAU_stir_success.png.meta",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/ICN_sitr_time.png",
+    "Assets/99.TempResources/01.ArtResources/05.UI/03.Crafting/02.Minigames/01.Stir/ICN_sitr_time.png.meta",
+    "Assets/99.TempResources.meta",
+    "Assets/03.Dev/03.Scripts/TemporaryPopupTestButtons.cs",
+    "Assets/03.Dev/03.Scripts/TemporaryPopupTestButtons.cs.meta",
+    "Assets/01.Game/Editor/CodexTempResourceFinalize.cs",
+    "Assets/01.Game/Editor/CodexTempResourceFinalize.cs.meta"
+  ],
+  "recoveryFilesArchived": [
+    "Assets/_Recovery/0.unity",
+    "Assets/_Recovery/0.unity.meta",
+    "Assets/_Recovery.meta"
+  ],
+  "validation": {
+    "assetDatabase": "462 sprite and texture IDs resolved",
+    "serving": "8 clips x 30 frames, 6x5 grid and centered pivot",
+    "stirSourceWidth": 5820,
+    "remainingTemporaryGuidReferences": 0,
+    "platformLists": "unchanged",
+    "finalEditorCompilation": "ExitCode 0",
+    "gitDiffCheck": "PASS",
+    "temporaryValidationHelpersRemoved": true
+  }
+}

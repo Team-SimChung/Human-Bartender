@@ -37,7 +37,7 @@ public class GuestSlot : MonoBehaviour
 {
     [SerializeField] ESlotType slotType;
 
-    [Header("랜덤 손님 파츠 렌더러 (guest_bodies.json: bodies/outfits/eyes/hairs)")]
+    [Header("랜덤 손님 파츠 렌더러 (guests/guest_parts.csv: 9개 부위)")]
     [Tooltip("슬롯별 파츠 렌더러. 9슬롯 전부 연결해야 한다 — 빠진 슬롯은 그려지지 않는다. " +
              "겹쳐 그리는 순서는 EGuestBodySlot 값(0 body ~ 80 arm_accessory)을 따른다.")]
     [SerializeField] GuestBodySlotRenderer[] partRenderers;
@@ -49,16 +49,39 @@ public class GuestSlot : MonoBehaviour
     [Tooltip("단골(카메오)이 앉을 때 그림을 붙이는 곳. 이 좌석의 캐릭터 리그를 들고 있다.")]
     [SerializeField] GuestCharacterView characterView;
 
-    [Header("말풍선 (Outside DynamicSpeechBubble 재사용, 위치는 슬롯 고정이라 트래커 없이 사용)")]
+    [Header("손님 말풍선 (Canvas_Dialogue/GuestBarkRoot의 좌석 말풍선)")]
+    [Tooltip("말할 때 켜고 끄는 말풍선 오브젝트. 화면 캔버스에 있고 GuestBarkFollower가 이 좌석을 따라가게 한다.")]
     [SerializeField] GameObject bubbleRoot;
     [SerializeField] DynamicSpeechBubble speechBubble;
 
     bool useTempAppearance;
     CancellationTokenSource bubbleCts;
+    CancellationTokenSource appearanceCts;
+    UniTaskCompletionSource entrance;
+    CharacterFade randomFade;
+    readonly GuestMouthAnimation mouthAnimation = new();
+    bool speakingRequested;
+    int barkVersion;
+
+    void Update()
+    {
+        if (speakingRequested && (speechBubble == null || !speechBubble.isActiveAndEnabled)) StopSpeaking();
+        mouthAnimation.Tick(Time.deltaTime);
+    }
+
+    void OnDisable() => HideBark();
+    void OnDestroy() => StopSpeaking();
+
+    void StopSpeaking()
+    {
+        speakingRequested = false;
+        mouthAnimation.Stop();
+    }
 
     public ESlotType SlotType => slotType;
     public EGuestState CurrentState { get; private set; } = EGuestState.Empty;
     public Guest CurrentGuest { get; private set; }
+    public bool IsShowingOrderLine { get; private set; }
 
     public bool IsEmpty => CurrentState == EGuestState.Empty;
 
@@ -77,19 +100,46 @@ public class GuestSlot : MonoBehaviour
     /// <summary>단골(카메오)의 그림을 붙이는 곳. 랜덤 손님에게는 쓰지 않는다.</summary>
     public GuestCharacterView CharacterView => characterView;
 
+    /// <summary>이 좌석 말풍선의 글자 재생기. 대화 기록이 본 글자를 읽으려고 구독한다. 말풍선이 연결되지 않았으면 null.</summary>
+    public DialogueTextPlayer BarkPlayer => speechBubble != null ? speechBubble.TextPlayer : null;
+
+    /// <summary>
+    /// 지금 앉은 손님의 등장 연출(파츠 로딩과 페이드 인)이 끝나면 완료된다. 첫 대사는 이 뒤에 나온다(엔진 수정 13).
+    /// 로딩이 실패하거나 도중에 취소·교체돼도 완료로 친다 — 그림이 없더라도 대사는 나와야 하고, 기다리던 쪽은 손님이 그대로인지 따로 확인한다.
+    /// 자리가 비어 있으면 바로 완료다. 단골(카메오)의 그림은 GuestManager가 GuestCharacterView로 붙이므로 여기에 들어가지 않는다.
+    /// </summary>
+    public UniTask WaitForEntranceAsync() => entrance?.Task ?? UniTask.CompletedTask;
+
     /// <summary>GuestManager가 테스트 모드 여부를 전달한다. true면 파츠 addressable 로딩 대신 tempAppearanceObject를 On/Off한다.</summary>
     public void SetTempAppearanceMode(bool enabled)
     {
         useTempAppearance = enabled;
+        if (enabled) StopSpeaking();
     }
 
     /// <summary>손님을 이 자리에 배정하고 입장 상태로 전환한다. 파츠 스프라이트는 로딩이 끝나는 대로 비동기로 적용된다.</summary>
     public void Seat(Guest guest)
     {
+        HideBark();
+        mouthAnimation.Bind(null, null);
         CurrentGuest = guest;
         CurrentState = EGuestState.Coming;
 
-        ApplyAppearanceAsync(guest).Forget();
+        appearanceCts?.Cancel();
+        appearanceCts?.Dispose();
+        appearanceCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
+        entrance?.TrySetResult();
+        entrance = new UniTaskCompletionSource();
+        EnterAsync(guest, entrance, appearanceCts.Token).Forget();
+    }
+
+    /// <summary>외형을 적용하고, 어떻게 끝나든(완료·실패·취소) 기다리던 첫 대사를 놓아 준다.</summary>
+    async UniTaskVoid EnterAsync(Guest guest, UniTaskCompletionSource entered, CancellationToken token)
+    {
+        try { await ApplyAppearanceAsync(guest, token); }
+        catch (OperationCanceledException) { }
+        catch (Exception error) { Debug.LogException(error); }
+        finally { entered.TrySetResult(); }
     }
 
     /// <summary>
@@ -98,21 +148,41 @@ public class GuestSlot : MonoBehaviour
     /// 랜덤 손님만 대상이다. 단골(카메오)은 파츠를 조합하지 않고 2부 대화와 같은 캐릭터 체계로
     /// 붙이므로, 그쪽은 GuestManager가 DialogueCharacterManager에 맡긴다.
     /// </summary>
-    async UniTaskVoid ApplyAppearanceAsync(Guest guest)
+    async UniTask ApplyAppearanceAsync(Guest guest, CancellationToken token)
     {
         if (guest.appearance == null) return;
+        RandomFade().SetOpacity(0);
 
         if (useTempAppearance)
         {
             if (tempAppearanceObject != null) tempAppearanceObject.SetActive(true);
+            await RandomFade().ToAsync(1, token);
             return;
         }
 
-        await UniTask.WaitUntil(() => guest.bodySprites != null, cancellationToken: this.GetCancellationTokenOnDestroy());
+        await UniTask.WaitUntil(() => guest.bodySprites != null, cancellationToken: token);
 
         if (CurrentGuest != guest) return; // 기다리는 동안 자리가 비워지거나 다른 손님으로 교체됨
 
         ApplySprites(guest.bodySprites);
+        await RandomFade().ToAsync(1, token);
+    }
+
+    CharacterFade RandomFade()
+    {
+        if (randomFade != null) return randomFade;
+        var sprites = new System.Collections.Generic.List<SpriteRenderer>();
+        if (partRenderers != null) foreach (var part in partRenderers) if (part != null) sprites.Add(part.renderer);
+        if (tempAppearanceObject != null) sprites.AddRange(tempAppearanceObject.GetComponentsInChildren<SpriteRenderer>(true));
+        return randomFade = new CharacterFade(sprites);
+    }
+
+    public UniTask FadeOutAsync(CancellationToken token)
+    {
+        StopSpeaking();
+        appearanceCts?.Cancel();
+        return CurrentGuest != null && CurrentGuest.isRegular && characterView != null
+            ? characterView.FadeOutAsync(token) : RandomFade().ToAsync(0, token);
     }
 
     /// <summary>
@@ -123,26 +193,52 @@ public class GuestSlot : MonoBehaviour
     /// </summary>
     void ApplySprites(GuestBodySprites sprites)
     {
+        mouthAnimation.Stop();
         if (partRenderers == null) return;
+
+        Sprite body = sprites?.Get(EGuestBodySlot.Body);
+        // Parts are cropped from the same source canvas. Their individual pivots are not
+        // interchangeable: reconstruct the source positions relative to the body's base.
+        Vector2 sourceOrigin = body == null ? Vector2.zero :
+            new Vector2(body.rect.center.x, body.rect.yMin);
 
         foreach (var entry in partRenderers)
         {
             if (entry == null || entry.renderer == null) continue;
 
-            entry.renderer.sprite = sprites == null ? null : sprites.Get(entry.slot);
+            Sprite sprite = sprites?.Get(entry.slot);
+            entry.renderer.sprite = sprite;
+            if (sprite != null && body != null)
+            {
+                Vector2 offset = (sprite.rect.position + sprite.pivot - sourceOrigin) / sprite.pixelsPerUnit;
+                var position = entry.renderer.transform.localPosition;
+                entry.renderer.transform.localPosition = new Vector3(offset.x, offset.y, position.z);
+            }
         }
+
+        SpriteRenderer mouth = null;
+        foreach (var entry in partRenderers)
+            if (entry != null && entry.slot == EGuestBodySlot.Mouth) { mouth = entry.renderer; break; }
+        mouthAnimation.Bind(mouth, sprites?.MouthAnimation);
+        if (speakingRequested) mouthAnimation.Start();
     }
 
     /// <summary>
     /// 말풍선에 텍스트를 즉시 표시한다. durationSec이 0보다 크면 그 시간 뒤 자동으로 숨긴다.
-    /// 슬롯이 고정 위치라 Outside처럼 매 프레임 화면 좌표를 추적할 필요는 없다.
+    /// speakerName은 이름 줄에 적는다(일반 손님 "손님", 카메오 단골은 인물 이름). 즉시 표시와 타이핑 모두 같은 이름을 쓴다.
     /// </summary>
     public void ShowBark(string text, float durationSec = 3f, NewTextTagDataSO tags = null,
-        string cocktailName = null, bool typewriter = false)
+        string cocktailName = null, bool typewriter = false, bool orderLine = false, string speakerName = null)
     {
         bubbleCts?.Cancel();
+        StopSpeaking();
+        int version = ++barkVersion;
+        IsShowingOrderLine = orderLine;
 
         if (bubbleRoot != null) bubbleRoot.SetActive(true);
+        // 켜질 때 DynamicSpeechBubble이 이름 색을 공통 하늘색(speakerNameColor)으로 맞춘다. 타이핑 경로(PlayAsync)도
+        // 같은 색을 쓰므로 여기서는 글자만 정한다. 이름 줄이 없는 말풍선은 건너뛴다.
+        if (speechBubble != null && speechBubble.nameLabel != null) speechBubble.nameLabel.text = speakerName ?? "";
         if (typewriter && durationSec > 0f)
         {
             if (!DialogueTextCompiler.TryCompile(text, tags, DialoguePresentationSettings.Shared,
@@ -159,8 +255,11 @@ public class GuestSlot : MonoBehaviour
                 }
             }
         }
+        speakingRequested = !useTempAppearance && CurrentGuest != null && !CurrentGuest.isRegular &&
+            !string.IsNullOrWhiteSpace(text);
+        if (speakingRequested) mouthAnimation.Start();
         if (typewriter)
-            TypeBarkAsync(text, tags, cocktailName).Forget(Debug.LogException);
+            TypeBarkAsync(text, tags, cocktailName, version).Forget(Debug.LogException);
         else
             speechBubble.SetText(text, tags, cocktailName);
 
@@ -172,10 +271,11 @@ public class GuestSlot : MonoBehaviour
         }
     }
 
-    async UniTask TypeBarkAsync(string text, NewTextTagDataSO tags, string cocktailName)
+    async UniTask TypeBarkAsync(string text, NewTextTagDataSO tags, string cocktailName, int version)
     {
         try
         {
+            // 화자 이름은 ShowBark가 이름 줄에 적어 둔 값을 그대로 넘긴다(PlayAsync가 이름 줄을 다시 쓴다).
             await speechBubble.TextPlayer.PlayAsync(
                 new TypingData(text, speechBubble.nameLabel != null ? speechBubble.nameLabel.text : "",
                     Vector3.zero, speechBubble.nameLabel != null ? speechBubble.nameLabel.color : Color.white,
@@ -183,6 +283,7 @@ public class GuestSlot : MonoBehaviour
                 this.GetCancellationTokenOnDestroy(), cocktailName);
         }
         catch (OperationCanceledException) { }
+        finally { if (barkVersion == version) StopSpeaking(); }
     }
 
     async UniTaskVoid HideBarkAfterAsync(float durationSec, CancellationTokenSource source)
@@ -203,6 +304,9 @@ public class GuestSlot : MonoBehaviour
     /// <summary>말풍선을 즉시 숨긴다.</summary>
     public void HideBark()
     {
+        ++barkVersion;
+        IsShowingOrderLine = false;
+        StopSpeaking();
         bubbleCts?.Cancel();
         if (speechBubble != null) speechBubble.GetComponent<DialogueTextPlayer>()?.Stop();
         if (bubbleRoot != null) bubbleRoot.SetActive(false);
@@ -229,6 +333,13 @@ public class GuestSlot : MonoBehaviour
     /// <summary>손님이 자리를 완전히 비웠을 때 호출한다. 로드된 파츠 스프라이트의 addressable 핸들을 반납하고 렌더러를 비운다.</summary>
     public void Clear()
     {
+        appearanceCts?.Cancel();
+        appearanceCts?.Dispose();
+        appearanceCts = null;
+        entrance?.TrySetResult();
+        entrance = null;
+        randomFade?.SetOpacity(1);
+        StopSpeaking();
         CurrentGuest?.bodySprites?.Release();
 
         HideBark();

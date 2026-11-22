@@ -101,7 +101,7 @@ public class TycoonFlow : MonoBehaviour, IPlayPhaseFlow
     /// 1부 종료 조건(오늘 손님을 모두 응대·이탈 처리)이 채워졌을 때 그날의 결과를 한 줄로 남긴다.
     ///
     /// 매출과 평판은 잔별로 화면에 띄우지 않기로 되어 있어서, 값이 제대로 쌓였는지 확인할 통로가
-    /// 지금은 이 로그뿐이다. 일일 매출 정산 화면이 붙으면 그쪽이 정본이 된다.
+    /// 이 로그에서도 확인할 수 있다. 영업 종료 정산 화면도 같은 DailySales 장부를 읽는다.
     /// </summary>
     void LogPart1Complete()
     {

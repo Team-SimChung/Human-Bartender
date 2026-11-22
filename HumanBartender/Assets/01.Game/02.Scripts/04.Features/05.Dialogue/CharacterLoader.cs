@@ -12,9 +12,10 @@ using UnityEngine;
 /// </summary>
 public class CharacterLoader
 {
-    private const string SLOT_INTRO = "Intro";
-    private const string SLOT_LOOP = "Loop";
-    private const string SLOT_DIALOGUE = "Dialogue";
+    // 컷씬 스튜디오가 바 대화 클립 주소를 같은 규칙으로 찾을 때 읽는다.
+    public const string SLOT_INTRO = "Intro";
+    public const string SLOT_LOOP = "Loop";
+    public const string SLOT_DIALOGUE = "Dialogue";
 
 
     //************************************************************************************//
@@ -186,7 +187,7 @@ public class CharacterLoader
 
         if (spriteHandle.HasValue)
         {
-            ApplyOrQueue(pendingApply, () => { slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result; slot.portaitSpriteRenderer.gameObject.SetActive(true); });
+            ApplyOrQueue(pendingApply, () => slot.ApplyPortrait(spriteHandle.Value.Result));
             return true;
         }
 
@@ -203,7 +204,7 @@ public class CharacterLoader
     public async UniTask<bool> LoadPortaitSpriteAsync(
         SlotCharacterPart slot,
         string dataPath,
-        CancellationToken token, List<System.Action> pendingApply = null)
+        CancellationToken token, List<System.Action> pendingApply = null, Vector2Int offsetPixels = default)
     {
         if (dataPath == null || slot.portaitSpriteRenderer == null)
             return false;
@@ -217,7 +218,7 @@ public class CharacterLoader
         if (spriteHandle.HasValue)
         {
 
-            ApplyOrQueue(pendingApply, () => { slot.portaitSpriteRenderer.sprite = spriteHandle.Value.Result; slot.portaitSpriteRenderer.gameObject.SetActive(true); });
+            ApplyOrQueue(pendingApply, () => slot.ApplyPortrait(spriteHandle.Value.Result, offsetPixels));
             return true;
         }
 
@@ -233,7 +234,7 @@ public class CharacterLoader
 
     public static string LoopResourceKey(string clip) => AnimationAddress(clip, SLOT_LOOP);
 
-    static string AnimationAddress(string clip, string slot) => $"{clip}_{slot}";
+    public static string AnimationAddress(string clip, string slot) => $"{clip}_{slot}";
 
     public static IEnumerable<string> ResourceKeys(PartAnimData data)
     {

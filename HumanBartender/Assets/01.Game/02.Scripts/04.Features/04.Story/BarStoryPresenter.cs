@@ -14,8 +14,16 @@ using VContainer;
 /// 길거리처럼 좌석이 없는 화면이 신형 대본을 재생하게 되면 이 인터페이스의 다른 구현을 만들면 된다.
 /// 실행기는 그대로 쓴다.
 /// </summary>
-public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
+public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueVisibility, IStoryCharacterTransitions, IDialogueInputPrompt, IDialogueInputFeedback,
+    IStoryCuePresenter
 {
+    public bool IsChoosing => choiceView != null && choiceView.IsOpen;
+    public bool TryBeginChoiceHold(UnityEngine.InputSystem.Controls.ButtonControl control) =>
+        choiceView != null && choiceView.TryBeginKeyboardConfirm(control);
+    public void RestoreChoiceNavigation() => choiceView?.RestoreNavigationFocus(fromDialogueBackground: true);
+
+    readonly HashSet<string> textOnlyActors = new();
+    readonly HashSet<ESlotType> enteringSlots = new();
     private sealed class ChoiceCompletionCallback
     {
         private readonly UniTaskCompletionSource<int> completion;
@@ -49,8 +57,37 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     [Tooltip("화면에 적을 이름과 이름 색을 찾는다.")]
     [SerializeField] private NewCharacterDataSO characterData;
 
+    [Header("Story Cue")]
+    [Tooltip("대본 effect 행 arg=door(2일차 루나가 나가는 순간 등)에서 내는 문소리. ProjectLifeScope SoundManager에 등록된 SE 이름.")]
+    [SerializeField] private string doorSoundKey = "SFX_door_open_close";
+    [Tooltip("문소리 뒤 다음 대본으로 넘어가기까지 쉬는 시간(초). 웹 story-flow.js의 door 0.9초.")]
+    [SerializeField, Min(0f)] private float doorHoldSeconds = 0.9f;
+
+    /// <summary>대본 effect 행 arg에 적히는 문 연출 이름(웹 story_cue door).</summary>
+    public const string DoorCue = "door";
+
+    [Inject] ISoundEffectPlayer sound;
+
     /// <summary>표정을 따로 정하지 않은 등장에 쓰는 값.</summary>
     const string DefaultExpression = "default";
+
+    public void HideDialogue() => textView?.ClearText();
+
+    /// <summary>
+    /// 웹 story-flow.js의 story_cue: 문소리를 내고 잠깐 쉰 뒤 다음 대본으로 넘어간다(엔진 수정 사항 38).
+    /// 소리 설정이 빠져 있어도 틈은 그대로 둔다 — 대본의 흐름(누가 나간 뒤 다음 말)은 유지해야 한다.
+    /// </summary>
+    public async UniTask<bool> PlayCueAsync(string kind, CancellationToken token)
+    {
+        if (kind != DoorCue) return false;
+        if (string.IsNullOrWhiteSpace(doorSoundKey)) Debug.LogWarning("[Story] 문소리 이름이 비어 있어 소리 없이 쉽니다.", this);
+        else if (sound == null) Debug.LogWarning("[Story] 효과음 재생기가 주입되지 않아 문소리를 내지 못했습니다.", this);
+        else sound.PlaySE(doorSoundKey);
+        if (doorHoldSeconds > 0f) await UniTask.Delay(TimeSpan.FromSeconds(doorHoldSeconds), cancellationToken: token);
+        return true;
+    }
+    public void SetWaitingForInput(bool waiting) => textView?.SetWaitingForInput(waiting);
+    public void PlayAdvanceFeedback() => textView?.PlayAdvanceFeedback();
 
     /// <summary>화면을 잡는 두 가지 장치. 자리로 옮기는 것과 범위를 넓히고 좁히는 것이 따로 있다.</summary>
     [Inject] ISlotCamera slotCamera;
@@ -71,10 +108,13 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             throw new InvalidOperationException("[BarStory] textView가 비어 있습니다.");
         }
 
+        HideDialogue();
+
         if (!request.IsPlayer && !string.IsNullOrEmpty(request.Expression) && characterManager != null)
-            await characterManager.SetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
+            await TrySetCharacterAsync(request.ActorId, request.Expression, ESlotType.None, token);
 
         ResolveSpeaker(request.ActorId, out string displayName, out Color32 nameColor);
+        if (request.DisplayName != null) displayName = request.DisplayName;
 
         Vector3 speakerPos = characterManager != null && !request.IsPlayer
             ? characterManager.GetCharacterPosition(request.ActorId)
@@ -96,11 +136,64 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
     {
         if (characterManager == null) return;
 
-        await characterManager.SetCharacterAsync(actorId, DefaultExpression, slot, token);
+        characterManager.SetCharacterOpacity(slot, 0);
+        try
+        {
+            await TrySetCharacterAsync(actorId, DefaultExpression, slot, token);
+            enteringSlots.Add(slot);
+        }
+        catch { characterManager.SetCharacterOpacity(slot, 1); throw; }
+    }
+
+    async UniTask TrySetCharacterAsync(string actor, string expression, ESlotType slot, CancellationToken token)
+    {
+        if (textOnlyActors.Contains(actor))
+        { characterManager.SetTextOnlyCharacter(actor, slot); return; }
+        Exception failure = await TrySetExpressionAsync(actor, expression, slot, token);
+        if (failure == null) return;
+        // 표정 하나가 빠졌다고 인물을 장면 끝까지 숨기지 않는다. 기본 표정으로 계속 보인다.
+        if (expression != DefaultExpression && await TrySetExpressionAsync(actor, DefaultExpression, slot, token) == null)
+        {
+            Debug.LogWarning($"[BarStory] {actor}의 '{expression}' 표정을 불러오지 못해 기본 표정으로 보입니다: {failure.Message}");
+            return;
+        }
+        textOnlyActors.Add(actor);
+        characterManager.SetTextOnlyCharacter(actor, slot);
+        Debug.LogWarning($"[BarStory] {actor} 외형을 표시하지 못해 텍스트로 진행합니다: {failure.Message}");
+    }
+
+    /// <summary>표정을 적용하고, 실패하면 그 예외를 돌려준다(성공이면 null). 이 요청 자체의 취소는 그대로 던진다.</summary>
+    async UniTask<Exception> TrySetExpressionAsync(string actor, string expression, ESlotType slot, CancellationToken token)
+    {
+        try
+        {
+            await characterManager.SetCharacterAsync(actor, expression, slot, token);
+            return null;
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+        catch (Exception error) { return error; }
+    }
+
+    public async UniTask FadeInAsync(CancellationToken token)
+    {
+        var pending = new List<ESlotType>(enteringSlots);
+        var fades = new List<UniTask>(pending.Count);
+        foreach (var slot in pending) fades.Add(characterManager.FadeInAsync(slot, token));
+        await UniTask.WhenAll(fades);
+        foreach (var slot in pending) enteringSlots.Remove(slot);
+    }
+
+    public async UniTask ExitAsync(ESlotType slot, CancellationToken token)
+    {
+        if (characterManager == null) return;
+        enteringSlots.Remove(slot);
+        await characterManager.FadeOutAsync(slot, token);
+        characterManager.ResetCharacter(slot);
     }
 
     public void Exit(ESlotType slot)
     {
+        enteringSlots.Remove(slot);
         if (characterManager != null) characterManager.ResetCharacter(slot);
     }
 
@@ -186,21 +279,22 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
             return -1;
         }
 
-        // 고를 수 없는 칸에는 문구 대신 잠긴 이유를 적는다 — 무엇을 골랐어야 하는지가 아니라
-        // 왜 못 고르는지가 지금 필요한 정보다.
+        // 원문과 사유를 함께 전달해 확정할 때만 사유로 바꾸고, 포커스 이동 때 원문으로 복원한다.
         var texts = new List<string>(options.Count);
         var selectable = new List<bool>(options.Count);
+        var reasons = new List<string>(options.Count);
 
         foreach (var option in options)
         {
-            texts.Add(option.IsSelectable ? option.Text : option.LockReason ?? option.Text);
+            texts.Add(option.Text);
             selectable.Add(option.IsSelectable);
+            reasons.Add(option.LockReason);
         }
 
         var completion = new UniTaskCompletionSource<int>();
 
         var callback = new ChoiceCompletionCallback(completion);
-        choiceView.ShowChoice(texts, selectable, callback.Complete);
+        choiceView.ShowChoice(texts, selectable, callback.Complete, reasons);
 
         try
         {
@@ -219,6 +313,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter
 
     public void Clear()
     {
+        enteringSlots.Clear();
         if (textView != null) textView.ClearText();
         if (choiceView != null) choiceView.CloseChoices();
         if (characterManager != null) characterManager.ResetCharacter();
