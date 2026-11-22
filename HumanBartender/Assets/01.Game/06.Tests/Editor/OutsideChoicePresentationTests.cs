@@ -9,6 +9,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 using TMPro;
 using Object = UnityEngine.Object;
 
@@ -360,6 +361,60 @@ public sealed class OutsideChoicePresentationTests
     }
 
     // ── 19. 대화 중 하단 안내 ───────────────────────────────────────────
+
+    [Test]
+    public void ExteriorProjectionUsesTheCurrentCameraFrameBeforePixelPerfectRendering()
+    {
+        var camera = Own(new GameObject("ExteriorProjectionCamera", typeof(Camera))).GetComponent<Camera>();
+        camera.enabled = false;
+        camera.orthographic = true;
+        camera.orthographicSize = 1.35f;
+        camera.transform.SetPositionAndRotation(new Vector3(0, 0, -10), Quaternion.Euler(0, 0, 5));
+        var pixelPerfect = camera.gameObject.AddComponent<PixelPerfectCamera>();
+        camera.pixelRect = new Rect(40, 24, 1200, 672);
+        var pixelSnap = typeof(PixelPerfectCamera).GetMethod("PixelSnap", Private);
+        Assert.That(pixelSnap, Is.Not.Null);
+        pixelSnap.Invoke(pixelPerfect, null);
+
+        var speaker = new Vector3(.713f, .629f, 0);
+        foreach (float cameraX in new[] { .173f, .322f, .418f })
+        {
+            var previousMatrix = camera.worldToCameraMatrix;
+            camera.transform.position = new Vector3(cameraX, .026f, -10);
+            Vector3 staleScreen = camera.WorldToScreenPoint(speaker);
+            Vector3 projected = WorldInteractionView.ProjectWorldPoint(camera, pixelPerfect, speaker);
+            Assert.That(camera.worldToCameraMatrix, Is.EqualTo(previousMatrix));
+
+            // 렌더 직전 PixelPerfectCamera가 실제로 갱신할 행렬과 같은 좌표여야 한다.
+            pixelSnap.Invoke(pixelPerfect, null);
+            Vector3 rendered = camera.WorldToScreenPoint(pixelPerfect.RoundToPixel(speaker));
+            Assert.That(Vector2.Distance(staleScreen, rendered), Is.GreaterThan(1));
+            Assert.That(Vector3.Distance(projected, rendered), Is.LessThan(.01f));
+        }
+
+        pixelPerfect.enabled = false;
+        Assert.That(WorldInteractionView.ProjectWorldPoint(camera, pixelPerfect, speaker),
+            Is.EqualTo(camera.WorldToScreenPoint(speaker)));
+    }
+
+    [Test]
+    public void ExteriorTailSwitchesWithTheSpeakersViewportSide()
+    {
+        var view = MakeView();
+        var bubble = view.Bubble;
+        var rect = (RectTransform)view.transform;
+        WorldInteractionView.PointBubbleTail(bubble, rect, new Vector2(rect.rect.xMin - 1, 0), false);
+        Assert.That(bubble.leftArrow.activeSelf, Is.True);
+        Assert.That(bubble.centerArrow.activeSelf || bubble.rightArrow.activeSelf, Is.False);
+
+        WorldInteractionView.PointBubbleTail(bubble, rect, new Vector2(rect.rect.xMax + 1, 0), true);
+        Assert.That(bubble.rightArrow.activeSelf, Is.True);
+        Assert.That(bubble.leftArrow.activeSelf || bubble.centerArrow.activeSelf, Is.False);
+
+        WorldInteractionView.PointBubbleTail(bubble, rect, rect.rect.center, false);
+        Assert.That(bubble.centerArrow.activeSelf, Is.True);
+        Assert.That(bubble.leftArrow.activeSelf || bubble.rightArrow.activeSelf, Is.False);
+    }
 
     [TestCase("OutSide")]
     [TestCase("Home")]

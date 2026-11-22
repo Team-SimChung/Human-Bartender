@@ -2,13 +2,13 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>주변 대화 한 세션의 말풍선과 자동 진행 시계를 관리함. 입력과 플레이어 이동은 다루지 않음.</summary>
 [DefaultExecutionOrder(10001)]
 public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter, IDialogueAutomaticPlayback
 {
     private DynamicSpeechBubble bubble;
-    private SpeechBubbleTail centerTail;
     private RectTransform layer;
     private CanvasGroup visibility;
     private NewTextTagDataSO tags;
@@ -48,8 +48,8 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
         ISoundEffectPlayer sound = null)
     {
         bubble = value;
-        centerTail = bubble.centerArrow.GetComponent<SpeechBubbleTail>();
-        if (centerTail == null) throw new InvalidOperationException("Bubble Prefab의 Center Tail 구성이 필요합니다.");
+        if (!bubble.centerArrow.TryGetComponent<SpeechBubbleTail>(out _))
+            throw new InvalidOperationException("[WorldAmbientDialogue] Bubble Prefab의 Center Tail 구성이 필요합니다.");
         bubble.TextPlayer.ConfigureAudio(sound, true, CanHear);
         layer = parent;
         tags = textTags;
@@ -129,16 +129,17 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
             visibility.alpha = 0;
             return;
         }
-        Vector3 world = speaker.position;
-        Vector3 viewport = camera.WorldToViewportPoint(world);
-        bool onScreen = viewport.z > 0 && viewport.x >= 0 && viewport.x <= 1 && viewport.y >= 0 && viewport.y <= 1;
+        var screen = WorldInteractionView.ProjectWorldPoint(camera, camera.GetComponent<PixelPerfectCamera>(), speaker.position);
+        Rect viewport = camera.pixelRect;
+        bool onScreen = screen.z > 0 && screen.x >= viewport.xMin && screen.x <= viewport.xMax &&
+            screen.y >= viewport.yMin && screen.y <= viewport.yMax;
         visibility.alpha = onScreen ? 1 : 0;
         if (!onScreen) return;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(layer, camera.WorldToScreenPoint(world), null, out var anchor);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(layer, screen, null, out var anchor);
         var rect = bubble.bubble;
         Vector2 size = Vector2.Scale(rect.rect.size, new Vector2(Mathf.Abs(rect.localScale.x), Mathf.Abs(rect.localScale.y)));
         Vector2 position = anchor + target.BubbleOffset + new Vector2((rect.pivot.x - .5f) * size.x, rect.pivot.y * size.y);
         rect.position = layer.TransformPoint(WorldInteractionView.ClampToCanvas(layer.rect, size, rect.pivot, position, 8));
-        centerTail.SetTarget(layer.TransformPoint(anchor), false);
+        WorldInteractionView.PointBubbleTail(bubble, layer, anchor, false);
     }
 }

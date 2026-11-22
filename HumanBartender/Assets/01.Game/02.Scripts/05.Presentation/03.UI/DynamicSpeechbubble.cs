@@ -60,6 +60,8 @@ public class DynamicSpeechBubble : MonoBehaviour
     [Header("Layout")]
     [Tooltip("측정 너비에 더하는 안전 마진(px). 보통 1~3이면 충분.")]
     public float widthSafetyMargin = 2f;
+    [Tooltip("여러 줄로 줄바꿈된 본문의 가장 긴 줄에 맞춰 말풍선 너비를 줄입니다.")]
+    [SerializeField] bool fitWrappedLines;
 
     // ── 한 문장 단위로 미리 계산되는 캐시 ────────────────────────────
     string _fullText = "";
@@ -197,6 +199,35 @@ public class DynamicSpeechBubble : MonoBehaviour
         textLabel.ForceMeshUpdate(true, true);
 
         var info = textLabel.textInfo;
+        if (fitWrappedLines && info.lineCount > 1)
+        {
+            int lineCountBeforeFit = info.lineCount;
+            float wrappedWidth = 0;
+            for (int line = 0; line < info.lineCount; line++)
+            {
+                // maxAdvance includes the alignment offset after TMP generates the mesh.
+                var extents = info.lineInfo[line].lineExtents;
+                wrappedWidth = Mathf.Max(wrappedWidth, extents.max.x - extents.min.x);
+            }
+            float fittedWidth = Mathf.Max(MinTextW, Mathf.Ceil(wrappedWidth) + widthSafetyMargin);
+            if (fittedWidth < _targetTextW)
+            {
+                bubble.sizeDelta = new Vector2(fittedWidth + PaddingH, maxSize.y);
+                textLabel.ForceMeshUpdate(true, true);
+                info = textLabel.textInfo;
+                if (info.lineCount == lineCountBeforeFit)
+                {
+                    _targetTextW = fittedWidth;
+                }
+                else
+                {
+                    bubble.sizeDelta = new Vector2(_targetTextW + PaddingH, maxSize.y);
+                    textLabel.ForceMeshUpdate(true, true);
+                    info = textLabel.textInfo;
+                }
+            }
+        }
+
         _visibleCount = Mathf.Max(0, info.characterCount);
 
         int n = Mathf.Max(1, _visibleCount);

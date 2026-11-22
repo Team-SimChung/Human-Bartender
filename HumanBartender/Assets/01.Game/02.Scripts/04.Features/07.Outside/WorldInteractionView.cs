@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering.Universal;
 using VContainer;
 
 /// <summary>Canvas_Dialogue/InteractionLayer 전용 UI. 공용 대사창의 위치/타이핑 상태를 건드리지 않음.</summary>
@@ -47,7 +48,6 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     private WorldSpeechBubblePlacement placement;
     private Vector2 speakerOffset;
     private bool explicitSpeaker;
-    private SpeechBubbleTail centerTail;
     private bool imageMode;
     private bool built;
     private bool hasDialogue;
@@ -101,8 +101,8 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         bubble = Instantiate(bubblePrefab, root);
         bubble.name = "SpeechBubble";
         authoredMaximumSize = bubble.maxSize;
-        centerTail = bubble.centerArrow.GetComponent<SpeechBubbleTail>();
-        if (centerTail == null) throw new InvalidOperationException("Bubble Prefab의 Center Tail 구성이 필요합니다.");
+        if (!bubble.centerArrow.TryGetComponent<SpeechBubbleTail>(out _))
+            throw new InvalidOperationException("[WorldInteraction] Bubble Prefab의 Center Tail 구성이 필요합니다.");
         bubbleVisibility = bubble.GetComponent<CanvasGroup>();
         if (bubbleVisibility == null) bubbleVisibility = bubble.gameObject.AddComponent<CanvasGroup>();
         // 말풍선이 클릭을 가로채지 않게 함. 외형 설정은 프리팹 값을 사용함.
@@ -327,9 +327,9 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     private void LateUpdate() => Follow();
     private void Follow()
     {
-        if (!built) return;
+        if (!built || target == null) return;
         var camera = Camera.main;
-        if (target == null) return;
+        var pixelPerfect = camera != null ? camera.GetComponent<PixelPerfectCamera>() : null;
         if (imageMode)
         {
             PlaceBubbleAt(new Vector2(0, root.rect.yMin + 33));
@@ -338,17 +338,22 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
         {
             bool below = placement == WorldSpeechBubblePlacement.Below;
             Vector3 position = speaker.position + (!explicitSpeaker && speaker == player ? Vector3.up * .4f : Vector3.zero);
-            Place(position, speakerOffset, camera, below);
+            Vector3 screen = ProjectWorldPoint(camera, pixelPerfect, position);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, null, out var anchor);
+            Vector2 bottomCenter = anchor + speakerOffset;
+            if (below) bottomCenter.y -= ScaledSize(bubble.bubble).y;
+            PlaceBubbleAt(bottomCenter);
+            // 타이핑 작업을 끄지 않고 카메라 뒤에 있는 말풍선만 숨김.
+            bubbleVisibility.alpha = screen.z > 0 ? 1 : 0;
             // 화면 가장자리에서도 꼬리가 화자의 위치를 가리키도록 보정함.
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, camera.WorldToScreenPoint(position), null, out var anchor);
-            centerTail.SetTarget(root.TransformPoint(anchor), below);
+            PointBubbleTail(bubble, root, anchor, below);
         }
         if (IsChoosing && player != null && camera != null)
         {
-            Vector3 screen = camera.WorldToScreenPoint(player.position + Vector3.up * choiceHeadHeight);
+            Vector3 screen = ProjectWorldPoint(camera, pixelPerfect, player.position + Vector3.up * choiceHeadHeight);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, null, out var headPoint);
             bool right = ChoicesOnRight(playerMovement != null ? playerMovement.IsFacingRight : (bool?)null,
-                screen.x, camera.WorldToScreenPoint(target.SpeechAnchor.position).x);
+                screen.x, ProjectWorldPoint(camera, pixelPerfect, target.SpeechAnchor.position).x);
             float side = right ? 1 : -1;
             choices.SetSide(right);
             var size = ScaledSize(choices.Rect);
@@ -380,14 +385,24 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
     /// <summary>위쪽 끝을 top에 맞출 때 선택창 피벗의 세로 위치.</summary>
     internal static float ChoicePivotY(float top, float height, float pivotY) => top - height * (1 - pivotY);
 
-    private void Place(Vector3 worldPosition, Vector2 offset, Camera camera, bool below)
+    /// <summary>LateUpdate에서 렌더링에 쓰일 현재 프레임의 화소 격자로 월드 기준점을 투영한다.</summary>
+    internal static Vector3 ProjectWorldPoint(Camera camera, PixelPerfectCamera pixelPerfect, Vector3 worldPosition)
     {
-        Vector3 screen = camera.WorldToScreenPoint(worldPosition);
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, null, out var point);
-        if (below) offset.y -= ScaledSize(bubble.bubble).y;
-        PlaceBubbleAt(point + offset);
-        // 타이핑 작업을 끄지 않고 카메라 뒤에 있는 말풍선만 숨김.
-        bubbleVisibility.alpha = screen.z > 0 ? 1 : 0;
+        if (!camera.orthographic || pixelPerfect == null || !pixelPerfect.isActiveAndEnabled)
+            return camera.WorldToScreenPoint(worldPosition);
+
+        // URP의 PixelSnap은 렌더 직전에 worldToCameraMatrix를 갱신한다.
+        // 이전 행렬을 읽는 대신 현재 Transform과 같은 반올림 규칙을 쓴다.
+        Vector3 cameraPosition = camera.transform.position;
+        Vector3 snappedCamera = pixelPerfect.RoundToPixel(cameraPosition);
+        snappedCamera.z = cameraPosition.z * 2 - snappedCamera.z;
+        Vector3 relative = camera.transform.InverseTransformDirection(pixelPerfect.RoundToPixel(worldPosition) - snappedCamera);
+        Vector4 clip = camera.projectionMatrix * new Vector4(relative.x, relative.y, -relative.z, 1);
+        Rect viewport = camera.pixelRect;
+        return new Vector3(
+            viewport.xMin + (clip.x / clip.w + 1) * .5f * viewport.width,
+            viewport.yMin + (clip.y / clip.w + 1) * .5f * viewport.height,
+            relative.z);
     }
 
     private void PlaceBubbleAt(Vector2 bottomCenter)
@@ -401,6 +416,20 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
 
     private static Vector2 ScaledSize(RectTransform rect) => Vector2.Scale(rect.rect.size,
         new Vector2(Mathf.Abs(rect.localScale.x), Mathf.Abs(rect.localScale.y)));
+
+    internal static void PointBubbleTail(DynamicSpeechBubble bubble, RectTransform layer, Vector2 speaker, bool below)
+    {
+        Rect bounds = layer.rect;
+        GameObject selected = speaker.x < bounds.xMin ? bubble.leftArrow :
+            speaker.x > bounds.xMax ? bubble.rightArrow : bubble.centerArrow;
+        if (selected == null) selected = bubble.centerArrow;
+
+        bubble.centerArrow.SetActive(bubble.centerArrow == selected);
+        if (bubble.leftArrow != null) bubble.leftArrow.SetActive(bubble.leftArrow == selected);
+        if (bubble.rightArrow != null) bubble.rightArrow.SetActive(bubble.rightArrow == selected);
+        if (selected.TryGetComponent<SpeechBubbleTail>(out var tail))
+            tail.SetTarget(layer.TransformPoint(speaker), below);
+    }
 
     public static Vector2 ClampToCanvas(Rect bounds, Vector2 size, Vector2 pivot, Vector2 position, float margin)
     {

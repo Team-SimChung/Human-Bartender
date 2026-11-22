@@ -29,10 +29,9 @@ public sealed class VisualUIReviewTests
     [TestCase("02.Cutscenes/MemorySpeech")]
     [TestCase("02.Cutscenes/JohnnySpeech")]
     [TestCase("02.Cutscenes/DocumentarySubtitle")]
-    public void DialogueBubbleDimsTheFrameAndKeepsTextOpaque(string prefabName)
+    public void DialogueBubbleAppliesFrameOpacityAndKeepsTextOpaque(string prefabName)
     {
         const string folder = "Assets/01.Game/03.Content/08.Prefabs/";
-        const float frameAlpha = .85f;
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(folder + prefabName + ".prefab");
         Assert.That(prefab, Is.Not.Null);
         var visuals = prefab.GetComponentsInChildren<SpeechBubbleVisual>(true);
@@ -42,6 +41,7 @@ public sealed class VisualUIReviewTests
         {
             var bubble = visual.GetComponent<DynamicSpeechBubble>();
             var parts = visual.Parts.GetComponent<CanvasGroup>();
+            float frameAlpha = visual.Parts.GetComponentInChildren<Image>(true) == null ? .85f : 1f;
             Assert.That(parts, Is.Not.Null);
             Assert.That(parts.alpha, Is.EqualTo(frameAlpha));
             Assert.That(bubble.bubble.GetComponent<Image>().color.a, Is.EqualTo(frameAlpha));
@@ -54,6 +54,55 @@ public sealed class VisualUIReviewTests
                 Assert.That(label.color.a, Is.EqualTo(1f));
             }
         }
+    }
+
+    [Test]
+    public void ExteriorBubbleCentersWrappedTextAndKeepsTheCueInItsOwnGutter()
+    {
+        const string path = "Assets/01.Game/03.Content/08.Prefabs/03.UI/02.Dialogue/OutsideDialogueTextBox.prefab";
+        var prefab = AssetDatabase.LoadAssetAtPath<DynamicSpeechBubble>(path);
+        Assert.That(prefab, Is.Not.Null);
+        var canvas = new GameObject("ExteriorBubbleTestCanvas", typeof(Canvas), typeof(CanvasScaler)).GetComponent<Canvas>();
+        try
+        {
+            Color referenceClearColor = new Color32(36, 43, 53, 255);
+            var scaler = canvas.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(480, 270);
+            var bubble = Object.Instantiate(prefab, canvas.transform, false);
+            Assert.That(bubble.transform.localScale, Is.EqualTo(Vector3.one));
+            Assert.That(bubble.textLabel.horizontalAlignment, Is.EqualTo(HorizontalAlignmentOptions.Center));
+            Assert.That(bubble.textLabel.verticalAlignment, Is.EqualTo(VerticalAlignmentOptions.Middle));
+            var backing = bubble.GetComponent<SpeechBubbleVisual>().Parts.GetComponentInChildren<Image>(true);
+            Assert.That(backing, Is.Not.Null);
+            Assert.That(backing.transform.GetSiblingIndex(), Is.Zero);
+            Assert.That(backing.type, Is.EqualTo(Image.Type.Sliced));
+            Assert.That(backing.sprite.border, Is.EqualTo(new Vector4(14, 14, 14, 14)));
+            Assert.That(backing.color.a, Is.EqualTo(1f));
+            Assert.That(backing.raycastTarget, Is.False);
+            bubble.SetText("안녕.");
+            Assert.That(bubble.bubble.rect.size, Is.EqualTo(prefab.minSize));
+            Assert.That(bubble.textLabel.rectTransform.offsetMin, Is.EqualTo(new Vector2(bubble.paddingLeft, bubble.paddingBottom)));
+            Assert.That(bubble.textLabel.rectTransform.offsetMax, Is.EqualTo(new Vector2(-bubble.paddingRight, -bubble.paddingTop)));
+
+            var prompt = bubble.GetComponent<DialogueInputPrompt>();
+            var cue = Ref<RectTransform>(prompt, "indicator");
+            Assert.That(cue.GetComponent<Image>().sprite.name, Is.EqualTo("IMG_textbox_arrow_0"));
+            Assert.That(cue.anchoredPosition.x - cue.rect.width, Is.GreaterThanOrEqualTo(-bubble.paddingRight));
+            prompt.SetWaiting(true);
+            Capture(canvas, "exterior-bubble-short-1280x720", 1280, 720, referenceClearColor);
+
+            bubble.SetText("오늘은 길에서 만난 손님들이 많았어. 오랜만에 만난 사람과 이야기를 나누다 보니 시간이 훌쩍 지나갔네.");
+            Assert.That(bubble.textLabel.textInfo.lineCount, Is.EqualTo(2));
+            Assert.That(bubble.textLabel.fontSize, Is.EqualTo(prefab.baseFontSize));
+            Assert.That(bubble.bubble.rect.width, Is.InRange(145f, prefab.maxSize.x));
+            Assert.That(bubble.bubble.rect.height, Is.InRange(27f, 30f));
+            prompt.SetWaiting(true);
+            Capture(canvas, "exterior-bubble-1280x720", 1280, 720, referenceClearColor);
+            Capture(canvas, "exterior-bubble-1920x1080", 1920, 1080, referenceClearColor);
+            Capture(canvas, "exterior-bubble-2560x1440", 2560, 1440, referenceClearColor);
+        }
+        finally { Object.DestroyImmediate(canvas.gameObject); }
     }
 
     [Test]
@@ -531,14 +580,14 @@ public sealed class VisualUIReviewTests
         Assert.That(SceneTransitionManager.Instance.IsBusy, Is.False);
     }
 
-    static void Capture(Canvas canvas, string name, int width, int height)
+    static void Capture(Canvas canvas, string name, int width, int height, Color? clearColor = null)
     {
         string directory = Environment.GetEnvironmentVariable("HUMAN_BARTENDER_PREVIEW_DIR");
         if (string.IsNullOrEmpty(directory)) return;
         var cameraGO = new GameObject("UI capture camera", typeof(Camera)); var camera = cameraGO.GetComponent<Camera>();
         camera.orthographic = true; camera.orthographicSize = 5; camera.transform.position = new Vector3(0, 0, -10);
         camera.scene = canvas.gameObject.scene;
-        camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(.02f, .04f, .06f); camera.enabled = false;
+        camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = clearColor ?? new Color(.02f, .04f, .06f); camera.enabled = false;
         var backgrounds = canvas.gameObject.scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Canvas>(true))
             .Where(c => c != canvas && c.renderMode == RenderMode.ScreenSpaceCamera).ToArray();
         var backgroundCameras = backgrounds.Select(c => c.worldCamera).ToArray();
