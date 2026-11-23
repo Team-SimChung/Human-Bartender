@@ -11,6 +11,8 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
     readonly SoundManager sound;
     readonly PlayerDataSO player;
     readonly IPopupService popups;
+    // 문 화면이 뜰 때 음악이 끊기지 않고 잦아드는 시간(초).
+    const float DoorLoadingFadeSeconds = .5f;
     IAudioLoop street, rain;
     string group;
     Scene musicScene;
@@ -40,6 +42,8 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
         }
         var transition = SceneTransitionManager.Instance;
         bool revealing = transition == null || !transition.IsBusy || transition.CurrentState == SceneTransitionState.FadingIn;
+        // QA-46: 바 문 로딩 화면 동안에는 거리·바 음악과 거리 환경음을 끈다. 화면이 걷히면 도착한 장소의 음악을 새로 튼다.
+        bool doorLoading = transition != null && transition.IsBarDoorShowing;
         var activeScene = SceneManager.GetActiveScene();
         if (musicScene != activeScene)
         {
@@ -54,7 +58,12 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
         var state = GameStateManager.Instance;
         bool openingIntro = opening != null && opening.isActiveAndEnabled && !opening.IntroFinished &&
             state.CurrentDay == 0 && state.GameFlow == EGameFlow.CommuteIn && !player.CheckFlag(NewGameOpening.SeenFlag);
-        if (openingIntro)
+        if (doorLoading)
+        {
+            if (group != null) sound.StopBGM(DoorLoadingFadeSeconds);
+            group = null;
+        }
+        else if (openingIntro)
         {
             // 안내 화면이 뜨기 전에 타이틀 음악을 정리하고 Home 음악을 아직 요청하지 않는다.
             if (group != null) sound.StopBGM(0);
@@ -72,7 +81,7 @@ public sealed class SceneAudioController : IStartable, ITickable, IDisposable
             }
         }
         bool cinematic = GameAudioContext.Cinematic || state.CurrentGameState == GameState.Effect;
-        bool outside = group == "street" && scene == "OutSide" && focused && !cinematic;
+        bool outside = group == "street" && scene == "OutSide" && focused && !cinematic && !doorLoading;
         if (outside)
         {
             street ??= sound.StartLoop("SFX_street_loop", .55f);

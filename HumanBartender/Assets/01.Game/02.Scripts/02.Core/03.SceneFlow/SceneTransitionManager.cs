@@ -64,6 +64,9 @@ public class SceneTransitionManager : MonoBehaviour, ISceneTransitionService, IS
         get { return coordinator.IsBusy; }
     }
 
+    /// <summary>바 문 화면(로딩)이 떠 있는지. 이 동안에는 장소 음악·환경음을 끈다.</summary>
+    public bool IsBarDoorShowing => barDoorOverlay != null && barDoorOverlay.IsShowing;
+
     public SceneTransitionState CurrentState
     {
         get { return coordinator.State; }

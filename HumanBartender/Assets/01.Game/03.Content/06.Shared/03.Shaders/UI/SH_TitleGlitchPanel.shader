@@ -3,6 +3,8 @@
 // 화면 뒤를 일그러뜨리던 부분(_CameraSortingLayerTexture)은 Image 스프라이트(_MainTex)로,
 // 판 가장자리 비네트 알파는 스프라이트 알파로 바꿨다. 시간은 셰이더가 _Time으로 혼자 돈다(스크립트 불필요).
 // 예전 TitleLogoGlitch.cs(메시를 가로 띠로 나눠 밀던 효과)도 "Band Shift"로 이 셰이더에 옮겼다.
+// QA-34: 웹 title-logo.js의 가로 찢김을 "Signal Tear"로 추가했다. 표 텍스처 TX_TitleLogoTear_LUT.png는
+// 웹 frames 배열을 10ms 칸으로 펼친 것이다(286칸 × 75줄).
 // UI 마스크(Stencil), RectMask2D(Clip Rect), Image 색·CanvasGroup 투명도를 지원한다.
 Shader "Custom/TitleGlitchPanel"
 {
@@ -42,6 +44,18 @@ Shader "Custom/TitleGlitchPanel"
         _BandFlickerA ("Flicker Frequency A", Float) = 47
         _BandFlickerB ("Flicker Frequency B", Float) = 19
         _BandFPS ("Band Pattern FPS", Float) = 30
+
+        [Header(Signal Tear (web title logo))]
+        [Toggle] _UseTear ("Use Signal Tear", Float) = 0
+        [NoScaleOffset] _TearTex ("Tear Table (x: time, y: row)", 2D) = "gray" {}
+        _TearCycle ("Cycle (s)", Float) = 2.86
+        _TearRowOrigin ("First Row (UV from top)", Float) = 0.137121
+        _TearRowStep ("Row Height (UV)", Float) = 0.0098182
+        _TearRows ("Row Count", Float) = 75
+        _TearShiftScale ("Shift per Unit (UV)", Float) = 0.004975
+
+        [Header(Layout)]
+        _HorizontalPad ("Horizontal Padding (each side, of logo width)", Range(0, 0.3)) = 0
 
         [Header(UI)]
         _StencilComp ("Stencil Comparison", Float) = 8
@@ -141,6 +155,15 @@ Shader "Custom/TitleGlitchPanel"
             float _BandFlickerA;
             float _BandFlickerB;
             float _BandFPS;
+            float _UseTear;
+            sampler2D _TearTex;
+            float4 _TearTex_TexelSize;
+            float _TearCycle;
+            float _TearRowOrigin;
+            float _TearRowStep;
+            float _TearRows;
+            float _TearShiftScale;
+            float _HorizontalPad;
 
             v2f vert(appdata_t v)
             {
@@ -186,6 +209,19 @@ Shader "Custom/TitleGlitchPanel"
                 return pattern * _BandShift * strength;
             }
 
+            // 웹 title-logo.js: 2.86초 주기의 프레임 표대로 로고 가로 줄을 좌우로 민다.
+            // 표(_TearTex)는 x가 시간(칸마다 같은 길이), y가 위에서부터 줄 번호이고, 값은 128 + 이동 단위 × 4다.
+            float TearShift(float2 uv, float t)
+            {
+                float row = ((1 - uv.y) - _TearRowOrigin) / max(_TearRowStep, 0.0001);
+                float inside = step(0, row) * step(row, _TearRows - 0.001) * step(0.5, _UseTear);
+                float local = frac(t / max(_TearCycle, 0.01));
+                float2 lookup = float2((floor(local * _TearTex_TexelSize.z) + 0.5) * _TearTex_TexelSize.x,
+                    1 - (floor(clamp(row, 0, _TearRows - 1)) + 0.5) / max(_TearRows, 1));
+                float units = (tex2D(_TearTex, lookup).r * 255 - 128) / 4;
+                return units * _TearShiftScale * inside;
+            }
+
             fixed4 Sample(float2 uv)
             {
                 // 밀려서 그림 밖(0~1)을 읽으면 가장자리 픽셀이 늘어지지 않게 투명으로 둔다.
@@ -198,8 +234,10 @@ Shader "Custom/TitleGlitchPanel"
             fixed4 frag(v2f IN) : SV_Target
             {
                 float t = _Time.y;
+                // 좌우 여백: 사각형을 넓혀 두고 그림은 가운데에 원래 크기로 그린다. 밀린 줄이 사각형 밖으로 잘리지 않게 한다.
+                IN.texcoord.x = 0.5 + (IN.texcoord.x - 0.5) * (1 + 2 * _HorizontalPad);
                 // 띠가 오른쪽으로 dx만큼 밀린 것처럼 보이도록 dx만큼 왼쪽을 읽는다.
-                IN.texcoord.x -= BandShift(IN.texcoord, t);
+                IN.texcoord.x -= BandShift(IN.texcoord, t) + TearShift(IN.texcoord, t);
                 float scroll = _UseIntermittentGlitch > 0.5
                     ? floor(t * max(_GlitchFPS, 1)) / max(_GlitchFPS, 1) * _GlitchSpeed
                     : t * 100;

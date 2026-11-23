@@ -45,11 +45,15 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TearTex:
+        m_Texture: {fileID: 2800000, guid: 30fc2f2c2a05474bba7c8694b4009053, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _ColorMask: 15
     - _EnableExternalAlpha: 0
-    - _GlitchAmount: 0.017
+    - _GlitchAmount: 0
     - _GlitchCutAmountX: 0
     - _GlitchCutAmountY: 2.17
     - _GlitchDurationMax: 0.2
@@ -58,13 +62,21 @@ Material:
     - _GlitchIntervalMax: 5
     - _GlitchIntervalMin: 4
     - _GlitchSpeed: 5
+    - _HorizontalPad: 0.12
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
+    - _TearCycle: 2.86
+    - _TearRowOrigin: 0.137121
+    - _TearRowStep: 0.0098182
+    - _TearRows: 75
+    - _TearShiftScale: 0.004975
+    - _UseBandShift: 0
     - _UseIntermittentGlitch: 1
-    - _UseRGBGlitch: 1
+    - _UseRGBGlitch: 0
+    - _UseTear: 1
     - _UseUIAlphaClip: 0
     - _ZWrite: 0
     m_Colors:

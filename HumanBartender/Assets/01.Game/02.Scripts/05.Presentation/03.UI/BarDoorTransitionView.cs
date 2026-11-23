@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// 바를 드나들 때 페이드 위에 띄우는 언노운 문 화면. 로딩 중 문구와 로딩 막대를 보여 주고, 씬이 준비되면
+/// 바를 드나들 때 페이드 위에 띄우는 언노운 문 화면(웹 bar-door-transition.js). 로딩 막대를 보여 주고, 씬이 준비되면
 /// 최소 표시 시간을 채운 뒤 입점은 문을 열고 퇴점은 문을 닫는다. 그림 배치는 프리팹이, 문구와 시간은 이 컴포넌트가 소유한다.
 /// </summary>
 [DisallowMultipleComponent]
@@ -15,6 +15,7 @@ public sealed class BarDoorTransitionView : MonoBehaviour, ISceneTransitionOverl
     [Header("References")]
     [Tooltip("옆으로 밀려 열리는 문짝. 문틀 안쪽 마스크의 자식이어야 열린 부분이 문틀 밖으로 보이지 않는다.")]
     [SerializeField] private RectTransform leaf;
+    [Tooltip("선택. 비워 두면 문구 없이 문만 보여 준다(웹 새 연출).")]
     [SerializeField] private TMP_Text caption;
     [Tooltip("로딩 막대 안에서 좌우로 오가는 조각.")]
     [SerializeField] private RectTransform loadSlider;
@@ -51,10 +52,13 @@ public sealed class BarDoorTransitionView : MonoBehaviour, ISceneTransitionOverl
     private SceneTransitionStyle style;
     private bool loading;
 
+    /// <summary>문 화면이 떠 있는 동안 true. 이 동안에는 장소 음악을 끈다(QA-46).</summary>
+    public bool IsShowing { get; private set; }
+
     private void Awake()
     {
         group = GetComponent<CanvasGroup>();
-        if (leaf == null || caption == null || fadeCurtain == null) throw new InvalidOperationException("[BarDoorTransitionView] 문짝, 문구, 페이드 막을 연결하세요.");
+        if (leaf == null || fadeCurtain == null) throw new InvalidOperationException("[BarDoorTransitionView] 문짝과 페이드 막을 연결하세요.");
         leafClosed = leaf.anchoredPosition;
         HideImmediate();
     }
@@ -64,9 +68,10 @@ public sealed class BarDoorTransitionView : MonoBehaviour, ISceneTransitionOverl
         cancellationToken.ThrowIfCancellationRequested();
         style = transitionStyle;
         SetDoorOpenness(style == SceneTransitionStyle.BarExit ? 1 : 0);
-        caption.text = style == SceneTransitionStyle.BarExit ? exitLoading : entranceLoading;
+        if (caption != null) caption.text = style == SceneTransitionStyle.BarExit ? exitLoading : entranceLoading;
         if (loadTrack != null) loadTrack.SetActive(true);
         loading = true;
+        IsShowing = true;
         group.blocksRaycasts = true;
         group.alpha = 1;
         fadeCurtain.alpha = 1;
@@ -81,7 +86,7 @@ public sealed class BarDoorTransitionView : MonoBehaviour, ISceneTransitionOverl
         if (remaining > 0) await UniTask.Delay(TimeSpan.FromSeconds(remaining), DelayType.UnscaledDeltaTime, cancellationToken: cancellationToken);
         loading = false;
         if (loadTrack != null) loadTrack.SetActive(false);
-        caption.text = style == SceneTransitionStyle.BarExit ? exitDone : entranceDone;
+        if (caption != null) caption.text = style == SceneTransitionStyle.BarExit ? exitDone : entranceDone;
         bool exiting = style == SceneTransitionStyle.BarExit;
         float from = exiting ? 1 : 0;
         float to = exiting ? 0 : 1;
@@ -107,6 +112,7 @@ public sealed class BarDoorTransitionView : MonoBehaviour, ISceneTransitionOverl
     public void HideImmediate()
     {
         loading = false;
+        IsShowing = false;
         if (group == null) group = GetComponent<CanvasGroup>();
         // 오브젝트는 켜 둔 채 투명하게만 만든다. 꺼 두면 Awake가 첫 표시 때 실행되어 방금 띄운 화면을 다시 숨긴다.
         group.alpha = 0;

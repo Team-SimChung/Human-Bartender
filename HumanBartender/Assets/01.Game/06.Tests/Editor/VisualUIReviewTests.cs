@@ -223,23 +223,21 @@ public sealed class VisualUIReviewTests
             }
             typeof(BarDoorTransitionView).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(view, null);
             var leaf = Ref<RectTransform>(view, "leaf");
-            var light = Ref<CanvasGroup>(view, "floorLight");
             var curtain = Ref<CanvasGroup>(view, "fadeCurtain");
             var closed = leaf.anchoredPosition;
             var group = view.GetComponent<CanvasGroup>();
             var token = System.Threading.CancellationToken.None;
             view.ShowAsync(style, token).GetAwaiter().GetResult();
             Assert.That(leaf.anchoredPosition.x < closed.x, Is.EqualTo(startsOpen));
-            Assert.That(light.alpha, Is.EqualTo(startsOpen ? 1 : 0));
+            Assert.That(view.IsShowing, Is.True, "문 화면 동안 장소 음악을 끄는 기준");
             Assert.That(group.blocksRaycasts, Is.True);
             Assert.That(group.alpha, Is.EqualTo(1), "Door layers stay opaque; only the curtain fades.");
             Assert.That(curtain.alpha, Is.Zero);
             view.FinishAsync(token).GetAwaiter().GetResult();
             Assert.That(leaf.anchoredPosition.x < closed.x, Is.EqualTo(!startsOpen));
-            Assert.That(light.alpha, Is.EqualTo(startsOpen ? 0 : 1));
             view.HideImmediate();
             Assert.That(leaf.anchoredPosition, Is.EqualTo(closed));
-            Assert.That(light.alpha, Is.Zero);
+            Assert.That(view.IsShowing, Is.False);
             Assert.That(group.alpha, Is.Zero);
             Assert.That(group.blocksRaycasts, Is.False);
             Assert.That(curtain.alpha, Is.EqualTo(1));
@@ -251,7 +249,7 @@ public sealed class VisualUIReviewTests
     }
 
     [Test]
-    public void BarDoorKeepsFullTexturePaddingAndDrawsFrameAndBinLidInFront()
+    public void BarDoorUsesTheNewThreeLayerArtLikeTheWeb()
     {
         var prefab = AssetDatabase.LoadAssetAtPath<BarDoorTransitionView>("Assets/01.Game/03.Content/08.Prefabs/03.UI/05.Transition/BarDoorTransition.prefab");
         foreach (var image in prefab.GetComponentsInChildren<Image>(true))
@@ -263,11 +261,20 @@ public sealed class VisualUIReviewTests
             var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprite));
             Assert.That(importer.textureCompression, Is.EqualTo(TextureImporterCompression.Uncompressed), image.name);
         }
-        var stage = prefab.transform.Find("Stage");
-        Assert.That(stage.Find("frame_border").GetSiblingIndex(), Is.GreaterThan(stage.Find("Aperture").GetSiblingIndex()));
-        Assert.That(stage.Find("prop_bin_before_background").GetSiblingIndex(), Is.GreaterThan(stage.Find("prop_bin_after_border").GetSiblingIndex()));
-        Assert.That(stage.Find("prop_bin_background").GetSiblingIndex(), Is.GreaterThan(stage.Find("prop_left_bag_background").GetSiblingIndex()));
-        Assert.That(Ref<CanvasGroup>(prefab, "floorLight").alpha, Is.Zero);
+        // QA-46: 웹 bar-door-transition.js와 같은 세 장. 구멍 뚫린 배경이 빛·문짝 위에 그려진다.
+        var scaler = prefab.GetComponent<CanvasScaler>();
+        Assert.That(scaler.referenceResolution, Is.EqualTo(new Vector2(960, 540)));
+        Assert.That(scaler.matchWidthOrHeight, Is.Zero);
+        var stage = (RectTransform)prefab.transform.GetChild(1);
+        var aperture = (RectTransform)stage.GetChild(0);
+        Assert.That(aperture.GetComponent<RectMask2D>(), Is.Not.Null, "열린 문짝이 문 자리 밖으로 보이지 않는다.");
+        Assert.That(aperture.anchoredPosition, Is.EqualTo(new Vector2(432, -214)));
+        Assert.That(aperture.sizeDelta, Is.EqualTo(new Vector2(96, 148)));
+        Assert.That(aperture.GetChild(0).GetComponent<Image>().sprite.name, Is.EqualTo("Door_Transition_Light"));
+        Assert.That(aperture.GetChild(1), Is.SameAs(Ref<RectTransform>(prefab, "leaf")));
+        Assert.That(aperture.GetChild(1).GetComponent<Image>().sprite.name, Is.EqualTo("Door_Transition_Door"));
+        Assert.That(stage.GetChild(1).GetComponent<Image>().sprite.name, Is.EqualTo("Door_Transition_BG"));
+        Assert.That(Ref<TMP_Text>(prefab, "caption"), Is.Null, "새 연출에는 안내 문구가 없다.");
     }
 
     [Test]

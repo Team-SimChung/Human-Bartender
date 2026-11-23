@@ -8604,9 +8604,9 @@ MonoBehaviour:
   movementSource: {fileID: 0}
   settings:
     virtualRows: 270
-    spawnPerSecond: 55
-    maxDrops: 650
-    spawnRadius: {x: 0.55, y: 1.9}
+    spawnPerSecond: 15
+    maxDrops: 180
+    spawnRadius: {x: 0.8, y: 1.9}
     largeDropChance: 0.03
     slideRadius: 3.2
     pinVariation: 0.3
@@ -8615,7 +8615,7 @@ MonoBehaviour:
     maxSpeed: 150
     meander: 0.35
     trailSpacing: 4
-    trailChance: 0.7
+    trailChance: 0.35
     evaporation: 0.12
     intensityResponse: {x: 1.2, y: 2.5}
     formationTime: 0.4

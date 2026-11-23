@@ -31,7 +31,7 @@ public static class VisualUISetup
     {
         var so = new SerializedObject(owner); so.FindProperty(key).objectReferenceValue = value; so.ApplyModifiedPropertiesWithoutUndo();
     }
-    public const string TitleLogoGlitchMaterialPath = "Assets/01.Game/03.Content/06.Shared/02.Materials/M_TitleGlitchPanel.mat";
+    public const string TitleLogoGlitchMaterialPath = "Assets/01.Game/03.Content/06.Shared/02.Materials/M_MainTitleGlitchPannel.mat";
     public const string ChoiceGlitchSettingsPath ="Assets/01.Game/04.Data/01.Definitions/UI/ChoiceGlitchSettings.asset";
     // 에셋은 Unity에서 Create 메뉴로 만든다. 셋업은 연결만 하고, 사람이 이미 연결한 값은 덮어쓰지 않는다.
     static void WireGlitchSettings(UIChoiceGlitch fx)
@@ -251,7 +251,7 @@ public static class VisualUISetup
         var root = PrefabUtility.LoadPrefabContents(path);
         try
         {
-            root.GetComponent<RectTransform>().sizeDelta = new Vector2(450, 48.7793f);
+            root.GetComponent<RectTransform>().sizeDelta = new Vector2(506, 38); // QA-48: 웹 675×51의 3/4, 그림 테두리 비율과 같다.
             var hold = root.GetComponent<ChoiceHoldButton>();
             root.GetComponent<Image>().sprite = Sprite("01.Shared/01.MainScreen/IMG_choice_A.png");
             var states = hold.spriteState;
@@ -261,11 +261,11 @@ public static class VisualUISetup
             var panel = root.GetComponent<ChoicePanel>();
             Get<UnityEngine.UI.Text>(panel, "panelText").gameObject.SetActive(false);
             var label = Get<TextMeshProUGUI>(panel, "panelTMPText"); label.gameObject.SetActive(true);
-            label.font = PixelFont; label.fontSharedMaterial = PixelFont.material; label.fontSize = 13.5f; label.lineSpacing = 0; label.text = "선택지 예시";
+            label.font = PixelFont; label.fontSharedMaterial = PixelFont.material; label.fontSize = 14; label.lineSpacing = 0; label.text = "선택지 예시";
             label.alignment = TextAlignmentOptions.Midline; label.enableAutoSizing = false;
             label.color = Hex("bfc0c1");
             label.raycastTarget = false;
-            label.rectTransform.offsetMin = new Vector2(24, 4); label.rectTransform.offsetMax = new Vector2(-24, -4);
+            label.rectTransform.offsetMin = new Vector2(45, 9); label.rectTransform.offsetMax = new Vector2(-45, -9);
             if (root.GetComponent<ChoiceFrameMesh>() == null) root.AddComponent<ChoiceFrameMesh>();
             var fx = root.GetComponent<UIChoiceGlitch>() ?? root.AddComponent<UIChoiceGlitch>();
             Set(fx, "label", label); Set(fx, "holdButton", hold); WireGlitchSettings(fx);

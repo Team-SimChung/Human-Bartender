@@ -495,13 +495,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 0b01c04c7a9264ef68b11ac001cbfd13, type: 3}
+  m_Texture: {fileID: 2800000, guid: cf14866b47b54d4189e180969e08697e, type: 3}
   m_UVRect:
     serializedVersion: 2
-    x: 0.6614583
-    y: 0.009259259
-    width: 0.16666667
-    height: 0.16666667
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!222 &192915989
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2748,8 +2748,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 46, y: -44}
-  m_SizeDelta: {x: 447, y: 220}
+  m_AnchoredPosition: {x: 6, y: -56}
+  m_SizeDelta: {x: 473, y: 190}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1427298826
 MonoBehaviour:
@@ -2773,7 +2773,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: -2114873534, guid: 98958d27578ba47c0a050ab493dc4c81, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -3604,9 +3604,9 @@ MonoBehaviour:
   movementSource: {fileID: 0}
   settings:
     virtualRows: 270
-    spawnPerSecond: 55
-    maxDrops: 650
-    spawnRadius: {x: 0.55, y: 1.9}
+    spawnPerSecond: 15
+    maxDrops: 180
+    spawnRadius: {x: 0.8, y: 1.9}
     largeDropChance: 0.03
     slideRadius: 3.2
     pinVariation: 0.3
@@ -3615,7 +3615,7 @@ MonoBehaviour:
     maxSpeed: 150
     meander: 0.35
     trailSpacing: 4
-    trailChance: 0.7
+    trailChance: 0.35
     evaporation: 0.12
     intensityResponse: {x: 1.2, y: 2.5}
     formationTime: 0.4
