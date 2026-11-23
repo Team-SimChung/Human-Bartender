@@ -108,7 +108,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField, Range(0.5f, 2f)] private float particleAreaScale = 0.98f;
     [Header("Volume Readout Limits")]
     [Tooltip("일반 잔의 현재량 표시 상한(ml). 이 양 이상이면 화면 숫자를 이 값으로 표시한다. 판정과 결과 기록은 실제량을 사용한다.")]
-    [SerializeField, Min(0f)] private float glassReadoutLimitMl = 285f;
+    [SerializeField, Min(0f)] private float glassReadoutLimitMl = 280f;
     [Tooltip("바이젠잔(weizen)의 현재량 표시 상한(ml). oz 표시는 이 양을 환산한다.")]
     [SerializeField, Min(0f)] private float mugReadoutLimitMl = 420f;
     [Header("Target Height")]
@@ -121,7 +121,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [HideInInspector, SerializeField, Min(0.001f)] private float targetDashThickness = 0.008f;
     [Tooltip("시작할 때 목표 높이만 적용하는 피벗. 자식 Marker Layout에서 위치·크기·색을 조절한다.")]
     [SerializeField] Transform targetHeightMarker;
-    [Tooltip("프리팹의 Bottle Art Layout 아래 배치한 재료 스프라이트. 부모에서 공통 위치와 배율을 조절한다.")]
+    [Tooltip("Bottle Art Layout의 공통 배율로 표시하는 재료 스프라이트. 입구를 따르기 기준점에 맞춘다.")]
     [SerializeField] SpriteRenderer ingredientBottle;
     float targetMarkerParticles;
 
@@ -451,15 +451,18 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// 굵기: 줄 수가 늘면 줄기 폭은 이미 넓어졌으므로 입자 하나하나는 그만큼 가늘게 그린다.
     /// 늘림: 늘림은 느리게 나와 가속되며 사이가 벌어지는 줄기를 잇는 용도라, 처음부터 빠르게 나오는 줄기는
     /// 그만큼 덜 늘린다. 그대로 두면 입자 꼬리가 입구 뒤로 뻗어 입구에서 터지듯 보인다.
-    /// 하한: 위 두 가지로 가늘게 그려도 입자 반지름이 줄 간격보다 작아지지 않게 해 한 줄기로 잇는다.
+    /// 하한: 반지름이 너무 작으면 옆줄 입자가 갈라진다. 푸어러의 굵기 배율에 따라 하한도 낮추되, 줄 간격의 절반까지 내린다.
     /// </summary>
     void UpdateStreamShape()
     {
         float flowMultiplier = (pourer != null ? pourer.FlowMultiplier : 1f) * IngredientFlowMultiplier();
         float capacityScale = CapacitySpeedScale;
         int lanes = EmissionLanes(flowMultiplier, capacityScale);
-        liquidRenderer.SetAirborneWidthScale((pourer != null ? pourer.StreamWidthScale : 1f) * BaseLanes / lanes);
-        liquidRenderer.SetStreamMinCrossRadius(Spacing * neckWidthInParticles / BaseLanes * streamMinRadiusPerLane);
+        float widthScale = pourer != null ? pourer.StreamWidthScale : 1f;
+        liquidRenderer.SetAirborneWidthScale(widthScale * BaseLanes / lanes);
+        float laneStep = Spacing * neckWidthInParticles / BaseLanes;
+        float minRadiusPerLane = Mathf.Lerp(Mathf.Min(0.5f, streamMinRadiusPerLane), streamMinRadiusPerLane, widthScale);
+        liquidRenderer.SetStreamMinCrossRadius(laneStep * minRadiusPerLane);
         // 기본 술의 최대 분사 속도(exitSpeed)보다 빠르게 나올 때만 줄인다. 얕게 기울여 느리게 나오면 원래대로 늘린다.
         float actualExit = exitSpeed * FlowRate01() * flowMultiplier * BaseLanes / lanes * capacityScale;
         liquidRenderer.SetStreamStretchScale(actualExit > exitSpeed ? exitSpeed / actualExit : 1f);
@@ -558,7 +561,6 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// </summary>
     void EmitRow(Vector2 exitVelocity, float age, int lanes)
     {
-        Transform container = bottle.BottleVisual;
         float speed = exitVelocity.magnitude;
         Vector2 direction = exitVelocity / Mathf.Max(0.0001f, speed);
         Vector2 across = new Vector2(-direction.y, direction.x);
@@ -566,8 +568,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         // 줄 간격은 기본 병목 기준으로 고정한다. 줄이 늘면 줄기가 그만큼 넓어진다.
         float laneStep = Spacing * neckWidthInParticles / BaseLanes;
 
-        // 입구는 병 로컬 +Y 끝이다.
-        Vector2 mouth = container.TransformPoint(new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
+        Vector2 mouth = EmissionMouthWorldPosition;
 
         // 밀린 시간만큼 미리 날아간 상태로 놓는다. 위치뿐 아니라 속도도 그동안 중력을 받았어야
         // 맞다 — 위치만 옮기고 속도를 그대로 두면 뒤따르는 줄과 속도가 어긋나 그 지점에서 뭉친다.
@@ -595,6 +596,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             remainingInBottle--;
         }
     }
+
+    internal Vector3 EmissionMouthWorldPosition => pourer != null && pourer.TryGetOutletWorldPosition(out var mouth)
+        ? mouth : bottle.BottleVisual.TransformPoint(new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
 
     void Update()
     {
@@ -929,7 +933,6 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             return false;
         }
 
-        Transform parent = bottle.BottleVisual;
         if (ingredientBottle == null)
         {
             Debug.LogError("[Pour] 프리팹의 Ingredient Bottle 렌더러를 연결해 주세요.", this);
@@ -937,21 +940,11 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
         Transform visual = ingredientBottle.transform;
         ingredientBottle.sprite = sprite;
-        ingredientBottle.gameObject.SetActive(true);
 
-        // 서로 다른 PPU와 피벗을 가진 병도 기존 입구 위치에 맞춘다.
-        Vector3 size = sprite.bounds.size;
-        Vector3 parentScale = parent.lossyScale;
-        float sx = Mathf.Max(0.0001f, Mathf.Abs(parentScale.x));
-        float sy = Mathf.Max(0.0001f, Mathf.Abs(parentScale.y));
-        float worldScale = Mathf.Min(
-            bottleInteriorHalfExtents.x * 2f * sx / Mathf.Max(0.0001f, size.x),
-            bottleInteriorHalfExtents.y * 2f * sy / Mathf.Max(0.0001f, size.y));
-        Vector3 scale = new Vector3(worldScale / sx, worldScale / sy, 1f);
-        visual.localScale = scale;
-        visual.localPosition = new Vector3(
-            -sprite.bounds.center.x * scale.x,
-            bottleInteriorHalfExtents.y - sprite.bounds.max.y * scale.y, 0f);
+        Bounds bounds = sprite.bounds;
+        Vector3 mouth = bottle.BottleVisual.TransformPoint(Vector3.up * bottleInteriorHalfExtents.y);
+        visual.position = mouth - visual.TransformVector(new Vector3(bounds.center.x, bounds.max.y, 0f));
+        ingredientBottle.gameObject.SetActive(true);
         return true;
     }
 

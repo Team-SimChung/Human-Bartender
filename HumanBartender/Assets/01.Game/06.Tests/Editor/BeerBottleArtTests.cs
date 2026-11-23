@@ -20,7 +20,7 @@ public sealed class BeerBottleArtTests
         Assert.That(AssetDatabase.GetAssetPath(pour), Is.EqualTo(OpenedBeer));
         Assert.That(AssetDatabase.GetAssetPath(catalog.GetIngredientSprite("beer")), Is.Not.EqualTo(OpenedBeer),
             "레시피·해금 화면에 열린 병이 뜨면 안 된다.");
-        Assert.That(catalog.GetPourBottleSprite("gin"), Is.SameAs(catalog.GetIngredientSprite("gin")),
+        Assert.That(catalog.GetPourBottleSprite("ginger_ale"), Is.SameAs(catalog.GetIngredientSprite("ginger_ale")),
             "따로 정하지 않은 재료는 지금처럼 재료 그림을 쓴다.");
         // 투명 여백을 잘라 둬야 PourManager가 병 크기·입구 위치를 그림 전체가 아닌 병 기준으로 맞춘다.
         Assert.That(pour.rect, Is.EqualTo(new Rect(25, 1, 43, 157)));
@@ -33,6 +33,28 @@ public sealed class BeerBottleArtTests
         Assert.That(importer.spritePixelsPerUnit, Is.EqualTo(100));
         Assert.That(importer.filterMode, Is.EqualTo(FilterMode.Point));
         Assert.That(importer.textureCompression, Is.EqualTo(TextureImporterCompression.Uncompressed));
+    }
+
+    [Test]
+    public void RegisteredPourBottlesHaveTheirPivotAtTheMouthAndKeepPixelArtSettings()
+    {
+        var catalog = AssetDatabase.LoadAssetAtPath<CocktailRecipeVisualCatalog>(Catalog);
+        using var data = new SerializedObject(catalog);
+        var entries = data.FindProperty("pourBottleSprites");
+        for (int i = 0; i < entries.arraySize; i++)
+        {
+            string id = entries.GetArrayElementAtIndex(i).FindPropertyRelative("id").stringValue;
+            var sprite = catalog.GetPourBottleSprite(id);
+            Assert.That(sprite, Is.Not.Null, id);
+            string path = AssetDatabase.GetAssetPath(sprite);
+            Assert.That(path, Does.EndWith("_off.png"), id);
+            Assert.That(sprite.pivot.x, Is.EqualTo(sprite.rect.width * .5f).Within(.001f), id);
+            Assert.That(sprite.pivot.y, Is.EqualTo(sprite.rect.height).Within(.001f), id);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            Assert.That(importer.spritePixelsPerUnit, Is.EqualTo(100), id);
+            Assert.That(importer.filterMode, Is.EqualTo(FilterMode.Point), id);
+            Assert.That(importer.textureCompression, Is.EqualTo(TextureImporterCompression.Uncompressed), id);
+        }
     }
 
     [Test]
