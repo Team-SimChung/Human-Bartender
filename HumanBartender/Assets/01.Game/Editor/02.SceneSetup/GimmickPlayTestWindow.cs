@@ -4,12 +4,13 @@ using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>제조 준비나 영업 대사 없이 개별 기믹 또는 칵테일 한 잔을 반복 플레이하는 창.</summary>
+/// <summary>실제 제조 준비 화면이나 기믹에서 곧바로 플레이하는 창.</summary>
 internal sealed class GimmickPlayTestWindow : EditorWindow
 {
     [SerializeField] private ECraftGimmick selectedType = ECraftGimmick.Pour;
     [SerializeField] private string selectedKey;
     [SerializeField] private bool wholeCocktail;
+    [SerializeField] private bool fromPreparation;
     [SerializeField] private string selectedCocktailId;
     [SerializeField] private Vector2 scroll;
     private GimmickPlayTestCatalog.Case[] cases = Array.Empty<GimmickPlayTestCatalog.Case>();
@@ -52,7 +53,7 @@ internal sealed class GimmickPlayTestWindow : EditorWindow
             EditorApplication.ExecuteMenuItem(WorldInteractionTestCatalog.MenuPath);
         if (GUILayout.Button("바 내부 · 대사를 골라 시작")) EditorApplication.ExecuteMenuItem(BarDialogueTestCatalog.MenuPath);
         EditorGUILayout.HelpBox("실제 Play 씬의 실행기·프리팹·HUD·입력을 사용합니다. " +
-            "영업과 대사 시작은 건너뛰고 선택한 기믹 또는 칵테일 한 잔을 실행합니다. " +
+            "영업과 대사를 건너뛰고 제조 준비 화면 또는 선택한 기믹에 진입합니다. " +
             "플레이어는 복사본을 사용하며 저장 슬롯은 Library/GimmickPlayTests에 분리합니다.", MessageType.Info);
         using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))
             if (GUILayout.Button("CSV 목록 새로고침")) Reload();
@@ -71,23 +72,37 @@ internal sealed class GimmickPlayTestWindow : EditorWindow
 
         wholeCocktail = GUILayout.Toolbar(wholeCocktail ? 1 : 0, new[] { "기믹 하나", "칵테일 한 잔" }) == 1;
         string key;
-        if (wholeCocktail) key = DrawCocktailSelection();
+        var mode = GimmickPlayTestSession.Mode.Gimmick;
+        if (wholeCocktail)
+        {
+            fromPreparation = EditorGUILayout.Popup("시작 위치", fromPreparation ? 1 : 0,
+                new[] { "기믹부터 · 자동 준비", "재료 선택부터 · 직접 준비" }) == 1;
+            mode = fromPreparation ? GimmickPlayTestSession.Mode.Preparation : GimmickPlayTestSession.Mode.Cocktail;
+            key = DrawCocktailSelection();
+        }
         else
         {
             var types = cases.Select(value => value.Step.Type).Distinct().OrderBy(value => value).ToArray();
             key = DrawSelection(types)?.Key;
         }
+        string startLabel = mode switch
+        {
+            GimmickPlayTestSession.Mode.Preparation => "재료 선택부터 시작",
+            GimmickPlayTestSession.Mode.Cocktail => "선택 칵테일 제조 시작",
+            _ => "선택 기믹으로 테스트 시작"
+        };
         using (new EditorGUI.DisabledScope(key == null || playing))
-            if (GUILayout.Button(wholeCocktail ? "선택 칵테일 제조 시작" : "선택 기믹으로 테스트 시작", GUILayout.Height(30)))
-                Try(() => GimmickPlayTestSession.Start(key, wholeCocktail));
+            if (GUILayout.Button(startLabel, GUILayout.Height(30)))
+                Try(() => GimmickPlayTestSession.Start(key, mode));
 
         if (GimmickPlayTestSession.IsActive)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
                 using (new EditorGUI.DisabledScope(key == null || !GimmickPlayTestSession.IsReady || GimmickPlayTestSession.IsBusy))
-                    if (GUILayout.Button(wholeCocktail ? "선택 칵테일 다시 만들기" : "선택 기믹 다시 플레이"))
-                        GimmickPlayTestSession.PlayAsync(key, wholeCocktail).Forget(GimmickPlayTestSession.Report);
+                    if (GUILayout.Button(mode == GimmickPlayTestSession.Mode.Preparation ? "재료 선택부터 다시 시작"
+                        : wholeCocktail ? "선택 칵테일 다시 만들기" : "선택 기믹 다시 플레이"))
+                        GimmickPlayTestSession.PlayAsync(key, mode).Forget(GimmickPlayTestSession.Report);
                 using (new EditorGUI.DisabledScope(!GimmickPlayTestSession.IsBusy))
                     if (GUILayout.Button("현재 플레이 중단")) GimmickPlayTestSession.CancelGimmick();
                 if (GUILayout.Button("테스트 종료")) GimmickPlayTestSession.Stop();
@@ -101,8 +116,8 @@ internal sealed class GimmickPlayTestWindow : EditorWindow
         DrawResults();
         EditorGUILayout.Space();
         EditorGUILayout.HelpBox("Game 창에 포커스를 두고 조작하세요. 마치기는 실제 기믹의 마치기 버튼을 사용합니다. " +
-            "필업은 실제 게임과 같이 따르기 프리팹을 재사용합니다. 칵테일 한 잔은 정답 구성을 자동 준비하고 실제 제조 순서대로 진행합니다. " +
-            "마지막 기믹이 끝나면 Game 창에서 완성 컷과 제조 등급을 표시합니다. " +
+            "직접 준비에서는 잔·도구·재료를 빈 상태에서 고릅니다. 선반은 테스트용으로 해금 제한을 적용하지 않습니다. " +
+            "칵테일 한 잔을 완료하면 Game 창의 결과 화면에서 버리기와 제공하기를 확인할 수 있습니다. " +
             "스크립트를 다시 컴파일하면 테스트를 종료합니다.", MessageType.Info);
         EditorGUILayout.EndScrollView();
     }

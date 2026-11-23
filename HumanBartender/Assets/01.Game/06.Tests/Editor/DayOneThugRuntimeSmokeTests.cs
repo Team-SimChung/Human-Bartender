@@ -156,6 +156,12 @@ public sealed class DayOneThugRuntimeSmokeTests
         }
         var start = actor.transform.position;
         var playerPosition = context.Player.transform.position;
+        if (!controller.IsRunning && Vector2.Distance(playerPosition, target.transform.position) > target.InteractionRadius)
+        {
+            // The corridor event starts when Luna approaches the actor from the home door.
+            playerPosition.x = target.transform.position.x - target.InteractionRadius * .5f;
+            context.Player.transform.position = playerPosition;
+        }
         float expectedAttackX = playerPosition.x + .63f;
         bool sawSession = false;
         bool sawContact = false, sawRecoil = false, sawMovingFade = false;

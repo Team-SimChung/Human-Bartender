@@ -19,8 +19,10 @@ public sealed class BubiStoryAnimationTests
         var playerData = ScriptableObject.CreateInstance<PlayerDataSO>();
         try
         {
-            state.CurrentDay = 2;
-            state.GameFlow = EGameFlow.CommuteIn;
+            var scenario = HomeInteractionTestScenarios.Find(WorldInteractionTestPreparationCatalog.Prefix + "cat-reveal");
+            scenario.Apply(playerData);
+            state.CurrentDay = scenario.Day - 1;
+            state.GameFlow = scenario.Flow;
             var authored = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<WorldInteractionTarget>(true))
                 .Single(value => value.StorySceneId == "neighborhood-reveal");
             var root = Object.Instantiate(authored.gameObject);
@@ -30,10 +32,25 @@ public sealed class BubiStoryAnimationTests
             using var data = new SerializedObject(interaction);
             var actor = (NpcActor)data.FindProperty("actor").objectReferenceValue;
             var animator = actor.GetComponent<Animator>();
+            var box = root.GetComponentsInChildren<NpcActor>(true).Single(value => value.name == "Sprite_after");
+            var boxSprite = box.GetComponent<SpriteRenderer>();
+            var initialPosition = actor.transform.position;
+            var boxPosition = box.transform.position;
+            var revealOffset = data.FindProperty("afterCommitPositionOffset").vector2Value;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             var conditions = new ConditionUtil(state, playerData, playerData);
             var story = new NewSceneData { Id = "neighborhood-reveal", RuntimeScene = "OutSide", Route = "both" };
             interaction.Initialize(conditions, null, story, null, null);
+            Assert.That(interaction.CanInteract, Is.False);
+            Assert.That(actor.IsVisible, Is.False);
+            Assert.That(boxSprite.enabled, Is.True, "부비가 등장하기 전에도 빈 박스가 있다.");
+
+            state.CurrentDay = scenario.Day;
+            interaction.EndInteraction();
+            Assert.That(interaction.CanInteract, Is.True, "연출 중에 표시할 추가 배우도 활성 오브젝트여야 한다.");
+            Assert.That(actor.IsVisible, Is.True);
+            Assert.That(boxSprite.enabled, Is.False, "상호작용이 열리면 빈 박스를 부비가 들어 있는 박스로 교체한다.");
+            Assert.That(boxSprite.sharedMaterial.HasProperty("_OutlineIntensity"), Is.False);
             Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("BoxShake"), Is.True);
             Assert.That(animator.GetCurrentAnimatorStateInfo(0).loop, Is.False);
 
@@ -41,16 +58,29 @@ public sealed class BubiStoryAnimationTests
             actor.PlayIdleState("Idle");
             interaction.EndInteraction();
             Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("BoxShake"), Is.True);
+            Assert.That(actor.transform.position, Is.EqualTo(initialPosition));
+            Assert.That(boxSprite.enabled, Is.False);
             Assert.That(playerData.CheckFlag("boobi_revealed"), Is.False);
 
             playerData.AddFlag("boobi_revealed", true);
             interaction.EndInteraction();
             Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"), Is.True);
+            Assert.That(actor.transform.position, Is.EqualTo(initialPosition + (Vector3)revealOffset));
+            Assert.That(boxSprite.enabled, Is.True);
+            Assert.That(box.transform.position, Is.EqualTo(boxPosition));
             root.SetActive(false);
             root.SetActive(true);
             interaction.Initialize(conditions, null, story, null, null);
             Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName("Idle"), Is.True,
                 "발견 완료 기록으로 다시 등장할 때 상자 상태로 되돌아가지 않는다.");
+            Assert.That(actor.transform.position, Is.EqualTo(initialPosition + (Vector3)revealOffset));
+            Assert.That(boxSprite.enabled, Is.True);
+
+            playerData.AddFlag("boobi_adopted", true);
+            interaction.EndInteraction();
+            Assert.That(interaction.CanInteract, Is.False);
+            Assert.That(actor.IsVisible, Is.False);
+            Assert.That(boxSprite.enabled, Is.True);
         }
         finally
         {

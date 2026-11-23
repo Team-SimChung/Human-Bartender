@@ -11,12 +11,7 @@ public interface ICraftGimmickProgress
     /// <summary>좌측 상단에 넣을 진행 상태. 예: "16.20 / 45.00 ml", "시도 3회째", "8 / 20".</summary>
     string ProgressText { get; }
 
-    /// <summary>
-    /// 목표에 도달했는지. 화면 가운데 O.K를 켜는 신호다.
-    ///
-    /// O.K는 기믹을 끝내지 않는다. 목표를 넘겨 계속 넣어도 켜진 채로 있고, 끝내는 시점은
-    /// 플레이어가 정한다.
-    /// </summary>
+    /// <summary>HUD에 성공 표시를 띄울 시점인지.</summary>
     bool ShowOkMark { get; }
 }
 

@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +5,6 @@ using UnityEngine.UI;
 public sealed class CraftPrepTrayItem : MonoBehaviour
 {
     [SerializeField] private Image icon;
-    [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private Button removeButton;
 
     private CraftPrepStageScreen owner;
@@ -26,12 +24,11 @@ public sealed class CraftPrepTrayItem : MonoBehaviour
         if (removeButton != null) removeButton.onClick.RemoveListener(Remove);
     }
 
-    public void Bind(CraftPrepStageScreen screen, string id, CraftPrepStageScreen.Stage from, string displayName, Sprite sprite)
+    public void Bind(CraftPrepStageScreen screen, string id, CraftPrepStageScreen.Stage from, Sprite sprite)
     {
         owner = screen;
         itemId = id;
         stage = from;
-        if (nameText != null) nameText.text = displayName;
         if (icon != null)
         {
             icon.sprite = sprite;

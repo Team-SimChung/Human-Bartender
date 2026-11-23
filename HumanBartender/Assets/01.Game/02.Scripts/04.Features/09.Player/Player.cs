@@ -59,12 +59,7 @@ public class Player : MonoBehaviour, IInteractor
     /// <summary>정해진 시작 자리의 씬 Transform으로 옮기고 그 자리의 기본 방향을 본다.</summary>
     public bool TrySetPosition(EPlayerSpawn spawn)
     {
-        Transform destination = spawn switch
-        {
-            EPlayerSpawn.Bar => barspawn,
-            EPlayerSpawn.FirstCommute => firstCommuteSpawn,
-            _ => homespawn,
-        };
+        var destination = GetSpawnPoint(spawn);
         if (destination == null) return false;
         transform.position = destination.position;
         if (spawn != EPlayerSpawn.Home)
@@ -73,6 +68,13 @@ public class Player : MonoBehaviour, IInteractor
             movement2D.Face(true);
         return true;
     }
+
+    internal Transform GetSpawnPoint(EPlayerSpawn spawn) => spawn switch
+    {
+        EPlayerSpawn.Bar => barspawn,
+        EPlayerSpawn.FirstCommute => firstCommuteSpawn,
+        _ => homespawn,
+    };
 
     /// <summary>
     /// 입력을 잠근 채 평소 이동·애니메이션 경로로 targetX까지 걷는다. 옵션 창이 열려 있으면 기다리고,

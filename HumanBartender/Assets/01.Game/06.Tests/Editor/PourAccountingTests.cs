@@ -76,7 +76,7 @@ public sealed class PourAccountingTests
         typeof(PourerBreakaway).GetField("attachedPourer", Private).SetValue(effect, attached.GetComponent<SpriteRenderer>());
         typeof(PourerBreakaway).GetField("detachedPourer", Private).SetValue(effect, detached.GetComponent<SpriteRenderer>());
         Set("pourer", effect);
-        effect.BeginPour("gin", Vector3.up);
+        effect.BeginPour("gin", Vector3.up * Get<Vector2>("bottleInteriorHalfExtents").y);
         // 맥주(배율 7)나 분리된 푸어러가 1초 동안 내보내는 양까지 풀이 모자라지 않게 둔다.
         for (int i = 0; i < 768; i++)
         {
@@ -88,6 +88,43 @@ public sealed class PourAccountingTests
         }
         typeof(BottleTiltController).GetField("currentAngle", Private).SetValue(bottle, 160f);
         return effect;
+    }
+
+    [Test]
+    public void ParticlesUseTheAdjustedPourerTipThenTheUnadjustedBottleMouth()
+    {
+        var effect = PreparePourerEmission();
+        var attached = typeof(PourerBreakaway).GetField("attachedPourer", Private).GetValue(effect) as SpriteRenderer;
+        var body = new GameObject("BottleBody", typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
+        body.transform.SetParent(manager.transform, false);
+        body.sprite = attached.sprite;
+        Bounds bounds = body.sprite.bounds;
+        body.transform.localPosition = Vector3.up - new Vector3(bounds.center.x, bounds.max.y);
+        typeof(PourerBreakaway).GetField("ingredientBottle", Private).SetValue(effect, body);
+        const float insetX = .002f;
+        const float offsetY = -.003f;
+        typeof(PourerBreakaway).GetField("outletInsetX", Private).SetValue(effect, insetX);
+        typeof(PourerBreakaway).GetField("higtY", Private).SetValue(effect, offsetY);
+        effect.BeginPour("gin", Vector3.up);
+        Vector3 bodyPosition = body.transform.position;
+        Vector3 bottleMouth = body.transform.TransformPoint(new Vector3(bounds.center.x, bounds.max.y));
+        Bounds tip = attached.sprite.bounds;
+        Vector3 attachedMouth = attached.transform.TransformPoint(new Vector3(tip.center.x - insetX, tip.max.y + offsetY));
+        var emitted = Get<List<SphParticle>>("live");
+        Call("EmitRow", Vector2.right, 0f, 1);
+        Call("EmitRow", Vector2.down, 0f, 1);
+        Assert.That(emitted.Count, Is.EqualTo(2));
+        Assert.That(emitted[0].pos.x, Is.EqualTo(attachedMouth.x).Within(.0001f));
+        Assert.That(emitted[1].pos.y, Is.EqualTo(attachedMouth.y).Within(.0001f));
+        typeof(BottleTiltController).GetField("dragging", Private).SetValue(bottle, true);
+        Assert.That(effect.TryDetach(), Is.True);
+        Assert.That(body.transform.position, Is.EqualTo(bodyPosition));
+        Assert.That(Vector3.Distance(manager.EmissionMouthWorldPosition, bottleMouth), Is.LessThan(.0001f));
+        Assert.That(Vector3.Distance(attachedMouth, bottleMouth), Is.GreaterThan(.001f));
+        Call("EmitRow", Vector2.down, 0f, 1);
+        Assert.That(emitted.Count, Is.EqualTo(3));
+        Assert.That(emitted[2].pos.y, Is.EqualTo(bottleMouth.y).Within(.0001f),
+            "실제 입자는 예전 푸어러 끝이 아닌 병 입구에서 출발해야 한다.");
     }
 
     SphParticle Particle(Vector2 position)
@@ -130,7 +167,7 @@ public sealed class PourAccountingTests
     [TestCase(true, ENewUnit.Oz)]
     public void GlassReadoutStopsAtItsLimitWhileActualQuantityAndTargetJudgementKeepRealVolume(bool mug, ENewUnit unit)
     {
-        float limit = mug ? 420f : 285f;
+        float limit = mug ? 420f : 280f;
         float mlPerUnit = unit == ENewUnit.Oz ? 30f : 1f;
         var session = new CraftSession("readout_limit");
         session.Actual.SetGlass(mug ? "weizen" : "long_drink");
@@ -158,7 +195,32 @@ public sealed class PourAccountingTests
         Assert.That(manager.ProgressText, Does.StartWith(limit.ToString("0.00") + " /"));
         Assert.That(manager.PouredInTargetUnit, Is.EqualTo((belowCount + 2) * 2f / mlPerUnit).Within(.0001f),
             "최종 결과에 쓰는 실제 수량은 표시 상한으로 자르지 않는다.");
+        Assert.That(manager.ShowOkMark, Is.False, "완료 전에는 결과 표시를 띄우지 않는다.");
+        manager.FinishPour();
+        Call("CompletePour");
         Assert.That(manager.ShowOkMark, Is.True, "표시 상한 위에 있는 목표도 실제량으로 판정한다.");
+    }
+
+    [TestCase(54.99f, true, false)]
+    [TestCase(55f, true, true)]
+    [TestCase(60f, true, true)]
+    [TestCase(65f, true, true)]
+    [TestCase(65.01f, true, false)]
+    [TestCase(60f, false, false)]
+    public void PerfectRequiresCompletionAndAnErrorWithinFiveMl(float retainedMl, bool visibleTarget, bool perfect)
+    {
+        var balance = ScriptableObject.CreateInstance<NewBalanceDataSO>();
+        owned.Add(balance);
+        balance.balanceData = new NewBalanceDataBase { Config = new NewBalanceConfig { UnitOzToMl = 30f } };
+        Set("balanceData", balance);
+        Set("pourStep", new GimmickStep(ECraftGimmick.Pour, "gin", 2f, ENewUnit.Oz, visibleTarget));
+        Set("pouredMl", retainedMl);
+
+        Assert.That(manager.ShowOkMark, Is.False);
+        manager.FinishPour();
+        Assert.That(manager.ShowOkMark, Is.False);
+        Call("CompletePour");
+        Assert.That(manager.ShowOkMark, Is.EqualTo(perfect));
     }
 
     [Test]

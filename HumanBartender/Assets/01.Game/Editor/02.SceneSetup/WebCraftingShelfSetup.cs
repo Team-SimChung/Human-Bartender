@@ -1,29 +1,27 @@
 using System;
 using System.Linq;
-using TMPro;
 using UnityEditor;
 using UnityEngine;
+using Stage = CraftPrepStageScreen.Stage;
 
 /// <summary>웹 현행 재료의 누락 슬롯만 보충한다. 기존 병의 위치와 그림은 보존한다.</summary>
 public static class WebCraftingShelfSetup
 {
     public const string PrefabPath = "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/01.Preparation/CraftPrepStage.prefab";
-    const string FontPath = "Assets/01.Game/03.Content/05.Fonts/Regular_PFStardust_3_0_SDF.asset";
+    const string ArtFolder = "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/02.Ingredients";
     const string UndoLabel = "Complete Web Crafting Shelf";
 
-    // 최초 에디터 배치 값이다. 생성 후 프리팹 Inspector에서 조절하며 재실행 시 덮어쓰지 않는다.
-    // Y는 공용 진 병(가운데 피벗, 높이 1.48)의 바닥이 기존 병과 같은 선반 면에 닿도록 맞춘 값이다.
-    // 리큐어 위칸 0.76 / 아래칸 -1.31, 냉장고 위칸(캔) 1.08. 전용 그림으로 바꾸면 바닥을 유지하도록 Y를 다시 맞춘다.
-    static readonly (string id, string name, CraftPrepStageScreen.Stage stage, Vector2 position)[] Missing =
+    // 웹 960×540 선반의 기본 배치. 스프라이트 피벗과 클릭 영역의 중심 차이를 반영한다.
+    static readonly (string id, string art, Stage stage, Vector2 position, float hitHeight, Vector2 hitOffset)[] Missing =
     {
-        ("triple_sec", "트리플섹", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.90f, -.57f)),
-        ("kahlua", "칼루아", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.32f, -.57f)),
-        ("amaretto", "아마레토", CraftPrepStageScreen.Stage.Liquor, new Vector2(.26f, -.57f)),
-        ("wild_dog", "와일드 독", CraftPrepStageScreen.Stage.Liquor, new Vector2(.87f, 1.5f)),
-        ("bitters", "비터스", CraftPrepStageScreen.Stage.Liquor, new Vector2(.84f, -.57f)),
-        ("sugar_cube", "각설탕", CraftPrepStageScreen.Stage.Liquor, new Vector2(1.42f, -.57f)),
-        ("cranberry_juice", "크랜베리주스", CraftPrepStageScreen.Stage.Fridge, new Vector2(-1.42f, 1.82f)),
-        ("milk", "우유", CraftPrepStageScreen.Stage.Fridge, new Vector2(-.46f, 1.82f)),
+        ("triple_sec", "02.Shelf/triple_sec.png", Stage.Liquor, new Vector2(-.88f, -.445f), 1.46f, new Vector2(0f, -.115f)),
+        ("kahlua", "02.Shelf/kahlua.png", Stage.Liquor, new Vector2(-.29f, -.445f), 1.53f, new Vector2(0f, -.08f)),
+        ("amaretto", "02.Shelf/amaretto.png", Stage.Liquor, new Vector2(.30f, -.445f), 1.24f, new Vector2(0f, -.225f)),
+        ("wild_dog", "02.Shelf/johnny-wild_dog.png", Stage.Liquor, new Vector2(.89f, 1.705f), 1.50f, new Vector2(0f, -.205f)),
+        ("bitters", "02.Shelf/johnny-bitters.png", Stage.Liquor, new Vector2(.89f, -.535f), 1.09f, new Vector2(0f, -.21f)),
+        ("sugar_cube", "02.Shelf/johnny-sugar_cube.png", Stage.Liquor, new Vector2(1.48f, -1.01f), .67f, new Vector2(0f, .055f)),
+        ("cranberry_juice", "01.Refrigerator/cranberry_juice.png", Stage.Fridge, new Vector2(1.345f, -.215f), 1.66f, new Vector2(.055f, -.275f)),
+        ("milk", "01.Refrigerator/milk.png", Stage.Fridge, new Vector2(2.37f, -.225f), 1.62f, new Vector2(-.02f, -.285f)),
     };
 
     [MenuItem("Tools/Human Bartender/Crafting/Complete Web Crafting Shelf")]
@@ -51,48 +49,37 @@ public static class WebCraftingShelfSetup
 
     public static void Complete(CraftPrepStageScreen screen)
     {
-        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
-        if (screen == null || font == null) throw new InvalidOperationException("[WebCraftingShelfSetup] 화면 또는 이름표 폰트가 없습니다.");
+        if (screen == null) throw new InvalidOperationException("[WebCraftingShelfSetup] 제조 준비 화면이 없습니다.");
         var existing = screen.GetComponentsInChildren<CraftPrepShelfSlot>(true).ToList();
         var template = existing.FirstOrDefault(s => s.ItemId == "gin");
-        if (template == null || template.Icon == null) throw new InvalidOperationException("[WebCraftingShelfSetup] 공용 임시 병의 원본 진 슬롯이 없습니다.");
-        var owner = new SerializedObject(screen);
+        if (template == null || template.Icon == null) throw new InvalidOperationException("[WebCraftingShelfSetup] 복제할 진 슬롯이 없습니다.");
+        using var owner = new SerializedObject(screen);
         var anchors = owner.FindProperty("stageAnchors");
         foreach (var entry in Missing)
         {
             if (existing.Any(slot => slot.ItemId == entry.id)) continue;
+            var art = AssetDatabase.LoadAllAssetsAtPath(ArtFolder + "/" + entry.art).OfType<Sprite>().SingleOrDefault();
+            if (art == null)
+            {
+                Debug.LogWarning("[WebCraftingShelfSetup] 선반용 스프라이트가 없어 슬롯을 생성하지 않았습니다: " + entry.art);
+                continue;
+            }
             var anchor = anchors.GetArrayElementAtIndex((int)entry.stage).objectReferenceValue as Transform;
             if (anchor == null) throw new InvalidOperationException("[WebCraftingShelfSetup] 선반 앵커가 없습니다: " + entry.stage);
-            // 기존 선반 슬롯의 충돌체·윤곽선 설정을 그대로 재사용한다. 전용 아트가 준비되면 Inspector에서 교체한다.
             var slot = UnityEngine.Object.Instantiate(template, anchor, false);
             slot.name = entry.id + "Slot";
             Undo.RegisterCreatedObjectUndo(slot.gameObject, UndoLabel);
             slot.transform.localPosition = new Vector3(entry.position.x, entry.position.y, template.transform.localPosition.z);
             slot.transform.localScale = Vector3.one;
             slot.gameObject.SetActive(true);
-            var labelObject = new GameObject("ItemNameText", typeof(RectTransform), typeof(TextMeshPro));
-            Undo.RegisterCreatedObjectUndo(labelObject, UndoLabel);
-            labelObject.layer = slot.gameObject.layer;
-            labelObject.transform.SetParent(slot.transform, false);
-            var label = labelObject.GetComponent<TextMeshPro>();
-            label.font = font;
-            label.fontSize = .8f;
-            label.enableAutoSizing = false;
-            label.richText = false;
-            label.raycastTarget = false;
-            label.textWrappingMode = TextWrappingModes.NoWrap;
-            label.alignment = TextAlignmentOptions.Center;
-            label.text = entry.name;
-            label.color = Color.white;
-            label.rectTransform.sizeDelta = new Vector2(.76f, .2f);
-            label.rectTransform.localPosition = new Vector3(0, template.Icon.bounds.min.y - .14f, -.05f);
-            var sprite = slot.GetComponent<SpriteRenderer>();
-            label.renderer.sortingLayerID = sprite.sortingLayerID;
-            label.renderer.sortingOrder = sprite.sortingOrder + 1;
-            var serialized = new SerializedObject(slot);
+            var renderer = slot.GetComponent<SpriteRenderer>();
+            renderer.sprite = art;
+            var collider = slot.GetComponent<BoxCollider2D>();
+            collider.size = new Vector2(entry.stage == Stage.Fridge ? .93f : .57f, entry.hitHeight);
+            collider.offset = entry.hitOffset;
+            using var serialized = new SerializedObject(slot);
             serialized.FindProperty("itemId").stringValue = entry.id;
             serialized.FindProperty("stage").enumValueIndex = (int)entry.stage;
-            serialized.FindProperty("itemNameLabel").objectReferenceValue = label;
             serialized.ApplyModifiedProperties();
             existing.Add(slot);
         }

@@ -94,10 +94,34 @@ public sealed class WebCraftingAlignmentTests
             Assert.That(Slots(screen).Length, Is.EqualTo(count));
             Assert.That(cranberry.transform.localPosition, Is.EqualTo(edited));
             foreach (var pair in originals.Where(p => p.Key != cranberry)) Assert.That(pair.Key.transform.localPosition, Is.EqualTo(pair.Value));
-            foreach (string id in new[] { "cranberry_juice", "triple_sec", "kahlua", "milk", "amaretto", "wild_dog", "bitters", "sugar_cube" })
-                Assert.That(Slots(screen).Single(s => s.ItemId == id).GetComponentInChildren<TMPro.TMP_Text>(true), Is.Not.Null, id);
+            foreach (var slot in Slots(screen).Where(s => s.ItemStage is CraftPrepStageScreen.Stage.Liquor or CraftPrepStageScreen.Stage.Fridge))
+                Assert.That(slot.GetComponentInChildren<TMPro.TMP_Text>(true), Is.Null, slot.ItemId);
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+
+    [TestCase("gin", "gin.png", -2.06f, .75f)]
+    [TestCase("triple_sec", "triple_sec.png", -.88f, -1.29f)]
+    [TestCase("kahlua", "kahlua.png", -.29f, -1.29f)]
+    [TestCase("amaretto", "amaretto.png", .30f, -1.29f)]
+    [TestCase("cola", "item-cola.png", -2.40f, 1.08f)]
+    [TestCase("beer", "item-beer.png", -3.35f, -1.32f)]
+    [TestCase("cranberry_juice", "cranberry_juice.png", 1.40f, -1.32f)]
+    [TestCase("milk", "milk.png", 2.35f, -1.32f)]
+    public void IngredientShelfUsesWebSpritesAndRowAnchors(string id, string art, float centerX, float baselineY)
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(WebCraftingShelfSetup.PrefabPath);
+        var screen = prefab.GetComponent<CraftPrepStageScreen>();
+        var slot = Slots(screen).Single(s => s.ItemId == id);
+        Assert.That(Path.GetFileName(AssetDatabase.GetAssetPath(slot.Icon)), Is.EqualTo(art));
+
+        var anchors = (Transform[])typeof(CraftPrepStageScreen).GetField("stageAnchors",
+            BindingFlags.Instance | BindingFlags.NonPublic).GetValue(screen);
+        var collider = slot.GetComponent<BoxCollider2D>();
+        var bottomCenter = slot.transform.TransformPoint(collider.offset - Vector2.up * (collider.size.y / 2f));
+        var local = anchors[(int)slot.ItemStage].InverseTransformPoint(bottomCenter);
+        Assert.That(local.x, Is.EqualTo(centerX).Within(.001f));
+        Assert.That(local.y, Is.EqualTo(baselineY).Within(.001f));
     }
 
     [Test]

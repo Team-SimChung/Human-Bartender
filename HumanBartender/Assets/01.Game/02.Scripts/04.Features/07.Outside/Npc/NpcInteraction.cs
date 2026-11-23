@@ -164,6 +164,8 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
     [SerializeField] private string beforeCommitIdleState;
     [Tooltip("완료 조건이 참일 때 재생할 Animator 상태. 위 완료 조건(committedCondition)을 함께 설정합니다.")]
     [SerializeField] private string afterCommitIdleState;
+    [Tooltip("완료 후 대표 Actor가 처음 배치된 위치에서 이동할 거리입니다. 0이면 현재 위치를 유지합니다.")]
+    [SerializeField] private Vector2 afterCommitPositionOffset;
     [Tooltip("완료 전 대기 모션을 간격을 두고 재생할 때 연결합니다. 상호작용 시작·완료·숨김 시 자동으로 멈춥니다.")]
     [SerializeField] private RandomIdleAnimation beforeCommitIdlePlayback;
     private string appliedIdleState;
@@ -343,13 +345,20 @@ public sealed class NpcInteraction : MonoBehaviour, IWorldInteractionParticipant
         SetPresence(actor, present && actorVisibleOutsideSession && conditions.CheckRequired(actorPresenceCondition));
         foreach (var binding in additionalActors)
             SetPresence(binding.actor, present && binding.visibleOutsideSession && conditions.CheckRequired(binding.presenceCondition));
-        if (!present || !actor.IsVisible) beforeCommitIdlePlayback?.Stop();
-        if (!present || !actor.IsVisible || actor.IsBusy || interaction != null ||
+        if (!present || !actor.IsVisible)
+        {
+            beforeCommitIdlePlayback?.Stop();
+            appliedIdleState = null;
+            return;
+        }
+        if (actor.IsBusy || interaction != null ||
             string.IsNullOrWhiteSpace(beforeCommitIdleState) || string.IsNullOrWhiteSpace(committedCondition)) return;
         bool committed = conditions.CheckRequired(committedCondition);
         if (committed) beforeCommitIdlePlayback?.Stop();
         string state = committed ? afterCommitIdleState : beforeCommitIdleState;
         if (string.IsNullOrWhiteSpace(state) || appliedIdleState == state) return;
+        if (afterCommitPositionOffset != Vector2.zero)
+            actor.SetPosition(initialPositions[actor] + (committed ? (Vector3)afterCommitPositionOffset : Vector3.zero));
         actor.PlayIdleState(state);
         appliedIdleState = state;
         if (!committed && Application.isPlaying) beforeCommitIdlePlayback?.Play();

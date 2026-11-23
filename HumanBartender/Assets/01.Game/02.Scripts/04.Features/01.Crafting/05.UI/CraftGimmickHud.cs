@@ -270,7 +270,7 @@ public class CraftGimmickHud : MonoBehaviour
         rect.anchorMax = new Vector2(Mathf.Clamp01(end), rect.anchorMax.y);
     }
 
-    /// <summary>목표에 도달해 있는 동안 깜빡인다. 도달 상태가 풀리면 곧바로 끈다.</summary>
+    /// <summary>성공 표시를 요청받은 동안 깜빡인다.</summary>
     void RefreshOkMark()
     {
         if (okMark == null) return;

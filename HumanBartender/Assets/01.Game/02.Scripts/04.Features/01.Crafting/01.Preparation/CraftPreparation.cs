@@ -3,22 +3,21 @@ using System.Collections.Generic;
 /// <summary>
 /// 제조 준비 단계 하나의 상태와 판정(칵테일 제조 준비 시스템 §3.7~3.9).
 ///
-/// 준비 화면은 플레이어의 선택을 제한하지 않는다. 정답이 아닌 잔을 골라도, 도구를 안 골라도,
-/// 정답보다 많은 재료를 골라도 막지 않는다 — 오선택은 준비 단계가 아니라 마지막 계산에서 드러나야
-/// 하는 것이라, 여기서 미리 고쳐 주면 플레이어는 자기가 틀렸다는 사실 자체를 알지 못한다.
+/// 준비 화면에서는 재료 선택 상한까지 자유롭게 조합할 수 있다. 오선택은 마지막 계산에서 판정한다.
 ///
-/// 그래서 이 객체가 하는 일은 막는 것이 아니라 알려 주는 것이다. 정답 구성을 다 갖췄는지(안내),
-/// 다음으로 넘어갈 최소 조건을 채웠는지(다음 버튼), 노트를 봤으니 어디를 켤지(가이드) 세 가지다.
+/// 정답 구성과 제조 시작 조건을 확인하고, 튜토리얼에 레시피 노트 확인 여부를 알려 준다.
 ///
 /// 실제 선택값은 ActualCraft가 들고 있고 여기서 복사하지 않는다. 두 벌이 되면 어느 쪽이 진짜인지
 /// 알 수 없어진다.
 /// </summary>
 public class CraftPreparation
 {
+    private const int IngredientLimit = 8;
+
     readonly NewCocktailData cocktail;
     readonly ActualCraft actual;
 
-    /// <summary>정답 선택형 재료. 가이드 점등과 준비 완료 판정이 같은 목록을 쓴다.</summary>
+    /// <summary>준비 완료 판정에 쓰는 정답 선택형 재료.</summary>
     readonly List<string> targetIngredientIds;
 
     bool announcedReady;
@@ -48,6 +47,7 @@ public class CraftPreparation
 
     /// <summary>고른 재료를 고른 순서대로.</summary>
     public IReadOnlyList<string> IngredientIds => actual.IngredientIds;
+    public bool CanAddIngredient => IngredientIds.Count < IngredientLimit;
 
     /// <summary>이 선반 항목을 지금 고른 상태인지. 선반 칸의 선택 표시가 이걸 본다.</summary>
     public bool IsSelected(string shelfItemId)
@@ -74,13 +74,13 @@ public class CraftPreparation
     /// <summary>재료를 고르거나 이미 고른 재료라면 뺀다. 선반과 하단 트레이가 같은 동작을 쓴다.</summary>
     public void ToggleIngredient(string ingredientId)
     {
-        if (!actual.DeselectIngredient(ingredientId))
-            actual.SelectIngredient(ingredientId);
+        if (!actual.DeselectIngredient(ingredientId) && (!CanAddIngredient || !actual.SelectIngredient(ingredientId)))
+            return;
 
         Changed?.Invoke();
     }
 
-    /// <summary>레시피 노트를 한 번 열어 봤는지. 가이드 점등의 조건이다(§3.7.8).</summary>
+    /// <summary>레시피 노트 확인을 마쳤는지. 튜토리얼 진행에 사용한다.</summary>
     public bool HasReadRecipeNote { get; private set; }
 
     public CraftPreparation(NewCocktailData cocktail, ActualCraft actual)
@@ -92,34 +92,10 @@ public class CraftPreparation
         Note = RecipeNote.Build(cocktail);
     }
 
-    // ── 가이드 ──────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// 레시피 노트를 닫을 때 부른다. 이때부터 정답 오브젝트에 가이드가 켜진다.
-    /// 한 번 켜지면 다시 끄지 않는다 — 노트를 봤다는 사실이 되돌려지지 않기 때문이다.
-    /// </summary>
+    /// <summary>플레이어가 레시피 노트를 닫았음을 기록한다.</summary>
     public void MarkRecipeNoteRead()
     {
         HasReadRecipeNote = true;
-    }
-
-    /// <summary>가이드를 켤 때인지. 노트를 열어 보기 전에는 아무것도 점등하지 않는다.</summary>
-    public bool IsGuideActive => HasReadRecipeNote;
-
-    /// <summary>
-    /// 이 선반 오브젝트에 가이드를 켜야 하는지. 정답 잔·도구·선택형 재료가 대상이다.
-    ///
-    /// 가이드가 켜져 있어도 플레이어의 선택을 막지는 않는다(§3.7.8). 점등된 것 대신 다른 것을
-    /// 골라도 그대로 기록된다.
-    /// </summary>
-    public bool IsGuideTarget(string shelfItemId)
-    {
-        if (!IsGuideActive || string.IsNullOrEmpty(shelfItemId)) return false;
-
-        if (shelfItemId == cocktail.Glass) return true;
-        if (shelfItemId == cocktail.TargetToolId) return true;
-
-        return targetIngredientIds.Contains(shelfItemId);
     }
 
     // ── 진행 조건 ───────────────────────────────────────────────────────

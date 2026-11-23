@@ -129,7 +129,7 @@ public sealed class PourTargetHeightTests
         SeedAndSettle(count);
         Assert.That(Get<SphVolumeTracker>("volumeTracker").ReceivedCount, Is.EqualTo(count));
         Assert.That(Get<Transform>("targetHeightMarker").localPosition.y, Is.EqualTo(initialY));
-        Assert.That(manager.ShowOkMark, Is.True);
+        Assert.That(manager.ShowOkMark, Is.False, "완료 전에는 결과 표시를 띄우지 않는다.");
     }
 
     [Test]
@@ -228,7 +228,7 @@ public sealed class PourTargetHeightTests
         Debug.Log($"[Fixed Pour Height] target={targetMl:F2}ml, received={manager.PouredInTargetUnit:F4}{unit}, scale=({scaleX},{scaleY}), guide={initialY:F5}, body={surfaceY:F5}, error={error:F5}");
         Assert.That(error, Is.LessThan(profile.physics.spacing / scaleY));
         Assert.That(Get<Transform>("targetHeightMarker").localPosition.y, Is.EqualTo(initialY));
-        Assert.That(manager.ShowOkMark, Is.True);
+        Assert.That(manager.ShowOkMark, Is.False, "완료 전에는 결과 표시를 띄우지 않는다.");
     }
 
     [Test]
@@ -241,7 +241,7 @@ public sealed class PourTargetHeightTests
         int target = Mathf.CeilToInt(360f / Get<float>("particleVolumeMl"));
         int steps = 0;
         while (Get<SphVolumeTracker>("volumeTracker").ReceivedCount < target && steps++ < 6000) TickPour(true);
-        Assert.That(manager.ShowOkMark, Is.True);
+        Assert.That(manager.ShowOkMark, Is.False, "완료 전에는 결과 표시를 띄우지 않는다.");
         float surface = RenderedSurfaceHeight();
         Debug.Log($"[Fixed Pour Inflow] received={manager.PouredInTargetUnit:F4}oz, guide={initialY:F5}, body={surface:F5}, error={Mathf.Abs(initialY-surface):F5}");
         Assert.That(Mathf.Abs(initialY - surface), Is.LessThan(profile.physics.spacing * 1.5f));

@@ -8,7 +8,7 @@ public sealed class PourerBreakaway : MonoBehaviour
     [Header("Bottle / Resources")]
     [SerializeField] BottleTiltController bottle;
     [SerializeField] SpriteRenderer ingredientBottle;
-    [Tooltip("BottleVisual 아래에 저장한 푸어러. 윗끝을 액체 출구에 맞춘다.")]
+    [Tooltip("재료 병과 같은 Bottle Art Layout에 저장한 푸어러. 검은 띠의 아래쪽을 병 입구에 맞추고 회색 부분은 병 안으로 넣는다.")]
     [SerializeField] SpriteRenderer attachedPourer;
     [Tooltip("회전하지 않는 무대 아래에 저장한 분리 연출용 푸어러.")]
     [SerializeField] SpriteRenderer detachedPourer;
@@ -24,6 +24,12 @@ public sealed class PourerBreakaway : MonoBehaviour
     [Tooltip("분리 후 실제 입자 방출량 배율. 웹빌드의 비율(푸어러 유량 42 → 분리 후 95)의 2배다 — 푸어러 없이 병째 " +
              "쏟을 때 너무 느리다는 플레이테스트 피드백(2026-11-20)으로 올렸다. 분사 속도가 상한을 넘으면 PourManager가 줄기를 굵게 해서 낸다.")]
     [SerializeField, Min(1f)] float detachedFlowMultiplier = 2f * 95f / 42f;
+
+    [Header("Outlet Position")]
+    [Tooltip("부착된 푸어러 끝의 로컬 X 중앙에서 빼는 값. 양수면 스프라이트 기준 왼쪽으로 이동한다.")]
+    [SerializeField] private float outletInsetX;
+    [Tooltip("부착된 푸어러 끝의 로컬 Y 상단에 더하는 값. 음수면 입구 안쪽으로 이동한다.")]
+    [SerializeField] private float higtY = 0f;
 
     [Header("Attached Stream")]
     [Tooltip("푸어러가 붙어 있을 때 유입 물줄기 입자의 가로 두께. 잔 안에서 낙하 중인 입자에도 적용한다. 0.2이면 기존 두께의 20%이며 출수량과 물리는 실제 설정을 사용한다.")]
@@ -59,10 +65,6 @@ public sealed class PourerBreakaway : MonoBehaviour
     [SerializeField, Range(0f, 1f)] float detachGain = 1f;
 
     bool hasPourer;
-    bool bodyOffsetApplied;
-    Vector3 bodyRestPosition;
-    Vector3 pourerRestScale;
-    bool pourerRestScaleCaptured;
     Vector3 flightStartPosition;
     Quaternion flightStartRotation;
     Color flightColor;
@@ -86,40 +88,19 @@ public sealed class PourerBreakaway : MonoBehaviour
             attachedPourer.sprite != null && detachedPourer != null;
         if (!hasPourer) return;
 
-        // 병마다 스프라이트의 PPU·피벗이 달라도 푸어러의 윗끝과 기존 액체 출구가 일치한다.
+        // 병 그림은 움직이지 않는다. 검은 띠 아래를 실제 병 입구에 맞춰 회색 부분만 안으로 넣는다.
         Transform cap = attachedPourer.transform;
-        MatchBottlePixelScale(cap);
         Bounds bounds = attachedPourer.sprite.bounds;
-        Vector3 tip = new Vector3(bounds.center.x, bounds.max.y, 0f);
-        cap.position = bottle.BottleVisual.TransformPoint(mouthLocalPosition) - cap.TransformVector(tip);
-        attachedPourer.gameObject.SetActive(true);
-
-        // 웹빌드처럼 푸어러 길이만큼 병 그림을 내린다. 분리되면 원래 입구 위치로 돌아온다.
-        if (ingredientBottle != null && ingredientBottle.gameObject.activeSelf)
+        // 푸어러 스프라이트 피벗이 검은 띠 바로 아래다. 회색 삽입부는 이 피벗보다 아래에 있다.
+        Vector3 seat = new Vector3(bounds.center.x, 0f, 0f);
+        Vector3 mouth = bottle.BottleVisual.TransformPoint(mouthLocalPosition);
+        if (ingredientBottle != null && ingredientBottle.sprite != null && ingredientBottle.gameObject.activeSelf)
         {
-            bodyRestPosition = ingredientBottle.transform.localPosition;
-            Vector3 neck = cap.TransformVector(Vector3.up * bounds.size.y);
-            Transform parent = ingredientBottle.transform.parent;
-            ingredientBottle.transform.localPosition -= parent != null ? parent.InverseTransformVector(neck) : neck;
-            bodyOffsetApplied = true;
+            Bounds body = ingredientBottle.sprite.bounds;
+            mouth = ingredientBottle.transform.TransformPoint(new Vector3(body.center.x, body.max.y, 0f));
         }
-    }
-
-    /// <summary>
-    /// 웹은 병 그림과 푸어러를 같은 배율(4.2)로 그린다. 재료 병 그림은 PourManager가 병 크기에 맞춰 늘리므로,
-    /// 푸어러도 그 병 그림의 픽셀 크기에 맞춘다. 고정 크기로 두면 늘어난 병 위에서 점처럼 작아진다.
-    /// 재료 병 그림이 없을 때는 프리팹에 저장된 크기를 쓴다.
-    /// </summary>
-    void MatchBottlePixelScale(Transform cap)
-    {
-        if (!pourerRestScaleCaptured) { pourerRestScale = cap.localScale; pourerRestScaleCaptured = true; }
-        Sprite body = ingredientBottle != null && ingredientBottle.gameObject.activeSelf ? ingredientBottle.sprite : null;
-        if (body == null) { cap.localScale = pourerRestScale; return; }
-        float worldPerPixel = Mathf.Abs(ingredientBottle.transform.lossyScale.x) / Mathf.Max(1f, body.pixelsPerUnit);
-        float size = worldPerPixel * attachedPourer.sprite.pixelsPerUnit;
-        Vector3 parentScale = cap.parent != null ? cap.parent.lossyScale : Vector3.one;
-        cap.localScale = new Vector3(size / Mathf.Max(.0001f, Mathf.Abs(parentScale.x)),
-            size / Mathf.Max(.0001f, Mathf.Abs(parentScale.y)), 1f);
+        cap.position = mouth - cap.TransformVector(seat);
+        attachedPourer.gameObject.SetActive(true);
     }
 
     public bool UsesPourer(string ingredientId)
@@ -128,6 +109,27 @@ public sealed class PourerBreakaway : MonoBehaviour
         if (ingredientsWithoutPourer != null)
             foreach (string excluded in ingredientsWithoutPourer)
                 if (string.Equals(excluded, ingredientId, System.StringComparison.Ordinal)) return false;
+        return true;
+    }
+
+    /// <summary>푸어러 끝 또는 분리 후 병 입구를 반환한다. 푸어러를 쓰지 않는 재료는 기본 출수점을 사용한다.</summary>
+    public bool TryGetOutletWorldPosition(out Vector3 position)
+    {
+        bool attached = IsAttached;
+        var outlet = attached ? attachedPourer : ingredientBottle;
+        if (!hasPourer || outlet == null || outlet.sprite == null || !outlet.gameObject.activeSelf)
+        {
+            position = default;
+            return false;
+        }
+        Bounds bounds = outlet.sprite.bounds;
+        var localMouth = new Vector3(bounds.center.x, bounds.max.y, 0f);
+        if (attached)
+        {
+            localMouth.x -= outletInsetX;
+            localMouth.y += higtY;
+        }
+        position = outlet.transform.TransformPoint(localMouth);
         return true;
     }
 
@@ -155,7 +157,6 @@ public sealed class PourerBreakaway : MonoBehaviour
         flying = true;
         detachedPourer.gameObject.SetActive(true);
         attachedPourer.gameObject.SetActive(false);
-        RestoreBody();
         ShowFeedback();
         PlayDetachSound();
         return true;
@@ -205,12 +206,6 @@ public sealed class PourerBreakaway : MonoBehaviour
         feedbackRoot.gameObject.SetActive(false);
     }
 
-    void RestoreBody()
-    {
-        if (bodyOffsetApplied && ingredientBottle != null) ingredientBottle.transform.localPosition = bodyRestPosition;
-        bodyOffsetApplied = false;
-    }
-
     void PlayDetachSound()
     {
         if (detachClip == null || detachSource == null) return;
@@ -225,7 +220,6 @@ public sealed class PourerBreakaway : MonoBehaviour
 
     public void ResetState()
     {
-        RestoreBody();
         hasPourer = false;
         IsDetached = false;
         flying = false;

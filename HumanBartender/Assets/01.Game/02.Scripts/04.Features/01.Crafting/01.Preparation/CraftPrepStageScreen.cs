@@ -18,7 +18,8 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     [Header("World stage")]
     [SerializeField] private Camera stageCamera;
-    [SerializeField] private float cameraMoveDuration = 0.5f;
+    [Tooltip("선반을 이동하는 데 걸리는 시간(초).")]
+    [SerializeField, Min(0f)] private float cameraMoveDuration = 0.45f;
     [SerializeField] private AnimationCurve cameraEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
     [SerializeField] private Transform[] stageAnchors;
     [SerializeField] private CraftPrepShelfSlot[] slots;
@@ -39,15 +40,19 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     [SerializeField] private Button backButton;
     /// <summary>선반 데이터에 없는 병따개의 기본 표시 이름. 레시피 상세(CocktailRecipePreview)도 이 값을 기본값으로 쓴다.</summary>
     public const string DefaultBottleOpenerName = "병따개";
-    [Tooltip("선반 데이터에 없는 병따개의 표시 이름. 하단 슬롯과 레시피 버튼 목록이 같이 쓴다.")]
+    [Tooltip("선반 데이터에 없는 병따개의 표시 이름. 레시피 버튼 목록에서 쓴다.")]
     [SerializeField] private string bottleOpenerName = DefaultBottleOpenerName;
     [Header("Notice Popup")]
     [SerializeField] private TMP_FontAsset noticeFont;
     [SerializeField] private float noticeFontSize = 22f;
     private GameObject openerPopup;
+    [Header("Shelf Indicators")]
     [SerializeField] private Image[] stageIndicators;
+    [SerializeField] private Button[] stageButtons;
     [SerializeField] private Sprite inactiveIndicator;
     [SerializeField] private Sprite activeIndicator;
+    [Tooltip("선택된 스프라이트의 표시 너비. 두 스프라이트의 원본 픽셀을 같은 배율로 표시합니다.")]
+    [SerializeField, Min(1)] private int indicatorSize = 30;
 
     private readonly List<CraftPrepTrayItem> trayItems = new List<CraftPrepTrayItem>();
     private readonly List<CraftPrepChecklistEntry> checklist = new List<CraftPrepChecklistEntry>();
@@ -102,6 +107,15 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     {
         if (previousButton != null) previousButton.onClick.AddListener(Previous);
         if (nextButton != null) nextButton.onClick.AddListener(Next);
+        if (stageButtons != null)
+        {
+            for (int index = 0; index < stageButtons.Length; index++)
+            {
+                if (stageButtons[index] == null) continue;
+                int target = index;
+                stageButtons[index].onClick.AddListener(() => MoveToStage(target));
+            }
+        }
         if (recipeBrief != null && recipeBrief.Button != null) recipeBrief.Button.onClick.AddListener(ToggleRecipe);
         if (recipeCloseButton != null) recipeCloseButton.onClick.AddListener(CloseRecipe);
         if (startButton != null) startButton.onClick.AddListener(StartCraft);
@@ -171,22 +185,35 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
                     slot.SetUnavailable();
                     continue;
                 }
-                slot.Configure(this, item, preparation.IsSelected(item.Id), preparation.IsGuideTarget(item.Id));
+                slot.Configure(this, item, preparation.IsSelected(item.Id));
             }
         }
         if (hoveredSlot != null && (!hoveredSlot.isActiveAndEnabled || !CanInteract(hoveredSlot.ItemStage)))
             HideItemInfo(hoveredSlot);
         RefreshTray();
         RefreshRecipeBrief();
-        if (stageIndicators != null)
-        {
-            for (int index = 0; index < stageIndicators.Length; index++)
-                if (stageIndicators[index] != null)
-                    stageIndicators[index].sprite = index == stageIndex ? activeIndicator : inactiveIndicator;
-        }
+        RefreshStageIndicators();
         if (previousButton != null) previousButton.interactable = stageIndex > 0;
         if (nextButton != null) nextButton.interactable = stageIndex < stageAnchors.Length - 1;
         RefreshStartButton();
+    }
+
+    private void RefreshStageIndicators()
+    {
+        if (stageIndicators == null) return;
+        Sprite reference = activeIndicator != null ? activeIndicator : inactiveIndicator;
+        if (reference == null) return;
+        float scale = indicatorSize / reference.rect.width;
+        for (int index = 0; index < stageIndicators.Length; index++)
+        {
+            Image indicator = stageIndicators[index];
+            if (indicator == null) continue;
+            indicator.sprite = index == stageIndex ? activeIndicator : inactiveIndicator;
+            if (indicator.sprite == null) continue;
+            // 회색 점은 원 안쪽만 잘려 있고 선택된 점은 바깥 빛까지 포함한다.
+            Vector2 size = indicator.sprite.rect.size * scale;
+            indicator.rectTransform.sizeDelta = new Vector2(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y));
+        }
     }
 
     void Update() => RefreshStartButton();
@@ -206,7 +233,11 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         if (preparation.ToolId != null) AddTrayItem(preparation.ToolId, Stage.Tool);
         foreach (string id in preparation.IngredientIds)
             AddTrayItem(id, Stage.Liquor);
-        if (trayPlaceholder != null) trayPlaceholder.transform.SetAsLastSibling();
+        if (trayPlaceholder != null)
+        {
+            trayPlaceholder.SetActive(preparation.CanAddIngredient);
+            trayPlaceholder.transform.SetAsLastSibling();
+        }
     }
 
     private void RefreshRecipeBrief()
@@ -233,18 +264,18 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
             foreach (CraftPrepInfoHotspot hotspot in GetComponentsInChildren<CraftPrepInfoHotspot>(true))
                 if (hotspot.IsBottleOpener) { openerIcon = hotspot.Icon; break; }
             CraftPrepTrayItem openerEntry = Instantiate(trayItemPrefab, trayContent);
-            openerEntry.Bind(this, id, Stage.Tool, bottleOpenerName, openerIcon);
+            openerEntry.Bind(this, id, Stage.Tool, openerIcon);
             trayItems.Add(openerEntry);
             return;
         }
-        if (shelfData == null || !shelfData.TryGet(id, out NewShelfItemData data)) return;
+        if (shelfData == null || !shelfData.TryGet(id, out _)) return;
         Sprite icon = null;
         if (slots != null)
             foreach (CraftPrepShelfSlot slot in slots)
                 if (slot != null && slot.ItemId == id) { icon = slot.Icon; break; }
         if (icon == null && recipeVisuals != null) icon = recipeVisuals.GetIngredientSprite(id);
         CraftPrepTrayItem entry = Instantiate(trayItemPrefab, trayContent);
-        entry.Bind(this, id, stage, string.IsNullOrEmpty(data.Name.Ko) ? id : data.Name.Ko, icon);
+        entry.Bind(this, id, stage, icon);
         trayItems.Add(entry);
     }
 
@@ -290,7 +321,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     private void MoveToStage(int index)
     {
-        if (preparation == null || cameraMoving || stageAnchors == null ||
+        if (preparation == null || cameraMoving || index == stageIndex || stageAnchors == null ||
             index < 0 || index >= stageAnchors.Length || stageAnchors[index] == null) return;
 
         stageIndex = index;
@@ -312,7 +343,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
             for (float elapsed = 0f; elapsed < cameraMoveDuration;)
             {
                 cancellation.Token.ThrowIfCancellationRequested();
-                elapsed += Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
+                elapsed += Time.unscaledDeltaTime;
                 float progress = Mathf.Clamp01(elapsed / cameraMoveDuration);
                 float eased = cameraEase != null ? cameraEase.Evaluate(progress) : progress;
                 cameraTransform.position = Vector3.Lerp(start, target, eased);

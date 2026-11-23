@@ -28,6 +28,33 @@ public sealed class WorldInteractionTestEnvironmentTests
     }
 
     [Test]
+    public void OutsidePointMovementUsesTheArrivalHeightOnlyWhenChangingFloors()
+    {
+        var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/OutSide.unity");
+        try
+        {
+            var player = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Player>(true)).Single();
+            var bubi = WorldInteractionTestCatalog.FindTarget(scene, "scene:neighborhood-reveal");
+            var barDoor = WorldInteractionTestCatalog.FindTarget(scene, "source:street_bar_door");
+            var upstairs = player.GetSpawnPoint(EPlayerSpawn.Home).position;
+            var downstairs = player.GetSpawnPoint(EPlayerSpawn.Bar).position;
+
+            player.transform.position = downstairs;
+            var toBubi = HomeInteractionTestSession.GetTargetPosition(player, bubi);
+            Assert.That(toBubi, Is.EqualTo(new Vector3(bubi.transform.position.x, upstairs.y, downstairs.z)));
+            Assert.That(Vector2.Distance(toBubi, bubi.transform.position), Is.LessThan(bubi.InteractionRadius));
+
+            player.transform.position = toBubi + Vector3.up * .1f;
+            var nearby = HomeInteractionTestSession.GetTargetPosition(player, bubi);
+            Assert.That(nearby.y, Is.EqualTo(player.transform.position.y));
+
+            var toBar = HomeInteractionTestSession.GetTargetPosition(player, barDoor);
+            Assert.That(toBar, Is.EqualTo(new Vector3(barDoor.transform.position.x, downstairs.y, downstairs.z)));
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [Test]
     public void WorldScenariosRoundTripEverySupportedSceneDayAndFlowAndResetProgress()
     {
         var player = ScriptableObject.CreateInstance<PlayerDataSO>();

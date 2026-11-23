@@ -45,14 +45,10 @@ public static class PourerPrefabSetup
             }
 
             // 구조는 프리팹에 저장하고, 실행 중에는 위치·표시 상태·유량만 바꾼다.
-            var attached = NewSprite("AttachedPourer", bottle.BottleVisual, sprite, body);
-            float worldScale = 0.45f / sprite.bounds.size.y;
-            Vector3 scale = bottle.BottleVisual.lossyScale;
-            attached.transform.localScale = new Vector3(worldScale / Mathf.Abs(scale.x), worldScale / Mathf.Abs(scale.y), 1f);
+            var attached = NewSprite("AttachedPourer", body.transform.parent, sprite, body);
             var managerData = new SerializedObject(manager);
             float mouthY = managerData.FindProperty("bottleInteriorHalfExtents").vector2Value.y;
-            attached.transform.localPosition = new Vector3(-sprite.bounds.center.x * attached.transform.localScale.x,
-                mouthY - sprite.bounds.max.y * attached.transform.localScale.y, 0f);
+            // 연결 후 실행 중과 같은 부착 계산을 사용한다. 피벗 기준은 스프라이트에 저장한다.
             attached.gameObject.SetActive(false);
             var detached = NewSprite("DetachedPourer", bottle.BottleVisual.parent, sprite, body);
             detached.gameObject.SetActive(false);
@@ -93,6 +89,8 @@ public static class PourerPrefabSetup
             Set(effect, "ingredientBottle", body);
             Set(effect, "attachedPourer", attached);
             Set(effect, "detachedPourer", detached);
+            effect.BeginPour("gin", Vector3.up * mouthY);
+            effect.ResetState();
             Set(effect, "feedbackRoot", group);
             Set(effect, "feedbackText", text);
             ConnectAudio(root, effect);
@@ -116,8 +114,9 @@ public static class PourerPrefabSetup
         var body = Read<SpriteRenderer>(manager, "ingredientBottle");
         if (liquid == null || body == null) return false;
         int liquidOrder = new SerializedObject(liquid).FindProperty("sortingOrder").intValue;
-        bool changed = RaiseOrder(body, liquidOrder + 1);
-        changed |= RaiseOrder(Read<SpriteRenderer>(effect, "attachedPourer"), body.sortingOrder + 1);
+        var attached = Read<SpriteRenderer>(effect, "attachedPourer");
+        bool changed = RaiseOrder(attached, liquidOrder + 1);
+        changed |= RaiseOrder(body, attached != null ? attached.sortingOrder + 1 : liquidOrder + 1);
         changed |= RaiseOrder(Read<SpriteRenderer>(effect, "detachedPourer"), body.sortingOrder + 1);
         var silhouette = Read<BottleSilhouette>(manager, "bottleSilhouette");
         var filter = silhouette != null ? Read<MeshFilter>(silhouette, "silhouetteFilter") : null;

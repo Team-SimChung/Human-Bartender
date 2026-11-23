@@ -189,24 +189,27 @@ public static class GimmickUiPrefabSetup
             var bottle = (BottleTiltController)Read(manager, "bottle");
             var layout = new GameObject("Bottle Art Layout").transform;
             layout.SetParent(bottle.BottleVisual, false);
+            var half = data.FindProperty("bottleInteriorHalfExtents").vector2Value;
+            layout.localPosition = Vector3.up * half.y;
+            Vector3 bottleScale = bottle.BottleVisual.localScale;
+            float scaleX = Mathf.Max(.0001f, Mathf.Abs(bottleScale.x));
+            float scaleY = Mathf.Max(.0001f, Mathf.Abs(bottleScale.y));
             var go = new GameObject("Ingredient Bottle", typeof(SpriteRenderer));
             go.transform.SetParent(layout, false);
             var renderer = go.GetComponent<SpriteRenderer>();
             renderer.sortingOrder = 10;
             var catalog = (CocktailRecipeVisualCatalog)Read(manager, "bottleVisuals");
-            renderer.sprite = catalog != null ? catalog.GetIngredientSprite("beer") : null;
+            renderer.sprite = catalog != null ? catalog.GetPourBottleSprite("beer") : null;
             Set(manager, "ingredientBottle", renderer);
+            float artScale = 1f;
             if (renderer.sprite != null)
             {
-                var half = data.FindProperty("bottleInteriorHalfExtents").vector2Value;
                 var bounds = renderer.sprite.bounds;
-                Vector3 parentScale = bottle.BottleVisual.lossyScale;
-                float sx = Mathf.Max(.0001f, Mathf.Abs(parentScale.x));
-                float sy = Mathf.Max(.0001f, Mathf.Abs(parentScale.y));
-                float scale = Mathf.Min(half.x * 2f * sx / bounds.size.x, half.y * 2f * sy / bounds.size.y);
-                go.transform.localScale = new Vector3(scale / sx, scale / sy, 1f);
-                go.transform.localPosition = new Vector3(-bounds.center.x * scale / sx, half.y - bounds.max.y * scale / sy);
+                // 기존 맥주 그림에 적용되던 배율을 계산해 모든 재료의 공통 배율로 저장한다.
+                artScale = Mathf.Min(2f * half.x * scaleX / bounds.size.x, 2f * half.y * scaleY / bounds.size.y);
+                go.transform.localPosition = new Vector3(-bounds.center.x, -bounds.max.y, 0f);
             }
+            layout.localScale = new Vector3(artScale / scaleX, artScale / scaleY, 1f);
         }
         var silhouette = root.GetComponentInChildren<BottleSilhouette>(true);
         if (silhouette != null && Read(silhouette, "silhouetteFilter") == null)
