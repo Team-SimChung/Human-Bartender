@@ -6,7 +6,8 @@ using VContainer;
 
 /// <summary>
 /// 새 게임 오프닝. 플레이 안내 → 도입 컷신 → 소파에서 기상 → 크리스 통화 → 조작 안내 순서다.
-/// 실행 여부는 진행 플래그가, 안내 문구와 시간은 이 컴포넌트의 직렬화 값이, 그림은 기존 튜토리얼 오버레이가 소유한다.
+/// 실행 여부는 진행 플래그가, 플레이 안내의 문구·배치는 화면 프리팹(Canvas_PlayGuide)이 소유한다.
+/// 조작 안내 문구와 시간은 이 컴포넌트의 직렬화 값이, 그림은 기존 튜토리얼 오버레이가 소유한다.
 /// 도입 컷신 리소스가 아직 없으면 OptionalStoryCutscene 정책대로 건너뛴다.
 /// </summary>
 [DisallowMultipleComponent]
@@ -44,9 +45,8 @@ public sealed class NewGameOpening : MonoBehaviour
     [Tooltip("도입 컷씬을 불러오는 동안 쓰는 검은 배경의 그리기 순서. 실내 UI보다 높고 컷씬 캔버스(기본 200)보다 낮게 둔다.")]
     [SerializeField] private int introBackdropSortingOrder = 199;
 
-    [SerializeField] private GuidePage playGuide = new("플레이 안내",
-        "이 게임은 인물들과의 대화를 중심으로 이야기가 진행됩니다.\n대화는 E키 또는 스페이스바로 넘길 수 있습니다.",
-        "E / SPACE", 1f, 1f);
+    [Tooltip("새 게임에서 가장 먼저 띄우는 플레이 안내 화면 프리팹(Canvas_PlayGuide). 문구와 배치, 페이드 시간은 프리팹이 갖는다.")]
+    [SerializeField] private TutorialPageView playGuidePrefab;
 
     [SerializeField] private GuidePage[] controlsPages =
     {
@@ -101,16 +101,25 @@ public sealed class NewGameOpening : MonoBehaviour
         if (player == null) throw new ArgumentNullException(nameof(player));
         if (conditions == null) throw new InvalidOperationException("NewGameOpening이 주입되지 않았습니다.");
         if (!IsPending) return;
+        if (playGuidePrefab == null) throw new InvalidOperationException("[NewGameOpening] 플레이 안내 프리팹(Canvas_PlayGuide)을 연결하세요.");
 
         IntroFinished = false;
+        TutorialPageView playGuide = null;
         StoryTutorialView view = null;
         try
         {
-            view = StoryTutorialView.Create(viewPrefab, null);
             using (InteractionStateLease.Acquire(player, EInteractorState.Lock))
             {
-                await ShowAsync(view, playGuide, token);
-                await PlayIntroAsync(view, token);
+                playGuide = Instantiate(playGuidePrefab);
+                await playGuide.ShowAsync(() => DialogueAdvanceInput.PressedKey(includeInteraction: true) != null, token);
+                // 오버레이 프리팹은 배경이 켜진 채 저장돼 있어, 먼저 만들면 플레이 안내를 덮는다. 쓰기 직전에 만든다.
+                view = StoryTutorialView.Create(viewPrefab, null);
+                // 플레이 안내의 검은 배경은 도입 가림막이 덮은 뒤에 닫는다. 그 사이에 실내가 한 프레임도 보이지 않는다.
+                await PlayIntroAsync(view, () =>
+                {
+                    if (playGuide != null) Destroy(playGuide.gameObject);
+                    playGuide = null;
+                }, token);
                 await PlayFirstContactAsync(player, token);
                 foreach (var page in controlsPages) await ShowAsync(view, page, token);
                 // 안내를 닫은 키 입력이 같은 프레임에 문·TV 상호작용으로 이어지지 않게 한 프레임 뒤에 조작을 돌려준다.
@@ -121,13 +130,15 @@ public sealed class NewGameOpening : MonoBehaviour
         finally
         {
             IntroFinished = true;
+            if (playGuide != null) Destroy(playGuide.gameObject);
             if (view != null) Destroy(view.gameObject);
         }
         if (popups != null && !string.IsNullOrWhiteSpace(firstObjective))
             popups.Popup(PopupType.NewObjective, firstObjective).Forget();
     }
 
-    private async UniTask PlayIntroAsync(StoryTutorialView view, CancellationToken token)
+    /// <param name="covered">도입 가림막이 화면을 덮은 직후 같은 프레임에 부른다. 앞 화면을 닫는 데 쓴다.</param>
+    private async UniTask PlayIntroAsync(StoryTutorialView view, Action covered, CancellationToken token)
     {
         var sleep = sofaAction != null ? sofaAction.SleepAnimation : null;
         if (sleep == null) throw new InvalidOperationException("[NewGameOpening] 소파의 기상 연출을 연결하세요.");
@@ -137,6 +148,7 @@ public sealed class NewGameOpening : MonoBehaviour
         {
             await view.KeepScreenCoveredAsync(introBackdropSortingOrder, async () =>
             {
+                covered?.Invoke();
                 await OptionalStoryCutscene.PlayAsync(cutscenes, introCutsceneId, token);
                 sleep.BeginSleep();
                 sleepStarted = true;
@@ -210,6 +222,7 @@ public sealed class NewGameOpening : MonoBehaviour
     private void OnValidate()
     {
         if (viewPrefab == null) Debug.LogWarning("[NewGameOpening] View Prefab(StoryTutorialOverlay)을 연결하세요.", this);
+        if (playGuidePrefab == null) Debug.LogWarning("[NewGameOpening] Play Guide Prefab(Canvas_PlayGuide)을 연결하세요.", this);
         if (string.IsNullOrWhiteSpace(introCutsceneId)) Debug.LogWarning("[NewGameOpening] 도입 컷신 id가 비어 있습니다.", this);
         if (sofaAction == null) Debug.LogWarning("[NewGameOpening] Sofa Action(HomeSofaAction)을 연결하세요.", this);
         if (firstContact == null || hologramOpen == null || hologramClose == null)

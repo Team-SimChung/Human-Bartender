@@ -284,6 +284,7 @@ public static class OutsideStoryUnitySetup
     }
 
     const string TutorialOverlayPath = "Assets/01.Game/03.Content/08.Prefabs/03.UI/04.Tutorial/StoryTutorialOverlay.prefab";
+    const string PlayGuidePath = "Assets/01.Game/03.Content/08.Prefabs/03.UI/04.Tutorial/Canvas_PlayGuide.prefab";
 
     /// <summary>Home 씬에 새 게임 오프닝을 만들고 씬 컨텍스트에 연결한다. 이미 있으면 인스펙터 편집값을 보존한다.</summary>
     [MenuItem("Tools/Story/Set Up New Game Opening")]
@@ -308,6 +309,13 @@ public static class OutsideStoryUnitySetup
                 if (prefab.objectReferenceValue == null)
                     prefab.objectReferenceValue = AssetDatabase.LoadAssetAtPath<StoryTutorialView>(TutorialOverlayPath)
                         ?? throw new InvalidOperationException("튜토리얼 오버레이 프리팹이 없습니다: " + TutorialOverlayPath);
+                var playGuide = openingObject.FindProperty("playGuidePrefab");
+                if (playGuide.objectReferenceValue == null)
+                {
+                    playGuide.objectReferenceValue = AssetDatabase.LoadAssetAtPath<TutorialPageView>(PlayGuidePath);
+                    if (playGuide.objectReferenceValue == null)
+                        Debug.LogWarning("[NewGameOpening] 플레이 안내 프리팹이 없어 비워 둡니다: " + PlayGuidePath);
+                }
                 var sofa = openingObject.FindProperty("sofaAction");
                 if (sofa.objectReferenceValue == null)
                     sofa.objectReferenceValue = roots.SelectMany(root => root.GetComponentsInChildren<HomeSofaAction>(true)).SingleOrDefault()
