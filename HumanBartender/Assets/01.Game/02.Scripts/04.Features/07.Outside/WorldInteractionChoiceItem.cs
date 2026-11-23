@@ -24,7 +24,8 @@ public sealed class WorldInteractionChoiceItem : MonoBehaviour, IPointerEnterHan
     [SerializeField, InspectorName("거부 글자색")] private Color rejectedTextColor = new(1, .92f, .94f, 1);
     [SerializeField, InspectorName("거부 글리치 설정")] private UIChoiceGlitchSettings rejectionGlitchSettings;
     private Action selected;
-    private Action hovered;
+    // 인자: 포인터가 실제로 움직여 들어왔는지(클릭·선택 알림은 true).
+    private Action<bool> hovered;
     private readonly ChoiceTextGlitch rejectionGlitch = new();
     private string originalText;
     private string rejectionReason;
@@ -124,7 +125,7 @@ public sealed class WorldInteractionChoiceItem : MonoBehaviour, IPointerEnterHan
             ? HorizontalAlignmentOptions.Left : HorizontalAlignmentOptions.Right;
     }
 
-    public void Bind(string text, bool enabled, Action onSelected, Action onHovered, string lockReason = null)
+    public void Bind(string text, bool enabled, Action onSelected, Action<bool> onHovered, string lockReason = null)
     {
         ResetRejection();
         originalText = SingleLine(text);
@@ -147,14 +148,15 @@ public sealed class WorldInteractionChoiceItem : MonoBehaviour, IPointerEnterHan
         gameObject.SetActive(true);
     }
 
+    // UI 입력 모듈은 포인터가 멈춰 있어도 아래의 줄이 바뀌면(펼침이 끝남, 선택창 이동) 진입을 보낸다. 이때 delta가 0이다.
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (button.interactable) hovered?.Invoke();
+        if (button.interactable) hovered?.Invoke(eventData == null || eventData.IsPointerMoving());
     }
 
     public void OnSelect(BaseEventData eventData)
     {
-        if (CanSelect) hovered?.Invoke();
+        if (CanSelect) hovered?.Invoke(true);
     }
 
     public void Clear()

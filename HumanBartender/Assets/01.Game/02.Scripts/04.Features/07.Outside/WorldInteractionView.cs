@@ -323,6 +323,7 @@ public sealed class WorldInteractionView : MonoBehaviour, IDialoguePresenter, ID
 
     public void ConfirmChoice() => choices?.Confirm();
     public void MoveChoice(int direction) => choices?.MoveSelection(direction);
+    public void ScrollChoice(int direction) => choices?.ScrollSelection(direction);
 
     private void LateUpdate() => Follow();
     private void Follow()

@@ -254,10 +254,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TutorialPageView
   pageRoot: {fileID: 1926428583761597245}
   contentGroup: {fileID: 680171367709440602}
+  pages:
+  - Root: {fileID: 0}
+    InputLockSeconds: 0
   fadeInSeconds: 1.5
   fadeInEase: 4
+  fadeInOffsetX: 0
   fadeOutSeconds: 3
   fadeOutEase: 1
+  hideWhenFinished: 0
 --- !u!1 &1926428583761597245
 GameObject:
   m_ObjectHideFlags: 0

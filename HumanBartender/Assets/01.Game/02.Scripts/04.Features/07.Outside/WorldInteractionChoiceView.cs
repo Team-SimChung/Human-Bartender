@@ -42,6 +42,9 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
     [Tooltip("선택지가 나타난 뒤 확정(E·Enter·Space·클릭)을 받지 않는 시간(초). 대사를 넘기던 입력이 첫 선택지를 고르지 않게 합니다. " +
         "이 동안에도 선택 이동은 되고, 이 동안 누른 확정은 버립니다. 호출한 쪽이 따로 값을 주면(테라스) 그 값을 씁니다.")]
     [SerializeField, Min(0)] private float confirmGuardDuration = .5f;
+    [Tooltip("마우스 휠로 한 칸 옮긴 뒤 다음 휠 입력을 받기까지의 시간(초, 실제 시간). 한 번 굴린 휠이 여러 칸을 건너뛰지 않게 합니다. " +
+        "웹은 0.14초입니다. 키보드·패드 이동에는 쓰지 않습니다.")]
+    [SerializeField, Min(0)] private float wheelStepInterval = .14f;
     private readonly List<WorldInteractionChoiceItem> rows = new();
     [NonSerialized] private NewStreetOptionData[] options;
     private string[] labels;
@@ -52,6 +55,9 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
     private int visibleRows;
     private int openedFrame;
     private double confirmReadyAt;
+    private double wheelReadyAt;
+    // 마지막 선택 이동이 키보드·패드·휠이었는지. 멈춘 포인터 아래로 줄이 온 진입이 그 선택을 되돌리지 않게 한다.
+    private bool movedByKeys;
     private int revision;
     private bool english;
     private bool rightSide = true;
@@ -132,6 +138,8 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
         english = language == ELanguage.En;
         // 새 선택창마다 한 번만 시작한다. 거부 표시·좌우 전환은 보호 시간을 다시 시작하지 않는다.
         confirmReadyAt = Time.realtimeSinceStartupAsDouble + Mathf.Max(0, confirmGuard ?? confirmGuardDuration);
+        // 웹처럼 새 선택창은 휠 간격을 새로 센다.
+        wheelReadyAt = 0;
         MeasureRows();
         moneyLabel.gameObject.SetActive(showMoney && money.HasValue);
         moneyLabel.text = money.HasValue ? (english ? $"Money {money.Value:N0}" : $"소지금 {money.Value:N0}원") : "";
@@ -206,7 +214,7 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
             // 원문과 사유 중 긴 문구를 기준으로 같은 항목 폭을 확보한다.
             row.Rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, widths[index]);
             row.Bind(labels[index], options[index].Selectable != false,
-                () => ConfirmChoice(index, version), () => Focus(index), lockReasons[index]);
+                () => ConfirmChoice(index, version), pointerMoved => Hover(index, pointerMoved), lockReasons[index]);
             // 목록에서 높이를 읽기 전에 글자 칸의 레이아웃을 계산한다.
             LayoutRebuilder.ForceRebuildLayoutImmediate(row.Rect);
         }
@@ -217,6 +225,7 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
         // 목록이 좁아도 소지금은 프리팹의 Money Text 폭 아래로 줄이지 않는다(한 줄 유지).
         moneyLabel.rectTransform.sizeDelta = new Vector2(Mathf.Max(listWidth, authoredMoneyWidth), moneyHeaderHeight);
         selectedRow = -1;
+        movedByKeys = false;
         ApplySide();
         Move(1);
         revealElapsed = 0;
@@ -250,6 +259,26 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
     {
         if (!IsOpen || direction == 0) return;
         Move(direction > 0 ? 1 : -1);
+        movedByKeys = true;
+    }
+
+    // 마우스 휠 이동. 한 번에 한 칸이고, Wheel Step Interval 안에 들어온 휠은 버린다(웹 world-choices.js wheel).
+    public void ScrollSelection(int direction)
+    {
+        if (!IsOpen || direction == 0) return;
+        double now = Time.realtimeSinceStartupAsDouble;
+        if (now < wheelReadyAt) return;
+        wheelReadyAt = now + wheelStepInterval;
+        MoveSelection(direction);
+    }
+
+    // 펼침이 끝나거나 선택창이 움직여 멈춘 포인터 아래로 줄이 온 경우에는 키보드·휠로 고른 줄을 되돌리지 않는다
+    // (웹 world-choices.js: 멈춘 포인터 아래의 다시 그리기가 키보드 선택을 되돌리면 안 됨).
+    private void Hover(int index, bool pointerMoved)
+    {
+        if (!pointerMoved && movedByKeys) return;
+        movedByKeys = false;
+        Focus(index);
     }
 
     public void Confirm()

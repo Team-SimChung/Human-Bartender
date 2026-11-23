@@ -4138,23 +4138,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 719f6cf44c2fea7498a79d890e68cd2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewGameOpening
-  viewPrefab: {fileID: 5872889954386708028, guid: 166b3dd3ed35f406c9d7bf8926c7dde4, type: 3}
   introCutsceneId: tl_intro
-  introBackdropSortingOrder: 199
   playGuidePrefab: {fileID: 3060865711479959801, guid: f3021965c8fd07a4fa6336e7d9031d7d, type: 3}
-  controlsPages:
-  - Title: "\uC774\uB3D9 \xB7 \uB2EC\uB9AC\uAE30"
-    Body: "A\uC640 D\uB97C \uB20C\uB7EC \uC774\uB3D9\uD569\uB2C8\uB2E4.\nShift\uB97C
-      \uB204\uB978 \uCC44 \uC774\uB3D9\uD558\uBA74 \uB2EC\uB9BD\uB2C8\uB2E4."
-    Footer: "1 / 2 \xB7 E\uD0A4\uB97C \uB20C\uB7EC \uC9C4\uD589"
-    InputLockSeconds: 2
-    ShadeAlpha: 0.72
-  - Title: "\uC0C1\uD638\uC791\uC6A9"
-    Body: "E\uD0A4\uB97C \uB20C\uB7EC \uC624\uBE0C\uC81D\uD2B8\uB098 \uB2E4\uB978
-      \uC778\uBB3C\uB4E4\uACFC \uC0C1\uD638\uC791\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
-    Footer: "2 / 2 \xB7 E\uD0A4\uB97C \uB20C\uB7EC \uC9C4\uD589"
-    InputLockSeconds: 0.3
-    ShadeAlpha: 0.72
+  controlsTutorialPrefab: {fileID: 2270473564744631451, guid: 1104620c8002eaa4a9a9cf6ec7d45426, type: 3}
+  guidePopupSound: SFX_controls_popup
   firstObjective: "\uCCAB \uCD9C\uADFC\uD558\uAE30!"
   sofaAction: {fileID: 319687453}
   wakeUpDelay: 1.4
@@ -4162,8 +4149,9 @@ MonoBehaviour:
   dressingSound: SFX_change_clothes
   dressingDuration: 2.59
   firstContact: {fileID: 8200000003}
+  choiceTutorialPrefab: {fileID: 2317990525720879493, guid: 915bff279c9ee3f45ade9088e52ab1bf, type: 3}
   hologramOpen: {fileID: 8200000008}
-  hologramOpenDuration: 0.9
+  hologramOpenDuration: 1.2
   hologramClose: {fileID: 8200000011}
   hologramCloseDuration: 0.45
 --- !u!4 &1151750649
