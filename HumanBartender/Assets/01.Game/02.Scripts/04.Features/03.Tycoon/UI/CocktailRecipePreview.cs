@@ -20,6 +20,8 @@ public sealed class CocktailRecipePreview : MonoBehaviour
     [SerializeField] private RectTransform ingredientList;
     [SerializeField] private RecipeIngredientCell ingredientPrefab;
     [SerializeField] private NewShelfItemDataSO shelfData;
+    [Tooltip("선반 데이터에 없는 병따개 칸의 이름(마우스를 올리면 보이는 이름). 병을 따야 하는 재료가 있는 레시피에만 칸이 생긴다.")]
+    [SerializeField] private string bottleOpenerName = CraftPrepStageScreen.DefaultBottleOpenerName;
 
     [Header("Scrollable layout")]
     [SerializeField] private ScrollRect scrollRect;
@@ -164,10 +166,21 @@ public sealed class CocktailRecipePreview : MonoBehaviour
         AddRequiredItem(cocktail.TargetToolId, visuals, added);
         if (cocktail.Recipe == null) return;
 
+        // 웹 bar-views.js와 같이 잔 → 믹스 도구 → 병따개 → 재료 순이다. 병을 따야 하는 재료가 있을 때만 병따개를 넣는다.
+        if (RequiresBottleOpener(cocktail.Recipe)) AddRequiredItem(NewToolIds.BottleOpener, visuals, added);
+
         foreach (NewCocktailRecipeStep step in cocktail.Recipe)
         {
             AddRequiredItem(step.Ingredient, visuals, added);
         }
+    }
+
+    private bool RequiresBottleOpener(NewCocktailRecipeStep[] recipe)
+    {
+        if (shelfData == null) return false;
+        foreach (NewCocktailRecipeStep step in recipe)
+            if (shelfData.RequiresOpen(step.Ingredient)) return true;
+        return false;
     }
 
     private void AddRequiredItem(string id, CocktailRecipeVisualCatalog visuals, HashSet<string> added)
@@ -179,8 +192,8 @@ public sealed class CocktailRecipePreview : MonoBehaviour
     private void AddIngredient(string id, CocktailRecipeVisualCatalog visuals)
     {
         Sprite sprite = visuals != null ? visuals.GetIngredientSprite(id) : null;
-        string name = shelfData != null && shelfData.TryGet(id, out NewShelfItemData item)
-            ? item.Name.Ko : id;
+        string name = id == NewToolIds.BottleOpener ? bottleOpenerName
+            : shelfData != null && shelfData.TryGet(id, out NewShelfItemData item) ? item.Name.Ko : id;
         RecipeIngredientCell cell = Instantiate(ingredientPrefab, ingredientList);
         cell.Bind(sprite, name, this);
         ingredientCells.Add(cell);

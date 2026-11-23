@@ -47,7 +47,6 @@ internal sealed class HomeInteractionTestScenario
         var flags = new Dictionary<string, bool>(StringComparer.Ordinal)
         {
             ["opening_seen"] = !Opening,
-            ["workshop_seen"] = Day > 1,
             ["boobi_adopted"] = false,
             ["boobi_rest_seen"] = false,
             ["gang_wild_dog_received"] = false,
@@ -111,12 +110,9 @@ internal static class HomeInteractionTestScenarios
         new HomeInteractionTestScenario("night-day0", "0일차 · 테라스와 다음 날",
             "소파에서 수면을 고르면 night0와 회상을 재생한 뒤 1일차 아침으로 돌아갑니다. 퇴근 TV도 수동 시청할 수 있습니다.",
             0, EGameFlow.CommuteOut, "home_sofa", new[] { "night0" }),
-        new HomeInteractionTestScenario("night-day1", "1일차 · 작업장 → 테라스",
-            "소파의 수면에서 workshop 다음 night1 순서와 테라스 진입 이동을 확인합니다. 1일차 수동 TV도 이 상황에서 확인합니다.",
-            1, EGameFlow.CommuteOut, "home_sofa", new[] { "workshop", "night1" }),
-        new HomeInteractionTestScenario("terrace-day1", "1일차 · 테라스만 반복",
-            "작업장만 완료한 상태입니다. 소파 수면으로 night1과 Terrace의 로컬 X 진입 이동부터 확인합니다.",
-            1, EGameFlow.CommuteOut, "home_sofa", new[] { "night1" }, flags: Flags("workshop_seen")),
+        new HomeInteractionTestScenario("night-day1", "1일차 · 테라스",
+            "소파의 수면에서 night1만 재생되는지와 Terrace의 로컬 X 진입 이동을 확인합니다. 1일차 수동 TV도 이 상황에서 확인합니다.",
+            1, EGameFlow.CommuteOut, "home_sofa", new[] { "night1" }),
         new HomeInteractionTestScenario("night-day2", "2일차 · 조니 기억 획득",
             "와일드 독·비터스는 있고 조니의 기억은 미확인입니다. night2의 기억 재생이 성공하면 다음 날로 진행됩니다.",
             2, EGameFlow.CommuteOut, "home_sofa", new[] { "night2" },
@@ -143,7 +139,7 @@ internal static class HomeInteractionTestScenarios
         new HomeInteractionTestScenario("cat-first-rest", "부비 · 입양 후 첫 취침",
             "1일차 야간 이야기는 완료한 상태입니다. 소파 수면에서 부비·크리스 휴식 대화와 등장·퇴장만 분리해 확인합니다.",
             1, EGameFlow.CommuteOut, "home_sofa", new[] { "neighborhood-rest" },
-            flags: Flags("boobi_adopted", "workshop_seen", "home_night1_seen")),
+            flags: Flags("boobi_adopted", "home_night1_seen")),
         new HomeInteractionTestScenario("bed-inspection", "침대 · 혼잣말 / 반복",
             "침대 앞에서 E로 기존 혼잣말을 읽고 종료한 뒤 다시 조사합니다. 가까운 옷장·현관과 대상 선택도 확인합니다.",
             0, EGameFlow.CommuteIn, "home_bed", new[] { "home-bed" }),
@@ -158,7 +154,7 @@ internal static class HomeInteractionTestScenarios
             2, EGameFlow.CommuteOut, "home_book", new[] { "home-bed", "home-wardrobe", "home-book" }),
         new HomeInteractionTestScenario("sofa-menu", "소파 · 저장 / 취소 / 수면",
             "야간 이야기가 완료된 귀가 상태입니다. 저장 슬롯 페이지·취소, 소파에서 잠들기와 다음 날 역재생 기상을 바로 확인합니다. 부비는 입양 전이라 숨겨집니다.",
-            1, EGameFlow.CommuteOut, "home_sofa", flags: Flags("workshop_seen", "home_night1_seen"))
+            1, EGameFlow.CommuteOut, "home_sofa", flags: Flags("home_night1_seen"))
     });
 
     internal static HomeInteractionTestScenario Find(string id) =>

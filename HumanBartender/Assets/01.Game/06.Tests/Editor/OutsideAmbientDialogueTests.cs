@@ -305,7 +305,7 @@ public sealed class OutsideAmbientDialogueTests
         Assert.That(env.foreground.TryResolve(target, out var story), Is.True);
         Assert.That(new WorldProximityEntry().CanStart(story.Id, 0f, story.Radius, .2f), Is.True);
         Assert.That(env.ambient.IsPaused, Is.False);
-        env.player.State = EInteractorState.ForceMove;
+        env.player.State = EInteractorState.Interct; // 일반 엘리베이터 탑승의 입력 잠금 상태
         Assert.That(env.ambient.IsPaused, Is.True, "일반 엘리베이터 탑승 정지 규칙 유지");
         env.player.State = EInteractorState.None;
         Assert.That(env.ambient.IsPaused, Is.False);

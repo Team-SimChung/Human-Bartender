@@ -807,20 +807,19 @@ public sealed class WorldInteractionController : MonoBehaviour
                     }
                 }
             }
-            foreach (var story in stories.Values.OrderBy(StoryOrder))
+            // 웹(day-flow.js playSleepScenes)처럼 그날의 테라스 대본 하나만 잇는다. 조건이 맞는 다른 수동 Home 대본은 재생하지 않는다(QA-15).
+            if (homeTerrace == null)
+                Debug.LogError("[WorldInteraction] Home의 HomeTerracePresentation이 연결되지 않아 취침 테라스 대본을 건너뜁니다.", this);
+            else if (WorldInteractionSceneRules.TrySelectSleepStory(stories, homeTerrace.GetStoryIdForDay(state.CurrentDay),
+                gameObject.scene.name, state.CurrentDay, state.GameFlow, conditions, out var story))
             {
-                if (OutsideStorySceneRules.IsNativeEntry(story.Id) || story.StartMode != ENewSceneTrigger.Manual ||
-                    !WorldInteractionSceneRules.IsEligible(story, gameObject.scene.name, state.CurrentDay, state.GameFlow, conditions)) continue;
-                bool terraceStory = homeTerrace != null && homeTerrace.ContainsStory(story.Id);
                 view.EndScene();
-                if (terraceStory) await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? state.CurrentDay);
-                else if (homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, token);
-                if (terraceStory) BeginTerraceView(activeTarget);
-                else view.Begin(activeTarget, player.transform, player.transform, speakers: sessionActors?.Speakers);
+                await homeTerrace.EnterAsync(sceneFades, token, story.Id, story.Day ?? state.CurrentDay);
+                BeginTerraceView(activeTarget);
                 runner.Bind(view);
                 var result = await runner.PlayOutsideAsync(story.Steps, token, PlayTimelineAsync,
                     playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync,
-                    onStepStarted: terraceStory ? homeTerrace.OnStepStarted : null);
+                    onStepStarted: homeTerrace.OnStepStarted);
                 if (result.Status == StoryExecutionStatus.Cancelled) throw new OperationCanceledException(token);
                 if (!result.Completed) throw new InvalidOperationException(result.Error);
                 if (!string.IsNullOrEmpty(story.CompletionFlag)) conditions.ApplyRequired("flag." + story.CompletionFlag + " = true");
@@ -840,7 +839,6 @@ public sealed class WorldInteractionController : MonoBehaviour
         if (homeTerrace != null) await homeTerrace.ExitAsync(sceneFades, token);
     }
 
-    private static int StoryOrder(NewSceneData story) => story.Seq;
     private void ReportFailure(Exception error)
     {
         if (error is not OperationCanceledException) Debug.LogException(error, this);

@@ -1077,7 +1077,7 @@ MonoBehaviour:
   storySceneId: neighborhood-reveal
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.4
+  interactionRadius: 0.4
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uC0C1\uD638\uC791\uC6A9"
@@ -2845,7 +2845,7 @@ MonoBehaviour:
   storySceneId: neighborhood-repairGreeting
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.4
+  interactionRadius: 0.4
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uC218\uB9AC\uACF5"
@@ -3765,7 +3765,7 @@ MonoBehaviour:
   storySceneId: shiba-shop-revisit
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.5
+  interactionRadius: 0.45
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uC2DCBAR \xB7 \uC7AC\uB8CC \uAD6C\uB9E4"
@@ -14281,7 +14281,7 @@ MonoBehaviour:
   storySceneId: outside_shiba_wanted_inspect
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.5
+  interactionRadius: 0.45
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uBCF4\uAE30"
@@ -15232,7 +15232,7 @@ MonoBehaviour:
   storySceneId: 
   content: {fileID: 868482191}
   startMode: 0
-  interactionRadius: 1.5
+  interactionRadius: 0.45
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uD1F4\uADFC"
@@ -16526,7 +16526,7 @@ MonoBehaviour:
   storySceneId: 
   content: {fileID: 917009663}
   startMode: 0
-  interactionRadius: 1.5
+  interactionRadius: 0.42
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uCD9C\uADFC"
@@ -19645,7 +19645,7 @@ MonoBehaviour:
   storySceneId: neighborhood-bossIntro
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.4
+  interactionRadius: 1.1
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uAC31\uB2E8 \uB450\uBAA9"
@@ -21997,6 +21997,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1213701203}
   - component: {fileID: 1213701204}
+  - component: {fileID: 1213701205}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -22078,6 +22079,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1213701205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1213701202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1213701204}
+  fadeSpeed: 8
 --- !u!1 &1225768648
 GameObject:
   m_ObjectHideFlags: 0
@@ -22310,7 +22325,7 @@ MonoBehaviour:
   storySceneId: shiba-shop
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.5
+  interactionRadius: 0.45
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uC2DCBAR \xB7 \uC7AC\uB8CC \uAD6C\uB9E4"
@@ -25259,7 +25274,7 @@ MonoBehaviour:
   storySceneId: day2-thug-information
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.5
+  interactionRadius: 0.4
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uBD88\uB7C9\uBC30 \xB7 \uC815\uBCF4 \uAD6C\uB9E4"
@@ -32499,7 +32514,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -32640,7 +32655,7 @@ MonoBehaviour:
   storySceneId: outside_elevator
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.2
+  interactionRadius: 0.8
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uD0D1\uC2B9"
@@ -33481,7 +33496,7 @@ MonoBehaviour:
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: 0}
   inspectionImage: {fileID: 0}
-  highlight: {fileID: 0}
+  highlight: {fileID: 1213701205}
   cutsceneSequence: {fileID: 0}
   timelines: []
   optionalTimelineIds: []
@@ -46229,7 +46244,7 @@ MonoBehaviour:
   storySceneId: neighborhood-guardBlocked
   content: {fileID: 0}
   startMode: 0
-  interactionRadius: 1.4
+  interactionRadius: 0.45
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uACBD\uBE44\uC6D0"

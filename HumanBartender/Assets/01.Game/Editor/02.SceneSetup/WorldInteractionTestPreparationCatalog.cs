@@ -25,7 +25,7 @@ internal static class WorldInteractionTestPreparationCatalog
         ["경비·보스"] = new[] { "gang_pass_granted", "gang_boss_met", "gang_wild_dog_received", "shiba_bought_wild_dog", "gang_wild_dog_paid", "gang_wild_dog_repair_promised", "gang_wild_dog_repeat_deal", "elevator_repaired" },
         ["불량배·정보"] = new[] { "day1_thug_done", "day1_thug_choice", "day2_thug_done" },
         ["TV"] = new[] { "tv_news_d0_seen", "tv_news_d1_seen", "tv_news_d2_seen", "tv_news_d3_seen" },
-        ["취침·엔딩"] = new[] { "home_night0_seen", "home_night1_seen", "home_night2_seen", "home_night3_seen", "workshop_seen",
+        ["취침·엔딩"] = new[] { "home_night0_seen", "home_night1_seen", "home_night2_seen", "home_night3_seen",
             "gang_wild_dog_received", "shiba_bought_wild_dog", "shiba_bought_bitters", "campaign_observation", "samho_death_route", "boobi_adopted", "boobi_rest_seen" }
     };
 
@@ -67,10 +67,7 @@ internal static class WorldInteractionTestPreparationCatalog
             string group = GroupFor(source.FocusId);
             var flags = Flags(group, Array.Empty<string>());
             if (group == "취침·엔딩")
-            {
-                flags["workshop_seen"] = source.Day > 1;
                 for (int day = 0; day <= 3; day++) flags["home_night" + day + "_seen"] = day < source.Day;
-            }
             foreach (var pair in source.FlagOverrides) flags[pair.Key] = pair.Value;
             result.Add(new Preparation(group, new HomeInteractionTestScenario(Prefix + source.Id, source.Name, source.Description,
                 source.Day, source.Flow, source.FocusId, source.ExpectedStories, flags: flags, runtimeScene: source.RuntimeScene, money: source.Money)));

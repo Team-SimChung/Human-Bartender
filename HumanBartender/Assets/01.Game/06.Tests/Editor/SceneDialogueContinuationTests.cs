@@ -212,7 +212,8 @@ public sealed class SceneDialogueContinuationTests
             Assert.That(sharedPlayer.CheckFlag("boobi_feeding_pending"), Is.True);
             Assert.That(context.Player.State, Is.EqualTo(EInteractorState.None));
         }
-        context.Player.transform.position = cat.transform.position + Vector3.right * .5f;
+        // 박스의 상호작용 반경(0.4, QA-43) 안에서 실행한다.
+        context.Player.transform.position = cat.transform.position + Vector3.right * .3f;
         yield return null;
         dialogueFinished = false;
         source.PlayAsync(cat).ContinueWith(result => { dialogueResult = result; dialogueFinished = true; }).Forget();
