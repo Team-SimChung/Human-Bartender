@@ -15,6 +15,15 @@ public class SlotCameraOption
 /// <summary>
 /// Play(Bar) 씬 전용 카메라 슬롯 전환기. CameraControllerNew(cameraZoom)를 통해 cameraAnchor를
 /// 슬롯별 Transform(cameraParent)의 자식으로 붙이고 오프셋을 전환시킨다. OutsideCamera와 동일한 패턴.
+///
+/// 여기서 옮기는 것은 가로 위치뿐이고 cameraAnchor의 y는 늘 0이다. 세로 구도는 CM_GamePlay의
+/// Position Composer가 렌즈 크기를 읽어 잡는다 — 카메라 중심 y = Target Offset y + 2·ortho·Screen Position y.
+/// 두 값은 양 끝 화면을 직선으로 잇는다.
+/// - 960×540(ortho 2.7): 중심 y 0.265. 바 테이블 윗선(배경 위에서 500px)이 화면 높이의 534/720(웹 bar-views.js cameraLayout).
+/// - 1280×720(ortho 3.6): 중심 y 0.36. 화면 위쪽이 배경 위쪽 끝에 맞닿는다(QA 시안). 웹 규칙대로면 배경 위로 34px 넘어간다.
+/// 그 사이는 직선이라 줌 내내 위·아래·좌·우 가장자리가 같은 비율로 움직이고, Confiner2D에 걸리지 않는다.
+/// 1280×720에서 테이블 윗선만 맞추고 위쪽을 Confiner로 멈추면 줌 3/4 지점에서 위쪽이 먼저 멈춰, 세로가 먼저
+/// 끝나고 가로가 뒤따르는 것처럼 보인다. 그래서 끝 화면 값도 Confiner 한계(0.36)를 넘지 않게 잡았다.
 /// </summary>
 public class PlayCamera : MonoBehaviour, ISlotCamera
 {
@@ -33,6 +42,7 @@ public class PlayCamera : MonoBehaviour, ISlotCamera
 
     public ESlotType SelectedSeat => SlotOrder[_currentSlotIndex];
     public bool IsMoving => cameraZoom.IsMoving;
+    public AnimationCurve Ease => ease;
     public event System.Action SelectedSeatChanged;
 
     private void Awake() => EnsureSlots();

@@ -16,4 +16,10 @@ public interface ISlotCamera
     /// </summary>
     public void MoveToX(float worldX, float dur = 1f);
     UniTask MoveToXAsync(float worldX, float dur = 1f, CancellationToken token = default);
+
+    /// <summary>
+    /// 자리 사이를 옮길 때 쓰는 곡선. 같은 전환에서 줌도 이 곡선을 따라야 위치와 화각이 한 덩어리로 움직인다
+    /// (웹은 카메라 transform 하나를 같은 곡선으로 옮긴다).
+    /// </summary>
+    UnityEngine.AnimationCurve Ease { get; }
 }

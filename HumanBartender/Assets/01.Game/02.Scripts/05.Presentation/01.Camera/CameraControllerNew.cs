@@ -56,8 +56,13 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     [Header("Transition")]
     [SerializeField] private float defaultTransitionDuration = 1f;
     [SerializeField] private AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    [Tooltip("줌 도중 Pixel Perfect 렌더 크기를 고정하고 Cinemachine 렌즈만 움직인다.")]
+    [Tooltip("켜면 줌 도중과 끝난 뒤에도 Pixel Perfect 기준 해상도를 바꾸지 않고 Cinemachine 렌즈만 움직인다. " +
+             "CinemachinePixelPerfect가 렌즈를 기준 해상도의 정수배 화각으로 되돌리므로, 기준과 정수배가 아닌 " +
+             "줌(960×540↔1280×720 등)은 화면에 나타나지 않는다. Play·Home·OutSide 모두 끈 상태로 쓴다.")]
     [SerializeField] private bool keepRenderResolutionDuringZoom;
+    [Tooltip("켜면 줌도 위치 이동처럼 한 프레임에 1/30초까지만 진행한다. 캐릭터 리소스를 불러온 직후의 긴 프레임에서 " +
+             "줌만 앞서 튀지 않고 이동과 같은 걸음으로 끝난다. 줌과 이동을 같은 시간·곡선으로 함께 거는 Play 2부에서 켠다.")]
+    [SerializeField] private bool limitZoomFrameStep;
 
     // 캐릭터 리소스 로드 직후 한 프레임이 길어져도 0.8초 이동이 한두 프레임에 끝나지 않게 한다.
     const float MaxTransitionStep = 1f / 30f;
@@ -233,6 +238,13 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
         finally { if (ReferenceEquals(offset, source)) offset = null; }
     }
 
+    /// <summary>그 줌 프리셋에서 렌즈가 갖는 Orthographic Size. 화면은 바꾸지 않고 값만 돌려준다.</summary>
+    public float GetOrthographicSize(ECameraZoomType zoomType)
+    {
+        EnsureCamera();
+        return ResToOrthoSize(GetResolution(zoomType));
+    }
+
     public void ActionZoom(ECameraZoomType zoomType = ECameraZoomType.Base) => ApplyResolutionImmediate(GetResolution(zoomType));
     public void ActionZoomAndBack(ECameraZoomType zoomType = ECameraZoomType.Base, UniTaskCompletionSource tcs = null) =>
         ActionZoomAndBackAsync(zoomType, tcs).Forget(Report);
@@ -288,7 +300,7 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
             for (float elapsed = 0; elapsed < duration;)
             {
                 source.Token.ThrowIfCancellationRequested();
-                elapsed += Time.deltaTime;
+                elapsed += limitZoomFrameStep ? Mathf.Min(Time.deltaTime, MaxTransitionStep) : Time.deltaTime;
                 var lens = vcam.Lens;
                 lens.OrthographicSize = Mathf.Lerp(start, targetSize, SafeCurve(curve).Evaluate(Mathf.Clamp01(elapsed / duration)));
                 vcam.Lens = lens;

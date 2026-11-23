@@ -234,6 +234,11 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     /// 기믹은 바에서 멀리 떨어진 자리에 놓고 그곳만 따로 찍는다. 레이어를 나누거나 메인 카메라의
     /// 설정을 건드리지 않고도 바와 완전히 분리되는 방법이라, 기믹이 늘어도 손댈 곳이 없다.
     /// 다만 화면에 담기는 크기는 같아야 원래 만든 대로 보이므로 투영값만 그때그때 복사한다.
+    ///
+    /// 화각만은 지금 메인 카메라의 값이 아니라 바 1인 화면(Sub, 960×540)의 값을 쓴다. 기믹은 그 화각에
+    /// 맞춰 만들었는데, 2부에 두 명이 앉아 바가 1280×720으로 넓어진 채 제조를 시작하면 메인 카메라의
+    /// 값을 복사하는 순간 기믹 전체가 3/4 크기로 작아진다. 바 카메라가 등록되지 않은 곳(제조 준비
+    /// 테스트 씬처럼 바가 없는 씬)에서는 메인 카메라를 그대로 따른다.
     /// </summary>
     void MatchMainCameraProjection()
     {
@@ -241,7 +246,9 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
         if (main == null) return;
 
         gimmickCamera.orthographic = main.orthographic;
-        gimmickCamera.orthographicSize = main.orthographicSize;
+        gimmickCamera.orthographicSize = resolver != null && resolver.TryResolve(out ICameraControlNew barCamera)
+            ? barCamera.GetOrthographicSize(ECameraZoomType.Sub)
+            : main.orthographicSize;
         gimmickCamera.fieldOfView = main.fieldOfView;
         gimmickCamera.nearClipPlane = main.nearClipPlane;
         gimmickCamera.farClipPlane = main.farClipPlane;
