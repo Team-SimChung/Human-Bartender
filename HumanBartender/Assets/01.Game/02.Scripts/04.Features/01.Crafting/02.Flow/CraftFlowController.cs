@@ -43,6 +43,7 @@ public class CraftFlowController : MonoBehaviour
     NewCocktailData selected;
     bool running;
     bool finishing;
+    bool preparationPlayTest;
 
     // 외부 조회: 주문 상태는 OrderRequestController에서 관리한다.
     protected virtual ICraftExecutor Executor => runner;
@@ -195,10 +196,11 @@ public class CraftFlowController : MonoBehaviour
     // 제조 가능 조건
     public string CraftBlockedReason() => CraftBlockedReason(null);
 
-    string CraftBlockedReason(CraftedDrink replacingDrink)
+    string CraftBlockedReason(CraftedDrink replacingDrink, bool skipOrderAndProgressionBlockers = false)
     {
         if (PendingDrink != null && !ReferenceEquals(PendingDrink, replacingDrink))
             return "아직 내지 않은 잔이 있습니다.";
+        if (skipOrderAndProgressionBlockers) return null;
         foreach (var blocker in blockers.ToArray())
         {
             string reason = blocker();
@@ -229,11 +231,17 @@ public class CraftFlowController : MonoBehaviour
     public bool TryBegin(string cocktailId, out CraftSession session, out string reason)
         => TryBegin(cocktailId, null, out session, out reason);
 
-    bool TryValidateBegin(string cocktailId, CraftedDrink retryDrink, out NewCocktailData cocktail, out string reason)
+#if UNITY_EDITOR
+    internal bool TryBeginPreparationPlayTest(string cocktailId, out CraftSession session, out string reason)
+        => TryBegin(cocktailId, null, out session, out reason, isPreparationPlayTest: true);
+#endif
+
+    bool TryValidateBegin(string cocktailId, CraftedDrink retryDrink, out NewCocktailData cocktail, out string reason,
+        bool isPreparationPlayTest = false)
     {
         cocktail = default;
         if (!isActiveAndEnabled) { reason = "제조 컴포넌트가 비활성 상태입니다."; return false; }
-        reason = IsBusy ? "이미 제조 또는 정리가 진행 중입니다." : CraftBlockedReason(retryDrink);
+        reason = IsBusy ? "이미 제조 또는 정리가 진행 중입니다." : CraftBlockedReason(retryDrink, isPreparationPlayTest);
         if (reason != null) return false;
         if (cocktailData == null || !cocktailData.TryGet(cocktailId, out cocktail))
         {
@@ -241,11 +249,14 @@ public class CraftFlowController : MonoBehaviour
             return false;
         }
 
-        bool isRequested = orderRequests != null && orderRequests.HasWaitingOrderForCocktail(cocktail.Id);
-        if (!CocktailUnlockPolicy.CanSelect(cocktail, GameStateManager.Instance.CurrentDay, isRequested, conditions))
+        if (!isPreparationPlayTest)
         {
-            reason = "아직 해금되지 않은 칵테일 레시피입니다.";
-            return false;
+            bool isRequested = orderRequests != null && orderRequests.HasWaitingOrderForCocktail(cocktail.Id);
+            if (!CocktailUnlockPolicy.CanSelect(cocktail, GameStateManager.Instance.CurrentDay, isRequested, conditions))
+            {
+                reason = "아직 해금되지 않은 칵테일 레시피입니다.";
+                return false;
+            }
         }
 
         if (retryDrink != null)
@@ -265,10 +276,12 @@ public class CraftFlowController : MonoBehaviour
         return true;
     }
 
-    bool TryBegin(string cocktailId, CraftedDrink retryDrink, out CraftSession session, out string reason)
+    bool TryBegin(string cocktailId, CraftedDrink retryDrink, out CraftSession session, out string reason,
+        bool isPreparationPlayTest = false)
     {
         session = null;
-        if (!TryValidateBegin(cocktailId, retryDrink, out var cocktail, out reason)) return false;
+        if (!TryValidateBegin(cocktailId, retryDrink, out var cocktail, out reason, isPreparationPlayTest)) return false;
+        preparationPlayTest = isPreparationPlayTest;
         selected = cocktail;
         Current = session = new CraftSession(cocktailId, retryDrink?.Session.OrderCocktailId);
         if (retryDrink != null)
@@ -330,7 +343,7 @@ public class CraftFlowController : MonoBehaviour
         CraftShelf.GetIngredients(shelfData, group, GameStateManager.Instance.CurrentDay, conditions);
 
     public bool IsShelfItemAvailable(NewShelfItemData item) =>
-        CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay, conditions);
+        preparationPlayTest || CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay, conditions);
 
     public bool IsRecipeSelectable(NewCocktailData cocktail, int day, bool requested) =>
         CocktailUnlockPolicy.CanSelect(cocktail, day, requested, conditions);
@@ -460,6 +473,8 @@ public class CraftFlowController : MonoBehaviour
     void Finish(CraftSession session)
     {
         var completedRequest = completionSource;
+        bool previewResult = preparationPlayTest;
+        preparationPlayTest = false;
         finishing = true;
         running = false;
         cancellation?.Dispose();
@@ -467,12 +482,20 @@ public class CraftFlowController : MonoBehaviour
         if (session.Phase == ECraftPhase.Completed)
         {
             Notify<CraftSession, CraftJudgement>(OnCraftJudged, session, Judgement);
-            PendingDrink = new CraftedDrink(session, Judgement, selected);
-            IsAwaitingServeDecision = serveScreen != null;
-            if (!IsAwaitingServeDecision || !serveScreen.TryPlay(PendingDrink))
+            var drink = new CraftedDrink(session, Judgement, selected);
+            if (previewResult)
             {
-                IsAwaitingServeDecision = false;
-                Notify(DrinkReady, PendingDrink);
+                Notify(() => serveScreen?.TryPlayPreview(drink));
+            }
+            else
+            {
+                PendingDrink = drink;
+                IsAwaitingServeDecision = serveScreen != null;
+                if (!IsAwaitingServeDecision || !serveScreen.TryPlay(PendingDrink))
+                {
+                    IsAwaitingServeDecision = false;
+                    Notify(DrinkReady, PendingDrink);
+                }
             }
             Notify(CraftCompleted, session, Judgement);
         }

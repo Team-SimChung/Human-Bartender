@@ -81,6 +81,34 @@ public sealed class CraftGuestClockTests
         Assert.That(flow.TryBegin("clock_test", out _, out string reason), Is.True, reason);
     }
 
+    [Test]
+    public void PreparationPlayTestStartsEmptyAndFinishesAsAPreview()
+    {
+        flow.AddCraftBlocker(() => "주문이 없습니다.");
+        var lockedItem = new NewShelfItemData { Id = "test_ingredient", UnlockDay = int.MaxValue };
+        Assert.That(flow.TryBegin("clock_test", out _, out _), Is.False);
+        Assert.That(flow.IsShelfItemAvailable(lockedItem), Is.False);
+
+        Assert.That(flow.TryBeginPreparationPlayTest("clock_test", out var session, out string reason), Is.True, reason);
+        Assert.That(flow.ShouldShowPreparation, Is.True);
+        Assert.That(session.Actual.GlassId, Is.Null);
+        Assert.That(session.Actual.ToolId, Is.Null);
+        Assert.That(session.Actual.IngredientIds, Is.Empty);
+        Assert.That(flow.IsShelfItemAvailable(lockedItem), Is.True);
+        Assert.That(flow.CanStartGimmicks, Is.False);
+        flow.ToggleGlass("test_glass");
+        flow.ToggleIngredient(lockedItem.Id);
+        Assert.That(flow.CanStartGimmicks, Is.True);
+
+        int delivered = 0;
+        flow.DrinkReady += _ => delivered++;
+        Complete();
+        Assert.That(screen.IsShowing, Is.True);
+        Assert.That(flow.PendingDrink, Is.Null);
+        Assert.That(delivered, Is.Zero);
+        Assert.That(flow.IsShelfItemAvailable(lockedItem), Is.False);
+    }
+
     CraftedDrink Complete(bool resultScreen = true)
     {
         var session = flow.Current;

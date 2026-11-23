@@ -109,6 +109,7 @@ public sealed class CraftPrepScreenTests
             Assert.That(tray.anchoredPosition.x, Is.Zero, "화면(부모) 가운데");
             var layout = tray.GetComponent<HorizontalLayoutGroup>();
             Assert.That(layout.childAlignment, Is.EqualTo(TextAnchor.MiddleCenter));
+            Assert.That(layout.spacing, Is.EqualTo(9));
             Assert.That(layout.childControlWidth || layout.childControlHeight || layout.childForceExpandWidth ||
                         layout.childForceExpandHeight || layout.childScaleWidth || layout.childScaleHeight, Is.False,
                 "AGENTS.md Layout Group 기본값");
@@ -133,7 +134,59 @@ public sealed class CraftPrepScreenTests
         try
         {
             var tray = Field<RectTransform>(root.GetComponent<CraftPrepStageScreen>(), "trayContent");
-            Assert.That(tray.parent.GetComponent<Image>().sprite, Is.EqualTo(sprite));
+            var background = tray.parent.GetComponent<Image>();
+            Assert.That(background.sprite, Is.EqualTo(sprite));
+            Assert.That(background.color.a, Is.EqualTo(0.92f).Within(0.001f));
+            Assert.That(background.rectTransform.sizeDelta.y, Is.EqualTo(110));
+            Assert.That(background.raycastTarget, Is.False);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+
+    [Test]
+    public void ShelfNavigationAndItemTooltipUseWebLayout()
+    {
+        var root = PrefabUtility.LoadPrefabContents(StagePath);
+        try
+        {
+            var screen = root.GetComponent<CraftPrepStageScreen>();
+            Assert.That(Field<float>(screen, "cameraMoveDuration"), Is.EqualTo(0.45f));
+            foreach (string field in new[] { "previousButton", "nextButton" })
+            {
+                var arrow = (RectTransform)Field<Button>(screen, field).transform;
+                Assert.That(arrow.sizeDelta, Is.EqualTo(new Vector2(20, 35)));
+            }
+
+            var buttons = Field<Button[]>(screen, "stageButtons");
+            var dots = Field<Image[]>(screen, "stageIndicators");
+            Assert.That(buttons.Length, Is.EqualTo(Field<Transform[]>(screen, "stageAnchors").Length));
+            Assert.That(dots.Length, Is.EqualTo(buttons.Length));
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                Assert.That(buttons[i].targetGraphic, Is.EqualTo(dots[i]));
+                Assert.That(dots[i].transform.parent, Is.EqualTo(buttons[i].transform));
+                Assert.That(dots[i].rectTransform.sizeDelta, Is.EqualTo(Vector2.one * (i == 0 ? 30 : 13)));
+                Assert.That(((RectTransform)buttons[i].transform).sizeDelta, Is.EqualTo(new Vector2(18, 30)));
+                Assert.That(buttons[i].GetComponent<Image>().raycastTarget, Is.True);
+                Assert.That(dots[i].raycastTarget, Is.False);
+            }
+            Inject(screen, "stageIndex", 2);
+            Call(screen, "RefreshStageIndicators");
+            for (int i = 0; i < dots.Length; i++)
+                Assert.That(dots[i].rectTransform.sizeDelta, Is.EqualTo(Vector2.one * (i == 2 ? 30 : 13)));
+
+            var tooltip = Field<CraftPrepItemTooltip>(screen, "itemTooltip");
+            var frame = Field<SpriteRenderer>(tooltip, "frame");
+            Assert.That(frame.drawMode, Is.EqualTo(SpriteDrawMode.Sliced));
+            Assert.That(frame.sprite.border, Is.EqualTo(Vector4.one * 8));
+            Assert.That(Field<Vector2>(tooltip, "contentPadding"), Is.EqualTo(new Vector2(11, 8)));
+            Assert.That(Field<TextMeshPro>(tooltip, "nameText").horizontalAlignment, Is.EqualTo(HorizontalAlignmentOptions.Left));
+            Assert.That(Field<TextMeshPro>(tooltip, "descriptionText").horizontalAlignment, Is.EqualTo(HorizontalAlignmentOptions.Left));
+
+            var item = Field<CraftPrepTrayItem>(screen, "trayItemPrefab");
+            Assert.That(item.GetComponentInChildren<TMP_Text>(true), Is.Null);
+            Assert.That(item.SelectionControl, Is.EqualTo(item.transform));
+            Assert.That(((RectTransform)item.transform).sizeDelta, Is.EqualTo(new Vector2(70, 70)));
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
     }

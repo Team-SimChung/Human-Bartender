@@ -14,14 +14,14 @@ public static class WebCraftingShelfSetup
     // 최초 에디터 배치 값이다. 생성 후 프리팹 Inspector에서 조절하며 재실행 시 덮어쓰지 않는다.
     // Y는 공용 진 병(가운데 피벗, 높이 1.48)의 바닥이 기존 병과 같은 선반 면에 닿도록 맞춘 값이다.
     // 리큐어 위칸 0.76 / 아래칸 -1.31, 냉장고 위칸(캔) 1.08. 전용 그림으로 바꾸면 바닥을 유지하도록 Y를 다시 맞춘다.
-    static readonly (string id, string name, CraftPrepStageScreen.Stage stage, Vector2 position)[] Missing =
+    static readonly (string id, string nameLabel, CraftPrepStageScreen.Stage stage, Vector2 position)[] Missing =
     {
-        ("triple_sec", "트리플섹", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.90f, -.57f)),
-        ("kahlua", "칼루아", CraftPrepStageScreen.Stage.Liquor, new Vector2(-.32f, -.57f)),
-        ("amaretto", "아마레토", CraftPrepStageScreen.Stage.Liquor, new Vector2(.26f, -.57f)),
-        ("wild_dog", "와일드 독", CraftPrepStageScreen.Stage.Liquor, new Vector2(.87f, 1.5f)),
-        ("bitters", "비터스", CraftPrepStageScreen.Stage.Liquor, new Vector2(.84f, -.57f)),
-        ("sugar_cube", "각설탕", CraftPrepStageScreen.Stage.Liquor, new Vector2(1.42f, -.57f)),
+        ("triple_sec", null, CraftPrepStageScreen.Stage.Liquor, new Vector2(-.90f, -.57f)),
+        ("kahlua", null, CraftPrepStageScreen.Stage.Liquor, new Vector2(-.32f, -.57f)),
+        ("amaretto", null, CraftPrepStageScreen.Stage.Liquor, new Vector2(.26f, -.57f)),
+        ("wild_dog", null, CraftPrepStageScreen.Stage.Liquor, new Vector2(.87f, 1.5f)),
+        ("bitters", null, CraftPrepStageScreen.Stage.Liquor, new Vector2(.84f, -.57f)),
+        ("sugar_cube", null, CraftPrepStageScreen.Stage.Liquor, new Vector2(1.42f, -.57f)),
         ("cranberry_juice", "크랜베리주스", CraftPrepStageScreen.Stage.Fridge, new Vector2(-1.42f, 1.82f)),
         ("milk", "우유", CraftPrepStageScreen.Stage.Fridge, new Vector2(-.46f, 1.82f)),
     };
@@ -70,29 +70,32 @@ public static class WebCraftingShelfSetup
             slot.transform.localPosition = new Vector3(entry.position.x, entry.position.y, template.transform.localPosition.z);
             slot.transform.localScale = Vector3.one;
             slot.gameObject.SetActive(true);
-            var labelObject = new GameObject("ItemNameText", typeof(RectTransform), typeof(TextMeshPro));
-            Undo.RegisterCreatedObjectUndo(labelObject, UndoLabel);
-            labelObject.layer = slot.gameObject.layer;
-            labelObject.transform.SetParent(slot.transform, false);
-            var label = labelObject.GetComponent<TextMeshPro>();
-            label.font = font;
-            label.fontSize = .8f;
-            label.enableAutoSizing = false;
-            label.richText = false;
-            label.raycastTarget = false;
-            label.textWrappingMode = TextWrappingModes.NoWrap;
-            label.alignment = TextAlignmentOptions.Center;
-            label.text = entry.name;
-            label.color = Color.white;
-            label.rectTransform.sizeDelta = new Vector2(.76f, .2f);
-            label.rectTransform.localPosition = new Vector3(0, template.Icon.bounds.min.y - .14f, -.05f);
-            var sprite = slot.GetComponent<SpriteRenderer>();
-            label.renderer.sortingLayerID = sprite.sortingLayerID;
-            label.renderer.sortingOrder = sprite.sortingOrder + 1;
-            var serialized = new SerializedObject(slot);
+            using var serialized = new SerializedObject(slot);
             serialized.FindProperty("itemId").stringValue = entry.id;
             serialized.FindProperty("stage").enumValueIndex = (int)entry.stage;
-            serialized.FindProperty("itemNameLabel").objectReferenceValue = label;
+            if (entry.nameLabel != null)
+            {
+                var labelObject = new GameObject("ItemNameText", typeof(RectTransform), typeof(TextMeshPro));
+                Undo.RegisterCreatedObjectUndo(labelObject, UndoLabel);
+                labelObject.layer = slot.gameObject.layer;
+                labelObject.transform.SetParent(slot.transform, false);
+                var label = labelObject.GetComponent<TextMeshPro>();
+                label.font = font;
+                label.fontSize = .8f;
+                label.enableAutoSizing = false;
+                label.richText = false;
+                label.raycastTarget = false;
+                label.textWrappingMode = TextWrappingModes.NoWrap;
+                label.alignment = TextAlignmentOptions.Center;
+                label.text = entry.nameLabel;
+                label.color = Color.white;
+                label.rectTransform.sizeDelta = new Vector2(.76f, .2f);
+                label.rectTransform.localPosition = new Vector3(0, template.Icon.bounds.min.y - .14f, -.05f);
+                var sprite = slot.GetComponent<SpriteRenderer>();
+                label.renderer.sortingLayerID = sprite.sortingLayerID;
+                label.renderer.sortingOrder = sprite.sortingOrder + 1;
+                serialized.FindProperty("itemNameLabel").objectReferenceValue = label;
+            }
             serialized.ApplyModifiedProperties();
             existing.Add(slot);
         }

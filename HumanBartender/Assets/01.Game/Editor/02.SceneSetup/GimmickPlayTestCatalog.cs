@@ -120,15 +120,16 @@ internal static class GimmickPlayTestCatalog
 
     internal static void ValidatePrefab(ECraftGimmick type) => ValidatePrefabs(new[] { type });
 
-    internal static void ValidateRecipe(Recipe recipe) => ValidatePrefabs(recipe.Steps
-        .Where(value => !value.IsImmediateAddition).Select(value => value.Type).Distinct());
+    internal static void ValidateRecipe(Recipe recipe, bool fromPreparation = false) => ValidatePrefabs(recipe.Steps
+        .Where(value => !value.IsImmediateAddition).Select(value => value.Type).Distinct(), fromPreparation);
 
-    private static void ValidatePrefabs(IEnumerable<ECraftGimmick> types)
+    private static void ValidatePrefabs(IEnumerable<ECraftGimmick> types, bool fromPreparation = false)
     {
         var preview = EditorSceneManager.OpenPreviewScene(PlayPath);
         try
         {
-            var runner = preview.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<GimmickRunner>(true)).Single();
+            var roots = preview.GetRootGameObjects();
+            var runner = roots.SelectMany(root => root.GetComponentsInChildren<GimmickRunner>(true)).Single();
             using var data = new SerializedObject(runner);
             var prefabs = data.FindProperty("prefabs");
             GameObject Find(ECraftGimmick requested)
@@ -150,6 +151,16 @@ internal static class GimmickPlayTestCatalog
             foreach (string field in new[] { "gimmickRoot", "hud", "gimmickCamera", "inputRouter" })
                 if (data.FindProperty(field).objectReferenceValue == null)
                     throw new InvalidOperationException("[GimmickPlayTest] Play 씬 GimmickRunner 연결을 확인하세요: " + field);
+            if (fromPreparation)
+            {
+                var host = roots.SelectMany(root => root.GetComponentsInChildren<CraftPrepStageHost>(true)).SingleOrDefault();
+                if (host == null || !host.enabled)
+                    throw new InvalidOperationException("[GimmickPlayTest] Play 씬에 활성화된 제조 준비 Host가 없습니다.");
+                using var prep = new SerializedObject(host);
+                foreach (string field in new[] { "craftFlow", "stagePrefab", "stageRoot", "playerInput" })
+                    if (prep.FindProperty(field).objectReferenceValue == null)
+                        throw new InvalidOperationException("[GimmickPlayTest] Play 씬 CraftPrepStageHost 연결을 확인하세요: " + field);
+            }
         }
         finally { EditorSceneManager.ClosePreviewScene(preview); }
     }

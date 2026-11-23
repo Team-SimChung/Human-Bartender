@@ -16,11 +16,15 @@ using Object = UnityEngine.Object;
 [InitializeOnLoad]
 internal static class GimmickPlayTestSession
 {
+    internal enum Mode { Gimmick, Cocktail, Preparation }
+
     private const string Prefix = "HumanBartender.GimmickPlayTest.";
     private static IDisposable installation;
     private static CancellationTokenSource lifetime, operation;
     private static PlayerDataSO player;
     private static GimmickRunner runner;
+    private static CraftFlowController craftFlow;
+    private static CraftPrepStageHost prepHost;
     private static ServeScreen serveScreen;
     private static readonly List<CraftSession> quickSessions = new();
     internal static bool IsActive => SessionState.GetBool(Prefix + "Active", false);
@@ -44,12 +48,13 @@ internal static class GimmickPlayTestSession
         else if (SessionState.GetBool(Prefix + "RestorePending", false)) Cleanup();
     }
 
-    internal static void Start(string key, bool wholeCocktail = false)
+    internal static void Start(string key, Mode mode = Mode.Gimmick)
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
             throw new InvalidOperationException("[GimmickPlayTest] 현재 Play 모드를 종료한 뒤 시작하세요.");
         if (key == GimmickPlayTestCatalog.QuickTestKey) GimmickPlayTestCatalog.ValidateQuickTest();
-        else if (wholeCocktail) GimmickPlayTestCatalog.ValidateRecipe(GimmickPlayTestCatalog.FindRecipe(key));
+        else if (mode != Mode.Gimmick)
+            GimmickPlayTestCatalog.ValidateRecipe(GimmickPlayTestCatalog.FindRecipe(key), mode == Mode.Preparation);
         else GimmickPlayTestCatalog.ValidatePrefab(GimmickPlayTestCatalog.Find(key).Step.Type);
         var main = AssetDatabase.LoadAssetAtPath<SceneAsset>("Assets/01.Game/01.Scenes/Main.unity");
         if (main == null) throw new InvalidOperationException("[GimmickPlayTest] Main 씬이 없습니다.");
@@ -61,7 +66,7 @@ internal static class GimmickPlayTestSession
         SessionState.SetFloat(Prefix + "TimeScale", Time.timeScale);
         SessionState.SetString(Prefix + "StartScene", AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
         SessionState.SetString(Prefix + "Case", key);
-        SessionState.SetBool(Prefix + "WholeCocktail", wholeCocktail);
+        SessionState.SetInt(Prefix + "Mode", (int)mode);
         SessionState.SetString(Prefix + "SaveDirectory", Path.GetFullPath(Path.Combine(Application.dataPath,
             "..", "Library", "GimmickPlayTests", "ManualSaves", Guid.NewGuid().ToString("N"))));
         SessionState.SetBool(Prefix + "Active", true);
@@ -158,18 +163,20 @@ internal static class GimmickPlayTestSession
         if (!loaded.Succeeded) throw new InvalidOperationException("[GimmickPlayTest] Play 진입 실패: " + loaded.Message);
         await WaitAsync(() => (runner = Object.FindObjectsByType<GimmickRunner>(FindObjectsSortMode.None)
             .SingleOrDefault(value => value.gameObject.scene.name == "Play")) != null, "기믹 실행기", token);
-        serveScreen = runner.gameObject.scene.GetRootGameObjects()
-            .SelectMany(root => root.GetComponentsInChildren<ServeScreen>(true)).SingleOrDefault();
+        var sceneRoots = runner.gameObject.scene.GetRootGameObjects();
+        serveScreen = sceneRoots.SelectMany(root => root.GetComponentsInChildren<ServeScreen>(true)).SingleOrDefault();
+        craftFlow = sceneRoots.SelectMany(root => root.GetComponentsInChildren<CraftFlowController>(true)).SingleOrDefault();
+        prepHost = sceneRoots.SelectMany(root => root.GetComponentsInChildren<CraftPrepStageHost>(true)).SingleOrDefault();
         if (serveScreen == null)
             throw new InvalidOperationException("[GimmickPlayTest] Play 씬에 제조 완료 화면이 없습니다.");
         if (!SessionState.GetBool(Prefix + "BarBlocked", false))
             throw new InvalidOperationException("[GimmickPlayTest] 영업 시작을 차단하지 못했습니다.");
         await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, token);
         IsReady = true;
-        await PlayAsync(SessionState.GetString(Prefix + "Case", ""), SessionState.GetBool(Prefix + "WholeCocktail", false));
+        await PlayAsync(SessionState.GetString(Prefix + "Case", ""), (Mode)SessionState.GetInt(Prefix + "Mode", (int)Mode.Gimmick));
     }
 
-    internal static async UniTask PlayAsync(string key, bool wholeCocktail = false)
+    internal static async UniTask PlayAsync(string key, Mode mode = Mode.Gimmick)
     {
         if (!IsActive || !Application.isPlaying || !IsReady || runner == null || lifetime == null)
             throw new InvalidOperationException("[GimmickPlayTest] 테스트 시작 버튼으로 실행 환경을 준비하세요.");
@@ -180,6 +187,12 @@ internal static class GimmickPlayTestSession
             await PlayQuickTestAsync();
             return;
         }
+        if (mode == Mode.Preparation)
+        {
+            await PlayFromPreparationAsync(GimmickPlayTestCatalog.FindRecipe(key));
+            return;
+        }
+        bool wholeCocktail = mode == Mode.Cocktail;
         var single = wholeCocktail ? null : GimmickPlayTestCatalog.Find(key);
         var recipe = wholeCocktail ? GimmickPlayTestCatalog.FindRecipe(key) : single.Recipe;
         var steps = wholeCocktail ? recipe.Steps : new[] { single.Step };
@@ -191,7 +204,7 @@ internal static class GimmickPlayTestSession
         IsQuickTest = false;
         quickSessions.Clear();
         SessionState.SetString(Prefix + "Case", key);
-        SessionState.SetBool(Prefix + "WholeCocktail", wholeCocktail);
+        SessionState.SetInt(Prefix + "Mode", (int)mode);
         var session = recipe.CreateSession();
         LastSession = session;
         try
@@ -220,6 +233,55 @@ internal static class GimmickPlayTestSession
         }
     }
 
+    private static async UniTask PlayFromPreparationAsync(GimmickPlayTestCatalog.Recipe recipe)
+    {
+        var flow = craftFlow;
+        if (flow == null || prepHost == null || !prepHost.isActiveAndEnabled)
+            throw new InvalidOperationException("[GimmickPlayTest] Play 씬의 제조 준비 연결을 확인하세요.");
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+        operation = source;
+        IsBusy = true;
+        IsWholeCocktail = true;
+        IsQuickTest = false;
+        LastSession = null;
+        LastJudgement = null;
+        quickSessions.Clear();
+        SessionState.SetString(Prefix + "Case", recipe.Key);
+        SessionState.SetInt(Prefix + "Mode", (int)Mode.Preparation);
+        CraftSession session = null;
+        try
+        {
+            await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, source.Token);
+            if (!flow.TryBeginPreparationPlayTest(recipe.Key, out session, out string reason))
+                throw new InvalidOperationException("[GimmickPlayTest] " + reason);
+            LastSession = session;
+            if (!prepHost.IsOpen)
+                throw new InvalidOperationException("[GimmickPlayTest] 제조 준비 화면을 열지 못했습니다.");
+
+            Status = recipe.Label + " · Game 창에서 재료를 고르고 제조를 시작하세요.";
+            using var registration = source.Token.Register(() => flow.CancelCraft(session.JobId));
+            await flow.Completion;
+            LastJudgement = flow.Judgement;
+            if (session.Phase == ECraftPhase.Completed)
+            {
+                if (!serveScreen.IsShowing)
+                    throw new InvalidOperationException("[GimmickPlayTest] 제조 완료 화면을 열 수 없습니다.");
+                Status = recipe.Label + " 제조를 완료했습니다. Game 창에서 완성 컷과 등급을 확인하세요.";
+            }
+            else if (session.Phase == ECraftPhase.Failed)
+                Status = "제조 실패 · " + session.FailureReason;
+            else
+                Status = "제조 테스트를 중단했습니다.";
+        }
+        catch (OperationCanceledException) { Status = "제조 테스트를 중단했습니다."; }
+        finally
+        {
+            if (session != null && flow != null) flow.CancelCraft(session.JobId);
+            operation = null;
+            IsBusy = false;
+        }
+    }
+
     private static async UniTask PlayQuickTestAsync()
     {
         var selected = GimmickPlayTestCatalog.SelectQuickCases(GimmickPlayTestCatalog.Load());
@@ -232,7 +294,7 @@ internal static class GimmickPlayTestSession
         LastJudgement = null;
         quickSessions.Clear();
         SessionState.SetString(Prefix + "Case", GimmickPlayTestCatalog.QuickTestKey);
-        SessionState.SetBool(Prefix + "WholeCocktail", false);
+        SessionState.SetInt(Prefix + "Mode", (int)Mode.Gimmick);
         try
         {
             await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, source.Token);
@@ -299,9 +361,7 @@ internal static class GimmickPlayTestSession
 
     private static CraftJudgement Judge(CraftSession session, NewCocktailData cocktail)
     {
-        var flow = Object.FindObjectsByType<CraftFlowController>(FindObjectsSortMode.None)
-            .Single(value => value.gameObject.scene == runner.gameObject.scene);
-        using var data = new SerializedObject(flow);
+        using var data = new SerializedObject(craftFlow);
         var shelf = data.FindProperty("shelfData").objectReferenceValue as NewShelfItemDataSO;
         var balance = data.FindProperty("balanceData").objectReferenceValue as NewBalanceDataSO;
         return CraftJudge.Evaluate(session, cocktail, shelf, balance != null ? balance.balanceData : null);
@@ -337,6 +397,8 @@ internal static class GimmickPlayTestSession
         if (player != null) Object.DestroyImmediate(player);
         player = null;
         runner = null;
+        craftFlow = null;
+        prepHost = null;
         serveScreen = null;
         operation = null;
         IsReady = IsBusy = false;

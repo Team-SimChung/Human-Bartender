@@ -94,7 +94,9 @@ public sealed class WebCraftingAlignmentTests
             Assert.That(Slots(screen).Length, Is.EqualTo(count));
             Assert.That(cranberry.transform.localPosition, Is.EqualTo(edited));
             foreach (var pair in originals.Where(p => p.Key != cranberry)) Assert.That(pair.Key.transform.localPosition, Is.EqualTo(pair.Value));
-            foreach (string id in new[] { "cranberry_juice", "triple_sec", "kahlua", "milk", "amaretto", "wild_dog", "bitters", "sugar_cube" })
+            foreach (var slot in Slots(screen).Where(s => s.ItemStage == CraftPrepStageScreen.Stage.Liquor))
+                Assert.That(slot.GetComponentInChildren<TMPro.TMP_Text>(true), Is.Null, slot.ItemId);
+            foreach (string id in new[] { "cranberry_juice", "milk" })
                 Assert.That(Slots(screen).Single(s => s.ItemId == id).GetComponentInChildren<TMPro.TMP_Text>(true), Is.Not.Null, id);
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }

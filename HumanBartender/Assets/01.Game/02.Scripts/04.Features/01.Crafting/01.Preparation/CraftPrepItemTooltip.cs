@@ -8,18 +8,19 @@ public sealed class CraftPrepItemTooltip : MonoBehaviour
     [SerializeField] private SpriteRenderer frame;
     [SerializeField] private TextMeshPro nameText;
     [SerializeField] private TextMeshPro descriptionText;
-    [Tooltip("마우스에서 설명창 왼쪽 위까지의 화면 픽셀 간격. Y가 음수이면 아래에 표시합니다.")]
-    [SerializeField] private Vector2 cursorOffset = new Vector2(18f, -18f);
-    [SerializeField, Min(0f)] private float screenPadding = 12f;
-    [Header("Content Size (screen pixels)")]
-    [SerializeField] private Vector2 contentPadding = new Vector2(16f, 12f);
-    [SerializeField, Min(0f)] private float textSpacing = 6f;
-    [SerializeField, Min(80f)] private float maxWidth = 480f;
+    [Tooltip("540p 기준 마우스와 설명창 사이의 간격. Y가 음수이면 아래에 표시합니다.")]
+    [SerializeField] private Vector2 cursorOffset = new Vector2(14f, -14f);
+    [SerializeField, Min(0f)] private float screenPadding = 9f;
+    [Header("Content Size (540p pixels)")]
+    [SerializeField] private Vector2 contentPadding = new Vector2(11f, 8f);
+    [SerializeField, Min(0f)] private float textSpacing = 4f;
+    [SerializeField, Min(80f)] private float maxWidth = 218f;
 
+    private const float ReferenceHeight = 540f;
     private Camera followCamera;
     private float cameraDepth;
-    private Vector3 originalFrameScale;
-    private bool frameScaleCached;
+    private Vector2Int viewportSize;
+    private float UiScale => followCamera.pixelHeight / ReferenceHeight;
 
     public void Show(NewShelfItemData item, Camera camera, Vector2 pointerPosition)
     {
@@ -41,35 +42,30 @@ public sealed class CraftPrepItemTooltip : MonoBehaviour
 
     private void ResizeToContent()
     {
-        if (frame == null) return;
-        if (!frameScaleCached)
-        {
-            originalFrameScale = frame.transform.localScale;
-            frameScaleCached = true;
-        }
-        frame.transform.localScale = originalFrameScale;
-        Rect initialBounds = GetRelativeScreenBounds();
-        if (initialBounds.width <= 0f || initialBounds.height <= 0f) return;
-
-        Vector2 padding = Vector2.Max(contentPadding, Vector2.zero);
+        viewportSize = new Vector2Int(followCamera.pixelWidth, followCamera.pixelHeight);
+        if (frame == null || frame.sprite == null || viewportSize.y == 0) return;
+        float uiScale = UiScale;
+        Vector2 padding = Vector2.Max(contentPadding, Vector2.zero) * uiScale;
+        Vector2 frameScale = ScreenScale(frame.transform);
+        Vector4 border = frame.sprite.border / frame.sprite.pixelsPerUnit;
+        float minimumWidth = (border.x + border.z) * frameScale.x;
+        float minimumHeight = (border.y + border.w) * frameScale.y;
         PrepareText(nameText);
         PrepareText(descriptionText);
         float preferredWidth = Mathf.Max(PreferredScreenWidth(nameText), PreferredScreenWidth(descriptionText));
-        float availableWidth = Mathf.Max(1f, followCamera.pixelWidth - screenPadding * 2f);
-        float widthLimit = Mathf.Min(availableWidth, Mathf.Max(initialBounds.width, maxWidth));
-        float width = Mathf.Min(widthLimit, Mathf.Max(initialBounds.width, preferredWidth + padding.x * 2f));
+        float availableWidth = Mathf.Max(1f, viewportSize.x - screenPadding * uiScale * 2f);
+        float widthLimit = Mathf.Min(availableWidth, maxWidth * uiScale);
+        float width = Mathf.Max(minimumWidth, Mathf.Min(widthLimit, preferredWidth + padding.x * 2f));
         float contentWidth = Mathf.Max(1f, width - padding.x * 2f);
         float nameHeight = ResizeText(nameText, contentWidth);
         float descriptionHeight = ResizeText(descriptionText, contentWidth);
-        float gap = nameHeight > 0f && descriptionHeight > 0f ? textSpacing : 0f;
-        float height = Mathf.Max(initialBounds.height, nameHeight + gap + descriptionHeight + padding.y * 2f);
+        float gap = nameHeight > 0f && descriptionHeight > 0f ? textSpacing * uiScale : 0f;
+        float height = Mathf.Max(minimumHeight, nameHeight + gap + descriptionHeight + padding.y * 2f);
 
-        // Grow the existing background, including any negative scale authored in the prefab.
-        frame.transform.localScale = new Vector3(originalFrameScale.x * width / initialBounds.width,
-            originalFrameScale.y * height / initialBounds.height, originalFrameScale.z);
+        frame.size = new Vector2(width / frameScale.x, height / frameScale.y);
         Rect bounds = GetRelativeScreenBounds();
         Vector2 origin = followCamera.WorldToScreenPoint(transform.position);
-        Vector2 top = origin + new Vector2(bounds.center.x, bounds.yMax - padding.y);
+        Vector2 top = origin + new Vector2(bounds.xMin + padding.x, bounds.yMax - padding.y);
         PositionText(nameText, top);
         top.y -= nameHeight + gap;
         PositionText(descriptionText, top);
@@ -81,13 +77,12 @@ public sealed class CraftPrepItemTooltip : MonoBehaviour
         text.enableAutoSizing = false;
         text.textWrappingMode = TextWrappingModes.Normal;
         text.overflowMode = TextOverflowModes.Overflow;
-        text.horizontalAlignment = HorizontalAlignmentOptions.Center;
+        text.horizontalAlignment = HorizontalAlignmentOptions.Left;
         text.verticalAlignment = VerticalAlignmentOptions.Top;
     }
 
-    private Vector2 ScreenScale(TextMeshPro text)
+    private Vector2 ScreenScale(Transform textTransform)
     {
-        Transform textTransform = text.transform;
         Vector2 origin = followCamera.WorldToScreenPoint(textTransform.position);
         float x = Vector2.Distance(origin, followCamera.WorldToScreenPoint(textTransform.TransformPoint(Vector3.right)));
         float y = Vector2.Distance(origin, followCamera.WorldToScreenPoint(textTransform.TransformPoint(Vector3.up)));
@@ -95,16 +90,16 @@ public sealed class CraftPrepItemTooltip : MonoBehaviour
     }
 
     private float PreferredScreenWidth(TextMeshPro text) => text == null || string.IsNullOrEmpty(text.text) ? 0f
-        : text.GetPreferredValues(text.text, Mathf.Infinity, Mathf.Infinity).x * ScreenScale(text).x;
+        : text.GetPreferredValues(text.text, Mathf.Infinity, Mathf.Infinity).x * ScreenScale(text.transform).x;
 
     private float ResizeText(TextMeshPro text, float screenWidth)
     {
         if (text == null) return 0f;
-        Vector2 scale = ScreenScale(text);
+        Vector2 scale = ScreenScale(text.transform);
         float width = screenWidth / scale.x;
         float height = string.IsNullOrEmpty(text.text) ? 0f : text.GetPreferredValues(text.text, width, Mathf.Infinity).y;
         RectTransform rect = text.rectTransform;
-        rect.pivot = new Vector2(0.5f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
         rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
         rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(height, 0.01f));
         return height * scale.y;
@@ -121,29 +116,28 @@ public sealed class CraftPrepItemTooltip : MonoBehaviour
     private void LateUpdate()
     {
         if (followCamera == null) { Hide(); return; }
+        if (viewportSize.x != followCamera.pixelWidth || viewportSize.y != followCamera.pixelHeight)
+            ResizeToContent();
         if (Mouse.current != null) UpdatePointerPosition(Mouse.current.position.ReadValue());
     }
 
     public void UpdatePointerPosition(Vector2 pointerPosition)
     {
         if (followCamera == null) return;
-        if (frame != null) frame.flipY = cursorOffset.y <= 0f;
         Rect relativeBounds = GetRelativeScreenBounds();
         Rect viewport = followCamera.pixelRect;
-        float left = viewport.xMin + screenPadding;
-        float right = viewport.xMax - screenPadding;
-        float bottom = viewport.yMin + screenPadding;
-        float top = viewport.yMax - screenPadding;
-        Vector2 position = pointerPosition + cursorOffset - new Vector2(relativeBounds.xMin, relativeBounds.yMax);
+        float padding = screenPadding * UiScale;
+        Vector2 offset = cursorOffset * UiScale;
+        float left = viewport.xMin + padding;
+        float right = viewport.xMax - padding;
+        float bottom = viewport.yMin + padding;
+        float top = viewport.yMax - padding;
+        Vector2 position = pointerPosition + offset - new Vector2(relativeBounds.xMin, relativeBounds.yMax);
 
         if (position.x + relativeBounds.xMax > right)
-            position.x = pointerPosition.x - Mathf.Abs(cursorOffset.x) - relativeBounds.xMax;
+            position.x = pointerPosition.x - Mathf.Abs(offset.x) - relativeBounds.xMax;
         if (position.y + relativeBounds.yMin < bottom)
-        {
-            if (frame != null) frame.flipY = false;
-            relativeBounds = GetRelativeScreenBounds();
-            position.y = pointerPosition.y + Mathf.Abs(cursorOffset.y) - relativeBounds.yMin;
-        }
+            position.y = pointerPosition.y + Mathf.Abs(offset.y) - relativeBounds.yMin;
         position.x = ClampPosition(position.x, left - relativeBounds.xMin, right - relativeBounds.xMax);
         position.y = ClampPosition(position.y, bottom - relativeBounds.yMin, top - relativeBounds.yMax);
         transform.position = followCamera.ScreenToWorldPoint(new Vector3(position.x, position.y, cameraDepth));
