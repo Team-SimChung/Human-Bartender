@@ -33,8 +33,16 @@ public class ServeScreen : MonoBehaviour
     [Header("제조 등급")]
     [Tooltip("완성 컷 뒤에 제조 등급의 파티클과 글자를 표시합니다. 미연결 등급은 기존 텍스트로 표시합니다.")]
     [SerializeField] private ServeGradeReveal gradeReveal;
-    [Tooltip("제공 버튼의 텍스트. 제조 테스트에서는 같은 버튼을 닫기로 사용합니다.")]
+    [Tooltip("제조 테스트에서 제공 버튼을 닫기로 사용할 때 표시할 텍스트입니다.")]
     [SerializeField] private TextMeshProUGUI acceptLabel;
+    [Tooltip("제조 테스트의 닫기 버튼 배경입니다. 연결하면 일반 결과에서는 글자가 포함된 제공 버튼 그림을 사용합니다.")]
+    [SerializeField] private Sprite previewAcceptSprite;
+    [Tooltip("버리기와 제공하기 버튼의 페이드와 입력을 제어합니다.")]
+    [SerializeField] private CanvasGroup decisionButtons;
+    [SerializeField, Min(0), Tooltip("등급 연출이 시작된 뒤 버튼이 나타나기까지 기다리는 시간입니다.")]
+    private float decisionRevealDelay;
+    [SerializeField, Min(0), Tooltip("두 버튼이 완전히 표시되고 입력을 받기까지 걸리는 시간입니다.")]
+    private float decisionFadeDuration;
 
     [Header("전용 클립이 없는 칵테일")]
     [Tooltip("클립이 없는 칵테일의 완성 그림을 띄우는 Image. BG 아래 drink 바로 뒤에 둡니다. 웹 serve-fallback과 같은 연출입니다.")]
@@ -55,6 +63,7 @@ public class ServeScreen : MonoBehaviour
     // 정지 그림 참조가 없는 기존 씬·테스트에서만 쓰는 대체 클립.
     private const string FallbackId = "cosmopolitan";
     private Sequence fallbackSequence;
+    private Tween decisionFade;
     private Vector2 fallbackHome;
     private bool fallbackHomeKnown;
     private bool showingFallback;
@@ -159,7 +168,7 @@ public class ServeScreen : MonoBehaviour
         StopAnimation();
         currentDrink = drink;
         preview = isPreview;
-        if (acceptLabel != null) acceptLabel.text = preview ? "닫기" : provideLabel;
+        UpdateAcceptButton();
         UpdateGrade();
     }
 
@@ -249,6 +258,7 @@ public class ServeScreen : MonoBehaviour
         {
             gradeRevealed = true;
             showingGradeEffect = currentDrink.CraftGrade is { } grade && gradeReveal != null && gradeReveal.TryPlay(grade);
+            RevealDecisionButtons();
         }
         SetControlsActive(true);
         SetDecisionInteractable(preview || craftFlow == null || !craftFlow.IsResolvingDiscard);
@@ -287,9 +297,44 @@ public class ServeScreen : MonoBehaviour
         StopAnimation();
         currentDrink = null;
         preview = false;
-        if (acceptLabel != null) acceptLabel.text = provideLabel;
+        UpdateAcceptButton();
         SetControlsActive(false);
         if (BG != null) BG.SetActive(false);
+    }
+
+    private void UpdateAcceptButton()
+    {
+        Image acceptImage = Accept != null ? Accept.image : null;
+        bool hasLabeledSprite = previewAcceptSprite != null && acceptImage != null;
+        if (hasLabeledSprite) acceptImage.overrideSprite = preview ? previewAcceptSprite : null;
+        if (acceptLabel == null) return;
+        acceptLabel.enabled = preview || !hasLabeledSprite;
+        acceptLabel.text = preview ? "닫기" : provideLabel;
+    }
+
+    private void RevealDecisionButtons()
+    {
+        if (decisionButtons == null) return;
+        bool animate = Application.isPlaying && showingGradeEffect && decisionRevealDelay + decisionFadeDuration > 0f;
+        if (!animate)
+        {
+            decisionButtons.alpha = 1f;
+            SetDecisionInput(true);
+            return;
+        }
+
+        decisionButtons.alpha = 0f;
+        SetDecisionInput(false);
+        decisionFade = decisionButtons.DOFade(1f, decisionFadeDuration)
+            .SetDelay(decisionRevealDelay)
+            .SetEase((time, duration, _, _) => duration > 0f ? Mathf.SmoothStep(0f, 1f, time / duration) : 1f)
+            .OnComplete(() => SetDecisionInput(true));
+    }
+
+    private void SetDecisionInput(bool enabled)
+    {
+        decisionButtons.interactable = enabled;
+        decisionButtons.blocksRaycasts = enabled;
     }
 
     private AnimationClip FindAnimation(string id)
@@ -329,6 +374,8 @@ public class ServeScreen : MonoBehaviour
 
     private void StopAnimation()
     {
+        decisionFade?.Kill();
+        decisionFade = null;
         if (gradeReveal != null) gradeReveal.Stop();
         gradeRevealed = false;
         showingGradeEffect = false;

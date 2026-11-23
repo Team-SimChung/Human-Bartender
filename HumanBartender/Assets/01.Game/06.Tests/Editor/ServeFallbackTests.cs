@@ -172,8 +172,29 @@ public sealed class ServeFallbackTests
             Assert.That(still.preserveAspect, Is.True);
             Assert.That(still.rectTransform.localScale, Is.EqualTo(Vector3.one));
             Assert.That(still.rectTransform.sizeDelta, Is.EqualTo((Vector2)ServeFallbackSetup.Size));
+            Assert.That(still.rectTransform.anchoredPosition, Is.EqualTo(new Vector2(0, 49)));
             Assert.That(Field(screen, "animatedDrinkImage"), Is.SameAs(screen.GetComponent<Image>()));
             Assert.That((Object)Field(screen, "visuals") != null, Is.True);
+
+            var animated = screen.GetComponent<Image>().rectTransform;
+            Assert.That(animated.anchorMin, Is.EqualTo(new Vector2(.5f, 1f)));
+            Assert.That(animated.pivot, Is.EqualTo(new Vector2(.5f, 1f)));
+            Assert.That(animated.sizeDelta, Is.EqualTo(new Vector2(960, 551)));
+            Assert.That(animated.parent.GetComponent<RectMask2D>(), Is.Not.Null);
+
+            using var data = new SerializedObject(screen);
+            var entries = data.FindProperty("_animations");
+            Assert.That(entries.arraySize, Is.EqualTo(13));
+            for (int i = 0; i < entries.arraySize; i++)
+            {
+                var clip = (AnimationClip)entries.GetArrayElementAtIndex(i).FindPropertyRelative("clip").objectReferenceValue;
+                Assert.That(clip.frameRate, Is.EqualTo(20));
+                Assert.That(clip.length, Is.EqualTo(1.5f).Within(.001f));
+                var binding = AnimationUtility.GetObjectReferenceCurveBindings(clip).Single();
+                var frames = AnimationUtility.GetObjectReferenceCurve(clip, binding);
+                Assert.That(frames[0].value.name, Does.EndWith("_0"));
+                Assert.That(frames[^1].value.name, Does.EndWith("_28"));
+            }
         }
         finally
         {
@@ -197,10 +218,28 @@ public sealed class ServeFallbackTests
             var accept = (Button)Field(screen, "Accept");
             var acceptLabel = (TMP_Text)Field(screen, "acceptLabel");
             var discard = (Button)Field(screen, "Restart");
+            var previewAcceptSprite = (Sprite)Field(screen, "previewAcceptSprite");
+            var background = ((GameObject)Field(screen, "BG")).GetComponent<Image>();
             string normalAcceptLabel = acceptLabel.text;
+            Assert.That(AssetDatabase.GetAssetPath(background.sprite), Does.EndWith("/01.Serving/03.Background/Background.png"));
+            Assert.That(AssetDatabase.GetAssetPath(discard.image.sprite), Does.EndWith("/03.Offer/BTN_trash.png"));
+            Assert.That(AssetDatabase.GetAssetPath(accept.image.sprite), Does.EndWith("/03.Offer/BTN_offer.png"));
+            Assert.That(accept.image.gameObject, Is.SameAs(accept.gameObject));
+            Assert.That(discard.image.rectTransform.anchoredPosition, Is.EqualTo(new Vector2(30, 30)));
+            Assert.That(discard.image.rectTransform.sizeDelta, Is.EqualTo(new Vector2(44, 44)));
+            Assert.That(accept.image.rectTransform.anchoredPosition, Is.EqualTo(new Vector2(-30, 30)));
+            Assert.That(accept.image.rectTransform.sizeDelta, Is.EqualTo(new Vector2(129, 42)));
+            Assert.That(discard.image.preserveAspect && accept.image.preserveAspect, Is.True);
+            Assert.That(discard.image.sprite.texture.filterMode, Is.EqualTo(FilterMode.Trilinear));
+            Assert.That(accept.image.sprite.texture.filterMode, Is.EqualTo(FilterMode.Trilinear));
             Assert.That(image.raycastTarget, Is.False);
             Assert.That(image.rectTransform.localScale, Is.EqualTo(Vector3.one));
+            Assert.That(image.rectTransform.sizeDelta, Is.EqualTo(Vector2.zero));
+            Assert.That(image.rectTransform.anchoredPosition, Is.EqualTo(Vector2.zero));
+            Assert.That(camera.orthographicSize, Is.EqualTo(2.06345f).Within(.001f));
             Assert.That(image.texture, Is.SameAs(camera.targetTexture));
+            Assert.That(camera.targetTexture.width, Is.EqualTo(1920));
+            Assert.That(camera.targetTexture.height, Is.EqualTo(1080));
             Assert.That(camera.backgroundColor.a, Is.Zero);
             Assert.That(camera.targetTexture.depth, Is.GreaterThan(0));
             Assert.That(camera.enabled, Is.False);
@@ -224,7 +263,9 @@ public sealed class ServeFallbackTests
                 Assert.That(label.gameObject.activeSelf, Is.False);
                 Assert.That(discard.gameObject.activeSelf, Is.False);
                 Assert.That(accept.interactable, Is.True);
+                Assert.That(acceptLabel.enabled, Is.True);
                 Assert.That(acceptLabel.text, Is.EqualTo("닫기"));
+                Assert.That(accept.image.overrideSprite, Is.SameAs(previewAcceptSprite));
                 accept.onClick.Invoke();
                 Assert.That(screen.IsShowing, Is.False);
                 Assert.That(acceptLabel.text, Is.EqualTo(normalAcceptLabel));
@@ -235,7 +276,9 @@ public sealed class ServeFallbackTests
             Assert.That(screen.TryPlay(Drink("gin_tonic", ENewGrade.Excellent)), Is.True);
             screen.Apply();
             Assert.That(discard.gameObject.activeSelf, Is.True);
+            Assert.That(acceptLabel.enabled, Is.False);
             Assert.That(acceptLabel.text, Is.EqualTo(normalAcceptLabel));
+            Assert.That(accept.image.overrideSprite, Is.SameAs(accept.image.sprite));
             screen.Reset();
 
             Assert.That(screen.TryPlayPreview(Drink("gin_tonic")), Is.True);

@@ -117,7 +117,7 @@ internal sealed class GimmickPlayTestWindow : EditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.HelpBox("Game 창에 포커스를 두고 조작하세요. 마치기는 실제 기믹의 마치기 버튼을 사용합니다. " +
             "직접 준비에서는 잔·도구·재료를 빈 상태에서 고릅니다. 선반은 테스트용으로 해금 제한을 적용하지 않습니다. " +
-            "마지막 기믹이 끝나면 Game 창에서 완성 컷과 제조 등급을 표시합니다. " +
+            "칵테일 한 잔을 완료하면 Game 창의 결과 화면에서 버리기와 제공하기를 확인할 수 있습니다. " +
             "스크립트를 다시 컴파일하면 테스트를 종료합니다.", MessageType.Info);
         EditorGUILayout.EndScrollView();
     }

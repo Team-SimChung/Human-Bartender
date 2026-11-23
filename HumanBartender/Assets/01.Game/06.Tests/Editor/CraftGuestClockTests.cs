@@ -19,6 +19,7 @@ public sealed class CraftGuestClockTests
     BarOperationClock clock;
     ServeScreen screen;
     Button provide;
+    Button discard;
     bool guestsConnected;
 
     static void Set(object target, string name, object value) => target.GetType().GetField(name, Private).SetValue(target, value);
@@ -54,6 +55,8 @@ public sealed class CraftGuestClockTests
         Set(screen, "retryOnDiscard", false);
         provide = Own(new GameObject("Provide", typeof(RectTransform))).AddComponent<Button>();
         Set(screen, "Accept", provide);
+        discard = Own(new GameObject("Discard", typeof(RectTransform))).AddComponent<Button>();
+        Set(screen, "Restart", discard);
         var clip = Own(new AnimationClip { name = "Clock test result" });
         clip.SetCurve("", typeof(Transform), "m_LocalPosition.x", AnimationCurve.Linear(0, 0, 1, 0));
         var field = typeof(ServeScreen).GetField("_animations", Private);
@@ -81,16 +84,20 @@ public sealed class CraftGuestClockTests
         Assert.That(flow.TryBegin("clock_test", out _, out string reason), Is.True, reason);
     }
 
-    [Test]
-    public void PreparationPlayTestStartsEmptyAndFinishesAsAPreview()
+    [TestCase(true, true)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(false, false)]
+    public void PlayTestOpensActualResultButtons(bool showPreparation, bool offerDrink)
     {
         flow.AddCraftBlocker(() => "주문이 없습니다.");
         var lockedItem = new NewShelfItemData { Id = "test_ingredient", UnlockDay = int.MaxValue };
         Assert.That(flow.TryBegin("clock_test", out _, out _), Is.False);
         Assert.That(flow.IsShelfItemAvailable(lockedItem), Is.False);
 
-        Assert.That(flow.TryBeginPreparationPlayTest("clock_test", out var session, out string reason), Is.True, reason);
-        Assert.That(flow.ShouldShowPreparation, Is.True);
+        Assert.That(flow.TryBeginPreparationPlayTest("clock_test", out var session, out string reason,
+            showPreparation: showPreparation), Is.True, reason);
+        Assert.That(flow.ShouldShowPreparation, Is.EqualTo(showPreparation));
         Assert.That(session.Actual.GlassId, Is.Null);
         Assert.That(session.Actual.ToolId, Is.Null);
         Assert.That(session.Actual.IngredientIds, Is.Empty);
@@ -102,11 +109,22 @@ public sealed class CraftGuestClockTests
 
         int delivered = 0;
         flow.DrinkReady += _ => delivered++;
-        Complete();
+        var drink = Complete();
         Assert.That(screen.IsShowing, Is.True);
-        Assert.That(flow.PendingDrink, Is.Null);
+        Assert.That(flow.PendingDrink, Is.SameAs(drink));
+        Assert.That(flow.IsAwaitingServeDecision, Is.True);
         Assert.That(delivered, Is.Zero);
         Assert.That(flow.IsShelfItemAvailable(lockedItem), Is.False);
+        Assert.That(provide.gameObject.activeSelf && discard.gameObject.activeSelf, Is.True);
+
+        (offerDrink ? provide : discard).onClick.Invoke();
+
+        Assert.That(delivered, Is.EqualTo(offerDrink ? 1 : 0));
+        Assert.That(session.Phase, Is.EqualTo(offerDrink ? ECraftPhase.Completed : ECraftPhase.Discarded));
+        Assert.That(flow.IsAwaitingServeDecision || screen.IsShowing, Is.False);
+        Assert.That(flow.PendingDrink, Is.SameAs(offerDrink ? drink : null));
+        flow.ResetPlayTestResult();
+        Assert.That(flow.PendingDrink, Is.Null);
     }
 
     CraftedDrink Complete(bool resultScreen = true)

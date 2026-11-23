@@ -188,7 +188,7 @@ public class CraftFlowController : MonoBehaviour
             reason = "폐기 비용을 반영할 플레이어 재화 데이터가 연결되지 않았습니다.";
             return false;
         }
-        if (!TryValidateBegin(drink.CocktailId, drink, out _, out reason)) return false;
+        if (!TryValidateBegin(drink.CocktailId, drink, out _, out reason, preparationPlayTest)) return false;
         StartDiscardTransition(drink, retryGimmicks: true);
         return true;
     }
@@ -232,8 +232,18 @@ public class CraftFlowController : MonoBehaviour
         => TryBegin(cocktailId, null, out session, out reason);
 
 #if UNITY_EDITOR
-    internal bool TryBeginPreparationPlayTest(string cocktailId, out CraftSession session, out string reason)
-        => TryBegin(cocktailId, null, out session, out reason, isPreparationPlayTest: true);
+    internal bool TryBeginPreparationPlayTest(string cocktailId, out CraftSession session, out string reason,
+        bool showPreparation = true)
+        => TryBegin(cocktailId, null, out session, out reason, isPreparationPlayTest: true, showPreparation: showPreparation);
+
+    internal void ResetPlayTestResult()
+    {
+        if (!preparationPlayTest || IsBusy) return;
+        preparationPlayTest = false;
+        serveScreen?.Reset();
+        ClearPendingDrink();
+        SetCraftFlowActive(false);
+    }
 #endif
 
     bool TryValidateBegin(string cocktailId, CraftedDrink retryDrink, out NewCocktailData cocktail, out string reason,
@@ -277,7 +287,7 @@ public class CraftFlowController : MonoBehaviour
     }
 
     bool TryBegin(string cocktailId, CraftedDrink retryDrink, out CraftSession session, out string reason,
-        bool isPreparationPlayTest = false)
+        bool isPreparationPlayTest = false, bool showPreparation = true)
     {
         session = null;
         if (!TryValidateBegin(cocktailId, retryDrink, out var cocktail, out reason, isPreparationPlayTest)) return false;
@@ -297,7 +307,7 @@ public class CraftFlowController : MonoBehaviour
         completionSource = new UniTaskCompletionSource<CraftSession>();
         Completion = completionSource.Task.Preserve();
         Preparation = new CraftPreparation(selected, session.Actual);
-        ShouldShowPreparation = retryDrink == null;
+        ShouldShowPreparation = showPreparation && retryDrink == null;
         Preparation.Changed += NotifyPreparationChanged;
         Notify(OnCraftAccepted);
         Notify(CraftBegan, session);
@@ -343,7 +353,7 @@ public class CraftFlowController : MonoBehaviour
         CraftShelf.GetIngredients(shelfData, group, GameStateManager.Instance.CurrentDay, conditions);
 
     public bool IsShelfItemAvailable(NewShelfItemData item) =>
-        preparationPlayTest || CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay, conditions);
+        (preparationPlayTest && IsPreparing) || CraftShelf.IsAvailable(item, GameStateManager.Instance.CurrentDay, conditions);
 
     public bool IsRecipeSelectable(NewCocktailData cocktail, int day, bool requested) =>
         CocktailUnlockPolicy.CanSelect(cocktail, day, requested, conditions);
@@ -473,8 +483,6 @@ public class CraftFlowController : MonoBehaviour
     void Finish(CraftSession session)
     {
         var completedRequest = completionSource;
-        bool previewResult = preparationPlayTest;
-        preparationPlayTest = false;
         finishing = true;
         running = false;
         cancellation?.Dispose();
@@ -483,19 +491,12 @@ public class CraftFlowController : MonoBehaviour
         {
             Notify<CraftSession, CraftJudgement>(OnCraftJudged, session, Judgement);
             var drink = new CraftedDrink(session, Judgement, selected);
-            if (previewResult)
+            PendingDrink = drink;
+            IsAwaitingServeDecision = serveScreen != null;
+            if (!IsAwaitingServeDecision || !serveScreen.TryPlay(drink))
             {
-                Notify(() => serveScreen?.TryPlayPreview(drink));
-            }
-            else
-            {
-                PendingDrink = drink;
-                IsAwaitingServeDecision = serveScreen != null;
-                if (!IsAwaitingServeDecision || !serveScreen.TryPlay(PendingDrink))
-                {
-                    IsAwaitingServeDecision = false;
-                    Notify(DrinkReady, PendingDrink);
-                }
+                IsAwaitingServeDecision = false;
+                Notify(DrinkReady, drink);
             }
             Notify(CraftCompleted, session, Judgement);
         }
@@ -589,7 +590,7 @@ public class CraftFlowController : MonoBehaviour
             IsResolvingDiscard = false;
             if (retryGimmicks && isActiveAndEnabled)
             {
-                if (!TryBegin(drink.CocktailId, drink, out var session, out string reason))
+                if (!TryBegin(drink.CocktailId, drink, out var session, out string reason, preparationPlayTest))
                 {
                     Debug.LogWarning($"[CraftFlow] {reason}");
                     return;

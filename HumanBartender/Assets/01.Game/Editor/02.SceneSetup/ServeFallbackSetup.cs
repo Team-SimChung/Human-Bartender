@@ -75,7 +75,7 @@ public static class ServeFallbackSetup
         rect.SetParent(parent, false);
         rect.SetSiblingIndex(siblingIndex);
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
-        rect.anchoredPosition = Vector2.zero;
+        rect.anchoredPosition = new Vector2(0, 49);
         rect.sizeDelta = Size;
         rect.localScale = Vector3.one;
         var image = go.GetComponent<Image>();

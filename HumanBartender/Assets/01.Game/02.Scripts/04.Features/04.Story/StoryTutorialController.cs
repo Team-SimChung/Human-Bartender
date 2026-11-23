@@ -111,7 +111,6 @@ public sealed class StoryTutorialController : MonoBehaviour
         new LessonCopy("gimmick", "칵테일 제조", "제조 화면의 안내에 따라 진행하세요."),
         new LessonCopy("serveDrink", "완성된 잔 서빙", "완성된 칵테일을 크리스 앞 코스터로 드래그하세요."),
         new LessonCopy("serveDrinkOrder", "완성된 잔 서빙", "완성된 칵테일을 주문한 손님 앞 코스터로 드래그하세요."),
-        new LessonCopy("serveResult", "완성된 잔 서빙", "제조 결과를 확인하고 제공하기를 눌러 주세요."),
     };
 
     /// <summary>문구 표에서 빠진 필수 키. 검증과 테스트에서 쓴다.</summary>
@@ -441,8 +440,15 @@ public sealed class StoryTutorialController : MonoBehaviour
             return;
         }
         ReleaseLessonCap();
+        if (craft.PendingDrink == null || craft.IsAwaitingServeDecision || craft.IsResolvingDiscard)
+        {
+            if (displayedText != null) view.Hide();
+            displayedText = null;
+            ActiveLesson = null;
+            return;
+        }
         ActiveLesson = "serveDrink";
-        Show(craft.PendingDrink != null ? GinFizz ? "serveDrinkOrder" : "serveDrink" : "serveResult");
+        Show(GinFizz ? "serveDrinkOrder" : "serveDrink");
     }
 
     void UpdateGimmickGuide()
