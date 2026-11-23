@@ -95,7 +95,8 @@ public sealed class OutsideResidentsTests
         Set(foreground, "activeTarget", liftTarget);
         Set(foreground, "session", Source());
         Set(elevator, "movement", Source()); Set(elevator, "fastTravelling", fast);
-        player.State = fast ? EInteractorState.Lock : EInteractorState.ForceMove;
+        // 일반 탑승과 빠른 이동 모두 InteractionStateLease.Acquire(player)로 이동 입력을 잠근다.
+        player.State = EInteractorState.Interct;
         player.transform.position = new Vector3(-12.705f, 5f);
     }
 

@@ -296,7 +296,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3244794200870544319
 RectTransform:
   m_ObjectHideFlags: 0
@@ -339,7 +339,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3800628170868476413}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -392,6 +392,7 @@ MonoBehaviour:
   baseFontSize: 13.5
   minFontSize: 11
   widthSafetyMargin: 2
+  fitWrappedLines: 0
 --- !u!114 &7200200000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1045,7 +1046,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3190732095273570689
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1096,6 +1097,18 @@ MonoBehaviour:
   bottom: {fileID: 1038698726895373920}
   bottomRight: {fileID: 6081169560219690534}
   cornerSize: {x: 20, y: 16}
+--- !u!225 &880022000000000001
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7298363994586993636}
+  m_Enabled: 1
+  m_Alpha: 0.99
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7426611753474759696
 GameObject:
   m_ObjectHideFlags: 0
@@ -1536,15 +1549,3 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!225 &880022000000000001
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7298363994586993636}
-  m_Enabled: 1
-  m_Alpha: 0.85
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0

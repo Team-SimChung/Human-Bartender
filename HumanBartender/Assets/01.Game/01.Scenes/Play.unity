@@ -27397,6 +27397,7 @@ MonoBehaviour:
   ingredientList: {fileID: 1730174765}
   ingredientPrefab: {fileID: 3000000000000000005, guid: 651833058a3c40241973e540f5b08890, type: 3}
   shelfData: {fileID: 11400000, guid: f79c175af95447bba922a8c3fdddff37, type: 2}
+  bottleOpenerName: "\uBCD1\uB530\uAC1C"
   scrollRect: {fileID: 85134404}
   scrollContent: {fileID: 1930967098}
   ingredientGrid: {fileID: 1730174766}
@@ -50631,6 +50632,10 @@ PrefabInstance:
       value: 240
       objectReference: {fileID: 0}
     - target: {fileID: 3244794200870544319, guid: b576ec369facab34db5283509d9ca051, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 82
+      objectReference: {fileID: 0}
+    - target: {fileID: 3244794200870544319, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -50682,18 +50687,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Luna Dialogue TextBox
       objectReference: {fileID: 0}
-    - target: {fileID: 3800628170868476413, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7298363994586993636, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7410575816199737103, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -50714,10 +50707,6 @@ PrefabInstance:
     - target: {fileID: 282614345962288504, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: pointUp
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557864701557589450, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 3244794200870544319, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_AnchorMax.x
@@ -50761,7 +50750,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3385428407151007682, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: flipX
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3385428407151007682, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: pointUp
@@ -50792,10 +50781,6 @@ PrefabInstance:
       value: -0.00000004371139
       objectReference: {fileID: 0}
     - target: {fileID: 4913113035190270101, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4913113035190270101, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_LocalRotation.z
       value: 1
       objectReference: {fileID: 0}
@@ -50803,14 +50788,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.65
       objectReference: {fileID: 0}
-    - target: {fileID: 4913113035190270101, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: -179.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5807004671240522678, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: sprite
-      value: 
-      objectReference: {fileID: -5269579663178271470, guid: d2fbed5a4ec364cdd84f0c4ec425d23c, type: 3}
     - target: {fileID: 5927832744926545131, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -50825,7 +50802,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6165306098867338942, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_LocalScale.x
-      value: -1
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6165306098867338942, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_LocalRotation.w
@@ -50867,28 +50844,12 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.65
       objectReference: {fileID: 0}
-    - target: {fileID: 7200200000000000003, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7200200000000000003, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7200200000000000003, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.3
-      objectReference: {fileID: 0}
     - target: {fileID: 7298363994586993636, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7410575816199737103, guid: b576ec369facab34db5283509d9ca051, type: 3}
       propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7426611753474759696, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7688773968358780247, guid: b576ec369facab34db5283509d9ca051, type: 3}
@@ -50900,12 +50861,20 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8243410599047286966, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_Maskable
-      value: 1
+      propertyPath: m_UseSpriteMesh
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8243410599047286966, guid: b576ec369facab34db5283509d9ca051, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 1
+      propertyPath: m_PreserveAspect
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8776635703419936727, guid: b576ec369facab34db5283509d9ca051, type: 3}
+      propertyPath: m_UseSpriteMesh
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8776635703419936727, guid: b576ec369facab34db5283509d9ca051, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

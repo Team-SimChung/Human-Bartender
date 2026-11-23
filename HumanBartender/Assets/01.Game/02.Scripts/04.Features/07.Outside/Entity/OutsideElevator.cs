@@ -54,6 +54,7 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
     private bool fastTravelling;
     public bool CanExecute => isActiveAndEnabled && execution == null;
     public bool CanCancel => !IsMoving;
+    // 일반 탑승은 이동 입력을 잠가도 ESC로 설정창을 열 수 있다. 빠른 이동의 암전 구간만 ESC를 막는다.
     public bool BlocksEscape => fastTravelling;
     public bool IsMoving => movement != null;
     public bool IsTop => isTop;
@@ -156,7 +157,7 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         ValidateFastDuration(fastFadeInDuration);
 
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
-        // 일반 탑승과 달리 암전 중에는 이동 입력과 방향 전환까지 잠근다.
+        // 일반 탑승과 같이 이동 입력과 방향 전환을 잠근다.
         using var lease = InteractionStateLease.Acquire(player);
         movement = source;
         fastTravelling = true;
@@ -239,7 +240,10 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         if (topPoint == null || bottomPoint == null) throw new InvalidOperationException("엘리베이터 상·하단 앵커가 없습니다.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         movement = source;
-        using var lease = InteractionStateLease.Acquire(player, EInteractorState.ForceMove);
+        // 웹(outside.js tickLift)처럼 탑승 중에는 이동 입력과 방향 전환을 받지 않는다(빠른 이동과 같은 잠금).
+        // 탑승 중 걸을 수 있으면 승강기 통로와 겹친 2층 바닥에 밀려 칸 벽을 넘는다(QA-28).
+        // 서 있는 모습은 상호작용 시작 때 Player.PrepareWorldInteraction이 맞추고, 잠금 중에는 애니메이션을 갱신하지 않는다.
+        using var lease = InteractionStateLease.Acquire(player);
         var current = new Ride(this, player.Transform, source.Token);
         ride = current;
         Sequence sequence = null;
@@ -292,7 +296,6 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         private readonly Vector3 start;
         private readonly float arrivalY;
         private readonly bool oldWall;
-        private Vector3 previousPosition;
         private bool arrived;
         private bool restored;
         public Vector3 Destination { get; }
@@ -304,7 +307,7 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
             this.actor = actor;
             this.token = token;
             actorStart = actor.position;
-            start = previousPosition = owner.transform.position;
+            start = owner.transform.position;
             Destination = (owner.isTop ? owner.bottomPoint : owner.topPoint).position;
             arrivalY = owner.ArrivalY(!owner.isTop, actorStart.y, Destination.y - start.y);
             oldWall = owner.wallColider != null && owner.wallColider.activeSelf;
@@ -320,17 +323,15 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         public void MovePassenger()
         {
             // 부모를 바꾸지 않아 승강기 비활성화가 플레이어에게 전파되지 않게 함.
+            if (actor == null) return;
             var cab = owner.transform.position;
-            if (actor != null)
-            {
-                // x·z는 승강기를 따라가고, y는 웹처럼 출발 높이에서 도착 층 하차 높이까지 승강기 진행도에 맞춰 옮긴다.
-                var next = actor.position + (cab - previousPosition);
-                float travel = Destination.y - start.y;
-                if (Mathf.Abs(travel) > .0001f)
-                    next.y = Mathf.LerpUnclamped(actorStart.y, arrivalY, (cab.y - start.y) / travel);
-                actor.position = next;
-            }
-            previousPosition = cab;
+            // 웹(outside.js tickLift의 x = EX)처럼 x·z는 승강기에 고정하고,
+            // y는 출발 높이에서 도착 층 하차 높이까지 승강기 진행도에 맞춰 옮긴다.
+            float travel = Destination.y - start.y;
+            float y = Mathf.Abs(travel) > .0001f
+                ? Mathf.LerpUnclamped(actorStart.y, arrivalY, (cab.y - start.y) / travel)
+                : actor.position.y;
+            actor.position = new Vector3(cab.x, y, cab.z);
         }
 
         public void StartLogo() => Logo = owner.ShowLogoAsync(token).Preserve();
@@ -343,7 +344,8 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         public void Arrive()
         {
             owner.transform.position = Destination;
-            if (actor != null) actor.position = new Vector3(actor.position.x, arrivalY, actor.position.z);
+            // 빠른 이동과 같이 도착 층에서도 승강기 x에 세운다.
+            if (actor != null) actor.position = new Vector3(Destination.x, arrivalY, Destination.z);
             arrived = true;
             owner.isTop = !owner.isTop;
             RestorePose();
