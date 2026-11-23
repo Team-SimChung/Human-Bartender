@@ -109,7 +109,8 @@ public sealed class GuardNpcTests
             Assert.That(animator.runtimeAnimatorController, Is.Not.Null);
             Assert.That(animator.applyRootMotion, Is.False);
             Assert.That(target.StartMode, Is.EqualTo(WorldInteractionStartMode.Interact));
-            Assert.That(target.InteractionRadius, Is.EqualTo(1.4f));
+            // QA-43: 웹(outside-discovery.js) 수준의 가로 도달 거리. 통행 벽에 붙은 루나와 경비원의 거리(약 0.34)보다 크다.
+            Assert.That(target.InteractionRadius, Is.EqualTo(0.45f));
             Assert.That(target.GetComponent<WorldDialogueSpeakers>().TryResolve("guard", out var anchor, out _, out _), Is.True);
             Assert.That(anchor.IsChildOf(target.transform), Is.True);
             using var data = new SerializedObject(interaction);
