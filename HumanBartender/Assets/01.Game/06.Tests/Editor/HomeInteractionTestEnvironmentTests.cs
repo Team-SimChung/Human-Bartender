@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -74,6 +75,35 @@ public sealed class HomeInteractionTestEnvironmentTests
         {
             DiagnositcsContext.RemoveCollector(collectorName);
             Object.DestroyImmediate(original);
+        }
+    }
+
+    [Test]
+    public void TestStartupEnablesBothReloadsAndRestoresTheEditorsSettings()
+    {
+        string prefix = "HumanBartender.PlayModeSettingsTest." + Guid.NewGuid().ToString("N");
+        var originalOptions = EditorSettings.enterPlayModeOptions;
+        bool originalEnabled = EditorSettings.enterPlayModeOptionsEnabled;
+        var originalScene = EditorSceneManager.playModeStartScene;
+        var main = AssetDatabase.LoadAssetAtPath<SceneAsset>("Assets/01.Game/01.Scenes/Main.unity");
+        const EnterPlayModeOptions skippedReloads = EnterPlayModeOptions.DisableDomainReload | EnterPlayModeOptions.DisableSceneReload;
+        try
+        {
+            EditorSettings.enterPlayModeOptionsEnabled = true;
+            EditorSettings.enterPlayModeOptions = skippedReloads;
+            EditorPlayTestServices.ConfigurePlayMode(prefix, main);
+            Assert.That(EditorSettings.enterPlayModeOptions, Is.EqualTo(EnterPlayModeOptions.None));
+            Assert.That(EditorSceneManager.playModeStartScene, Is.EqualTo(main));
+
+            EditorPlayTestServices.RestorePlayModeOptions(prefix);
+            Assert.That(EditorSettings.enterPlayModeOptions, Is.EqualTo(skippedReloads));
+        }
+        finally
+        {
+            EditorPlayTestServices.RestorePlayModeOptions(prefix);
+            EditorSceneManager.playModeStartScene = originalScene;
+            EditorSettings.enterPlayModeOptions = originalOptions;
+            EditorSettings.enterPlayModeOptionsEnabled = originalEnabled;
         }
     }
 

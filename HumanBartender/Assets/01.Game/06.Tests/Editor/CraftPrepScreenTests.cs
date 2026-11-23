@@ -94,6 +94,24 @@ public sealed class CraftPrepScreenTests
     // ── 03. 하단 선택 슬롯 가운데 정렬 ────────────────────────────────────
 
     [Test]
+    public void IngredientSelectionStopsAtEightAndCanBeChangedAfterRemoval()
+    {
+        var prep = new CraftPreparation(Cocktail(Csv(), "gin_tonic"), new ActualCraft());
+        prep.ToggleGlass("long_drink");
+        prep.ToggleTool(NewToolIds.Shaker);
+        var ids = Enumerable.Range(1, 9).Select(i => "ingredient_" + i).ToArray();
+        foreach (string id in ids) prep.ToggleIngredient(id);
+        Assert.That(prep.IngredientIds, Is.EqualTo(ids.Take(8)));
+        Assert.That(prep.CanAddIngredient, Is.False);
+
+        prep.ToggleIngredient(ids[0]);
+        Assert.That(prep.CanAddIngredient, Is.True);
+        prep.ToggleIngredient(ids[8]);
+        Assert.That(prep.IngredientIds, Is.EqualTo(ids.Skip(1)));
+        Assert.That(prep.CanAddIngredient, Is.False);
+    }
+
+    [Test]
     public void SelectionTrayIsCenteredAndStaysWhenRecipeOpens()
     {
         Assert.That(FieldInfo(typeof(CraftPrepStageScreen), "trayPosition"), Is.Null);
@@ -114,11 +132,19 @@ public sealed class CraftPrepScreenTests
                         layout.childForceExpandHeight || layout.childScaleWidth || layout.childScaleHeight, Is.False,
                 "AGENTS.md Layout Group 기본값");
 
-            Inject(screen, "preparation", new CraftPreparation(Cocktail(Csv(), "gin_tonic"), new ActualCraft()));
+            var prep = new CraftPreparation(Cocktail(Csv(), "gin_tonic"), new ActualCraft());
+            Inject(screen, "preparation", prep);
+            var gin = Field<CraftPrepShelfSlot[]>(screen, "slots").Single(slot => slot.ItemId == "gin");
+            var icon = Field<SpriteRenderer>(gin, "icon");
+            Color originalColor = icon.color;
             Vector2 before = tray.anchoredPosition;
             Call(screen, "OpenRecipe");
             Assert.That(screen.IsRecipeOpen, Is.True);
             Assert.That(tray.anchoredPosition, Is.EqualTo(before), "레시피를 열어도 슬롯 위치는 그대로");
+            Call(screen, "CloseRecipe");
+            Assert.That(prep.HasReadRecipeNote, Is.True);
+            Assert.That(gin.gameObject.activeSelf, Is.True);
+            Assert.That(icon.color, Is.EqualTo(originalColor));
         }
         finally { PrefabUtility.UnloadPrefabContents(root); }
     }

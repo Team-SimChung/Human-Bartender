@@ -195,7 +195,32 @@ public sealed class PourAccountingTests
         Assert.That(manager.ProgressText, Does.StartWith(limit.ToString("0.00") + " /"));
         Assert.That(manager.PouredInTargetUnit, Is.EqualTo((belowCount + 2) * 2f / mlPerUnit).Within(.0001f),
             "최종 결과에 쓰는 실제 수량은 표시 상한으로 자르지 않는다.");
+        Assert.That(manager.ShowOkMark, Is.False, "완료 전에는 결과 표시를 띄우지 않는다.");
+        manager.FinishPour();
+        Call("CompletePour");
         Assert.That(manager.ShowOkMark, Is.True, "표시 상한 위에 있는 목표도 실제량으로 판정한다.");
+    }
+
+    [TestCase(54.99f, true, false)]
+    [TestCase(55f, true, true)]
+    [TestCase(60f, true, true)]
+    [TestCase(65f, true, true)]
+    [TestCase(65.01f, true, false)]
+    [TestCase(60f, false, false)]
+    public void PerfectRequiresCompletionAndAnErrorWithinFiveMl(float retainedMl, bool visibleTarget, bool perfect)
+    {
+        var balance = ScriptableObject.CreateInstance<NewBalanceDataSO>();
+        owned.Add(balance);
+        balance.balanceData = new NewBalanceDataBase { Config = new NewBalanceConfig { UnitOzToMl = 30f } };
+        Set("balanceData", balance);
+        Set("pourStep", new GimmickStep(ECraftGimmick.Pour, "gin", 2f, ENewUnit.Oz, visibleTarget));
+        Set("pouredMl", retainedMl);
+
+        Assert.That(manager.ShowOkMark, Is.False);
+        manager.FinishPour();
+        Assert.That(manager.ShowOkMark, Is.False);
+        Call("CompletePour");
+        Assert.That(manager.ShowOkMark, Is.EqualTo(perfect));
     }
 
     [Test]

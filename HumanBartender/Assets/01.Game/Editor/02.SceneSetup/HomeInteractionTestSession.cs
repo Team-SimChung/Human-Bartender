@@ -69,6 +69,7 @@ internal static class HomeInteractionTestSession
             throw new InvalidOperationException("[HomeTest] 현재 Play 모드를 종료한 뒤 테스트를 시작하세요.");
         var main = AssetDatabase.LoadAssetAtPath<SceneAsset>(MainPath);
         if (main == null) throw new InvalidOperationException("[HomeTest] Main 씬을 찾을 수 없습니다.");
+        EditorPlayTestServices.ValidateProjectScope("HomeTest");
         var state = GameStateManager.Instance;
         SessionState.SetInt(Prefix + "PreviousDay", state.CurrentDay);
         SessionState.SetInt(Prefix + "PreviousFlow", (int)state.GameFlow);
@@ -87,9 +88,13 @@ internal static class HomeInteractionTestSession
         SessionState.SetBool(Prefix + "Running", false);
         SessionState.SetBool(Prefix + "Active", true);
         Status = "테스트용 Main 부트스트랩을 시작합니다.";
-        EditorSceneManager.playModeStartScene = main;
-        InstallOverrides();
-        EditorApplication.isPlaying = true;
+        try
+        {
+            EditorPlayTestServices.ConfigurePlayMode(Prefix, main);
+            InstallOverrides();
+            EditorApplication.isPlaying = true;
+        }
+        catch { Cleanup(); throw; }
     }
 
     public static void StartBarDialogue(int day, string sceneId, int stepSeq, ENewGrade grade, bool orderMatch)
@@ -348,9 +353,10 @@ internal static class HomeInteractionTestSession
         if (Controller?.IsRunning == true || context.Runner.IsRunning || context.Player.State != EInteractorState.None)
             throw new InvalidOperationException("[HomeTest] 현재 상호작용이 끝난 뒤 이동하세요.");
         context.Player.PrepareWorldInteraction();
-        var position = target.transform.position;
-        position.z = context.Player.transform.position.z;
-        context.Player.transform.position = position;
+        var playerTransform = context.Player.transform;
+        var position = playerTransform.position;
+        position.x = target.transform.position.x;
+        playerTransform.position = position;
         foreach (var camera in Object.FindObjectsByType<OutsideCamera>(FindObjectsSortMode.None))
             if (camera.gameObject.scene == context.gameObject.scene) camera.SnapToFollow();
         Status = "대상 위치로 이동: " + target.name;
@@ -490,6 +496,7 @@ internal static class HomeInteractionTestSession
         isolatedPlayer = null;
         var previous = SessionState.GetString(Prefix + "PreviousStartScene", "");
         EditorSceneManager.playModeStartScene = string.IsNullOrEmpty(previous) ? null : AssetDatabase.LoadAssetAtPath<SceneAsset>(previous);
+        EditorPlayTestServices.RestorePlayModeOptions(Prefix);
         var state = GameStateManager.Instance;
         state.CurrentDay = SessionState.GetInt(Prefix + "PreviousDay", 0);
         state.GameFlow = (EGameFlow)SessionState.GetInt(Prefix + "PreviousFlow", (int)EGameFlow.Bar);
@@ -524,6 +531,6 @@ internal static class HomeInteractionTestSession
     {
         if (error is OperationCanceledException) return;
         Status = error.Message;
-        Debug.LogError("[HomeTest] " + error.Message);
+        Debug.LogError("[HomeTest] " + error);
     }
 }

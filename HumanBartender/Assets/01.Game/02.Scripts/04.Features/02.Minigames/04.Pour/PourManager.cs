@@ -179,6 +179,10 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField, Range(0.01f, 1f)] private float quantityAccumulateMultiplier = 0.25f;
     [Tooltip("따르기 마치기 후 공중의 액체가 잔에 도착하도록 기다릴 최대 시간. 이 시간은 제조시간에 포함하지 않는다.")]
     [SerializeField, Min(0f)] private float finishSettleSeconds = 1.5f;
+    [Tooltip("완료 후 PERFECT를 표시하는 목표량과 실제량의 최대 차이(ml).")]
+    [SerializeField, Min(0f)] private float perfectToleranceMl = 5f;
+    [Tooltip("PERFECT를 표시하고 다음 기믹으로 넘어가기까지의 시간(초).")]
+    [SerializeField, Min(0f)] private float perfectDisplaySeconds = 0.8f;
     [Tooltip("isTest일 때 목표 파티클 개수로 사용. 실제 모드에서도 recipe 기반 목표 연결 전까지는 임시로 이 값을 쓴다.")]
     [SerializeField] private int testTargetParticleCount = 60;
     [SerializeField] private int testToleranceCount = 15;
@@ -634,8 +638,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             return;
         }
 
-        // 기믹 큐가 돌릴 때는 목표를 넘겨도 저절로 끝나지 않는다. 초과한 양까지 결과에 담고,
-        // 끝내는 시점은 플레이어가 정한다 — 목표 도달은 알려 주기만 하는 신호다.
+        // 기믹 큐가 돌릴 때는 플레이어가 완료를 누른 양으로 결과를 확정한다.
         // 종료 버튼을 쓰는 전용 HUD에서는 독립 실행도 수동으로 확정한다.
         // 전용 HUD가 없던 기존 개발 경로만 초과 수량 자동 종료를 유지한다.
         if (!drivenByRunner && gimmickHud == null && glassParticleCount > targetParticleCount + toleranceCount)
@@ -667,7 +670,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             using (SimulationMarker.Auto()) simulation.Tick(fixedStep);
             RecycleSpilledParticles();
             // 120Hz 물리 중 두 스텝마다 측정한다. 이웃 탐색을 새로 하지 않고 SPH 목록을 재사용한다.
-            if (++volumeStep >= 2)
+            if (!isFinished && ++volumeStep >= 2)
             {
                 volumeStep = 0;
                 MeasureRetainedVolume();
@@ -864,8 +867,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// <summary>실제로 도착해 잔 안에 남아 있는 입자의 총 용량(ml).</summary>
     float pouredMl;
 
-    /// <summary>결과 기록과 목표 도달 판정에 사용할, 목표 단위로 환산한 투입량.</summary>
+    /// <summary>결과 기록에 사용할, 목표 단위로 환산한 투입량.</summary>
     public float PouredInTargetUnit => ConvertMlTo(pouredMl, pourStep.TargetUnit ?? ENewUnit.Ml);
+    float TargetMl => pourStep.TargetValue.GetValueOrDefault() * MlPerUnit(pourStep.TargetUnit ?? ENewUnit.Ml);
 
     /// <summary>병을 잡아 조작 중인지. 놓은 뒤의 복귀 회전이나 남은 물줄기와 구분한다.</summary>
     public bool IsPourInputHeld => IsManualInputActive && bottle != null && bottle.IsDragging;
@@ -893,12 +897,14 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         runnerCompletion = new UniTaskCompletionSource();
 
         // "이미 끝났는지"는 보지 않는다. 이 함수는 Start()보다 먼저 불려서 상태가 초기값이다.
-        // 기다림을 푸는 신호는 FinishPour() 한 곳에서만 나온다.
+        // 완료 요청 뒤 입자 정리가 끝나면 결과를 확정한다.
 
         using (token.Register(CancelRunnerCompletion))
         {
             await runnerCompletion.Task;
         }
+        if (ShowOkMark && perfectDisplaySeconds > 0f)
+            await UniTask.Delay(System.TimeSpan.FromSeconds(perfectDisplaySeconds), cancellationToken: token);
 
         // 필업도 같은 조작이라 이 구현을 그대로 쓴다. 큐에 들어온 종류를 그대로 결과에 적어
         // 따르기와 필업을 구분한다.
@@ -958,10 +964,8 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         targetMarkerParticles = targetParticleCount;
         if (drivenByRunner)
         {
-            float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
-            float targetMl = pourStep.TargetValue.Value / Mathf.Max(0.0001f, mlPerUnit);
             if (particleVolumeMl <= 0f) return;
-            targetMarkerParticles = targetMl / particleVolumeMl;
+            targetMarkerParticles = TargetMl / particleVolumeMl;
         }
 
         if (targetMarkerParticles * particleVolumeMl > visualCapacityMl)
@@ -1014,9 +1018,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
             if (!pourStep.IsTargetVisible) return "??? / ???";
 
-            float mlPerUnit = ConvertMlTo(1f, pourStep.TargetUnit ?? ENewUnit.Ml);
-            float targetMl = pourStep.TargetValue.Value / mlPerUnit;
-            return $"{DisplayedPouredMl:0.00} / {targetMl:0.00} ml";
+            return $"{DisplayedPouredMl:0.00} / {TargetMl:0.00} ml";
         }
     }
 
@@ -1048,12 +1050,10 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         ? pourer.IsAttached ? Mathf.Clamp01(pourer.DetachAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f
         : bottle != null ? Mathf.Clamp01(pourFullOpenAngle / Mathf.Max(1f, bottle.MaxTiltAngle)) : 1f;
 
-    /// <summary>
-    /// 목표에 도달했는지. 도달해도 저절로 멈추지 않고, 넘겨서 계속 따라도 켜진 채로 있다.
-    /// 목표를 가린 재료에는 띄우지 않는다 — 알려 줄 목표가 없는데 도달을 알릴 수는 없다.
-    /// </summary>
+    /// <summary>완료 후 확정된 실제량이 표시된 목표의 허용 오차 안에 들어왔는지.</summary>
     public bool ShowOkMark =>
-        drivenByRunner && pourStep.IsTargetVisible && PouredInTargetUnit >= pourStep.TargetValue.Value;
+        drivenByRunner && finishRequested && isFinished && pourStep.IsTargetVisible &&
+        Mathf.Abs(pouredMl - TargetMl) <= perfectToleranceMl;
 
     // ── ICraftGimmickManualEnd ──────────────────────────────────────────
 
@@ -1084,7 +1084,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     /// ml을 목표 단위로 바꾼다. 환산 계수도 balance.json이 정본이라 코드에 고정하지 않는다.
     /// 계수가 비어 있으면 나눗셈이 성립하지 않으므로 ml 그대로 둔다.
     /// </summary>
-    float ConvertMlTo(float ml, ENewUnit unit)
+    float ConvertMlTo(float ml, ENewUnit unit) => ml / MlPerUnit(unit);
+
+    float MlPerUnit(ENewUnit unit)
     {
         var config = balanceData != null && balanceData.balanceData != null
             ? balanceData.balanceData.Config
@@ -1093,13 +1095,13 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         switch (unit)
         {
             case ENewUnit.Oz:
-                return config.UnitOzToMl > 0f ? ml / config.UnitOzToMl : ml;
+                return config.UnitOzToMl > 0f ? config.UnitOzToMl : 1f;
 
             case ENewUnit.Tsp:
-                return config.UnitTspToMl > 0f ? ml / config.UnitTspToMl : ml;
+                return config.UnitTspToMl > 0f ? config.UnitTspToMl : 1f;
 
             default:
-                return ml;
+                return 1f;
         }
     }
 }

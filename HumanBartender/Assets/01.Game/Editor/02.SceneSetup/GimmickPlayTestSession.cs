@@ -58,6 +58,7 @@ internal static class GimmickPlayTestSession
         else GimmickPlayTestCatalog.ValidatePrefab(GimmickPlayTestCatalog.Find(key).Step.Type);
         var main = AssetDatabase.LoadAssetAtPath<SceneAsset>("Assets/01.Game/01.Scenes/Main.unity");
         if (main == null) throw new InvalidOperationException("[GimmickPlayTest] Main 씬이 없습니다.");
+        EditorPlayTestServices.ValidateProjectScope("GimmickPlayTest");
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
         var state = GameStateManager.Instance;
         SessionState.SetInt(Prefix + "Day", state.CurrentDay);
@@ -81,7 +82,7 @@ internal static class GimmickPlayTestSession
         Status = "실제 기믹 실행 환경을 준비합니다.";
         try
         {
-            EditorSceneManager.playModeStartScene = main;
+            EditorPlayTestServices.ConfigurePlayMode(Prefix, main);
             Install();
             EditorApplication.isPlaying = true;
         }
@@ -404,6 +405,7 @@ internal static class GimmickPlayTestSession
         IsReady = IsBusy = false;
         var previous = SessionState.GetString(Prefix + "StartScene", "");
         EditorSceneManager.playModeStartScene = string.IsNullOrEmpty(previous) ? null : AssetDatabase.LoadAssetAtPath<SceneAsset>(previous);
+        EditorPlayTestServices.RestorePlayModeOptions(Prefix);
         var state = GameStateManager.Instance;
         state.CurrentDay = SessionState.GetInt(Prefix + "Day", 0);
         state.GameFlow = (EGameFlow)SessionState.GetInt(Prefix + "Flow", (int)EGameFlow.Bar);
@@ -432,6 +434,6 @@ internal static class GimmickPlayTestSession
     {
         if (error is OperationCanceledException) return;
         Status = error.Message;
-        Debug.LogError("[GimmickPlayTest] " + error.Message);
+        Debug.LogError("[GimmickPlayTest] " + error);
     }
 }

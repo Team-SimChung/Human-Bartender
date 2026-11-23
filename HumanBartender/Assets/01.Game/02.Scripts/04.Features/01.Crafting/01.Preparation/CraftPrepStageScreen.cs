@@ -183,7 +183,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
                     slot.SetUnavailable();
                     continue;
                 }
-                slot.Configure(this, item, preparation.IsSelected(item.Id), preparation.IsGuideTarget(item.Id));
+                slot.Configure(this, item, preparation.IsSelected(item.Id));
             }
         }
         if (hoveredSlot != null && (!hoveredSlot.isActiveAndEnabled || !CanInteract(hoveredSlot.ItemStage)))
@@ -231,7 +231,11 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         if (preparation.ToolId != null) AddTrayItem(preparation.ToolId, Stage.Tool);
         foreach (string id in preparation.IngredientIds)
             AddTrayItem(id, Stage.Liquor);
-        if (trayPlaceholder != null) trayPlaceholder.transform.SetAsLastSibling();
+        if (trayPlaceholder != null)
+        {
+            trayPlaceholder.SetActive(preparation.CanAddIngredient);
+            trayPlaceholder.transform.SetAsLastSibling();
+        }
     }
 
     private void RefreshRecipeBrief()

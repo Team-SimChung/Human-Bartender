@@ -9,13 +9,11 @@ public sealed class CraftPrepShelfSlot : MonoBehaviour, IPointerEnterHandler, IP
     [SerializeField] private SpriteRenderer icon;
     [SerializeField] private Color hoverColor = new Color(98f / 255f, 236f / 255f, 1f);
     [SerializeField] private Color selectedColor = new Color(1f, 218f / 255f, 123f / 255f);
-    [SerializeField] private Color guideColor = new Color(0.75f, 0.95f, 1f);
 
     private CraftPrepStageScreen owner;
     private NewShelfItemData item;
     private bool available;
     private bool selected;
-    private bool guide;
     private bool hovered;
     private readonly CraftPrepItemOutline outline = new CraftPrepItemOutline();
 
@@ -23,13 +21,12 @@ public sealed class CraftPrepShelfSlot : MonoBehaviour, IPointerEnterHandler, IP
     public CraftPrepStageScreen.Stage ItemStage { get { return stage; } }
     public Sprite Icon { get { return outline.SourceSprite(icon); } }
 
-    public void Configure(CraftPrepStageScreen screen, NewShelfItemData data, bool isSelected, bool isGuide)
+    public void Configure(CraftPrepStageScreen screen, NewShelfItemData data, bool isSelected)
     {
         owner = screen;
         item = data;
         available = true;
         selected = isSelected;
-        guide = isGuide;
         hovered &= owner != null && owner.CanInteract(stage);
         gameObject.SetActive(true);
         RefreshVisual();
@@ -81,15 +78,11 @@ public sealed class CraftPrepShelfSlot : MonoBehaviour, IPointerEnterHandler, IP
     {
         hovered = false;
         outline.Clear();
-        if (icon != null) icon.color = Color.white;
         if (owner != null) owner.HideItemInfo(this);
     }
 
     private void RefreshVisual()
     {
-        if (icon == null) return;
-        // Keep the recipe hint tint; hover and selection use only the outline.
-        icon.color = guide ? guideColor : Color.white;
         outline.Set(icon, available && selected, available && hovered, selectedColor, hoverColor);
     }
 }
