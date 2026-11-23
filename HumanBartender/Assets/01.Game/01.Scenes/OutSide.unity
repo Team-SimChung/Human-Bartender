@@ -3623,7 +3623,7 @@ MonoBehaviour:
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: 0}
   inspectionImage: {fileID: 0}
-  highlight: {fileID: 0}
+  highlight: {fileID: 1057413648}
   cutsceneSequence: {fileID: 0}
   timelines: []
   optionalTimelineIds: []
@@ -7897,6 +7897,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   keepRenderResolutionDuringZoom: 0
+  limitZoomFrameStep: 0
 --- !u!1 &735997278
 GameObject:
   m_ObjectHideFlags: 0
@@ -13217,6 +13218,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1050468969}
   - component: {fileID: 1050468970}
+  - component: {fileID: 1050468971}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -13265,7 +13267,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -13298,6 +13300,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1050468971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1050468968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1050468970}
+  fadeSpeed: 8
 --- !u!1 &1054065826
 GameObject:
   m_ObjectHideFlags: 0
@@ -13415,6 +13431,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1057413646}
   - component: {fileID: 1057413647}
+  - component: {fileID: 1057413648}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -13463,7 +13480,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dc4c490dd4202f0428eb2218251c9bc0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -13496,6 +13513,20 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1057413648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1057413645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f29e7b5923a10ab4ba4ae136e0466572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutlineHighlight
+  _renderer: {fileID: 1057413647}
+  fadeSpeed: 8
 --- !u!1 &1074330136
 GameObject:
   m_ObjectHideFlags: 0
@@ -13833,7 +13864,7 @@ MonoBehaviour:
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: 0}
   inspectionImage: {fileID: 0}
-  highlight: {fileID: 0}
+  highlight: {fileID: 1050468971}
   cutsceneSequence: {fileID: 0}
   timelines: []
   optionalTimelineIds: []
