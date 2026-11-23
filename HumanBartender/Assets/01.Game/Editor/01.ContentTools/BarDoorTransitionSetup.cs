@@ -1,21 +1,24 @@
 using System;
 using System.Linq;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 웹 bar-door-transition.js와 같은 세 장(배경·문짝·빛)으로 바 문 전환 화면 프리팹을 조립하고 SceneTransitionManager에 연결한다.
-/// 좌표는 960×540 화면의 왼쪽 위 기준 픽셀이다(1920×1080 그림의 절반). 조립 뒤의 위치·색 조정은 프리팹에서 하며,
-/// 다시 실행하면 프리팹을 새로 만든다.
+/// 이미 들여온 웹 문 그림 레이어(Web_GRD_bar_door_*)로 바 문 전환 화면 프리팹을 조립하고 SceneTransitionManager에 연결한다.
+/// 좌표는 1280×720 화면의 왼쪽 위 기준 픽셀이다. 조립 뒤의 위치·색 조정은 프리팹에서 하며, 다시 실행하면 프리팹을 새로 만든다.
 /// </summary>
 public static class BarDoorTransitionSetup
 {
-    const string ArtFolder = "Assets/01.Game/03.Content/01.ArtResources/05.UI/06.Ect/BarDoor/";
+    const string ArtFolder = "Assets/01.Game/03.Content/01.ArtResources/05.UI/06.Ect/WebGenerated/Cutscenes/";
     const string PrefabFolder = "Assets/01.Game/03.Content/08.Prefabs/03.UI/05.Transition";
     const string PrefabPath = PrefabFolder + "/BarDoorTransition.prefab";
     const string ProjectScopePath = "Assets/01.Game/03.Content/08.Prefabs/04.Shared/01.Bootstrap/ProjectLifeScope.prefab";
-    static readonly Vector2 Stage = new(960, 540);
+    const string TutorialOverlayPath = "Assets/01.Game/03.Content/08.Prefabs/03.UI/04.Tutorial/StoryTutorialOverlay.prefab";
+    // 그림자 레이어는 본체보다 사방 48px 크게 만들어져 있다.
+    const float ShadowPad = 48;
+    static readonly Vector2 Stage = new(1280, 720);
 
     [MenuItem("Tools/Story/Build Bar Door Transition")]
     public static void Build()
@@ -35,7 +38,7 @@ public static class BarDoorTransitionSetup
             var scaler = root.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = Stage;
-            scaler.matchWidthOrHeight = 0;
+            scaler.matchWidthOrHeight = .5f;
 
             var backdrop = Stretch(Child("Backdrop", root.transform));
             backdrop.gameObject.AddComponent<Image>().color = Color.black;
@@ -44,25 +47,60 @@ public static class BarDoorTransitionSetup
             stage.anchorMin = stage.anchorMax = stage.pivot = new Vector2(.5f, .5f);
             stage.sizeDelta = Stage;
 
-            // 배경 그림의 문 자리는 투명하게 뚫려 있다(1920×1080 그림의 (864,428) 192×296).
-            // 그 구멍 안에 빛과 문짝을 두고, 열린 문짝이 구멍 밖으로 보이지 않게 가린다.
-            var aperture = Place(Child("Aperture", stage), 432, 214, 96, 148);
+            Layer(stage, "wall_halo_background", 335, 113, 610, 494);
+            // 문턱 하단 바로 아래에서 UI 하단으로 퍼지도록 둔다.
+            var floorLight = Layer(stage, "light_floor_background", 393, 579, 494, 123).gameObject.AddComponent<CanvasGroup>();
+            floorLight.alpha = 0;
+            floorLight.blocksRaycasts = false;
+            floorLight.interactable = false;
+            Layer(stage, "ground_background", 315, 575, 650, 2);
+
+            Shadowed(stage, "sign", 519, 153, 242, 74);
+            var font = LoadFont();
+            var sign = Text(stage, "Sign Text", "언노운", font, 30, new Color(.93f, .85f, .58f), 519, 153, 242, 74);
+            sign.characterSpacing = 10;
+
+            Layer(stage, "rail_shadow", 524 - ShadowPad, 241 - ShadowPad, 232 + ShadowPad * 2, 5 + ShadowPad * 2);
+            Layer(stage, "frame_shadow", 532 - ShadowPad, 246 - ShadowPad, 216 + ShadowPad * 2, 328 + ShadowPad * 2);
+            Layer(stage, "frame_background", 532, 246, 216, 328);
+
+            // 문틀 안쪽. 열린 문짝이 문틀 밖으로 보이지 않게 가린다.
+            var aperture = Place(Child("Aperture", stage), 539, 253, 202, 314);
             aperture.gameObject.AddComponent<RectMask2D>();
-            Layer(aperture, "Light", "Door_Transition_Light", 0, 0, 96, 148);
-            var leaf = Layer(aperture, "Leaf", "Door_Transition_Door", 0, 0, 96, 148).rectTransform;
-            Layer(stage, "Background", "Door_Transition_BG", 0, 0, 960, 540);
+            Layer(aperture, "aperture_background", 0, 0, 202, 314);
+            Layer(aperture, "interior_background", 0, 0, 202, 314);
+            var leaf = Place(Child("Leaf", aperture), 0, 0, 202, 314);
+            Layer(leaf, "leaf_background", 0, 0, 202, 314);
+            Layer(leaf, "leaf_border", 0, 0, 202, 314);
+            Layer(leaf, "window_background", 24, 42, 149, 49);
+            Layer(leaf, "window_border", 24, 42, 149, 49);
+            Layer(leaf, "window_after_background", 36, 51, 125, 31);
+            Layer(leaf, "grip_background", 178, 143, 6, 48);
+            Layer(leaf, "grip_border", 178, 143, 6, 48);
 
-            var track = Place(Child("LoadTrack", stage), 458, 503, 45, 2);
-            var trackImage = track.gameObject.AddComponent<Image>();
-            trackImage.color = new Color32(0x26, 0x31, 0x2f, 255);
-            trackImage.raycastTarget = false;
-            var slider = Place(Child("LoadSlider", track), 0, 0, 18, 2);
-            var sliderImage = slider.gameObject.AddComponent<Image>();
-            sliderImage.color = new Color32(0xbd, 0xb3, 0x89, 255);
-            sliderImage.raycastTarget = false;
+            // 문짝보다 문틀·상단 레일이 앞에 오도록 그린다.
+            Layer(stage, "frame_border", 532, 246, 216, 328);
+            Layer(stage, "rail_background", 524, 241, 232, 5);
+            Layer(stage, "sill_background", 526, 571, 228, 8);
+            Layer(stage, "sill_border", 526, 571, 228, 8);
 
-            // 그림 전체를 한 번에 가려야 페이드 중 빛이 닫힌 문짝을 뚫고 보이지 않는다.
-            var curtainRect = Stretch(Child("FadeCurtain", root.transform));
+            Layer(stage, "prop_bin_shadow", 462 - ShadowPad, 494 - ShadowPad, 51 + ShadowPad * 2, 81 + ShadowPad * 2);
+            Layer(stage, "prop_left_bag_background", 418, 523, 41, 52);
+            Layer(stage, "prop_bags_background", 772, 502, 58, 73);
+            Layer(stage, "prop_bin_background", 462, 494, 51, 81);
+            Layer(stage, "prop_bin_border", 462, 494, 51, 81);
+            Layer(stage, "prop_bin_after_border", 475, 483, 24, 8);
+            Layer(stage, "prop_bin_before_background", 459, 489, 57, 13);
+            Layer(stage, "prop_bin_before_border", 459, 489, 57, 13);
+
+            var caption = Text(stage, "Caption", "영업을 준비하고 있습니다", font, 13, new Color(.55f, .6f, .62f), 0, 628, 1280, 24);
+            caption.characterSpacing = 4;
+            var track = Layer(stage, "load_track_background", 610, 671, 60, 2);
+            var slider = Place(Child("Slider", track.rectTransform), 0, 0, 24, 2);
+            slider.gameObject.AddComponent<Image>().color = new Color(.93f, .85f, .58f);
+
+            // 그림 전체를 한 번에 가려야 페이드 중 내부 빛이 닫힌 문짝을 뚫고 보이지 않는다.
+            var curtainRect = Stretch(Child("Fade Curtain", root.transform));
             var curtainImage = curtainRect.gameObject.AddComponent<Image>();
             curtainImage.color = Color.black;
             curtainImage.raycastTarget = false;
@@ -75,11 +113,11 @@ public static class BarDoorTransitionSetup
             using (var serialized = new SerializedObject(view))
             {
                 serialized.FindProperty("leaf").objectReferenceValue = leaf;
+                serialized.FindProperty("caption").objectReferenceValue = caption;
                 serialized.FindProperty("loadSlider").objectReferenceValue = slider;
                 serialized.FindProperty("loadTrack").objectReferenceValue = track.gameObject;
+                serialized.FindProperty("floorLight").objectReferenceValue = floorLight;
                 serialized.FindProperty("fadeCurtain").objectReferenceValue = curtain;
-                // 웹: 문짝이 자기 폭만큼(-100%) 밀려 열린다.
-                serialized.FindProperty("openTravel").floatValue = 1;
                 serialized.ApplyModifiedPropertiesWithoutUndo();
             }
             var group = root.GetComponent<CanvasGroup>();
@@ -137,15 +175,44 @@ public static class BarDoorTransitionSetup
         return rect;
     }
 
-    static Image Layer(RectTransform parent, string name, string file, float x, float y, float w, float h)
+    static Image Layer(RectTransform parent, string part, float x, float y, float w, float h)
     {
-        string path = ArtFolder + file + ".png";
+        string path = ArtFolder + "Web_GRD_bar_door_" + part + ".png";
         var sprite = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().FirstOrDefault()
-            ?? throw new InvalidOperationException("[BarDoorTransitionSetup] 문 그림 Sprite가 없습니다: " + path);
-        var image = Place(Child(name, parent), x, y, w, h).gameObject.AddComponent<Image>();
+            ?? throw new InvalidOperationException("문 그림 Sprite가 없습니다: " + path);
+        var image = Place(Child(part, parent), x, y, w, h).gameObject.AddComponent<Image>();
         image.sprite = sprite;
         image.raycastTarget = false;
         return image;
+    }
+
+    static void Shadowed(RectTransform parent, string part, float x, float y, float w, float h, bool border = true)
+    {
+        Layer(parent, part + "_shadow", x - ShadowPad, y - ShadowPad, w + ShadowPad * 2, h + ShadowPad * 2);
+        Layer(parent, part + "_background", x, y, w, h);
+        if (border) Layer(parent, part + "_border", x, y, w, h);
+    }
+
+    static TMP_Text Text(RectTransform parent, string name, string value, TMP_FontAsset font, float size, Color color,
+        float x, float y, float w, float h)
+    {
+        var text = Place(Child(name, parent), x, y, w, h).gameObject.AddComponent<TextMeshProUGUI>();
+        if (font != null) text.font = font;
+        text.text = value;
+        text.fontSize = size;
+        text.color = color;
+        text.alignment = TextAlignmentOptions.Center;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    // 튜토리얼 오버레이와 같은 글꼴을 쓴다. 따로 글꼴 경로를 두지 않기 위함이다.
+    static TMP_FontAsset LoadFont()
+    {
+        var overlay = AssetDatabase.LoadAssetAtPath<StoryTutorialView>(TutorialOverlayPath);
+        if (overlay == null) return null;
+        using var serialized = new SerializedObject(overlay);
+        return (serialized.FindProperty("heading").objectReferenceValue as TMP_Text)?.font;
     }
 
     /// <summary>batchmode용: 프리팹 조립과 연결을 실행하고 종료 코드로 결과를 알린다.</summary>
