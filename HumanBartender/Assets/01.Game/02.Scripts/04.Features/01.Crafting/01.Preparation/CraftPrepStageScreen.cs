@@ -38,8 +38,10 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     [SerializeField] private Button recipeCloseButton;
     [SerializeField] private Button startButton;
     [SerializeField] private Button backButton;
+    /// <summary>선반 데이터에 없는 병따개의 기본 표시 이름. 레시피 상세(CocktailRecipePreview)도 이 값을 기본값으로 쓴다.</summary>
+    public const string DefaultBottleOpenerName = "병따개";
     [Tooltip("선반 데이터에 없는 병따개의 표시 이름. 레시피 버튼 목록에서 쓴다.")]
-    [SerializeField] private string bottleOpenerName = "병따개";
+    [SerializeField] private string bottleOpenerName = DefaultBottleOpenerName;
     [Header("Notice Popup")]
     [SerializeField] private TMP_FontAsset noticeFont;
     [SerializeField] private float noticeFontSize = 22f;

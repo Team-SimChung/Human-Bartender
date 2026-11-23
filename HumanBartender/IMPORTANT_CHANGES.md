@@ -270,7 +270,7 @@ CapManager의 `successEffectPrefab` / `successEffectAnchor`를 연결한다. `su
  → 0.5초 페이드 인 → 다음 날 시작
 ```
 
-- 테라스 대상 story ID: `night0`, `night1`, `night2`, `ending`. workshop은 기존 표현을 유지한다.
+- 테라스 대상 story ID: `night0`, `night1`, `night2`, `ending`. 취침은 그날의 테라스 대본 하나만 재생한다(폐기된 workshop은 CSV에서 삭제, QA-15).
 - 수면 선택 후에는 **Esc·패드 취소와 옵션창 진입을 막는다**. 선택 전 소파 메뉴는 취소할 수 있다. 씬 종료·오브젝트 종료에 필요한 강제 취소와 오류 복구는 유지한다.
 - 대화가 끝나자마자 실내가 잠깐 보이던 전환을 제거했다. 암전 중 날짜·위치를 바꾼다.
 - 0→1, 1→2, 2→3일차는 침대 앞에서 시작한다. 최종 3일차 종료의 TempEnding 분기는 유지한다.

@@ -113,7 +113,7 @@ public class Player : MonoBehaviour, IInteractor
         if (!TrySetPosition()) Debug.LogError("[Player] 현재 씬의 시작 위치가 연결되지 않았습니다.", this);
     }
     /// <summary>
-    /// 상태별 게이트: Lock/Interct 상태에서는 완전히 정지, ForceMove(엘리베이터 탑승 등) 상태에서는
+    /// 상태별 게이트: Lock/Interct 상태(엘리베이터 탑승 포함)에서는 완전히 정지, ForceMove(WalkToXAsync 자동 걷기) 상태에서는
     /// 이동/애니메이션은 계속하되 상호작용 감지는 멈춤.
     /// </summary>
     public void Update()
