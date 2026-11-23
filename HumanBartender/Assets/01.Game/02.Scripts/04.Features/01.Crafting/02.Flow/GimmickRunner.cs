@@ -47,7 +47,16 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
     [Tooltip("Play 씬의 PlayerInput을 소유한 입력 라우터.")]
     [SerializeField] private CraftGimmickInputRouter inputRouter;
 
+    [Header("First-time Guide")]
+    [Tooltip("저장 파일에서 스터를 처음 할 때 미니게임 화면 위에 띄우는 조작 안내(Canvas_StirTutorial). 보는 동안 게임 시간을 멈추고, " +
+             "마지막 쪽에서 확인하면 진행 플래그(mix_tutorial_stir)를 남겨 다시 띄우지 않는다. 비우면 띄우지 않는다.")]
+    [SerializeField] private TutorialPageView stirTutorialPrefab;
+
+    /// <summary>스터 조작 안내를 본 기록. 웹 mix-tutorial.js와 같은 이름의 진행 플래그라 저장 파일에 남는다.</summary>
+    internal const string StirTutorialFlag = "mix_tutorial_stir";
+
     [Inject] IObjectResolver resolver;
+    [Inject] IConditionUtil conditions;
 
     CraftTimer runningTimer;
 
@@ -131,7 +140,11 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
 
             currentGimmick = gimmick;
 
-            var result = await gimmick.PlayAsync(step, context, timer, token);
+            var playing = gimmick.PlayAsync(step, context, timer, token);
+            // 처음 하는 스터는 미니게임 화면을 띄운 뒤, 첫 입력을 받기 전에 조작 안내를 덮어 보여 준다(웹 mix-tutorial.js).
+            // 제조가 취소되면 안내도 닫히고, 아래 기다림이 취소를 그대로 던진다.
+            if (step.Type == ECraftGimmick.Stir) await ShowStirTutorialOnceAsync(token).SuppressCancellationThrow();
+            var result = await playing;
             token.ThrowIfCancellationRequested();
             if (result == null) throw new InvalidOperationException($"'{step.Type}' 결과가 없습니다.");
             return result;
@@ -147,6 +160,29 @@ public class GimmickRunner : MonoBehaviour, ICraftExecutor
                 try { hud?.UnbindGimmick(); }
                 finally { if (instance != null) Destroy(instance); }
             }
+        }
+    }
+
+    /// <summary>
+    /// 저장 파일에서 처음 하는 스터라면 조작 안내(1/2 → 2/2)를 띄우고 닫힐 때까지 기다린다.
+    /// 보는 동안 게임 시간을 멈춰(GamePause) 스터 제한시간·제조 시간·손님 대기가 흐르지 않고, 방향키도 미니게임에 들어가지 않는다.
+    /// 마지막 쪽에서 확인했을 때만 플래그를 남긴다 — 도중에 제조가 취소되면 다음 스터에서 다시 뜬다(웹과 같다).
+    /// </summary>
+    async UniTask ShowStirTutorialOnceAsync(CancellationToken token)
+    {
+        if (stirTutorialPrefab == null || conditions == null) return;
+        if (conditions.CheckRequired("flag." + StirTutorialFlag)) return;
+
+        var tutorial = Instantiate(stirTutorialPrefab);
+        try
+        {
+            using (GamePause.Acquire())
+                await tutorial.ShowAsync(TutorialPageView.ConfirmKeyPressed, token);
+            conditions.ApplyRequired("flag." + StirTutorialFlag + " = true");
+        }
+        finally
+        {
+            if (tutorial != null) Destroy(tutorial.gameObject);
         }
     }
 

@@ -18,4 +18,23 @@ internal static class WorldInteractionInput
             gamepad?.dpad.down.wasPressedThisFrame == true) return 1;
         return 0;
     }
+
+    /// <summary>마우스 휠: 위로 굴리면 이전(−1), 아래로 굴리면 다음(+1). 굴린 양은 보지 않는다.</summary>
+    internal static int ReadChoiceWheel()
+    {
+        float scroll = Mouse.current?.scroll.ReadValue().y ?? 0;
+        if (scroll == 0 || ModifierHeld) return 0;
+        return scroll > 0 ? -1 : 1;
+    }
+
+    // 웹(world-choices.js wheel)처럼 Ctrl·Alt·Cmd/Win과 함께 굴린 휠(확대·시스템 단축키)은 선택지를 옮기지 않는다.
+    private static bool ModifierHeld
+    {
+        get
+        {
+            var keyboard = Keyboard.current;
+            return keyboard != null && (keyboard.ctrlKey.isPressed || keyboard.altKey.isPressed ||
+                keyboard.leftMetaKey.isPressed || keyboard.rightMetaKey.isPressed);
+        }
+    }
 }

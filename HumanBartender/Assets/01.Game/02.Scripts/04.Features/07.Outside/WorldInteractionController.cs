@@ -229,6 +229,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             return;
         }
         view.MoveChoice(WorldInteractionInput.ReadChoiceDirection());
+        view.ScrollChoice(WorldInteractionInput.ReadChoiceWheel());
         if (WorldInteractionInput.AdvancePressed || DialoguePointerPressed) TryHandleInput();
     }
 
