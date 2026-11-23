@@ -353,13 +353,29 @@ internal static class HomeInteractionTestSession
         if (Controller?.IsRunning == true || context.Runner.IsRunning || context.Player.State != EInteractorState.None)
             throw new InvalidOperationException("[HomeTest] 현재 상호작용이 끝난 뒤 이동하세요.");
         context.Player.PrepareWorldInteraction();
-        var playerTransform = context.Player.transform;
-        var position = playerTransform.position;
-        position.x = target.transform.position.x;
-        playerTransform.position = position;
+        context.Player.transform.position = GetTargetPosition(context.Player, target);
         foreach (var camera in Object.FindObjectsByType<OutsideCamera>(FindObjectsSortMode.None))
             if (camera.gameObject.scene == context.gameObject.scene) camera.SnapToFollow();
         Status = "대상 위치로 이동: " + target.name;
+    }
+
+    internal static Vector3 GetTargetPosition(Player player, WorldInteractionTarget target)
+    {
+        var position = player.transform.position;
+        var destination = target.transform.position;
+        position.x = destination.x;
+        if (target.gameObject.scene.name != "OutSide") return position;
+
+        var homeSpawn = player.GetSpawnPoint(EPlayerSpawn.Home);
+        var barSpawn = player.GetSpawnPoint(EPlayerSpawn.Bar);
+        if (homeSpawn == null || barSpawn == null) return position;
+
+        float floorBoundary = (homeSpawn.position.y + barSpawn.position.y) * 0.5f;
+        bool playerIsUpstairs = position.y >= floorBoundary;
+        bool targetIsUpstairs = destination.y >= floorBoundary;
+        if (playerIsUpstairs != targetIsUpstairs)
+            position.y = targetIsUpstairs ? homeSpawn.position.y : barSpawn.position.y;
+        return position;
     }
 
     public static async UniTask<StoryExecutionResult> PlayTargetAsync(WorldInteractionTarget target)
