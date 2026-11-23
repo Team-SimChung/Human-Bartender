@@ -174,4 +174,27 @@ public sealed class DayTransitionTests
             Assert.That(rect.name.Contains(' '), Is.False, rect.name);
         }
     }
+
+    [Test]
+    public void EveryQuoteGlyphExistsInTheTransitionFont()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(DayTransitionSetup.PrefabPath);
+        var view = prefab.transform.Find(DayTransitionSetup.CanvasName).GetComponent<DayTransitionView>();
+        var quoteText = (TMP_Text)typeof(DayTransitionView).GetField("quoteText", Private).GetValue(view);
+        var authorText = (TMP_Text)typeof(DayTransitionView).GetField("authorText", Private).GetValue(view);
+        var quotes = (System.Collections.Generic.List<DayTransitionView.Quote>)typeof(DayTransitionView).GetField("quotes", Private).GetValue(view);
+        foreach (var quote in quotes)
+        {
+            // 정적 아틀라스에 없는 글자(예: 『』)는 □로 깨진다. 폴백까지 포함해 모두 있어야 한다.
+            AssertGlyphs(quoteText.font, quote.text.Replace("\n", ""));
+            AssertGlyphs(authorText.font, quote.author);
+        }
+    }
+
+    static void AssertGlyphs(TMP_FontAsset font, string text)
+    {
+        font.HasCharacters(text, out uint[] missing, searchFallbacks: true);
+        Assert.That(missing, Is.Null.Or.Empty,
+            $"{font.name}에 없는 글자: {string.Join(" ", Array.ConvertAll(missing ?? Array.Empty<uint>(), c => $"U+{c:X4}"))}");
+    }
 }
