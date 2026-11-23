@@ -138,6 +138,16 @@ public sealed class OutsideGroundEffectsTests
     }
 
     [Test]
+    public void RimColorKeepsHueOfDarkHighIntensityLights()
+    {
+        // 2층 복도 라이트처럼 색은 어둡고 Intensity로 밝기를 낸 경우에도 림이 검게 묻히지 않아야 한다.
+        var hue = CharacterSpriteLighting.RimHue(new Color(0.006f, 0.133f, 0.255f));
+        Assert.That(hue.b, Is.EqualTo(1).Within(1e-4f));
+        Assert.That(hue.g / hue.b, Is.EqualTo(0.133f / 0.255f).Within(1e-3f), "색조는 그대로다.");
+        Assert.That(CharacterSpriteLighting.RimHue(new Color(1, 0.86f, 0.68f)), Is.EqualTo(new Color(1, 0.86f, 0.68f)));
+    }
+
+    [Test]
     public void FreeformStreetLampEmitsFromItsLampHeadNotItsPivot()
     {
         var caster = Make("caster under lamp").AddComponent<SpriteRenderer>();

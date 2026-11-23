@@ -94,6 +94,16 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
 
     void LateUpdate() => Refresh();
 
+    /// <summary>
+    /// 광원 색에서 색조만 남기고 가장 밝은 채널을 1로 맞춘다. 어두운 색 + 높은 Intensity로 밝기를 낸 라이트
+    /// (예: 2층 복도 남색 라이트 0.006/0.13/0.26 × 7.96)도 림이 검게 묻히지 않는다. 세기는 Influence가 따로 반영한다.
+    /// </summary>
+    public static Color RimHue(Color light)
+    {
+        float max = Mathf.Max(light.r, Mathf.Max(light.g, light.b));
+        return max > 0.0001f ? new Color(light.r / max, light.g / max, light.b / max, 1) : Color.white;
+    }
+
     /// <summary>현재 발 위치 기준으로 광원을 다시 고르고 림/그늘 방향을 보간한다.</summary>
     public void Refresh()
     {
@@ -105,7 +115,7 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
         float step = Application.isPlaying ? Time.deltaTime / Mathf.Max(0.01f, transitionSeconds) : 1;
         lightWeight = Mathf.MoveTowards(lightWeight, target, step);
         if (selected == null) return; // 광원을 벗어나면 마지막 방향을 유지한 채 세기만 줄어든다.
-        Color targetColor = Color.Lerp(rimColor, selected.Color, rimUsesLightColor);
+        Color targetColor = Color.Lerp(rimColor, RimHue(selected.Color), rimUsesLightColor);
         // 림이 꺼져 있던 상태에서 새 광원에 들어오면 이전 광원 위치에서 끌려오지 않고 바로 그 방향을 쓴다.
         float follow = !Application.isPlaying || lightWeight <= step ? 1 : Mathf.Clamp01(step * 2);
         lightPosition = Vector2.Lerp(lightPosition, selected.Position, follow);

@@ -11239,7 +11239,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 2
   m_FalloffIntensity: 0.72
   m_Color: {r: 0.5471698, g: 0.10582057, b: 0.46819147, a: 1}
-  m_Intensity: 10.32
+  m_Intensity: 3
   m_LightVolumeIntensity: 0.1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000a59bd729251c4774d98a48e0dd9a13ab2922f849037f3348190b6ab7c5a6acf0bbe5a9f2
@@ -12679,6 +12679,7 @@ MonoBehaviour:
   committedCondition: 
   beforeCommitIdleState: 
   afterCommitIdleState: 
+  afterCommitPositionOffset: {x: 0, y: 0}
   beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: lower
@@ -14916,6 +14917,7 @@ MonoBehaviour:
   committedCondition: flag.street_beggar_paid
   beforeCommitIdleState: 
   afterCommitIdleState: 
+  afterCommitPositionOffset: {x: 0, y: 0}
   beforeCommitIdlePlayback: {fileID: 0}
   sequences:
   - id: depart
@@ -31381,6 +31383,7 @@ MonoBehaviour:
   committedCondition: 
   beforeCommitIdleState: 
   afterCommitIdleState: 
+  afterCommitPositionOffset: {x: 0, y: 0}
   beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
@@ -38836,9 +38839,9 @@ MonoBehaviour:
   m_ComponentVersion: 2
   m_LightType: 1
   m_BlendStyleIndex: 2
-  m_FalloffIntensity: 1
+  m_FalloffIntensity: 0.795
   m_Color: {r: 0.16470587, g: 0.77254903, b: 0.34784338, a: 1}
-  m_Intensity: 3.48
+  m_Intensity: 1
   m_LightVolumeIntensity: 0.1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000a59bd729251c4774d98a48e0dd9a13ab2922f849037f3348190b6ab7c5a6acf0bbe5a9f2
@@ -39558,6 +39561,7 @@ MonoBehaviour:
   committedCondition: 
   beforeCommitIdleState: 
   afterCommitIdleState: 
+  afterCommitPositionOffset: {x: 0, y: 0}
   beforeCommitIdlePlayback: {fileID: 0}
   sequences: []
   proximityAnimation:
