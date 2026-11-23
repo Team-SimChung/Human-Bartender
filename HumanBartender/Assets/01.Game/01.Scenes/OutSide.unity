@@ -465,7 +465,7 @@ Transform:
   m_GameObject: {fileID: 52136530}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3747,7 +3747,7 @@ Transform:
   m_GameObject: {fileID: 345436428}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5568,7 +5568,7 @@ Transform:
   m_GameObject: {fileID: 428915524}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35000038, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11364,7 +11364,7 @@ Transform:
   m_GameObject: {fileID: 954953857}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.33, y: -0.1, z: 0}
+  m_LocalPosition: {x: 1.33, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15249,7 +15249,7 @@ Transform:
   m_GameObject: {fileID: 1171577569}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16261,7 +16261,7 @@ Transform:
   m_GameObject: {fileID: 1213701202}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16864,7 +16864,7 @@ Transform:
   m_GameObject: {fileID: 1238390147}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.727, y: 9.7, z: 0}
+  m_LocalPosition: {x: -14.26, y: 9.796, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17203,9 +17203,9 @@ MonoBehaviour:
       positionOrigin: 2
       movementEase: 0
       horizontalOnly: 0
-      target: {fileID: 406932928}
+      target: {fileID: 1238390148}
       distance: 0.65
-      offset: {x: 0.4, y: 0.65}
+      offset: {x: -0.274, y: 0.734}
       offsetMode: 0
       unitsPerSecond: 0
       arcHeight: 0.55
@@ -19487,7 +19487,7 @@ Transform:
   m_GameObject: {fileID: 1372032622}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.727, y: 9.7, z: 0}
+  m_LocalPosition: {x: -14.26, y: 9.796, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -19575,7 +19575,7 @@ MonoBehaviour:
   maximumDay: -1
   presencePhase: 0
   minimumDayStartsOnReturn: 0
-  presenceCondition: 
+  presenceCondition: '!flag.boobi_feeding_pending'
   committedCondition: 
   beforeCommitIdleState: 
   afterCommitIdleState: 
@@ -20829,7 +20829,7 @@ Transform:
   m_GameObject: {fileID: 1506454034}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21463,7 +21463,7 @@ Transform:
   m_GameObject: {fileID: 1570378280}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22784,7 +22784,7 @@ Transform:
   m_GameObject: {fileID: 1639230067}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.727, y: 9.7, z: 0}
+  m_LocalPosition: {x: -14.26, y: 9.796, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -22872,7 +22872,7 @@ MonoBehaviour:
   maximumDay: -1
   presencePhase: 0
   minimumDayStartsOnReturn: 0
-  presenceCondition: 
+  presenceCondition: '!flag.boobi_feeding_pending'
   committedCondition: 
   beforeCommitIdleState: 
   afterCommitIdleState: 
@@ -24822,7 +24822,7 @@ Transform:
   m_GameObject: {fileID: 1775704100}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.35, z: 0}
+  m_LocalPosition: {x: -0.113, y: 0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

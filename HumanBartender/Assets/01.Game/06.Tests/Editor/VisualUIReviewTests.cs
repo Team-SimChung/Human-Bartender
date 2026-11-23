@@ -190,6 +190,7 @@ public sealed class VisualUIReviewTests
     [TestCase("RhythmShakingMinigame")]
     public void ShakingAnimationKeepsSpriteFramesAndUnlitMaterial(string name)
     {
+        const string sheetPath = "Assets/01.Game/03.Content/01.ArtResources/03.Crafting/04.Minigames/01.Shake/01.Sprites/Shake.png";
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/01.Game/03.Content/08.Prefabs/01.Crafting/02.Minigames/01.Shake/" + name + ".prefab");
         var driver = prefab.GetComponentInChildren<AnimSpeedController>(true);
         Assert.That(driver, Is.Not.Null, "Luna animation driver must be connected.");
@@ -198,6 +199,8 @@ public sealed class VisualUIReviewTests
         var animator = character.GetComponent<Animator>();
         Assert.That(character.gameObject.activeSelf && renderer.enabled, Is.True);
         Assert.That(renderer.sprite, Is.Not.Null);
+        Assert.That(AssetDatabase.GetAssetPath(renderer.sprite), Is.EqualTo(sheetPath));
+        Assert.That(renderer.sprite.name, Is.EqualTo("Shake_0"));
         Assert.That(renderer.sharedMaterial.shader.name, Does.Contain("Unlit"), "The isolated stage has no character lighting source.");
         var frames = animator.runtimeAnimatorController.animationClips
             .SelectMany(clip => AnimationUtility.GetObjectReferenceCurveBindings(clip)
@@ -205,6 +208,8 @@ public sealed class VisualUIReviewTests
                 .SelectMany(binding => AnimationUtility.GetObjectReferenceCurve(clip, binding))).ToArray();
         Assert.That(frames, Is.Not.Empty);
         Assert.That(frames.All(frame => frame.value != null), Is.True, "Luna animation must not contain missing sprite references.");
+        Assert.That(frames.All(frame => AssetDatabase.GetAssetPath(frame.value) == sheetPath), Is.True);
+        Assert.That(frames.Select(frame => frame.value).Distinct().Count(), Is.EqualTo(8));
     }
 
     [TestCase(SceneTransitionStyle.BarEntrance, false)]
