@@ -7812,9 +7812,14 @@ MonoBehaviour:
     pitch: 1
   seList:
   - name: SFX_shaking
-    clip: {fileID: 8300000, guid: 520b794b05e65b54387b5fce35addc67, type: 3}
+    clip: {fileID: 8300000, guid: 5e488e21278224a548d1d86c07ac23a3, type: 3}
     alternatives: []
-    volume: 0.5
+    volume: 0.416
+    pitch: 1
+  - name: SFX_shake_complete
+    clip: {fileID: 8300000, guid: cc8d13c70bd84b2dbbbc778a1fbd18ad, type: 3}
+    alternatives: []
+    volume: 0.85
     pitch: 1
   - name: SFX_typing
     clip: {fileID: 8300000, guid: 9d9e795045ee44119a67e2bb3a91a6b9, type: 3}

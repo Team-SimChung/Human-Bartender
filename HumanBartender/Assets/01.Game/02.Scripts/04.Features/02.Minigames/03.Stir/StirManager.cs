@@ -196,7 +196,7 @@ public class StirManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         // 마지막 판정 이후에도 예약된 중단점까지 연출을 마무리한다.
         stirAnimation?.Tick(Time.deltaTime);
         bool moving = isStarted && !isCompleted && Time.deltaTime > 0f && stirAnimation != null && stirAnimation.IsPlaying;
-        if (moving) stirSound ??= loopSound?.StartLoop("SFX_stir");
+        if (moving) stirSound ??= loopSound?.StartLoop("SFX_stir_alternate");
         else StopStirSound();
 
         if (isCompleted) return;

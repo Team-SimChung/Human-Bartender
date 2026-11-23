@@ -210,6 +210,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
 
     public void CompleteMade()
     {
+        if (!isPlay) return;
         isPlay = false;
         attemptGauge?.SetNextSegment(-1);
         bgmSource?.Stop();
@@ -223,6 +224,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
             data.craftingResult.limitFailCount = totalJudge;
         }
 
+        if (!isTest && hasStarted && !endedManually) soundManager?.PlaySE("SFX_shake_complete");
         runnerCompletion?.TrySetResult();
 
         if (tcs != null)
@@ -282,9 +284,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         {          
             Logger.Log("Judge");
 
-            if (!isTest)
-                soundManager.PlaySE("SFX_shaking");
-
             characterAnim.PlayAnim();
             nodeCreator.CreateEffectNode(hitPosition, hitColor);
         }
@@ -313,6 +312,7 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         }
         else
         {
+            if (success && !isTest) soundManager?.PlaySE("SFX_shaking");
             attemptGauge?.SetNextSegment(successJudge + failJudge);
         }
     }
@@ -412,7 +412,6 @@ public class ShakingManagerNew : MonoBehaviour, IMiniGameController, ICraftGimmi
         if (!CanEndNow) return;
 
         endedManually = true;
-        isPlay = false;
         CompleteMade();
     }
 }

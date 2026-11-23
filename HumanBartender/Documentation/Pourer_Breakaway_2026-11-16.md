@@ -27,7 +27,7 @@
 - `PourerBreakaway > Attached Stream > Attached Stream Width Scale`: 분리 전 유입 물줄기 입자의 가로 두께 배율.
 - `PourManager > Volume Readout Limits`: 일반 잔·바이젠잔의 현재량 표시 상한. 잔의 물리 용량 설정과 별도로 조절한다.
 - `PourManager > Pour Settings > Beer Flow Multiplier`: 맥주 출수량 배율.
-- `Breakaway Sound (Optional) > Detach Clip`: 나중에 추가할 분리 효과음 슬롯. 현재는 비어 있다. 클립을 넣으면 분리 순간 한 번 재생하며, `Detach Gain`으로 음량을 조절한다. 저장된 전용 AudioSource가 공용 효과음 믹서를 사용하고, 일시정지·포커스 상실·기믹 종료 시 소리를 끊는다.
+- `Breakaway Sound (Optional) > Detach Clip`: 웹의 분리음을 0.25초 WAV로 만든 `pourer_detach.wav`가 연결돼 있다. 분리 순간 한 번 재생되며, `Detach Gain`으로 음량을 조절한다. 전용 AudioSource는 공용 효과음 믹서를 사용하고, 일시정지·포커스 상실·기믹 종료 시 소리를 끊는다. [웹 분리음 코드](https://junseo874.github.io/bar-playtest/src/features/crafting/pour-view.js)
 - `Bottle/AttachedPourer`: 병에 붙어 있는 스프라이트 크기. 시작할 때 윗끝을 액체 출구에 맞추고, 병 그림은 푸어러 길이만큼 아래로 이동한다. 분리 시 병 그림은 복원된다.
 - `Pour Root/DetachedPourer`: 분리된 푸어러. 병과 독립된 좌표에서 이동한다.
 - 기존 HUD의 `Panel/PourerPopRoot/PourerPopText`: 글자 위치, 폰트, 크기, 색.
@@ -41,7 +41,7 @@ UI와 스프라이트는 프리팹에 미리 저장한다. 실행 중 생성·�
 
 실제 프리팹의 리소스·HUD·선택 효과음·병의 앞뒤 정렬, 분리 조건·초기화, 실제 입자 방출량과 밀도, 맥주 1.5배 적용 및 다른 재료 보존, 일반 잔·바이젠잔 표시 상한과 실측 판정 유지, 목표 높이와 기존 HUD 동작을 검사했다.
 
-효과음 클립은 비어 있으며 전용 출력과 공용 효과음 믹서 연결은 원본 프리팹에 저장돼 있다. 일회성 연결 스크립트와 메타 파일은 제거됐다.
+검증 당시 효과음 클립 슬롯은 비어 있었고, 전용 출력과 공용 효과음 믹서 연결은 원본 프리팹에 저장돼 있었다. 일회성 연결 스크립트와 메타 파일은 제거됐다.
 
 입자 두께 후속 변경은 C# 런타임·에디터·테스트 코드 컴파일을 통과했다. 잔 내부에 들어왔다는 이유만으로 두께를 복원하던 조건을 수정해, `insideContainer && volumeReceived`인 입자만 원래 크기로 그린다. 입구가 잔과 가까워도 아직 낙하 중인 유입 물줄기에는 두께 설정이 적용된다. `PourTargetHeightTests.StreamWidthControlNarrowsAirborneParticlesWithoutChangingLengthOrContainedLiquid`는 GPU 필드를 읽어 유입 입자의 가로 두께 감소, 잔 내부 낙하 중 두께 유지, 축 방향 길이 유지와 실제 담긴 액체 크기 유지를 검사한다. 열린 에디터의 Test Runner에서 새 GPU 검사와 `PourerBreakawayTests`를 실행해야 한다.
 

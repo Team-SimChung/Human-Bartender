@@ -67,10 +67,13 @@ public sealed class PourerBreakawayTests
     }
 
     [Test]
-    public void OptionalDetachSoundHasSavedSourceOnEffectsBus()
+    public void DetachSoundHasSavedClipAndSourceOnEffectsBus()
     {
+        var clip = Ref<AudioClip>(pourer, "detachClip");
+        Assert.That(clip, Is.Not.Null);
+        Assert.That(AssetDatabase.GetAssetPath(clip), Does.EndWith("/Crafting/pourer_detach.wav"));
         var source = Ref<AudioSource>(pourer, "detachSource");
-        Assert.That(source, Is.Not.Null, "클립만 추가하면 사용할 수 있도록 출력을 프리팹에 저장한다.");
+        Assert.That(source, Is.Not.Null);
         Assert.That(source.transform, Is.EqualTo(root.transform));
         Assert.That(source.playOnAwake || source.loop, Is.False);
         Assert.That(source.spatialBlend, Is.Zero);
