@@ -25,20 +25,25 @@ void FirePixelUV_float(float4 UV0, float4 UV1, float3 PositionWS, float PixelSiz
     OutUV0 = UV0;
     OutUV1 = UV1;
 #if !defined(SHADERGRAPH_PREVIEW)
-    if (Enable < 0.5 || PixelSize <= 0.0) return;
+    if (Enable >= 0.5 && PixelSize > 0.0)
+    {
+        float2 ws = PositionWS.xy;
+        float2 cell = (floor(ws / PixelSize) + 0.5) * PixelSize;
+        float2 dWs = cell - ws;
 
-    float2 ws = PositionWS.xy;
-    float2 cell = (floor(ws / PixelSize) + 0.5) * PixelSize;
-    float2 dWs = cell - ws;
-
-    float2 wx = ddx(ws);
-    float2 wy = ddy(ws);
-    float det = wx.x * wy.y - wy.x * wx.y;
-    if (abs(det) < 1e-12) return;
-
-    OutUV0.xy = UV0.xy + FirePixel_UVDelta(UV0.xy, wx, wy, dWs, det);
-    OutUV1.xy = UV1.xy + FirePixel_UVDelta(UV1.xy, wx, wy, dWs, det);
+        float2 wx = ddx(ws);
+        float2 wy = ddy(ws);
+        float det = wx.x * wy.y - wy.x * wx.y;
+        if (abs(det) >= 1e-12)
+        {
+            OutUV0.xy = UV0.xy + FirePixel_UVDelta(UV0.xy, wx, wy, dWs, det);
+            OutUV1.xy = UV1.xy + FirePixel_UVDelta(UV1.xy, wx, wy, dWs, det);
+        }
+    }
 #endif
+    // 그래프는 이 UV0의 y를 Power(지수 8.2, 2)에 넣는다. 머티리얼 Offset_Y(0.33)만큼 쿼드 아래쪽은 y가 음수라
+    // pow가 NaN을 내고, HDR 블룸이 그 NaN을 드럼통 위 흰 사각형 + 검은 막대로 번지게 한다. 음수는 0(불 없음)으로 둔다.
+    OutUV0.y = max(OutUV0.y, 0.0);
 }
 
 void FirePixelUV_half(half4 UV0, half4 UV1, half3 PositionWS, half PixelSize, half Enable,
