@@ -186,7 +186,7 @@ public sealed class WorldInteractionController : MonoBehaviour
             var state = GameStateManager.Instance;
             target.ApplyStartSettings(ref story);
             if (!OutsideStorySceneRules.IsAvailable(story.Id, state.CurrentDay, state.GameFlow, conditions) || !Eligible(story)) return false;
-            story = OutsideStorySceneRules.ResolveEntry(story, state.CurrentDay, conditions, storyContent);
+            story = OutsideStorySceneRules.ResolveEntry(story, state.CurrentDay, conditions, storyContent, state.GameFlow);
         }
         RefreshTargetIndex();
         if (!targetCounts.TryGetValue(id, out int count) || count != 1)

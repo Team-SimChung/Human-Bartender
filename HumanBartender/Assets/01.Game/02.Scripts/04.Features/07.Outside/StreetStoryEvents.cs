@@ -40,11 +40,26 @@ public sealed class StreetStoryEvents : IOutsideStoryEventHandler
                 var thug = await run.ChooseAsync(Choices(content, "day1-corridor-thug"), token);
                 return Branch("day1-corridor-thug", thug.Id);
             case OutsideStoryCommand.BeggarChoice:
-                var beggar = await run.ChooseAsync(new[] { Option("pay", "네, 믿을게요 · 200원", "money >= 200 && !flag.street_beggar_paid"),
-                    Option("refuse", "싫어요."), Option("question", "혹시 사기꾼인가요?", "flag.street_beggar_warned") }, token);
+                // 웹 outside-beggar.js choiceView: 두 번째 만남부터 "아니요.", 경고를 듣기 전에는 질문이 "???"로 잠긴다.
+                bool repeat = run.Flag("street_beggar_met");
+                run.Effect("flag.street_beggar_met = true");
+                string refuseText = repeat ? "아니요." : "싫어요.";
+                var beggar = await run.ChooseAsync(new[]
+                {
+                    Locked(Option("pay", "네, 믿을게요 · 200원", "money >= 200 && !flag.street_beggar_paid"), "돈이 부족합니다."),
+                    Option("refuse", refuseText),
+                    Locked(Option("question", run.Flag("street_beggar_warned") ? "혹시 사기꾼인가요?" : "???", "flag.street_beggar_warned"),
+                        "관련 정보가 필요합니다.")
+                }, token);
                 if (beggar.Id == "pay") run.Effect("money -= 200; flag.street_beggar_paid = true");
                 else if (beggar.Id == "refuse") run.Effect($"flag.street_beggar_refused_day{state.CurrentDay} = true");
-                return content.GetSceneSteps("shared-beggar-" + (beggar.Id == "pay" ? "paid" : beggar.Id == "refuse" ? "refused" : "questioned"));
+                var reply = content.GetSceneSteps("shared-beggar-" + (beggar.Id == "pay" ? "paid" : beggar.Id == "refuse" ? "refused" : "questioned"));
+                // 거절 대본의 첫 줄은 루나가 고른 말 그대로 보여 준다.
+                return beggar.Id != "refuse" ? reply : reply.Select((step, i) =>
+                {
+                    if (i == 0 && step.Actor == "luna") step.Text = new Texts { Ko = refuseText, En = refuseText };
+                    return step;
+                }).ToArray();
             case OutsideStoryCommand.SamhoDepart: await run.PlayAsync(OutsideStoryWorldAction.SamhoDepart, token); return null;
             case OutsideStoryCommand.NotionApproach: await run.PlayAsync(OutsideStoryWorldAction.NotionApproach, token); return null;
             case OutsideStoryCommand.NotionDealerExit: await run.PlayAsync(OutsideStoryWorldAction.NotionDealerExit, token); return null;
@@ -55,6 +70,12 @@ public sealed class StreetStoryEvents : IOutsideStoryEventHandler
             case OutsideStoryCommand.NpcSequence: await run.PlayNpcSequenceAsync(argument, token); return null;
             default: throw new NotSupportedException("거리 명령이 아닙니다: " + command);
         }
+    }
+
+    private static NewStreetOptionData Locked(NewStreetOptionData option, string reason)
+    {
+        option.LockReason = new Texts { Ko = reason, En = reason };
+        return option;
     }
 
     private Step[] Branch(string sceneId, string optionId)

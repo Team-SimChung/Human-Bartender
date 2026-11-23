@@ -52,6 +52,10 @@ internal static class WorldInteractionTestPreparationCatalog
         "scene:neighborhood-repairGreeting" => "1일차 이상 · 엘리베이터 수리 미완료",
         "scene:neighborhood-guardBlocked" => "1일차 이상 또는 퇴근 · 통행 허가 전",
         "scene:neighborhood-bossIntro" => "2일차 이상 · 경비 통행 허가 완료",
+        "scene:" + OutsideStorySceneRules.NewspaperEntry => "1일차 출퇴근 · 대화를 끝낸 뒤에는 끝낸 길에서만",
+        "scene:" + OutsideStorySceneRules.BeggarEntry => "0일차 퇴근 · 200원을 주기 전",
+        "scene:" + OutsideStorySceneRules.BeggarWitnessEntry => "0일차 퇴근",
+        "scene:" + OutsideStorySceneRules.BelieverEntry => "0일차 퇴근·1일차 출퇴근 · 대화 완료 전",
         _ => null
     };
 
@@ -89,7 +93,7 @@ internal static class WorldInteractionTestPreparationCatalog
             new[] { "shiba_shop_met", "shiba_allowance_received" });
         Add("shop-tuna-boundary", "상점", "참치캔 최소 금액 · 50원", "참치캔만 구매 가능하고 비터스는 잔액 부족입니다.", "shiba-shop-revisit", 50,
             new[] { "shiba_shop_met", "shiba_allowance_received" });
-        Add("shop-allowance", "상점", "용돈 제안 · 300원 / 미수령", "비터스가 없고 2일차 이하이며 잔액 300원 이하인 용돈 분기를 확인합니다.", "shiba-shop-revisit", 300, new[] { "shiba_shop_met" });
+        Add("shop-allowance", "상점", "용돈 제안 · 500원 / 미수령", "비터스가 없고 2일차 이하이며 잔액 500원 이하인 용돈 분기를 확인합니다.", "shiba-shop-revisit", ShopStoryEvents.AllowanceMoneyLimit, new[] { "shiba_shop_met" });
         Add("shop-owned", "상점", "비터스·참치캔 구매 완료", "이미 산 상품은 다시 판매하지 않습니다.", "shiba-shop-revisit",
             enabled: new[] { "shiba_shop_met", "shiba_bought_bitters", "shiba_bought_tuna_can" });
         Add("shop-lesson", "상점", "올드 패션드 교육 조건 충족", "비터스·와일드 독을 준비합니다. 교육·퀴즈 정답·오답 반복을 확인합니다.", "shiba-shop-revisit",

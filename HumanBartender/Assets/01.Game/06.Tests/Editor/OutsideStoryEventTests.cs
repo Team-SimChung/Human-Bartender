@@ -286,6 +286,21 @@ public sealed class OutsideStoryEventTests
         });
     }
 
+    [TestCase(500, true)]
+    [TestCase(501, false)]
+    public void AllowanceIsOfferedUpToFiveHundredWon(int money, bool offered)
+    {
+        WithShop(2, money, "flag.shiba_bought_bitters = true", (player, conditions) =>
+        {
+            var content = new CsvStoryTestContent();
+            var run = new OutsideStoryExecution(conditions, PickFirst, null);
+            var steps = new ShopStoryEvents(player, GameStateManager.Instance, content)
+                .ExecuteAsync(OutsideStoryCommand.ShopOpen, null, run, CancellationToken.None).GetAwaiter().GetResult();
+            if (offered) Assert.That(steps, Is.EqualTo(content.GetSceneSteps("shiba-allowance")));
+            else Assert.That(steps.Single().Command, Is.EqualTo(OutsideStoryCommand.ShopItems), "500원을 넘으면 바로 상품 목록");
+        });
+    }
+
     // ── 획득 알림(엔진 수정 사항 25)과 상점 응답(28). 웹 outside-neighborhood.js·outside-shop.js ──
 
     static Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> Pick(string id) =>

@@ -21,7 +21,10 @@ public sealed class WebNpcAnimationTests
                     var target = actor.GetComponentInParent<WorldInteractionTarget>();
                     if (target == null || target.Content != null || actor.name.EndsWith("· boobi", StringComparison.Ordinal)) continue;
                     string role = actor.name.Split('·').Last().Trim();
-                    int frames = role == "samho" || role == "gangmate" ? 8 : role == "dealer" ? 6 : role == "shiba" ? 10 : 9;
+                    // 경고하는 행인은 dealer와 같은 6칸 M1 시트를 쓴다.
+                    int frames = role == "samho" || role == "gangmate" ? 8
+                        : role == "dealer" || target.StorySceneId == OutsideStorySceneRules.BeggarWitnessEntry ? 6
+                        : role == "shiba" ? 10 : 9;
                     float duration = role == "samho" ? 8f / 12 : role == "shiba" ? 10f / 12 : .75f;
                     var clip = Clip(actor.GetComponent<Animator>(), "Idle");
                     var walking = ((AnimatorController)actor.GetComponent<Animator>().runtimeAnimatorController)
@@ -31,7 +34,9 @@ public sealed class WebNpcAnimationTests
                     Assert.That(clip.length, Is.EqualTo(duration).Within(.001f), target.StorySceneId + " / " + role);
                     Assert.That(AnimationUtility.GetAnimationClipSettings(clip).loopTime, Is.True);
                     using var data = new SerializedObject(actor);
-                    Assert.That(data.FindProperty("artworkFacesRight").boolValue, Is.False, actor.name);
+                    // 웹 outside-beggar.js: 앉아 있는 노숙자 시트만 오른쪽을 바라본다.
+                    Assert.That(data.FindProperty("artworkFacesRight").boolValue,
+                        Is.EqualTo(target.StorySceneId == OutsideStorySceneRules.BeggarEntry), actor.name);
                     if (role == "dealer") Assert.That(AssetDatabase.GetAssetPath(Sprites(clip)[0]), Does.EndWith("npc_m1_idle.png"));
                     checkedActors++;
                 }

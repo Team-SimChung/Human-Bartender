@@ -16,7 +16,8 @@ public sealed class ShopStoryEvents : IOutsideStoryEventHandler
 
     /// <summary>팔 물건이 없을 때의 웹 원문(outside-shop.js soldOut). 대본 CSV에는 없는 상점 규칙 대사다.</summary>
     public const string SoldOutLine = "이제 팔 거 없어. 꺼져, 시바.";
-    const int AllowanceMoneyLimit = 300;
+    // 용돈 분기는 소지금이 이 금액 이하일 때만 나온다(기획 변경: 웹 300원 → 500원).
+    public const int AllowanceMoneyLimit = 500;
 
     public bool Handles(OutsideStoryCommand command) => command is OutsideStoryCommand.ShopIntroComplete or OutsideStoryCommand.ShopOpen
         or OutsideStoryCommand.ShopGreeting or OutsideStoryCommand.ShopItems or OutsideStoryCommand.ShopAllowance

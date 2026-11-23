@@ -34,7 +34,11 @@ internal static class OutsideInteractionTestScenarios
         Case("guard-menu", "2일차 · 경비 통행 선택지", 2, EGameFlow.CommuteIn, "neighborhood-guardBlocked"),
         Case("boss-first", "2일차 · 보스 첫 거래", 2, EGameFlow.CommuteIn, "neighborhood-bossIntro", "gang_pass_granted"),
         Case("boss-repeat", "2일차 · 보스 재거래", 2, EGameFlow.CommuteIn, "neighborhood-bossIntro", "gang_pass_granted", "gang_boss_met"),
-        Case("elevator", "1일차 · 엘리베이터 탑승", 1, EGameFlow.CommuteIn, "outside_elevator")
+        Case("elevator", "1일차 · 엘리베이터 탑승", 1, EGameFlow.CommuteIn, "outside_elevator"),
+        Case("newspaper-first", "1일차 · 신문 읽는 남자 / 기어 부품", 1, EGameFlow.CommuteIn, OutsideStorySceneRules.NewspaperEntry),
+        Case("beggar-first", "0일차 · 퇴근 / 200원 사기꾼", 0, EGameFlow.CommuteOut, OutsideStorySceneRules.BeggarEntry),
+        Case("beggar-warning", "0일차 · 퇴근 / 사기꾼 경고 행인", 0, EGameFlow.CommuteOut, OutsideStorySceneRules.BeggarWitnessEntry),
+        Case("believer-first", "1일차 · 기신교 신도 / 엠블럼", 1, EGameFlow.CommuteIn, OutsideStorySceneRules.BelieverEntry)
     });
 
     internal static HomeInteractionTestScenario Find(string id) => All.FirstOrDefault(value => value.Id == id)
