@@ -34,8 +34,9 @@ public sealed class WebParityDay0Tests
     }
 
     // 따르기·채우기는 크리스 수업에서 배웠으므로 포트 주문에서는 다시 안내하지 않는다(웹 craft-flow.js).
+    // 스터는 안내 상자 대신 처음 스터할 때 뜨는 안내 화면(Canvas_StirTutorial)이 맡는다(웹 mix-tutorial.js).
     [TestCase(ECraftGimmick.Shake, true)]
-    [TestCase(ECraftGimmick.Stir, true)]
+    [TestCase(ECraftGimmick.Stir, false)]
     [TestCase(ECraftGimmick.Pour, false)]
     [TestCase(ECraftGimmick.FillUp, false)]
     [TestCase(ECraftGimmick.Open, false)]

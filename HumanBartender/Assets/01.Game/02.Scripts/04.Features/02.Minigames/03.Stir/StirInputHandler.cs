@@ -57,7 +57,8 @@ public class StirInputHandler : MonoBehaviour, ICraftStirInput
 
     public void OnStirInput(EStirDirection direction)
     {
-        if (UIDisplayOptions.IsOptionOpen) return;
+        // 설정창이나 처음 스터 안내로 게임 시간이 멈춘 동안의 방향키는 버린다. 멈춘 사이 시작되거나 판정에 쌓이지 않는다.
+        if (UIDisplayOptions.IsOptionOpen || GamePause.IsPaused) return;
         if (stir != null) stir.EnqueueDirection((int)direction);
     }
 

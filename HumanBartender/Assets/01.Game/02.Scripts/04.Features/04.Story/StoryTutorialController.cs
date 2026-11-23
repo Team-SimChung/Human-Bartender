@@ -25,6 +25,9 @@ public sealed class StoryTutorialController : MonoBehaviour
     }
 
     [SerializeField] StoryTutorialView viewPrefab;
+    [Tooltip("좌석 알림 수업에서 안내 상자를 확인한 뒤 띄우는 좌석 알림 화면 프리팹(Canvas_SeatAlertTutorial). " +
+             "그림과 확인 버튼 배치는 프리팹이 갖고, E·Space·Enter 또는 확인 버튼으로 닫히면 수업이 끝난다.")]
+    [SerializeField] TutorialPageView seatAlertTutorialPrefab;
     [SerializeField] PlayCamera slotCamera;
     [SerializeField] DialogueCharacterManager characters;
     [SerializeField] UIDialogueTextView dialogue;
@@ -145,6 +148,7 @@ public sealed class StoryTutorialController : MonoBehaviour
     {
         var missing = FindMissingCopy(copy);
         if (missing.Count > 0) Debug.LogWarning("[StoryTutorial] 문구 표에 없는 단계(기본 문구 사용): " + string.Join(", ", missing), this);
+        if (seatAlertTutorialPrefab == null) Debug.LogWarning("[StoryTutorial] Seat Alert Tutorial Prefab(Canvas_SeatAlertTutorial)을 연결하세요.", this);
     }
 
     void EnsureView()
@@ -205,8 +209,12 @@ public sealed class StoryTutorialController : MonoBehaviour
                     await lessonComplete.Task.AttachExternalCancellation(token);
                     break;
                 case "seatIndicator":
+                    if (seatAlertTutorialPrefab == null)
+                        throw new InvalidOperationException("[StoryTutorial] 좌석 알림 화면 프리팹(Canvas_SeatAlertTutorial)을 연결하세요.");
                     view.ShowSeatIndicator(() => lessonComplete.TrySetResult());
                     await lessonComplete.Task.AttachExternalCancellation(token);
+                    view.Hide();
+                    await ShowSeatAlertAsync(token);
                     break;
                 case "coaster":
                     var (title, text) = Copy("coaster");
@@ -226,6 +234,23 @@ public sealed class StoryTutorialController : MonoBehaviour
                 view.SeatHud.SetExploration(false, currentSeat, false);
                 view.Hide();
             }
+        }
+    }
+
+    /// <summary>
+    /// 좌석 상태 색의 뜻을 그림 한 장으로 보여 주고 확인을 기다린다(웹 tutorial-view.js seatLegend).
+    /// 웹처럼 입력 잠금·등장 연출·효과음은 없고, 진행은 E·Space·Enter 또는 확인 버튼이다.
+    /// </summary>
+    async UniTask ShowSeatAlertAsync(CancellationToken token)
+    {
+        var alert = Instantiate(seatAlertTutorialPrefab);
+        try
+        {
+            await alert.ShowAsync(TutorialPageView.ConfirmKeyPressed, token);
+        }
+        finally
+        {
+            if (alert != null) Destroy(alert.gameObject);
         }
     }
 
@@ -299,9 +324,10 @@ public sealed class StoryTutorialController : MonoBehaviour
 
     /// <summary>
     /// 조작 안내만 하는 주문에서 안내할 미니게임. 따르기·채우기·병따기는 크리스 수업에서 이미 배웠으므로(웹 craft-flow.js는
-    /// 크리스 주문에서만 따르기 안내를 켠다) 처음 보는 쉐이킹·스터만 안내한다.
+    /// 크리스 주문에서만 따르기 안내를 켠다) 처음 보는 쉐이킹만 안내한다. 스터는 저장 파일에서 처음 할 때 미니게임 위에 뜨는
+    /// 안내 화면(GimmickRunner의 Canvas_StirTutorial)이 맡는다.
     /// </summary>
-    public static bool GuidesInGimmickOnlyMode(ECraftGimmick type) => type is ECraftGimmick.Shake or ECraftGimmick.Stir;
+    public static bool GuidesInGimmickOnlyMode(ECraftGimmick type) => type is ECraftGimmick.Shake;
 
     /// <summary>레시피 선택·준비 화면은 플레이어에게 맡기고, 미니게임이 진행되는 동안만 조작 안내를 띄운다.</summary>
     public void BeginGimmickGuide(string id)
@@ -461,12 +487,14 @@ public sealed class StoryTutorialController : MonoBehaviour
             return;
         }
         ReleaseLessonCap();
-        Show(step.Type switch
+        if (step.Type == ECraftGimmick.Stir)
         {
-            ECraftGimmick.Shake => "shake",
-            ECraftGimmick.Stir => "stir",
-            _ => "gimmick",
-        });
+            // 스터 조작은 처음 스터할 때 미니게임 위에 뜨는 안내 화면(GimmickRunner)이 맡으므로 안내 상자를 띄우지 않는다.
+            displayedText = null;
+            view.Hide();
+            return;
+        }
+        Show(step.Type == ECraftGimmick.Shake ? "shake" : "gimmick");
     }
 
     /// <summary>

@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public sealed class StoryTutorialGuideGraphic : MaskableGraphic
 {
     Rect? source, destination;
+    // 딤을 뚫는 자리. 테두리는 화면 안으로 당겨 그려도 구멍은 대상 전체를 비운다. 비우면 테두리 사각형과 같다.
+    Rect? sourceHole, destinationHole;
     Vector2? arrowFrom, arrowTo;
     bool drag;
 
@@ -14,10 +16,15 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
     public bool HasDestination => destination.HasValue;
     public bool HasDragRoute => drag && arrowFrom.HasValue && arrowTo.HasValue;
 
-    public void SetGuide(Rect? focus, Rect? target, Vector2? from, Vector2? to, bool dragRoute)
+    /// <param name="focusHole">focus 자리의 딤 구멍. 비우면 focus와 같다.</param>
+    /// <param name="targetHole">target 자리의 딤 구멍. 비우면 target과 같다.</param>
+    public void SetGuide(Rect? focus, Rect? target, Vector2? from, Vector2? to, bool dragRoute,
+        Rect? focusHole = null, Rect? targetHole = null)
     {
         source = focus;
         destination = target;
+        sourceHole = focus.HasValue ? focusHole ?? focus : null;
+        destinationHole = target.HasValue ? targetHole ?? target : null;
         arrowFrom = from;
         arrowTo = to;
         drag = dragRoute;
@@ -29,10 +36,10 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
     {
         mesh.Clear();
         Rect area = rectTransform.rect;
-        var xs = new[] { area.xMin, area.xMax, source?.xMin ?? area.xMin, source?.xMax ?? area.xMax,
-            destination?.xMin ?? area.xMin, destination?.xMax ?? area.xMax };
-        var ys = new[] { area.yMin, area.yMax, source?.yMin ?? area.yMin, source?.yMax ?? area.yMax,
-            destination?.yMin ?? area.yMin, destination?.yMax ?? area.yMax };
+        var xs = new[] { area.xMin, area.xMax, sourceHole?.xMin ?? area.xMin, sourceHole?.xMax ?? area.xMax,
+            destinationHole?.xMin ?? area.xMin, destinationHole?.xMax ?? area.xMax };
+        var ys = new[] { area.yMin, area.yMax, sourceHole?.yMin ?? area.yMin, sourceHole?.yMax ?? area.yMax,
+            destinationHole?.yMin ?? area.yMin, destinationHole?.yMax ?? area.yMax };
         Array.Sort(xs);
         Array.Sort(ys);
         var shade = new Color(.008f, .024f, .055f, .57f);
@@ -41,8 +48,8 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
         {
             Rect cell = Rect.MinMaxRect(Mathf.Max(area.xMin, xs[x]), Mathf.Max(area.yMin, ys[y]),
                 Mathf.Min(area.xMax, xs[x + 1]), Mathf.Min(area.yMax, ys[y + 1]));
-            if (cell.width <= 0 || cell.height <= 0 || source?.Contains(cell.center) == true ||
-                destination?.Contains(cell.center) == true) continue;
+            if (cell.width <= 0 || cell.height <= 0 || sourceHole?.Contains(cell.center) == true ||
+                destinationHole?.Contains(cell.center) == true) continue;
             StoryUiMesh.Quad(mesh, cell, shade);
         }
         float pulse = .8f + .2f * Mathf.Sin(Time.unscaledTime * 4.5f);
