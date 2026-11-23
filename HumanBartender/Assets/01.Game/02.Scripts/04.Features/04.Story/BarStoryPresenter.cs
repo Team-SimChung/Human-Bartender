@@ -50,7 +50,7 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
     [SerializeField] private UIDialogueChoiceView choiceView;
 
     [Header("Camera")]
-    [Tooltip("자리 수에 따라 화면을 잡는 데 걸리는 시간(§10.1.1 camera_transition_sec). Day 0은 이동만, 이후 일차는 이동과 줌을 같은 시간 안에서 진행한다.")]
+    [Tooltip("자리 수에 따라 화면을 잡는 데 걸리는 시간(§10.1.1 camera_transition_sec). 0일차를 포함해 모든 일차에서 이동과 줌을 같은 시간 안에서 함께 진행한다.")]
     [SerializeField] private float cameraTransitionSec = 0.8f;
 
     [Header("Data")]
@@ -200,8 +200,12 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
     /// <summary>
     /// 앉은 사람 수에 맞춰 화면을 잡는다(§10.1.1).
     ///
-    /// 1명이면 그 자리로, 2명이면 두 자리의 중점으로 이동한다. Day 0은 이전 Play 씬의
-    /// 960×540 화각을 유지하고 위치만 옮긴다. 이후 일차는 자리 수에 맞춰 줌도 함께 진행한다.
+    /// 1명이면 그 자리로 다가가 960×540(Sub), 2명이면 두 자리의 중점으로 물러나 1280×720(Base).
+    /// 0일차도 같다 — 웹 bar-views.js cameraLayout은 날짜와 상관없이 두 명이 보이면 넓힌다.
+    /// 이동과 줌을 끊어 부르지 않고 같은 시간 안에서 함께 건다 — 나눠 부르면 화면이 두 번 움직인다.
+    /// 세로 구도는 CM_GamePlay의 Position Composer가 렌즈 크기에 맞춰 잡으므로(960×540은 테이블 윗선을 화면
+    /// 높이 534/720에, 1280×720은 화면 위쪽을 배경 위쪽 끝에, 그 사이는 직선 — PlayCamera 설명 참고)
+    /// 여기서는 가로 위치와 줌만 정한다.
     ///
     /// 아무도 없으면 L·R을 담는 기본 프레임에 선다 — 2부 시작 화면이다. 셋 이상은 이미 실행기가
     /// 데이터 오류로 알린 뒤라 건들지 않는다.
@@ -244,12 +248,10 @@ public class BarStoryPresenter : MonoBehaviour, IStoryPresenter, IStoryDialogueV
             targetZoom = ECameraZoomType.Base;
         }
 
-        if (GameStateManager.Instance.CurrentDay == 0)
-            await slotCamera.MoveToXAsync(targetX, cameraTransitionSec, token);
-        else
-            await UniTask.WhenAll(
-                cameraZoom.TransitionCameraZoomAsync(targetZoom, cameraTransitionSec, token: token),
-                slotCamera.MoveToXAsync(targetX, cameraTransitionSec, token));
+        // 줌도 이동과 같은 곡선으로 건다. 선형 줌은 출발·도착에서 이동보다 먼저 튄다.
+        await UniTask.WhenAll(
+            cameraZoom.TransitionCameraZoomAsync(targetZoom, cameraTransitionSec, slotCamera.Ease, token),
+            slotCamera.MoveToXAsync(targetX, cameraTransitionSec, token));
 
         // 목표점과 렌즈 보간은 Update에서 끝난다. CinemachineBrain이 LateUpdate에서
         // 실제 카메라에 반영한 다음 대사를 열어야 첫 말풍선 프레임과 카메라 위치가 일치한다.
