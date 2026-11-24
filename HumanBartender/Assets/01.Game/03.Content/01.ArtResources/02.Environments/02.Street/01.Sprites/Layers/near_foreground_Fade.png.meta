@@ -52,11 +52,11 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 7
-  spritePivot: {x: 0.5, y: 0.5}
+  spritePivot: {x: 0.5, y: 0}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -102,71 +102,97 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: near_foreground_Fade_0
+      name: near_foreground_Fade_Sign
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 402
-        height: 115
-      alignment: 0
+        width: 401
+        height: 119
+      alignment: 6
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ca8386a00bdd16810800000000000000
-      internalID: 1756929077809789100
+      spriteID: 6fcac5ee134b49a48badaa72b57cb8f5
+      internalID: 1980778276
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: near_foreground_Fade_1
+      name: near_foreground_Fade_Column
       rect:
         serializedVersion: 2
-        x: 755
-        y: 1
-        width: 63
-        height: 118
-      alignment: 0
+        x: 756
+        y: 0
+        width: 61
+        height: 119
+      alignment: 6
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 89f19da64fb285c70800000000000000
-      internalID: 8959959787418230680
+      spriteID: 1c6d74d9f7376ff479c57b85eb5a6085
+      internalID: 1679611463
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: near_foreground_Fade_2
+      name: near_foreground_Fade_Pipe
       rect:
         serializedVersion: 2
-        x: 844
-        y: 3
-        width: 17
-        height: 104
-      alignment: 0
+        x: 845
+        y: 0
+        width: 16
+        height: 119
+      alignment: 6
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: efb0b26dc9db21340800000000000000
-      internalID: 4833133831427656702
+      spriteID: c06faea774464fa4f9dc890de9391591
+      internalID: -854154850
       vertices: []
       indices: 
       edges: []
@@ -188,6 +214,9 @@ TextureImporter:
       near_foreground_Fade_0: 1756929077809789100
       near_foreground_Fade_1: 8959959787418230680
       near_foreground_Fade_2: 4833133831427656702
+      near_foreground_Fade_Column: 1679611463
+      near_foreground_Fade_Pipe: -854154850
+      near_foreground_Fade_Sign: 1980778276
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

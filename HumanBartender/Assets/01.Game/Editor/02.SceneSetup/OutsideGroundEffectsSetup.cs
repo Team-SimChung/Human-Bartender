@@ -35,7 +35,9 @@ public static class OutsideGroundEffectsSetup
         horizon.position = new Vector3(0, -.86f, 0);
         float[] depths = { .20f, .25f, .16f, .23f, .19f, .26f, .18f, .22f, .17f };
         var puddles = root.GetComponentsInChildren<OutsidePuddleSurface>().OrderBy(p => p.name).ToArray();
-        var foreground = all.Select(t => t.GetComponent<SpriteRenderer>()).Where(r => r != null && r.sprite != null && r.sortingLayerName == "ForeFore")
+        // 뒤로 지나갈 때 흐려지는 앞 그림(QA-54)은 반사 대상에서 뺀다. 흐려진 알파가 웅덩이 반사까지 흐리게 만든다.
+        var foreground = all.Select(t => t.GetComponent<SpriteRenderer>()).Where(r => r != null && r.sprite != null && r.sortingLayerName == "ForeFore"
+                && r.GetComponentInParent<ForegroundOccluderFade>(true) == null)
             .OrderBy(r => r.sortingOrder).ThenByDescending(r => r.transform.position.z).ToArray();
         if (foreground.Length > 4) throw new InvalidOperationException("Puddle foreground reflector limit exceeded; choose explicit reflection props.");
         for (int i = 0; i < puddles.Length; i++)
