@@ -14,6 +14,88 @@ public static class CoasterUISetup
 {
     const string TrayCanvasName = "Coaster Tray Canvas";
     const string SupplyTrayPrefabPath = "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/03.Serving/CoasterSupplyTray.prefab";
+    public const string ServeSpotPrefabPath = "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/03.Serving/TableServeSpot.prefab";
+    const string PlayScenePath = "Assets/01.Game/01.Scenes/Play.unity";
+    // 웹 tutorial-view.js coaster: 놓을 자리 상자의 아래 35%만 강조한다(target.y += h * .65, h *= .35).
+    const float GuideAreaHeightRatio = .35f;
+
+    /// <summary>
+    /// 코스터 튜토리얼(웹 tutorial-view.js coaster)이 강조할 두 자리를 연결한다.
+    /// TableServeSpot 프리팹 원본에 아래 35% 영역(GuideArea)을 만들고, 열린 씬의 CraftServingView에 공급함을 연결한다.
+    /// 이미 연결된 값은 두고 비어 있는 것만 채운다. Play 씬을 연 상태에서 실행한다.
+    /// </summary>
+    [MenuItem("Tools/Tycoon/Connect Coaster Tutorial Guide")]
+    public static void ConnectTutorialGuide()
+    {
+        ConnectServeSpotGuideArea();
+        var scene = EditorSceneManager.GetActiveScene();
+        if (ConnectSupplyTray(scene)) EditorSceneManager.MarkSceneDirty(scene);
+    }
+
+    /// <summary>batchmode용: Play 씬을 열어 연결하고 저장한 뒤 종료 코드로 결과를 알린다.</summary>
+    public static void ConnectTutorialGuideBatch()
+    {
+        try
+        {
+            ConnectServeSpotGuideArea();
+            var scene = EditorSceneManager.OpenScene(PlayScenePath, OpenSceneMode.Single);
+            if (ConnectSupplyTray(scene)) EditorSceneManager.SaveScene(scene);
+            Debug.Log("COASTER_TUTORIAL_GUIDE_OK");
+            EditorApplication.Exit(0);
+        }
+        catch (System.Exception error) { Debug.LogException(error); EditorApplication.Exit(1); }
+    }
+
+    public static bool ConnectServeSpotGuideArea()
+    {
+        var root = PrefabUtility.LoadPrefabContents(ServeSpotPrefabPath);
+        try
+        {
+            var spot = root.GetComponent<TableServeSpot>();
+            using var data = new SerializedObject(spot);
+            var field = data.FindProperty("guideArea");
+            if (field.objectReferenceValue != null) return false;
+            var area = new GameObject("GuideArea", typeof(RectTransform)).GetComponent<RectTransform>();
+            area.SetParent(root.transform, false);
+            area.SetAsFirstSibling();
+            area.anchorMin = Vector2.zero;
+            area.anchorMax = new Vector2(1, 0);
+            area.pivot = new Vector2(.5f, 0);
+            area.anchoredPosition = Vector2.zero;
+            area.sizeDelta = new Vector2(0, Mathf.Round(((RectTransform)root.transform).sizeDelta.y * GuideAreaHeightRatio));
+            field.objectReferenceValue = area;
+            data.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(root, ServeSpotPrefabPath);
+            Debug.Log("[CoasterUISetup] TableServeSpot에 튜토리얼 강조 영역(GuideArea)을 만들었습니다.");
+            return true;
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+
+    public static bool ConnectSupplyTray(UnityEngine.SceneManagement.Scene scene)
+    {
+        var objects = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).ToArray();
+        var serving = objects.Select(t => t.GetComponent<CraftServingView>()).FirstOrDefault(s => s != null);
+        if (serving == null)
+        {
+            Debug.LogWarning("[CoasterUISetup] 씬에 CraftServingView가 없습니다. Play 씬을 열고 실행하세요.");
+            return false;
+        }
+        var data = new SerializedObject(serving);
+        var field = data.FindProperty("supplyTray");
+        if (field.objectReferenceValue != null) return false;
+        var tray = objects.FirstOrDefault(t => PrefabUtility.IsAnyPrefabInstanceRoot(t.gameObject) &&
+            AssetDatabase.GetAssetPath(PrefabUtility.GetCorrespondingObjectFromSource(t.gameObject)) == SupplyTrayPrefabPath);
+        if (tray == null)
+        {
+            Debug.LogWarning("[CoasterUISetup] 씬에 코스터 공급함(CoasterSupplyTray)이 없습니다.");
+            return false;
+        }
+        field.objectReferenceValue = tray;
+        data.ApplyModifiedProperties();
+        Debug.Log("[CoasterUISetup] CraftServingView에 코스터 공급함을 연결했습니다.");
+        return true;
+    }
 
     [MenuItem("Tools/Tycoon/Setup Coaster UI")]
     public static void Run()
@@ -93,6 +175,7 @@ public static class CoasterUISetup
         {
             SetSerializedField(serving, "serveCanvas", canvas);
             SetSerializedField(serving, "supplyArrow", tray.transform.Find("SupplyArrow").gameObject);
+            SetSerializedField(serving, "supplyTray", tray.transform);
         }
     }
 

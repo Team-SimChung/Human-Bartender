@@ -9,6 +9,8 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     [SerializeField] Canvas rootCanvas;
     [Tooltip("드래그하는 동안 포인터에 붙는 코스터 크기(그림은 비율 유지). 공급함 아이콘 크기와 따로 정한다.")]
     [SerializeField] Vector2 heldSize = new Vector2(72, 72);
+    [Tooltip("드래그 중인 코스터의 캔버스 정렬 순서. 튜토리얼 딤(Tutorial 4000)보다 커야 웹처럼 끄는 코스터가 어두워지지 않는다.")]
+    [SerializeField] int heldSortingOrder = 4001;
     public static CoasterDragItem Active { get; private set; }
 
     RectTransform rect;
@@ -48,6 +50,9 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         held = icon.rectTransform;
         held.SetParent(rootCanvas.transform, false);
         held.sizeDelta = heldSize;
+        var layer = held.gameObject.AddComponent<Canvas>();
+        layer.overrideSorting = true;
+        layer.sortingOrder = heldSortingOrder;
         icon.sprite = image.sprite;
         icon.color = image.color;
         icon.preserveAspect = image.preserveAspect;

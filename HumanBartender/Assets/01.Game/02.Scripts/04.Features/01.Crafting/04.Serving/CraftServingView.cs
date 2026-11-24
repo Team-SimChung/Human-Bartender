@@ -12,6 +12,8 @@ public class CraftServingView : MonoBehaviour
     [SerializeField] TableServeSpot spotPrefab;
     [SerializeField] Transform tabletopAnchor;
     [SerializeField] GameObject supplyArrow;
+    [Tooltip("화면 오른쪽 아래 코스터 공급함(CoasterSupplyTray). 코스터 튜토리얼이 이 자리를 강조하고 화살표를 시작한다.")]
+    [SerializeField] RectTransform supplyTray;
     [SerializeField] PlayCamera playCamera;
     [SerializeField] RecipeBrowserScreen recipes;
     [SerializeField] ServicePanelController servicePanel;
@@ -34,7 +36,12 @@ public class CraftServingView : MonoBehaviour
     }
 
     public StoryTableState TableState => tables;
+    public RectTransform SupplyTray => supplyTray;
     public void BeginVisit(string actor) => tables.Enter(actor);
+
+    /// <summary>코스터를 기다리는 배우 앞 테이블 자리의 튜토리얼 강조 영역. 자리가 아직 없으면 null.</summary>
+    public RectTransform CoasterGuideArea(string actor) =>
+        storyPlaces.TryGetValue(actor, out var place) && place.Spot != null ? place.Spot.GuideArea : null;
 
     bool BarVisible => serveCanvas.isActiveAndEnabled && !craftFlow.IsCraftFlowActive &&
         !craftFlow.IsAwaitingServeDecision;

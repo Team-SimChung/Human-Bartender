@@ -11,6 +11,8 @@ public sealed class TableServeSpot : MonoBehaviour, IDropHandler, ICanvasRaycast
     [SerializeField] Image arrow;
     [SerializeField] Image coaster;
     [SerializeField] Image glass;
+    [Tooltip("튜토리얼이 비워 강조하는 테이블 영역. 웹 tutorial-view.js처럼 자리(120×140)의 아래 35%다.")]
+    [SerializeField] RectTransform guideArea;
 
     Canvas worldCanvas;
     CocktailRecipeVisualCatalog visuals;
@@ -18,6 +20,8 @@ public sealed class TableServeSpot : MonoBehaviour, IDropHandler, ICanvasRaycast
     Action placeCoaster;
     Func<CraftedDrink, bool> serve;
     Sprite emptySprite;
+
+    public RectTransform GuideArea => guideArea;
 
     public void Initialize(Camera camera, CocktailRecipeVisualCatalog catalog, Func<bool> interaction)
     {

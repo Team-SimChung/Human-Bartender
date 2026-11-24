@@ -46,11 +46,27 @@ public sealed class StoryTutorialView : MonoBehaviour
              "떨어져 있으면 모양은 그대로다. 테두리 바깥 후광(4)까지 다 보이도록 기본 4. 딤 구멍은 줄이지 않아 대상이 가려지지 않는다.")]
     [SerializeField, Min(0)] float focusScreenMargin = 4;
 
+    [Header("Drag Route (web .day0-drag-route)")]
+    [Tooltip("화살표 시작점. X는 끄는 대상(공급함) 왼쪽 변에서 바깥으로 떨어진 거리, Y는 대상 위쪽에서 내려온 높이 비율. 웹 (12, 0.4).")]
+    [SerializeField] Vector2 routeStart = new Vector2(12, .4f);
+    [Tooltip("화살표 끝점. X는 놓을 자리 오른쪽 변에서 바깥으로 떨어진 거리, Y는 자리 위쪽에서 내려온 높이 비율. 웹 (10, 0.75).")]
+    [SerializeField] Vector2 routeEnd = new Vector2(10, .75f);
+    [Tooltip("시작점에서 첫 곡선 조절점까지(1280×720 기준, 위가 +). 웹 (-120, 75): 공급함 왼쪽 위로 솟는다.")]
+    [SerializeField] Vector2 routeStartBend = new Vector2(-120, 75);
+    [Tooltip("끝점에서 둘째 곡선 조절점까지(위가 +). 웹 (125, -50): 자리 오른쪽 아래에서 들어와 화살촉이 왼쪽 위를 향한다.")]
+    [SerializeField] Vector2 routeEndBend = new Vector2(125, -50);
+    [Tooltip("점선 한 칸 길이와 빈칸 길이. 웹 12, 9.")]
+    [SerializeField] Vector2 routeDash = new Vector2(12, 9);
+    [Tooltip("점선이 놓을 자리 쪽으로 흐르는 속도(초당 px). 웹은 1.4초에 42 → 30.")]
+    [SerializeField, Min(0)] float routeDashSpeed = 30;
+
     BarSeatStatusView seatHud;
     StoryTutorialGuideGraphic guide;
     Transform focusTarget, dropTarget;
     bool dragGuide;
     bool nearby;
+    // 참이면 안내 상자만 숨기고 딤·강조·화살표는 그대로 둔다(웹 data-dragging: 코스터를 끄는 동안).
+    Func<bool> copyHiddenWhile;
     // 화면 위쪽 큰 안내(ShowInstruction)의 글꼴과 색. 대상 옆 안내 상자가 바꾼 뒤 되돌리는 데 쓴다.
     TMP_FontAsset instructionFont;
     Color instructionColor;
@@ -251,6 +267,7 @@ public sealed class StoryTutorialView : MonoBehaviour
         confirm.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -86);
         nearby = false;
         focusTarget = dropTarget = null;
+        copyHiddenWhile = null;
         if (guide != null) guide.gameObject.SetActive(false);
         heading.text = title;
         instruction.text = text;
@@ -297,14 +314,17 @@ public sealed class StoryTutorialView : MonoBehaviour
     /// </summary>
     public void UseSeatHud(BarSeatStatusView hud) => seatHud = hud;
 
+    /// <param name="drag">참이면 focus에서 destination으로 웹 코스터 수업과 같은 곡선 점선 화살표를 그린다.</param>
+    /// <param name="hideCopyWhile">참을 돌려주는 동안 안내 상자만 숨긴다(예: 대상을 끄는 중).</param>
     public void ShowGuide(string title, string text, Transform focus, Transform destination = null,
-        bool drag = false, Action onConfirm = null)
+        bool drag = false, Action onConfirm = null, Func<bool> hideCopyWhile = null)
     {
         ShowInstruction(title, text, onConfirm);
         nearby = true;
         focusTarget = focus;
         dropTarget = destination;
         dragGuide = drag;
+        copyHiddenWhile = hideCopyWhile;
         heading.gameObject.SetActive(false);
         // 웹 .day0-guide[data-nearby] .day0-guide-copy: 테두리 포함 폭, 안쪽 여백, 글꼴·크기·색. 정렬은 가운데 그대로다.
         if (guideFont != null) instruction.font = guideFont;
@@ -346,11 +366,13 @@ public sealed class StoryTutorialView : MonoBehaviour
 
     void LateUpdate()
     {
-        if (nearby && panel.gameObject.activeSelf) UpdateGuide();
+        if (nearby) UpdateGuide();
     }
 
-    void UpdateGuide()
+    internal void UpdateGuide()
     {
+        bool showCopy = copyHiddenWhile == null || !copyHiddenWhile();
+        if (panel.gameObject.activeSelf != showCopy) panel.gameObject.SetActive(showCopy);
         Rect area = ((RectTransform)transform).rect;
         // 딤 구멍은 대상 + 여유 그대로 두어 대상이 가려지지 않게 하고, 그리는 테두리와 그 테두리를 기준으로 하는
         // 화살표·안내 상자 자리는 화면 안으로 당긴 사각형을 쓴다. 가장자리에 붙은 대상도 테두리 네 변이 다 보인다.
@@ -377,11 +399,15 @@ public sealed class StoryTutorialView : MonoBehaviour
         }
         else panel.anchoredPosition = new Vector2(area.xMax - size.x * .5f - 24, area.yMax - size.y * .5f - 28);
         Vector2? from = null, to = null;
+        Vector2 fromBend = Vector2.zero, toBend = Vector2.zero;
         if (source.HasValue && dragGuide && target.HasValue)
         {
-            // 실제 두 강조 영역을 잇는다. 방향을 좌/우로 가정하면 좌석이 바뀌었을 때 화살촉이 빗나간다.
-            from = RectEdge(source.Value, target.Value.center);
-            to = target.Value.center;
+            // 강조 영역은 매 프레임 다시 재므로 카메라가 좌석을 옮겨도 화살촉이 자리를 따라간다.
+            var route = DragRoute(source.Value, target.Value);
+            from = route.from;
+            to = route.to;
+            fromBend = route.fromBend;
+            toBend = route.toBend;
         }
         else if (source.HasValue)
         {
@@ -390,7 +416,19 @@ public sealed class StoryTutorialView : MonoBehaviour
             from = RectEdge(new Rect(panel.anchoredPosition - size * .5f, size), box.center);
         }
         guide.gameObject.SetActive(source.HasValue || target.HasValue);
+        guide.SetRoute(fromBend, toBend, routeDash, routeDashSpeed);
         guide.SetGuide(source, target, from, to, dragGuide, sourceHole, targetHole);
+    }
+
+    /// <summary>
+    /// 웹 tutorial-view.js coaster 화살표: 끄는 대상(공급함) 왼쪽에서 출발해 위로 솟았다가 놓을 자리 오른쪽으로 들어오는 3차 곡선.
+    /// 시작·끝점과 두 조절점을 돌려준다(오버레이 1280×720 좌표, 위가 +).
+    /// </summary>
+    internal (Vector2 from, Vector2 to, Vector2 fromBend, Vector2 toBend) DragRoute(Rect source, Rect target)
+    {
+        var from = new Vector2(source.xMin - routeStart.x, source.yMax - source.height * routeStart.y);
+        var to = new Vector2(target.xMax + routeEnd.x, target.yMax - target.height * routeEnd.y);
+        return (from, to, from + routeStartBend, to + routeEndBend);
     }
 
     Rect? FitOnScreen(Rect? box, Rect area) => box.HasValue ? FitInside(box.Value, area, focusScreenMargin) : null;
@@ -481,5 +519,6 @@ public sealed class StoryTutorialView : MonoBehaviour
         if (seatHud != null) seatHud.Suppressed = false;
         nearby = false;
         focusTarget = dropTarget = null;
+        copyHiddenWhile = null;
     }
 }

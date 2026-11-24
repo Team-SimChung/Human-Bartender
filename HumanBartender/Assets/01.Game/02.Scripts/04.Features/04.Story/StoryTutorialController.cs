@@ -216,9 +216,13 @@ public sealed class StoryTutorialController : MonoBehaviour
                     await ShowSeatAlertAsync(token);
                     break;
                 case "coaster":
+                    // 웹 tutorial-view.js coaster: 화면을 어둡게 하고 공급함과 손님 앞 자리만 비워 강조한 뒤,
+                    // 공급함에서 자리로 흐르는 점선 화살표와 공급함 옆 안내 상자를 띄운다. 끄는 동안에는 안내 상자만 숨긴다.
+                    var placed = serving.WaitForCoasterAsync(actor, token);
                     var (title, text) = Copy("coaster");
-                    view.ShowInstruction(title, text);
-                    await serving.WaitForCoasterAsync(actor, token);
+                    view.ShowGuide(title, text, serving.SupplyTray, serving.CoasterGuideArea(actor), drag: true,
+                        hideCopyWhile: () => CoasterDragItem.Active != null);
+                    await placed;
                     break;
                 default: throw new NotSupportedException("지원하지 않는 튜토리얼: " + kind);
             }
