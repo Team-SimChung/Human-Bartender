@@ -13,8 +13,8 @@ public sealed class RecipeTagChip : MonoBehaviour
     [SerializeField] private TextMeshProUGUI label;
     [Tooltip("흰 외곽선 이미지. 글자와 같은 색으로 칠한다.")]
     [SerializeField] private Image background;
-    [SerializeField, Min(0)] private float minimumWidth = 45f;
-    [SerializeField, Min(0)] private float horizontalPadding = 16f;
+    [Tooltip("태그가 차지하는 최소 너비와 높이입니다. 글자 여백은 Label의 RectTransform에서 조절합니다.")]
+    [SerializeField] private Vector2 minimumSize = new Vector2(44f, 18f);
 
     [Header("Colors")]
     [Tooltip("도구명 태그(SHAKE·BUILD·STIR 등)의 글자·외곽선 색. 웹 #dcb076.")]
@@ -25,7 +25,7 @@ public sealed class RecipeTagChip : MonoBehaviour
     public Color ToolColor => toolColor;
     public Color DefaultColor => defaultColor;
 
-    public void Bind(string value, bool isToolTag)
+    public void Bind(string value, bool isToolTag, float maximumWidth = float.PositiveInfinity)
     {
         if (root == null || label == null)
         {
@@ -37,8 +37,11 @@ public sealed class RecipeTagChip : MonoBehaviour
         Color color = isToolTag ? toolColor : defaultColor;
         label.color = color;
         if (background != null) background.color = color;
-        float width = Mathf.Max(minimumWidth,
-            label.GetPreferredValues(value, float.PositiveInfinity, 20f).x + horizontalPadding);
+        Vector2 padding = -label.rectTransform.sizeDelta;
+        float width = Mathf.Min(maximumWidth, Mathf.Max(minimumSize.x,
+            Mathf.Ceil(label.GetPreferredValues(value).x + padding.x)));
+        float textHeight = label.GetPreferredValues(value, Mathf.Max(1f, width - padding.x), float.PositiveInfinity).y;
         root.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+        root.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(minimumSize.y, Mathf.Ceil(textHeight + padding.y)));
     }
 }

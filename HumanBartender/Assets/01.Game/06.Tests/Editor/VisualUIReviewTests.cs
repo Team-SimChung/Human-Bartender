@@ -407,14 +407,142 @@ public sealed class VisualUIReviewTests
                 Assert.That(AssetDatabase.GetAssetPath(button.GetComponent<Image>().sprite), Does.Contain("/service_panel/"));
             }
             var screen = Ref<RecipeBrowserScreen>(service, "recipeScreen");
-            Assert.That(AssetDatabase.GetAssetPath(Ref<Button>(screen, "closeButton").GetComponent<Image>().sprite), Does.Contain("/recipe_choice/"));
+            var recipeCloseButton = Ref<Button>(screen, "closeButton");
+            Assert.That(AssetDatabase.GetAssetPath(recipeCloseButton.GetComponent<Image>().sprite), Does.Contain("/recipe_choice/"));
+            var escapeImage = recipeCloseButton.GetComponentsInChildren<Image>(true).Single(image => image.name == "EscapeImage");
+            Assert.That(escapeImage.transform.parent, Is.SameAs(recipeCloseButton.transform));
+            Assert.That(AssetDatabase.GetAssetPath(escapeImage.sprite), Does.EndWith("/recipe_choice/IMG_ESC.png"));
+            Assert.That(escapeImage.raycastTarget, Is.False);
+            var browser = Ref<CocktailRecipeBrowser>(screen, "browser");
+            var visuals = browser.Visuals;
+            Assert.That(AssetDatabase.GetAssetPath(visuals.GetTableCocktailSprite("gin_tonic")), Does.Contain("/02.Table/01.Finished/"));
+            Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("tequila")), Does.EndWith("/02.Shelf/tequila.png"));
+            Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("orange_juice")), Does.EndWith("/01.Refrigerator/orange_juice.png"));
+            Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("rum")), Does.EndWith("/02.Shelf/bacardi_rum.png"));
+            Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("cola")), Does.EndWith("/01.Refrigerator/item-cola.png"));
+            Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("grenadine")), Does.EndWith("/02.Shelf/grenadine_syrup.png"));
+            Assert.That(visuals.GetRecipeIngredientSprite("long_drink"), Is.SameAs(visuals.GetIngredientSprite("long_drink")));
+            var preview = Ref<CocktailRecipePreview>(browser, "preview");
+            var panel = preview.GetComponent<Image>();
+            Assert.That(AssetDatabase.GetAssetPath(panel.sprite), Does.EndWith("/IMG_recipe_box.png"));
+            Assert.That(panel.raycastTarget, Is.False);
+            var detailScroll = Ref<ScrollRect>(preview, "scrollRect");
+            var fade = detailScroll.viewport.GetComponent<RectMask2D>();
+            Assert.That(fade.softness.y, Is.GreaterThan(0));
+            Assert.That(fade.padding.w, Is.LessThan(0));
+            Assert.That(detailScroll.viewport.GetComponent<Mask>().showMaskGraphic, Is.False);
+            Assert.That(detailScroll.vertical, Is.True);
+            Assert.That(detailScroll.verticalScrollbar, Is.Null);
+            Assert.That(detailScroll.GetComponentsInChildren<Scrollbar>(true).All(scrollbar => !scrollbar.gameObject.activeSelf), Is.True);
+            var decorationNames = new[] { "IngredientsDivider", "DescriptionDivider", "DescriptionMarker", "MethodMarker" };
+            var decorations = preview.GetComponentsInChildren<Image>(true).Where(image => decorationNames.Contains(image.name)).ToArray();
+            Assert.That(decorations.Select(image => image.name), Is.EquivalentTo(decorationNames));
+            Assert.That(decorations.All(image => !image.raycastTarget), Is.True);
+            var grid = Ref<GridLayoutGroup>(preview, "ingredientGrid");
+            Assert.That(grid.constraint, Is.EqualTo(GridLayoutGroup.Constraint.FixedColumnCount));
+            Assert.That(grid.constraintCount, Is.EqualTo(4));
+            var recipeCanvas = Ref<GameObject>(screen, "leftSlideCanvas").GetComponent<RectTransform>();
+            Assert.That(Ref<RectTransform>(preview, "tooltipCanvas"), Is.SameAs(recipeCanvas));
             var row = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/01.Game/03.Content/08.Prefabs/01.Crafting/04.Recipes/CocktailRecipeRow.prefab");
             Assert.That(row.GetComponent<CocktailRecipeRow>(), Is.Not.Null);
-            Assert.That(AssetDatabase.GetAssetPath(row.GetComponent<Image>().sprite), Does.Contain("/recipe_choice/"));
+            Assert.That(AssetDatabase.GetAssetPath(row.GetComponent<Image>().sprite), Does.EndWith("/recipe_choice/BTN_recipe_choice_A.png"));
+            var rowStates = row.GetComponent<Button>().spriteState;
+            Assert.That(AssetDatabase.GetAssetPath(rowStates.highlightedSprite), Does.EndWith("/recipe_choice/BTN_recipe_choice_B.png"));
+            Assert.That(rowStates.pressedSprite, Is.SameAs(rowStates.highlightedSprite));
+            Assert.That(rowStates.selectedSprite, Is.SameAs(rowStates.highlightedSprite));
             Ref<GameObject>(service, "overlay").SetActive(true); Ref<GameObject>(service, "serviceMenuPanel").SetActive(true);
             Capture(service.GetComponent<Canvas>(), "service-panel", 1280, 720);
         }
         finally { EditorSceneManager.CloseScene(scene, true); }
+    }
+
+    [Test]
+    public void LockedRecipeRowConcealsItsNameAndArtUntilAvailable()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<CocktailRecipeRow>(
+            "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/04.Recipes/CocktailRecipeRow.prefab");
+        var row = Object.Instantiate(prefab);
+        try
+        {
+            typeof(CocktailRecipeRow).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(row, null);
+            var icon = Ref<Image>(row, "cocktailIcon");
+            var name = Ref<TextMeshProUGUI>(row, "cocktailNameText");
+            var detail = Ref<TextMeshProUGUI>(row, "methodAndPriceText");
+            var button = Ref<Button>(row, "button");
+            var sprite = icon.sprite;
+            var iconColor = icon.color;
+            var cocktail = new NewCocktailData { Id = "gin_tonic", Name = new LocalizedText { Ko = "진토닉" }, Price = 180 };
+
+            row.Bind(cocktail, false, sprite, null, "2일차 해금");
+            Assert.That(name.text, Is.EqualTo("???"));
+            Assert.That(detail.text, Is.EqualTo("2일차 해금"));
+            Assert.That(icon.sprite, Is.SameAs(sprite));
+            Assert.That(icon.color, Is.EqualTo(new Color(0f, 0f, 0f, iconColor.a)));
+            Assert.That(button.interactable, Is.False);
+
+            row.Bind(cocktail, true, sprite, null, null);
+            Assert.That(name.text, Is.EqualTo("진토닉"));
+            Assert.That(detail.text, Does.EndWith(" · 180 G"));
+            Assert.That(icon.color, Is.EqualTo(iconColor));
+            Assert.That(button.interactable, Is.True);
+        }
+        finally { Object.DestroyImmediate(row.gameObject); }
+    }
+
+    [Test]
+    public void RecipeTagKeepsItsTextInsideANarrowChip()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<RecipeTagChip>(
+            "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/04.Recipes/RecipeTagChip.prefab");
+        var chip = Object.Instantiate(prefab);
+        try
+        {
+            var label = Ref<TextMeshProUGUI>(chip, "label");
+            var outline = Ref<Image>(chip, "background");
+            var rect = chip.GetComponent<RectTransform>();
+            const float availableWidth = 60f;
+            chip.Bind("클래식", false, availableWidth);
+            var singleLineHeight = rect.rect.height;
+            var singleLineLabelHeight = label.rectTransform.rect.height;
+            Assert.That(label.enableAutoSizing, Is.False);
+            Assert.That(AssetDatabase.GetAssetPath(label.font), Does.EndWith("/Medium_Paperlogy_SDF.asset"));
+            Assert.That(outline.type, Is.EqualTo(Image.Type.Sliced));
+            Assert.That(outline.sprite.border, Is.Not.EqualTo(Vector4.zero));
+
+            chip.Bind("상큼하고 청량해서 천천히 마시기 좋은 맛", false, availableWidth);
+            Assert.That(rect.rect.width, Is.LessThanOrEqualTo(availableWidth));
+            Assert.That(rect.rect.height, Is.GreaterThan(singleLineHeight));
+            Assert.That(label.rectTransform.rect.height, Is.GreaterThan(singleLineLabelHeight));
+        }
+        finally { Object.DestroyImmediate(chip.gameObject); }
+    }
+
+    [Test]
+    public void RecipeIngredientTooltipPreservesItsBorderAndWrapsLongNames()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<RecipeIngredientNameTooltip>(
+            "Assets/01.Game/03.Content/08.Prefabs/01.Crafting/04.Recipes/RecipeIngredientName.prefab");
+        var tooltip = Object.Instantiate(prefab);
+        try
+        {
+            var image = tooltip.GetComponent<Image>();
+            var bubble = Ref<RectTransform>(tooltip, "bubbleRect");
+            var label = Ref<TextMeshProUGUI>(tooltip, "nameText");
+            Assert.That(image.type, Is.EqualTo(Image.Type.Sliced));
+            Assert.That(image.sprite.border, Is.Not.EqualTo(Vector4.zero));
+            Assert.That(image.raycastTarget || label.raycastTarget, Is.False);
+
+            tooltip.Show("진", Vector2.zero, null);
+            Vector2 shortSize = bubble.rect.size;
+            Assert.That(shortSize.x, Is.LessThan(32f));
+            Assert.That(shortSize.x - label.rectTransform.rect.width, Is.EqualTo(12f).Within(.01f));
+            tooltip.Show(string.Concat(Enumerable.Repeat("스파클링 워터 ", 12)), Vector2.zero, null);
+            Assert.That(bubble.rect.height, Is.GreaterThan(shortSize.y));
+            Assert.That(label.rectTransform.rect.width, Is.LessThan(bubble.rect.width));
+            tooltip.Show("진", Vector2.zero, null);
+            Assert.That(bubble.rect.size, Is.EqualTo(shortSize));
+        }
+        finally { Object.DestroyImmediate(tooltip.gameObject); }
     }
 
     [UnityTest]

@@ -14,7 +14,7 @@ public sealed class CocktailRecipeRow : MonoBehaviour, IPointerEnterHandler
 
     private CocktailRecipeBrowser browser;
     private string cocktailId;
-    private bool unlocked;
+    private bool selectable;
     private Color nameColor;
     private Color detailColor;
     private Color iconColor;
@@ -39,7 +39,7 @@ public sealed class CocktailRecipeRow : MonoBehaviour, IPointerEnterHandler
         if (button != null) button.onClick.RemoveListener(HandleClick);
     }
 
-    public void Bind(NewCocktailData cocktail, bool isUnlocked, Sprite icon, CocktailRecipeBrowser owner)
+    public void Bind(NewCocktailData cocktail, bool isSelectable, Sprite icon, CocktailRecipeBrowser owner, string lockedHint)
     {
         if (button == null || cocktailIcon == null || cocktailNameText == null || methodAndPriceText == null)
         {
@@ -49,26 +49,27 @@ public sealed class CocktailRecipeRow : MonoBehaviour, IPointerEnterHandler
 
         browser = owner;
         cocktailId = cocktail.Id;
-        unlocked = isUnlocked;
+        selectable = isSelectable;
 
-        cocktailNameText.text = cocktail.Name.Ko;
-        methodAndPriceText.text = cocktail.Mix.ToString().ToUpperInvariant() + " · " + cocktail.Price + " G";
-        cocktailNameText.color = unlocked ? nameColor : lockedTextColor;
-        methodAndPriceText.color = unlocked ? detailColor : lockedTextColor;
+        cocktailNameText.text = lockedHint != null ? "???" : cocktail.Name.Ko;
+        methodAndPriceText.text = lockedHint ?? cocktail.Mix.ToString().ToUpperInvariant() + " · " + cocktail.Price + " G";
+        cocktailNameText.color = selectable ? nameColor : lockedTextColor;
+        methodAndPriceText.color = selectable ? detailColor : lockedTextColor;
         cocktailIcon.sprite = icon;
         cocktailIcon.enabled = icon != null;
         cocktailIcon.preserveAspect = true;
-        cocktailIcon.color = unlocked ? iconColor : new Color(iconColor.r, iconColor.g, iconColor.b, iconColor.a * 0.45f);
-        button.interactable = unlocked;
+        Color availableColor = selectable ? iconColor : new Color(iconColor.r, iconColor.g, iconColor.b, iconColor.a * 0.45f);
+        cocktailIcon.color = lockedHint != null ? new Color(0f, 0f, 0f, iconColor.a) : availableColor;
+        button.interactable = selectable;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (unlocked && browser != null) browser.ShowPreview(cocktailId);
+        if (selectable && browser != null) browser.ShowPreview(cocktailId);
     }
 
     private void HandleClick()
     {
-        if (unlocked && browser != null) browser.TryStart(cocktailId);
+        if (selectable && browser != null) browser.TryStart(cocktailId);
     }
 }

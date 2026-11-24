@@ -68,10 +68,11 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
 
         foreach (NewCocktailData cocktail in sorted)
         {
-            bool unlocked = IsSelectable(cocktail, currentDay);
-            Sprite icon = visuals != null ? visuals.GetCocktailSprite(cocktail.Id) : null;
+            bool available = IsAvailable(cocktail, currentDay);
+            bool selectable = available && MatchesTutorial(cocktail.Id);
+            Sprite icon = visuals != null ? visuals.GetTableCocktailSprite(cocktail.Id) : null;
             CocktailRecipeRow row = Instantiate(rowPrefab, listContent);
-            row.Bind(cocktail, unlocked, icon, this);
+            row.Bind(cocktail, selectable, icon, this, available ? null : LockedRecipeHint(cocktail));
             rows.Add(row);
         }
 
@@ -100,7 +101,7 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
     public void TryStart(string cocktailId)
     {
         if (craftFlow == null) return;
-        if (tutorialCocktailId != null && cocktailId != tutorialCocktailId) return;
+        if (!MatchesTutorial(cocktailId)) return;
         if (!craftFlow.TryBegin(cocktailId, out _, out string reason))
         {
             if (statusText != null) statusText.text = reason;
@@ -121,11 +122,21 @@ public sealed class CocktailRecipeBrowser : MonoBehaviour
         return StringComparer.Ordinal.Compare(left.Id, right.Id);
     }
 
-    private bool IsSelectable(NewCocktailData cocktail, int day)
+    private bool MatchesTutorial(string cocktailId) => tutorialCocktailId == null || cocktailId == tutorialCocktailId;
+
+    private bool IsSelectable(NewCocktailData cocktail, int day) =>
+        MatchesTutorial(cocktail.Id) && IsAvailable(cocktail, day);
+
+    private bool IsAvailable(NewCocktailData cocktail, int day)
     {
-        if (tutorialCocktailId != null && cocktail.Id != tutorialCocktailId) return false;
         bool isRequested = orderRequests != null && orderRequests.HasWaitingOrderForCocktail(cocktail.Id);
         return craftFlow != null && craftFlow.IsRecipeSelectable(cocktail, day, isRequested);
+    }
+
+    private string LockedRecipeHint(NewCocktailData cocktail)
+    {
+        if (cocktail.Id == CampaignStoryRules.JohnnyCocktailId) return "기억과 재료를 모두 모으면 해금";
+        return cocktail.UnlockDay > currentDay ? $"{cocktail.UnlockDay}일차 해금" : "미해금";
     }
 
     private void ClearRows()

@@ -7,12 +7,13 @@ public sealed class RecipeIngredientNameTooltip : MonoBehaviour
     [SerializeField] private RectTransform bubbleRect;
     [SerializeField] private TextMeshProUGUI nameText;
 
-    private const float MinimumWidth = 60f;
-    private const float MaximumWidth = 160f;
-    private const float HorizontalPadding = 18f;
-    private const float VerticalPadding = 8f;
-    private const float MinimumHeight = 20f;
-    private const float CursorGap = 15f;
+    [Header("Bubble Size")]
+    [Tooltip("말풍선의 최소 너비와 높이. 너비는 배경의 좌우 테두리 합보다 작지 않게 설정합니다.")]
+    [SerializeField] private Vector2 minimumSize = new Vector2(16f, 24f);
+    [Tooltip("이 너비를 넘는 이름은 줄바꿈합니다.")]
+    [SerializeField, Min(1f)] private float maximumWidth = 160f;
+    [Tooltip("커서에서 말풍선까지의 간격.")]
+    [SerializeField, Min(0f)] private float cursorGap = 15f;
 
     public void Show(string name, Vector2 pointerPosition, RectTransform canvasRect)
     {
@@ -23,12 +24,14 @@ public sealed class RecipeIngredientNameTooltip : MonoBehaviour
         }
 
         nameText.text = name ?? string.Empty;
-        float width = Mathf.Clamp(nameText.GetPreferredValues(nameText.text).x + HorizontalPadding, MinimumWidth, MaximumWidth);
+        // Label stretches inside the bubble. Its authored offsets provide the outer padding.
+        Vector2 padding = -nameText.rectTransform.sizeDelta;
+        float preferredWidth = nameText.GetPreferredValues(nameText.text).x + padding.x;
+        float width = Mathf.Clamp(Mathf.Ceil(preferredWidth), minimumSize.x, Mathf.Max(minimumSize.x, maximumWidth));
         bubbleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
-        float height = Mathf.Max(MinimumHeight,
-            nameText.GetPreferredValues(nameText.text, width - HorizontalPadding, 0f).y + VerticalPadding);
+        float preferredHeight = nameText.GetPreferredValues(nameText.text, Mathf.Max(1f, width - padding.x), 0f).y + padding.y;
+        float height = Mathf.Max(minimumSize.y, Mathf.Ceil(preferredHeight));
         bubbleRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
-        nameText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height - VerticalPadding);
 
         gameObject.SetActive(true);
         Move(pointerPosition, canvasRect);
@@ -42,8 +45,8 @@ public sealed class RecipeIngredientNameTooltip : MonoBehaviour
 
         Rect canvasBounds = canvasRect.rect;
         Rect bubbleBounds = bubbleRect.rect;
-        localPoint.x += bubbleBounds.width * 0.5f + CursorGap;
-        localPoint.y -= bubbleBounds.height * 0.5f + CursorGap;
+        localPoint.x += bubbleBounds.width * 0.5f + cursorGap;
+        localPoint.y -= bubbleBounds.height * 0.5f + cursorGap;
 
         float minX = canvasBounds.xMin + bubbleBounds.width * bubbleRect.pivot.x;
         float maxX = canvasBounds.xMax - bubbleBounds.width * (1f - bubbleRect.pivot.x);
