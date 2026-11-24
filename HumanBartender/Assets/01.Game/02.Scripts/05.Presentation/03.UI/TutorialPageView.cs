@@ -70,11 +70,17 @@ public sealed class TutorialPageView : MonoBehaviour
     /// 웹 튜토리얼 화면의 확인 키(E·Space·Enter)를 이 프레임에 새로 눌렀는지. 누르고 있는 동안의 반복은 세지 않는다.
     /// 눌렀으면 이 프레임의 진행 입력을 차지해, 같은 키가 대사 진행으로 이어지지 않게 한다. 이미 다른 곳이 차지했으면 거짓이다.
     /// </summary>
-    public static bool ConfirmKeyPressed()
+    public static bool ConfirmKeyPressed() => ConfirmKeyPressed(true);
+
+    /// <summary>
+    /// <see cref="ConfirmKeyPressed()"/>와 같지만 Space를 셀지 고른다. 쉐이킹은 Space가 결합 키라 E·Enter만 쓴다(웹 V2 안내).
+    /// </summary>
+    public static bool ConfirmKeyPressed(bool includeSpace)
     {
         var keyboard = Keyboard.current;
         if (keyboard == null) return false;
-        bool pressed = keyboard.eKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame;
+        bool pressed = keyboard.eKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame ||
+                       includeSpace && keyboard.spaceKey.wasPressedThisFrame;
         return pressed && DialogueAdvanceInput.TryConsume();
     }
 
