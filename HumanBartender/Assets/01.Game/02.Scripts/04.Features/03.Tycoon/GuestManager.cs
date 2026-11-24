@@ -798,7 +798,9 @@ public class GuestManager : MonoBehaviour
         string text = candidates.Length == 0 ? "{cocktail}" :
             PickBarkAvoidingRepeat($"{situation}/{voiceId}", candidates).Text.Ko;
         string cocktailName = GetCocktailName(guest?.CurrentOrder?.Details.CocktailId ?? guest?.targetCocktailId);
-        slot.ShowBark(text, durationSec, textTagData, cocktailName, typewriter, orderLine, GuestSpeakerName(guest));
+        // 손님 말풍선 타이핑도 바 대사와 같은 속도(Typer의 UIDialogueTextView 값)를 쓴다.
+        slot.ShowBark(text, durationSec, textTagData, cocktailName, typewriter, orderLine, GuestSpeakerName(guest),
+            dialogueTextView != null ? dialogueTextView.TypingDelay : 0f, dialogueTextView != null ? dialogueTextView.TagTimeScale : 1f);
     }
 
     /// <summary>UI 문구 표에서 일반 손님 이름 줄에 쓰는 키.</summary>

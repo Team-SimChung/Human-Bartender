@@ -80,9 +80,10 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     public event Action MotionStopped;
 
     /// <param name="periodRhythm">거리·집·테라스 대사처럼 웹의 마침표 멈춤 규칙을 따를지. 바 내부 대사는 끈다.</param>
+    /// <param name="tagTimeScale">태그가 정한 글자 간격·쉼에 곱하는 배율. 바 내부는 1/3(웹과 같음), 그 밖은 1.</param>
     public async UniTask PlayAsync(TypingData data, NewTextTagDataSO tags, float defaultDelay,
         CancellationToken external = default, string cocktailName = null,
-        Func<float, CancellationToken, UniTask> wait = null, bool periodRhythm = false)
+        Func<float, CancellationToken, UniTask> wait = null, bool periodRhythm = false, float tagTimeScale = 1f)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
         external.ThrowIfCancellationRequested();
@@ -92,7 +93,7 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bubble.nameLabel.text = data.speaker;
         // 화자별 원본 색상과 관계없이 대화창 이름은 공통 하늘색을 사용한다.
         bubble.nameLabel.color = bubble.speakerNameColor;
-        var session = Begin(data.str, tags, cocktailName, defaultDelay, false, periodRhythm);
+        var session = Begin(data.str, tags, cocktailName, defaultDelay, false, periodRhythm, tagTimeScale);
         session.Revealing = true;
         session.ExternalRegistration = external.Register(() => Close(session));
         session.DestroyRegistration = this.GetCancellationTokenOnDestroy().Register(() => Close(session));
@@ -101,8 +102,8 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         bool completed = false;
         try
         {
-            // 별도 시계가 없는 기존 대화는 원래 대기 방식을 유지함.
-            var delay = wait ?? Wait;
+            // 별도 시계가 없으면 경과 시간을 누적하는 시계를 쓴다(QA-51, 웹 story-flow.js typeLine과 같음).
+            var delay = wait ?? new TypingClock().WaitAsync;
             var line = session.Line;
             int count = line.Characters.Length;
             for (int i = 0; i < count;)
@@ -153,13 +154,13 @@ public sealed class DialogueTextPlayer : MonoBehaviour
     }
 
     Session Begin(string text, NewTextTagDataSO tags, string cocktailName, float speed, bool instant,
-        bool periodRhythm = false)
+        bool periodRhythm = false, float tagTimeScale = 1f)
     {
         var settings = DialoguePresentationSettings.Shared;
-        if (!DialogueTextCompiler.TryCompile(text, tags, settings, cocktailName, speed, out var line, out string error))
+        if (!DialogueTextCompiler.TryCompile(text, tags, settings, cocktailName, speed, out var line, out string error, tagTimeScale))
         {
             if (warnings++ < 5) Debug.LogWarning($"[DialogueFX] {error}; showing readable fallback.");
-            line = DialogueTextCompiler.Compile(DialogueTextFallback.Readable(text), null, settings, null, speed);
+            line = DialogueTextCompiler.Compile(DialogueTextFallback.Readable(text), null, settings, null, speed, tagTimeScale);
         }
         bubble.PrepareForText(line.Text);
         // Bubble preparation may already rebuild with maxVisibleCharacters = 0.
@@ -215,9 +216,36 @@ public sealed class DialogueTextPlayer : MonoBehaviour
         }
     }
 
-    static UniTask Wait(float seconds, CancellationToken token) => seconds <= 0f
-        ? UniTask.CompletedTask
-        : UniTask.Delay(TimeSpan.FromSeconds(seconds), cancellationToken: token);
+    /// <summary>
+    /// 글자마다 새로 기다리지 않고 경과 시간을 누적한다. 한 프레임보다 짧은 간격이 남긴 시간은 다음 글자로 넘어가
+    /// 프레임 속도와 상관없이 평균 속도가 설정대로 나온다(60FPS에서 18ms 간격이 두 프레임씩 걸려 30자로 떨어지던 문제).
+    /// 게임 시간(Time.deltaTime)을 쓰므로 일시정지 중에는 멈춘다.
+    /// </summary>
+    public sealed class TypingClock
+    {
+        readonly Func<CancellationToken, UniTask> nextFrame;
+        readonly Func<float> deltaTime;
+        float owed;
+
+        public TypingClock() : this(token => UniTask.NextFrame(token), () => Time.deltaTime) { }
+
+        /// <summary>테스트에서 프레임과 프레임 시간을 직접 넣을 때 쓴다.</summary>
+        public TypingClock(Func<CancellationToken, UniTask> nextFrame, Func<float> deltaTime)
+        {
+            this.nextFrame = nextFrame ?? throw new ArgumentNullException(nameof(nextFrame));
+            this.deltaTime = deltaTime ?? throw new ArgumentNullException(nameof(deltaTime));
+        }
+
+        public async UniTask WaitAsync(float seconds, CancellationToken token)
+        {
+            if (seconds > 0f) owed += seconds;
+            while (owed > 0f)
+            {
+                await nextFrame(token);
+                owed -= deltaTime();
+            }
+        }
+    }
 
     void ShowAll(Session session, bool instant)
     {

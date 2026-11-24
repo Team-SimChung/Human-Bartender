@@ -226,10 +226,13 @@ public class GuestSlot : MonoBehaviour
     /// <summary>
     /// 말풍선에 텍스트를 즉시 표시한다. durationSec이 0보다 크면 그 시간 뒤 자동으로 숨긴다.
     /// speakerName은 이름 줄에 적는다(일반 손님 "손님", 카메오 단골은 인물 이름). 즉시 표시와 타이핑 모두 같은 이름을 쓴다.
+    /// typingDelay·tagTimeScale은 바 대사(UIDialogueTextView)와 같은 값을 받는다. typingDelay가 0이면 타이핑하지 않는다.
     /// </summary>
     public void ShowBark(string text, float durationSec = 3f, NewTextTagDataSO tags = null,
-        string cocktailName = null, bool typewriter = false, bool orderLine = false, string speakerName = null)
+        string cocktailName = null, bool typewriter = false, bool orderLine = false, string speakerName = null,
+        float typingDelay = 0f, float tagTimeScale = 1f)
     {
+        if (typingDelay <= 0f) typewriter = false;
         bubbleCts?.Cancel();
         StopSpeaking();
         int version = ++barkVersion;
@@ -242,7 +245,7 @@ public class GuestSlot : MonoBehaviour
         if (typewriter && durationSec > 0f)
         {
             if (!DialogueTextCompiler.TryCompile(text, tags, DialoguePresentationSettings.Shared,
-                    cocktailName, 0.05f, out var plan, out _)) typewriter = false;
+                    cocktailName, typingDelay, out var plan, out _, tagTimeScale)) typewriter = false;
             else
             {
                 float estimated = 0f;
@@ -259,7 +262,7 @@ public class GuestSlot : MonoBehaviour
             !string.IsNullOrWhiteSpace(text);
         if (speakingRequested) mouthAnimation.Start();
         if (typewriter)
-            TypeBarkAsync(text, tags, cocktailName, version).Forget(Debug.LogException);
+            TypeBarkAsync(text, tags, cocktailName, version, typingDelay, tagTimeScale).Forget(Debug.LogException);
         else
             speechBubble.SetText(text, tags, cocktailName);
 
@@ -271,7 +274,8 @@ public class GuestSlot : MonoBehaviour
         }
     }
 
-    async UniTask TypeBarkAsync(string text, NewTextTagDataSO tags, string cocktailName, int version)
+    async UniTask TypeBarkAsync(string text, NewTextTagDataSO tags, string cocktailName, int version,
+        float typingDelay, float tagTimeScale)
     {
         try
         {
@@ -279,8 +283,8 @@ public class GuestSlot : MonoBehaviour
             await speechBubble.TextPlayer.PlayAsync(
                 new TypingData(text, speechBubble.nameLabel != null ? speechBubble.nameLabel.text : "",
                     Vector3.zero, speechBubble.nameLabel != null ? speechBubble.nameLabel.color : Color.white,
-                    false), tags, 0.05f,
-                this.GetCancellationTokenOnDestroy(), cocktailName);
+                    false), tags, typingDelay,
+                this.GetCancellationTokenOnDestroy(), cocktailName, tagTimeScale: tagTimeScale);
         }
         catch (OperationCanceledException) { }
         finally { if (barkVersion == version) StopSpeaking(); }

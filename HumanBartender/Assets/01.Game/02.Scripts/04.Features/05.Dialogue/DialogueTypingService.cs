@@ -26,9 +26,10 @@ public static class DialogueTypingService
         NewTextTagDataSO textTagData,
         float typingDelay = 0.025f,
         CancellationToken token = default,
-        string cocktailName = null)
+        string cocktailName = null,
+        float tagTimeScale = 1f)
     {
         if (targetBubble == null) throw new ArgumentNullException(nameof(targetBubble));
-        await targetBubble.TextPlayer.PlayAsync(data, textTagData, typingDelay, token, cocktailName);
+        await targetBubble.TextPlayer.PlayAsync(data, textTagData, typingDelay, token, cocktailName, tagTimeScale: tagTimeScale);
     }
 }

@@ -87,8 +87,9 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
         float scale = Mathf.Max(.001f, Mathf.Abs(bubble.bubble.localScale.x));
         bubble.maxSize = new Vector2(Mathf.Min(authoredMaximumSize.x, (layer.rect.width - 20) / scale), authoredMaximumSize.y);
         Follow();
+        typingOwed = 0f;
         await bubble.TextPlayer.PlayAsync(new TypingData(text, "", Vector3.zero, Color.white, actor == "luna"),
-            tags, typingDelay, token, wait: WaitAsync, periodRhythm: true);
+            tags, typingDelay, token, wait: TypingWaitAsync, periodRhythm: true);
         readTime = Mathf.Clamp(bubble.textLabel.textInfo.characterCount / Mathf.Max(1, charactersPerSecond),
             minimumReadTime, Mathf.Max(minimumReadTime, maximumReadTime));
     }
@@ -98,6 +99,21 @@ public sealed class WorldAmbientDialogueView : MonoBehaviour, IDialoguePresenter
 
     private bool CanHear() => showing && !IsPlaybackPaused && speaker != null && player != null &&
         Vector2.Distance(speaker.position, player.position) <= backgroundAudioRange;
+
+    // 타이핑은 남은 시간을 다음 글자로 넘긴다(QA-51). 한 프레임보다 짧은 간격이 두 프레임씩 걸려 느려지지 않게 한다.
+    private float typingOwed;
+
+    private async UniTask TypingWaitAsync(float seconds, CancellationToken token)
+    {
+        if (seconds > 0f) typingOwed += seconds;
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+            if (!IsPlaybackPaused && typingOwed <= 0) return;
+            await UniTask.NextFrame(token);
+            if (!IsPlaybackPaused) typingOwed -= Time.deltaTime;
+        }
+    }
 
     private async UniTask WaitAsync(float seconds, CancellationToken token)
     {

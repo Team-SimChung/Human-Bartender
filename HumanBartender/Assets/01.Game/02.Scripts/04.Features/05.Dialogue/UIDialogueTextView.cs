@@ -75,7 +75,16 @@ public class UIDialogueTextView : MonoBehaviour
     void ForwardShakeSpan() => ShakeSpanRevealed?.Invoke();
     void ForwardMotionStopped() => MotionStopped?.Invoke();
 
-    [SerializeField] private float defaultTypingDelay = 0.05f;
+    [Header("Typing")]
+    [Tooltip("한 글자 간격(초). 바 내부는 웹과 같이 초당 60자(1/60초). 일반 손님 말풍선도 이 값을 쓴다.")]
+    [SerializeField, Min(0f)] private float defaultTypingDelay = 1f / 60f;
+    [Tooltip("태그가 정한 글자 간격·쉼(<slow>, <fast>, <NNN>, fx 속도·쉼)에 곱하는 배율. 웹 바 대사는 3배속(TEXT_SPEED_BASE 3)이라 1/3.")]
+    [SerializeField, Range(0.05f, 1f)] private float tagTimeScale = 1f / 3f;
+
+    /// <summary>바 대사 한 글자 간격(초). 손님 말풍선 타이핑도 같은 값을 쓴다.</summary>
+    public float TypingDelay => defaultTypingDelay;
+    /// <summary>바 대사 태그 시간 배율.</summary>
+    public float TagTimeScale => tagTimeScale;
 
     void Start()
     {
@@ -229,7 +238,7 @@ public class UIDialogueTextView : MonoBehaviour
         player.ShakeSpanRevealed += ForwardShakeSpan;
         player.MotionStopped += ForwardMotionStopped;
         UniTask playback = DialogueTypingService.TypeSentenceTMP(data, bubble, textTagData,
-            defaultTypingDelay, token, cocktailName);
+            defaultTypingDelay, token, cocktailName, tagTimeScale);
         int sessionId = player.CurrentSessionId;
         try
         {

@@ -87,12 +87,14 @@ public static class DialogueTextCompiler
     const int MaxDepth = 32;
     static readonly char[] Spaces = { ' ' };
 
+    /// <param name="tagTimeScale">태그가 정한 글자 간격·쉼(&lt;slow&gt;, &lt;fast&gt;, &lt;NNN&gt;, fx 속도·쉼)에 곱하는 배율.
+    /// 바 내부는 웹처럼 1/3(웹 TEXT_SPEED_BASE 3), 거리·컷씬은 1.</param>
     public static bool TryCompile(string raw, NewTextTagDataSO tags, DialoguePresentationSettings settings,
-        string cocktailName, float defaultSpeed, out Line line, out string error)
+        string cocktailName, float defaultSpeed, out Line line, out string error, float tagTimeScale = 1f)
     {
         try
         {
-            line = Compile(raw, tags, settings, cocktailName, defaultSpeed);
+            line = Compile(raw, tags, settings, cocktailName, defaultSpeed, tagTimeScale);
             error = null;
             return true;
         }
@@ -105,9 +107,10 @@ public static class DialogueTextCompiler
     }
 
     public static Line Compile(string raw, NewTextTagDataSO tags, DialoguePresentationSettings settings,
-        string cocktailName = null, float defaultSpeed = 0.05f)
+        string cocktailName = null, float defaultSpeed = 0.05f, float tagTimeScale = 1f)
     {
         raw ??= "";
+        if (!Valid(tagTimeScale) || tagTimeScale < 0) throw new ArgumentException("Invalid tag time scale.");
         if (raw.Length > MaxLength) throw new ArgumentException($"Dialogue length exceeds {MaxLength}.");
         if (cocktailName != null && cocktailName.Length > MaxLength)
             throw new ArgumentException($"Cocktail name length exceeds {MaxLength}.");
@@ -134,6 +137,7 @@ public static class DialogueTextCompiler
                     string token = raw.Substring(i + 1, end - i - 1);
                     if (TryDelay(token, out float wait))
                     {
+                        wait *= tagTimeScale;
                         if (waits.TryGetValue(output.Length, out float old)) wait += old;
                         waits[output.Length] = wait;
                         i = end + 1;
@@ -164,9 +168,9 @@ public static class DialogueTextCompiler
                             string tmpOpen = null, tmpClose = null;
                             float pauseBefore = 0, pauseAfter = 0;
                             if (effect) ParseEffect(head, token, settings, ref next, i);
-                            else if (preset) ParsePreset(token, settings, ref next,
+                            else if (preset) ParsePreset(token, settings, tagTimeScale, ref next,
                                 out tmpOpen, out tmpClose, out pauseBefore, out pauseAfter, i);
-                            else ParseAlias(head, tags.textTagData[head], ref next, out tmpOpen, out tmpClose, i);
+                            else ParseAlias(head, tags.textTagData[head], tagTimeScale, ref next, out tmpOpen, out tmpClose, i);
                             stack.Add(new Frame { Name = head, Previous = current, TmpClose = tmpClose, PauseAfter = pauseAfter });
                             AddWait(waits, output.Length, pauseBefore);
                             if (tmpOpen != null) AppendTag(tmpOpen, output, styles);
@@ -205,7 +209,7 @@ public static class DialogueTextCompiler
         waits[source] = previous + seconds;
     }
 
-    static void ParsePreset(string token, DialoguePresentationSettings settings, ref Style style,
+    static void ParsePreset(string token, DialoguePresentationSettings settings, float timeScale, ref Style style,
         out string open, out string close, out float pauseBefore, out float pauseAfter, int position)
     {
         string id = token.Substring(3);
@@ -233,7 +237,7 @@ public static class DialogueTextCompiler
                 if (!Uri.IsHexDigit(color[c]))
                     throw new ArgumentException($"Invalid FX color in '{id}' at UTF-16 {position}.");
         }
-        if (fx.OverrideSpeed) style.SpeedSeconds = fx.TypingIntervalMs / 1000f;
+        if (fx.OverrideSpeed) style.SpeedSeconds = fx.TypingIntervalMs / 1000f * timeScale;
         if (fx.Motion == DialogueFxMotion.Shake)
         {
             style.Shake = true;
@@ -254,8 +258,8 @@ public static class DialogueTextCompiler
             open += "<size=" + fx.SizePercent.ToString(CultureInfo.InvariantCulture) + "%>";
             close = "</size>" + close;
         }
-        pauseBefore = fx.PauseBeforeMs / 1000f;
-        pauseAfter = fx.PauseAfterMs / 1000f;
+        pauseBefore = fx.PauseBeforeMs / 1000f * timeScale;
+        pauseAfter = fx.PauseAfterMs / 1000f * timeScale;
     }
 
     static bool TryDelay(string token, out float seconds)
@@ -269,7 +273,7 @@ public static class DialogueTextCompiler
         return true;
     }
 
-    static void ParseAlias(string name, NewTextTagData tag, ref Style style,
+    static void ParseAlias(string name, NewTextTagData tag, float timeScale, ref Style style,
         out string open, out string close, int position)
     {
         open = close = null;
@@ -291,7 +295,7 @@ public static class DialogueTextCompiler
         {
             if (!float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float ms) || !Valid(ms) || ms < 0 || ms > 60000)
                 throw new ArgumentException($"Invalid speed <{name}> at {position}.");
-            style.SpeedSeconds = ms / 1000f;
+            style.SpeedSeconds = ms / 1000f * timeScale;
         }
         else throw new ArgumentException($"Unsupported alias <{name}> at {position}.");
     }
