@@ -233,6 +233,19 @@ public sealed class OutsideGroundEffectsTests
     }
 
     [Test]
+    public void FogLayersFadeOutBeforeTheirTopEdge()
+    {
+        // 하늘 중간에 안개 윗변이 가로선으로 보이지 않게, 높이의 위쪽 일부에 걸쳐 부드럽게 사라진다.
+        var scene = EditorSceneManager.OpenScene(OutsideGroundEffectsSetup.ScenePath, OpenSceneMode.Single);
+        var fogs = scene.GetRootGameObjects().SelectMany(o => o.GetComponentsInChildren<BackgroundFog>(true)).ToArray();
+        Assert.That(fogs, Is.Not.Empty);
+        foreach (var fog in fogs)
+            Assert.That(new SerializedObject(fog).FindProperty("topFade").floatValue, Is.GreaterThanOrEqualTo(0.2f), fog.name + " needs a soft top edge.");
+        var shader = Shader.Find("Custom/Outside/BackgroundFog");
+        Assert.That(shader.GetPropertyDefaultVectorValue(shader.FindPropertyIndex("_Style")).w, Is.GreaterThanOrEqualTo(0.2f));
+    }
+
+    [Test]
     public void SavedSceneHasSeparateCaptureAndAllRequestedCharacters()
     {
         var scene = EditorSceneManager.OpenScene(OutsideGroundEffectsSetup.ScenePath, OpenSceneMode.Single);

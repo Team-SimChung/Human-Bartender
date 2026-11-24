@@ -22,6 +22,8 @@ public sealed class BackgroundFog : MonoBehaviour
     [SerializeField, Min(0.1f)] float height = 6;
     [Tooltip("1보다 작으면 위쪽까지 진하게 유지되고, 크면 바닥에만 낮게 깔린다.")]
     [SerializeField, Range(0.2f, 4)] float heightFalloff = 0.8f;
+    [Tooltip("안개 높이 중 위쪽 이 비율에 걸쳐 부드럽게 사라진다. 높이 감쇠가 낮아 윗변이 가로선으로 보일 때 키운다.")]
+    [SerializeField, Range(0.001f, 1)] float topFade = 0.35f;
     [Header("흐름")]
     [SerializeField, Min(0.1f)] float noiseScale = 2.5f;
     [SerializeField, Range(0, 1)] float noiseStrength = 0.45f;
@@ -100,7 +102,7 @@ public sealed class BackgroundFog : MonoBehaviour
         block.SetColor(FogColorId, color);
         block.SetVector(DensityId, new Vector4(density, groundY, height, heightFalloff));
         block.SetVector(NoiseId, new Vector4(noiseScale, noiseStrength, driftSpeed, pixelsPerUnit));
-        block.SetVector(StyleId, new Vector4(lightInfluence, alphaSteps, edgeFade, 0));
+        block.SetVector(StyleId, new Vector4(lightInfluence, alphaSteps, edgeFade, topFade));
         fogRenderer.SetPropertyBlock(block);
     }
 }

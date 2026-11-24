@@ -7,8 +7,8 @@ Shader "Custom/Outside/BackgroundFog"
         _Density ("Density", Vector) = (0.45, -1.2, 4, 1.4)
         // x 노이즈 크기(월드), y 노이즈 강도, z 흐름 속도, w 픽셀/유닛
         _Noise ("Noise", Vector) = (2.5, 0.55, 0.12, 100)
-        // x 2D 라이트 영향, y 밝기 단계(0이면 부드럽게), z 가장자리 페이드 폭(uv)
-        _Style ("Style", Vector) = (0.5, 0, 0.04, 0)
+        // x 2D 라이트 영향, y 밝기 단계(0이면 부드럽게), z 가장자리 페이드 폭(uv), w 윗변 페이드 폭(높이 비율)
+        _Style ("Style", Vector) = (0.5, 0, 0.04, 0.35)
     }
     SubShader
     {
@@ -60,6 +60,8 @@ Shader "Custom/Outside/BackgroundFog"
                 // 지면에서 가장 짙고 위로 갈수록 옅어지는 안개층.
                 float height = saturate((world.y - _Density.y) / max(0.01, _Density.z));
                 float density = pow(1 - height, max(0.1, _Density.w));
+                // 윗변 경계선이 보이지 않도록 높이의 위쪽 일부(_Style.w)에 걸쳐 0까지 부드럽게 줄인다.
+                density *= smoothstep(0, max(0.0001, _Style.w), 1 - height);
                 // 옆으로 천천히 흐르는 두 겹의 안개 덩어리.
                 float2 p = world / max(0.05, _Noise.x);
                 float drift = _Time.y * _Noise.z;
