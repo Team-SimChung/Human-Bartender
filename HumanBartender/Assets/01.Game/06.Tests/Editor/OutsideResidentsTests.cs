@@ -211,18 +211,18 @@ public sealed class OutsideResidentsTests
         Assert.That(ambient.IsPaused, Is.True);
     }
 
-    [TestCase("m1")]
-    [TestCase("m2")]
-    public void IdleStepCurveKeepsOpaqueFeetFixedAtEveryFrameAndLoop(string kind)
+    [TestCase("m1", .27f)]
+    [TestCase("m2", .295f)]
+    public void IdleGridPivotsKeepOpaqueFeetFixedAtEveryFrameAndLoop(string kind, float sceneLocalY)
     {
         var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(AnimFolder + "npc_" + kind + "_idle.anim");
         Assert.That(clip, Is.Not.Null);
         var binding = AnimationUtility.GetObjectReferenceCurveBindings(clip).Single(b => b.propertyName == "m_Sprite");
         var frames = AnimationUtility.GetObjectReferenceCurve(clip, binding);
         Assert.That(frames.Length, Is.EqualTo(6));
-        var y = AnimationUtility.GetEditorCurve(clip, EditorCurveBinding.FloatCurve("", typeof(Transform), "m_LocalPosition.y"));
-        Assert.That(y, Is.Not.Null);
+        Assert.That(AnimationUtility.GetCurveBindings(clip), Is.Empty);
         var visual = Create("SampledSprite");
+        visual.transform.localPosition = new Vector3(0, sceneLocalY, 0);
         var renderer = visual.AddComponent<SpriteRenderer>();
         // 실제 NPC와 같은 Animator 연결을 준비한다. 자동 재생은 끄고 아래에서 각 시점을 직접 샘플링한다.
         var animator = visual.AddComponent<Animator>();
@@ -239,14 +239,31 @@ public sealed class OutsideResidentsTests
             clip.SampleAnimation(visual, time);
             var sprite = renderer.sprite;
             Assert.That(sprite, Is.Not.Null, kind + " time=" + time);
+            Assert.That(visual.transform.localPosition.y, Is.EqualTo(sceneLocalY));
             int bottom = OpaqueBottom(pixels, texture.width, sprite.rect);
             float worldFoot = visual.transform.localPosition.y + (bottom - sprite.pivot.y) / sprite.pixelsPerUnit;
             Assert.That(worldFoot, Is.EqualTo(0f).Within(.00001f), kind + " time=" + time);
         }
-        for (int i = 0; i < y.length; i++)
+    }
+
+    [TestCase("01.Luna/01.Clips/02.Run/Luna_Run.anim")]
+    [TestCase("03.Samho/01.Clips/03.Run/Samho Run.anim")]
+    public void RunSlicesUseTheSameRectAndPivotWithinEachGridCell(string relativePath)
+    {
+        const string characterAnimations = "Assets/01.Game/03.Content/07.Animations/01.Characters/";
+        var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(characterAnimations + relativePath);
+        Assert.That(clip, Is.Not.Null);
+        var binding = AnimationUtility.GetObjectReferenceCurveBindings(clip).Single(b => b.propertyName == "m_Sprite");
+        var frames = AnimationUtility.GetObjectReferenceCurve(clip, binding);
+        Assert.That(frames.Length, Is.EqualTo(8));
+        var first = (Sprite)frames[0].value;
+        int cellWidth = first.texture.width / frames.Length;
+        for (int i = 0; i < frames.Length; i++)
         {
-            Assert.That(AnimationUtility.GetKeyLeftTangentMode(y, i), Is.EqualTo(AnimationUtility.TangentMode.Constant));
-            Assert.That(AnimationUtility.GetKeyRightTangentMode(y, i), Is.EqualTo(AnimationUtility.TangentMode.Constant));
+            var sprite = (Sprite)frames[i].value;
+            Assert.That(sprite.rect.position, Is.EqualTo(first.rect.position + Vector2.right * (i * cellWidth)), sprite.name);
+            Assert.That(sprite.rect.size, Is.EqualTo(first.rect.size), sprite.name);
+            Assert.That(sprite.pivot, Is.EqualTo(first.pivot), sprite.name);
         }
     }
 
