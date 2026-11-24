@@ -78,7 +78,7 @@ internal sealed class HomeInteractionTestScenario
 internal static class HomeInteractionTestScenarios
 {
     internal const string CoverageNote = "홈 씬의 실제 대상: 현관, 소파, TV, 부비, 침대, 옷장, 책. " +
-        "침대는 혼잣말, 옷장은 대사·누른다/취소, 책은 표지·설명을 확인합니다. 테라스 문은 예약 위치입니다. " +
+        "침대는 혼잣말, 옷장은 안내 문구·누른다/취소와 열림·닫힘 전환, 책은 표지·설명을 확인합니다. 테라스 문은 예약 위치입니다. " +
         "테라스는 소파의 수면으로 실행합니다. TV는 본다·끈다·취소와 전원을 확인합니다. 준비되지 않은 방송은 선택지에서 안내합니다.";
 
     internal static IReadOnlyList<HomeInteractionTestScenario> All { get; } = Array.AsReadOnly(new[]
@@ -143,8 +143,9 @@ internal static class HomeInteractionTestScenarios
         new HomeInteractionTestScenario("bed-inspection", "침대 · 혼잣말 / 반복",
             "침대 앞에서 E로 기존 혼잣말을 읽고 종료한 뒤 다시 조사합니다. 가까운 옷장·현관과 대상 선택도 확인합니다.",
             0, EGameFlow.CommuteIn, "home_bed", new[] { "home-bed" }),
-        new HomeInteractionTestScenario("wardrobe-inspection", "옷장 · 대사 / 누른다 / 취소",
-            "버튼 설명을 읽은 뒤 누른다·취소를 각각 확인합니다. 누르면 기존 미제작 안내 대사로 이어집니다.",
+        new HomeInteractionTestScenario("wardrobe-inspection", "옷장 · 안내 / 누른다 / 취소 / 열림·닫힘",
+            "처음엔 버튼 안내 문구와 함께 누른다·취소가 나옵니다. 취소하면 다음에도 안내가 나옵니다. 처음 누르면 열린 뒤 " +
+            "후속 대사를 키로 넘기고, 다시 누를 때마다 안내·대사 없이 닫힘·열림이 번갈아 재생됩니다. 집을 나갔다 와도 상태가 유지됩니다.",
             1, EGameFlow.CommuteIn, "home_wardrobe", new[] { "home-wardrobe", "home-wardrobe-pressed" }),
         new HomeInteractionTestScenario("book-inspection", "책 · 표지 / 설명 / 닫기",
             "책 표지 비율과 하단 설명을 확인합니다. E·Esc·나가기 버튼으로 닫은 뒤 이동과 반복 조사를 확인합니다.",
