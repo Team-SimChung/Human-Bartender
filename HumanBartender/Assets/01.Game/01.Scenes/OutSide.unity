@@ -48285,7 +48285,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3703395972948673099, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9135345202383492210}
   m_SourcePrefab: {fileID: 100100000, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
 --- !u!4 &9135345202383492204 stripped
 Transform:
@@ -48297,6 +48300,43 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3703395972948673099, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
   m_PrefabInstance: {fileID: 9135345202383492203}
   m_PrefabAsset: {fileID: 0}
+--- !u!198 &9135345202383492206 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1726305436805520246, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+  m_PrefabInstance: {fileID: 9135345202383492203}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &9135345202383492207 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 7865452661658232081, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+  m_PrefabInstance: {fileID: 9135345202383492203}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &9135345202383492208 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 2138257385196118152, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+  m_PrefabInstance: {fileID: 9135345202383492203}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &9135345202383492209 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 4220170262602888957, guid: 51677c20a2ac5a048a04dc398125af78, type: 3}
+  m_PrefabInstance: {fileID: 9135345202383492203}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &9135345202383492210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9135345202383492205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d6416a1944e23f4aad1e43af7da93cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RainSchedule
+  systems:
+  - {fileID: 9135345202383492209}
+  - {fileID: 9135345202383492208}
+  - {fileID: 9135345202383492207}
+  - {fileID: 9135345202383492206}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
