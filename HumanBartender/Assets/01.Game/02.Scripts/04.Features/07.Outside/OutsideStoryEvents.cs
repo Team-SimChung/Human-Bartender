@@ -18,6 +18,8 @@ public sealed class OutsideStoryExecution
     public bool SupportsSceneContinuation { get; }
     internal bool ContinueAfterTravel { get; private set; }
     internal StorySceneContinuation Continuation { get; private set; }
+    internal bool ChoiceWasForced { get; private set; }
+    private bool allowBranchOverdraft;
     private string departureEffects, rollbackEffects;
     private readonly Func<NewStreetOptionData[], CancellationToken, UniTask<NewStreetOptionData>> choose;
     private readonly Func<OutsideStoryWorldAction, CancellationToken, UniTask> playWorldAction;
@@ -39,7 +41,13 @@ public sealed class OutsideStoryExecution
     }
 
     public bool Flag(string key) => Conditions.CheckRequired("flag." + key);
-    public void Effect(string effect) => Conditions.ApplyRequired(effect);
+    public void Effect(string effect) => Conditions.ApplyRequired(effect, allowOverdraft: allowBranchOverdraft || ChoiceWasForced);
+
+    internal void BeginCommand(bool allowOverdraft)
+    {
+        allowBranchOverdraft = allowOverdraft;
+        ChoiceWasForced = false;
+    }
 
     /// <summary>
     /// 실제로 받은 재료·아이템의 획득 알림을 띄운다(웹 notifyItem). 지급 기록을 남긴 처리기가 같은 자리에서 부른다.
@@ -69,8 +77,12 @@ public sealed class OutsideStoryExecution
         token.ThrowIfCancellationRequested();
         var selected = await choose(options, token);
         token.ThrowIfCancellationRequested();
-        if (!options.Contains(selected) || !Conditions.CheckRequired(selected.When))
+        if (!options.Contains(selected))
             throw new InvalidOperationException("선택할 수 없는 사건 선택지입니다.");
+        bool locked = !Conditions.CheckRequired(selected.When);
+        if (locked && !InGameQaPanel.ForceVisibleChoices)
+            throw new InvalidOperationException("선택할 수 없는 사건 선택지입니다.");
+        ChoiceWasForced = locked;
         return selected;
     }
 

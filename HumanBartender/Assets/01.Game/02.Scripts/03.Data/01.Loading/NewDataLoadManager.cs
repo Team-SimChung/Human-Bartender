@@ -93,6 +93,7 @@ public class NewDataLoadManager : MonoBehaviour, IAsyncStartable, IStoryContentS
     /// </summary>
     static readonly Dictionary<int, NewDayScriptBase> _barScriptCache = new();
     static NewDayInfoData[] loadedDays;
+    internal static IReadOnlyList<NewDayInfoData> LoadedDays => loadedDays ?? Array.Empty<NewDayInfoData>();
     public static NewStreetData StreetStory { get; private set; }
     public static NewStreetData HomeStory { get; private set; }
     public static NewCharacterData[] StoryCharacters { get; private set; }

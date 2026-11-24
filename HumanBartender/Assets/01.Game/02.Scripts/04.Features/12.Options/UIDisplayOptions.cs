@@ -160,6 +160,7 @@ public class UIDisplayOptions : MonoBehaviour
 
     public void HandleEscape()
     {
+        if (InGameQaPanel.IsOpen) return;
         // 패널과 컨트롤러가 같은 프레임의 Esc를 읽어도 한 번만 처리한다.
         if (lastEscapeFrame == Time.frameCount) return;
         lastEscapeFrame = Time.frameCount;

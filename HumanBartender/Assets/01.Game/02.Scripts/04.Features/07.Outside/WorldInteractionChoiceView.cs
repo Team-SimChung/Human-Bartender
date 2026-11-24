@@ -243,7 +243,7 @@ public sealed class WorldInteractionChoiceView : MonoBehaviour
         if (!IsOpen || IsRevealing || revision != version || Time.frameCount == openedFrame) return;
         var option = options[index];
         Focus(index);
-        if (option.Selectable == false)
+        if (option.Selectable == false && !InGameQaPanel.ForceVisibleChoices)
         {
             rows[index].Reject();
             return;

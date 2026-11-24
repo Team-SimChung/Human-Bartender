@@ -36,6 +36,8 @@ public class ProjectLifetimeScope : LifetimeScope
         builder.RegisterEntryPoint<AudioVolumeSettings>(Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<UIDisplayOptions>();
+        var qaPanel = GetComponentInChildren<InGameQaPanel>(true);
+        if (qaPanel != null) builder.RegisterComponent(qaPanel);
         builder.RegisterEntryPoint<GameKeyBindingRuntime>();
         builder.RegisterComponentInHierarchy<UICashPanel>().AsSelf().As<ICurrencyPresentation>();
         builder.RegisterEntryPoint<DisplaySettings>(Lifetime.Singleton);

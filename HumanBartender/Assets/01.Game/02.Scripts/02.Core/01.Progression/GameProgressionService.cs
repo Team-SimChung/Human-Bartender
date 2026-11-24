@@ -467,9 +467,18 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
         }
     }
 
+    internal UniTask<GameProgressionResult> TravelForQaAsync(int day, EGameFlow flow, CancellationToken token)
+    {
+        if (!NewDataLoadManager.TryGetDayInfo(day, out _) ||
+            flow is not (EGameFlow.Bar or EGameFlow.CommuteIn or EGameFlow.CommuteOut))
+            return UniTask.FromResult(new GameProgressionResult(GameProgressionOutcome.Rejected, "[QA] 이동할 일차 또는 시간대가 유효하지 않습니다."));
+        return MoveAsync(SceneManager.GetActiveScene().name, flow == EGameFlow.Bar ? "Play" : "OutSide",
+            gameState.GameFlow, flow, token, dayOverride: day);
+    }
+
     async UniTask<GameProgressionResult> MoveAsync(string sourceScene, string destinationScene,
         EGameFlow requiredFlow, EGameFlow destinationFlow, CancellationToken cancellationToken,
-        SceneTransitionStyle style = SceneTransitionStyle.Fade, bool arriveAtOutsideHomeDoor = false)
+        SceneTransitionStyle style = SceneTransitionStyle.Fade, bool arriveAtOutsideHomeDoor = false, int? dayOverride = null)
     {
         if (isRunning || sceneTransitions.IsBusy)
             return new GameProgressionResult(GameProgressionOutcome.Rejected, "다른 진행 작업이 실행 중입니다.");
@@ -480,10 +489,22 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
             return new GameProgressionResult(GameProgressionOutcome.Canceled);
 
         isRunning = true;
+        int sourceHandle = SceneManager.GetActiveScene().handle;
+        int previousDay = gameState.CurrentDay;
         EGameFlow previousFlow = gameState.GameFlow;
         bool previousDoorArrival = gameState.ArrivingAtOutsideHomeDoor;
+        bool previousHasBarEntry = hasBarEntry;
+        var previousBarEntry = barEntryCompletion;
         UniTaskCompletionSource<GameProgressionResult> barEntry = null;
         GameProgressionResult outcome = default;
+        void RestoreSource()
+        {
+            if (SceneManager.GetActiveScene().handle != sourceHandle) return;
+            gameState.CurrentDay = previousDay;
+            gameState.GameFlow = previousFlow;
+            hasBarEntry = previousHasBarEntry;
+            barEntryCompletion = previousBarEntry;
+        }
         try
         {
             SceneTransitionRequest request = sceneTransitions.RequestLoadScene(destinationScene,
@@ -503,12 +524,11 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
 
             // 새 씬의 Start가 전환 Completion보다 먼저 실행되므로, 수락된 요청에 한해서
             // 목적지의 출퇴근 문맥을 준비한다. 씬이 바뀌지 않은 실패는 아래에서 되돌린다.
+            if (dayOverride.HasValue) gameState.CurrentDay = dayOverride.Value;
             gameState.GameFlow = destinationFlow;
             gameState.ArrivingAtOutsideHomeDoor = arriveAtOutsideHomeDoor;
             SceneTransitionResult result = await request.Completion;
-            if (!result.Succeeded && !result.SceneActivated &&
-                SceneManager.GetActiveScene().name != destinationScene)
-                gameState.GameFlow = previousFlow;
+            if (!result.Succeeded && !result.SceneActivated) RestoreSource();
             if (!result.Succeeded && result.SceneActivated)
                 FindSceneContext(destinationScene)?.ReportArrivalFailure(result.Message);
             if (result.Succeeded)
@@ -524,14 +544,12 @@ public sealed class GameProgressionService : IGameProgressionService, IGameProgr
         }
         catch (OperationCanceledException error)
         {
-            if (SceneManager.GetActiveScene().name != destinationScene)
-                gameState.GameFlow = previousFlow;
+            RestoreSource();
             return outcome = new GameProgressionResult(GameProgressionOutcome.Canceled, error.Message, error);
         }
         catch (Exception error)
         {
-            if (SceneManager.GetActiveScene().name != destinationScene)
-                gameState.GameFlow = previousFlow;
+            RestoreSource();
             return outcome = new GameProgressionResult(GameProgressionOutcome.Failed, error.Message, error);
         }
         finally

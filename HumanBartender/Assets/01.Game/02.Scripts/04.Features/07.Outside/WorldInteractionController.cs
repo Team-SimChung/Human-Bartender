@@ -201,7 +201,7 @@ public sealed class WorldInteractionController : MonoBehaviour
 
     private void Update()
     {
-        if (!ready || handingOff) return;
+        if (!ready || handingOff || InGameQaPanel.IsOpen) return;
         if (!IsRunning)
         {
             RefreshStoryActors();
@@ -302,7 +302,7 @@ public sealed class WorldInteractionController : MonoBehaviour
     {
         if (!ready) return false;
         if (handingOff) return true;
-        if (UIDisplayOptions.IsOptionOpen) return true;
+        if (UIDisplayOptions.IsOptionOpen || InGameQaPanel.IsOpen) return true;
         // 컷씬을 진행·종료한 입력이 같은 프레임의 다음 대사로 이어지지 않게 한다.
         if (DialogueAdvanceInput.ConsumedThisFrame) return true;
         if (IsRunning)
@@ -660,8 +660,8 @@ public sealed class WorldInteractionController : MonoBehaviour
         {
             var selected = await view.ChooseMenuAsync(options, message, token);
             token.ThrowIfCancellationRequested();
-            if (!options.Contains(selected) || selected.Selectable == false ||
-                !conditions.CheckRequired(selected.When) || canSelect?.Invoke(selected.Id) == false)
+            if (!options.Contains(selected) || (!InGameQaPanel.ForceVisibleChoices &&
+                (selected.Selectable == false || !conditions.CheckRequired(selected.When) || canSelect?.Invoke(selected.Id) == false)))
                 throw new InvalidOperationException("[WorldInteraction] 선택할 수 없는 동작 선택지입니다.");
             return selected;
         }
@@ -674,7 +674,7 @@ public sealed class WorldInteractionController : MonoBehaviour
         var options = OutsideStorySteps.Choices(content, sceneId).OrderBy(option => option.Seq).ToArray();
         for (int i = 0; i < options.Length; i++)
             options[i].Selectable = conditions.CheckRequired(options[i].When) && canSelect?.Invoke(options[i].Id) != false;
-        if (!options.Any(option => option.Selectable == true))
+        if (!InGameQaPanel.ForceVisibleChoices && !options.Any(option => option.Selectable == true))
             throw new InvalidOperationException("[WorldInteraction] 선택 가능한 동작 선택지가 없습니다: " + sceneId);
         return options;
     }

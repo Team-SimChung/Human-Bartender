@@ -360,6 +360,32 @@ public sealed class OutsideChoicePresentationTests
         Assert.That(operation.GetAwaiter().GetResult().Status, Is.EqualTo(StoryExecutionStatus.Cancelled));
     }
 
+    [TestCase("day1-corridor-thug", "... 속은 것 같은데.", false, 0)]
+    [TestCase("day1-corridor-thug", "... 속은 것 같은데.", true, -500)]
+    [TestCase("outside_interaction_money_example", "500원을 지불했습니다.", false, 0)]
+    [TestCase("outside_interaction_money_example", "500원을 지불했습니다.", true, -500)]
+    public void PaymentOnlyContinuesWithoutFundsWhenTheChoiceIsForced(string sceneId, string reply, bool force, int balance)
+    {
+        var content = new CsvStoryTestContent();
+        var choice = content.GetSceneSteps(sceneId).Single(step => step.Command == OutsideStoryCommand.ThugChoice || step.Type == "choice");
+        var presenter = new RecordingPresenter { PickFirst = true };
+        var player = Own(ScriptableObject.CreateInstance<PlayerDataSO>());
+        var runner = MakeRunner(presenter, new OutsideStoryEvents(new[] { new StreetStoryEvents(content, GameStateManager.Instance) }), player);
+        var mode = typeof(InGameQaPanel).GetField("forceVisibleChoices", BindingFlags.Static | BindingFlags.NonPublic);
+        var previous = mode.GetValue(null);
+        try
+        {
+            mode.SetValue(null, force);
+            var run = runner.PlayOutsideAsync(new[] { choice }, playWorldAction: (_, _) => UniTask.CompletedTask).GetAwaiter().GetResult();
+            Assert.That(run.Completed, Is.EqualTo(force), run.Error);
+            Assert.That(presenter.Events.Contains("say:luna:" + reply), Is.EqualTo(force));
+            if (choice.Command == OutsideStoryCommand.ThugChoice)
+                Assert.That(player.CheckFlag("day1_thug_choice"), Is.EqualTo(force));
+            Assert.That(player.HasMoney(), Is.EqualTo(balance));
+        }
+        finally { mode.SetValue(null, previous); }
+    }
+
     // ── 19. 대화 중 하단 안내 ───────────────────────────────────────────
 
     [Test]
@@ -613,9 +639,9 @@ public sealed class OutsideChoicePresentationTests
         public UniTask WaitAfterLineAsync(CancellationToken token) => UniTask.CompletedTask;
     }
 
-    private DialogueRunner MakeRunner(IDialoguePresenter presenter, IOutsideStoryEvents events)
+    private DialogueRunner MakeRunner(IDialoguePresenter presenter, IOutsideStoryEvents events, PlayerDataSO data = null)
     {
-        var data = Own(ScriptableObject.CreateInstance<PlayerDataSO>());
+        data ??= Own(ScriptableObject.CreateInstance<PlayerDataSO>());
         var runner = Own(new GameObject("Choice prompt runner")).AddComponent<DialogueRunner>();
         typeof(DialogueRunner).GetField("conditionUtil", Private)
             .SetValue(runner, new ConditionUtil(GameStateManager.Instance, data, data));

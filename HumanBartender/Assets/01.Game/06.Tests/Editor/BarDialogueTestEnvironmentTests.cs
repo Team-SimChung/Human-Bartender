@@ -1,7 +1,17 @@
 using System;
+using System.Collections;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
+using TMPro;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
+using UnityEngine.UI;
+using VContainer;
+using VContainer.Unity;
 
 public sealed class BarDialogueTestEnvironmentTests
 {
@@ -51,6 +61,38 @@ public sealed class BarDialogueTestEnvironmentTests
             var conditions = new ConditionUtil(GameStateManager.Instance, player, player);
             Assert.That(CampaignStoryRules.CanPrepareJohnnyDrink(conditions), Is.True,
                 "Day-three dialogue tests need the same ingredients and memory as a real arrival.");
+        }
+    }
+
+    [Test]
+    public void InGameQaCanvasStartsClosedAndHasAuthoredControls()
+    {
+        const string path = "Assets/01.Game/03.Content/08.Prefabs/04.Shared/01.Bootstrap/ProjectLifeScope.prefab";
+        var scope = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        Assert.That(scope, Is.Not.Null);
+        var qa = scope.GetComponentInChildren<InGameQaPanel>(true);
+        Assert.That(qa, Is.Not.Null);
+        Assert.That(qa.GetComponent<Canvas>().renderMode, Is.EqualTo(RenderMode.ScreenSpaceOverlay));
+        Assert.That(qa.GetComponent<CanvasScaler>().referenceResolution, Is.EqualTo(new Vector2(960, 540)));
+        using var fields = new SerializedObject(qa);
+        var root = (GameObject)fields.FindProperty("panelRoot").objectReferenceValue;
+        Assert.That(root.activeSelf, Is.False);
+        foreach (string name in new[] { "commuteIn", "commuteOut", "addMoney", "subtractMoney", "setFlag", "clearFlag", "forceChoices", "resetProgress" })
+            Assert.That(fields.FindProperty(name).objectReferenceValue, Is.InstanceOf<Button>(), name);
+        foreach (string name in new[] { "scriptSearch", "moneyAmount", "flagKey" })
+        {
+            var input = (TMP_InputField)fields.FindProperty(name).objectReferenceValue;
+            Assert.That(input.textViewport, Is.Not.Null, name);
+            Assert.That(input.textComponent, Is.Not.Null, name);
+        }
+        var buttons = fields.FindProperty("scriptButtons");
+        var labels = fields.FindProperty("scriptLabels");
+        Assert.That(buttons.arraySize, Is.GreaterThan(0).And.EqualTo(labels.arraySize));
+        for (int i = 0; i < buttons.arraySize; i++)
+        {
+            var button = (Button)buttons.GetArrayElementAtIndex(i).objectReferenceValue;
+            var label = (TMP_Text)labels.GetArrayElementAtIndex(i).objectReferenceValue;
+            Assert.That(label.transform.IsChildOf(button.transform), Is.True);
         }
     }
 
@@ -113,4 +155,59 @@ public sealed class BarDialogueTestEnvironmentTests
         Scenes = new[] { new NewScriptSceneData { Id = "test_scene", Day = 1, Seq = 1, Phase = ENewScenePhase.Bar,
             Trigger = ENewSceneTrigger.Auto, Steps = steps } }
     };
+}
+
+public sealed class InGameQaPanelRuntimeTests
+{
+    [UnityTest]
+    public IEnumerator ShortcutHandlerAndMoneyButtonsUseTheLivePlayer()
+    {
+        yield return new EnterPlayMode();
+        var panel = UnityEngine.Object.FindFirstObjectByType<InGameQaPanel>();
+        Assert.That(panel, Is.Not.Null);
+        Assert.That(panel.isActiveAndEnabled, Is.True);
+        var container = LifetimeScope.Find<ProjectLifetimeScope>().Container;
+        var transitions = container.Resolve<ISceneTransitionService>();
+        float deadline = Time.realtimeSinceStartup + 8f;
+        while (transitions.IsBusy && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(transitions.IsBusy, Is.False, "Wait for the initial scene fade before sending QA input.");
+        SceneManager.SetActiveScene(SceneManager.CreateScene("OutSide"));
+        Assert.That(UIDisplayOptions.IsOptionOpen, Is.False);
+        var player = container.Resolve<PlayerDataSO>();
+        const BindingFlags privateFields = BindingFlags.Instance | BindingFlags.NonPublic;
+        var injected = typeof(InGameQaPanel).GetField("player", privateFields);
+        Assert.That(injected.GetValue(panel), Is.SameAs(player), "The QA panel must receive the same player as the project scope.");
+        var inputField = typeof(InGameQaPanel).GetField("toggleInput", privateFields);
+        var input = (InputAction)inputField.GetValue(panel);
+        Assert.That(input.enabled, Is.True);
+        Assert.That(input.bindings.Single().path, Is.EqualTo("<Keyboard>/p"));
+        var toggle = typeof(InGameQaPanel).GetMethod("ToggleFromKeyboard", privateFields);
+        var callback = new object[] { default(InputAction.CallbackContext) };
+        int initialMoney = player.HasMoney();
+        try
+        {
+            using var fields = new SerializedObject(panel);
+            var root = (GameObject)fields.FindProperty("panelRoot").objectReferenceValue;
+            Assert.That(root.activeSelf, Is.False);
+            toggle.Invoke(panel, callback);
+            Assert.That(root.activeSelf, Is.True);
+            Assert.That(GamePause.IsPaused, Is.True);
+
+            var amount = (TMP_InputField)fields.FindProperty("moneyAmount").objectReferenceValue;
+            amount.text = "25";
+            ((Button)fields.FindProperty("addMoney").objectReferenceValue).onClick.Invoke();
+            Assert.That(player.HasMoney(), Is.EqualTo(initialMoney + 25));
+            ((Button)fields.FindProperty("subtractMoney").objectReferenceValue).onClick.Invoke();
+            Assert.That(player.HasMoney(), Is.EqualTo(initialMoney));
+
+            toggle.Invoke(panel, callback);
+            Assert.That(root.activeSelf, Is.False);
+            Assert.That(GamePause.IsPaused, Is.False);
+        }
+        finally
+        {
+            if (player.HasMoney() != initialMoney) player.SetMoney(initialMoney);
+        }
+        yield return new ExitPlayMode();
+    }
 }
