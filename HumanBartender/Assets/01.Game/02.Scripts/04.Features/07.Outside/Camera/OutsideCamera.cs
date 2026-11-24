@@ -27,6 +27,9 @@ public class OutsideCameraOption
 
     public bool isChangeResolution;
     public ECameraZoomType targetResolution;
+
+    [InspectorName("패럴랙스 일시 정지"), Tooltip("이 모드에 진입하면 배경의 패럴랙스 이동을 멈춥니다. 다음 일반 모드의 위치·줌 전환과 추적 감쇠가 끝나면 재개합니다.")]
+    public bool pauseParallax;
 }
 
 /// <summary>
@@ -39,14 +42,37 @@ public class OutsideCamera : MonoBehaviour
     [SerializeField] OutsideCameraOption[] cameraOptions = System.Array.Empty<OutsideCameraOption>();
     [SerializeField] CameraControllerNew cameraZoom;
 
-    [Header("빠른 이동")]
+    [Header("패럴랙스")]
+    [Tooltip("특수 카메라 모드와 순간 이동에서 보정할 배경 레이어입니다.")]
     [SerializeField] private PixelPerfectParallax parallax;
 
 
     private Dictionary<EOutsideCameraMode, OutsideCameraOption> _cameraMap;
+    private bool resumeParallaxAfterTransition;
+    private float parallaxResumeTime;
     
 
     void Awake() => EnsureOptions();
+
+    private void LateUpdate()
+    {
+        if (!resumeParallaxAfterTransition) return;
+        if (cameraZoom.IsTransitioning)
+        {
+            parallaxResumeTime = Time.time + cameraZoom.TrackingDampingTime;
+            return;
+        }
+
+        if (Time.time >= parallaxResumeTime) ResumeParallax();
+    }
+
+    private void OnDisable() => ResumeParallax();
+
+    private void ResumeParallax()
+    {
+        resumeParallaxAfterTransition = false;
+        if (parallax != null) parallax.SetMovementPaused(false);
+    }
 
     void EnsureOptions()
     {
@@ -77,12 +103,21 @@ public class OutsideCamera : MonoBehaviour
 
         cameraZoom.SnapToFollow(option.cameraParent, option.cameraOffset,
             option.isChangeResolution ? option.targetResolution : (ECameraZoomType?)null);
+        ResumeParallax();
         if (parallax != null) parallax.NotifyCameraTeleport();
     }
 
     /// <summary>추적 대상 부모 전환, 오프셋 전환, 해상도 전환을 순서대로(또는 조건에 따라 순서 바꿔) 실행한다.</summary>
     public void ExcuteCameraOption(OutsideCameraOption mode)
     {
+        if (parallax != null)
+        {
+            if (mode.pauseParallax) parallax.SetMovementPaused(true);
+            resumeParallaxAfterTransition = !mode.pauseParallax && parallax.IsMovementPaused;
+            if (resumeParallaxAfterTransition)
+                parallaxResumeTime = Time.time + cameraZoom.TrackingDampingTime;
+        }
+
         // 오프셋은 선택한 부모의 로컬 좌표로 해석한다.
         cameraZoom.FollowTarget(mode.cameraParent);
         cameraZoom.TransitionFollowOffset(mode.cameraOffset, mode.offsetDuration, mode.offsetCurve);

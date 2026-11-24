@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
@@ -158,6 +159,59 @@ public sealed class ElevatorRideBroadcastTests
             Assert.That(elevator.ArrivalY(top, 0, 0), Is.EqualTo(lunaY).Within(.0001f));
             elevator.SetPosition(top);
             Assert.That(elevator.transform.localPosition.y, Is.EqualTo(elevatorLocalY).Within(.0001f));
+        }
+        finally { EditorSceneManager.ClosePreviewScene(scene); }
+    }
+
+    [Test]
+    public void OutsideParallaxUsesCameraMovementAndDiscardsElevatorMotion()
+    {
+        var scene = EditorSceneManager.OpenPreviewScene("Assets/01.Game/01.Scenes/OutSide.unity");
+        try
+        {
+            var outsideCamera = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<OutsideCamera>(true)).Single();
+            var modes = (OutsideCameraOption[])typeof(OutsideCamera).GetField("cameraOptions", Fields).GetValue(outsideCamera);
+            Assert.That(modes.Where(mode => mode.pauseParallax).Select(mode => mode.cameraMode),
+                Is.EquivalentTo(new[] { EOutsideCameraMode.Elevator, EOutsideCameraMode.ElevatorReturn }));
+
+            var parallax = (PixelPerfectParallax)typeof(OutsideCamera).GetField("parallax", Fields).GetValue(outsideCamera);
+            var camera = (Camera)typeof(PixelPerfectParallax).GetField("targetCamera", Fields).GetValue(parallax);
+            var layers = (PixelPerfectParallax.Layer[])typeof(PixelPerfectParallax).GetField("layers", Fields).GetValue(parallax);
+            var layer = layers.First(value => value.target != null && value.followRatio > 0f);
+            var render = typeof(PixelPerfectParallax).GetMethod("OnBeginCameraRendering", Fields);
+            void Render() => render.Invoke(parallax, new object[] { default(ScriptableRenderContext), camera });
+
+            var cameraStep = Vector3.right * .5f;
+            parallax.ResetReference();
+            Render();
+            float initialX = layer.target.position.x;
+            camera.transform.position += cameraStep;
+            Render();
+            float beforeRide = layer.target.position.x;
+            Assert.That(beforeRide, Is.EqualTo(initialX + cameraStep.x * layer.followRatio).Within(.01f));
+
+            parallax.SetMovementPaused(true);
+            for (int frame = 0; frame < 3; frame++)
+            {
+                camera.transform.position += cameraStep;
+                Render();
+                Assert.That(layer.target.position.x, Is.EqualTo(beforeRide));
+            }
+
+            camera.transform.position += cameraStep;
+            parallax.SetMovementPaused(false);
+            Render();
+            Assert.That(layer.target.position.x, Is.EqualTo(beforeRide));
+            camera.transform.position += cameraStep;
+            Render();
+            Assert.That(layer.target.position.x, Is.EqualTo(beforeRide + cameraStep.x * layer.followRatio).Within(.01f));
+
+            float beforeSmallStep = layer.target.position.x;
+            const float smallStep = .01f;
+            camera.transform.position += Vector3.right * smallStep;
+            Render();
+            Assert.That(layer.target.position.x, Is.EqualTo(beforeSmallStep + smallStep * layer.followRatio).Within(.0001f));
         }
         finally { EditorSceneManager.ClosePreviewScene(scene); }
     }

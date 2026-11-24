@@ -13411,6 +13411,7 @@ MonoBehaviour:
     resolutionDuration: 2
     isChangeResolution: 1
     targetResolution: 3
+    pauseParallax: 0
   - cameraMode: 1
     offsetCurve:
       serializedVersion: 2
@@ -13475,6 +13476,7 @@ MonoBehaviour:
     resolutionDuration: 3
     isChangeResolution: 1
     targetResolution: 1
+    pauseParallax: 1
   - cameraMode: 2
     offsetCurve:
       serializedVersion: 2
@@ -13539,6 +13541,7 @@ MonoBehaviour:
     resolutionDuration: 6
     isChangeResolution: 1
     targetResolution: 3
+    pauseParallax: 1
   cameraZoom: {fileID: 720587702}
   parallax: {fileID: 828715987}
 --- !u!114 &720587701
@@ -14904,9 +14907,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixelPerfectParallax
   targetCamera: {fileID: 1305537444}
-  movementTarget: {fileID: 398070675}
+  movementTarget: {fileID: 0}
   pixelPerfectCamera: {fileID: 0}
   fallbackPixelsPerUnit: 100
+  snapToAssetPixelGrid: 0
   moveY: 0
   teleportDistance: 1
   layers:
