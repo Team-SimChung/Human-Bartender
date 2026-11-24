@@ -38,6 +38,11 @@ public readonly struct WorldInteractionActionContext
     public readonly Func<StudioSequence, CancellationToken, UniTask> PlayStudio;
     /// <summary>CSV 메뉴 장면(scene_id)의 선택지로 사물 메뉴를 연다. 인자: 장면 ID, 루나 위 메시지(없으면 null), 추가 선택 가능 조건, 취소.</summary>
     public readonly Func<string, string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> ChooseOutsideChoices;
+    /// <summary>
+    /// CSV 대사를 일반 대화처럼 재생한다. 줄마다 E·Enter·대화 진행 키나 말풍선 클릭을 기다린다.
+    /// 인자: 대사, 루나가 아닌 화자의 말풍선 기준점(없으면 null), 취소. 2초 자동 진행은 PlayAutomaticDialogue.
+    /// </summary>
+    public readonly Func<Step[], Transform, CancellationToken, UniTask<StoryExecutionResult>> PlayDialogue;
 
     public WorldInteractionActionContext(IInteractor player,
         Func<Step[], Transform, CancellationToken, UniTask<StoryExecutionResult>> playAutomaticDialogue,
@@ -45,7 +50,8 @@ public readonly struct WorldInteractionActionContext
         Func<NewStreetOptionData[], string, CancellationToken, UniTask<NewStreetOptionData>> chooseMenu = null,
         Action prepareMorning = null, Func<CancellationToken, UniTask> finishNight = null,
         Func<StudioSequence, CancellationToken, UniTask> playStudio = null,
-        Func<string, string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> chooseOutsideChoices = null)
+        Func<string, string, Func<string, bool>, CancellationToken, UniTask<NewStreetOptionData>> chooseOutsideChoices = null,
+        Func<Step[], Transform, CancellationToken, UniTask<StoryExecutionResult>> playDialogue = null)
     {
         Player = player;
         PlayAutomaticDialogue = playAutomaticDialogue;
@@ -56,5 +62,6 @@ public readonly struct WorldInteractionActionContext
         FinishNight = finishNight;
         PlayStudio = playStudio;
         ChooseOutsideChoices = chooseOutsideChoices;
+        PlayDialogue = playDialogue;
     }
 }

@@ -59,7 +59,7 @@ public sealed class HomeObjectInteractionTests
         Assert.That(content.GetSceneSteps("home-bed").Single().Text.Ko,
             Is.EqualTo("크리스가 사용하는 침대. 푹신해 보인다."));
         Assert.That(content.GetSceneSteps("home-wardrobe-pressed").Single().Text.Ko,
-            Is.EqualTo("아직 애니메이션이 없는 걸..."));
+            Is.EqualTo("....이건 뭐지?"));
         Assert.That(content.GetSceneSteps("home-book").Single().Text.Ko,
             Is.EqualTo("즐거운 학문 - 프리드리히 니체"));
         var wardrobe = content.GetSceneSteps("home-wardrobe").OrderBy(value => value.Seq).ToArray();
@@ -88,7 +88,7 @@ public sealed class HomeObjectInteractionTests
             var result = new StreetStoryEvents(content, state)
                 .ExecuteAsync(OutsideStoryCommand.WardrobeChoice, null, run, CancellationToken.None).GetAwaiter().GetResult();
             Assert.That(result.Length, Is.EqualTo(expectedLines));
-            if (selectedId == "press") Assert.That(result[0].Text.Ko, Is.EqualTo("아직 애니메이션이 없는 걸..."));
+            if (selectedId == "press") Assert.That(result[0].Text.Ko, Is.EqualTo("....이건 뭐지?"));
         }
         finally { UnityEngine.Object.DestroyImmediate(player); }
     }
@@ -230,7 +230,9 @@ public sealed class HomeObjectInteractionTests
                 Assert.That(data.FindProperty("controlObjectVisibility").boolValue, Is.False);
                 Assert.That(target.GetComponent<OutlineHighlight>(), Is.Not.Null);
                 Assert.That(target.GetComponent<SpriteRenderer>().sharedMaterial.HasProperty("_OutlineIntensity"), Is.True);
-                Assert.That(target.Output, Is.EqualTo(sourceId == "home_book" ? WorldInteractionOutput.Image : WorldInteractionOutput.SpeechBubble));
+                // 옷장은 버튼 동작(HomeWardrobeAction)이 선택지·전환·후속 대사를 처리한다(QA-42).
+                Assert.That(target.Output, Is.EqualTo(sourceId == "home_book" ? WorldInteractionOutput.Image :
+                    sourceId == "home_wardrobe" ? WorldInteractionOutput.Action : WorldInteractionOutput.SpeechBubble));
                 if (sourceId == "home_book")
                 {
                     Assert.That(AssetDatabase.GetAssetPath(target.InspectionImage), Is.EqualTo(CoverPath));
