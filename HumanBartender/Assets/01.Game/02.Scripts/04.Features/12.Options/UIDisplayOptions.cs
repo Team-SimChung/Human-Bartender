@@ -167,6 +167,7 @@ public class UIDisplayOptions : MonoBehaviour
         var view = optionUI != null ? optionUI.GetComponentInChildren<OptionsPanelView>(true) : null;
         if (IsOptionOpen && view != null && view.TryCancelForEscape()) return;
         if (IsOptionOpen) { Hide(); return; }
+        if (CraftPrepStageScreen.TryCloseRecipeForEscape()) return;
         if (ServicePanelController.TryCloseForEscape()) return;
         if (WorldInteractionController.TryCancelForEscape()) return;
         if (!TitleMenuView.TryCloseForEscape()) Show();

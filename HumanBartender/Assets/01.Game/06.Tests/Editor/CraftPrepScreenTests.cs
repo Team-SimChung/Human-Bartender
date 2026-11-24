@@ -114,7 +114,12 @@ public sealed class CraftPrepScreenTests
             .Where(image => decorativeNames.Contains(image.name)).ToArray();
         Assert.That(decorations.Select(image => image.name), Is.EquivalentTo(decorativeNames));
         Assert.That(decorations.All(image => !image.raycastTarget), Is.True);
-        Assert.That(Field<Button>(stage, "recipeCloseButton").transform.parent, Is.SameAs(preview.transform));
+        var closeButton = Field<Button>(stage, "recipeCloseButton");
+        Assert.That(closeButton.transform.parent, Is.SameAs(preview.transform));
+        var escapeImage = closeButton.GetComponentsInChildren<Image>(true).Single(image => image.name == "EscapeImage");
+        Assert.That(escapeImage.transform.parent, Is.SameAs(closeButton.transform));
+        Assert.That(AssetDatabase.GetAssetPath(escapeImage.sprite), Does.EndWith("/01.Recipes/IMG_ESC.png"));
+        Assert.That(escapeImage.raycastTarget, Is.False);
     }
 
     // ── 03. 하단 선택 슬롯 가운데 정렬 ────────────────────────────────────
@@ -167,7 +172,9 @@ public sealed class CraftPrepScreenTests
             Call(screen, "OpenRecipe");
             Assert.That(screen.IsRecipeOpen, Is.True);
             Assert.That(tray.anchoredPosition, Is.EqualTo(before), "레시피를 열어도 슬롯 위치는 그대로");
-            Call(screen, "CloseRecipe");
+            Assert.That(CraftPrepStageScreen.TryCloseRecipeForEscape(), Is.True);
+            Assert.That(screen.IsRecipeOpen, Is.False);
+            Assert.That(CraftPrepStageScreen.TryCloseRecipeForEscape(), Is.False);
             Assert.That(prep.HasReadRecipeNote, Is.True);
             Assert.That(gin.gameObject.activeSelf, Is.True);
             Assert.That(icon.color, Is.EqualTo(originalColor));

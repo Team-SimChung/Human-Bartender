@@ -54,6 +54,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     [Tooltip("선택된 스프라이트의 표시 너비. 두 스프라이트의 원본 픽셀을 같은 배율로 표시합니다.")]
     [SerializeField, Min(1)] private int indicatorSize = 30;
 
+    private static CraftPrepStageScreen openRecipeStage;
     private readonly List<CraftPrepTrayItem> trayItems = new List<CraftPrepTrayItem>();
     private readonly List<CraftPrepChecklistEntry> checklist = new List<CraftPrepChecklistEntry>();
     private System.Func<string, string> itemNameLookup;
@@ -74,6 +75,15 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
     /// <summary>왼쪽 위 레시피 상세가 열려 있는지. 튜토리얼이 열기·확인·닫기 단계를 나눌 때 읽는다.</summary>
     public bool IsRecipeOpen => recipeOpen;
     public Camera GuideCamera => stageCamera;
+
+    internal static bool TryCloseRecipeForEscape()
+    {
+        if (openRecipeStage == null || !openRecipeStage.isActiveAndEnabled || !openRecipeStage.IsRecipeOpen)
+            return false;
+
+        openRecipeStage.CloseRecipe();
+        return true;
+    }
 
     public Transform GetTutorialTarget(string step, bool beer)
     {
@@ -150,6 +160,7 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
 
     public void Close()
     {
+        if (openRecipeStage == this) openRecipeStage = null;
         if (craftFlow != null) craftFlow.PreparationBlocked -= ShowOpenerPopup;
         if (openerPopup != null) openerPopup.SetActive(false);
         if (cameraMoveCancellation != null) cameraMoveCancellation.Cancel();
@@ -373,11 +384,13 @@ public sealed class CraftPrepStageScreen : MonoBehaviour
         if (preparation == null || recipePreview == null) return;
         recipePreview.Show(preparation.Cocktail, recipeVisuals);
         recipeOpen = true;
+        openRecipeStage = this;
         if (recipeBrief != null) recipeBrief.gameObject.SetActive(false);
     }
 
     private void CloseRecipe()
     {
+        if (openRecipeStage == this) openRecipeStage = null;
         if (recipePreview != null) recipePreview.Hide();
         bool wasOpen = recipeOpen;
         if (wasOpen && preparation != null) preparation.MarkRecipeNoteRead();
