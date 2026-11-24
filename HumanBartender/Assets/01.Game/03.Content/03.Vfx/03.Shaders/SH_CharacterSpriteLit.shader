@@ -20,6 +20,8 @@ Shader "Custom/Character/SpriteLitShading"
         _AmbientDir ("Ambient light direction", Vector) = (0.33, 0.94, 0, 0)
         // x 발 월드 y, y 캐릭터 키
         _BodyBounds ("Body bounds", Vector) = (0, 1, 0, 0)
+        // x 노말맵 음영 세기(0이면 끔), y 광원 높이(작을수록 옆에서 비춤), z 광원 쪽 최대 밝기 배율
+        _NormalShade ("Normal map shade", Vector) = (0, 0.6, 1.3, 0)
 
         [HideInInspector] _SpriteTexel ("Sprite texel", Vector) = (0, 0, 0, 0)
         [HideInInspector] _Color ("Tint", Color) = (1,1,1,1)
@@ -32,7 +34,7 @@ Shader "Custom/Character/SpriteLitShading"
     #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
     CBUFFER_START(UnityPerMaterial)
         half4 _Color, _ShadeColor, _RimColor;
-        float4 _BodyShade, _Rim, _RimGlow, _RimShape, _LightPos, _AmbientDir, _BodyBounds;
+        float4 _BodyShade, _Rim, _RimGlow, _RimShape, _LightPos, _AmbientDir, _BodyBounds, _NormalShade;
         float4 _SpriteTexel; // CharacterSpriteLighting이 현재 스프라이트 텍스처 기준으로 채운다.
     CBUFFER_END
     ENDHLSL
@@ -59,6 +61,7 @@ Shader "Custom/Character/SpriteLitShading"
 
             TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
             TEXTURE2D(_MaskTex); SAMPLER(sampler_MaskTex);
+            TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
 
             struct Attributes
             {
@@ -152,6 +155,13 @@ Shader "Custom/Character/SpriteLitShading"
                 half away = EdgeFacing(input.uv, -lightDir, _BodyShade.w, 1);
                 float shade = saturate(occlusion + away * _BodyShade.z * _LightPos.z);
                 main.rgb = lerp(main.rgb, main.rgb * _ShadeColor.rgb, shade);
+
+                // 노말맵 음영: 광원 쪽을 향한 면은 밝히고 반대 면은 어둡게 한다. 노말맵이 없으면(기본 bump) 변화가 없다.
+                // lightDir가 텍스처 방향이라 flipX가 있어도 노말맵과 같은 좌표계에서 비교된다.
+                half3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv));
+                float3 toLight3 = normalize(float3(lightDir, max(0.05, _NormalShade.y)));
+                float facing = min(saturate(dot(normalTS, toLight3)) / toLight3.z, max(1, _NormalShade.z));
+                main.rgb *= lerp(1, facing, _NormalShade.x * _LightPos.z);
 
                 SurfaceData2D surfaceData;
                 InputData2D inputData;

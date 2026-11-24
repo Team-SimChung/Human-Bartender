@@ -21,6 +21,13 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
     [Tooltip("근처에 광원이 없을 때 쓰는 하늘빛 방향과 그때의 역광면 그림자 비율.")]
     [SerializeField] Vector2 ambientDirection = new Vector2(0.35f, 1);
     [SerializeField, Range(0, 1)] float ambientSideShadow = 0.4f;
+    [Header("노말맵 음영")]
+    [Tooltip("스프라이트 보조 텍스처 _NormalMap으로 광원 쪽 면은 밝히고 반대 면은 어둡게 한다. 0이면 끔. 노말맵이 없는 스프라이트는 영향이 없다. 광원 밖에서는 '광원 없을 때 역광 비율'만큼만 적용된다.")]
+    [SerializeField, Range(0, 1)] float normalShading = 0.6f;
+    [Tooltip("광원이 화면 앞으로 떨어진 정도. 작을수록 옆에서 비춰 굴곡이 강해지고, 클수록 정면광처럼 평평해진다.")]
+    [SerializeField, Range(0.05f, 2)] float normalLightHeight = 0.6f;
+    [Tooltip("광원 쪽을 향한 면이 원래 색보다 최대 몇 배까지 밝아지는지.")]
+    [SerializeField, Range(1, 2)] float normalHighlight = 1.3f;
     [Header("림라이트")]
     [SerializeField, Range(0, 4)] float rimIntensity = 0.4f;
     [SerializeField, Range(1, 4)] float rimWidth = 1;
@@ -49,6 +56,7 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
     static readonly int AmbientDirId = Shader.PropertyToID("_AmbientDir");
     static readonly int BodyBoundsId = Shader.PropertyToID("_BodyBounds");
     static readonly int SpriteTexelId = Shader.PropertyToID("_SpriteTexel");
+    static readonly int NormalShadeId = Shader.PropertyToID("_NormalShade");
     public const string ShaderName = "Custom/Character/SpriteLitShading";
 
     SpriteRenderer source;
@@ -84,6 +92,7 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
         if (source == null) return;
         source.GetPropertyBlock(block);
         block.SetVector(BodyShadeId, Vector4.zero);
+        block.SetVector(NormalShadeId, Vector4.zero);
         block.SetVector(RimId, new Vector4(0, 1, receive2DLights ? 1 : 0, 0));
         block.SetColor(RimColorId, Color.clear);
         source.SetPropertyBlock(block);
@@ -146,6 +155,7 @@ public sealed class CharacterSpriteLighting : MonoBehaviour
         block.SetVector(AmbientDirId, new Vector4(ambient.x, ambient.y, 0, 0));
         block.SetVector(BodyBoundsId, new Vector4(foot.y, height, 0, 0));
         block.SetVector(SpriteTexelId, new Vector4(1f / texture.width, 1f / texture.height, 0, 0));
+        block.SetVector(NormalShadeId, new Vector4(normalShading, normalLightHeight, normalHighlight, 0));
         source.SetPropertyBlock(block);
     }
 }
