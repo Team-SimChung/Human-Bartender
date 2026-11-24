@@ -18,6 +18,8 @@ public class OrderSettlement
     /// <summary>이 정산을 만든 서빙 결과의 ID.</summary>
     public string ServeResultId { get; }
 
+    public string ServedCocktailId { get; }
+
     /// <summary>정산 기준이 된 최종 등급.</summary>
     public ENewGrade FinalGrade { get; }
 
@@ -31,11 +33,12 @@ public class OrderSettlement
     /// <summary>당일 매출 누계에 이미 들어갔는지. DailySales가 반영할 때 표시한다.</summary>
     public bool IsApplied { get; internal set; }
 
-    OrderSettlement(string settlementId, string serveResultId, ENewGrade finalGrade,
+    OrderSettlement(string settlementId, string serveResultId, string servedCocktailId, ENewGrade finalGrade,
                     int saleAmount, int tipAmount, int refundAmount)
     {
         SettlementId = settlementId;
         ServeResultId = serveResultId;
+        ServedCocktailId = servedCocktailId;
         FinalGrade = finalGrade;
         SaleAmount = saleAmount;
         TipAmount = tipAmount;
@@ -56,7 +59,7 @@ public class OrderSettlement
     /// </summary>
     public static OrderSettlement Calculate(string settlementId, string serveResultId,
                                             ENewGrade? finalGrade, int price, float tipMult,
-                                            NewBalanceDataBase balance)
+                                            NewBalanceDataBase balance, string servedCocktailId = null)
     {
         if (finalGrade == null) return null;
 
@@ -75,7 +78,7 @@ public class OrderSettlement
             return null;
         }
 
-        return new OrderSettlement(settlementId, serveResultId, finalGrade.Value,
+        return new OrderSettlement(settlementId, serveResultId, servedCocktailId, finalGrade.Value,
                                    Mathf.RoundToInt(price * rule.SaleRate),
                                    Mathf.RoundToInt(price * rule.TipRate * tipMult),
                                    Mathf.RoundToInt(price * rule.RefundRate));

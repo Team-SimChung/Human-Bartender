@@ -81,7 +81,7 @@ public sealed class PourerBreakaway : MonoBehaviour
     public float StreamWidthScale => IsAttached ? attachedStreamWidthScale : 1f;
 
     /// <summary>다음 재료를 시작할 때 호출한다. 입자당 용량이나 잔의 수량은 변경하지 않는다.</summary>
-    public void BeginPour(string ingredientId, Vector3 mouthLocalPosition)
+    public void BeginPour(string ingredientId, Vector3 mouthLocalPosition, int seatInsetPixels = 0)
     {
         ResetState();
         hasPourer = UsesPourer(ingredientId) && bottle != null && attachedPourer != null &&
@@ -96,8 +96,10 @@ public sealed class PourerBreakaway : MonoBehaviour
         Vector3 mouth = bottle.BottleVisual.TransformPoint(mouthLocalPosition);
         if (ingredientBottle != null && ingredientBottle.sprite != null && ingredientBottle.gameObject.activeSelf)
         {
-            Bounds body = ingredientBottle.sprite.bounds;
-            mouth = ingredientBottle.transform.TransformPoint(new Vector3(body.center.x, body.max.y, 0f));
+            Sprite sprite = ingredientBottle.sprite;
+            Bounds body = sprite.bounds;
+            float seatY = body.max.y - seatInsetPixels / sprite.pixelsPerUnit;
+            mouth = ingredientBottle.transform.TransformPoint(new Vector3(body.center.x, seatY, 0f));
         }
         cap.position = mouth - cap.TransformVector(seat);
         attachedPourer.gameObject.SetActive(true);

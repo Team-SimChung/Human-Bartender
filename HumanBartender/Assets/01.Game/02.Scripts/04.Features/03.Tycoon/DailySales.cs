@@ -20,6 +20,18 @@ public class DailySales
     /// <summary>반영된 회차별 정산 기록. 일일 매출 정산 화면이 읽을 몫이다.</summary>
     public IReadOnlyList<OrderSettlement> Items => items;
 
+    public (long Sales, long Tips, long Refunds) GetTotals()
+    {
+        long sales = 0, tips = 0, refunds = 0;
+        foreach (var item in items)
+        {
+            sales += item.SaleAmount;
+            tips += item.TipAmount;
+            refunds += item.RefundAmount;
+        }
+        return (sales, tips, refunds);
+    }
+
     public bool Contains(OrderSettlement settlement) => settlement != null && items.Contains(settlement);
 
     /// <summary>정산 하나를 누계에 더한다. 이미 반영된 ID거나 정산이 없으면 아무것도 하지 않는다.</summary>

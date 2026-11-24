@@ -70,6 +70,8 @@ public class CameraControllerNew : MonoBehaviour, ICameraControlNew
     CancellationTokenSource resolution;
     CancellationTokenSource offset;
     public bool IsMoving => offset != null;
+    internal bool IsTransitioning => IsMoving || resolution != null;
+    internal float TrackingDampingTime => vcam != null ? vcam.GetMaxDampTime() : 0f;
     System.Action restoreResolution;
     CinemachinePixelPerfect suspendedPixelPerfect;
     FrameOverride frameOverride;

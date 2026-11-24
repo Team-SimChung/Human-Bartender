@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-/// <summary>기준 타겟 이동량을 배경별로 누적하고 최종 표시 좌표만 픽셀 격자에 맞춘다.</summary>
+/// <summary>기준 타겟 이동량을 배경별로 누적하고, 설정에 따라 최종 위치를 원본 픽셀 격자에 맞춘다.</summary>
 [DisallowMultipleComponent]
 public sealed class PixelPerfectParallax : MonoBehaviour
 {
@@ -24,6 +24,8 @@ public sealed class PixelPerfectParallax : MonoBehaviour
     [Tooltip("지정하면 해당 카메라의 Assets PPU를 사용한다. 비워두면 targetCamera에서 찾는다.")]
     [SerializeField] private PixelPerfectCamera pixelPerfectCamera;
     [Min(1)] [SerializeField] private int fallbackPixelsPerUnit = 100;
+    [Tooltip("배경 위치를 원본 스프라이트의 픽셀 단위로 반올림합니다. 확대 화면에서 부드러운 이동이 필요하면 끕니다.")]
+    [SerializeField] private bool snapToAssetPixelGrid = true;
     [SerializeField] private bool moveY;
     [Tooltip("한 렌더 사이에 이 거리보다 크게 이동하면 순간이동으로 보고 누적하지 않는다. 0이면 자동 감지를 끈다.")]
     [Min(0f)] [SerializeField] private float teleportDistance = 5f;
@@ -33,6 +35,7 @@ public sealed class PixelPerfectParallax : MonoBehaviour
     private Transform previousMovementTarget;
     private bool hasReference;
     private bool skipNextMovement;
+    public bool IsMovementPaused { get; private set; }
 
     private void OnEnable()
     {
@@ -60,6 +63,14 @@ public sealed class PixelPerfectParallax : MonoBehaviour
     /// <summary>카메라 순간이동 후 다음 렌더 전에 호출한다. 배경 누적값은 유지하고 카메라 이동만 건너뛴다.</summary>
     public void NotifyCameraTeleport() => skipNextMovement = true;
 
+    /// <summary>배경을 현재 월드 위치에 두고, 재개 시 연출 중 카메라 이동량을 건너뛴다.</summary>
+    public void SetMovementPaused(bool paused)
+    {
+        if (IsMovementPaused == paused) return;
+        IsMovementPaused = paused;
+        skipNextMovement = true;
+    }
+
     private void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
         if (camera != targetCamera) return;
@@ -82,6 +93,8 @@ public sealed class PixelPerfectParallax : MonoBehaviour
             ? source.position - previousTargetPosition : Vector3.zero;
         previousTargetPosition = source.position;
         previousMovementTarget = source;
+        if (IsMovementPaused) return;
+
         delta.z = 0f;
         if (!moveY) delta.y = 0f;
         if (skipNextMovement || teleportDistance > 0f && delta.sqrMagnitude > teleportDistance * teleportDistance)
@@ -97,9 +110,12 @@ public sealed class PixelPerfectParallax : MonoBehaviour
             // 반올림 전 좌표에 누적하여 1픽셀보다 작은 이동도 보존한다.
             layer.accumulatedPosition += delta * layer.followRatio;
             Vector3 position = layer.accumulatedPosition;
-            position.x = Snap(position.x, ppu);
-            if (moveY)
-                position.y = Snap(position.y, ppu);
+            if (snapToAssetPixelGrid)
+            {
+                position.x = Snap(position.x, ppu);
+                if (moveY)
+                    position.y = Snap(position.y, ppu);
+            }
             layer.target.position = position;
         }
     }

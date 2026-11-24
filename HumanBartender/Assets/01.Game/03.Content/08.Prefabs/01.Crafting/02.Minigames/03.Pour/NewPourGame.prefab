@@ -2126,6 +2126,10 @@ MonoBehaviour:
   targetDashThickness: 0.008
   targetHeightMarker: {fileID: 6336593561841938152}
   ingredientBottle: {fileID: 2835147604954838168}
+  bottleArtOverrides:
+  - ingredientId: dry_vermouth
+    scaleMultiplier: 0.8
+    pourerSeatInsetPixels: 3
   liquidRenderer: {fileID: 2651540394636091833}
   liquidProfile: {fileID: 11400000, guid: a97b32a2bba90fc4da039c89346ea3bc, type: 2}
   unlimitedLiquid: 1

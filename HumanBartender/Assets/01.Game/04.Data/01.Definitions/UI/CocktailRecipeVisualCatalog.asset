@@ -43,6 +43,19 @@ MonoBehaviour:
     sprite: {fileID: 4840884731406530324, guid: f06348a91e2040a188ad17de2e912a51, type: 3}
   - id: johnny_old_fashioned
     sprite: {fileID: -8139625160767193875, guid: b8270a9d1c694a6f8628f28686dba239, type: 3}
+  recipePreviewOffsets:
+  - id: gin_fizz
+    offset: {x: 0, y: 7}
+  - id: bottle_beer
+    offset: {x: 0, y: 7}
+  - id: red_wine
+    offset: {x: -2, y: 0}
+  - id: screwdriver
+    offset: {x: 0, y: 8}
+  - id: tequila_sunrise
+    offset: {x: 0, y: 7}
+  - id: dry_martini
+    offset: {x: 0, y: 8}
   ingredientSprites:
   - id: long_drink
     sprite: {fileID: 6380718701440112990, guid: 5c519d9626f274a08bf1de861d87f5fd, type: 3}

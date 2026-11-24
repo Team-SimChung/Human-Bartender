@@ -32,6 +32,7 @@ public class InGameLifetimeScope : LifetimeScope
 
         builder.RegisterComponentInHierarchy<PlayPhaseController>();
         builder.RegisterComponentInHierarchy<ProfileScreen>();
+        builder.RegisterComponentInHierarchy<SalesStatusScreen>();
 
         // 2부 대본 국면. [Inject]로 플레이어 데이터와 사운드를 받는다.
         builder.RegisterComponentInHierarchy<StoryFlow>();

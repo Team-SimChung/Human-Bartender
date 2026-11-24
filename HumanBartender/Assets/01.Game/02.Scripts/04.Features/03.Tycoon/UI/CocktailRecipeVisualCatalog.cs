@@ -15,7 +15,19 @@ public sealed class CocktailRecipeVisualCatalog : ScriptableObject
         public Sprite Sprite { get { return sprite; } }
     }
 
+    [Serializable]
+    private struct RecipePreviewOffset
+    {
+        [SerializeField] private string id;
+        [SerializeField] private Vector2 offset;
+
+        public string Id => id;
+        public Vector2 Offset => offset;
+    }
+
     [SerializeField] private VisualEntry[] cocktailSprites;
+    [Tooltip("레시피 상세 이미지의 투명 여백을 보정하기 위해 기본 위치에 더하는 UI 좌표입니다.")]
+    [SerializeField] private RecipePreviewOffset[] recipePreviewOffsets;
     [SerializeField] private VisualEntry[] ingredientSprites;
     [Tooltip("레시피 상세에는 제조 준비 화면의 재료 그림을 우선 연결한다. 연결이 없으면 공용 재료 그림을 사용한다.")]
     [SerializeField] private VisualEntry[] recipeIngredientSprites;
@@ -35,6 +47,14 @@ public sealed class CocktailRecipeVisualCatalog : ScriptableObject
     public Sprite GetCocktailSprite(string id)
     {
         return FindSprite(cocktailSprites, id);
+    }
+
+    public Vector2 GetRecipePreviewOffset(string id)
+    {
+        if (recipePreviewOffsets == null || string.IsNullOrEmpty(id)) return Vector2.zero;
+        foreach (RecipePreviewOffset entry in recipePreviewOffsets)
+            if (string.Equals(entry.Id, id, StringComparison.Ordinal)) return entry.Offset;
+        return Vector2.zero;
     }
 
     public Sprite GetIngredientSprite(string id)
