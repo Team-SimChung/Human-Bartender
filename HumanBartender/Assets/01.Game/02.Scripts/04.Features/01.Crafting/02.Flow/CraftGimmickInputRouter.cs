@@ -124,7 +124,7 @@ public sealed class CraftGimmickInputRouter : MonoBehaviour
         if (fromKeyboard && pointerReceiver is not ICraftShakeInput) return;
         if (pointerReceiver is not ICraftShakeInput)
         {
-            pointerReceiver?.OnPointerInput(!UIDisplayOptions.IsOptionOpen && pressed);
+            pointerReceiver?.OnPointerInput(!UIDisplayOptions.IsOptionOpen && !GamePause.IsPaused && pressed);
             return;
         }
         if (UIDisplayOptions.IsOptionOpen || GamePause.IsPaused) { ReleasePointer(); return; }

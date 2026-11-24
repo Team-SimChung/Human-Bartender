@@ -209,7 +209,7 @@ public class PlayPhaseController : MonoBehaviour
 
     public bool CanReceiveInput(EPlayPhase phase)
     {
-        if (!phaseInputEnabled) return false;
+        if (!phaseInputEnabled || InGameQaPanel.IsOpen) return false;
         return CurrentPhase == phase;
     }
 
@@ -221,6 +221,7 @@ public class PlayPhaseController : MonoBehaviour
 
     async UniTask<PlayPhaseRunResult> RunDayAsync(long operationId, CancellationToken cancellationToken)
     {
+        var qaJump = InGameQaPanel.TakeBarJump(GameStateManager.Instance.CurrentDay);
         try
         {
             HidePhaseObjects();
@@ -261,30 +262,35 @@ public class PlayPhaseController : MonoBehaviour
             settlement.BeginDay(day, dayInfo.UpkeepGold);
             checkpoint.Capture();
 
-            await RunDailyUnlocksAsync(day, cancellationToken);
-
-            BeginPhase(EPlayPhase.Dialogue);
-            await storyFlow.RunOpeningAsync(cancellationToken);
-            EndCurrentPhase();
-
-            if (GameStateManager.Instance.CurrentDay == 0)
+            bool startsInOpening = qaJump.HasValue && qaJump.Value.Phase == ENewScenePhase.BarOpen;
+            if (!qaJump.HasValue) await RunDailyUnlocksAsync(day, cancellationToken);
+            if (!qaJump.HasValue || startsInOpening)
             {
-                Debug.Log("[PlayPhase] 0일차는 인트로 안내 후 바 튜토리얼로 바로 진행합니다.");
-            }
-            else if (SkipTycoonForTest)
-            {
-                Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
-                                 "PlayPhaseController의 Skip Tycoon For Test를 끄면 원래대로 돌아옵니다.");
-            }
-            else
-            {
-                BeginPhase(EPlayPhase.Tycoon);
-                await RunPhaseAsync(tycoonFlow, cancellationToken);
+                BeginPhase(EPlayPhase.Dialogue);
+                if (startsInOpening) await RunQaJumpAsync(qaJump.Value, cancellationToken);
+                else await storyFlow.RunOpeningAsync(cancellationToken);
                 EndCurrentPhase();
+
+                if (GameStateManager.Instance.CurrentDay == 0)
+                {
+                    Debug.Log("[PlayPhase] 0일차는 인트로 안내 후 바 튜토리얼로 바로 진행합니다.");
+                }
+                else if (SkipTycoonForTest)
+                {
+                    Debug.LogWarning("[PlayPhase] 테스트 설정으로 1부를 건너뜁니다. " +
+                                     "PlayPhaseController의 Skip Tycoon For Test를 끄면 원래대로 돌아옵니다.");
+                }
+                else
+                {
+                    BeginPhase(EPlayPhase.Tycoon);
+                    await RunPhaseAsync(tycoonFlow, cancellationToken);
+                    EndCurrentPhase();
+                }
             }
 
             BeginPhase(EPlayPhase.Dialogue);
-            await RunPhaseAsync(storyFlow, cancellationToken);
+            if (qaJump.HasValue && !startsInOpening) await RunQaJumpAsync(qaJump.Value, cancellationToken);
+            else await RunPhaseAsync(storyFlow, cancellationToken);
             // 대본이 내보내지 않은 손님은 정산창 뒤에 남긴다(엔진 수정 11). 인물 파츠(Story/StoryCharacters/Left·Right의
             // Body·Face 등)가 storyOnlyObjects 아래에 있어 끄면 함께 안 보이므로, 켜 둔 채 입력만 닫는다. 정리는 finally의 ReleaseStage가 한다.
             EndCurrentPhase(keepStoryObjects: true);
@@ -398,6 +404,10 @@ public class PlayPhaseController : MonoBehaviour
 
     UniTask RunPhaseAsync(IPlayPhaseFlow flow, CancellationToken cancellationToken) =>
         RunPhaseWorkAsync(flow.RunAsync, cancellationToken);
+
+    UniTask RunQaJumpAsync(InGameQaPanel.BarJump start, CancellationToken token) =>
+        RunPhaseWorkAsync(ct => storyFlow.RunFromDialogueForTestAsync(
+            start.SceneId, start.StepSeq, ENewGrade.Excellent, true, ct), token);
 
     async UniTask RunPhaseWorkAsync(Func<CancellationToken, UniTask> run, CancellationToken cancellationToken)
     {

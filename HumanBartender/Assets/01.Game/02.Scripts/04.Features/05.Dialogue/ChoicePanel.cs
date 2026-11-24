@@ -58,7 +58,7 @@ public class ChoicePanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         if (!isActiveAndEnabled || selected == null) return;
         focused?.Invoke(this);
-        if (!canExecute)
+        if (!canExecute && !InGameQaPanel.ForceVisibleChoices)
         {
             Reject();
             return;

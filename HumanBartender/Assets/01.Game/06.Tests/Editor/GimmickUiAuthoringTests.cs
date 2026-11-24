@@ -69,7 +69,7 @@ public sealed class GimmickUiAuthoringTests
                 : kind == "Stir" ? root.GetComponentInChildren<StirManager>(true)
                 : root.GetComponentInChildren<ShakingManagerNew>(true);
             string[] names = kind == "Pour" ? new[] { "gimmickHud", "targetHeightMarker", "ingredientBottle", "bottle", "glassCenter", "liquidProfile", "liquidRenderer", "balanceData" }
-                : kind == "Cap" ? new[] { "halo", "body", "carbonationLayer", "mouth", "cap", "perfectBurst", "opener", "overlay", "powerGauge", "rhythmRings", "haloDefault", "haloSuccess", "phaseLabel", "feedback", "timingHint", "gaugeLabel", "hitLabel", "finishLabel", "hitButton", "finishButton", "hitGroup", "finishGroup", "hitKey", "lessonRoot", "lessonShade", "lessonText", "lessonArrow", "powerFocus", "rhythmFocus" }
+                : kind == "Cap" ? new[] { "halo", "body", "carbonationLayer", "mouth", "cap", "perfectBurst", "opener", "overlay", "powerGauge", "rhythmRings", "haloDefault", "haloSuccess", "phaseLabel", "feedback", "timingHint", "gaugeLabel", "hitLabel", "finishLabel", "hitButton", "finishButton", "hitGroup", "finishGroup", "hitKey", "lessonRoot", "lessonShade", "lessonText", "powerGuideArrow", "powerFocus", "rhythmFocus" }
                 : kind == "Shake" ? new[] { "attemptGauge", "shakeLineCreator" } : Array.Empty<string>();
             foreach (string name in names) Assert.That(Ref<Object>(owner, name), Is.Not.Null, kind + "." + name);
         });
@@ -217,7 +217,7 @@ public sealed class GimmickUiAuthoringTests
         WithPrefab("04.Cap/NewCapGame.prefab", root =>
         {
             var view = root.GetComponentInChildren<CapOpenView>(true);
-            foreach (var name in new[] { "hitButton", "finishButton", "powerGauge", "rhythmRings", "lessonShade" })
+            foreach (var name in new[] { "hitButton", "finishButton", "powerGauge", "rhythmRings", "lessonShade", "lessonPanel" })
                 Assert.That(Ref<Object>(view, name), Is.Not.Null, name);
             foreach (var name in new[] { "hitButton", "finishButton" })
             {
@@ -227,6 +227,9 @@ public sealed class GimmickUiAuthoringTests
             }
             var feedback = Ref<TMP_Text>(view, "feedback");
             var gauge = Ref<CapCanvasLayer>(view, "powerGauge").rectTransform;
+            var lessonPanel = Ref<RectTransform>(view, "lessonPanel");
+            var lessonPosition = lessonPanel.anchoredPosition;
+            float lessonWidth = lessonPanel.rect.width;
             feedback.rectTransform.anchoredPosition += new Vector2(33f, 27f);
             feedback.fontSize = 37f;
             gauge.anchoredPosition += new Vector2(-20f, 30f);
@@ -237,12 +240,18 @@ public sealed class GimmickUiAuthoringTests
             var rules = new CapOpenRules();
             rules.Press();
             view.SetLesson("test", true);
+            float singleLineHeight = lessonPanel.rect.height;
             view.Render(rules, "beer", 165f, 44f, false);
             rules.Tick(.2f); rules.Tick(.2f); rules.Tick(.2f); rules.Tick(.11f);
             rules.Press();
             rules.Tick(.2f); rules.Tick(.2f); rules.Tick(.2f);
-            view.SetLesson("test", false);
+            view.SetLesson("test\n두 번째 줄\n세 번째 줄", false);
+            Assert.That(lessonPanel.rect.height, Is.GreaterThan(singleLineHeight));
+            Assert.That(lessonPanel.rect.width, Is.EqualTo(lessonWidth));
+            Assert.That(lessonPanel.anchoredPosition, Is.EqualTo(lessonPosition));
             view.Render(rules, "beer", 165f, 44f, false);
+            view.SetLesson("test", false);
+            Assert.That(lessonPanel.rect.height, Is.EqualTo(singleLineHeight));
             rules.Tick(.2f); rules.Press();
             view.Render(rules, "beer", 165f, 44f, true);
             Assert.That(root.GetComponentsInChildren<Transform>(true).Length, Is.EqualTo(count));
@@ -256,13 +265,64 @@ public sealed class GimmickUiAuthoringTests
     }
 
     [Test]
+    public void CapTutorialArrowTracksThePowerZoneIndependentlyOfTheLessonBox()
+    {
+        WithPrefab("04.Cap/NewCapGame.prefab", root =>
+        {
+            var view = root.GetComponentInChildren<CapOpenView>(true);
+            var lesson = Ref<GameObject>(view, "lessonRoot");
+            var panel = Ref<RectTransform>(view, "lessonPanel");
+            var arrow = Ref<StoryTutorialGuideGraphic>(view, "powerGuideArrow");
+            var gauge = Ref<CapCanvasLayer>(view, "powerGauge");
+            var rules = new CapOpenRules(new CapOpenTuning { powerTarget = .66f, powerSpeed = 1f });
+
+            Assert.That(arrow.transform.parent, Is.EqualTo(lesson.transform));
+            Assert.That(arrow.raycastTarget, Is.False);
+            view.SetLesson("test", true);
+            view.Render(rules, "beer", 165f, 44f, false);
+            Assert.That(arrow.gameObject.activeSelf, Is.True);
+
+            Vector3 initialTip = arrow.rectTransform.position;
+            panel.anchoredPosition += new Vector2(-30, 20);
+            view.SetLesson("test\nsecond line", true);
+            view.Render(rules, "beer", 165f, 44f, false);
+            Assert.That(arrow.rectTransform.position, Is.EqualTo(initialTip));
+
+            gauge.rectTransform.anchoredPosition += new Vector2(10, -15);
+            view.Render(rules, "beer", 165f, 44f, false);
+            Vector3 zoneEdge = gauge.DrawingToWorld(new Vector2(400f, 325f));
+            Assert.That(Vector3.Distance(arrow.rectTransform.position, zoneEdge), Is.LessThan(.001f));
+
+            using var mesh = new VertexHelper();
+            typeof(StoryTutorialGuideGraphic).GetMethod("OnPopulateMesh", Private).Invoke(arrow, new object[] { mesh });
+            Assert.That(mesh.currentVertCount, Is.EqualTo(12), "The shaft and arrowhead should render without a dim layer.");
+
+            view.Render(rules, "beer", 165f, 44f, true);
+            Assert.That(arrow.gameObject.activeSelf, Is.False);
+            rules.Press();
+            for (int i = 0; i < 3; i++) rules.Tick(.2f);
+            rules.Press();
+            Assert.That(rules.Phase, Is.EqualTo(ECapOpenPhase.PowerDone));
+            view.Render(rules, "beer", 165f, 44f, false);
+            Assert.That(arrow.gameObject.activeSelf, Is.True);
+
+            for (int i = 0; i < 3; i++) rules.Tick(.2f);
+            Assert.That(rules.Phase, Is.EqualTo(ECapOpenPhase.Rhythm));
+            view.SetLesson("test", false);
+            view.Render(rules, "beer", 165f, 44f, false);
+            Assert.That(lesson.activeSelf, Is.True);
+            Assert.That(arrow.gameObject.activeSelf, Is.False);
+        });
+    }
+
+    [Test]
     public void CapEditorPreviewLeavesLessonVisibleForManualEditing()
     {
         WithPrefab("04.Cap/NewCapGame.prefab", root =>
         {
             var view = root.GetComponentInChildren<CapOpenView>(true);
             var lesson = Ref<GameObject>(view, "lessonRoot");
-            var arrow = Ref<RectTransform>(view, "lessonArrow");
+            var arrow = Ref<StoryTutorialGuideGraphic>(view, "powerGuideArrow").rectTransform;
             lesson.SetActive(true);
             arrow.anchoredPosition = new Vector2(25f, 16f);
             foreach (bool timing in new[] { false, true })

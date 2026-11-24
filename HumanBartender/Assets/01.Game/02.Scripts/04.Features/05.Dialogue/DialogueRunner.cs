@@ -135,7 +135,7 @@ public class DialogueRunner : MonoBehaviour
         }
     }
 
-    private async UniTask ExecuteAsync(Step[] steps, Execution run, int depth)
+    private async UniTask ExecuteAsync(Step[] steps, Execution run, int depth, bool allowOverdraft = false)
     {
         var token = run.Cancellation.Token;
         if (depth > 64) throw new InvalidOperationException("Street result_steps nesting exceeds 64.");
@@ -161,9 +161,11 @@ public class DialogueRunner : MonoBehaviour
             if (step.Command != OutsideStoryCommand.None)
             {
                 if (storyEvents == null) throw new InvalidOperationException("Unity 사건 서비스가 등록되지 않았습니다.");
+                run.Events.BeginCommand(allowOverdraft);
                 var replacement = await storyEvents.ExecuteAsync(step.Command, step.Arg, run.Events, token);
                 token.ThrowIfCancellationRequested();
-                run.Conditions.ApplyRequired(step.Effects);
+                bool commandAllowsOverdraft = allowOverdraft || run.Events.ChoiceWasForced;
+                run.Conditions.ApplyRequired(step.Effects, allowOverdraft: commandAllowsOverdraft);
                 if (run.Events.ContinueAfterTravel)
                 {
                     run.Events.CaptureContinuation(ordered.Skip(index + 1).ToArray());
@@ -173,7 +175,7 @@ public class DialogueRunner : MonoBehaviour
                 {
                     // 실행용 순서만 복사본에서 조정한다. 로더가 공개한 원본 배열을 수정하지 않는다.
                     var projected = replacement.Select((value, i) => { value.Seq = i + 1; return value; }).ToArray();
-                    await ExecuteAsync(projected, run, depth + 1);
+                    await ExecuteAsync(projected, run, depth + 1, commandAllowsOverdraft);
                     return;
                 }
                 continue;
@@ -197,13 +199,13 @@ public class DialogueRunner : MonoBehaviour
                 case "effect":
                 case "set_state": break;
                 case "choice":
-                    branch = await PlayChoiceAsync(step, run, depth);
+                    branch = await PlayChoiceAsync(step, run, depth, allowOverdraft);
                     break;
                 case "goto":
                     if (string.IsNullOrEmpty(step.SceneId) || StreetDataSO == null || !StreetDataSO.TryGetSteps(step.SceneId, out var next))
                         throw new InvalidOperationException("Missing street goto scene: " + step.SceneId);
                     // 퀴즈 재시도를 위해 재방문을 허용하되 깊이와 실행 단계 수를 제한함.
-                    await ExecuteAsync(next, run, depth + 1);
+                    await ExecuteAsync(next, run, depth + 1, allowOverdraft);
                     branch = true;
                     break;
                 default: throw new NotSupportedException("Unsupported street step: " + step.Type);
@@ -217,7 +219,7 @@ public class DialogueRunner : MonoBehaviour
                 token.ThrowIfCancellationRequested();
                 if (played && cinemaAfter == "johnny-memory") run.Conditions.ApplyRequired("flag.campaign_observation = true");
             }
-            run.Conditions.ApplyRequired(step.Effects);
+            run.Conditions.ApplyRequired(step.Effects, allowOverdraft: allowOverdraft);
             NotifyGrantedItem(step);
             if (branch) return;
         }
@@ -245,13 +247,13 @@ public class DialogueRunner : MonoBehaviour
         popupService.Popup(PopupType.IngredientAcquired, itemId.Trim()).Forget(Debug.LogException);
     }
 
-    private async UniTask<bool> PlayChoiceAsync(Step step, Execution run, int depth)
+    private async UniTask<bool> PlayChoiceAsync(Step step, Execution run, int depth, bool allowOverdraft)
     {
         if (step.Options == null || step.Options.Length == 0) throw new InvalidOperationException("Street choice has no options.");
         var choice = await ChooseAsync(step.Options.OrderBy(o=>o.Seq).ToArray(), run);
         if (choice.ResultSteps != null && choice.ResultSteps.Length > 0)
         {
-            await ExecuteAsync(choice.ResultSteps, run, depth + 1);
+            await ExecuteAsync(choice.ResultSteps, run, depth + 1, allowOverdraft || choice.Selectable == false);
             return true;
         }
         return false;
@@ -261,7 +263,8 @@ public class DialogueRunner : MonoBehaviour
     {
         var token = run.Cancellation.Token;
         for (int i=0; i<choices.Length; i++) choices[i].Selectable = run.Conditions.CheckRequired(choices[i].When);
-        if (!choices.Any(o => o.Selectable == true)) throw new InvalidOperationException("Street choice has no selectable options.");
+        if (!InGameQaPanel.ForceVisibleChoices && !choices.Any(o => o.Selectable == true))
+            throw new InvalidOperationException("Street choice has no selectable options.");
         run.State = DialogueState.WaitingForChoice;
         ShowChoicePrompt(run);
         var picked = new UniTaskCompletionSource<NewStreetOptionData>();
@@ -269,9 +272,10 @@ public class DialogueRunner : MonoBehaviour
         var choice = await picked.Task.AttachExternalCancellation(token);
         token.ThrowIfCancellationRequested();
         if (!choices.Contains(choice)) throw new InvalidOperationException("Unknown street choice result.");
-        if (!run.Conditions.CheckRequired(choice.When))
+        if (!InGameQaPanel.ForceVisibleChoices && !run.Conditions.CheckRequired(choice.When))
             await SayAsync(null, Text(choice.LockReason), null, null, run);
-        if (!run.Conditions.CheckRequired(choice.When)) throw new InvalidOperationException("Locked story choice selected.");
+        if (!InGameQaPanel.ForceVisibleChoices && !run.Conditions.CheckRequired(choice.When))
+            throw new InvalidOperationException("Locked story choice selected.");
         return choice;
     }
 

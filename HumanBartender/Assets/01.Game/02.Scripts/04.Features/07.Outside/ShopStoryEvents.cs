@@ -117,7 +117,6 @@ public sealed class ShopStoryEvents : IOutsideStoryEventHandler
                 if (selected.Id == "cancel") return RefuseReply();
                 bool bitters = selected.Id == CampaignStoryRules.BittersIngredientId;
                 int cost = bitters ? 300 : 50;
-                if (player.HasMoney() < cost) throw new InvalidOperationException("[Shop] 돈이 부족합니다.");
                 run.Effect($"money -= {cost}; flag.shiba_bought_{selected.Id} = true");
                 // 웹 purchase(): 비터스는 재료라 획득 알림을 띄우고 구매 응답 뒤 필요하면 올드 패션드 수업으로 이어진다.
                 // 참치캔은 재료가 아니라 알림 없이 응답만 한다(엔진 수정 사항 28).

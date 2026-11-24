@@ -123,6 +123,26 @@ public sealed class ChoiceRejectionTests
     }
 
     [Test]
+    public void QaForceCanConfirmAPreviouslyVisibleLockedChoice()
+    {
+        Show(LockedChoice(), CancelChoice());
+        view.Confirm();
+        Assert.That(resultCount, Is.Zero);
+
+        var mode = typeof(InGameQaPanel).GetField("forceVisibleChoices", BindingFlags.Static | BindingFlags.NonPublic);
+        var previous = mode.GetValue(null);
+        try
+        {
+            mode.SetValue(null, true);
+            view.Confirm();
+            Assert.That(resultCount, Is.EqualTo(1));
+            Assert.That(result.Id, Is.EqualTo("pay"));
+            Assert.That(view.IsOpen, Is.False);
+        }
+        finally { mode.SetValue(null, previous); }
+    }
+
+    [Test]
     public void PointerCanFocusLockedRowsAndChangingRowsRestoresTheOriginalText()
     {
         Show(CancelChoice(), LockedChoice());

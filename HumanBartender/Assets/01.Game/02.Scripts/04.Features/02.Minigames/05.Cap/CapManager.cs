@@ -97,7 +97,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     void Update()
     {
         // 일시정지하면 판정과 연출을 모두 멈추고 소리는 끊는다. 웹 core.tick과 sync가 하는 일과 같다.
-        bool nowPaused = UIDisplayOptions.IsOptionOpen;
+        bool nowPaused = UIDisplayOptions.IsOptionOpen || InGameQaPanel.IsOpen;
         if (nowPaused && !paused && openAudio != null) openAudio.StopAll();
         paused = nowPaused;
 
@@ -138,7 +138,7 @@ public class CapManager : MonoBehaviour, IMiniGameController, ICraftGimmick, ICr
     /// <summary>CapInputHandler가 스페이스/클릭 어느 쪽이든 누른 순간에 부른다.</summary>
     public void OnPress()
     {
-        if (paused || finished) return;
+        if (paused || finished || InGameQaPanel.IsOpen) return;
         Rules.Press();
     }
 

@@ -59,7 +59,6 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         if (runner != null) runner.ReleaseStage();
     }
 
-#if UNITY_EDITOR
     private string testSceneId;
     private int testStepSeq;
     private ENewGrade testGrade;
@@ -76,7 +75,6 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         try { await RunPhaseAsync(ENewScenePhase.Bar, token); }
         finally { testSceneId = null; }
     }
-#endif
 
     async UniTask RunPhaseAsync(ENewScenePhase phase, CancellationToken cancellationToken, bool holdStage = false)
     {
@@ -123,11 +121,9 @@ public class StoryFlow : MonoBehaviour, IPlayPhaseFlow
         StoryExecutionResult result;
         try
         {
-#if UNITY_EDITOR
             if (testSceneId != null)
                 result = await runner.RunFromDialogueForTestAsync(script, testSceneId, testStepSeq, testGrade, testOrderMatch, linked.Token);
             else
-#endif
                 result = await runner.RunAsync(script, linked.Token, phase, holdStage);
         }
         finally

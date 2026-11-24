@@ -111,6 +111,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -118,12 +131,12 @@ TextureImporter:
       name: npc_m1_idle_0
       rect:
         serializedVersion: 2
-        x: 55
-        y: 23
-        width: 20
-        height: 58
+        x: 0
+        y: 0
+        width: 129
+        height: 138
       alignment: 9
-      pivot: {x: 0.5, y: 0.4827586}
+      pivot: {x: 0.5, y: 0.36956522}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -140,12 +153,12 @@ TextureImporter:
       name: npc_m1_idle_1
       rect:
         serializedVersion: 2
-        x: 184
-        y: 23
-        width: 20
-        height: 58
+        x: 129
+        y: 0
+        width: 129
+        height: 138
       alignment: 9
-      pivot: {x: 0.5, y: 0.4827586}
+      pivot: {x: 0.5, y: 0.36956522}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -162,12 +175,12 @@ TextureImporter:
       name: npc_m1_idle_2
       rect:
         serializedVersion: 2
-        x: 313
-        y: 23
-        width: 20
-        height: 58
+        x: 258
+        y: 0
+        width: 129
+        height: 138
       alignment: 9
-      pivot: {x: 0.5, y: 0.4827586}
+      pivot: {x: 0.5, y: 0.36956522}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -184,12 +197,12 @@ TextureImporter:
       name: npc_m1_idle_3
       rect:
         serializedVersion: 2
-        x: 442
-        y: 23
-        width: 20
-        height: 58
+        x: 387
+        y: 0
+        width: 129
+        height: 138
       alignment: 9
-      pivot: {x: 0.5, y: 0.4827586}
+      pivot: {x: 0.5, y: 0.36956522}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -206,12 +219,12 @@ TextureImporter:
       name: npc_m1_idle_4
       rect:
         serializedVersion: 2
-        x: 571
-        y: 23
-        width: 20
-        height: 58
+        x: 516
+        y: 0
+        width: 129
+        height: 138
       alignment: 9
-      pivot: {x: 0.5, y: 0.4827586}
+      pivot: {x: 0.5, y: 0.36956522}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -228,12 +241,12 @@ TextureImporter:
       name: npc_m1_idle_5
       rect:
         serializedVersion: 2
-        x: 700
-        y: 23
-        width: 20
-        height: 58
+        x: 645
+        y: 0
+        width: 129
+        height: 138
       alignment: 9
-      pivot: {x: 0.5, y: 0.4827586}
+      pivot: {x: 0.5, y: 0.36956522}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -250,7 +263,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 14b44d80144ac0b4ab9162846b65a1bf
     internalID: 0
     vertices: []
     indices: 
@@ -258,7 +271,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":6.0,"y":1.0},"gridSpriteSize":{"x":129.0,"y":138.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.36956522},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":1,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       npc_m1_idle_0: -3230580220742655051
       npc_m1_idle_1: 9195621307279227730

@@ -139,10 +139,8 @@ public partial class StoryScriptRunner : MonoBehaviour
         try
         {
             token.ThrowIfCancellationRequested();
-#if UNITY_EDITOR
             if (testStart != null) await RunFromTestDialogueAsync(token);
             else
-#endif
             {
                 var cursor = new StorySceneCursor(script, conditions, phase);
                 if (!cursor.IsEmpty)
@@ -520,7 +518,7 @@ public partial class StoryScriptRunner : MonoBehaviour
 
         // 고를 수 있는 것이 하나도 없으면 화면을 띄우지 않는다. 띄우면 플레이어가 빠져나올 길이 없다
         // (§14 NO_SELECTABLE_CHOICE).
-        if (!anySelectable)
+        if (!anySelectable && !InGameQaPanel.ForceVisibleChoices)
         {
             throw new InvalidOperationException($"[Story] 고를 수 있는 선택지가 하나도 없습니다: {step.Arg} ({scene.Id}#{step.Seq})");
         }
@@ -532,8 +530,10 @@ public partial class StoryScriptRunner : MonoBehaviour
         NewChoiceOptionData chosen = choices[picked];
 
         token.ThrowIfCancellationRequested();
-        if (!options[picked].IsSelectable) throw new InvalidOperationException("A locked choice was selected.");
-        conditions.ApplyRequired(chosen.Effects, $"{scene.Id}#{step.Seq}#choice{picked}");
+        bool locked = !options[picked].IsSelectable;
+        if (locked && !InGameQaPanel.ForceVisibleChoices)
+            throw new InvalidOperationException("A locked choice was selected.");
+        conditions.ApplyRequired(chosen.Effects, $"{scene.Id}#{step.Seq}#choice{picked}", allowOverdraft: locked);
 
         Debug.Log($"[Story] 선택 — {step.Arg}[{picked}] \"{chosen.Text?.Ko}\"" +
                   (string.IsNullOrEmpty(chosen.Goto) ? "" : $" → {chosen.Goto}"));

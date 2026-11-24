@@ -64,9 +64,9 @@ public static class StoryConditionExtensions
         return result.Value;
     }
 
-    public static void ApplyRequired(this IConditionUtil conditions, string effects, string token = null)
+    public static void ApplyRequired(this IConditionUtil conditions, string effects, string token = null, bool allowOverdraft = false)
     {
-        var result = conditions.ApplyEffects(effects, token);
+        var result = conditions.ApplyEffects(effects, token, allowOverdraft);
         if (!result.Succeeded) throw new InvalidOperationException(result.Error);
     }
 }

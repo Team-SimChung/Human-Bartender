@@ -14,7 +14,7 @@ public interface IConditionUtil
     /// <summary>조건식을 판정한다. 빈 값은 참이다.</summary>
     bool Check(string when);
     ConditionResult Evaluate(string when);
-    EffectApplyResult ApplyEffects(string statement, string token = null);
+    EffectApplyResult ApplyEffects(string statement, string token = null, bool allowOverdraft = false);
     IConditionUtil CreateExecutionScope();
 
     /// <summary>
@@ -196,6 +196,7 @@ public class ConditionUtil : IConditionUtil
     /// token을 주면 그 토큰으로 한 번만 적용한다. 스텝·선택지를 가리키는 고정 값이어야 한다.
     ///
     /// 모든 문법과 비용을 먼저 검사한다. 실행 중 실패하면 후속 효과를 멈추고 적용 수를 반환한다.
+    /// QA에서 잠긴 선택지를 확정한 분기는 비용을 그대로 반영하고 음수 잔액을 허용한다.
     /// </summary>
     public bool Set(string statement, string token = null)
     {
@@ -204,7 +205,7 @@ public class ConditionUtil : IConditionUtil
         return result.Status == EffectApplyStatus.Applied;
     }
 
-    public EffectApplyResult ApplyEffects(string statement, string token = null)
+    public EffectApplyResult ApplyEffects(string statement, string token = null, bool allowOverdraft = false)
     {
         if (string.IsNullOrWhiteSpace(statement)) return new EffectApplyResult(EffectApplyStatus.NoOp);
         if (!string.IsNullOrEmpty(token) && _effectResults.TryGetValue(token, out var previous))
@@ -218,7 +219,7 @@ public class ConditionUtil : IConditionUtil
             {
                 string clause = rawClause.Trim();
                 if (clause.Length == 0) continue;
-                ValidateClause(clause, ref remainingMoney);
+                ValidateClause(clause, ref remainingMoney, allowOverdraft);
                 clauses.Add(clause);
             }
         }
@@ -228,7 +229,7 @@ public class ConditionUtil : IConditionUtil
         EffectApplyResult result;
         try
         {
-            foreach (string clause in clauses) { ApplyClause(clause); applied++; }
+            foreach (string clause in clauses) { ApplyClause(clause, allowOverdraft); applied++; }
             result = new EffectApplyResult(EffectApplyStatus.Applied, applied);
         }
         catch (Exception e)
@@ -243,7 +244,7 @@ public class ConditionUtil : IConditionUtil
 
     public void ResetAppliedTokens() => _effectResults.Clear();
 
-    void ValidateClause(string clause, ref int remainingMoney)
+    void ValidateClause(string clause, ref int remainingMoney, bool allowOverdraft = false)
     {
         if (!TrySplit(clause, "+=", out string target, out string raw, out EOp op) &&
             !TrySplit(clause, "-=", out target, out raw, out op) &&
@@ -260,7 +261,8 @@ public class ConditionUtil : IConditionUtil
             int amount = ToInt(raw);
             if (op == EOp.Set || amount < 0) throw new InvalidOperationException("Money requires += or -= with a nonnegative amount.");
             if (syntaxOnly) return;
-            if (op == EOp.Subtract && remainingMoney < amount) throw new InvalidOperationException("Insufficient money.");
+            if (op == EOp.Subtract && !allowOverdraft && remainingMoney < amount)
+                throw new InvalidOperationException("Insufficient money.");
             remainingMoney = checked(remainingMoney + (op == EOp.Add ? amount : -amount));
         }
         else throw new InvalidOperationException($"Unsupported effect target: {target}");
@@ -268,7 +270,7 @@ public class ConditionUtil : IConditionUtil
 
     enum EOp { Set, Add, Subtract }
 
-    void ApplyClause(string clause)
+    void ApplyClause(string clause, bool allowOverdraft)
     {
         // "+=" 와 "-=" 를 "=" 보다 먼저 본다. "=" 를 먼저 찾으면 "affinity.x += 1"이
         // 대상 "affinity.x +" 와 값 "1"로 잘려서, 엉뚱한 이름에 값을 쓴다.
@@ -279,7 +281,7 @@ public class ConditionUtil : IConditionUtil
             throw new InvalidOperationException("= 또는 += 가 없습니다.");
         }
 
-        ApplyTo(target, raw, op);
+        ApplyTo(target, raw, op, allowOverdraft);
     }
 
     static bool TrySplit(string clause, string token, out string target, out string raw, out EOp op)
@@ -297,7 +299,7 @@ public class ConditionUtil : IConditionUtil
         return target.Length > 0 && raw.Length > 0;
     }
 
-    void ApplyTo(string target, string raw, EOp op)
+    void ApplyTo(string target, string raw, EOp op, bool allowOverdraft)
     {
         if (target.StartsWith("flag.", StringComparison.Ordinal))
         {
@@ -335,7 +337,8 @@ public class ConditionUtil : IConditionUtil
                     break;
 
                 case EOp.Subtract:
-                    if (!_playerDataWriter.TrySpend(amount))
+                    if (allowOverdraft) _playerDataWriter.AddMoney(-amount);
+                    else if (!_playerDataWriter.TrySpend(amount))
                         throw new InvalidOperationException($"Insufficient money for {amount}.");
                     break;
 
