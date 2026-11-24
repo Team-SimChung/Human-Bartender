@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] Canvas rootCanvas;
+    [Tooltip("드래그하는 동안 포인터에 붙는 코스터 크기(그림은 비율 유지). 공급함 아이콘 크기와 따로 정한다.")]
+    [SerializeField] Vector2 heldSize = new Vector2(72, 72);
     public static CoasterDragItem Active { get; private set; }
 
     RectTransform rect;
@@ -42,10 +44,10 @@ public class CoasterDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         if (Active != null || DrinkDragItem.Active != null) return;
         Active = this;
-        var icon = new GameObject("Held Coaster", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
+        var icon = new GameObject("HeldCoaster", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<Image>();
         held = icon.rectTransform;
         held.SetParent(rootCanvas.transform, false);
-        held.sizeDelta = rect.rect.size;
+        held.sizeDelta = heldSize;
         icon.sprite = image.sprite;
         icon.color = image.color;
         icon.preserveAspect = image.preserveAspect;
