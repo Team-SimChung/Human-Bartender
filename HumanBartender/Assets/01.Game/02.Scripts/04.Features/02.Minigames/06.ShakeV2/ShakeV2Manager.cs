@@ -84,6 +84,10 @@ public sealed class ShakeV2Manager : MonoBehaviour, ICraftGimmick, ICraftGimmick
     [Tooltip("다 섞인 뒤의 색을 따로 정한다(웹 연습 레시피의 mixedColor). 끄면 본편 규칙: 재료 양의 가중 평균, 층 불투명도 .5.")]
     [SerializeField] bool useMixedColor;
     [SerializeField] Color mixedColor = new Color32(0xFF, 0x81, 0x96, 0xFF);
+    [Tooltip("본편에서 앞 단계에 부은 재료의 색(shelf_items.color)을 읽는다. 따르기와 같은 데이터(NewShelfItemDataSO).")]
+    [SerializeField] NewShelfItemDataSO shelfData;
+    [Tooltip("색이 없는 재료의 색. 웹 shake-v2.js layers()의 기본값 200,230,240.")]
+    [SerializeField] Color unknownIngredientColor = new Color32(200, 230, 240, 255);
 
     [Header("Presentation")]
     [Tooltip("왼쪽 모니터(04.Gameplay/Monitor).")]
@@ -288,13 +292,32 @@ public sealed class ShakeV2Manager : MonoBehaviour, ICraftGimmick, ICraftGimmick
     public IReadOnlyList<ShakeV2Layer> CurrentLayers => layerOverride ?? layers ?? Array.Empty<ShakeV2Layer>();
 
     /// <summary>
-    /// 실제 부은 재료로 층을 정하는 입구(4단계에서 CraftContext가 쓴다). 다음 시작부터 반영되고, 이미 쉐이킹 중이면 색만 바뀐다.
-    /// null을 넣으면 Inspector의 시험용 층으로 돌아간다.
+    /// 실제 부은 재료로 층을 정하는 입구. 본편에서는 PlayAsync가 앞 단계 결과로 부른다. 다음 시작부터 반영되고,
+    /// 이미 쉐이킹 중이면 색만 바뀐다. null을 넣으면 Inspector의 시험용 층으로 돌아간다(Dev 단독 실행).
     /// </summary>
     public void SetLayers(IReadOnlyList<ShakeV2Layer> value)
     {
         layerOverride = value != null ? new List<ShakeV2Layer>(value) : null;
         shaker?.SetLiquid(CurrentLayers, useMixedColor ? mixedColor : (Color?)null);
+    }
+
+    /// <summary>
+    /// 앞 단계 결과에서 층을 만든다. 웹 shake-v2.js layers()와 같다: 재료가 있고 값이 0보다 큰 결과를 순서대로(첫 항목이 바닥),
+    /// 색은 그 재료의 shelf_items.color, 없으면 unknown, 양은 결과 값 그대로(단위를 바꾸지 않는다 — 웹도 ml·oz·개수를 섞어 그대로 쓴다).
+    /// </summary>
+    public static List<ShakeV2Layer> LayersFrom(IReadOnlyList<GimmickResult> results, NewShelfItemDataSO shelf, Color unknown)
+    {
+        var list = new List<ShakeV2Layer>();
+        if (results == null) return list;
+        foreach (var result in results)
+        {
+            if (result == null || string.IsNullOrEmpty(result.IngredientId) || !(result.ActualValue > 0f)) continue;
+            Color color = unknown;
+            if (shelf != null && shelf.TryGet(result.IngredientId, out var item) && item.TryGetLiquidColor(out Color32 liquid)) color = liquid;
+            color.a = 1f;
+            list.Add(new ShakeV2Layer(result.IngredientId, color, result.ActualValue));
+        }
+        return list;
     }
 
     // ── 종료 ────────────────────────────────────────────────────────────
@@ -331,6 +354,8 @@ public sealed class ShakeV2Manager : MonoBehaviour, ICraftGimmick, ICraftGimmick
         drivenByRunner = true;
         craftTimer = timer;
         completion = new UniTaskCompletionSource();
+        // 이 잔에 앞서 부은 재료가 단면의 층이 된다. 하나도 없으면 물 부품이 #C8E6F0 단일 층으로 그린다(웹 '음료').
+        layerOverride = LayersFrom(context.Results, shelfData, unknownIngredientColor);
         Begin();
 
         // 제조가 취소되면 분리·파손 대기도 함께 풀린다. 이전 게임의 결과가 새 잔에 들어가지 않는다.

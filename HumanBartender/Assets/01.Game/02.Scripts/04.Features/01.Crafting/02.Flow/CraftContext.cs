@@ -10,8 +10,8 @@ using System.Collections.Generic;
 /// 읽기만 하라고 이 모양으로 넘긴다. CraftSession을 통째로 주면 기믹이 기록을 고칠 수 있게 되는데,
 /// 결과를 적는 것은 실행기의 일이지 기믹의 일이 아니다.
 ///
-/// 지금은 아무 기믹도 이 값을 그리는 데 쓰지 않는다. 리소스가 나오면 각자 여기서 가져가면 되도록
-/// 통로만 먼저 뚫어 둔 것이다.
+/// 쉐이킹 V2가 앞 단계 결과(부은 재료와 양)로 단면의 층을 그린다. 나머지 기믹은 아직 이 값을 그리는 데
+/// 쓰지 않는다 — 리소스가 나오면 각자 여기서 가져가면 된다.
 /// </summary>
 public readonly struct CraftContext
 {
@@ -42,6 +42,15 @@ public readonly struct CraftContext
     /// <summary>레시피를 보고 시스템이 넣어 준 파우더 재료.</summary>
     public IReadOnlyList<string> AutoPowderIds => autoPowderIds ?? System.Array.Empty<string>();
 
+    readonly IReadOnlyList<GimmickResult> results;
+
+    /// <summary>
+    /// 이 잔에서 이미 끝난 기믹의 결과를 실행 순서대로. 실행기가 기믹 하나를 끝낼 때마다 기록에 덧붙이는 목록을
+    /// 그대로 비춰 보이므로, 기믹이 시작될 때에는 그 앞 단계까지의 결과가 들어 있다(웹 craft.results).
+    /// 읽기 전용이다 — 기록은 실행기만 한다.
+    /// </summary>
+    public IReadOnlyList<GimmickResult> Results => results ?? System.Array.Empty<GimmickResult>();
+
     CraftContext(string selectedCocktailId, ActualCraft actual)
     {
         SelectedCocktailId = selectedCocktailId;
@@ -51,11 +60,12 @@ public readonly struct CraftContext
         ingredientIds = actual.IngredientIds;
         autoSqueezeIds = actual.AutoSqueezeIds;
         autoPowderIds = actual.AutoPowderIds;
+        results = actual.GimmickResults;
     }
 
     /// <summary>
     /// 진행 중인 시도에서 읽어 온다. 큐를 시작할 때 한 번 만들어 모든 스텝에 같은 것을 넘긴다 —
-    /// 잔과 도구는 기믹이 도는 동안 바뀌지 않는다.
+    /// 잔과 도구는 기믹이 도는 동안 바뀌지 않는다. 결과 목록만 기록이 늘어나는 대로 함께 보인다.
     /// </summary>
     public static CraftContext From(CraftSession session)
     {

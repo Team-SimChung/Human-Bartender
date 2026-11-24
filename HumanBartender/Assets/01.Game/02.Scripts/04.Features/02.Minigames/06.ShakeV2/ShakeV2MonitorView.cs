@@ -70,8 +70,8 @@ public sealed class ShakeV2MonitorView : MonoBehaviour
         [Tooltip("손 강조광 반지름(원본 px)과 색.")]
         public float handGlowRadius = 100f;
         public Color handGlowColor = new Color32(255, 244, 214, 255);
-        [Tooltip("냉기 빛 반지름(원본 px), 색, 냉각도 100일 때 불투명도.")]
-        public float chillGlowRadius = 150f;
+        [Tooltip("냉기 빛 반지름(원본 px), 색, 냉각도 100일 때 불투명도. 웹은 150이지만 화면에서 너무 강해 40으로 줄였다(Play 중 Scale ≈ 0.1).")]
+        public float chillGlowRadius = 40f;
         public Color chillGlowColor = new Color32(160, 228, 246, 255);
         [Range(0f, 1f)] public float chillGlowAlpha = .28f;
         [Tooltip("MISS 붉은 섬광 색(최대 불투명도 포함)과 시간(초).")]
