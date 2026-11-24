@@ -14,7 +14,12 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
     [SerializeField] private float cameraReturnTiming = 0.8f;
     [SerializeField] private Transform topPoint;
     [SerializeField] private Transform bottomPoint;
-    [SerializeField] private GameObject wallColider;
+    [SerializeField, Tooltip("칸 왼쪽을 막는 벽(Floor 레이어 콜라이더, 칸 아래 LeftWall). " +
+        "타고 오르내리는 동안에만 켜고, 어느 층이든 서 있을 때는 꺼서 칸 왼쪽으로 드나들 수 있게 합니다. 비워 두면 켜고 끄지 않습니다.")]
+    private GameObject leftWall;
+    [SerializeField, Tooltip("칸 오른쪽을 막는 벽(Floor 레이어 콜라이더, 칸 아래 RightWall). " +
+        "타고 오르내리는 동안과 위층에 서 있을 때 켭니다(위층 칸 오른쪽은 바닥이 없음). 아래층에 서 있을 때는 끕니다. 비워 두면 켜고 끄지 않습니다.")]
+    private GameObject rightWall;
     [SerializeField] private float duration = 1f;
     [SerializeField] private float delayDuration = 3f;
     [SerializeField] private Ease ease;
@@ -65,6 +70,22 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         if (topPoint == null || bottomPoint == null) throw new InvalidOperationException("엘리베이터 상·하단 앵커가 없습니다.");
         isTop = top;
         transform.position = (top ? topPoint : bottomPoint).position;
+        ApplyWalls();
+    }
+
+    // 칸 벽은 탑승 전 상태를 기억했다 되돌리지 않고, 지금 상태에서 매번 다시 정한다(QA-61).
+    // 타고 오르내리는 동안(IsMoving, 이동 입력이 잠긴 구간)은 양쪽 모두, 서 있을 때는 위층에서만 오른쪽을 막는다.
+    // 위층 칸 오른쪽은 바닥이 없고 왼쪽은 집 앞 복도로 이어진다. 아래층은 양쪽 모두 길이다.
+    private void ApplyWalls()
+    {
+        bool moving = IsMoving;
+        SetWall(leftWall, moving);
+        SetWall(rightWall, moving || isTop);
+    }
+
+    private static void SetWall(GameObject wall, bool active)
+    {
+        if (wall != null && wall.activeSelf != active) wall.SetActive(active);
     }
 
     // 플레이어가 위층 집 문 앞에서 시작하면 엘리베이터도 위층에서 기다린다.
@@ -161,11 +182,11 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         using var lease = InteractionStateLease.Acquire(player);
         movement = source;
         fastTravelling = true;
+        ApplyWalls();
         var actor = player.Transform;
         var actorStart = actor.position;
         var start = transform.position;
         bool startedAtTop = isTop;
-        bool oldWall = wallColider != null && wallColider.activeSelf;
         var destination = (isTop ? bottomPoint : topPoint).position;
         bool blackOwned = false;
         bool moved = false;
@@ -176,7 +197,6 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
             blackOwned = true;
             await WaitFastTravelAsync(fastBeforeMoveDelay, source.Token);
             source.Token.ThrowIfCancellationRequested();
-            if (wallColider != null) wallColider.SetActive(true);
             // 일반 탑승과 같이 승강기와 탑승자를 함께 옮기고, 루나는 도착 층의 하차 높이에 세운다.
             transform.position = destination;
             actor.position = new Vector3(destination.x, ArrivalY(!startedAtTop, actorStart.y, destination.y - start.y), destination.z);
@@ -215,9 +235,9 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
                 }
                 finally
                 {
-                    if (wallColider != null) wallColider.SetActive(oldWall);
                     fastTravelling = false;
                     if (ReferenceEquals(movement, source)) movement = null;
+                    ApplyWalls();
                 }
             }
         }
@@ -240,6 +260,7 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         if (topPoint == null || bottomPoint == null) throw new InvalidOperationException("엘리베이터 상·하단 앵커가 없습니다.");
         using var source = CancellationTokenSource.CreateLinkedTokenSource(token, this.GetCancellationTokenOnDestroy());
         movement = source;
+        ApplyWalls();
         // 웹(outside.js tickLift)처럼 탑승 중에는 이동 입력과 방향 전환을 받지 않는다(빠른 이동과 같은 잠금).
         // 탑승 중 걸을 수 있으면 승강기 통로와 겹친 2층 바닥에 밀려 칸 벽을 넘는다(QA-28).
         // 서 있는 모습은 상호작용 시작 때 Player.PrepareWorldInteraction이 맞추고, 잠금 중에는 애니메이션을 갱신하지 않는다.
@@ -274,6 +295,7 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
             {
                 ride = null;
                 if (ReferenceEquals(movement, source)) movement = null;
+                ApplyWalls();
                 current.FollowCamera();
             }
         }
@@ -286,7 +308,7 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         GameStateManager.Instance.IsOutsideLogo = true;
     }
 
-    /// <summary>한 번의 탑승에서만 필요한 위치·벽·로고 상태를 보관함.</summary>
+    /// <summary>한 번의 탑승에서만 필요한 위치·로고 상태를 보관함. 칸 벽은 OutsideElevator.ApplyWalls가 정한다.</summary>
     private sealed class Ride
     {
         private readonly OutsideElevator owner;
@@ -295,7 +317,6 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
         private readonly Vector3 actorStart;
         private readonly Vector3 start;
         private readonly float arrivalY;
-        private readonly bool oldWall;
         private bool arrived;
         private bool restored;
         public Vector3 Destination { get; }
@@ -310,13 +331,11 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
             start = owner.transform.position;
             Destination = (owner.isTop ? owner.bottomPoint : owner.topPoint).position;
             arrivalY = owner.ArrivalY(!owner.isTop, actorStart.y, Destination.y - start.y);
-            oldWall = owner.wallColider != null && owner.wallColider.activeSelf;
         }
 
         public void Begin()
         {
             actor.position = new Vector3(start.x, actor.position.y, start.z);
-            if (owner.wallColider != null) owner.wallColider.SetActive(true);
             owner.changeCameraModeEvent?.Raise((int)EOutsideCameraMode.Elevator);
         }
 
@@ -358,7 +377,6 @@ public class OutsideElevator : MonoBehaviour, IWorldInteractionAction, IWorldInt
             if (!arrived && actor != null) actor.position = actorStart;
             if (owner == null) return;
             if (!arrived) owner.transform.position = start;
-            if (owner.wallColider != null) owner.wallColider.SetActive(oldWall);
         }
     }
 }
