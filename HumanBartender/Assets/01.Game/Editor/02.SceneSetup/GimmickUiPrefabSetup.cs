@@ -309,7 +309,8 @@ internal sealed class CapUiAuthoring
     TMP_FontAsset font;
     int canvasSortingOrder = 20;
     Canvas canvas;
-    RectTransform webRoot, lessonArrow, powerFocus, rhythmFocus;
+    RectTransform webRoot, lessonPanel, powerFocus, rhythmFocus;
+    StoryTutorialGuideGraphic powerGuideArrow;
     CapCanvasLayer halo, body, carbonationLayer, mouth, cap, perfectBurst, opener, overlay, powerGauge, rhythmRings;
     TMP_Text phaseLabel, feedback, timingHint, gaugeLabel, hitLabel, finishLabel, lessonText;
     Button hitButton, finishButton;
@@ -339,8 +340,14 @@ internal sealed class CapUiAuthoring
         foreach (var layout in webRoot.GetComponentsInChildren<LayoutGroup>(true)) Object.DestroyImmediate(layout);
         foreach (var element in webRoot.GetComponentsInChildren<LayoutElement>(true)) Object.DestroyImmediate(element);
         hitButton.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 190f);
+        var textRect = lessonText.rectTransform;
+        Vector2 bottom = textRect.offsetMin + Vector2.up * lessonPanel.rect.height;
+        Vector2 top = textRect.offsetMax;
+        textRect.anchorMin = new Vector2(textRect.anchorMin.x, 0f);
+        textRect.offsetMin = bottom;
+        textRect.offsetMax = top;
         lessonRoot.SetActive(false);
-        foreach (string name in new[] { "halo", "body", "carbonationLayer", "mouth", "cap", "perfectBurst", "opener", "overlay", "powerGauge", "rhythmRings", "haloDefault", "haloSuccess", "phaseLabel", "feedback", "timingHint", "gaugeLabel", "hitLabel", "finishLabel", "hitButton", "finishButton", "hitGroup", "finishGroup", "hitKey", "lessonRoot", "lessonShade", "lessonText", "lessonArrow", "powerFocus", "rhythmFocus" })
+        foreach (string name in new[] { "halo", "body", "carbonationLayer", "mouth", "cap", "perfectBurst", "opener", "overlay", "powerGauge", "rhythmRings", "haloDefault", "haloSuccess", "phaseLabel", "feedback", "timingHint", "gaugeLabel", "hitLabel", "finishLabel", "hitButton", "finishButton", "hitGroup", "finishGroup", "hitKey", "lessonRoot", "lessonShade", "lessonPanel", "lessonText", "powerGuideArrow", "powerFocus", "rhythmFocus" })
             GimmickUiPrefabSetup.Set(view, name, (Object)GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(this));
     }
 
@@ -538,7 +545,7 @@ internal sealed class CapUiAuthoring
         lessonShade.SetFocus(powerFocus);
 
         // .opening-lesson-copy: left 70, top 230, 너비 290, 안쪽 20/24, 배경 #0a1522f5, 테두리 #68ced7, 둥글기 12.
-        var copy = NewRect("Copy", root);
+        var copy = lessonPanel = NewRect("Copy", root);
         copy.anchorMin = copy.anchorMax = new Vector2(0f, 1f);
         copy.pivot = new Vector2(0f, 1f);
         copy.anchoredPosition = new Vector2(70f, -230f);
@@ -564,12 +571,12 @@ internal sealed class CapUiAuthoring
         var textLayout = lessonText.gameObject.AddComponent<LayoutElement>();
         textLayout.preferredWidth = 290f - 48f;
 
-        var arrowText = Text("Arrow", copy, "→", 36f, Hex("#9ef5f0"), TextAlignmentOptions.Left);
-        arrowText.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
-        lessonArrow = arrowText.rectTransform;
-        lessonArrow.anchorMin = lessonArrow.anchorMax = new Vector2(1f, .5f);
-        lessonArrow.pivot = new Vector2(0f, 1f);
-        lessonArrow.sizeDelta = new Vector2(44f, 48f);
+        var arrow = NewRect("PowerGuideArrow", root);
+        Place(arrow, 400f, 295f, 32f, 20f);
+        arrow.pivot = new Vector2(1f, .5f);
+        powerGuideArrow = arrow.gameObject.AddComponent<StoryTutorialGuideGraphic>();
+        powerGuideArrow.raycastTarget = false;
+        arrow.gameObject.SetActive(false);
 
         lessonRoot.SetActive(false);
     }

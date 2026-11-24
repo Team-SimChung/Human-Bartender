@@ -39,10 +39,18 @@ public sealed class CapOpenView : MonoBehaviour
     [SerializeField] GameObject lessonRoot;
     [SerializeField] CapLessonShade lessonShade;
     [SerializeField] RectTransform powerFocus, rhythmFocus;
-    Vector2 lessonArrowBase;
+    [Tooltip("문구 높이에 맞춰 세로로 늘어나는 병따기 안내 배경.")]
+    [SerializeField] RectTransform lessonPanel;
     [SerializeField] TMP_Text lessonText;
-    [SerializeField] RectTransform lessonArrow;
+    [Tooltip("힘 게이지의 초록 판정 구간을 가리키는 튜토리얼 화살표.")]
+    [SerializeField] StoryTutorialGuideGraphic powerGuideArrow;
     bool lessonWanted;
+
+    [Header("Target Ring Glow")]
+    [Tooltip("초록색 기준 링의 후광 색. 알파로 밝기를 조절하며 0이면 후광을 끈다.")]
+    [SerializeField] Color targetRingGlowColor = new Color32(0x60, 0xED, 0xC0, 10);
+    [Tooltip("기준 링 가장자리에서 후광이 퍼지는 거리(1280×720 기준 픽셀).")]
+    [SerializeField, Min(0)] float targetRingGlowSpread = 5f;
 
     [Header("Editor Preview")]
     [Tooltip("편집 모드에서 타이밍 링을 표시한다. 끄면 힘 게이지를 표시한다.")]
@@ -63,7 +71,6 @@ public sealed class CapOpenView : MonoBehaviour
     {
         if (!Application.isPlaying) return;
         if (finishButton != null) finishButton.onClick.AddListener(OnNextClicked);
-        if (lessonArrow != null) lessonArrowBase = lessonArrow.anchoredPosition;
     }
 
     void OnEnable() { if (!Application.isPlaying) Preview(); }
@@ -184,10 +191,18 @@ public sealed class CapOpenView : MonoBehaviour
         if (!ok && rules.Phase == ECapOpenPhase.Rhythm)
         {
             float radius = Mathf.Max(12f, startRadius - (startRadius - targetRadius) * rules.BeatTime / tuning.beatSec);
-            // 웹 shadowBlur 12(#60edc0)는 점점 넓고 옅은 고리를 겹쳐 흉내 낸다.
-            var glow = Hex("#60edc0");
-            for (int i = 4; i >= 1; i--) rhythmRings.StrokeCircle(identity, Cx, Cy, targetRadius, 3f + i * 5f, WithAlpha(glow, .022f * (5 - i)));
-            rhythmRings.StrokeCircle(identity, Cx, Cy, targetRadius, 3f, Hex("#7cf3c6"));
+            const float targetStrokeWidth = 3f;
+            const int glowLayers = 4;
+            if (targetRingGlowSpread > 0f && targetRingGlowColor.a > 0f)
+            {
+                for (int layer = glowLayers; layer >= 1; layer--)
+                {
+                    float width = targetStrokeWidth + 2f * targetRingGlowSpread * layer / glowLayers;
+                    float alpha = targetRingGlowColor.a * (glowLayers - layer + 1) / glowLayers;
+                    rhythmRings.StrokeCircle(identity, Cx, Cy, targetRadius, width, WithAlpha(targetRingGlowColor, alpha));
+                }
+            }
+            rhythmRings.StrokeCircle(identity, Cx, Cy, targetRadius, targetStrokeWidth, Hex("#7cf3c6"));
             rhythmRings.StrokeCircle(identity, Cx, Cy, radius, 2f, miss ? Hex("#f18d89") : Hex("#e1faff"));
         }
         else if (ok && t < .65f)
@@ -203,14 +218,17 @@ public sealed class CapOpenView : MonoBehaviour
         }
 
         bool gauge = rules.Phase is ECapOpenPhase.Ready or ECapOpenPhase.Power or ECapOpenPhase.PowerDone;
+        const float gaugeX = 400f, gaugeY = 240f, gaugeWidth = 30f, gaugeHeight = 250f;
+        float targetY = gaugeY + gaugeHeight * (1f - tuning.powerTarget);
+        float window = gaugeHeight * tuning.powerWindow;
+        var powerZone = new Rect(gaugeX, targetY - window, gaugeWidth, window * 2f);
         if (gauge)
         {
-            const float x = 400f, y = 240f, h = 250f;
-            float top = tuning.powerTarget + tuning.powerWindow, perfectTop = tuning.powerTarget + tuning.powerPerfectWindow;
-            powerGauge.FillRect(identity, x, y, 30f, h, Hex("#17252fee"));
-            powerGauge.FillRect(identity, x, y + h * (1f - top), 30f, h * tuning.powerWindow * 2f, Hex("#42775d"));
-            powerGauge.FillRect(identity, x, y + h * (1f - perfectTop), 30f, h * tuning.powerPerfectWindow * 2f, Hex("#8bc99b"));
-            powerGauge.FillRect(identity, x - 9f, y + h * (1f - rules.PowerPos) - 2f, 48f, 4f, Hex("#e8f6ee"));
+            float perfectWindow = gaugeHeight * tuning.powerPerfectWindow;
+            powerGauge.FillRect(identity, gaugeX, gaugeY, gaugeWidth, gaugeHeight, Hex("#17252fee"));
+            powerGauge.FillRect(identity, powerZone.x, powerZone.y, powerZone.width, powerZone.height, Hex("#42775d"));
+            powerGauge.FillRect(identity, gaugeX, targetY - perfectWindow, gaugeWidth, perfectWindow * 2f, Hex("#8bc99b"));
+            powerGauge.FillRect(identity, gaugeX - 9f, gaugeY + gaugeHeight * (1f - rules.PowerPos) - 2f, 48f, 4f, Hex("#e8f6ee"));
         }
 
         if (!ok && rules.RoundMisses > 0)
@@ -239,7 +257,9 @@ public sealed class CapOpenView : MonoBehaviour
 
         foreach (var layer in new[] { halo, body, carbonationLayer, mouth, cap, perfectBurst, opener, overlay, powerGauge, rhythmRings }) layer.Apply();
 
-        if (!preview) RenderUi(rules, ok, miss, perfect, gauge, paused);
+        if (preview) return;
+        RenderUi(rules, ok, miss, perfect, gauge, paused);
+        UpdatePowerGuideArrow(lessonRoot.activeSelf && gauge && powerZone.height > 0f, powerZone);
     }
 
     /// <summary>
@@ -247,10 +267,20 @@ public sealed class CapOpenView : MonoBehaviour
     /// </summary>
     public void SetLesson(string text, bool power)
     {
+        bool hadLesson = lessonWanted;
         lessonWanted = !string.IsNullOrEmpty(text);
         if (!lessonWanted) return;
         lessonShade.SetFocus(power ? powerFocus : rhythmFocus);
-        if (lessonText.text != text) lessonText.text = text;
+        if (hadLesson && lessonText.text == text) return;
+
+        lessonText.text = text;
+        if (lessonPanel == null) return;
+
+        // 세로로 Stretch된 글자 칸의 Top/Bottom이 배경 안쪽 여백이다.
+        RectTransform textRect = lessonText.rectTransform;
+        float padding = textRect.offsetMin.y - textRect.offsetMax.y;
+        float textHeight = lessonText.GetPreferredValues(text, textRect.rect.width, Mathf.Infinity).y;
+        lessonPanel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Ceil(textHeight + padding));
     }
 
     void RenderUi(CapOpenRules rules, bool ok, bool miss, bool perfect, bool gauge, bool paused)
@@ -299,14 +329,19 @@ public sealed class CapOpenView : MonoBehaviour
         // 웹도 일시정지 중에는 수업 안내를 지운다.
         bool lesson = lessonWanted && !paused;
         if (lessonRoot.activeSelf != lesson) lessonRoot.SetActive(lesson);
-        if (lesson)
-        {
-            // 웹 @keyframes opening-guide-point: 1초 주기로 오른쪽 8px까지 갔다 돌아온다(ease-in-out).
-            // CSS right:-44px라서 화살표 칸(44px)의 왼쪽 끝이 안내 상자 오른쪽 끝에 붙는다.
-            float phase = Mathf.Repeat(Time.unscaledTime, 1f);
-            float nudge = (1f - Mathf.Cos(phase * Mathf.PI * 2f)) * .5f * 8f;
-            lessonArrow.anchoredPosition = lessonArrowBase + new Vector2(nudge, 0f);
-        }
+    }
+
+    void UpdatePowerGuideArrow(bool visible, Rect powerZone)
+    {
+        if (powerGuideArrow == null) return;
+        if (powerGuideArrow.gameObject.activeSelf != visible) powerGuideArrow.gameObject.SetActive(visible);
+        if (!visible) return;
+
+        RectTransform arrow = powerGuideArrow.rectTransform;
+        Rect rect = arrow.rect;
+        Vector2 tip = new Vector2(rect.xMax, rect.center.y);
+        arrow.position = powerGauge.DrawingToWorld(new Vector2(powerZone.xMin, powerZone.center.y)) - arrow.TransformVector(tip);
+        powerGuideArrow.SetArrow(new Vector2(rect.xMin, tip.y), tip);
     }
 
     static Color Hex(string hex)

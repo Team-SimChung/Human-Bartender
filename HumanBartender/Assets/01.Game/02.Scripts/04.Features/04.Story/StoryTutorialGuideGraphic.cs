@@ -16,6 +16,8 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
     public bool HasDestination => destination.HasValue;
     public bool HasDragRoute => drag && arrowFrom.HasValue && arrowTo.HasValue;
 
+    public void SetArrow(Vector2 from, Vector2 to) => SetGuide(null, null, from, to, false);
+
     /// <param name="focusHole">focus 자리의 딤 구멍. 비우면 focus와 같다.</param>
     /// <param name="targetHole">target 자리의 딤 구멍. 비우면 target과 같다.</param>
     public void SetGuide(Rect? focus, Rect? target, Vector2? from, Vector2? to, bool dragRoute,
@@ -35,23 +37,7 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
     protected override void OnPopulateMesh(VertexHelper mesh)
     {
         mesh.Clear();
-        Rect area = rectTransform.rect;
-        var xs = new[] { area.xMin, area.xMax, sourceHole?.xMin ?? area.xMin, sourceHole?.xMax ?? area.xMax,
-            destinationHole?.xMin ?? area.xMin, destinationHole?.xMax ?? area.xMax };
-        var ys = new[] { area.yMin, area.yMax, sourceHole?.yMin ?? area.yMin, sourceHole?.yMax ?? area.yMax,
-            destinationHole?.yMin ?? area.yMin, destinationHole?.yMax ?? area.yMax };
-        Array.Sort(xs);
-        Array.Sort(ys);
-        var shade = new Color(.008f, .024f, .055f, .57f);
-        for (int x = 0; x < xs.Length - 1; x++)
-        for (int y = 0; y < ys.Length - 1; y++)
-        {
-            Rect cell = Rect.MinMaxRect(Mathf.Max(area.xMin, xs[x]), Mathf.Max(area.yMin, ys[y]),
-                Mathf.Min(area.xMax, xs[x + 1]), Mathf.Min(area.yMax, ys[y + 1]));
-            if (cell.width <= 0 || cell.height <= 0 || sourceHole?.Contains(cell.center) == true ||
-                destinationHole?.Contains(cell.center) == true) continue;
-            StoryUiMesh.Quad(mesh, cell, shade);
-        }
+        if (sourceHole.HasValue || destinationHole.HasValue) DrawShade(mesh);
         float pulse = .8f + .2f * Mathf.Sin(Time.unscaledTime * 4.5f);
         var mint = new Color(.64f, .98f, 1f, pulse);
         foreach (var focus in new[] { source, destination })
@@ -83,6 +69,27 @@ public sealed class StoryTutorialGuideGraphic : MaskableGraphic
             previous = point;
         }
         ArrowHead(mesh, to, to - bend, mint);
+    }
+
+    void DrawShade(VertexHelper mesh)
+    {
+        Rect area = rectTransform.rect;
+        var xs = new[] { area.xMin, area.xMax, sourceHole?.xMin ?? area.xMin, sourceHole?.xMax ?? area.xMax,
+            destinationHole?.xMin ?? area.xMin, destinationHole?.xMax ?? area.xMax };
+        var ys = new[] { area.yMin, area.yMax, sourceHole?.yMin ?? area.yMin, sourceHole?.yMax ?? area.yMax,
+            destinationHole?.yMin ?? area.yMin, destinationHole?.yMax ?? area.yMax };
+        Array.Sort(xs);
+        Array.Sort(ys);
+        var shade = new Color(.008f, .024f, .055f, .57f);
+        for (int x = 0; x < xs.Length - 1; x++)
+        for (int y = 0; y < ys.Length - 1; y++)
+        {
+            Rect cell = Rect.MinMaxRect(Mathf.Max(area.xMin, xs[x]), Mathf.Max(area.yMin, ys[y]),
+                Mathf.Min(area.xMax, xs[x + 1]), Mathf.Min(area.yMax, ys[y + 1]));
+            if (cell.width <= 0 || cell.height <= 0 || sourceHole?.Contains(cell.center) == true ||
+                destinationHole?.Contains(cell.center) == true) continue;
+            StoryUiMesh.Quad(mesh, cell, shade);
+        }
     }
 
     static void ArrowHead(VertexHelper mesh, Vector2 point, Vector2 direction, Color tint)

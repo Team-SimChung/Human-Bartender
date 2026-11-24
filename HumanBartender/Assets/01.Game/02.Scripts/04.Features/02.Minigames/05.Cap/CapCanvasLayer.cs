@@ -66,17 +66,19 @@ public sealed class CapCanvasLayer : MaskableGraphic
 
     public void Apply() => SetVerticesDirty();
 
+    /// <summary>캔버스에 그리는 좌표를 UI 월드 위치로 변환한다.</summary>
+    public Vector3 DrawingToWorld(Vector2 point) => rectTransform.TransformPoint(DrawingToLocal(point, rectTransform.rect));
+
+    Vector2 DrawingToLocal(Vector2 point, Rect rect) => new Vector2(
+        rect.xMin + (point.x - drawingOrigin.x) * rect.width / Mathf.Max(.001f, referenceSize.x),
+        rect.yMax - (point.y - drawingOrigin.y) * rect.height / Mathf.Max(.001f, referenceSize.y));
+
     protected override void OnPopulateMesh(VertexHelper helper)
     {
         helper.Clear();
         Rect rect = rectTransform.rect;
         for (int i = 0; i < vertices.Count; i++)
-        {
-            Vector3 point = vertices[i];
-            point.x = rect.xMin + (point.x - drawingOrigin.x) * rect.width / Mathf.Max(.001f, referenceSize.x);
-            point.y = rect.yMax - (point.y - drawingOrigin.y) * rect.height / Mathf.Max(.001f, referenceSize.y);
-            helper.AddVert(point, colors[i] * color, uvs[i]);
-        }
+            helper.AddVert(DrawingToLocal(vertices[i], rect), colors[i] * color, uvs[i]);
         for (int i = 0; i < triangles.Count; i += 3)
             helper.AddTriangle(triangles[i], triangles[i + 1], triangles[i + 2]);
     }
