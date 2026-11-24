@@ -41,13 +41,17 @@ public static class GameKeyBindings
         new(GameControl.StirDown, "젓기 · 아래", "CraftGimmick", "StirDown", Key.S),
         new(GameControl.StirLeft, "젓기 · 왼쪽", "CraftGimmick", "StirLeft", Key.A),
         new(GameControl.CapPress, "병따기", "Cap", "CapPress", Key.Space),
-        new(GameControl.ShakeLeft, "쉐이킹 · 왼쪽", "Shake", "", Key.A),
-        new(GameControl.ShakeRight, "쉐이킹 · 오른쪽", "Shake", "", Key.D),
+        // 쉐이킹 V2의 A(당기기)·D(아래로 뻗기). 독립 리듬형 씬(ShakingRhythmManager)은 같은 저장 키를 직접 읽는다.
+        new(GameControl.ShakeLeft, "쉐이킹 · 왼쪽", ShakeMap, "ShakeBack", Key.A),
+        new(GameControl.ShakeRight, "쉐이킹 · 오른쪽", ShakeMap, "ShakeDown", Key.D),
     };
 
     public static event Action Changed;
     // Play/RepeatOrder는 버튼의 E 아이콘과 짝을 이루는 고정 단축키다.
     const Key RepeatOrderKey = Key.E;
+    const string ShakeMap = "ShakingV2";
+    // 쉐이킹 V2의 E(위로 뻗기)와 Space(결합)는 다시 정할 수 없는 고정 키다.
+    const Key ShakeUpKey = Key.E, ShakeSealKey = Key.Space;
     public static string PreferenceKey(GameControl control) => "key_" + control;
     public static Binding Definition(GameControl control) => Bindings[(int)control];
     public static Key GetKey(GameControl control)
@@ -75,6 +79,11 @@ public static class GameKeyBindings
         if (binding.Map == "Play" && key == RepeatOrderKey)
         {
             message = "E는 주문 되묻기에 사용하는 키입니다.";
+            return false;
+        }
+        if (binding.Map == ShakeMap && (key == ShakeUpKey || key == ShakeSealKey))
+        {
+            message = "E · Space는 쉐이킹에서 고정으로 사용하는 키입니다.";
             return false;
         }
         if (control == GameControl.Advance && IsChoiceNavigationKey(key))
