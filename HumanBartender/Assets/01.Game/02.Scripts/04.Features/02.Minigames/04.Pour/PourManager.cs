@@ -123,6 +123,9 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     [SerializeField] Transform targetHeightMarker;
     [Tooltip("Bottle Art Layout의 공통 배율로 표시하는 재료 스프라이트. 입구를 따르기 기준점에 맞춘다.")]
     [SerializeField] SpriteRenderer ingredientBottle;
+    [Tooltip("병 그림과 푸어러 부착 위치를 따로 조정할 재료입니다. 목록에 없으면 공통 배치를 사용합니다.")]
+    [SerializeField] private BottleArtOverride[] bottleArtOverrides = System.Array.Empty<BottleArtOverride>();
+    private Vector3? ingredientBottleBaseScale;
     float targetMarkerParticles;
 
     [Header("Liquid (SPH)")]
@@ -277,7 +280,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
 
         ConfigureNeck();
 
-        bool hasBottleSprite = ApplyIngredientBottle();
+        bool hasBottleSprite = ApplyIngredientBottle(out int pourerSeatInsetPixels);
         if (!hasBottleSprite && bottleSilhouette != null)
             bottleSilhouette.Build(bottleInteriorHalfExtents, neckHalfWidth, ShoulderLocalY(), ChannelLocalY());
 
@@ -286,7 +289,7 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
             new Vector3(-glassInteriorHalfExtents.x * 0.8f, glassInteriorHalfExtents.y, 0f));
         bottle.ConfigurePourGeometry(new Vector3(0f, bottleInteriorHalfExtents.y, 0f), cupRimPosition);
         pourer?.BeginPour(useTestBottleId ? testBottleId : pourIngredientId,
-            new Vector3(0f, bottleInteriorHalfExtents.y, 0f));
+            new Vector3(0f, bottleInteriorHalfExtents.y, 0f), pourerSeatInsetPixels);
         UpdateStreamShape();
 
         simulation = new SphSimulation(Physics, ComputeGridMin(), ComputeGridMax(), ConstrainToGlass);
@@ -927,8 +930,20 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
     void OnApplicationFocus(bool focus) { audioFocused = focus; if (!focus) StopPourSound(); }
     void OnApplicationPause(bool pause) { audioPaused = pause; if (pause) StopPourSound(); }
 
-    bool ApplyIngredientBottle()
+    [System.Serializable]
+    private struct BottleArtOverride
     {
+        [Tooltip("shelf_items의 재료 ID입니다.")]
+        public string ingredientId;
+        [Min(0f), Tooltip("공통 병 배율에 곱하는 값입니다. 0이나 1이면 공통 배율을 사용합니다.")]
+        public float scaleMultiplier;
+        [Min(0), Tooltip("병 그림의 입구 상단에서 푸어러를 안쪽으로 내릴 거리입니다. 원본 스프라이트 픽셀 기준입니다.")]
+        public int pourerSeatInsetPixels;
+    }
+
+    bool ApplyIngredientBottle(out int pourerSeatInsetPixels)
+    {
+        pourerSeatInsetPixels = 0;
         if (ingredientBottle != null) ingredientBottle.gameObject.SetActive(false);
         if ((!drivenByRunner && !useTestBottleId) || bottle == null || bottle.BottleVisual == null) return false;
         string bottleId = useTestBottleId ? testBottleId : pourIngredientId;
@@ -946,6 +961,21 @@ public class PourManager : MonoBehaviour, IMiniGameController, ICraftGimmick,
         }
         Transform visual = ingredientBottle.transform;
         ingredientBottle.sprite = sprite;
+
+        float scaleMultiplier = 1f;
+        if (bottleArtOverrides != null)
+        {
+            foreach (var entry in bottleArtOverrides)
+            {
+                if (entry.ingredientId != bottleId) continue;
+                if (entry.scaleMultiplier > 0f) scaleMultiplier = entry.scaleMultiplier;
+                pourerSeatInsetPixels = Mathf.Max(0, entry.pourerSeatInsetPixels);
+                break;
+            }
+        }
+        ingredientBottleBaseScale ??= visual.localScale;
+        Vector3 baseScale = ingredientBottleBaseScale.Value;
+        visual.localScale = new Vector3(baseScale.x * scaleMultiplier, baseScale.y * scaleMultiplier, baseScale.z);
 
         Bounds bounds = sprite.bounds;
         Vector3 mouth = bottle.BottleVisual.TransformPoint(Vector3.up * bottleInteriorHalfExtents.y);

@@ -181,29 +181,25 @@ public sealed class PourerBreakawayTests
         Assert.That(pourer.IsDetached, Is.True, "연출이 끝나도 푸어러 없는 유량은 유지한다.");
     }
 
-    [TestCase("gin")]
-    [TestCase("amaretto")]
-    [TestCase("vodka")]
-    [TestCase("whiskey")]
-    [TestCase("wild_dog")]
-    public void MouthPivotAndWorldSizeSurviveTiltDetachmentAndReset(string id)
+    [TestCase("gin", 1f, 0)]
+    [TestCase("amaretto", 1f, 0)]
+    [TestCase("vodka", 1f, 0)]
+    [TestCase("whiskey", 1f, 0)]
+    [TestCase("wild_dog", 1f, 0)]
+    [TestCase("dry_vermouth", .8f, 3)]
+    public void MouthPivotAndWorldSizeSurviveTiltDetachmentAndReset(string id, float scaleMultiplier, int expectedSeatInset)
     {
-        using (var data = new SerializedObject(manager))
-        {
-            data.FindProperty("useTestBottleId").boolValue = true;
-            data.FindProperty("testBottleId").stringValue = id;
-            data.ApplyModifiedPropertiesWithoutUndo();
-        }
-        Assert.That(typeof(PourManager).GetMethod("ApplyIngredientBottle", Private).Invoke(manager, null), Is.EqualTo(true));
+        int seatInset = ApplyBottle(id);
+        Assert.That(seatInset, Is.EqualTo(expectedSeatInset));
         var body = Ref<SpriteRenderer>(pourer, "ingredientBottle");
         Vector3 restPosition = body.transform.localPosition;
         Vector3 localScale = body.transform.localScale;
         const float originalBeerScale = 2.88f / 1.57f;
-        Vector2 bodySize = body.sprite.bounds.size * originalBeerScale;
+        Vector2 bodySize = body.sprite.bounds.size * (originalBeerScale * scaleMultiplier);
         AssertWorldSize(body, bodySize);
         Vector3 mouth = bottle.BottleVisual.TransformPoint(Vector3.up * .4f);
         Assert.That(Vector3.Distance(body.transform.position, mouth), Is.LessThan(.001f), "병 피벗은 입구여야 한다.");
-        Begin(id);
+        Begin(id, seatInset);
         AssertWorldSize(body, bodySize);
         Assert.That(body.transform.localPosition, Is.EqualTo(restPosition));
         Vector3 attachedBodyPosition = body.transform.localPosition;
@@ -215,7 +211,9 @@ public sealed class PourerBreakawayTests
         Vector3 capPosition = attached.transform.position;
         Vector3 bodyMouthBeforeDetach = body.transform.position;
         Vector3 collar = attached.transform.TransformPoint(new Vector3(attached.sprite.bounds.center.x, 0f));
-        Assert.That(Vector3.Distance(collar, bodyMouthBeforeDetach), Is.LessThan(.001f), "검은 띠 기준점은 병 입구에 있어야 한다.");
+        Vector3 seat = body.transform.TransformPoint(new Vector3(body.sprite.bounds.center.x,
+            body.sprite.bounds.max.y - expectedSeatInset / body.sprite.pixelsPerUnit, 0f));
+        Assert.That(Vector3.Distance(collar, seat), Is.LessThan(.001f), "검은 띠 기준점은 설정된 병 입구 위치에 있어야 한다.");
         Vector3 grayBottom = attached.transform.TransformPoint(new Vector3(attached.sprite.bounds.center.x, attached.sprite.bounds.min.y));
         Assert.That(body.transform.InverseTransformPoint(grayBottom).y, Is.LessThan(body.sprite.bounds.max.y), "회색 부분은 입구 아래로 들어가야 한다.");
         using var outletSettings = new SerializedObject(pourer);
@@ -247,6 +245,30 @@ public sealed class PourerBreakawayTests
         Assert.That(body.transform.localPosition, Is.EqualTo(restPosition));
     }
 
+    [Test]
+    public void PerBottleScaleDoesNotAccumulateOrCarryOver()
+    {
+        var body = Ref<SpriteRenderer>(pourer, "ingredientBottle");
+        Vector3 authoredScale = body.transform.localScale;
+        ApplyBottle("dry_vermouth");
+        Vector3 vermouthScale = body.transform.localScale;
+        ApplyBottle("dry_vermouth");
+        Assert.That(body.transform.localScale, Is.EqualTo(vermouthScale));
+        Assert.That(ApplyBottle("gin"), Is.Zero);
+        Assert.That(body.transform.localScale, Is.EqualTo(authoredScale));
+    }
+
+    int ApplyBottle(string id)
+    {
+        using var data = new SerializedObject(manager);
+        data.FindProperty("useTestBottleId").boolValue = true;
+        data.FindProperty("testBottleId").stringValue = id;
+        data.ApplyModifiedPropertiesWithoutUndo();
+        var result = new object[] { 0 };
+        Assert.That(typeof(PourManager).GetMethod("ApplyIngredientBottle", Private).Invoke(manager, result), Is.EqualTo(true));
+        return (int)result[0];
+    }
+
     static Vector2 WorldSpriteSize(SpriteRenderer renderer) => new Vector2(
         renderer.transform.TransformVector(Vector3.right * renderer.sprite.bounds.size.x).magnitude,
         renderer.transform.TransformVector(Vector3.up * renderer.sprite.bounds.size.y).magnitude);
@@ -258,14 +280,14 @@ public sealed class PourerBreakawayTests
         Assert.That(actual.y, Is.EqualTo(expected.y).Within(.0001f), "세로 그림 크기가 바뀌면 안 된다.");
     }
 
-    void Begin(string id)
+    void Begin(string id, int seatInset = 0)
     {
         // 시간 진행은 별도로 검사한다. EditMode에서는 전역 DOTween 실행기를 만들지 않는다.
         var serialized = new SerializedObject(pourer);
         serialized.FindProperty("feedbackRoot").objectReferenceValue = null;
         serialized.FindProperty("detachClip").objectReferenceValue = null;
         serialized.ApplyModifiedPropertiesWithoutUndo();
-        pourer.BeginPour(id, Vector3.up * .4f);
+        pourer.BeginPour(id, Vector3.up * .4f, seatInset);
     }
 
     void Tilt(float angle, bool held)
