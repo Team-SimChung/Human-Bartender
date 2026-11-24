@@ -55,6 +55,7 @@ public sealed class StoryTutorialController : MonoBehaviour
     CraftPrepStageScreen guidedStage;
     CocktailRecipeBrowser recipeBrowser;
     ServicePanelController servicePanel;
+    ServeTrayUI serveTray;
 
     static readonly ESlotType[] SeatOrder = { ESlotType.Left, ESlotType.Middle, ESlotType.Right };
 
@@ -171,6 +172,7 @@ public sealed class StoryTutorialController : MonoBehaviour
         gimmickHud = FindInScene(gimmickHud);
         recipeBrowser = FindInScene(recipeBrowser);
         servicePanel = FindInScene(servicePanel);
+        serveTray = FindInScene(serveTray);
         EnsureView();
         // 좌석 표시는 Play 씬의 바 UI가 소유한다. 좌석 수업은 그것을 강조 대상으로 빌려 쓴다.
         var seatHud = FindInScene<BarSeatStatusView>(null);
@@ -221,7 +223,7 @@ public sealed class StoryTutorialController : MonoBehaviour
                     var placed = serving.WaitForCoasterAsync(actor, token);
                     var (title, text) = Copy("coaster");
                     view.ShowGuide(title, text, serving.SupplyTray, serving.CoasterGuideArea(actor), drag: true,
-                        hideCopyWhile: () => CoasterDragItem.Active != null);
+                        hideCopyWhile: () => CoasterDragItem.Active != null, pointer: false);
                     await placed;
                     break;
                 default: throw new NotSupportedException("지원하지 않는 튜토리얼: " + kind);
@@ -379,6 +381,7 @@ public sealed class StoryTutorialController : MonoBehaviour
 
     Transform GuideTarget() => ActiveLesson == "recipeSelect"
         ? recipes.IsOpen ? recipeBrowser?.GetTutorialTarget(cocktail) : servicePanel?.ToggleControl :
+        ActiveLesson == "serveDrink" ? serveTray?.CardFor(craft.PendingDrink) :
         craft.IsPreparing ? preparationHost.ActiveStage?.GetTutorialTarget(StageTargetStep(preparationStep), Beer) : null;
 
     // 레시피 확인·닫기 단계는 레시피 버튼 자리(열려 있으면 닫기 버튼)를 가리킨다.
@@ -452,7 +455,22 @@ public sealed class StoryTutorialController : MonoBehaviour
             return;
         }
         ActiveLesson = "serveDrink";
-        Show(GinFizz ? "serveDrinkOrder" : "serveDrink");
+        ShowServeDrink();
+    }
+
+    /// <summary>
+    /// 웹 tutorial-view.js serveDrink: 완성 칵테일 카드만 비워 강조하고 카드 옆에 안내 상자를 띄운다.
+    /// 화살표는 그리지 않고, 잔을 끄는 동안에는 딤·강조·안내를 모두 숨긴다. 카드는 잔이 트레이에 오른 뒤에 생기므로 매 프레임 다시 찾는다.
+    /// </summary>
+    void ShowServeDrink()
+    {
+        var (title, text) = Copy(GinFizz ? "serveDrinkOrder" : "serveDrink");
+        if (displayedText != text)
+        {
+            displayedText = text;
+            view.ShowGuide(title, text, GuideTarget(), pointer: false, hideGuideWhile: () => DrinkDragItem.Active != null);
+        }
+        else view.SetGuideTargets(GuideTarget());
     }
 
     void UpdateGimmickGuide()

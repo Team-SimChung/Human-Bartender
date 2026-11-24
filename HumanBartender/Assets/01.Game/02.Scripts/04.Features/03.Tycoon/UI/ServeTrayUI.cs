@@ -16,6 +16,14 @@ public class ServeTrayUI : MonoBehaviour
 
     public int Count { get { return items.Count; } }
 
+    /// <summary>트레이에 놓인 이 잔의 카드. 서빙 튜토리얼이 강조 대상으로 쓴다. 없으면 null.</summary>
+    public RectTransform CardFor(CraftedDrink drink)
+    {
+        foreach (DrinkDragItem item in items)
+            if (item != null && drink != null && ReferenceEquals(item.Drink, drink)) return (RectTransform)item.transform;
+        return null;
+    }
+
     private void Awake()
     {
         if (rootCanvas == null || trayRoot == null || poolRoot == null || drinkPrefab == null)

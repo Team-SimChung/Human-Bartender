@@ -67,6 +67,10 @@ public sealed class StoryTutorialView : MonoBehaviour
     bool nearby;
     // 참이면 안내 상자만 숨기고 딤·강조·화살표는 그대로 둔다(웹 data-dragging: 코스터를 끄는 동안).
     Func<bool> copyHiddenWhile;
+    // 참이면 딤·강조·안내 상자를 모두 숨긴다(웹 serveDrink data-dragging: 잔을 끄는 동안).
+    Func<bool> guideHiddenWhile;
+    // 안내 상자에서 대상으로 향하는 화살표(웹 .day0-click-arrow). 코스터·서빙 수업은 그리지 않는다.
+    bool pointerArrow = true;
     // 화면 위쪽 큰 안내(ShowInstruction)의 글꼴과 색. 대상 옆 안내 상자가 바꾼 뒤 되돌리는 데 쓴다.
     TMP_FontAsset instructionFont;
     Color instructionColor;
@@ -267,7 +271,8 @@ public sealed class StoryTutorialView : MonoBehaviour
         confirm.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -86);
         nearby = false;
         focusTarget = dropTarget = null;
-        copyHiddenWhile = null;
+        copyHiddenWhile = guideHiddenWhile = null;
+        pointerArrow = true;
         if (guide != null) guide.gameObject.SetActive(false);
         heading.text = title;
         instruction.text = text;
@@ -316,8 +321,11 @@ public sealed class StoryTutorialView : MonoBehaviour
 
     /// <param name="drag">참이면 focus에서 destination으로 웹 코스터 수업과 같은 곡선 점선 화살표를 그린다.</param>
     /// <param name="hideCopyWhile">참을 돌려주는 동안 안내 상자만 숨긴다(예: 대상을 끄는 중).</param>
+    /// <param name="pointer">거짓이면 안내 상자에서 대상으로 향하는 화살표를 그리지 않는다.</param>
+    /// <param name="hideGuideWhile">참을 돌려주는 동안 딤·강조·안내 상자를 모두 숨긴다.</param>
     public void ShowGuide(string title, string text, Transform focus, Transform destination = null,
-        bool drag = false, Action onConfirm = null, Func<bool> hideCopyWhile = null)
+        bool drag = false, Action onConfirm = null, Func<bool> hideCopyWhile = null,
+        bool pointer = true, Func<bool> hideGuideWhile = null)
     {
         ShowInstruction(title, text, onConfirm);
         nearby = true;
@@ -325,6 +333,8 @@ public sealed class StoryTutorialView : MonoBehaviour
         dropTarget = destination;
         dragGuide = drag;
         copyHiddenWhile = hideCopyWhile;
+        guideHiddenWhile = hideGuideWhile;
+        pointerArrow = pointer;
         heading.gameObject.SetActive(false);
         // 웹 .day0-guide[data-nearby] .day0-guide-copy: 테두리 포함 폭, 안쪽 여백, 글꼴·크기·색. 정렬은 가운데 그대로다.
         if (guideFont != null) instruction.font = guideFont;
@@ -371,8 +381,14 @@ public sealed class StoryTutorialView : MonoBehaviour
 
     internal void UpdateGuide()
     {
-        bool showCopy = copyHiddenWhile == null || !copyHiddenWhile();
+        bool hideAll = guideHiddenWhile != null && guideHiddenWhile();
+        bool showCopy = !hideAll && (copyHiddenWhile == null || !copyHiddenWhile());
         if (panel.gameObject.activeSelf != showCopy) panel.gameObject.SetActive(showCopy);
+        if (hideAll)
+        {
+            if (guide.gameObject.activeSelf) guide.gameObject.SetActive(false);
+            return;
+        }
         Rect area = ((RectTransform)transform).rect;
         // 딤 구멍은 대상 + 여유 그대로 두어 대상이 가려지지 않게 하고, 그리는 테두리와 그 테두리를 기준으로 하는
         // 화살표·안내 상자 자리는 화면 안으로 당긴 사각형을 쓴다. 가장자리에 붙은 대상도 테두리 네 변이 다 보인다.
@@ -409,7 +425,7 @@ public sealed class StoryTutorialView : MonoBehaviour
             fromBend = route.fromBend;
             toBend = route.toBend;
         }
-        else if (source.HasValue)
+        else if (source.HasValue && pointerArrow)
         {
             Rect box = source.Value;
             to = RectEdge(box, panel.anchoredPosition);
@@ -519,6 +535,7 @@ public sealed class StoryTutorialView : MonoBehaviour
         if (seatHud != null) seatHud.Suppressed = false;
         nearby = false;
         focusTarget = dropTarget = null;
-        copyHiddenWhile = null;
+        copyHiddenWhile = guideHiddenWhile = null;
+        pointerArrow = true;
     }
 }
