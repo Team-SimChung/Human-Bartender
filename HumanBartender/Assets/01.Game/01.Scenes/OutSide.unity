@@ -12716,6 +12716,7 @@ GameObject:
   m_Component:
   - component: {fileID: 645657696}
   - component: {fileID: 645657697}
+  - component: {fileID: 8302516000000000001}
   m_Layer: 6
   m_Name: C_Middle_Object_1 (7)
   m_TagString: Untagged
@@ -13629,6 +13630,7 @@ GameObject:
   m_Component:
   - component: {fileID: 735997279}
   - component: {fileID: 735997280}
+  - component: {fileID: 735997281}
   m_Layer: 6
   m_Name: C_Middle_Object_1 (1)
   m_TagString: Untagged
@@ -13710,6 +13712,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &735997281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 735997278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04497f072e0468586bdd34ebc0aab34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideVehicleLoop
+  xSpeed: -0.1754
+  leftX: -24
+  rightX: 10
 --- !u!1 &736080638
 GameObject:
   m_ObjectHideFlags: 0
@@ -14282,6 +14299,7 @@ GameObject:
   m_Component:
   - component: {fileID: 798606634}
   - component: {fileID: 798606635}
+  - component: {fileID: 798606636}
   m_Layer: 6
   m_Name: C_Middle_Object_1 (4)
   m_TagString: Untagged
@@ -14363,6 +14381,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &798606636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798606633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04497f072e0468586bdd34ebc0aab34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideVehicleLoop
+  xSpeed: 0.964
+  leftX: -24
+  rightX: 10
 --- !u!1 &803825200
 GameObject:
   m_ObjectHideFlags: 0
@@ -16854,6 +16887,7 @@ GameObject:
   m_Component:
   - component: {fileID: 918521003}
   - component: {fileID: 918521004}
+  - component: {fileID: 8302516000000000002}
   m_Layer: 6
   m_Name: C_Middle_Object_1 (3)
   m_TagString: Untagged
@@ -17049,7 +17083,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 1
   m_FalloffIntensity: 0.75
   m_Color: {r: 1, g: 0.45, b: 0.15, a: 1}
-  m_Intensity: 0.1493392
+  m_Intensity: 0.14289716
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000d98a48e0a59bd7292922f849836d1ec5dd9a13abc5a6acf0190b6ab7bbe5a9f2037f3348251c477429ebabb43b4c29d5
@@ -17073,7 +17107,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.05
-  m_PointLightOuterRadius: 0.45207748
+  m_PointLightOuterRadius: 0.44687715
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1
@@ -24967,6 +25001,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1339474593}
   - component: {fileID: 1339474594}
+  - component: {fileID: 8302516000000000003}
   m_Layer: 6
   m_Name: C_Middle_Object_1 (5)
   m_TagString: Untagged
@@ -25763,6 +25798,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1382311537}
   - component: {fileID: 1382311538}
+  - component: {fileID: 8302516000000000004}
   m_Layer: 6
   m_Name: C_Middle_Object_1 (2)
   m_TagString: Untagged
@@ -36433,6 +36469,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1809972167}
   - component: {fileID: 1809972168}
+  - component: {fileID: 1809972169}
   m_Layer: 6
   m_Name: C_Middle_Object_1 (6)
   m_TagString: Untagged
@@ -36514,6 +36551,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1809972169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809972166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04497f072e0468586bdd34ebc0aab34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideVehicleLoop
+  xSpeed: 0.1942
+  leftX: -24
+  rightX: 10
 --- !u!1 &1815944428
 GameObject:
   m_ObjectHideFlags: 0
@@ -48229,6 +48281,66 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54fd8c4231583ce4792f5357050f60f2, type: 3}
+--- !u!114 &8302516000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645657695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04497f072e0468586bdd34ebc0aab34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideVehicleLoop
+  xSpeed: 1
+  leftX: -24
+  rightX: 10
+--- !u!114 &8302516000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918521002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04497f072e0468586bdd34ebc0aab34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideVehicleLoop
+  xSpeed: 0.964
+  leftX: -24
+  rightX: 10
+--- !u!114 &8302516000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1339474592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04497f072e0468586bdd34ebc0aab34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideVehicleLoop
+  xSpeed: -0.529
+  leftX: -24
+  rightX: 10
+--- !u!114 &8302516000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1382311536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04497f072e0468586bdd34ebc0aab34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OutsideVehicleLoop
+  xSpeed: -0.931
+  leftX: -24
+  rightX: 10
 --- !u!1001 &9135345202383492203
 PrefabInstance:
   m_ObjectHideFlags: 0
