@@ -5843,6 +5843,8 @@ GameObject:
   - component: {fileID: 1698050111}
   - component: {fileID: 1698050112}
   - component: {fileID: 1698050110}
+  - component: {fileID: 1698050114}
+  - component: {fileID: 1698050113}
   m_Layer: 0
   m_Name: IntractObjects_Closet
   m_TagString: Untagged
@@ -5943,7 +5945,7 @@ MonoBehaviour:
   contentStartOverrides: []
   startSettingsVersion: 1
   interactionLabel: "\uC637\uC7A5 \uC0B4\uD3B4\uBCF4\uAE30"
-  output: 0
+  output: 3
   speechAnchor: {fileID: 0}
   bubbleOffset: {x: 0, y: -6}
   inspectionImage: {fileID: 0}
@@ -5951,7 +5953,7 @@ MonoBehaviour:
   cutsceneSequence: {fileID: 0}
   timelines: []
   optionalTimelineIds: []
-  action: {fileID: 0}
+  action: {fileID: 1698050113}
 --- !u!114 &1698050111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5981,6 +5983,48 @@ MonoBehaviour:
   sourceId: home_wardrobe
   useSpotPosition: 0
   controlObjectVisibility: 0
+--- !u!114 &1698050113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698050107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc15b630016b9ce489a0dc4b490ba08c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomeWardrobeAction
+  animator: {fileID: 1698050114}
+  openClip: {fileID: 7400000, guid: a27ad75543753af499e5f1595d8ca99a, type: 2}
+  closeClip: {fileID: 7400000, guid: dac4425d49e1a4543a1866f11fc6eb6a, type: 2}
+  playbackSpeed: 1
+  pressedFlag: wardrobe_pressed
+  openFlag: wardrobe_open
+  promptSceneId: home-wardrobe
+  pressedSceneId: home-wardrobe-pressed
+--- !u!95 &1698050114
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1698050107}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 05da71d8afa213a469132d380530a15b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1737397161
 GameObject:
   m_ObjectHideFlags: 0

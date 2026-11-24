@@ -620,7 +620,8 @@ public sealed class WorldInteractionController : MonoBehaviour
             case WorldInteractionOutput.Action:
                 var context = new WorldInteractionActionContext(player, PlayAutomaticDialogueAsync,
                     PlayNightAsync, sceneContext.RefreshContents, ChooseMenuAsync,
-                    () => homeTerrace?.PrepareMorning(player), FinishNightAsync, PlayPreparedStudioAsync, ChooseOutsideChoicesAsync);
+                    () => homeTerrace?.PrepareMorning(player), FinishNightAsync, PlayPreparedStudioAsync, ChooseOutsideChoicesAsync,
+                    PlayDialogueAsync);
                 await target.Action.ExecuteAsync(context, token);
                 break;
             case WorldInteractionOutput.Image:
@@ -757,6 +758,15 @@ public sealed class WorldInteractionController : MonoBehaviour
         view.Begin(activeTarget, player.transform, anchor, true, sessionActors?.Speakers ?? SessionSpeakers);
         runner.Bind(view);
         return await runner.PlayOutsideAsync(steps, token, PlayTimelineAsync, autoAdvance: true,
+            playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync);
+    }
+
+    // 동작(옷장 등)이 CSV 대사를 말풍선 출력과 같은 방식으로 재생한다. 진행은 Update의 대화 진행 입력이 맡는다.
+    private async UniTask<StoryExecutionResult> PlayDialogueAsync(Step[] steps, Transform anchor, CancellationToken token)
+    {
+        view.Begin(activeTarget, player.transform, anchor, speakers: sessionActors?.Speakers ?? SessionSpeakers);
+        runner.Bind(view);
+        return await runner.PlayOutsideAsync(steps, token, PlayTimelineAsync,
             playWorldAction: PlayWorldActionAsync, playNpcSequence: PlayNpcSequenceAsync);
     }
 

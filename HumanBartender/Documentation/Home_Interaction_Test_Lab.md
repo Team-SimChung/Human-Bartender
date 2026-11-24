@@ -73,11 +73,13 @@ TV의 **처음 보는 상태로 / 이미 본 상태로** 버튼으로 현재 날
 
 ## 현재 씬의 범위
 
-실제로 연결된 대상은 현관 `home_exit_door`, 소파 `home_sofa`, TV `home_tv`, 부비 `neighborhood-homeCat`입니다.
+실제로 연결된 대상은 현관 `home_exit_door`, 소파 `home_sofa`, TV `home_tv`, 부비 `neighborhood-homeCat`, 침대 `home_bed`, 옷장 `home_wardrobe`, 책 `home_book`입니다.
 
 소파의 `Visual`은 `SpriteRenderer > Color > A`를 0으로 두어 원본 그림을 숨기고, 상호작용 대상으로 선택됐을 때 아웃라인만 표시합니다. 아웃라인 모양은 원본 텍스처의 투명도를 기준으로 계산합니다. 그림도 함께 보이게 하려면 A를 1(색상 창의 0~255 표기에서는 255)로 올립니다.
 
-`home-bed`, `home-wardrobe`, `home-wardrobe-pressed`는 CSV 대본만 있고 현재 Home 씬에 상호작용 대상이 없습니다. `home_terrace_door`도 예약 위치입니다. 테라스의 날짜별 이야기는 소파 수면으로 검증합니다.
+옷장(`IntractObjects_Closet`)은 `HomeWardrobeAction`이 처리합니다. 한 번도 누르지 않았으면 `home-wardrobe`의 안내 문구가 누른다·취소와 함께 나오고, 누를 때마다 열림↔닫힘 전환(`Wardrobe_Open`/`Wardrobe_Close`, 12fps 9칸)을 재생한 뒤 마지막 칸을 유지합니다. 처음 누른 뒤에만 `home-wardrobe-pressed` 대사가 나오며 키로 넘깁니다. 상태는 저장되는 `flag.wardrobe_pressed`·`flag.wardrobe_open`에 있고, 시작 상황은 진행 플래그를 모두 새로 준비하므로 옷장도 처음 상태로 시작합니다. 대본 직접 테스트로 `home-wardrobe`를 재생하면 그림·기록이 바뀌지 않는 옛 CSV 흐름(누르면 매번 후속 대사)을 탑니다.
+
+`home_terrace_door`는 예약 위치입니다. 테라스의 날짜별 이야기는 소파 수면으로 검증합니다.
 
 ## 검증
 

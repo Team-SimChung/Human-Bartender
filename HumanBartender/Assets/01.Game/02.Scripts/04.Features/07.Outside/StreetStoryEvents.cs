@@ -7,8 +7,16 @@ using static OutsideStorySteps;
 /// <summary>거리 사건과 공통 선택지를 처리한다. 대본은 로더의 단일 원본에서 조회한다.</summary>
 public sealed class StreetStoryEvents : IOutsideStoryEventHandler
 {
+    internal const string WardrobePressId = "press";
     private readonly IStoryContentSource content;
     private readonly GameStateManager state;
+
+    /// <summary>
+    /// 옷장 버튼 선택지(웹 home-interactions.js choiceView). 본편의 HomeWardrobeAction과
+    /// 대본 직접 테스트의 옛 CSV 흐름(home-wardrobe 장면의 choice 행)이 같이 쓴다.
+    /// </summary>
+    internal static NewStreetOptionData[] WardrobeOptions() =>
+        new[] { Option(WardrobePressId, "누른다"), Option("cancel", "취소", isCancel: true) };
     public StreetStoryEvents(IStoryContentSource content, GameStateManager state) { this.content = content; this.state = state; }
     public bool Handles(OutsideStoryCommand command) => command is OutsideStoryCommand.SharedChoice or OutsideStoryCommand.WardrobeChoice
         or OutsideStoryCommand.ThugChoice or OutsideStoryCommand.BeggarChoice or OutsideStoryCommand.SamhoDepart
@@ -33,8 +41,9 @@ public sealed class StreetStoryEvents : IOutsideStoryEventHandler
                 run.Effect(original.Effects);
                 return string.IsNullOrEmpty(original.Goto) ? null : content.GetSceneSteps(original.Goto);
             case OutsideStoryCommand.WardrobeChoice:
-                var home = await run.ChooseAsync(new[] { Option("press", "누른다"), Option("cancel", "취소", isCancel: true) }, token);
-                return home.Id == "press" ? content.GetSceneSteps("home-wardrobe-pressed") : Array.Empty<Step>();
+                // 본편 옷장은 HomeWardrobeAction이 처리한다. 이 경로는 CSV 장면을 직접 재생할 때만 탄다(그림·기록 변화 없음).
+                var home = await run.ChooseAsync(WardrobeOptions(), token);
+                return home.Id == WardrobePressId ? content.GetSceneSteps("home-wardrobe-pressed") : Array.Empty<Step>();
             case OutsideStoryCommand.ThugChoice:
                 if (run.Flag("day1_thug_choice")) return Branch("day1-corridor-thug", "thug-pay");
                 var thug = await run.ChooseAsync(Choices(content, "day1-corridor-thug"), token);
