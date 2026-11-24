@@ -401,11 +401,40 @@ public sealed class VisualUIReviewTests
         try
         {
             var service = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<ServicePanelController>(true)).Single();
-            foreach (string field in new[] { "toggleButton", "closeButton", "cocktailRecipeButton" })
+            foreach (string field in new[] { "toggleButton", "closeButton", "cocktailRecipeButton", "regularGuestInfoButton", "dialogueHistoryButton" })
             {
                 var button = Ref<Button>(service, field);
                 Assert.That(AssetDatabase.GetAssetPath(button.GetComponent<Image>().sprite), Does.Contain("/service_panel/"));
             }
+            var menu = Ref<GameObject>(service, "serviceMenuPanel");
+            Assert.That(AssetDatabase.GetAssetPath(menu.GetComponent<Image>().sprite), Does.EndWith("/Web_GRD_service_panel_background.png"));
+            foreach (var button in menu.GetComponentsInChildren<Button>(true).Where(button => button.transition == Selectable.Transition.SpriteSwap))
+            {
+                var normal = ((Image)button.targetGraphic).sprite;
+                Assert.That(button.spriteState.highlightedSprite.rect, Is.EqualTo(normal.rect), button.name);
+            }
+            var menuDecorations = menu.GetComponentsInChildren<Image>(true)
+                .Where(image => image.name is "PanelBorderImage" or "PanelGlowImage").ToArray();
+            Assert.That(menuDecorations.Length, Is.EqualTo(2));
+            Assert.That(menuDecorations.All(image => image.sprite != null && !image.raycastTarget), Is.True);
+            var serviceShortcut = Ref<Button>(service, "closeButton").GetComponentsInChildren<Image>(true)
+                .Single(image => image.name == "EscapeImage");
+            Assert.That(AssetDatabase.GetAssetPath(serviceShortcut.sprite), Does.EndWith("/service_panel/IMG_ESC.png"));
+            Assert.That(serviceShortcut.raycastTarget, Is.False);
+            var salesButton = Ref<Button>(service, "salesStatusButton");
+            Assert.That(salesButton.name, Is.EqualTo("SalesStatusButton"));
+            Assert.That(salesButton.transform.IsChildOf(menu.transform), Is.True);
+            Assert.That(salesButton.enabled && salesButton.interactable, Is.True);
+            Assert.That(salesButton.targetGraphic.raycastTarget, Is.True);
+            var salesStatus = Ref<SalesStatusScreen>(service, "salesStatusScreen");
+            var salesRoot = Ref<GameObject>(salesStatus, "root");
+            Assert.That(salesStatus.gameObject, Is.SameAs(service.gameObject));
+            Assert.That(salesRoot.activeSelf, Is.False);
+            Assert.That(Ref<Button>(salesStatus, "closeButton").transform.IsChildOf(salesRoot.transform), Is.True);
+            var salesScroll = Ref<ScrollRect>(salesStatus, "scroll");
+            Assert.That(salesScroll.vertical && !salesScroll.horizontal, Is.True);
+            Assert.That(salesScroll.viewport.GetComponent<RectMask2D>(), Is.Not.Null);
+            Assert.That(AssetDatabase.GetAssetPath(Ref<SalesStatusRow>(salesStatus, "rowPrefab")), Does.EndWith("/SalesStatusRow.prefab"));
             var screen = Ref<RecipeBrowserScreen>(service, "recipeScreen");
             var recipeCloseButton = Ref<Button>(screen, "closeButton");
             Assert.That(AssetDatabase.GetAssetPath(recipeCloseButton.GetComponent<Image>().sprite), Does.Contain("/recipe_choice/"));
@@ -416,6 +445,8 @@ public sealed class VisualUIReviewTests
             var browser = Ref<CocktailRecipeBrowser>(screen, "browser");
             var visuals = browser.Visuals;
             Assert.That(AssetDatabase.GetAssetPath(visuals.GetTableCocktailSprite("gin_tonic")), Does.Contain("/02.Table/01.Finished/"));
+            Assert.That(visuals.GetRecipePreviewOffset("gin_tonic"), Is.EqualTo(Vector2.zero));
+            Assert.That(visuals.GetRecipePreviewOffset("gin_fizz"), Is.EqualTo(new Vector2(0, 7)));
             Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("tequila")), Does.EndWith("/02.Shelf/tequila.png"));
             Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("orange_juice")), Does.EndWith("/01.Refrigerator/orange_juice.png"));
             Assert.That(AssetDatabase.GetAssetPath(visuals.GetRecipeIngredientSprite("rum")), Does.EndWith("/02.Shelf/bacardi_rum.png"));
@@ -450,7 +481,7 @@ public sealed class VisualUIReviewTests
             Assert.That(AssetDatabase.GetAssetPath(rowStates.highlightedSprite), Does.EndWith("/recipe_choice/BTN_recipe_choice_B.png"));
             Assert.That(rowStates.pressedSprite, Is.SameAs(rowStates.highlightedSprite));
             Assert.That(rowStates.selectedSprite, Is.SameAs(rowStates.highlightedSprite));
-            Ref<GameObject>(service, "overlay").SetActive(true); Ref<GameObject>(service, "serviceMenuPanel").SetActive(true);
+            Ref<GameObject>(service, "overlay").SetActive(true); menu.SetActive(true);
             Capture(service.GetComponent<Canvas>(), "service-panel", 1280, 720);
         }
         finally { EditorSceneManager.CloseScene(scene, true); }

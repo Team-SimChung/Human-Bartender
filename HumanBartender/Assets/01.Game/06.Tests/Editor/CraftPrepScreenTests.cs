@@ -91,6 +91,32 @@ public sealed class CraftPrepScreenTests
         finally { PrefabUtility.UnloadPrefabContents(root); }
     }
 
+    [Test]
+    public void RecipeDetailUsesTheRecipeBrowserLayout()
+    {
+        var stage = AssetDatabase.LoadAssetAtPath<GameObject>(StagePath).GetComponent<CraftPrepStageScreen>();
+        var preview = Field<CocktailRecipePreview>(stage, "recipePreview");
+        var scroll = Field<ScrollRect>(preview, "scrollRect");
+        Assert.That(AssetDatabase.GetAssetPath(preview.GetComponent<Image>().sprite), Does.EndWith("/01.Recipes/IMG_recipe_box.png"));
+        Assert.That(scroll.vertical && !scroll.horizontal, Is.True);
+        Assert.That(scroll.verticalScrollbar, Is.Null);
+        Assert.That(scroll.viewport.GetComponent<Mask>().showMaskGraphic, Is.False);
+        Assert.That(scroll.viewport.GetComponent<RectMask2D>().softness.y, Is.GreaterThan(0));
+        Assert.That(Field<RectTransform>(preview, "cocktailImageFrame").parent, Is.SameAs(scroll.content));
+        Assert.That(Field<RectTransform>(preview, "tagList").GetComponent<HorizontalLayoutGroup>(), Is.Null);
+        Assert.That(Field<RectTransform>(preview, "descriptionSection").GetComponent<TMP_Text>().text, Is.EqualTo("칵테일 설명"));
+        Assert.That(Field<RectTransform>(preview, "recipeSection").GetComponent<TMP_Text>().text, Is.EqualTo("제조법"));
+        var grid = Field<GridLayoutGroup>(preview, "ingredientGrid");
+        Assert.That(grid.constraint, Is.EqualTo(GridLayoutGroup.Constraint.FixedColumnCount));
+        Assert.That(grid.constraintCount, Is.EqualTo(4));
+        var decorativeNames = new[] { "IngredientsDivider", "DescriptionDivider", "DescriptionMarker", "MethodMarker" };
+        var decorations = preview.GetComponentsInChildren<Image>(true)
+            .Where(image => decorativeNames.Contains(image.name)).ToArray();
+        Assert.That(decorations.Select(image => image.name), Is.EquivalentTo(decorativeNames));
+        Assert.That(decorations.All(image => !image.raycastTarget), Is.True);
+        Assert.That(Field<Button>(stage, "recipeCloseButton").transform.parent, Is.SameAs(preview.transform));
+    }
+
     // ── 03. 하단 선택 슬롯 가운데 정렬 ────────────────────────────────────
 
     [Test]

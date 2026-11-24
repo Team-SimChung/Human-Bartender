@@ -52,6 +52,7 @@ public sealed class CocktailRecipePreview : MonoBehaviour
     private float minimumDescriptionTop;
     private float initialTagHeight;
     private float initialImageTop;
+    private Vector2 initialImagePosition;
 
     private void Awake()
     {
@@ -59,6 +60,7 @@ public sealed class CocktailRecipePreview : MonoBehaviour
         if (descriptionSection != null) minimumDescriptionTop = -descriptionSection.anchoredPosition.y;
         if (tagList != null) initialTagHeight = tagList.rect.height;
         if (cocktailImageFrame != null) initialImageTop = -cocktailImageFrame.anchoredPosition.y;
+        if (cocktailImage != null) initialImagePosition = cocktailImage.rectTransform.anchoredPosition;
     }
 
     public void Show(NewCocktailData cocktail, CocktailRecipeVisualCatalog visuals)
@@ -77,6 +79,8 @@ public sealed class CocktailRecipePreview : MonoBehaviour
             cocktailImage.sprite = sprite;
             cocktailImage.enabled = sprite != null;
             cocktailImage.preserveAspect = true;
+            Vector2 offset = sprite != null ? visuals.GetRecipePreviewOffset(cocktail.Id) : Vector2.zero;
+            cocktailImage.rectTransform.anchoredPosition = initialImagePosition + offset;
         }
 
         Canvas.ForceUpdateCanvases();

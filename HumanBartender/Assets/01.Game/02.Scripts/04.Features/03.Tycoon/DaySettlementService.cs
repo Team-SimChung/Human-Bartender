@@ -19,13 +19,7 @@ public readonly struct DaySettlementSummary
     {
         Day = day;
         ServedCount = sales.Items.Count;
-        Sales = Tips = Refunds = 0;
-        foreach (var item in sales.Items)
-        {
-            Sales += item.SaleAmount;
-            Tips += item.TipAmount;
-            Refunds += item.RefundAmount;
-        }
+        (Sales, Tips, Refunds) = sales.GetTotals();
         BalanceBefore = balanceBefore;
         Upkeep = upkeep;
     }

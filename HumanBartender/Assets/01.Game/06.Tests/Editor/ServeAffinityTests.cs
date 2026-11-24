@@ -95,6 +95,7 @@ public sealed class ServeAffinityTests
     {
         var wrong = processor.Evaluate(new OrderDetails("wrong", "port", "gin_fizz"), Drink("gin_tonic", ENewGrade.Excellent));
         Assert.That(wrong.FinalGrade, Is.EqualTo(ENewGrade.Sewage));
+        Assert.That(wrong.Settlement.ServedCocktailId, Is.EqualTo("gin_tonic"));
         Assert.That(wrong.AffinityDelta, Is.EqualTo(-4));
         var drink = Drink("gin_fizz", ENewGrade.Excellent);
         drink.Judgement.MissingCoreIngredientIds.Add("gin");
@@ -127,6 +128,8 @@ public sealed class ServeAffinityTests
         Assert.That(player.GetCurCharacterAffinityValue("port"), Is.EqualTo(6));
         Assert.That(changes.Count, Is.EqualTo(1));
         Assert.That(sales.Items.Count, Is.EqualTo(1));
+        var totals = sales.GetTotals();
+        Assert.That(totals, Is.EqualTo(((long)first.Settlement.SaleAmount, (long)first.Settlement.TipAmount, (long)first.Settlement.RefundAmount)));
     }
 
     [Test]

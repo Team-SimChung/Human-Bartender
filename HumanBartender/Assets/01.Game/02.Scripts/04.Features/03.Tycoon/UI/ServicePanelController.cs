@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>바 서비스 메뉴를 관리하고 레시피·인물 정보·대화 기록 화면으로 이동한다.</summary>
+/// <summary>바 서비스 메뉴와 하위 화면을 관리한다.</summary>
 public class ServicePanelController : MonoBehaviour
 {
     [Header("Service menu")]
@@ -12,6 +12,8 @@ public class ServicePanelController : MonoBehaviour
     [SerializeField] private Button toggleButton;
     [SerializeField] private Button closeButton;
     [SerializeField] private Button cocktailRecipeButton;
+    [SerializeField] private Button salesStatusButton;
+    [SerializeField] private SalesStatusScreen salesStatusScreen;
     [SerializeField] private Button dialogueHistoryButton;
     [SerializeField] private DialogueHistoryScreen historyScreen;
     [SerializeField] private Button regularGuestInfoButton;
@@ -33,7 +35,8 @@ public class ServicePanelController : MonoBehaviour
 
     public bool IsMenuOpen { get { return menuOpen; } }
     public bool BlocksBarInput => menuOpen || (historyScreen != null && historyScreen.IsOpen) ||
-        (recipeScreen != null && recipeScreen.IsOpen) || (profileScreen != null && profileScreen.IsOpen);
+        (recipeScreen != null && recipeScreen.IsOpen) || (profileScreen != null && profileScreen.IsOpen) || IsSalesStatusOpen;
+    private bool IsSalesStatusOpen => salesStatusScreen != null && salesStatusScreen.IsOpen;
     public Transform ToggleControl => toggleButton != null ? toggleButton.transform : null;
     /// <summary>
     /// 영업 중 손님 쪽 조작(좌석 이동·메뉴 열기)과 좌석 표시가 가능한가. 카메라가 좌석을 옮기는 중에도 참이다.
@@ -44,7 +47,7 @@ public class ServicePanelController : MonoBehaviour
 
     public bool IsBlockingTycoonClock
     {
-        get { return menuOpen || (profileScreen != null && profileScreen.IsOpen) || (historyScreen != null && historyScreen.IsOpen) || (recipeScreen != null && recipeScreen.IsOpen &&
+        get { return menuOpen || IsSalesStatusOpen || (profileScreen != null && profileScreen.IsOpen) || (historyScreen != null && historyScreen.IsOpen) || (recipeScreen != null && recipeScreen.IsOpen &&
                      playPhaseController != null && playPhaseController.CanReceiveInput(EPlayPhase.Tycoon)); }
     }
 
@@ -55,6 +58,8 @@ public class ServicePanelController : MonoBehaviour
             activePanel.profileScreen.Back();
         else if (activePanel.historyScreen != null && activePanel.historyScreen.IsOpen)
             activePanel.historyScreen.Close();
+        else if (activePanel.IsSalesStatusOpen)
+            activePanel.salesStatusScreen.Close();
         else if (activePanel.recipeScreen != null && activePanel.recipeScreen.IsOpen)
             activePanel.recipeScreen.Close();
         else
@@ -83,11 +88,13 @@ public class ServicePanelController : MonoBehaviour
         if (toggleButton != null) toggleButton.onClick.AddListener(Toggle);
         if (closeButton != null) closeButton.onClick.AddListener(Close);
         if (cocktailRecipeButton != null) cocktailRecipeButton.onClick.AddListener(OpenRecipes);
+        if (salesStatusButton != null) salesStatusButton.onClick.AddListener(OpenSalesStatus);
         if (dialogueHistoryButton != null) dialogueHistoryButton.onClick.AddListener(OpenHistory);
         if (regularGuestInfoButton != null) regularGuestInfoButton.onClick.AddListener(OpenProfiles);
         if (profileScreen != null) profileScreen.OpenChanged += OnScreenChanged;
         if (historyScreen != null) historyScreen.OpenChanged += OnScreenChanged;
         if (recipeScreen != null) recipeScreen.OpenChanged += OnScreenChanged;
+        if (salesStatusScreen != null) salesStatusScreen.OpenChanged += OnScreenChanged;
     }
 
     void OnDisable()
@@ -95,6 +102,7 @@ public class ServicePanelController : MonoBehaviour
         if (toggleButton != null) toggleButton.onClick.RemoveListener(Toggle);
         if (closeButton != null) closeButton.onClick.RemoveListener(Close);
         if (cocktailRecipeButton != null) cocktailRecipeButton.onClick.RemoveListener(OpenRecipes);
+        if (salesStatusButton != null) salesStatusButton.onClick.RemoveListener(OpenSalesStatus);
         if (dialogueHistoryButton != null) dialogueHistoryButton.onClick.RemoveListener(OpenHistory);
         if (regularGuestInfoButton != null) regularGuestInfoButton.onClick.RemoveListener(OpenProfiles);
         if (profileScreen != null)
@@ -108,6 +116,11 @@ public class ServicePanelController : MonoBehaviour
             historyScreen.Close();
         }
         if (recipeScreen != null) recipeScreen.OpenChanged -= OnScreenChanged;
+        if (salesStatusScreen != null)
+        {
+            salesStatusScreen.OpenChanged -= OnScreenChanged;
+            salesStatusScreen.Close();
+        }
         Close();
         if (activePanel == this) activePanel = null;
     }
@@ -116,6 +129,7 @@ public class ServicePanelController : MonoBehaviour
     {
         bool canOpen = CanOpen();
         if (cocktailRecipeButton != null) cocktailRecipeButton.interactable = CanOpenRecipes;
+        if (salesStatusButton != null) salesStatusButton.interactable = salesStatusScreen != null && salesStatusScreen.CanOpen;
         if (dialogueHistoryButton != null) dialogueHistoryButton.interactable = canOpen && CanOpenHistory;
         if (regularGuestInfoButton != null) regularGuestInfoButton.interactable = canOpen && profileScreen != null && profileScreen.CanOpen;
         if (menuOpen && !canOpen) Close();
@@ -130,6 +144,7 @@ public class ServicePanelController : MonoBehaviour
     {
         if (profileScreen != null && profileScreen.IsOpen) return false;
         if (historyScreen != null && historyScreen.IsOpen) return false;
+        if (IsSalesStatusOpen) return false;
         if (recipeScreen != null && recipeScreen.IsOpen) return false;
         if (playPhaseController == null) return false;
         bool storyMenu = playPhaseController.CanReceiveInput(EPlayPhase.Dialogue) && storyRunner != null &&
@@ -151,6 +166,7 @@ public class ServicePanelController : MonoBehaviour
     {
         if (profileScreen != null && profileScreen.IsOpen) { profileScreen.Back(); return; }
         if (historyScreen != null && historyScreen.IsOpen) { historyScreen.Close(); return; }
+        if (IsSalesStatusOpen) { salesStatusScreen.Close(); return; }
         if (recipeScreen != null && recipeScreen.IsOpen) { recipeScreen.Close(); return; }
         if (menuOpen) Close();
         else Open();
@@ -183,6 +199,12 @@ public class ServicePanelController : MonoBehaviour
         SetMenuOpen(false);
     }
 
+    private void OpenSalesStatus()
+    {
+        if (!menuOpen || !CanOpen() || salesStatusScreen == null) return;
+        if (salesStatusScreen.TryOpen()) SetMenuOpen(false);
+    }
+
     public void OpenProfiles()
     {
         if (!menuOpen || !CanOpen() || profileScreen == null || !profileScreen.CanOpen) return;
@@ -200,6 +222,7 @@ public class ServicePanelController : MonoBehaviour
     {
         if (profileScreen != null) profileScreen.Close();
         if (historyScreen != null) historyScreen.Close();
+        if (salesStatusScreen != null) salesStatusScreen.Close();
         if (recipeScreen != null) recipeScreen.Close();
         Close();
     }
