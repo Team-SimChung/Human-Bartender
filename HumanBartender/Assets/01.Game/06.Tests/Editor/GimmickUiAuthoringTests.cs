@@ -367,18 +367,71 @@ public sealed class GimmickUiAuthoringTests
     }
 
     [Test]
-    public void StirBadgeStateKeepsEditedSize()
+    public void StirBadgeUsesWhiteForTheRequiredKeyAndKeepsEditedSize()
     {
         WithPrefab("02.Stir/NewStirGame.prefab", root =>
         {
             foreach (var badge in root.GetComponentsInChildren<StirKeyBadge>(true))
             {
-                var rect = Ref<Image>(badge, "frame").rectTransform;
+                var frame = Ref<Image>(badge, "frame");
+                var rect = frame.rectTransform;
                 rect.sizeDelta = new Vector2(88f, 72f);
-                foreach (StirKeyBadge.EState state in Enum.GetValues(typeof(StirKeyBadge.EState))) badge.SetState(state);
+
+                badge.SetState(StirKeyBadge.EState.Next);
+                Assert.That(AssetDatabase.GetAssetPath(frame.sprite), Does.EndWith("/BTN_key_A.png"));
+                badge.SetState(StirKeyBadge.EState.Current);
+                Assert.That(AssetDatabase.GetAssetPath(frame.sprite), Does.EndWith("/BTN_key_B.png"));
+                badge.SetState(StirKeyBadge.EState.Idle);
+                Assert.That(AssetDatabase.GetAssetPath(frame.sprite), Does.EndWith("/BTN_key_C.png"));
                 Assert.That(rect.sizeDelta, Is.EqualTo(new Vector2(88f, 72f)));
             }
         });
+    }
+
+    [Test]
+    public void StirTutorialExamplesMatchTheCurrentAndRequiredKeyStates()
+    {
+        const string path = "Assets/01.Game/03.Content/08.Prefabs/03.UI/04.Tutorial/Canvas_StirTutorial.prefab";
+        WithPrefab("02.Stir/NewStirGame.prefab", game =>
+        {
+            var badge = game.GetComponentInChildren<StirKeyBadge>(true);
+            var current = Ref<Sprite>(badge, "currentSprite");
+            var next = Ref<Sprite>(badge, "nextSprite");
+            var tutorial = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                var pages = tutorial.GetComponentsInChildren<RectTransform>(true);
+                var first = pages.Single(rect => rect.name == "StirPage1Image");
+                var second = pages.Single(rect => rect.name == "StirPage2Image");
+                AssertKey(first, "RequiredKeyImage", "W", next);
+                AssertKey(second, "PreviousKeyImage", "W", current);
+                AssertKey(second, "RequiredKeyImage", "D", next);
+                var guide = first.GetComponentsInChildren<TMP_Text>(true).Single(text => text.name == "KeyColorGuideText");
+                Assert.That(guide.text, Does.Contain("흰색은 다음에 누를 키"));
+                Assert.That(guide.text, Does.Contain("청록색은 방금 누른 키"));
+            }
+            finally { PrefabUtility.UnloadPrefabContents(tutorial); }
+        });
+
+        static void AssertKey(RectTransform page, string name, string letter, Sprite sprite)
+        {
+            var key = page.GetComponentsInChildren<Image>(true).Single(image => image.name == name);
+            Assert.That(key.sprite, Is.SameAs(sprite));
+            Assert.That(key.GetComponentInChildren<TMP_Text>(true).text, Is.EqualTo(letter));
+            Assert.That(key.raycastTarget, Is.False);
+            if (name != "RequiredKeyImage") return;
+
+            var backdrops = page.GetComponentsInChildren<RawImage>(true)
+                .Where(image => image.name.StartsWith("RequiredKey", StringComparison.Ordinal)).ToArray();
+            Assert.That(backdrops, Is.Not.Empty);
+            foreach (var backdrop in backdrops)
+            {
+                Assert.That(backdrop.transform.parent, Is.SameAs(key.transform.parent));
+                Assert.That(backdrop.transform.GetSiblingIndex(), Is.LessThan(key.transform.GetSiblingIndex()));
+                Assert.That(backdrop.texture, Is.SameAs(page.GetComponent<Image>().sprite.texture));
+                Assert.That(backdrop.raycastTarget, Is.False);
+            }
+        }
     }
 
     [Test]
