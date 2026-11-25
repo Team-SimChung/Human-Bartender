@@ -37,7 +37,14 @@ public class ServicePanelController : MonoBehaviour
     public bool BlocksBarInput => menuOpen || (historyScreen != null && historyScreen.IsOpen) ||
         (recipeScreen != null && recipeScreen.IsOpen) || (profileScreen != null && profileScreen.IsOpen) || IsSalesStatusOpen;
     private bool IsSalesStatusOpen => salesStatusScreen != null && salesStatusScreen.IsOpen;
-    public Transform ToggleControl => toggleButton != null ? toggleButton.transform : null;
+    internal Transform RecipeGuideTarget
+    {
+        get
+        {
+            var target = menuOpen ? cocktailRecipeButton : toggleButton;
+            return target != null ? target.transform : null;
+        }
+    }
     /// <summary>
     /// 영업 중 손님 쪽 조작(좌석 이동·메뉴 열기)과 좌석 표시가 가능한가. 카메라가 좌석을 옮기는 중에도 참이다.
     /// 이동 중에 막아야 하는 조작(코스터·잔 놓기, 되묻기)은 각자 PlayCamera.IsMoving을 따로 본다.
@@ -128,10 +135,7 @@ public class ServicePanelController : MonoBehaviour
     void Update()
     {
         bool canOpen = CanOpen();
-        if (cocktailRecipeButton != null) cocktailRecipeButton.interactable = CanOpenRecipes;
-        if (salesStatusButton != null) salesStatusButton.interactable = salesStatusScreen != null && salesStatusScreen.CanOpen;
-        if (dialogueHistoryButton != null) dialogueHistoryButton.interactable = canOpen && CanOpenHistory;
-        if (regularGuestInfoButton != null) regularGuestInfoButton.interactable = canOpen && profileScreen != null && profileScreen.CanOpen;
+        RefreshMenuButtons(canOpen);
         if (menuOpen && !canOpen) Close();
         if (toggleButton != null)
         {
@@ -160,7 +164,18 @@ public class ServicePanelController : MonoBehaviour
         (playPhaseController.CanReceiveInput(EPlayPhase.Tycoon) ||
          (playPhaseController.CanReceiveInput(EPlayPhase.Dialogue) && storyRunner != null && storyRunner.CanStartCraft));
 
-    bool CanOpenHistory => historyScreen != null && historyScreen.CanOpen;
+    bool IsLessonActive => storyRunner != null && storyRunner.IsGuidingLesson;
+    bool CanOpenHistory => !IsLessonActive && historyScreen != null && historyScreen.CanOpen;
+    bool CanOpenSalesStatus => !IsLessonActive && salesStatusScreen != null && salesStatusScreen.CanOpen;
+    bool CanOpenProfiles => !IsLessonActive && profileScreen != null && profileScreen.CanOpen;
+
+    void RefreshMenuButtons(bool canOpen)
+    {
+        if (cocktailRecipeButton != null) cocktailRecipeButton.interactable = CanOpenRecipes;
+        if (salesStatusButton != null) salesStatusButton.interactable = CanOpenSalesStatus;
+        if (dialogueHistoryButton != null) dialogueHistoryButton.interactable = canOpen && CanOpenHistory;
+        if (regularGuestInfoButton != null) regularGuestInfoButton.interactable = canOpen && CanOpenProfiles;
+    }
 
     public void Toggle()
     {
@@ -201,13 +216,13 @@ public class ServicePanelController : MonoBehaviour
 
     private void OpenSalesStatus()
     {
-        if (!menuOpen || !CanOpen() || salesStatusScreen == null) return;
+        if (!menuOpen || !CanOpen() || !CanOpenSalesStatus) return;
         if (salesStatusScreen.TryOpen()) SetMenuOpen(false);
     }
 
     public void OpenProfiles()
     {
-        if (!menuOpen || !CanOpen() || profileScreen == null || !profileScreen.CanOpen) return;
+        if (!menuOpen || !CanOpen() || !CanOpenProfiles) return;
         profileScreen.Open();
         if (profileScreen.IsOpen) SetMenuOpen(false);
     }
@@ -233,8 +248,11 @@ public class ServicePanelController : MonoBehaviour
         menuOpen = next;
         if (overlay != null) overlay.SetActive(menuOpen);
         if (serviceMenuPanel != null) serviceMenuPanel.SetActive(menuOpen);
-        if (dialogueHistoryButton != null) dialogueHistoryButton.interactable = CanOpenHistory;
-        if (toggleButton != null) toggleButton.gameObject.SetActive(menuOpen || CanOpen());
+        bool canOpen = menuOpen || CanOpen();
+        RefreshMenuButtons(canOpen);
+        if (menuOpen && IsLessonActive && cocktailRecipeButton != null && cocktailRecipeButton.IsInteractable())
+            cocktailRecipeButton.Select();
+        if (toggleButton != null) toggleButton.gameObject.SetActive(canOpen);
 
         OpenChanged?.Invoke();
     }
