@@ -672,8 +672,8 @@ public partial class StoryScriptRunner : MonoBehaviour
         currentOrder = orderController.Request(details, callback.Complete);
     }
 
-    /// <summary>craft 스텝에서 레시피 화면을 연다. 다음 serve 스텝이 주문 결과를 기다린다.</summary>
-    async UniTask CraftAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
+    /// <summary>제조를 허용한다. 첫날 수업은 서비스 패널에서 시작하고, 다음 serve 스텝이 주문 결과를 기다린다.</summary>
+    UniTask CraftAsync(NewScriptSceneData scene, NewDialogueStepData step, CancellationToken token)
     {
         if (orderController == null)
         {
@@ -702,8 +702,8 @@ public partial class StoryScriptRunner : MonoBehaviour
             throw new InvalidOperationException("[Story] Recipe Browser Screen 참조가 필요합니다.");
         if (guided) tutorial.BeginCraftLesson(lessonCocktailId);
         else if (gimmickGuideId != null && tutorial != null) tutorial.BeginGimmickGuide(gimmickGuideId);
-        TryOpenCraftMenu();
-        await UniTask.CompletedTask;
+        if (!guided || scene.Day != 0) TryOpenCraftMenu();
+        return UniTask.CompletedTask;
     }
 
     /// <summary>
@@ -745,7 +745,7 @@ public partial class StoryScriptRunner : MonoBehaviour
         SetCraftAuthorization(false);
     }
 
-    /// <summary>닫거나 취소한 제조창을 현재 주문과 레시피 제한을 유지해 다시 연다.</summary>
+    /// <summary>현재 주문과 레시피 제한으로 제조용 레시피 목록을 연다.</summary>
     public bool TryOpenCraftMenu()
     {
         if (!CanStartCraft || recipeScreen == null) return false;

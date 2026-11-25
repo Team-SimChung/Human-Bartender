@@ -15104,6 +15104,8 @@ MonoBehaviour:
   - {fileID: 701374761}
   - {fileID: 1603532184}
   servingView: {fileID: 749266211}
+  fallbackMalePortrait: {fileID: -8196121713257968172, guid: dbe224d47e82f471893eaef46ec284d8, type: 3}
+  fallbackFemalePortrait: {fileID: 4030138734675462761, guid: 158479113980244d2875fad6d246c8b8, type: 3}
   craftFlow: {fileID: 1024022784}
   orderController: {fileID: 749266213}
   servicePanelController: {fileID: 2135169509}
@@ -19265,8 +19267,10 @@ MonoBehaviour:
     Text: "\uCF54\uC2A4\uD130\uB97C \uD06C\uB9AC\uC2A4 \uC55E\uC73C\uB85C \uB4DC\uB798\uADF8\uD558\uC138\uC694."
   - Key: recipeOpen
     Title: "\uB808\uC2DC\uD53C \uC120\uD0DD"
-    Text: "{ServicePanel} \uD0A4 \uB610\uB294 \uC11C\uBE44\uC2A4 \uD328\uB110 \uBC84\uD2BC\uC744
-      \uB20C\uB7EC \uCE75\uD14C\uC77C \uB808\uC2DC\uD53C\uB97C \uC5F4\uC5B4 \uC8FC\uC138\uC694."
+    Text: "\uC11C\uBE44\uC2A4 \uD328\uB110\uC744 \uC5F4\uC5B4 \uBCF4\uC138\uC694. ({ServicePanel} \uD0A4)"
+  - Key: recipeOpenFromService
+    Title: "\uB808\uC2DC\uD53C \uC120\uD0DD"
+    Text: "\uCE75\uD14C\uC77C \uB808\uC2DC\uD53C\uB97C \uB20C\uB7EC \uC8FC\uC138\uC694."
   - Key: recipeSelect
     Title: "\uB808\uC2DC\uD53C \uC120\uD0DD"
     Text: "\uC9C4\uD1A0\uB2C9 \uB808\uC2DC\uD53C\uB97C \uB20C\uB7EC \uC120\uD0DD\uD558\uC138\uC694."

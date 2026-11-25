@@ -488,6 +488,34 @@ public sealed class VisualUIReviewTests
     }
 
     [Test]
+    public void RecipeOpeningTutorialTargetsTheServiceHandleThenTheRecipeButton()
+    {
+        var scene = EditorSceneManager.OpenScene("Assets/01.Game/01.Scenes/Play.unity", OpenSceneMode.Additive);
+        try
+        {
+            var roots = scene.GetRootGameObjects();
+            var service = roots.SelectMany(root => root.GetComponentsInChildren<ServicePanelController>(true)).Single();
+            var tutorial = roots.SelectMany(root => root.GetComponentsInChildren<StoryTutorialController>(true)).Single();
+            using var tutorialData = new SerializedObject(tutorial);
+            var copy = tutorialData.FindProperty("copy");
+            var textByKey = Enumerable.Range(0, copy.arraySize).Select(copy.GetArrayElementAtIndex)
+                .ToDictionary(entry => entry.FindPropertyRelative("Key").stringValue,
+                    entry => entry.FindPropertyRelative("Text").stringValue);
+            Assert.That(textByKey["recipeOpen"], Does.Contain("{ServicePanel}"));
+            Assert.That(textByKey["recipeOpenFromService"], Is.EqualTo("칵테일 레시피를 눌러 주세요."));
+
+            var toggle = Ref<Button>(service, "toggleButton").transform;
+            Assert.That(service.RecipeGuideTarget, Is.SameAs(toggle));
+            typeof(ServicePanelController).GetMethod("SetMenuOpen", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(service, new object[] { true });
+            Assert.That(service.RecipeGuideTarget, Is.SameAs(Ref<Button>(service, "cocktailRecipeButton").transform));
+            service.Close();
+            Assert.That(service.RecipeGuideTarget, Is.SameAs(toggle));
+        }
+        finally { EditorSceneManager.CloseScene(scene, true); }
+    }
+
+    [Test]
     public void LockedRecipeRowConcealsItsNameAndArtUntilAvailable()
     {
         var prefab = AssetDatabase.LoadAssetAtPath<CocktailRecipeRow>(

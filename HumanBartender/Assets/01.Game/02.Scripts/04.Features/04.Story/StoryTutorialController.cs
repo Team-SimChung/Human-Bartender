@@ -72,7 +72,8 @@ public sealed class StoryTutorialController : MonoBehaviour
         new LessonCopy("seatRight", "바 둘러보기", "{NextSeat}를 눌러 오른쪽 끝 좌석을 바라보세요."),
         new LessonCopy("seatReturn", "바 둘러보기", "{PrevSeat} / {NextSeat}로 다시 크리스가 앉은 좌석을 바라보세요."),
         new LessonCopy("coaster", "손님 맞이하기", "코스터를 크리스 앞으로 드래그하세요."),
-        new LessonCopy("recipeOpen", "레시피 선택", "{ServicePanel} 키 또는 서비스 패널 버튼을 눌러 칵테일 레시피를 열어 주세요."),
+        new LessonCopy("recipeOpen", "레시피 선택", "서비스 패널을 열어 보세요. ({ServicePanel} 키)"),
+        new LessonCopy("recipeOpenFromService", "레시피 선택", "칵테일 레시피를 눌러 주세요."),
         new LessonCopy("recipeSelect", "레시피 선택", "진토닉 레시피를 눌러 선택하세요."),
         new LessonCopy("beerRecipeSelect", "레시피 선택", "맥주 레시피를 선택하세요"),
         new LessonCopy("recipeSelectGinFizz", "레시피 선택", "진피즈 레시피를 눌러 선택하세요."),
@@ -369,20 +370,25 @@ public sealed class StoryTutorialController : MonoBehaviour
 
     void ShowRecipeSelection()
     {
-        Show(recipes.IsOpen ? Beer ? "beerRecipeSelect" : GinFizz ? "recipeSelectGinFizz" : "recipeSelect" : "recipeOpen");
+        string key = recipes.IsOpen
+            ? Beer ? "beerRecipeSelect" : GinFizz ? "recipeSelectGinFizz" : "recipeSelect"
+            : servicePanel != null && servicePanel.IsMenuOpen ? "recipeOpenFromService" : "recipeOpen";
+        Show(key, hideGuideWhile: IsRecipeGuidePaused);
         view.SetGuideTargets(GuideTarget());
     }
 
-    void Show(string key, Action onConfirm = null)
+    static bool IsRecipeGuidePaused() => UIDisplayOptions.IsOptionOpen || GamePause.IsPaused;
+
+    void Show(string key, Action onConfirm = null, Func<bool> hideGuideWhile = null)
     {
         var (title, text) = Copy(key);
         if (displayedText == text) return;
         displayedText = text;
-        view.ShowGuide(title, text, GuideTarget(), onConfirm: onConfirm);
+        view.ShowGuide(title, text, GuideTarget(), onConfirm: onConfirm, hideGuideWhile: hideGuideWhile);
     }
 
     Transform GuideTarget() => ActiveLesson == "recipeSelect"
-        ? recipes.IsOpen ? recipeBrowser?.GetTutorialTarget(cocktail) : servicePanel?.ToggleControl :
+        ? recipes.IsOpen ? recipeBrowser?.GetTutorialTarget(cocktail) : servicePanel?.RecipeGuideTarget :
         ActiveLesson == "serveDrink" ? serveTray?.CardFor(craft.PendingDrink) :
         craft.IsPreparing ? preparationHost.ActiveStage?.GetTutorialTarget(StageTargetStep(preparationStep), Beer) : null;
 

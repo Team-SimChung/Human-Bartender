@@ -74,6 +74,12 @@ public class GuestBodySprites
     readonly List<AsyncOperationHandle<Sprite>?> handles = new();
     AsyncOperationHandle<AnimationClip>? mouthAnimation;
 
+    /// <summary>씬에 연결된 기본 초상이 있으면 몸 렌더러에서 한 장으로 표시한다.</summary>
+    public GuestBodySprites(Sprite portrait = null)
+    {
+        if (portrait != null) sprites.Add(EGuestBodySlot.Body, portrait);
+    }
+
     public AnimationClip MouthAnimation => mouthAnimation.HasValue ? mouthAnimation.Value.Result : null;
 
     public void SetMouthAnimation(AsyncOperationHandle<AnimationClip>? handle)
@@ -97,12 +103,12 @@ public class GuestBodySprites
     }
 
     /// <summary>몸처럼 반드시 있어야 하는 슬롯이 비었는지. 하나라도 비면 기본 조합으로 되돌린다(§5).</summary>
-    public bool HasRequiredSlots(GuestBodyAppearance appearance)
+    public bool HasRequiredSlots()
     {
-        foreach (var pair in appearance.Parts)
+        foreach (var slot in NewGuestBodyDataBase.AllSlots)
         {
-            if (NewGuestBodyDataBase.IsOptional(pair.Key)) continue;
-            if (!sprites.ContainsKey(pair.Key)) return false;
+            if (NewGuestBodyDataBase.IsOptional(slot)) continue;
+            if (Get(slot) == null) return false;
         }
 
         return true;
