@@ -406,12 +406,22 @@ public sealed class GimmickUiAuthoringTests
                 AssertKey(first, "RequiredKeyImage", "W", next);
                 AssertKey(second, "PreviousKeyImage", "W", current);
                 AssertKey(second, "RequiredKeyImage", "D", next);
-                var guide = first.GetComponentsInChildren<TMP_Text>(true).Single(text => text.name == "KeyColorGuideText");
-                Assert.That(guide.text, Does.Contain("흰색은 다음에 누를 키"));
-                Assert.That(guide.text, Does.Contain("청록색은 방금 누른 키"));
+                Assert.That(first.GetComponentsInChildren<RectTransform>(true)
+                    .Any(rect => rect.name.StartsWith("KeyColorGuide", StringComparison.Ordinal)), Is.False);
+                AssertBackgroundPatch(first, new Rect(1080, 856, 768, 92));
+                AssertBackgroundPatch(second, new Rect(1080, 812, 792, 233));
             }
             finally { PrefabUtility.UnloadPrefabContents(tutorial); }
         });
+
+        static void AssertBackgroundPatch(RectTransform page, Rect expected)
+        {
+            var patch = page.GetComponent<TutorialPageBackgroundPatch>();
+            Assert.That(patch, Is.Not.Null);
+            Assert.That(patch.enabled, Is.True);
+            using var data = new SerializedObject(patch);
+            Assert.That(data.FindProperty("patchPixels").rectValue, Is.EqualTo(expected));
+        }
 
         static void AssertKey(RectTransform page, string name, string letter, Sprite sprite)
         {
