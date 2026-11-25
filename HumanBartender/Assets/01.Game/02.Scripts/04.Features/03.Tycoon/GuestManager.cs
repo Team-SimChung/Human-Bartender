@@ -35,6 +35,12 @@ public class GuestManager : MonoBehaviour
     [SerializeField] CraftServingView servingView;
     readonly Dictionary<GuestSlot, TableServeSpot> tableSpots = new();
 
+    [Header("Fallback Appearance")]
+    [Tooltip("남성 손님의 파츠 조합을 불러올 수 없을 때 표시할 일반 손님 초상.")]
+    [SerializeField] Sprite fallbackMalePortrait;
+    [Tooltip("여성 손님의 파츠 조합을 불러올 수 없을 때 표시할 일반 손님 초상.")]
+    [SerializeField] Sprite fallbackFemalePortrait;
+
     [Header("Craft")]
     [Tooltip("제조 흐름에 들어갔는지를 알려주는 곳. 제조 중에는 손님 쪽 시간을 멈춘다. 비우면 멈추지 않는다.")]
     [SerializeField] CraftFlowController craftFlow;
@@ -371,7 +377,7 @@ public class GuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 자리에 앉는 순간 외형을 정하고 불러오기를 시작한다(운영 명세 §3.3, 외형 명세 §3.2).
+    /// 자리에 앉는 순간 외형을 정한다(운영 명세 §3.3, 외형 명세 §3.2).
     /// 단골은 대상이 아니다 — 그쪽은 캐릭터 전용 리소스를 쓴다.
     /// </summary>
     void PrepareAppearance(Guest guest)
@@ -380,16 +386,8 @@ public class GuestManager : MonoBehaviour
 
         guest.appearance = PickRandomAppearance(guest.personality);
 
-        if (guest.appearance == null)
-        {
-            Debug.LogError($"[Guest] {guest.id}의 외형을 만들지 못했습니다. guests/guest_parts.csv와 guest_settings.csv를 확인하세요.");
-            return;
-        }
-
-        Logger.Log($"[Guest] {guest.id} 외형 ({guest.appearance.Gender}): {guest.appearance}");
-
-        if (!useTempAppearance)
-            LoadAppearanceAsync(guest).Forget();
+        if (guest.appearance != null)
+            Logger.Log($"[Guest] {guest.id} 외형 ({guest.appearance.Gender}): {guest.appearance}");
     }
 
     /// <summary>
@@ -439,57 +437,47 @@ public class GuestManager : MonoBehaviour
     /// 필수 슬롯이 하나라도 비면 조합 전체를 성별 기본 조합으로 바꾼다(§5). 빠진 슬롯 하나만
     /// 갈아 끼우지 않는 이유는, 새로 끼운 파츠가 나머지와 금지 조합을 이룰 수 있어서다.
     /// </summary>
-    async UniTaskVoid LoadAppearanceAsync(Guest guest)
+    async UniTask<GuestBodySprites> LoadAppearanceAsync(Guest guest, CancellationToken seatToken)
     {
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(
-            appearanceLoads.Token, this.GetCancellationTokenOnDestroy());
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(appearanceLoads.Token, seatToken);
         var token = linked.Token;
-        GuestBodySprites sprites = null;
+        GuestBodyAppearance appearance = guest.appearance;
+        token.ThrowIfCancellationRequested();
         try
         {
-            sprites = await LoadSpritesAsync(guest.appearance, token);
-            if (!sprites.HasRequiredSlots(guest.appearance))
+            if (appearance != null)
             {
-                Debug.LogWarning($"[Guest] {guest.id}의 파츠를 불러오지 못해 성별 {guest.appearance.Gender}의 " +
-                                 "기본 조합으로 바꿉니다.");
-
+                var sprites = await LoadSpritesAsync(appearance, token);
+                if (sprites.HasRequiredSlots()) return sprites;
                 sprites.Release();
-                sprites = null;
 
-                GuestBodyAppearance fallback = AppearanceBuilder.BuildDefault(guest.appearance.Gender);
-
-                if (fallback == null)
+                GuestBodyAppearance fallback = AppearanceBuilder.BuildDefault(appearance.Gender);
+                if (fallback != null && !fallback.SameAs(appearance))
                 {
-                    Debug.LogError($"[Guest] {guest.id}의 기본 조합도 만들지 못해 자리에 아무 그림도 나오지 않습니다.");
-                    ShowWithoutSprites(guest);
-                    return;
+                    sprites = await LoadSpritesAsync(fallback, token);
+                    if (sprites.HasRequiredSlots())
+                    {
+                        guest.appearance = fallback;
+                        Debug.LogWarning($"[Guest] {guest.id}의 필수 파츠가 빠져 성별 {appearance.Gender}의 기본 조합을 사용합니다.");
+                        return sprites;
+                    }
+                    sprites.Release();
                 }
-
-                guest.appearance = fallback;
-                sprites = await LoadSpritesAsync(fallback, token);
             }
-            token.ThrowIfCancellationRequested();
-            if (!slots.Any(slot => slot != null && slot.CurrentGuest == guest)) return;
-            guest.bodySprites = sprites;
-            sprites = null;
         }
-        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
-        catch (Exception error)
+        catch (Exception error) when (error is not OperationCanceledException)
         {
-            Debug.LogException(error);
-            ShowWithoutSprites(guest);
+            Debug.LogWarning($"[Guest] {guest.id} 외형 로드 실패: {error}");
         }
-        finally { sprites?.Release(); }
-    }
 
-    /// <summary>
-    /// 파츠를 끝내 불러오지 못한 손님에게 빈 스프라이트 묶음을 준다. 그림은 없지만 좌석의 등장 대기가 풀려
-    /// 첫 대사와 주문은 그대로 진행된다(엔진 수정 13). 비워 두면 좌석이 스프라이트를 영영 기다린다.
-    /// </summary>
-    void ShowWithoutSprites(Guest guest)
-    {
-        if (guest.bodySprites == null && slots.Any(slot => slot != null && slot.CurrentGuest == guest))
-            guest.bodySprites = new GuestBodySprites();
+        token.ThrowIfCancellationRequested();
+        Sprite portrait = appearance?.Gender == "f" ? fallbackFemalePortrait : fallbackMalePortrait;
+        if (portrait == null) portrait = fallbackMalePortrait != null ? fallbackMalePortrait : fallbackFemalePortrait;
+        if (portrait == null)
+            Debug.LogError($"[Guest] {guest.id}에게 표시할 일반 손님 초상 참조가 없습니다.");
+        else
+            Debug.LogWarning($"[Guest] {guest.id}의 파츠 조합을 불러오지 못해 일반 손님 초상을 사용합니다.");
+        return new GuestBodySprites(portrait);
     }
 
     /// <summary>조합의 모든 슬롯을 한꺼번에 불러온다.</summary>
@@ -498,21 +486,19 @@ public class GuestManager : MonoBehaviour
         var slotOrder = new List<EGuestBodySlot>();
         var loads = new List<UniTask<AsyncOperationHandle<Sprite>?>>();
 
-        Exception loadError = null;
         foreach (var slot in NewGuestBodyDataBase.AllSlots)
         {
             if (!appearance.TryGet(slot, out var part)) continue;
 
             slotOrder.Add(slot);
-            loads.Add(LoadPartAsync(part.Sprite));
+            loads.Add(LoadPartAsync<Sprite>(part.Sprite));
         }
 
         var handles = await UniTask.WhenAll(loads);
-        if (token.IsCancellationRequested || loadError != null)
+        if (token.IsCancellationRequested)
         {
             foreach (var candidate in handles) { var handle = candidate; ResourceLoader.ReleaseHandle(ref handle); }
-            if (loadError != null) throw loadError;
-            throw new OperationCanceledException(token);
+            token.ThrowIfCancellationRequested();
         }
 
         var sprites = new GuestBodySprites();
@@ -522,9 +508,9 @@ public class GuestManager : MonoBehaviour
         try
         {
             // The typed Unity binding owns the mapping; neither gender nor an ID suffix is inferred here.
-            if (appearance.TryGet(EGuestBodySlot.Mouth, out var mouth) &&
+            if (sprites.HasRequiredSlots() && appearance.TryGet(EGuestBodySlot.Mouth, out var mouth) &&
                 ResourceLoader.ResolveKey(mouth.Sprite, typeof(AnimationClip)) != mouth.Sprite)
-                sprites.SetMouthAnimation(await ResourceLoader.TryLoadAsync<AnimationClip>(mouth.Sprite, token));
+                sprites.SetMouthAnimation(await LoadPartAsync<AnimationClip>(mouth.Sprite));
             token.ThrowIfCancellationRequested();
             return sprites;
         }
@@ -534,11 +520,15 @@ public class GuestManager : MonoBehaviour
             throw;
         }
 
-        async UniTask<AsyncOperationHandle<Sprite>?> LoadPartAsync(string address)
+        async UniTask<AsyncOperationHandle<T>?> LoadPartAsync<T>(string address)
         {
-            try { return await ResourceLoader.TryLoadAsync<Sprite>(address, token); }
+            try { return await ResourceLoader.TryLoadAsync<T>(address, token); }
             catch (OperationCanceledException) when (token.IsCancellationRequested) { return null; }
-            catch (Exception error) { loadError ??= error; return null; }
+            catch (Exception error)
+            {
+                Debug.LogWarning($"[Guest] {typeof(T).Name} '{address}' 로드 실패: {error.Message}");
+                return null;
+            }
         }
     }
 
@@ -640,7 +630,7 @@ public class GuestManager : MonoBehaviour
 
         PrepareAppearance(guest);
 
-        slot.Seat(guest);
+        slot.Seat(guest, LoadAppearanceAsync);
         tableSpots.Add(slot, servingView.OpenGuestSpot(this, slot));
         BeginStay(slot, guest, SetSlotCharacterAsync(slot, guest));
 

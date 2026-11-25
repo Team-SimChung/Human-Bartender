@@ -70,7 +70,13 @@ public class GuestSlot : MonoBehaviour
     }
 
     void OnDisable() => HideBark();
-    void OnDestroy() => StopSpeaking();
+    void OnDestroy()
+    {
+        StopSpeaking();
+        appearanceCts?.Cancel();
+        appearanceCts?.Dispose();
+        ReleaseSprites();
+    }
 
     void StopSpeaking()
     {
@@ -105,7 +111,7 @@ public class GuestSlot : MonoBehaviour
 
     /// <summary>
     /// 지금 앉은 손님의 등장 연출(파츠 로딩과 페이드 인)이 끝나면 완료된다. 첫 대사는 이 뒤에 나온다(엔진 수정 13).
-    /// 로딩이 실패하거나 도중에 취소·교체돼도 완료로 친다 — 그림이 없더라도 대사는 나와야 하고, 기다리던 쪽은 손님이 그대로인지 따로 확인한다.
+    /// 기본 초상을 쓰거나 도중에 취소·교체돼도 완료로 치며, 기다리던 쪽은 손님이 그대로인지 따로 확인한다.
     /// 자리가 비어 있으면 바로 완료다. 단골(카메오)의 그림은 GuestManager가 GuestCharacterView로 붙이므로 여기에 들어가지 않는다.
     /// </summary>
     public UniTask WaitForEntranceAsync() => entrance?.Task ?? UniTask.CompletedTask;
@@ -118,7 +124,7 @@ public class GuestSlot : MonoBehaviour
     }
 
     /// <summary>손님을 이 자리에 배정하고 입장 상태로 전환한다. 파츠 스프라이트는 로딩이 끝나는 대로 비동기로 적용된다.</summary>
-    public void Seat(Guest guest)
+    public void Seat(Guest guest, Func<Guest, CancellationToken, UniTask<GuestBodySprites>> loadAppearance)
     {
         HideBark();
         mouthAnimation.Bind(null, null);
@@ -130,42 +136,47 @@ public class GuestSlot : MonoBehaviour
         appearanceCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
         entrance?.TrySetResult();
         entrance = new UniTaskCompletionSource();
-        EnterAsync(guest, entrance, appearanceCts.Token).Forget();
+        EnterAsync(guest, loadAppearance, entrance, appearanceCts.Token).Forget();
     }
 
     /// <summary>외형을 적용하고, 어떻게 끝나든(완료·실패·취소) 기다리던 첫 대사를 놓아 준다.</summary>
-    async UniTaskVoid EnterAsync(Guest guest, UniTaskCompletionSource entered, CancellationToken token)
+    async UniTaskVoid EnterAsync(Guest guest, Func<Guest, CancellationToken, UniTask<GuestBodySprites>> loadAppearance,
+        UniTaskCompletionSource entered, CancellationToken token)
     {
-        try { await ApplyAppearanceAsync(guest, token); }
+        try { await ApplyAppearanceAsync(guest, loadAppearance, token); }
         catch (OperationCanceledException) { }
         catch (Exception error) { Debug.LogException(error); }
         finally { entered.TrySetResult(); }
     }
 
     /// <summary>
-    /// guest.bodySprites 로딩(GuestManager에서 미리 시작됨)이 끝날 때까지 기다렸다가 파츠 스프라이트를 렌더러에 적용한다.
-    ///
-    /// 랜덤 손님만 대상이다. 단골(카메오)은 파츠를 조합하지 않고 2부 대화와 같은 캐릭터 체계로
-    /// 붙이므로, 그쪽은 GuestManager가 DialogueCharacterManager에 맡긴다.
+    /// 좌석을 배정한 뒤 이 착석의 취소 신호로 외형을 불러오고 렌더러에 적용한다. 단골은 전용 리그를 쓴다.
     /// </summary>
-    async UniTask ApplyAppearanceAsync(Guest guest, CancellationToken token)
+    async UniTask ApplyAppearanceAsync(Guest guest, Func<Guest, CancellationToken, UniTask<GuestBodySprites>> loadAppearance,
+        CancellationToken token)
     {
-        if (guest.appearance == null) return;
-        RandomFade().SetOpacity(0);
+        if (guest.isRegular) return;
+        var fade = RandomFade();
+        fade.SetOpacity(0);
 
         if (useTempAppearance)
         {
             if (tempAppearanceObject != null) tempAppearanceObject.SetActive(true);
-            await RandomFade().ToAsync(1, token);
-            return;
+        }
+        else
+        {
+            var sprites = await loadAppearance(guest, token);
+            if (token.IsCancellationRequested || CurrentGuest != guest)
+            {
+                sprites?.Release();
+                return;
+            }
+
+            guest.bodySprites = sprites;
+            ApplySprites(sprites);
         }
 
-        await UniTask.WaitUntil(() => guest.bodySprites != null, cancellationToken: token);
-
-        if (CurrentGuest != guest) return; // 기다리는 동안 자리가 비워지거나 다른 손님으로 교체됨
-
-        ApplySprites(guest.bodySprites);
-        await RandomFade().ToAsync(1, token);
+        await fade.ToAsync(1, token);
     }
 
     CharacterFade RandomFade()
@@ -344,7 +355,7 @@ public class GuestSlot : MonoBehaviour
         entrance = null;
         randomFade?.SetOpacity(1);
         StopSpeaking();
-        CurrentGuest?.bodySprites?.Release();
+        ReleaseSprites();
 
         HideBark();
 
@@ -354,5 +365,12 @@ public class GuestSlot : MonoBehaviour
 
         CurrentGuest = null;
         CurrentState = EGuestState.Empty;
+    }
+
+    void ReleaseSprites()
+    {
+        if (CurrentGuest == null) return;
+        CurrentGuest.bodySprites?.Release();
+        CurrentGuest.bodySprites = null;
     }
 }
